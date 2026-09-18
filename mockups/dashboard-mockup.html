@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProGlass Automation — Dashboard Redesign (Mockup v1)</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   PROGLASS DASHBOARD — PROFESSIONAL REDESIGN · MOCKUP v1
+   ─────────────────────────────────────────────────────────────────
+   Every visual decision below maps to a WPF resource key that ALREADY
+   EXISTS or is added to the two shared dictionaries:
+
+     Themes/LightTheme.xaml / DarkTheme.xaml   (colour tokens, Phase A)
+     Styles/DashboardKit.xaml                  (Db* kit — Phase B)
+     Themes/Styles/LayoutTokens.xaml           (radii/spacing, Phase A)
+
+   All 7 dashboard modules consume the same Db* keys, so this restyle
+   ships app-wide with zero view-structure and zero ViewModel changes.
+   Colour discipline: neutral surfaces + hairlines; colour ONLY for
+   status (success / warning / danger) and the single brand accent.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root{
+  /* ── surfaces (Phase A tokens) ──────────────────────────────── */
+  --bg:#F4F6F9;            /* DashboardPageBrush            */
+  --surface:#FFFFFF;       /* ElevatedSurfaceBrush (cards)  */
+  --surface-2:#F8FAFC;     /* DetailSurfaceBrush (wells)    */
+  --surface-3:#EEF2F7;     /* hover fill                    */
+  --border:#E2E8F0;        /* BorderBrush (hairline)        */
+  --border-strong:#CBD5E1; /* strong hairline               */
+
+  /* ── text ───────────────────────────────────────────────────── */
+  --text-1:#0F172A;        /* PrimaryForegroundBrush        */
+  --text-2:#475569;        /* SecondaryForegroundBrush      */
+  --text-3:#94A3B8;        /* MutedForegroundBrush          */
+
+  /* ── brand + status ─────────────────────────────────────────── */
+  --accent:#0F6FA8;        /* AccentBrush                   */
+  --accent-hover:#1287C8;
+  --accent-ink:#0B5D89;    /* AccentDarkBrush               */
+  --accent-tint:#EEF6FF;   /* TintIndigoBrush               */
+  --ok:#059669;   --ok-tint:#ECFDF3;      /* SuccessBrush  */
+  --warn:#D97706; --warn-tint:#FFF7E6;    /* WarningBrush  */
+  --danger:#DC2626;--danger-tint:#FFF1F2; /* DangerBrush   */
+
+  /* ── geometry ───────────────────────────────────────────────── */
+  --r-card:10px; --r-tile:8px; --r-ctrl:8px; --r-pill:999px;
+  --gutter:14px;
+
+  /* ── type (6-step scale, nothing outside it) ────────────────── */
+  --t-page:600 18px/1.3;
+  --t-card:600 13px/1.35;
+  --t-kpi:700 26px/1.15;
+  --t-body:400 12.5px/1.45;
+  --t-label:600 11px/1.4;
+  --t-cap:400 11px/1.4;
+}
+[data-theme="dark"]{
+  --bg:#0B111A; --surface:#121A26; --surface-2:#0E1520; --surface-3:#1A2534;
+  --border:#223046; --border-strong:#2E405A;
+  --text-1:#F1F5F9; --text-2:#A7B4C6; --text-3:#64748B;
+  --accent:#3E9BD6; --accent-hover:#5FB2E4; --accent-ink:#7CC4EA; --accent-tint:#10222F;
+  --ok:#34D399;  --ok-tint:#0D211C;
+  --warn:#F5A524;--warn-tint:#241B0E;
+  --danger:#F87171;--danger-tint:#261215;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,"Inter",Roboto,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg); color:var(--text-1);
+  font-size:12.5px; -webkit-font-smoothing:antialiased;
+  transition:background .25s,color .25s;
+}
+.num{font-variant-numeric:tabular-nums}
+
+/* ── mockup chrome (not part of the app) ─────────────────────── */
+.mockup-bar{
+  position:sticky;top:0;z-index:50;height:46px;display:flex;align-items:center;gap:14px;
+  padding:0 18px;background:var(--surface);border-bottom:1px solid var(--border);
+}
+.mockup-bar .tag{font-weight:700;font-size:12.5px;letter-spacing:.02em}
+.mockup-bar .note{color:var(--text-3);font-size:11.5px}
+.mockup-bar .spacer{flex:1}
+.seg{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:2px}
+.seg button{
+  border:0;background:transparent;color:var(--text-2);font:600 11.5px/1 inherit;
+  padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;
+}
+.seg button.on{background:var(--surface);color:var(--text-1);box-shadow:0 1px 2px rgba(15,23,42,.08)}
+.tok-btn{
+  border:1px solid var(--border);background:var(--surface);color:var(--text-2);
+  font:600 11.5px/1 inherit;font-family:inherit;padding:7px 12px;border-radius:8px;cursor:pointer;
+}
+.tok-btn:hover{border-color:var(--border-strong);color:var(--text-1)}
+
+/* ── app frame ───────────────────────────────────────────────── */
+.app{display:flex;min-height:calc(100vh - 46px);max-width:1560px;margin:0 auto}
+
+/* ── left rail (app shell context — stands in for the existing NavigationRail) ── */
+.rail{
+  width:224px;flex:none;background:var(--surface);border-right:1px solid var(--border);
+  padding:14px 10px;position:sticky;top:46px;height:calc(100vh - 46px);overflow-y:auto;
+}
+.rail .brand{display:flex;align-items:center;gap:9px;padding:4px 8px 14px}
+.rail .brand .logo{
+  width:26px;height:26px;border-radius:7px;background:var(--accent);color:#fff;
+  display:grid;place-items:center;font-weight:800;font-size:12px;letter-spacing:.02em;
+}
+.rail .brand b{font-size:13px;letter-spacing:.01em}
+.rail .brand small{display:block;font-size:10px;color:var(--text-3);font-weight:600;letter-spacing:.06em}
+.rail .grp{font:700 10px/1 inherit;letter-spacing:.09em;color:var(--text-3);padding:14px 10px 6px}
+.rail .item{
+  display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;
+  color:var(--text-2);font-weight:500;cursor:pointer;border:1px solid transparent;
+}
+.rail .item svg{flex:none;opacity:.85}
+.rail .item:hover{background:var(--surface-3);color:var(--text-1)}
+.rail .item.on{background:var(--accent-tint);color:var(--accent-ink);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+.rail .item.on svg{opacity:1}
+
+/* ── workspace ──────────────────────────────────────────────── */
+.workspace{flex:1;min-width:0;display:flex;flex-direction:column}
+
+/* command bar */
+.cmdbar{
+  height:58px;flex:none;display:flex;align-items:center;gap:14px;padding:0 20px;
+  background:var(--surface);border-bottom:1px solid var(--border);
+}
+.cmdbar .crumb{min-width:0}
+.cmdbar .crumb b{display:block;font:var(--t-card);letter-spacing:.01em}
+.cmdbar .crumb span{display:block;font:var(--t-cap);color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+.picker{
+  display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:9px;padding:3px;margin-left:10px;overflow-x:auto;scrollbar-width:none;
+}
+.picker::-webkit-scrollbar{display:none}
+.picker button{
+  flex:none;border:0;background:transparent;color:var(--text-2);cursor:pointer;
+  font:600 11.5px/1 inherit;font-family:inherit;padding:7px 12px;border-radius:7px;white-space:nowrap;
+}
+.picker button:hover{color:var(--text-1);background:var(--surface-3)}
+.picker button.on{background:var(--accent);color:#fff}
+.cmdbar .right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 11px;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+  font:500 11.5px/1 inherit;color:var(--text-2);
+}
+.chip svg{opacity:.8}
+.chip .avatar{
+  width:20px;height:20px;border-radius:6px;background:var(--accent);color:#fff;
+  display:grid;place-items:center;font:700 9.5px/1 inherit;
+}
+.chip.user{padding:4px 10px 4px 4px}
+
+/* content */
+.content{padding:18px 20px 26px;display:flex;flex-direction:column;gap:var(--gutter);min-width:0}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);
+  padding:16px;min-width:0;
+}
+.card .head{display:flex;align-items:baseline;gap:10px;margin-bottom:12px}
+.card .head h3{font:var(--t-card);letter-spacing:.01em;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .head .sub{font:var(--t-cap);color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .head .link{margin-left:auto;font:600 11.5px/1 inherit;color:var(--accent);text-decoration:none;white-space:nowrap}
+.card .head .link:hover{color:var(--accent-hover);text-decoration:underline}
+
+/* hero */
+.hero{display:flex;align-items:center;gap:14px;padding:2px 2px}
+.hero h1{font:var(--t-page);letter-spacing:-.01em}
+.hero p{font:var(--t-body);color:var(--text-2);margin-top:3px}
+.hero .actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.live{
+  display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:var(--r-pill);
+  background:var(--ok-tint);color:var(--ok);font:700 11px/1 inherit;letter-spacing:.04em;
+}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 14px;border-radius:var(--r-ctrl);
+  font:600 12px/1 inherit;font-family:inherit;cursor:pointer;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-1);white-space:nowrap;
+}
+.btn:hover{border-color:var(--border-strong);background:var(--surface-3)}
+.btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.accent:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+
+/* pipeline */
+.pipeline{display:grid;grid-template-columns:repeat(5,1fr)}
+.stage{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:2px 14px 2px 0}
+.stage + .stage{padding-left:14px}
+.stage + .stage::before{
+  content:"";position:absolute;left:0;top:19px;width:14px;height:2px;background:var(--border);
+}
+.stage + .stage.alert::before{background:var(--danger)}
+.stage + .stage.warn::before{background:var(--warn)}
+.stage .s-icon{
+  width:38px;height:38px;border-radius:10px;display:grid;place-items:center;margin-bottom:7px;
+  background:var(--surface-2);color:var(--text-2);border:1px solid var(--border);
+}
+.stage.alert .s-icon{background:var(--danger-tint);color:var(--danger);border-color:transparent;box-shadow:0 0 0 2px var(--danger-tint)}
+.stage.warn  .s-icon{background:var(--warn-tint);  color:var(--warn);  border-color:transparent;box-shadow:0 0 0 2px var(--warn-tint)}
+.stage.ok    .s-icon{background:var(--ok-tint);    color:var(--ok);    border-color:transparent;box-shadow:0 0 0 2px var(--ok-tint)}
+.stage .s-name{font:600 11px/1 inherit;letter-spacing:.05em;color:var(--text-2);text-transform:uppercase}
+.stage .s-val{font:700 21px/1.1 inherit;letter-spacing:-.01em}
+.stage .s-foot{font:var(--t-cap);color:var(--text-3)}
+.stage.alert .s-foot{color:var(--danger);font-weight:600}
+.stage.warn .s-foot{color:var(--warn);font-weight:600}
+.stage.ok .s-foot{color:var(--ok)}
+
+/* rows */
+.row{display:grid;gap:var(--gutter);min-width:0}
+.row.a{grid-template-columns:minmax(0,48fr) minmax(0,30fr) minmax(0,22fr)}
+.row.b{grid-template-columns:minmax(0,55fr) minmax(0,45fr)}
+.row.c{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+/* pulse card */
+.pulse-body{display:flex;gap:14px;align-items:flex-end}
+.pulse-body .big{min-width:0}
+.pulse-body .big .v{font:var(--t-kpi);letter-spacing:-.015em;white-space:nowrap}
+.pulse-body .big .h{font:var(--t-cap);color:var(--text-3);margin-top:6px}
+.pulse-body .spark{display:flex;align-items:flex-end;gap:4px;height:64px;flex:none;padding-bottom:2px}
+.pulse-body .spark i{width:9px;border-radius:3px 3px 0 0;background:var(--accent);opacity:.55}
+.pulse-body .spark i:last-child{background:var(--accent-ink);opacity:1}
+
+/* donut */
+.mix-body{display:flex;gap:16px;align-items:center}
+.mix-body svg{flex:none}
+.legend{display:flex;flex-direction:column;gap:9px;min-width:0}
+.legend .li{display:flex;align-items:center;gap:8px;font:var(--t-body);color:var(--text-2)}
+.legend .li i{width:9px;height:9px;border-radius:3px;flex:none}
+.legend .li b{margin-left:auto;font:600 12px/1 inherit;color:var(--text-1)}
+
+/* stat stack */
+.stack{display:flex;flex-direction:column;gap:var(--gutter);min-width:0}
+.stat{flex:1;display:flex;flex-direction:column;justify-content:center;padding:14px 16px;position:relative}
+.stat .k{font:var(--t-label);letter-spacing:.07em;color:var(--text-3);text-transform:uppercase}
+.stat .v{font:700 24px/1.15 inherit;letter-spacing:-.015em;margin-top:5px}
+.stat.alert .v{color:var(--danger)}
+.stat.warn .v{color:var(--warn)}
+.stat.alert::before,.stat.warn::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:3px;border-radius:2px}
+.stat.alert::before{background:var(--danger)}
+.stat.warn::before{background:var(--warn)}
+
+/* chart well */
+.well{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-tile);padding:10px}
+.bars{display:flex;align-items:flex-end;gap:10px;height:190px;padding:14px 8px 0}
+.bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end;min-width:0}
+.bar .val{font:600 10.5px/1 inherit;color:var(--text-3)}
+.bar .fill{width:100%;max-width:44px;border-radius:4px 4px 0 0;background:var(--accent);opacity:.8}
+.bar:last-child .fill{background:var(--accent-ink);opacity:1}
+.bar .mo{font:var(--t-cap);color:var(--text-3);padding-top:8px}
+.bars-rule{border-top:1px solid var(--border);margin-top:0}
+
+/* feed */
+.feed{display:flex;flex-direction:column}
+.feed .fr{display:flex;align-items:center;gap:11px;padding:9px 2px;border-top:1px solid var(--border)}
+.feed .fr:first-child{border-top:0;padding-top:2px}
+.feed .fr .fi{
+  width:28px;height:28px;border-radius:8px;flex:none;display:grid;place-items:center;
+  background:var(--surface-2);color:var(--text-2);border:1px solid var(--border);
+}
+.feed .fr .ft{min-width:0}
+.feed .fr .ft b{display:block;font:600 12px/1.35 inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .fr .ft span{display:block;font:var(--t-cap);color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .fr time{margin-left:auto;flex:none;font:var(--t-cap);color:var(--text-3)}
+
+/* KPI bands */
+.band .head h3{font:var(--t-label);letter-spacing:.07em;text-transform:uppercase;color:var(--text-3)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{
+  position:relative;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--r-tile);padding:11px 12px 11px 14px;min-width:0;
+}
+.tile.alert{border-color:transparent;box-shadow:inset 3px 0 0 var(--danger)}
+.tile .t-top{display:flex;align-items:center;gap:8px}
+.tile .t-ic{
+  width:24px;height:24px;border-radius:7px;flex:none;display:grid;place-items:center;
+  background:var(--surface);color:var(--text-2);border:1px solid var(--border);
+}
+.tile.alert .t-ic{background:var(--danger-tint);color:var(--danger);border-color:transparent}
+.tile .t-label{font:var(--t-label);letter-spacing:.04em;color:var(--text-3);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .t-val{font:700 21px/1.2 inherit;letter-spacing:-.015em;margin-top:7px;white-space:nowrap}
+.tile.alert .t-val{color:var(--danger)}
+.tile.wide{grid-column:1 / -1;display:flex;align-items:center;gap:12px}
+.tile.wide .t-val{margin-top:0}
+.tile.wide .t-top{margin:0}
+.tile.wide .t-meta{margin-left:auto;font:var(--t-cap);color:var(--text-3)}
+
+/* ── tokens inspector ────────────────────────────────────────── */
+.tok-panel{
+  position:fixed;top:46px;right:0;bottom:0;width:340px;z-index:40;
+  background:var(--surface);border-left:1px solid var(--border);
+  transform:translateX(100%);transition:transform .22s ease;overflow-y:auto;
+  padding:18px 18px 30px;box-shadow:-8px 0 24px rgba(15,23,42,.06);
+}
+.tok-panel.open{transform:translateX(0)}
+.tok-panel h4{font:700 10.5px/1 inherit;letter-spacing:.09em;color:var(--text-3);margin:18px 0 9px}
+.tok-panel h4:first-child{margin-top:0}
+.sw{display:flex;align-items:center;gap:9px;padding:5px 0;font:var(--t-body)}
+.sw i{width:26px;height:18px;border-radius:5px;border:1px solid var(--border);flex:none}
+.sw code{font:500 10.5px/1.4 ui-monospace,Consolas,monospace;color:var(--text-2);margin-left:auto;text-align:right}
+.ty{padding:5px 0;display:flex;align-items:baseline;gap:10px}
+.ty code{font:500 10px/1 ui-monospace,Consolas,monospace;color:var(--text-3);width:110px;flex:none}
+.map{width:100%;border-collapse:collapse;font:var(--t-cap)}
+.map td{padding:5px 6px;border-top:1px solid var(--border);vertical-align:top}
+.map td:first-child{color:var(--text-2);white-space:nowrap}
+.map td:last-child{font:500 10px/1.5 ui-monospace,Consolas,monospace;color:var(--accent-ink);word-break:break-all}
+.note-box{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font:var(--t-cap);color:var(--text-2);line-height:1.55}
+.note-box b{color:var(--text-1)}
+
+@media (max-width:1200px){
+  .row.a{grid-template-columns:1fr 1fr}
+  .row.b{grid-template-columns:1fr}
+  .row.c{grid-template-columns:1fr 1fr}
+  .pipeline{grid-template-columns:repeat(2,1fr);gap:14px 0}
+  .stage + .stage::before{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- mockup chrome -->
+<div class="mockup-bar">
+  <span class="tag">ProGlass Automation · Dashboard redesign</span>
+  <span class="note">Mockup v1 — Overview module · labels & data model from the real app · figures illustrative</span>
+  <span class="spacer"></span>
+  <div class="seg" role="group" aria-label="Theme">
+    <button class="on" id="btnLight" onclick="setTheme('light')">Light</button>
+    <button id="btnDark" onclick="setTheme('dark')">Dark</button>
+  </div>
+  <button class="tok-btn" onclick="document.getElementById('tokPanel').classList.toggle('open')">Design tokens</button>
+</div>
+
+<div class="app">
+
+  <!-- ══ left rail (stands in for the existing NavigationRail) ══ -->
+  <aside class="rail">
+    <div class="brand">
+      <div class="logo">PG</div>
+      <div><b>ProGlass</b><small>AUTOMATION</small></div>
+    </div>
+    <div class="grp">MAIN</div>
+    <div class="item on"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2"/></svg>Dashboard</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M1.5 6h13M5 2.5V6"/></svg>Company Center</div>
+    <div class="grp">SALES</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 1.5 14 6l-7.5 7.5-4.5.5.5-4.5z"/></svg>Inquiry</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 1.5h10v13H3zM5.5 5h5M5.5 8h5M5.5 11h3"/></svg>Proforma Invoice</div>
+    <div class="grp">PRODUCTION</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 14V6l4 3V6l4 3V4.5L14.5 9v5z"/></svg>Job Order</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.8V8l2.3 1.5"/></svg>Optimization</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 7h12"/></svg>Sheet Store</div>
+    <div class="grp">DISPATCH</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 3.5h8v7h-8zM9.5 6h2.8l2.2 2.5v2h-5z"/><circle cx="5" cy="12" r="1.4"/><circle cx="11.8" cy="12" r="1.4"/></svg>Delivery Note</div>
+    <div class="grp">FINANCE</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 1.5h10v13l-2.5-1.5L8 14.5 5.5 13 3 14.5z"/><path d="M5.5 5.5h5M5.5 8h5"/></svg>Tax Invoice</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3.5h12M2 8h12M2 12.5h8"/></svg>Statement</div>
+    <div class="grp">SYSTEM</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="5.5" r="3"/><path d="M2.5 14c.8-3 3-4.5 5.5-4.5s4.7 1.5 5.5 4.5"/></svg>User Center</div>
+    <div class="item"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2.2"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/></svg>System Center</div>
+  </aside>
+
+  <!-- ══ workspace ══ -->
+  <main class="workspace">
+
+    <!-- command bar -->
+    <header class="cmdbar">
+      <div class="crumb">
+        <b>Dashboard</b>
+        <span>Operational analytics — invoices, jobs, delivery, stock</span>
+      </div>
+      <nav class="picker" aria-label="Module picker">
+        <button class="on">Overview</button>
+        <button>Sheet Store</button>
+        <button>Proforma</button>
+        <button>Job Orders</button>
+        <button>Delivery</button>
+        <button>Tax Invoice</button>
+        <button>Statement</button>
+      </nav>
+      <div class="right">
+        <span class="chip"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2 1.5"/></svg>Refreshed 14:32</span>
+        <span class="chip user"><span class="avatar">JS</span>Jubert Saleem</span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- hero -->
+      <section class="hero">
+        <div>
+          <h1>Factory Pulse</h1>
+          <p>Operational analytics — invoices, jobs, delivery, stock</p>
+        </div>
+        <div class="actions">
+          <span class="live"><i></i>LIVE</span>
+          <button class="btn accent"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3v10M3 8h10"/></svg>New Invoice</button>
+          <button class="btn"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 14V6l4 3V6l4 3V4.5L14.5 9v5z"/></svg>Jobs</button>
+          <button class="btn"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 3.5h8v7h-8zM9.5 6h2.8l2.2 2.5v2h-5z"/><circle cx="5" cy="12" r="1.4"/><circle cx="11.8" cy="12" r="1.4"/></svg>Deliveries</button>
+        </div>
+      </section>
+
+      <!-- pipeline -->
+      <section class="card">
+        <div class="head"><h3>Pipeline volume and confirmation</h3><span class="sub">Where the work is stuck — live counts per handoff</span><a class="link" href="#">View all</a></div>
+        <div class="pipeline">
+          <div class="stage">
+            <div class="s-icon"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 1.5h10v13H3zM5.5 5h5M5.5 8h5M5.5 11h3"/></svg></div>
+            <span class="s-name">Quote</span>
+            <span class="s-val num">128</span>
+            <span class="s-foot">96 approved · 32 draft</span>
+          </div>
+          <div class="stage alert">
+            <div class="s-icon"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 14V6l4 3V6l4 3V4.5L14.5 9v5z"/></svg></div>
+            <span class="s-name">Production</span>
+            <span class="s-val num">24</span>
+            <span class="s-foot">3 overdue</span>
+          </div>
+          <div class="stage warn">
+            <div class="s-icon"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 3.5h8v7h-8zM9.5 6h2.8l2.2 2.5v2h-5z"/><circle cx="5" cy="12" r="1.4"/><circle cx="11.8" cy="12" r="1.4"/></svg></div>
+            <span class="s-name">Delivery</span>
+            <span class="s-val num">9</span>
+            <span class="s-foot">120 pcs pending</span>
+          </div>
+          <div class="stage alert">
+            <div class="s-icon"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 1.5h10v13l-2.5-1.5L8 14.5 5.5 13 3 14.5z"/><path d="M5.5 5.5h5M5.5 8h5"/></svg></div>
+            <span class="s-name">Invoice</span>
+            <span class="s-val num">87</span>
+            <span class="s-foot">5 past terms</span>
+          </div>
+          <div class="stage ok">
+            <div class="s-icon"><svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="4" width="13" height="8.5" rx="1.5"/><circle cx="8" cy="8.2" r="2.3"/></svg></div>
+            <span class="s-name">Payment</span>
+            <span class="s-val num">74</span>
+            <span class="s-foot">23 awaiting</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- row A: pulse | mix | stats -->
+      <div class="row a">
+        <section class="card">
+          <div class="head"><h3>Factory Pulse</h3><span class="sub">Total sales</span></div>
+          <div class="pulse-body">
+            <div class="big">
+              <div class="v num">AED 1,284,530</div>
+              <div class="h">This month · AED 412,300</div>
+            </div>
+            <div class="spark" aria-hidden="true">
+              <i style="height:38%"></i><i style="height:44%"></i><i style="height:35%"></i>
+              <i style="height:52%"></i><i style="height:60%"></i><i style="height:48%"></i>
+              <i style="height:74%"></i>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="head"><h3>Delivery mix</h3><span class="sub">Notes and remaining pcs</span></div>
+          <div class="mix-body">
+            <svg width="132" height="132" viewBox="0 0 132 132" aria-hidden="true">
+              <g transform="rotate(-90 66 66)">
+                <circle cx="66" cy="66" r="52" fill="none" stroke="var(--surface-3)" stroke-width="15"/>
+                <circle cx="66" cy="66" r="52" fill="none" stroke="var(--accent)" stroke-width="15"
+                        stroke-dasharray="202.1 326.7" stroke-dashoffset="0" stroke-linecap="butt"/>
+                <circle cx="66" cy="66" r="52" fill="none" stroke="var(--accent-hover)" stroke-width="15"
+                        stroke-dasharray="85 326.7" stroke-dashoffset="-206.1" opacity=".75"/>
+                <circle cx="66" cy="66" r="52" fill="none" stroke="var(--accent-hover)" stroke-width="15"
+                        stroke-dasharray="38.5 326.7" stroke-dashoffset="-295.1" opacity=".45"/>
+              </g>
+              <text x="66" y="63" text-anchor="middle" style="font:700 17px inherit" fill="var(--text-1)" class="num">456</text>
+              <text x="66" y="77" text-anchor="middle" style="font:600 8.5px inherit;letter-spacing:.08em" fill="var(--text-3)">MIX · PCS</text>
+            </svg>
+            <div class="legend">
+              <span class="li"><i style="background:var(--accent)"></i>Delivered<b class="num">283</b></span>
+              <span class="li"><i style="background:var(--accent-hover);opacity:.75"></i>In transit<b class="num">114</b></span>
+              <span class="li"><i style="background:var(--accent-hover);opacity:.45"></i>Pending<b class="num">59</b></span>
+            </div>
+          </div>
+        </section>
+
+        <div class="stack">
+          <div class="card stat"><span class="k">In Production</span><span class="v num">24</span></div>
+          <div class="card stat alert"><span class="k">Overdue</span><span class="v num">3</span></div>
+          <div class="card stat warn"><span class="k">Pending PCS</span><span class="v num">48</span></div>
+        </div>
+      </div>
+
+      <!-- row B: trend | recent documents -->
+      <div class="row b">
+        <section class="card">
+          <div class="head"><h3>Revenue trend</h3><span class="sub">By invoiced amount, last 6 months</span></div>
+          <div class="well">
+            <div class="bars">
+              <div class="bar"><span class="val num">386k</span><div class="fill" style="height:56%"></div><span class="mo">Apr</span></div>
+              <div class="bar"><span class="val num">402k</span><div class="fill" style="height:58%"></div><span class="mo">May</span></div>
+              <div class="bar"><span class="val num">355k</span><div class="fill" style="height:51%"></div><span class="mo">Jun</span></div>
+              <div class="bar"><span class="val num">428k</span><div class="fill" style="height:62%"></div><span class="mo">Jul</span></div>
+              <div class="bar"><span class="val num">461k</span><div class="fill" style="height:67%"></div><span class="mo">Aug</span></div>
+              <div class="bar"><span class="val num">412k</span><div class="fill" style="height:60%"></div><span class="mo">Sep</span></div>
+            </div>
+            <div class="bars-rule"></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="head"><h3>Recent documents</h3><a class="link" href="#">View all</a></div>
+          <div class="feed">
+            <div class="fr">
+              <span class="fi"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 1.5h10v13H3zM5.5 5h5M5.5 8h5"/></svg></span>
+              <span class="ft"><b>PI-2026-041 · New proforma</b><span>Al Bahar Trading</span></span>
+              <time>09:14</time>
+            </div>
+            <div class="fr">
+              <span class="fi"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 14V6l4 3V6l4 3V4.5L14.5 9v5z"/></svg></span>
+              <span class="ft"><b>JO-2026-004 · Moved to production</b><span>76 pcs · low-e DGU</span></span>
+              <time>10:02</time>
+            </div>
+            <div class="fr">
+              <span class="fi"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 3.5h8v7h-8zM9.5 6h2.8l2.2 2.5v2h-5z"/></svg></span>
+              <span class="ft"><b>DN-2026-019 · Dispatched</b><span>120 pcs · Emirates Glass LLC</span></span>
+              <time>11:27</time>
+            </div>
+            <div class="fr">
+              <span class="fi"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 1.5h10v13l-2.5-1.5L8 14.5 5.5 13 3 14.5z"/></svg></span>
+              <span class="ft"><b>TI-2026-033 · Invoiced</b><span>AED 48,250.00 · VAT inclusive</span></span>
+              <time>12:41</time>
+            </div>
+            <div class="fr">
+              <span class="fi"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3.5h12M2 8h12M2 12.5h8"/></svg></span>
+              <span class="ft"><b>ST-2026-011 · Statement generated</b><span>Al Bahar Trading · 3 invoices</span></span>
+              <time>13:58</time>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- row C: 4 KPI bands -->
+      <div class="row c">
+        <section class="card band">
+          <div class="head"><h3>Sales</h3></div>
+          <div class="tiles">
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12l4-4 3 3 5-6"/><path d="M12 5h2v2"/></svg></span><span class="t-label">Total Sales</span></div><div class="t-val num">AED 1,284,530</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 1.5h10v13H3zM5.5 5h5M5.5 8h5"/></svg></span><span class="t-label">Invoices</span></div><div class="t-val num">128</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2 1.5"/></svg></span><span class="t-label">This Month</span></div><div class="t-val num">AED 412,300</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg></span><span class="t-label">Approved</span></div><div class="t-val num">96</div></div>
+          </div>
+        </section>
+
+        <section class="card band">
+          <div class="head"><h3>Production</h3></div>
+          <div class="tiles">
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 14V6l4 3V6l4 3V4.5L14.5 9v5z"/></svg></span><span class="t-label">In Production</span></div><div class="t-val num">24</div></div>
+            <div class="tile alert"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L15 13.5H1z"/><path d="M8 6.5V10M8 11.6v.4"/></svg></span><span class="t-label">Overdue</span></div><div class="t-val num">3</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg></span><span class="t-label">Completed MTD</span></div><div class="t-val num">18</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1.2"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1.2"/><rect x="9" y="9" width="5.5" height="5.5" rx="1.2"/></svg></span><span class="t-label">Total Jobs</span></div><div class="t-val num">214</div></div>
+          </div>
+        </section>
+
+        <section class="card band">
+          <div class="head"><h3>Sheet Store</h3></div>
+          <div class="tiles">
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="4" width="13" height="8.5" rx="1.5"/><circle cx="8" cy="8.2" r="2.3"/></svg></span><span class="t-label">Stock Value</span></div><div class="t-val num">AED 2,318,400</div></div>
+            <div class="tile alert"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L15 13.5H1z"/><path d="M8 6.5V10M8 11.6v.4"/></svg></span><span class="t-label">Low Stock</span></div><div class="t-val num">6</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 7h12"/></svg></span><span class="t-label">Sheet Types</span></div><div class="t-val num">42</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5.5L8 2l6 3.5v5L8 14l-6-3.5z"/><path d="M2 5.5 8 9l6-3.5M8 9v5"/></svg></span><span class="t-label">Total Sheets</span></div><div class="t-val num">1,284</div></div>
+          </div>
+        </section>
+
+        <section class="card band">
+          <div class="head"><h3>Delivery</h3></div>
+          <div class="tiles">
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2 1.5"/></svg></span><span class="t-label">Preparing</span></div><div class="t-val num">4</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1.5 3.5h8v7h-8zM9.5 6h2.8l2.2 2.5v2h-5z"/></svg></span><span class="t-label">Dispatched</span></div><div class="t-val num">5</div></div>
+            <div class="tile"><div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 8.5l3.5 3.5L13 4.5"/></svg></span><span class="t-label">Delivered Today</span></div><div class="t-val num">120 pcs</div></div>
+            <div class="tile wide">
+              <div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 5.5L8 2l6 3.5v5L8 14l-6-3.5z"/></svg></span><span class="t-label">Total Delivered</span></div>
+              <div class="t-val num">1,846 pcs</div>
+              <span class="t-meta">+120 today</span>
+            </div>
+            <div class="tile wide alert">
+              <div class="t-top"><span class="t-ic"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2L15 13.5H1z"/><path d="M8 6.5V10M8 11.6v.4"/></svg></span><span class="t-label">Pending Balance</span></div>
+              <div class="t-val num">48 pcs</div>
+              <span class="t-meta">needs attention</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ══ design tokens inspector ══ -->
+<aside class="tok-panel" id="tokPanel">
+  <h4>SURFACES — flat, hairline, no shadow noise</h4>
+  <div class="sw"><i style="background:var(--bg)"></i>Page<code>--bg · DashboardPageBrush</code></div>
+  <div class="sw"><i style="background:var(--surface)"></i>Card<code>SurfacePrimaryBrush</code></div>
+  <div class="sw"><i style="background:var(--surface-2)"></i>Well / tile<code>SurfaceSecondaryBrush</code></div>
+  <div class="sw"><i style="background:var(--surface-3)"></i>Hover<code>SurfaceTertiaryBrush</code></div>
+  <div class="sw"><i style="background:var(--border)"></i>Hairline 1px<code>BorderBrush</code></div>
+
+  <h4>TEXT — 6-step scale, tabular figures</h4>
+  <div class="ty"><code>Page · 18/600</code><span style="font:var(--t-page)">Factory Pulse</span></div>
+  <div class="ty"><code>Card · 13/600</code><span style="font:var(--t-card)">Pipeline volume</span></div>
+  <div class="ty"><code>KPI · 26/700</code><span class="num" style="font:var(--t-kpi)">1,284,530</span></div>
+  <div class="ty"><code>Body · 12.5</code><span style="font:var(--t-body)">Operational analytics text</span></div>
+  <div class="ty"><code>Label · 11/600</code><span style="font:var(--t-label);letter-spacing:.06em;color:var(--text-3)">UPPERCASE CAPTION</span></div>
+  <div class="ty"><code>Caption · 11</code><span style="font:var(--t-cap);color:var(--text-3)">muted metadata</span></div>
+
+  <h4>COLOUR — status only, one brand accent</h4>
+  <div class="sw"><i style="background:var(--accent)"></i>Accent<code>AccentBrush · #0F6FA8</code></div>
+  <div class="sw"><i style="background:var(--ok)"></i>Success<code>SuccessBrush</code></div>
+  <div class="sw"><i style="background:var(--warn)"></i>Warning<code>WarningBrush</code></div>
+  <div class="sw"><i style="background:var(--danger)"></i>Danger<code>DangerBrush</code></div>
+
+  <h4>GEOMETRY</h4>
+  <div class="sw"><i style="background:var(--surface);border-radius:10px"></i>Card radius 10<code>CardCornerRadius</code></div>
+  <div class="sw"><i style="background:var(--surface-2);border-radius:8px"></i>Tile radius 8<code>CardCornerRadius</code></div>
+  <div class="sw"><i style="background:var(--surface-2)"></i>Grid · 4px base, 14px gutter<code>DbGutter</code></div>
+
+  <h4>MOCKUP → WPF KEY MAP</h4>
+  <table class="map">
+    <tr><td>page bg</td><td>DashboardPageBrush (new token, both themes)</td></tr>
+    <tr><td>card</td><td>DbCardStyle ← SurfacePrimaryStyle (exists)</td></tr>
+    <tr><td>well</td><td>DbChartWellStyle (exists)</td></tr>
+    <tr><td>KPI tile</td><td>DbKpiTileTemplate (exists — recolour)</td></tr>
+    <tr><td>pipeline</td><td>DbPipelineStageTemplate (exists)</td></tr>
+    <tr><td>feed row</td><td>DbFeedRowTemplate (exists)</td></tr>
+    <tr><td>buttons</td><td>DbActionButtonStyle / Accent (exist)</td></tr>
+  </table>
+
+  <h4>WHY THIS READS PROFESSIONAL</h4>
+  <div class="note-box">
+    <b>1 · One language, seven modules.</b> All 7 dashboards already consume the same <b>Db*</b> kit (verified in XAML) — restyle the kit once, everything follows. No view rewrites.<br><br>
+    <b>2 · Colour = status.</b> Icon chips are neutral by default; red/amber appear only where work is overdue or pending. Today every tile carries a coloured chip, which dilutes the alarm.<br><br>
+    <b>3 · Flat + hairline.</b> No card shadows, no glass tints on data surfaces — a 1px hairline and type hierarchy do the separating. Depth is cheaper and crisper.<br><br>
+    <b>4 · Type discipline.</b> Six sizes, tabular figures, uppercase captions — nothing competing.<br><br>
+    <b>5 · Theme-safe.</b> Every value is a token; Light/Dark swap at runtime exactly as today (DynamicResource).
+  </div>
+</aside>
+
+<script>
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('btnLight').classList.toggle('on', t==='light');
+  document.getElementById('btnDark').classList.toggle('on', t==='dark');
+}
+</script>
+</body>
+</html>

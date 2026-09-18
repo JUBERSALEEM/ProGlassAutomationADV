@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     FILE: Themes/LightTheme.xaml
     PROJECT: ProGlassAutomation
     VERSION: Phase 1 — Design System Foundation
@@ -1017,6 +1017,54 @@
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="AboutIcon.Themes" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
             <GradientStop Color="#66E3C4" Offset="0"/><GradientStop Color="#2BC8A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             MERIDIAN (Pg*) — Full 0→100 UI rewrite · FOUNDATION TOKENS (LIGHT)
+             ─────────────────────────────────────────────────────────────
+             The colour plane for the new design system. These are the ONLY
+             per-theme values the rewrite uses: every Pg* style references
+             them through {DynamicResource}, so the runtime Light/Dark swap
+             (ThemeManager) re-tints the whole new system live.
+
+             Design language (see mockups/proglass-pro-mockup.html):
+               • cool-neutral page canvas, flat white cards, 1px hairlines
+               • one brand accent (steel blue); colour is STATUS-ONLY
+               • soft status tints for chips/pills instead of loud fills
+             Geometry (spacing / radii / type scale) is theme-independent and
+             lives in Themes/Professional/ProfessionalCore.xaml, not here.
+        ═══════════════════════════════════════════════════════════════ -->
+        <SolidColorBrush x:Key="PgPageBrush"          Color="#F5F7FA" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgSurfaceBrush"       Color="#FFFFFF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgSurface2Brush"      Color="#F8FAFC" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgSurface3Brush"      Color="#EEF2F7" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgHairlineBrush"      Color="#E3E8EF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgHairlineStrongBrush" Color="#CBD5E1" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="PgText1Brush"         Color="#101828" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgText2Brush"         Color="#4A5568" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgText3Brush"         Color="#8A94A6" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="PgAccentBrush"        Color="#0F6FA8" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgAccentHoverBrush"   Color="#0B5B8C" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgAccentInkBrush"     Color="#FFFFFF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgAccentSoftBrush"    Color="#EAF3FA" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="PgOkBrush"            Color="#0E8F62" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgOkSoftBrush"        Color="#E9F7F1" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgWarnBrush"          Color="#C77700" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgWarnSoftBrush"      Color="#FBF3E4" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgDangerBrush"        Color="#D23B3B" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgDangerSoftBrush"    Color="#FCECEC" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="PgChart2Brush"        Color="#7C93AC" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgChart3Brush"        Color="#C0CBD9" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgShadowBrush"        Color="#0F172A" Opacity="0.05" po:Freeze="True"/>
+
+        <!-- Brand mark gradient (top-bar logo / active nav chip). -->
+        <LinearGradientBrush x:Key="PgBrandGradient" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+            <GradientStop Color="#1179B0" Offset="0"/>
+            <GradientStop Color="#0C5F8D" Offset="1"/>
         </LinearGradientBrush>
 
 </ResourceDictionary>

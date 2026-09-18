@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     FILE: Themes/DarkTheme.xaml
     PROJECT: ProGlassAutomation
     VERSION: Phase 1 — Design System Foundation (Dark)
@@ -932,6 +932,43 @@
         </LinearGradientBrush>
         <LinearGradientBrush x:Key="AboutIcon.Themes" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
             <GradientStop Color="#66E3C4" Offset="0"/><GradientStop Color="#2BC8A0" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             MERIDIAN (Pg*) — Full 0→100 UI rewrite · FOUNDATION TOKENS (DARK)
+             Dark mirror of the Light Pg* plane (Themes/LightTheme.xaml).
+             Same key set, same roles; only the values change.
+        ═══════════════════════════════════════════════════════════════ -->
+        <SolidColorBrush x:Key="PgPageBrush"          Color="#0D131C" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgSurfaceBrush"       Color="#141C28" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgSurface2Brush"      Color="#1A2433" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgSurface3Brush"      Color="#0F1622" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgHairlineBrush"      Color="#223045" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgHairlineStrongBrush" Color="#31435C" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="PgText1Brush"         Color="#F2F6FA" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgText2Brush"         Color="#AEB9C9" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgText3Brush"         Color="#6E7B8D" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="PgAccentBrush"        Color="#46A0D8" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgAccentHoverBrush"   Color="#5FB0E4" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgAccentInkBrush"     Color="#0D131C" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgAccentSoftBrush"    Color="#112434" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="PgOkBrush"            Color="#3ECF8E" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgOkSoftBrush"        Color="#12261E" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgWarnBrush"          Color="#F5A524" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgWarnSoftBrush"      Color="#2A2113" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgDangerBrush"        Color="#F0655F" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgDangerSoftBrush"    Color="#2B1717" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="PgChart2Brush"        Color="#33465F" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgChart3Brush"        Color="#243349" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PgShadowBrush"        Color="#000000" Opacity="0.40" po:Freeze="True"/>
+
+        <LinearGradientBrush x:Key="PgBrandGradient" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+            <GradientStop Color="#4FA8DE" Offset="0"/>
+            <GradientStop Color="#3E92C9" Offset="1"/>
         </LinearGradientBrush>
 
 </ResourceDictionary>

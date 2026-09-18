@@ -102,6 +102,10 @@
              The selected segment is marked by a filled pill AND a
              bolder label AND a filled icon, not colour alone.
         ═══════════════════════════════════════════════════════════ -->
+        <!-- MERIDIAN segment (Phase 2): the selection MECHANISM (Reference
+             Equality MultiBinding vs ActivePage) is preserved verbatim;
+             only the chrome is new — quiet t2 label, solid surface pill
+             + bold label for the active module. -->
         <DataTemplate x:Key="ModuleSegmentTemplate">
             <Button Command="{Binding DataContext.SelectTabCommand,
                               RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -118,15 +122,15 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Pill"
                                 Background="Transparent"
-                                CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
-                                Padding="10,7"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                CornerRadius="7"
+                                Padding="11,6"
+                                SnapsToDevicePixels="True">
                             <TextBlock x:Name="Label"
                                        Text="{Binding TabTitle}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                       FontSize="11.5"
+                                       FontWeight="SemiBold"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource PgText2Brush}"/>
                         </Border>
 
                         <ControlTemplate.Triggers>
@@ -147,9 +151,9 @@
                                     </Condition>
                                 </MultiDataTrigger.Conditions>
                                 <Setter TargetName="Pill" Property="Background"
-                                        Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                        Value="{DynamicResource PgSurface3Brush}"/>
                                 <Setter TargetName="Label" Property="Foreground"
-                                        Value="{DynamicResource TextPrimaryBrush}"/>
+                                        Value="{DynamicResource PgText1Brush}"/>
                             </MultiDataTrigger>
 
                             <!-- Active module -->
@@ -162,11 +166,11 @@
                                     </MultiBinding>
                                 </DataTrigger.Binding>
                                 <Setter TargetName="Pill" Property="Background"
-                                        Value="{DynamicResource AccentBrush}"/>
+                                        Value="{DynamicResource PgSurfaceBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground"
-                                        Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                        Value="{DynamicResource PgText1Brush}"/>
                                 <Setter TargetName="Label" Property="FontWeight"
-                                        Value="{DynamicResource Weight.Bold}"/>
+                                        Value="Bold"/>
                             </DataTrigger>
 
                             <Trigger Property="IsPressed" Value="True">
@@ -191,9 +195,13 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════
-             COMMAND BAR
+             COMMAND BAR — MERIDIAN (Pg*) full rewrite, Phase 2.
+             Subtitle · segmented picker · refresh chip · user chip.
+             All bindings preserved (ActivePage.TabSubtitle, Pages,
+             ActivePage.LastRefreshed, CurrentUserDisplay,
+             SelectTabCommand).
         ═══════════════════════════════════════════════════════════ -->
-        <Grid Grid.Row="0" Margin="16,12,16,11">
+        <Grid Grid.Row="0" Margin="20,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <!-- active module identity -->
@@ -205,31 +213,25 @@
 
             <!-- ── Active module subtitle ───────────────────────────
                  Only the DESCRIPTION lives here. The module NAME is
-                 already shown, bold and filled, by the selected segment
-                 immediately to the right, so repeating it wasted ~205px
-                 and pushed the picker into a scrollbar at 1366px. -->
+                 already shown, bold, by the selected segment. -->
             <TextBlock Grid.Column="0"
                        Text="{Binding ActivePage.TabSubtitle}"
-                       FontSize="{DynamicResource FontSize.Body}"
-                       FontWeight="{DynamicResource Weight.SemiBold}"
+                       FontSize="13"
+                       FontWeight="Medium"
                        VerticalAlignment="Center"
                        Margin="2,0,18,0"
                        TextTrimming="CharacterEllipsis"
                        MaxWidth="190"
-                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                       Foreground="{DynamicResource PgText3Brush}"/>
 
-            <!-- ── Segmented module picker ──────────────────────────────
+            <!-- ── Segmented module picker (Meridian track) ──────────
                  Horizontally scrollable so a narrow window or a future
                  eighth module degrades into a scroll rather than
                  clipping the last segment. -->
             <Border Grid.Column="1"
-                    Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                    BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
-                    Padding="3"
+                    Style="{StaticResource PgSegGroupStyle}"
                     HorizontalAlignment="Left"
-                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                    VerticalAlignment="Center">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto"
                               VerticalScrollBarVisibility="Disabled"
                               Focusable="False"
@@ -252,55 +254,52 @@
                         VerticalAlignment="Center"
                         Margin="16,0,0,0">
 
-                <Border Style="{StaticResource DbChipStyle}"
-                        CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
-                        Padding="9,5"
+                <Border Style="{StaticResource PgRefreshChipStyle}"
                         Margin="0,0,8,0"
                         VerticalAlignment="Center"
                         ToolTip="{DynamicResource Dashboard.LastRefreshActiveModule}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE823;"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="{DynamicResource PgFontGlyphSm}"
                                    VerticalAlignment="Center"
-                                   Margin="0,0,6,0"
-                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                   Margin="0,0,7,0"
+                                   Foreground="{DynamicResource PgText3Brush}"/>
                         <TextBlock Text="{Binding ActivePage.LastRefreshed}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontSize="{DynamicResource PgFontCardSub}"
                                    VerticalAlignment="Center"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource PgText2Brush}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource DbChipStyle}"
-                        Padding="7,4"
+                <Border Style="{StaticResource PgUserChipStyle}"
                         VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Border Width="22" Height="22"
-                                CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
-                                Background="{DynamicResource AccentBrush}"
-                                Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                CornerRadius="6"
+                                Background="{DynamicResource PgAccentBrush}"
+                                Margin="0,0,8,0">
                             <TextBlock Text="&#xE77B;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{DynamicResource PgFontGlyphSm}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                       Foreground="{DynamicResource PgAccentInkBrush}"/>
                         </Border>
                         <TextBlock Text="{Binding CurrentUserDisplay}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{DynamicResource PgFontCardSub}"
+                                   FontWeight="SemiBold"
                                    VerticalAlignment="Center"
-                                   Margin="0,0,4,0"
+                                   Margin="0,0,2,0"
                                    TextTrimming="CharacterEllipsis"
                                    MaxWidth="150"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                   Foreground="{DynamicResource PgText1Brush}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
         </Grid>
 
-        <Border CornerRadius="{DynamicResource Surface.Primary.CornerRadius}" Grid.Row="1" Background="{DynamicResource BorderBrush}" Style="{StaticResource SurfacePrimaryStyle}"/>
+        <Border Grid.Row="1" Background="{DynamicResource PgHairlineBrush}"/>
 
         <!-- ═══════════════════════════════════════════════════════════
              ACTIVE MODULE — full window width

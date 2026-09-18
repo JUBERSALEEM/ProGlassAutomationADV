@@ -150,27 +150,27 @@ namespace ProGlassAutomation.Tests.Theme
         }
 
         [Fact]
-        public void The_dashboard_gutter_margin_token_is_a_thickness()
+        public void The_retired_dashboard_gutter_half_token_stays_retired()
         {
-            // The specific token that caused ERR-F4C120, pinned by name so the
-            // regression is obvious rather than showing up as a generic
-            // mismatch. DbGutterHalf was a sys:Double used as a Margin; it is
-            // now DbGutterHalfMargin, a Thickness.
+            // ERR-F4C120 (2026-09-09) was caused by DbGutterHalf, a sys:Double
+            // assigned to a Margin. MERIDIAN Phase 7 (2026-09-18) retired the
+            // whole Db* dashboard kit with Styles/DashboardKit.xaml; the dashboards
+            // now use the Pg* grammar (PgGutterHalfMargin is a Thickness in
+            // Themes/Professional/ProfessionalCore.xaml). This test pins that the
+            // old Double token never comes back in any form.
             var declared = CollectDeclarations();
 
             Assert.False(
                 declared.ContainsKey("DbGutterHalf"),
                 "DbGutterHalf is back. It was a sys:Double assigned to a Margin, " +
-                "which is what crashed the app on 2026-09-09. The margin token " +
-                "is DbGutterHalfMargin and must be a Thickness.");
+                "which is what crashed the app on 2026-09-09. The Db* dashboard " +
+                "kit was retired in MERIDIAN Phase 7 — dashboards use Pg* tokens.");
 
-            Assert.True(
-                declared.TryGetValue("DbGutterHalfMargin", out var sites),
-                "DbGutterHalfMargin is not declared. DbKpiBandStyle sets a " +
-                "ContentPresenter Margin from it, so a dashboard KPI band would " +
-                "fail to load its style.");
-
-            Assert.All(sites, s => Assert.Equal("Thickness", s.Type));
+            Assert.False(
+                declared.ContainsKey("DbGutterHalfMargin"),
+                "DbGutterHalfMargin is back. The Db* dashboard kit was retired in " +
+                "MERIDIAN Phase 7; the dashboard gutter token is now " +
+                "PgGutterHalfMargin (a Thickness).");
         }
 
         // ── helpers ───────────────────────────────────────────────────

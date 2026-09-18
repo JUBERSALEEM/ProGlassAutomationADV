@@ -42,7 +42,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         // Rather than rewrite the five ViewModels that build KpiCardModel
         // (or the two that build KpiTileModel), KpiTileModel now exposes
         // the KpiCardModel shape as computed aliases. One template —
-        // DbKpiTileTemplate in Styles/DashboardKit.xaml — therefore renders
+        // PgKpiTileTemplate in Themes/Professional/ProfessionalCore.xaml
+        // (MERIDIAN; the old DbKpiTileTemplate in Styles/DashboardKit.xaml
+        // was retired in Phase 7) — therefore renders
         // every KPI band in the application with identical geometry.
         //
         // These are read-only projections; nothing assigns them, so no
