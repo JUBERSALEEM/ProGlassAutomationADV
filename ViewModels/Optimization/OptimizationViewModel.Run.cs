@@ -338,13 +338,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// Thickness-aware margins: when a cutting group's glass thickness
         /// differs from the MARGINS tab, the group is cut with that
         /// thickness's house defaults and the note surfaces on the result.
+        /// When the user explicitly configures margins, those user settings
+        /// take authoritative precedence.
         /// </summary>
         private static (MarginProfile Margins, string Note) ResolveGroupMargins(
             string composition, MarginProfile userMargins)
         {
-            int thickness = ParseThicknessMm(composition);
-            if (thickness <= 0 || thickness == userMargins.ThicknessMm)
+            // If user has customized margins or kerf, respect user settings strictly
+            if (userMargins != null && (userMargins.LeftMm != 0 || userMargins.TopMm != 0))
                 return (userMargins, string.Empty);
+
+            int thickness = ParseThicknessMm(composition);
+            if (thickness <= 0 || (userMargins != null && thickness == userMargins.ThicknessMm))
+                return (userMargins ?? MarginProfile.DefaultFor(6), string.Empty);
             return (MarginProfile.DefaultFor(thickness),
                 "cut with " + thickness.ToString(CultureInfo.InvariantCulture) + "mm house margins");
         }
@@ -355,9 +361,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// manual "any group" racks (empty composition) are the fallback,
         /// and only when no Step 4 sheet is recorded for the glass do we
         /// drop back to the whole pool so pieces are never silently lost.
-        /// A manual rack must never be offered to a group that already has
-        /// a dedicated rack — otherwise "smallest stock first" can route a
-        /// spec's pieces onto the wrong rack.
+        /// When multiple racks fit, prioritize the largest primary stock
+        /// envelope so huge architectural panels are not fragmented across
+        /// smaller remnant plates.
         /// </summary>
         private static List<StockSize> ResolveGroupStocks(
             string composition,
@@ -373,7 +379,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 .Select(t => t.Stock)
                 .ToList();
             dedicated = DistinctBySize(dedicated);
-            if (dedicated.Count > 0) return dedicated;
+            if (dedicated.Count > 0) return SortStocksPrimaryFirst(dedicated);
 
             // 2. Manual "any group" racks (no composition tag).
             var manual = pool
@@ -384,15 +390,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (manual.Count > 0)
             {
                 note = "no Step 4 sheet — packed on manual racks";
-                return manual;
+                return SortStocksPrimaryFirst(manual);
             }
 
             // 3. Nothing dedicated and nothing manual: keep the run alive
             //    with every available rack rather than dropping the pieces.
             var all = DistinctBySize(pool.Select(t => t.Stock).ToList());
             if (all.Count > 0) note = "no Step 4 sheet — packed on other specs' racks";
-            return all;
+            return SortStocksPrimaryFirst(all);
         }
+
+        private static List<StockSize> SortStocksPrimaryFirst(List<StockSize> stocks) =>
+            stocks.OrderByDescending(s => (long)s.WidthMm * s.HeightMm).ToList();
 
         private static List<StockSize> DistinctBySize(List<StockSize> stocks) =>
             stocks.GroupBy(s => (s.WidthMm, s.HeightMm))
