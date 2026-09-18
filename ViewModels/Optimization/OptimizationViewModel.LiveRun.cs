@@ -36,6 +36,7 @@ using System.Globalization;
 using System.Linq;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Services.Production;
 
 namespace ProGlassAutomation.ViewModels.Optimization
@@ -161,9 +162,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     var o = occurrences.FirstOrDefault(x => x.Slot == slot);
                     if (o == null) return string.Empty;
-                    return string.IsNullOrWhiteSpace(o.Composition)
-                        ? (group.SelectedSpecName ?? string.Empty)
-                        : o.Composition;
+                    // Phase 2: canonical key — rack tag must match the
+                    // cutting list rows byte-for-byte.
+                    return CompositionKey.Normalize(
+                        string.IsNullOrWhiteSpace(o.Composition)
+                            ? (group.SelectedSpecName ?? string.Empty)
+                            : o.Composition);
                 }
 
                 foreach (var occ in occurrences)
@@ -175,9 +179,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         .ToList();
                     if (paneItems.Count == 0) continue;
 
-                    string composition = string.IsNullOrWhiteSpace(occ.Composition)
-                        ? group.SelectedSpecName ?? string.Empty
-                        : occ.Composition;
+                    // Phase 2: canonical composition (same key as the Job
+                    // Order import path) — a Step 5 run and a Job Order run
+                    // over identical data must produce identical groups.
+                    string composition = CompositionKey.Normalize(
+                        string.IsNullOrWhiteSpace(occ.Composition)
+                            ? group.SelectedSpecName ?? string.Empty
+                            : occ.Composition);
 
                     if (!string.IsNullOrWhiteSpace(composition)
                         && !compositions.Contains(composition, StringComparer.OrdinalIgnoreCase))

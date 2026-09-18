@@ -241,6 +241,19 @@ namespace ProGlassAutomation.Services.Production
             var occurrences = ResolvePaneOccurrences(buildType, group, plan.Warnings);
             occurrenceCache[group.GroupNumber] = occurrences;
 
+            // Phase 2: an explicit Step 5 glass type that CONTRADICTS the spec
+            // name silently adds or removes whole panes — an SGU spec typed
+            // "DGU" grows a full-quantity inner pane from W1×H1 (equal-size
+            // fallback), i.e. glass the job order never ordered. The explicit
+            // selection still wins (the operator may know better than the
+            // name grammar), but the mismatch must be visible.
+            string inferred = InferBuildTypeFromName(group.SelectedSpecName);
+            if (!string.Equals(inferred, buildType, StringComparison.Ordinal))
+                plan.Warnings.Add(
+                    $"Spec {group.GroupNumber}: glass type '{(group.SelectedGlassType ?? string.Empty).Trim()}' " +
+                    $"selected but the spec name suggests {inferred} — check Step 5 " +
+                    $"(a wrong glass type adds or removes whole panes from the cutting list).");
+
             var rows = (group.ItemRows ?? new List<GlassItemRowSnapshot>())
                 .Where(r => r != null && !IsEmptyRow(r))
                 .OrderBy(r => r.SerialNumber)

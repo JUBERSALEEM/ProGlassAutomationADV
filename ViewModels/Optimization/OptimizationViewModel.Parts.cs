@@ -119,9 +119,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private void LoadReferenceJob()
         {
-            const string lowE = "6mm climaguard hp neutral 70 low e ft glass";
-            const string clear = "6mm clear ft glass";
-            const string ramly = "6mm obscure clear ramly ft glass";
+            // Phase 2: canonical composition keys (same normalisation as the
+            // Job Order import) — the benchmark rows only ever join a real
+            // job's cutting group when the glass is genuinely the same.
+            const string lowE = "6mm climaguard hp neutral 70 low e ft";
+            const string clear = "6mm clear ft";
+            const string ramly = "6mm obscure clear ramly ft";
 
             // Step 5 rows: ref, W×H (unit size — equal-size DGU, both panes
             // cut the same), qty. Spec 1 first (34 rows), Spec 2 (12 rows).

@@ -380,9 +380,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 .ToList();
                             if (paneItems.Count == 0) continue;
 
-                            string composition = string.IsNullOrWhiteSpace(occ.Composition)
-                                ? group.SelectedSpecName ?? string.Empty
-                                : occ.Composition;
+                            // Phase 2: canonical composition — the same glass
+                            // spelled slightly differently across two jobs
+                            // used to split into two cutting groups (and lose
+                            // its dedicated rack). Normalize at the source.
+                            string composition = CompositionKey.Normalize(
+                                string.IsNullOrWhiteSpace(occ.Composition)
+                                    ? group.SelectedSpecName ?? string.Empty
+                                    : occ.Composition);
 
                             var layer = new BuildUpLayerVm
                             {
@@ -447,9 +452,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             {
                                 var o = occurrences.FirstOrDefault(x => x.Slot == slot);
                                 if (o == null) return string.Empty;
-                                return string.IsNullOrWhiteSpace(o.Composition)
-                                    ? (group.SelectedSpecName ?? string.Empty)
-                                    : o.Composition;
+                                // Phase 2: same canonical key as the cutting
+                                // list rows — rack tag and group key must be
+                                // byte-identical for routing to match.
+                                return CompositionKey.Normalize(
+                                    string.IsNullOrWhiteSpace(o.Composition)
+                                        ? (group.SelectedSpecName ?? string.Empty)
+                                        : o.Composition);
                             }
 
                             if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)

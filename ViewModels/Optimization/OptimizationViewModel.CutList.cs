@@ -36,6 +36,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 
@@ -292,7 +293,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
 
-            string composition = ResolveCutListComposition();
+            // Phase 2: canonical composition — the cut list's composition is
+            // free text (a typed spec name or the build type), and it is the
+            // merge key for cutting groups AND the rack-routing tag, so it
+            // enters the module already canonicalised.
+            string composition = CompositionKey.Normalize(ResolveCutListComposition());
 
             Pieces.Clear();
             int pieces = 0;
