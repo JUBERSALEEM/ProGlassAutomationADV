@@ -172,7 +172,7 @@
                                                 <TextBlock FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                            Foreground="{DynamicResource GlassBlush.TextFaint}"
                                                            Margin="0,6,0,0">
-                                                    <Run Text="{Binding ProviderIcon, Mode=OneWay}"/><Run Text="  "/><Run Text="{DynamicResource AI.Via}"/><Run Text="  "/><Run Text="{Binding ProviderName, Mode=OneWay}"/><Run Text="  ·  "/><Run Text="{Binding TimeLabel}"/>
+                                                    <Run Text="{Binding ProviderIcon, Mode=OneWay}"/><Run Text="  "/><Run Text="{DynamicResource AI.Via}"/><Run Text="  "/><Run Text="{Binding ProviderName, Mode=OneWay}"/><Run Text="  ·  "/><Run Text="{Binding TimeLabel, Mode=OneWay}"/>
                                                 </TextBlock>
                                             </StackPanel>
                                         </ContentControl>

@@ -639,6 +639,70 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   Visual confirmation = user's screen (asked for a screenshot if any
   overlap remains after pull).
 
+## GB-B8 — AI-chat crash (ERR-2CE7AD) + "no more 999" radius sweep (2026-09-19)
+- **Context:** user crash report ERR-2CE7AD —
+  `XamlParseException` wrapping `InvalidOperationException: A TwoWay or
+  OneWayToSource binding cannot work on the read-only property
+  'TimeLabel' of type 'ChatMessage'` when opening the Personal AI
+  assistant (auto-greeting = first assistant bubble). Plus an explicit
+  owner directive: remove `CornerRadius="999"` COMPLETELY — "keep all
+  12px or customer dynamic based".
+- **Root cause (crash):** `Run.TextProperty` is registered with
+  `BindsTwoWayByDefault` in WPF (verified against .NET 8 WPF source),
+  so a bare `<Run Text="{Binding X}"/>` is TWO-WAY. On a read-only
+  `X` (here `ChatMessage.TimeLabel`, expression-bodied) the first
+  TwoWay activation throws during template load. The Professional twin
+  (`AiChatView.xaml`) already carried `Mode=OneWay` on the same
+  binding; the Personal view written in GB-P13 missed it.
+- **Fix (crash + class-wide sweep):**
+  - `PersonalAiChatView.xaml` assistant-bubble `TimeLabel` Run →
+    `Mode=OneWay` (the reported crash).
+  - Repo-wide sweep for the WHOLE bug class (explicit TwoWay,
+    UpdateSourceTrigger, and the BindsTwoWayByDefault set:
+    TextBox.Text / Run.Text / ComboBox.Text / Slider.Value /
+    ProgressBar.Value / ToggleButton.IsChecked) against an index of
+    every property's settable-ness. 571 two-way bindings analyzed.
+  - Two MORE latent crashes of the same class found and fixed
+    (both Personal, both `ProgressBar.Value` TwoWay-default onto a
+    computed read-only property):
+    - `PersonalDeliveryNoteView.xaml` — `DeliveryProgressPercent`
+      (get-only on `DeliveryNoteDetailViewModel`) → `Mode=OneWay`.
+    - `PersonalSheetStoreView.xaml` — `Balance` (get-only on the
+      `GlassSheet` entity row) → `Mode=OneWay`.
+  - All remaining 115 candidate sites individually verified against
+    the actual DataContext class (VM/row-VM/entity per view) — every
+    one settable there (read-only occurrences live in DTO/config/
+    export-layout classes that are never binding sources). 0
+    remaining CERTAIN.
+- **999 radius removal (complete):**
+  - `PgChipRadius` (Professional) 999 → 12 default, and now
+    republished by the ONE radius authority
+    (`ThemeManager.ApplyCardCornerRadius`) → customer-dynamic; all 6
+    consumers flipped StaticResource → DynamicResource so they follow
+    the Appearance slider (same pattern as the Pg* radii since
+    2026-09-18).
+  - `GlassBlush.PillRadius` 999 → 12 default + republished by the same
+    authority → customer-dynamic.
+  - 10 literal `CornerRadius="999"` / `Value="999"` sites (Glass
+    components: Badge template, SearchPill, Pill, GlassButton;
+    Personal: DeliveryNote status pill, Production analytics tab,
+    TaxInvoice dashboard ×3, Settings segment) →
+    `{DynamicResource GlassBlush.PillRadius}`.
+  - `Ios26RadiusBar` (About iOS-26 preview) 999 → 12 (the last
+    surviving 999 exception, removed per the explicit "completely"
+    directive); stale "999" comments updated.
+  - Repo grep: **zero** functional 999 radii remain (only comments
+    documenting the removal).
+- **Verification:** all 13 touched XAML files parse OK (XML); sweep
+  re-run = 0 CERTAIN / 571 two-way bindings covered; C# mental-compile
+  of ThemeManager change clean (same `resources[...] = cr` pattern as
+  existing lines, `cr` in scope, no new usings); `ApplyCardCornerRadius`
+  confirmed called at startup (App.StartupCore) + on theme swap
+  (ThemePipeline) + live on slider. **NOT RUN: MSBuild / BAML runtime
+  parse — no .NET SDK in this environment.** User: pull + rebuild;
+  the AI chat, Personal delivery-note detail, Personal sheet store and
+  the Settings → Appearance radius slider are the screens to confirm.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -668,3 +732,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-B5b CS0119 in my converter + stale-copy triage | ✅ FIXED at source (Convert.ToString shadowed by the Convert member → System.Convert.ToString ×2; zero-length guard; full identifier audit + repo-wide same-class scan; crash report proven stale = old exe; XDG0003/XDG0006 proven copy-divergence with verification commands) | `e324bf4` |
 | GB-B6 second runtime crash — container-style type mismatch | ✅ FIXED at source (PgSkeletonKpiBandStyle inherited ContentPresenter ItemContainerStyle via BasedOn, applied to explicit ContentControl item containers — .NET 8 IsItemItsOwnContainerOverride='item is UIElement'; ONE style fix clears 32 sites/7 dashboards; validator +W23 unit-tested; first-layout runtime NOT RUN) | `cb54d1b` |
 | GB-B7 dashboard overlapping-text audit | ✅ FIXED at source (NoWrap-untrimmed overflow + 5 same-cell title/meta headers → 2-col grids; PgStageValueStyle+PgMetaStyle trimmed; Personal KPI tile trimmed/wrapped; 7 XAML parse OK, dashboard re-scan 0, 337 files 0 ERROR; visual = user screen) | `d325125` |
+| GB-B8 AI-chat crash (ERR-2CE7AD) + no-999 radius sweep | ✅ FIXED at source (Run.Text TwoWay-default → Mode=OneWay on TimeLabel + 2 more latent ProgressBar.Value TwoWay crashes on computed read-only props, class-wide sweep 571 bindings / 0 CERTAIN; all 999 radii removed: PgChipRadius+GlassBlush.PillRadius → 12 default + customer-dynamic via the radius authority, 10 literal sites → token, Ios26RadiusBar → 12; 13 XAML parse OK, 0 functional 999; BAML runtime NOT RUN — no SDK) | `GB-B8` |

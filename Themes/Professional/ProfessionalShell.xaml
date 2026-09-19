@@ -116,7 +116,8 @@
         <Setter Property="LineHeight" Value="14"/>
     </Style>
 
-    <!-- AI AGENT pill — real Button, 999 radius, soft-accent, pulsing ok dot. -->
+    <!-- AI AGENT pill — real Button, chip radius (12 px default, follows the
+         Appearance radius authority via PgChipRadius), soft-accent, pulsing ok dot. -->
     <Style x:Key="PgAiPillStyle" TargetType="Button">
         <Setter Property="Height" Value="{StaticResource PgTopCtrlHeight}"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -130,7 +131,7 @@
                             Background="{DynamicResource PgAccentSoftBrush}"
                             BorderBrush="{DynamicResource PgAccentBrush}"
                             BorderThickness="1"
-                            CornerRadius="{StaticResource PgChipRadius}"
+                            CornerRadius="{DynamicResource PgChipRadius}"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Grid Width="14" Height="14" Margin="0,0,8,0">

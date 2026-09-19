@@ -143,7 +143,10 @@
     <CornerRadius x:Key="GlassBlush.CardRadius">22</CornerRadius>
     <CornerRadius x:Key="GlassBlush.SectionRadius">26</CornerRadius>
     <CornerRadius x:Key="GlassBlush.SmallRadius">14</CornerRadius>
-    <CornerRadius x:Key="GlassBlush.PillRadius">999</CornerRadius>
+    <!-- 2026-09-19 owner correction: 999 capsule removed. Pills follow the
+         Appearance radius authority (ThemeManager.ApplyCardCornerRadius
+         republishes this key live; default 12). -->
+    <CornerRadius x:Key="GlassBlush.PillRadius">12</CornerRadius>
     <CornerRadius x:Key="GlassBlush.TileRadius">18</CornerRadius>
 
     <Thickness x:Key="GlassBlush.PagePadding">44</Thickness>

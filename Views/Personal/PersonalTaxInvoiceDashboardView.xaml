@@ -72,7 +72,7 @@
                 <Border Background="{DynamicResource GlassBlush.DangerSoft}"
                         BorderBrush="{DynamicResource GlassBlush.Danger}"
                         BorderThickness="1"
-                        CornerRadius="999"
+                        CornerRadius="{DynamicResource GlassBlush.PillRadius}"
                         Cursor="Hand"
                         SnapsToDevicePixels="True">
                     <Border.InputBindings>
@@ -86,7 +86,7 @@
                                    Foreground="{DynamicResource GlassBlush.Danger}"
                                    VerticalAlignment="Center"/>
                         <Border Background="{DynamicResource GlassBlush.Danger}"
-                                CornerRadius="999"
+                                CornerRadius="{DynamicResource GlassBlush.PillRadius}"
                                 Padding="8,2"
                                 Margin="9,0,0,0"
                                 VerticalAlignment="Center"
@@ -326,7 +326,7 @@
                                                         Background="{DynamicResource GlassBlush.SurfaceFaint}"
                                                         BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
                                                         BorderThickness="1"
-                                                        CornerRadius="999"
+                                                        CornerRadius="{DynamicResource GlassBlush.PillRadius}"
                                                         Padding="10,5"
                                                         VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal">

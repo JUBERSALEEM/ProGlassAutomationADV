@@ -149,10 +149,14 @@ namespace ProGlassAutomation.Services
             // Appearance slider keeps affecting the Meridian views while the
             // authored hierarchy is preserved — at the default 12 every value
             // is exactly the authored value (zero visual change).
-            // PgChipRadius (999 capsule) is structural and intentionally not
-            // scaled.
+            // 2026-09-19 owner correction: the PgChipRadius 999 capsule was
+            // removed — chips now follow this same authority (1:1), and the
+            // Glass Blush pill token follows it too, so no 999/full-pill
+            // radius remains in either experience.
             double rFactor = radius / 12.0;
             resources["PgCardRadius"] = new CornerRadius(radius);
+            resources["PgChipRadius"] = cr;
+            resources["GlassBlush.PillRadius"] = cr;
             resources["PgTileRadius"] = new CornerRadius(Math.Max(3, Math.Round(9 * rFactor)));
             resources["PgCtrlRadius"] = new CornerRadius(Math.Max(3, Math.Round(8 * rFactor)));
             resources["PgIconRadius"] = new CornerRadius(Math.Max(3, Math.Round(10 * rFactor)));

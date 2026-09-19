@@ -46,7 +46,8 @@
 // Every ratio is the mockup value divided by the mockup's 12 px card
 // radius, so the design is not "close to" what was approved at the default
 // setting — it is exactly what was approved, and it scales from there.
-// Ios26RadiusBar stays 999: it is the bar-only full round, not a card.
+// Ios26RadiusBar is a local About preview token, not part of this scale.
+// 2026-09-19 owner correction: it is now 12 px (no 999 full round remains).
 //
 // The card EDGE follows the engine's own About edge token
 // (AboutCardBorderBrush, accent-derived and republished by

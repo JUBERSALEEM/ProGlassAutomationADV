@@ -286,7 +286,7 @@
         <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.BorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="999"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource GlassBlush.PillRadius}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -392,7 +392,7 @@
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="999"
+                            CornerRadius="{DynamicResource GlassBlush.PillRadius}"
                             Padding="14,6"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
@@ -421,7 +421,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="999"
+                            CornerRadius="{DynamicResource GlassBlush.PillRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>

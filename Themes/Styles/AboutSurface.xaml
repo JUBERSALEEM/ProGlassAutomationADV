@@ -31,7 +31,8 @@
        26/12 · 12/12 · 10/12 · 12/12 · 6/12  →  at 12 px: 26, 12, 10, 12, 6
 
      so the default configuration renders the approved design exactly and
-     anything else scales from it. Radius.Bar (999, bar-only full round)
+     anything else scales from it. The bar radius (Ios26RadiusBar, a local
+     About preview token — 12 px since the 2026-09-19 "no 999" correction)
      and the card shadow stay in the module dictionary — they are design
      geometry that must not move.
 

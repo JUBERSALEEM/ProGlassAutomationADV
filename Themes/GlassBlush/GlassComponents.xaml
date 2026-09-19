@@ -40,7 +40,7 @@
                     <Border Background="{DynamicResource GlassBlush.SurfaceFaint}"
                             BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
                             BorderThickness="1"
-                            CornerRadius="999"
+                            CornerRadius="{DynamicResource GlassBlush.PillRadius}"
                             Padding="10,4"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">

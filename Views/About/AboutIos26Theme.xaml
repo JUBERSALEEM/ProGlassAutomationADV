@@ -54,11 +54,12 @@
          (mockup card values: 26 cards / 10 icon tiles / 12 inner / 12 chips) ═══
          2026-09-15 owner correction: "Remove this nonsense 999
          rounded corner buttons." Chips and buttons now use 12 px
-         (Ios26RadiusChip); the full pill (999) survives in EXACTLY
-         one place — the thin progress bar, whose ends must stay
-         fully round to match the mockups. -->
-    <!-- Bar-only full round (do not use for chips/buttons/cards). -->
-    <CornerRadius x:Key="Ios26RadiusBar">999</CornerRadius>
+         (Ios26RadiusChip).
+         2026-09-19 owner correction: remove CornerRadius=999 COMPLETELY —
+         the one surviving 999 (the thin progress bar) is also now 12 px;
+         no full-pill radius remains anywhere in the app. -->
+    <!-- Bar radius — 12 px per the global 12 px / customer-dynamic rule. -->
+    <CornerRadius x:Key="Ios26RadiusBar">12</CornerRadius>
 
 
     <!-- ═══ TYPE SCALE — lives in Themes/Styles/AboutTypeScale.xaml.

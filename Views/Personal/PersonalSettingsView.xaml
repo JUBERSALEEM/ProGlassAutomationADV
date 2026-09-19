@@ -95,7 +95,7 @@
                                 Background="{DynamicResource GlassBlush.SurfaceFaint}"
                                 BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
                                 BorderThickness="1"
-                                CornerRadius="999"
+                                CornerRadius="{DynamicResource GlassBlush.PillRadius}"
                                 Padding="18,8"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter VerticalAlignment="Center"/>

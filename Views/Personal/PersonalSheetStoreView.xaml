@@ -270,7 +270,7 @@
                                                          Height="6"
                                                          Minimum="0"
                                                          Maximum="{Binding Stock}"
-                                                         Value="{Binding Balance}"
+                                                         Value="{Binding Balance, Mode=OneWay}"
                                                          IsEnabled="False">
                                                 <ProgressBar.Style>
                                                     <Style TargetType="ProgressBar" BasedOn="{StaticResource GlassBlush.Progress}">

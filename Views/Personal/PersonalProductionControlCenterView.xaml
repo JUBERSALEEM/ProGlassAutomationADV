@@ -126,7 +126,7 @@
                                 Background="Transparent"
                                 BorderBrush="Transparent"
                                 BorderThickness="1"
-                                CornerRadius="999"
+                                CornerRadius="{DynamicResource GlassBlush.PillRadius}"
                                 Padding="14,6"
                                 Margin="0,0,8,0">
                             <ContentPresenter ContentSource="Header"
