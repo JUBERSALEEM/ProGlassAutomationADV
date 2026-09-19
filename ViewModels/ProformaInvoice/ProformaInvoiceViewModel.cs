@@ -989,8 +989,59 @@ public ProformaInvoiceViewModel() : this(
             // APPROVE INVOICE pressed directly in Step 8 falls back to the
             // invoice currently loaded in the wizard (same pipeline either way).
             int? id = _pendingApprovalInvoiceId ?? _loadedInvoiceId;
-            if (id == null) return;
             _pendingApprovalInvoiceId = null;
+
+            if (id == null)
+            {
+                // RC-017 (2026-09-20): _loadedInvoiceId is assigned in EXACTLY
+                // ONE place — LoadInvoiceIntoWizardAsync, i.e. only when the
+                // invoice was opened from the list. An invoice CREATED in the
+                // wizard and saved on Step 7 never set it, and Step 7's save
+                // path (PrintableInvoiceViewModel.ExecuteSaveInvoiceAsync)
+                // never hands the new row id back to this VM. So for a newly
+                // created quote the standalone APPROVE INVOICE button attached
+                // the signed document and then fell straight into the old
+                // `if (id == null) return;` — CompleteApprovalAsync never ran,
+                // the PI was never marked Approved, and no Job Order was ever
+                // auto-created. That is the reported "Step 8 mark-as-approved
+                // does not work like the Proforma list's approve", and it is
+                // why the Optimization picker then had no released job to show.
+                //
+                // The wizard always knows the document number — Step 7 refuses
+                // to save without one — so resolve the saved row from it and
+                // adopt it as the loaded id. Same single approval pipeline
+                // (CompleteApprovalAsync → status transition → auto-convert /
+                // release the Job Order), just reached honestly.
+                if (_invoices == null) return;
+
+                string proformaId = (Step1VM?.ProformaId ?? string.Empty).Trim();
+                if (proformaId.Length == 0)
+                {
+                    AppLogService.Warning(
+                        "[PI Step8] APPROVE INVOICE ran with no pending/loaded invoice id and no " +
+                        "ProformaId — the attachment was stored but the invoice was NOT approved " +
+                        "and no Job Order was created.");
+                    return;
+                }
+
+                AsyncUtility.SafeFireAndForget(async () =>
+                {
+                    var saved = await _invoices.GetByProformaIdAsync(proformaId);
+                    if (saved == null)
+                    {
+                        AppLogService.Warning(
+                            $"[PI Step8] APPROVE INVOICE could not find a saved invoice for " +
+                            $"{proformaId} — save it on Step 7 first. The attachment was stored " +
+                            "but the invoice was NOT approved and no Job Order was created.");
+                        return;
+                    }
+
+                    _loadedInvoiceId = saved.Id;
+                    await SavedInvoicesListVM.CompleteApprovalAsync(saved.Id);
+                }, $"PI CompleteApproval byProformaId {proformaId}");
+                return;
+            }
+
             AsyncUtility.SafeFireAndForget(() => SavedInvoicesListVM.CompleteApprovalAsync(id.Value), $"PI CompleteApproval {id}");
         }
 

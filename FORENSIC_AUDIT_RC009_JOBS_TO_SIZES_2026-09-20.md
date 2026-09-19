@@ -465,3 +465,96 @@ the operator's Windows machine:
 5. For the job that is already broken: route C.1, then confirm the cutting list
    populates and `[OPT-JOBS] import build=…` reports `paneQty == piecesQty ==
    sizesQty`.
+
+---
+---
+
+# ADDENDUM 2 — WORKFLOW CONFORMANCE (RC-017): does the code follow the intended pattern?
+
+**The operator stated the intended workflow explicitly:**
+
+> Step 4 create specs → APPLY (or continue) → Step 5 must carry the selected
+> glass type + specs → Step 6 other charges → Step 7 SAVE saves the PI →
+> Step 8 attach the document and MARK AS APPROVED, which must behave like the
+> Proforma list's approve → approving auto-creates the Job Order → opening
+> Optimization and selecting that job must import the PI's specs **and sizes** →
+> the optimization result feeds Step 6, or can be run directly from Step 5.
+
+**Verdict per step, read from source:**
+
+| # | Intended | What the code does | Verdict |
+|---|---|---|---|
+| 1 | Step 4 → APPLY → Step 5 carries glass type + specs | `GoToStep` crossing 4→5 → `PrepareStep5FromStep4` → `SyncStep5SelectionsFromStep4` (`:672`) → `ApplyStep4PricingSnapshot` (`SpecGroup.Part1.cs:839`). The handoff exists and is the single path. | **FOLLOWS** — but was being corrupted before the handoff by the destructive Step 4 refresh (**RC-016**) |
+| 2 | Step 7 SAVE saves the PI | `ExecuteSaveInvoiceAsync` (`PrintableInvoiceViewModel.Part1.cs:468`): body-lock check, cross-step validation, insert/update, `StampSaveArtifactsAsync`, success dialog. | **FOLLOWS** |
+| 3 | Step 8 MARK AS APPROVED behaves like the list's approve | `AttachmentsStepViewModel.ApproveInvoiceAsync` (`:187`) only guards duplicate attachments and opens a file picker. The real approval is `SavedInvoicesListViewModel.CompleteApprovalAsync` — documented as *"runs after the user uploads the signed PI / LPO in Step 8"* — reached via `OnStep8AttachmentUploaded` (`ProformaInvoiceViewModel.cs:987`). That method resolved the invoice id from `_pendingApprovalInvoiceId ?? _loadedInvoiceId`, and **`_loadedInvoiceId` is assigned in exactly ONE place (`:964`, inside `LoadInvoiceIntoWizardAsync`)**. Step 7's save never returns the new row id. So for an invoice **created in the wizard**, both were null → `if (id == null) return;` → attachment stored, **no approval, no Job Order, no message.** | **BROKEN — fixed as RC-017** |
+| 4 | Approving auto-creates the Job Order | `CompleteApprovalAsync` → `ConvertToJobOrderAsync`. Only reachable from the list, or from Step 8 *when the invoice was opened from the list*. A pre-existing Draft job was never upgraded (**RC-015**). | **PARTIAL — RC-015 + RC-017 restore it** |
+| 5 | Optimization: select job → PI's specs **and sizes** import | The picker reads `JobOrderMapper.DeserializeSnapshot(jo).EmbeddedInvoice` — a clone **frozen at conversion** (`JobOrderMapper.cs:88` is the only assignment in the codebase; every other reference is a read). Later PI edits never reach it. Draft jobs are filtered out (`Jobs.cs:330`). | **FOLLOWS in design; broken by the frozen clone + the Draft filter** |
+| 6 | Optimization result → Step 6 | `Step6VM.BindOptimizationFeed(...)` (`:252`) reads the static `OptimizationResultFeed`, guarded by `IsForDocument(CurrentDocumentKey)`, into `WastagesSection.BindOptimizationFeedProvider`. The headless host publishes via `PublishLiveFeed` (`Feed.cs:74`). | **FOLLOWS** |
+| 7 | Run optimization directly from Step 5 | `RunOptimizationFromStep5` (`:476`) → `_optimizationHost ??= CreateOptimizationHost()` → **`new OptimizationViewModel()`** with `IsHeadlessHost = true` (`:502-506`). Only `IsRunning` + two progress properties are mirrored back; the code states *"this quote never displays the host's own tab surface."* | **FOLLOWS — on an instance that is never displayed** |
+
+## The answer to "it shows a result but SIZES has no sizes — how is it optimizing?"
+
+**Because there are two different `OptimizationViewModel` objects, and the SIZES
+tab you are looking at does not belong to the one that ran.**
+
+* `_optimizationHost` — private to the Proforma wizard, `IsHeadlessHost = true`,
+  **never displayed**. `RunFromStep5` fills *its* `Pieces` and `Stocks`, runs the
+  real engine, publishes to `OptimizationResultFeed`. The optimization is genuine.
+* `MainViewModel.OptimizationVM` — the lazy-cached module instance
+  (`MainViewModel.Part1.cs:102`). Its SIZES tab renders *its own* `Pieces`, which
+  are filled **only** by job selection on the JOBS tab.
+
+Nothing carries a Step 5 run into the module instance. So the module's SIZES tab
+is empty **not because the optimization failed** but because it is a different
+object that never received that data — and it cannot fill itself from the job
+either, when that job is Draft (RC-015) or its frozen clone has no cutting rows.
+
+This is why several days of patching the SIZES derivation changed nothing
+observable: **the SIZES tab was never the fault. Instance identity, the frozen
+`EmbeddedInvoice`, and the dead Step 8 approval were.**
+
+## RC-017 — the fix applied
+
+`OnStep8AttachmentUploaded` (`ProformaInvoiceViewModel.cs:987`) no longer gives up
+when both ids are null. The wizard always knows the document number (Step 7
+refuses to save without one), so it resolves the saved row through the existing
+`IProformaInvoiceRepository.GetByProformaIdAsync`, adopts it as
+`_loadedInvoiceId`, and calls the **same single** `CompleteApprovalAsync`
+pipeline. No second approval implementation was created. When the row cannot be
+found, or no ProformaId exists, it now writes an explicit Warning stating that
+the attachment was stored but **the invoice was not approved and no Job Order was
+created** — previously that case was completely silent.
+
+## Remaining gap — needs a product decision, not a patch
+
+The two-instance split is deliberate (RC-007: the module's job-selection rebuild
+was wiping the Step 5 run's cutlist, so they were separated). Making "run from
+Step 5" and "open Optimization → SIZES" show the same data has two honest
+options, and choosing between them is a design decision:
+
+* **(A) Adopt the last run.** Keep two instances; add an explicit
+  *"load latest run for this PI"* that copies the headless host's
+  `Pieces`/`Stocks`/results into the module instance. Small, additive, no race.
+* **(B) One instance.** Share a single `OptimizationViewModel` and give job
+  selection and Step 5 runs an explicit owner token so they cannot fight over
+  `Pieces`. Correct long-term, larger, and it re-opens exactly the race RC-007
+  closed — not something to attempt blind without a compiler.
+
+**Also still open:** the frozen `EmbeddedInvoice`. Healing an already-converted
+job needs an operator-initiated *"re-sync from source PI"*; auto-syncing on every
+PI save would break the mapper's explicit historical-record guarantee. Until
+then, route **C.1** in the previous addendum (re-convert from the Job Orders
+picker) is the way to get today's data into a job.
+
+## Status of Addendum 2
+
+# ROOT CAUSE CONFIRMED + FIX NOT YET VERIFIED
+
+RC-017 is read from source and is a one-method change using only existing
+repository and approval APIs, but it is **not compiled and not run** — this
+workspace has no .NET SDK. Verify on Windows: create a NEW invoice (do not open
+one from the list), fill Steps 1–7, SAVE on Step 7, go to Step 8, press APPROVE
+INVOICE, attach a document. **Before RC-017:** the attachment is stored and
+nothing else happens. **After:** the Signed-PI/LPO dialog appears, the PI becomes
+Approved, a Job Order is created Released, an audit entry is written, and the job
+appears in the Optimization JOBS tab with its specs and sizes.
