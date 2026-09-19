@@ -244,19 +244,54 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("public static bool IsStockedSize(", svc);
             Assert.Contains("private const int SnapshotTrustSeconds = 60;", svc);
 
-            // Sync means sync: no blocking waits anywhere in the two lookups or
-            // the snapshot reader. RunFromStep5 builds racks on the UI thread.
+            // Sync means sync, and BOUNDED means bounded.
+            //
+            // This used to assert DoesNotContain(".Result") across the two
+            // lookups. That assertion has been RED since the 2026-09-20 senior
+            // fix, which added a deliberate cold-cache database fallback to both
+            // — without it a first optimization run came back with zero racks for
+            // DGU+LAM and any spec Step 4 left without a sheet. The fix reads
+            // task.Wait(timeout) then task.Result, so ".Result" is present by
+            // design.
+            //
+            // The invariant worth pinning is not "never blocks" but "never blocks
+            // WITHOUT A TIMEOUT". RunFromStep5 builds racks on the UI thread, so
+            // an unbounded wait freezes the window; a bounded one degrades to
+            // "the store cannot say", which every caller already handles as a
+            // note rather than an error. Asserting the weaker, true contract here
+            // and adding the two Phase 10 balance lookups to the same sweep.
             foreach (var start in new[]
                      {
                          "public static bool TryResolveStockSheet(",
                          "public static bool IsStockedSize(",
-                         "private static bool TryGetSnapshot("
+                         "private static bool TryGetSnapshot(",
+                         "public static bool TryGetStockBalance(",
+                         "private static bool TryGetSnapshotWithBoundedFallback("
                      })
             {
                 string body = Slice(svc, start, "catch (Exception ex)");
-                Assert.DoesNotContain(".Result", body);
+
+                // Unbounded blocking, in any form: never.
                 Assert.DoesNotContain(".Wait()", body);
+                Assert.DoesNotContain(".Wait();", body);
                 Assert.DoesNotContain("GetAwaiter().GetResult()", body);
+            }
+
+            // And wherever a blocking read does happen, the wait that precedes it
+            // must carry an explicit bound — a literal timeout, or the timeout
+            // parameter the shared fallback helper is handed by its callers
+            // (1500 for the balance lookup, 2000 for the rack resolve).
+            foreach (var start in new[]
+                     {
+                         "public static bool TryResolveStockSheet(",
+                         "public static bool IsStockedSize(",
+                         "public static bool TryGetStockBalance(",
+                         "private static bool TryGetSnapshotWithBoundedFallback("
+                     })
+            {
+                string body = Slice(svc, start, "catch (Exception ex)");
+                if (body.Contains(".Result"))
+                    Assert.Matches(@"\.Wait\(\s*(\d+|timeoutMs)\s*\)", body);
             }
 
             // Every async lookup still reads the store fresh — the header note

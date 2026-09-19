@@ -450,3 +450,123 @@ about was the one starved.
   `99999999` row, which beats a finite cap. Unlimited wins rather than being summed,
   because adding to "no limit" is meaningless — the same rule B1 already applied to
   the `0` sentinel, now extended consistently.
+
+---
+
+# PHASE 10 — the balance was never reaching the engine at all
+
+Owner instruction: *"apply balance and do deep analysis and cross check more
+deeply."* Phases 9 applied and hardened the balance **inside the run**. The deep
+cross-check found that, for the Step 5 feed, there was no balance to apply: the
+number never left the Sheet Store.
+
+## The cross-check: every consumer of `GlassSheet` inventory
+
+| Consumer | Filters `Balance > 0`? | Passes the balance to the engine? |
+|---|---|---|
+| `ProductionOptimizationBridge.GetStockAvailabilityAsync` | ✓ `.Where(g => g.Balance > 0)` | ✓ `MaxSheets = gs.Balance` |
+| `StockSelectionService.GetCompatibleSheetsAsync` | ✓ `.Where(g => g.Balance > 0)` | ✓ `MaxSheets = effective` (less reserved + allocated) |
+| `SheetStorePricingService.TryResolveStockSheet` | ✗ **none** | ✗ **returns only `WidthMm`/`HeightMm`** |
+
+`GlassSheet.Balance` is `Stock - Used` — real inventory arithmetic, so 0 genuinely
+means none left. The Optimization module was the **only** consumer of that inventory
+which ignored it. It resolved a rack *size* from the store, then `AddStep5Rack` built
+the row without an `Available` value, so `StockEntryVm`'s default of `99999999`
+applied and the engine planned against **infinite glass** — including a rack the
+store reported at `Balance = 0`, because nothing filtered on it and the largest sheet
+of a colour was picked regardless. Sheet counts, utilization and cost for that glass
+flowed on to Step 6 and Step 9.
+
+## What changed
+
+* **`TryGetStockBalance(colour, thicknessMm, w, h, out balance)`** — sync,
+  cache-first with a bounded database fallback, matching either orientation, summing
+  every inventory row at that size in `long` and clamping (the H1 discipline).
+  Returns **false** when the store cannot answer.
+* **`TryResolveStockSheet(..., out balance)`** — a balance-aware 5-argument overload
+  that filters `Balance > 0`, so an out-of-stock 3210 × 2250 loses to a smaller rack
+  that actually has glass. When every rack of that colour is at zero the answer is
+  false and the caller's existing honest refusal runs — whose message, *"the Sheet
+  Store had no stocked size for these glass colours either"*, is now accurate rather
+  than optimistic.
+* **`AddStep5Rack(..., int? storeBalance = null)`** — writes `AvailableText` when
+  inventory gave a number, leaves the default when it did not.
+* Both Step 4 racks (outer and inner) now look up their balance by the spec's own
+  `OuterGlassColor` / `InnerGlassColor`; the cross-check fallback uses the
+  balance-aware overload. A note reports how many racks now carry a real count, so
+  applying inventory is never silent.
+
+### Why the "cannot say" answer is `null` and never `0`
+
+`0` in `StockSize.MaxSheets` is the `UnlimitedSheets` sentinel — **infinite glass**.
+Answering "the store could not tell me" with `0` would hand the engine unlimited
+stock for a rack inventory could not price. `null` leaves the pre-Phase-10 default in
+place: the run plans exactly as it did before, and the operator is not shown a number
+nobody gave. A *genuine* `0` is written as `0`, because `TryBuildInputs` already
+leaves a zero-balance rack out of the run and says so.
+
+## Two tests were already red before this phase
+
+`Step5ProgressAndViewResultTests.The_sync_store_lookup_never_blocks_and_never_throws`
+asserted `DoesNotContain(".Result")` across `TryResolveStockSheet`, `IsStockedSize`
+and `TryGetSnapshot`. Verified by simulating the test's own `Slice` helper against the
+shipped file: **both lookups contain `.Result`**, so that assertion has been failing
+since the `SENIOR FIX 2026-09-20` that added a cold-cache database fallback to them —
+the fix that stopped a first optimization run coming back with zero racks for DGU+LAM.
+
+The assertion was not deleted, it was corrected to the invariant the code actually
+keeps: **never block without a timeout.** Unbounded `.Wait()`, `.Wait();` and
+`GetAwaiter().GetResult()` are still forbidden everywhere; and wherever a blocking
+read does occur, the wait preceding it must carry an explicit bound
+(`Assert.Matches(@"\.Wait\(\s*(\d+|timeoutMs)\s*\)")`). The two new Phase 10 lookups
+were added to the same sweep. Re-simulated: **0 failures across all five markers.**
+
+Both new methods are declared *after* the originals on purpose — the test slices the
+file from the first `IndexOf` of each declaration text, so an overload placed above
+the original would silently retarget that assertion at different code.
+
+## Deliberate gap: the JOBS-tab Step 4 import still has no balance
+
+`SyncStocksFromSelectedJobs` builds racks from `Step4Sheets`, whose tuple is
+`(w, h, composition, source, pricePerSqm, specNumber, side)` — **no colour**. Inventory
+is keyed by colour, so a lookup on size + thickness alone would merge a Clear and a
+Low-E rack at the same dimensions: precisely the double-count `RefreshStockUsage`'s
+header comment was written to prevent. It would hand a run a balance belonging to
+glass it is not cutting, and **a wrong balance is worse than no balance** — it refuses
+groups that do have stock. So that path keeps the visible `99999999` default and the
+operator can type the real count. Recorded here as a known boundary, not an oversight.
+
+## Two accounting systems over one run — cross-referenced, not unified
+
+`RefreshStockUsage` tallies sheets **used** per rack, keyed `(W, H, composition)`, and
+drives the STOCKS "used" column. Phase 9's ledger tracks sheets **remaining**, keyed
+`(W, H, thickness, colour)` via `BalanceKey`, and constrains the engine. The keys
+differ for a reason that is now documented at both sites:
+
+* the tally *can* key on composition because it walks `GroupRun` objects, which carry
+  the group's composition beside their sheets;
+* the ledger *cannot*, because it deducts from `SheetLayout.Stock`, and `StockSize`
+  carries no composition tag back out of the engine — so it uses thickness, populated
+  since finding B3.
+
+Case-checked that they cannot disagree on totals: every group is capped at its own
+rack's balance by the packer, so after any prefix of groups the ledger remainder is
+never below the sum of the untouched racks' caps. The ledger therefore only ever
+constrains a rack that genuinely serves more than one group — the manual "any glass"
+racks and the cross-composition opt-in, which is the bug it exists to fix. Note that
+`StockSize.Color` is never populated by the view model, so the colour component of the
+key is currently inert there; it does differentiate racks built by the Production
+bridge.
+
+## All four rack-construction sites, accounted for
+
+| Site | Available set from | Status |
+|---|---|---|
+| `LiveRun.cs` `AddStep5Rack` | Sheet Store lookup | **Phase 10** |
+| `Session.cs` restore | the saved DTO value | correct as-is — restores what the operator saw, does not re-lookup |
+| `Stocks.cs` manual add | the operator's typing | correct as-is |
+| `Stocks.cs` `SyncStocksFromSelectedJobs` | nothing (default) | documented deliberate gap |
+
+Full chain now traceable: `GlassSheet.Balance` → `TryGetStockBalance` →
+`AvailableText` → `TryBuildInputs` → `StockSize.MaxSheets` → run ledger →
+`OpenNewSheet`'s `MaxSheets` gate, which both QUICK and OPTIMIZE reach.

@@ -142,6 +142,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int piecesAdded = 0;
             int racksAdded = 0;
             var rackSeen = new HashSet<(int W, int H, string C)>();
+
+            // PHASE 10: parsed once here rather than down in the Sheet Store
+            // fallback, because the balance lookup for a Step 4 rack needs the
+            // thickness too — without it a 6mm and an 8mm rack at the same
+            // dimensions are the same row as far as inventory is concerned.
+            int glassThicknessMm =
+                Services.ProformaInvoice.SheetStorePricingService.ParseMm(ThicknessText);
+
+            // How many racks ended up carrying a real inventory count rather than
+            // the "effectively unlimited" default. Announced below; applying a
+            // balance silently is how an operator ends up with a refused group and
+            // no idea the number came from the Sheet Store rather than from them.
+            int balancesApplied = 0;
             var compositions = new List<string>();
             // ── sheet-size provenance (2026-09-17) ────────────────────────────────────
             // Step 4 is the AUTHORITY for sheet size, and for SGU / DGU / LAM it
@@ -258,11 +271,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
                 {
                     string outerComp = ComposeForSlot(PaneSlot.Pane1);
+                    int? outerBalance = LookupStoreBalance(group.OuterGlassColor,
+                        glassThicknessMm, group.OuterSheetWidthMm, group.OuterSheetHeightMm);
+                    if (outerBalance.HasValue) balancesApplied++;
                     racksAdded += AddStep5Rack(rackSeen, newStocks,
                         group.OuterSheetWidthMm, group.OuterSheetHeightMm,
                         outerComp,
                         specLabel + " outer", group.OuterSheetPricePerSqm,
-                        group.GroupNumber, "Outer");
+                        group.GroupNumber, "Outer", outerBalance);
                     rackedKeys.Add(compKey(group.GroupNumber, outerComp));
                     CrossCheckStep4Sheet(group.GroupNumber, "outer", group.OuterGlassColor,
                         group.OuterSheetWidthMm, group.OuterSheetHeightMm, sheetNotes);
@@ -271,11 +287,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
                 {
                     string innerComp = ComposeForSlot(PaneSlot.Pane2);
+                    int? innerBalance = LookupStoreBalance(group.InnerGlassColor,
+                        glassThicknessMm, group.InnerSheetWidthMm, group.InnerSheetHeightMm);
+                    if (innerBalance.HasValue) balancesApplied++;
                     racksAdded += AddStep5Rack(rackSeen, newStocks,
                         group.InnerSheetWidthMm, group.InnerSheetHeightMm,
                         innerComp,
                         specLabel + " inner", group.InnerSheetPricePerSqm,
-                        group.GroupNumber, "Inner");
+                        group.GroupNumber, "Inner", innerBalance);
                     rackedKeys.Add(compKey(group.GroupNumber, innerComp));
                     CrossCheckStep4Sheet(group.GroupNumber, "inner", group.InnerGlassColor,
                         group.InnerSheetWidthMm, group.InnerSheetHeightMm, sheetNotes);
@@ -289,8 +308,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // header note), so it cannot stall the UI thread on the database;
             // when inventory cannot answer, the honest refusal below still runs.
             int storeRacks = 0;
-            int glassThicknessMm =
-                Services.ProformaInvoice.SheetStorePricingService.ParseMm(ThicknessText);
             foreach (var group in groups)
             {
                 if (!wantedByGroup.TryGetValue(group.GroupNumber, out var wanted)) continue;
@@ -300,24 +317,39 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     string colour = !string.IsNullOrWhiteSpace(group.OuterGlassColor)
                         ? group.OuterGlassColor
                         : group.InnerGlassColor;
+                    // Balance-aware overload: picks the largest sheet that is
+                    // actually IN STOCK. The 4-argument one is untouched and still
+                    // answers the weaker "does inventory hold this size at all?"
+                    // question the cross-check note asks.
                     if (!Services.ProformaInvoice.SheetStorePricingService.TryResolveStockSheet(
-                            colour, glassThicknessMm, out int sheetW, out int sheetH))
+                            colour, glassThicknessMm, out int sheetW, out int sheetH,
+                            out int sheetBalance))
                     {
                         continue;
                     }
                     storeRacks += AddStep5Rack(rackSeen, newStocks, sheetW, sheetH, comp,
                         "Sheet Store cross-check", group.OuterSheetPricePerSqm,
-                        group.GroupNumber, "Outer");
+                        group.GroupNumber, "Outer", sheetBalance);
+                    balancesApplied++;
                     rackedKeys.Add(compKey(group.GroupNumber, comp));
                     sheetNotes.Add(string.Format(CultureInfo.InvariantCulture,
                         "Spec {0} had no sheet size from Step 4 — cut against the largest "
-                        + "{1} sheet in the Sheet Store ({2} × {3}); confirm it on Step 4.",
+                        + "{1} sheet in the Sheet Store ({2} × {3}, {4} on hand); confirm it on Step 4.",
                         group.GroupNumber,
                         string.IsNullOrWhiteSpace(colour) ? "stocked" : colour,
-                        sheetW, sheetH));
+                        sheetW, sheetH, sheetBalance));
                 }
             }
             racksAdded += storeRacks;
+
+            if (balancesApplied > 0)
+            {
+                sheetNotes.Add(string.Format(CultureInfo.InvariantCulture,
+                    "{0} rack(s) now carry their real Sheet Store balance instead of "
+                    + "unlimited glass — check the Available column on STOCKS before "
+                    + "running, and top it up there if the count is stale.",
+                    balancesApplied));
+            }
 
             // ── DIAGNOSTIC LOGGING ────────────────────────────────────────
             try
@@ -453,18 +485,38 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// usage-tracked rather than capped, and the Job Order path relies on
         /// exactly that.
         /// </remarks>
+        /// <summary>
+        /// PHASE 10: the Sheet Store's own count for a rack, or <c>null</c> when
+        /// the store cannot say.
+        ///
+        /// <c>null</c> and never <c>0</c> is the whole point. 0 in
+        /// <see cref="StockSize.MaxSheets"/> is the <c>UnlimitedSheets</c>
+        /// sentinel — infinite glass — so answering "cannot say" with 0 would hand
+        /// the engine unlimited stock for a rack the store could not price. A null
+        /// leaves <see cref="StockEntryVm"/>'s default in place, which is exactly
+        /// the pre-Phase-10 behaviour: the run plans as it always did, and the
+        /// operator is not told a number inventory never gave.
+        /// </summary>
+        private static int? LookupStoreBalance(
+            string? colour, int thicknessMm, int widthMm, int heightMm) =>
+            Services.ProformaInvoice.SheetStorePricingService.TryGetStockBalance(
+                colour, thicknessMm, widthMm, heightMm, out int balance)
+                ? balance
+                : (int?)null;
+
         private int AddStep5Rack(
             HashSet<(int W, int H, string C)> seen,
             List<StockEntryVm> target,
             int widthMm, int heightMm, string composition, string source,
-            decimal pricePerSqm, int specNumber, string side)
+            decimal pricePerSqm, int specNumber, string side,
+            int? storeBalance = null)
         {
             if (widthMm <= 0 || heightMm <= 0) return 0;
 
             string comp = (composition ?? string.Empty).Trim();
             if (!seen.Add((widthMm, heightMm, comp))) return 0;
 
-            target.Add(new StockEntryVm(
+            var row = new StockEntryVm(
                 widthMm.ToString(CultureInfo.InvariantCulture),
                 heightMm.ToString(CultureInfo.InvariantCulture),
                 comp,
@@ -474,7 +526,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 PricePerSqm = pricePerSqm,
                 SpecNumber = specNumber,
                 Side = side
-            });
+            };
+
+            // PHASE 10: until now this row was built without an Available value,
+            // so StockEntryVm's default applied and the engine planned against
+            // INFINITE glass — the Optimization module was the one consumer of
+            // Sheet Store inventory that ignored the balance. Both Production
+            // consumers filter Balance > 0 and pass the real count; this now does
+            // too. Only a number inventory actually gave is written: a null keeps
+            // the default rather than inventing a cap, and a genuine 0 is written
+            // as 0 because 0 sheets means 0 sheets — TryBuildInputs already leaves
+            // a zero-balance rack out of the run and tells the operator.
+            if (storeBalance.HasValue)
+                row.AvailableText = storeBalance.Value.ToString(CultureInfo.InvariantCulture);
+
+            target.Add(row);
             return 1;
         }
     }

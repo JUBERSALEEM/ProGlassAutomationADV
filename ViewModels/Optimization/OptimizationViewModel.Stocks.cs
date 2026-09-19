@@ -241,6 +241,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                 // Step 4 sheets are auto-selected for the run (outer and
                 // inner, colour-based); the operator can untick any rack.
+                //
+                // PHASE 10 — DELIBERATE GAP, not an oversight. These racks are
+                // still built without an Available value, so they keep the
+                // "effectively unlimited" default while the Step 5 feed now asks
+                // the Sheet Store how many are actually on hand. The reason is
+                // attribution: Step4Sheets carries (w, h, composition, source,
+                // price, spec, side) and NO colour, and inventory is keyed by
+                // colour. Looking a balance up on size + thickness alone would
+                // merge a Clear and a Low-E rack at the same dimensions — the
+                // exact double-count RefreshStockUsage's header comment warns
+                // about — and hand the run a number belonging to glass it is not
+                // cutting. Applying a balance we cannot attribute to the right
+                // rack is a guess, and a wrong balance is worse than no balance:
+                // it refuses groups that do have stock. The operator can see the
+                // default in the Available column and type the real count.
                 Stocks.Add(new StockEntryVm(
                     w.ToString(CultureInfo.InvariantCulture),
                     h.ToString(CultureInfo.InvariantCulture),
@@ -264,6 +279,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // used" (17 + 17) instead of their own 17 each. Keying by
             // (width, height, composition) keeps every rack's tally scoped
             // to its OWN cutting group.
+            //
+            // CROSS-REFERENCE (Phase 10): this is a DISPLAY tally and it is not
+            // the only accounting over a run. RunCoreAsync keeps a separate
+            // run-wide balance ledger, keyed on (W, H, thickness, colour) via
+            // BalanceKey, which CONSTRAINS the engine. The two keys differ on
+            // purpose and must not be "unified" without reading both rationales:
+            //
+            //   • this tally can key on composition because it walks GroupRun
+            //     objects, which carry the group's composition alongside their
+            //     sheets;
+            //   • the ledger cannot, because it deducts from SheetLayout.Stock,
+            //     and StockSize does not carry a composition tag back out of the
+            //     engine. It uses thickness instead — populated since finding B3
+            //     — which separates the same physical cases this comment does.
+            //
+            // They answer different questions ("how many did this rack show as
+            // used?" vs "how many are left for the NEXT group?") and agree on the
+            // totals; only the grouping differs.
             var used = new Dictionary<(int W, int H, string C), int>();
             foreach (var r in runs)
             {

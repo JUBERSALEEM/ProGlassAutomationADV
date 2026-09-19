@@ -555,5 +555,186 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 return false;
             }
         }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 10 — the Sheet Store BALANCE, which until now never reached
+        //  the optimization engine at all.
+        //
+        //  Cross-check of every consumer of GlassSheet inventory:
+        //
+        //    ProductionOptimizationBridge   .Where(g => g.Balance > 0),
+        //                                   MaxSheets = gs.Balance      ✓
+        //    StockSelectionService          .Where(g => g.Balance > 0),
+        //                                   less reserved and allocated ✓
+        //    SheetStorePricingService       no Balance filter, and
+        //      .TryResolveStockSheet        Balance discarded — only
+        //                                   WidthMm/HeightMm returned   ✗
+        //
+        //  The Optimization module was the ONE consumer that ignored stock.
+        //  It resolved a rack SIZE from inventory, then AddStep5Rack built the
+        //  row without an Available value, so StockEntryVm's default of 99999999
+        //  applied and the engine planned against INFINITE glass — including
+        //  glass the store reports as Balance 0, because nothing filtered on it.
+        //  Sheet counts, utilization and cost for that glass flowed on to Step 6
+        //  and Step 9.
+        //
+        //  GlassSheet.Balance is `Stock - Used`, real inventory arithmetic, so 0
+        //  genuinely means none left.
+        //
+        //  These methods are declared AFTER the two original lookups on purpose.
+        //  Step5ProgressAndViewResultTests slices this file from the first
+        //  IndexOf of each lookup's declaration text, so an overload placed ABOVE
+        //  the original would silently retarget that assertion at different code.
+        //  The declaration strings are spelled out here in prose rather than as
+        //  literals for the same reason: a comment containing the exact marker
+        //  would become a match candidate if the file were ever reordered.
+        //
+        //  CONTRACT, same as the two lookups above: sync, cache-first with a
+        //  BOUNDED database fallback, never throws, and false means "the store
+        //  cannot say" — never "the store is empty". Callers must therefore
+        //  leave a balance alone on false rather than writing 0, because 0 in
+        //  StockSize.MaxSheets is the UnlimitedSheets sentinel and would mean
+        //  infinite glass.
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Snapshot reader shared by the balance lookups. Cache first; on a cold
+        /// or stale cache, one bounded synchronous load. The bound is the point:
+        /// <c>RunFromStep5</c> builds racks on the UI thread, so an unbounded wait
+        /// would freeze the window, while no fallback at all was what made a first
+        /// run come back with zero racks (the 2026-09-20 senior fix).
+        /// </summary>
+        private static bool TryGetSnapshotWithBoundedFallback(
+            out List<GlassSheet> snapshot, int timeoutMs)
+        {
+            if (TryGetSnapshot(out snapshot)) return true;
+
+            snapshot = new List<GlassSheet>();
+            try
+            {
+                var repo = new ProGlassAutomation.Services.SheetStore.SheetStoreRepository();
+                var task = repo.GetAllAsync();
+                if (!task.Wait(timeoutMs)) return false;
+
+                var loaded = task.Result;
+                if (loaded == null) return false;
+                snapshot = loaded;
+
+                lock (_snapshotGate)
+                {
+                    _snapshot = loaded;
+                    _snapshotAtUtc = DateTime.UtcNow;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SheetStorePricingService] bounded snapshot load failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Sums the Sheet Store balance for a colour + size, matching either
+        /// orientation. Returns false when the store cannot answer or holds no
+        /// such row, so the caller can leave the rack's availability untouched
+        /// instead of guessing.
+        /// </summary>
+        public static bool TryGetStockBalance(
+            string? color, int thicknessMm, int widthMm, int heightMm, out int balance)
+        {
+            balance = 0;
+            var key = Norm(color);
+            if (key.Length == 0 || widthMm <= 0 || heightMm <= 0) return false;
+
+            if (!TryGetSnapshotWithBoundedFallback(out var snapshot, 1500)) return false;
+
+            try
+            {
+                var matches = snapshot
+                    .Where(s => s != null
+                                && Norm(s.Color) == key
+                                && (thicknessMm <= 0 || s.ThicknessMm == thicknessMm)
+                                && ((s.WidthMm == widthMm && s.HeightMm == heightMm)
+                                    || (s.WidthMm == heightMm && s.HeightMm == widthMm)))
+                    .ToList();
+
+                if (matches.Count == 0) return false;
+
+                // Summed in long and clamped, matching DistinctBySize: several
+                // inventory rows at one size must not be able to overflow into a
+                // negative balance, which the packer would read as exhausted.
+                long total = 0;
+                foreach (var m in matches) total += m.Balance;
+                balance = total >= int.MaxValue ? int.MaxValue : (int)total;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SheetStorePricingService] balance lookup failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Balance-aware sibling of <see cref="TryResolveStockSheet(string, int, out int, out int)"/>:
+        /// the largest sheet the store stocks for a colour that is ACTUALLY IN
+        /// STOCK, plus how many are on hand.
+        ///
+        /// The 4-argument overload is deliberately left exactly as it was. It
+        /// answers a different question — "does inventory hold this size at all?",
+        /// used only to write a cross-check NOTE — and it is pinned by
+        /// Step5ProgressAndViewResultTests. This one decides which rack a run
+        /// cuts against, so a rack with nothing on it must lose to a smaller rack
+        /// that has glass. When every rack of that colour is at zero the answer is
+        /// false, and the caller's existing honest refusal runs.
+        /// </summary>
+        public static bool TryResolveStockSheet(
+            string? color, int thicknessMm, out int widthMm, out int heightMm, out int balance)
+        {
+            widthMm = 0;
+            heightMm = 0;
+            balance = 0;
+
+            var key = Norm(color);
+            if (key.Length == 0) return false;
+
+            if (!TryGetSnapshotWithBoundedFallback(out var snapshot, 2000)) return false;
+
+            try
+            {
+                var candidates = snapshot
+                    .Where(s => s != null
+                                && Norm(s.Color) == key
+                                && s.WidthMm > 0
+                                && s.HeightMm > 0
+                                && s.Balance > 0)
+                    .OrderByDescending(s => (long)s.WidthMm * s.HeightMm)
+                    .ToList();
+
+                if (candidates.Count == 0) return false;
+
+                var pick = thicknessMm > 0
+                    ? candidates.FirstOrDefault(s => s.ThicknessMm == thicknessMm) ?? candidates[0]
+                    : candidates[0];
+
+                // Everything stocked at the picked size, not just the first row:
+                // inventory can hold the same size under several entries.
+                long total = 0;
+                foreach (var c in candidates)
+                    if (c.WidthMm == pick.WidthMm && c.HeightMm == pick.HeightMm)
+                        total += c.Balance;
+
+                widthMm = pick.WidthMm;
+                heightMm = pick.HeightMm;
+                balance = total >= int.MaxValue ? int.MaxValue : (int)total;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SheetStorePricingService] balance-aware resolve failed: {ex.Message}");
+                return false;
+            }
+        }
     }
 }
