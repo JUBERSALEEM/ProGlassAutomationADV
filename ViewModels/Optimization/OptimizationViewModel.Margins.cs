@@ -588,8 +588,34 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     max = parsed;
                 }
 
-                stocks.Add((new StockSize { WidthMm = w, HeightMm = h, MaxSheets = max },
-                    s.Composition ?? string.Empty));
+                // PHASE 9 / finding B3: the rack now carries its thickness.
+                //
+                // This was the ONLY place in the module that built a StockSize,
+                // and it set width, height and balance but never ThicknessMm — so
+                // every rack in every run carried 0. Two consequences:
+                //
+                //   1. GuillotinePacker.VerifyComprehensive has a piece-vs-stock
+                //      thickness check, guarded by `sheet.Stock.ThicknessMm > 0`.
+                //      With the field always 0 it could never fire from this
+                //      module: 8mm pieces laid onto a 6mm rack passed the oracle
+                //      that Phase 8 just made the export gate.
+                //   2. The run-wide balance ledger (finding B2) keys racks on
+                //      size + thickness + colour. Without a thickness, two
+                //      different glasses at the same dimensions shared one
+                //      ledger entry.
+                //
+                // Pieces already derive their thickness from their own glass ref
+                // through this same parser, and a dedicated rack's composition IS
+                // that glass ref — so the two sides agree by construction. A
+                // manual rack has no composition, ParseThicknessMm returns 0, and
+                // the check stays dormant exactly as it is today.
+                stocks.Add((new StockSize
+                {
+                    WidthMm = w,
+                    HeightMm = h,
+                    MaxSheets = max,
+                    ThicknessMm = ParseThicknessMm(s.Composition)
+                }, s.Composition ?? string.Empty));
             }
 
             if (zeroStockNotes.Count > 0)

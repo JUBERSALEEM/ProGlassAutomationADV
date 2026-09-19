@@ -544,10 +544,99 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private static List<StockSize> SortStocksLargestFirstForTieBreak(List<StockSize> stocks) =>
             stocks.OrderByDescending(s => (long)s.WidthMm * s.HeightMm).ToList();
 
+        /// <summary>
+        /// Collapses stock rows that share a physical size into one rack.
+        ///
+        /// PHASE 9 / finding B1: this used to be <c>g.First()</c>, which threw the
+        /// balance away. Two deliveries of the same 3210 × 2250 — say Available 10
+        /// and Available 15 — became ONE rack carrying whichever row happened to be
+        /// first, and the other 15 sheets disappeared from the run. The plan then
+        /// reported pieces as unplaced, or refused the group outright, against glass
+        /// that was physically standing on the floor. Balances at the same size are
+        /// now summed.
+        ///
+        /// The unlimited sentinel needs care. 0 means "no limit", not "none left",
+        /// so if ANY row at a size is unlimited the merged rack is unlimited —
+        /// summing a real number into an unlimited one would invent a cap the
+        /// operator never typed.
+        /// </summary>
         private static List<StockSize> DistinctBySize(List<StockSize> stocks) =>
             stocks.GroupBy(s => (s.WidthMm, s.HeightMm))
-                  .Select(g => g.First())
+                  .Select(g =>
+                  {
+                      var first = g.First();
+
+                      if (g.Any(s => s.MaxSheets == StockSize.UnlimitedSheets))
+                          return first.MaxSheets == StockSize.UnlimitedSheets
+                              ? first
+                              : first.WithMaxSheets(StockSize.UnlimitedSheets);
+
+                      int summed = g.Sum(s => s.MaxSheets);
+                      return summed == first.MaxSheets ? first : first.WithMaxSheets(summed);
+                  })
                   .ToList();
+
+        /// <summary>
+        /// Physical identity of a rack for balance accounting: size, thickness and
+        /// colour — the same dimensions <see cref="DistinctBySize"/> collapses on.
+        /// Composition is deliberately NOT part of the key. It decides which
+        /// <c>ResolveGroupStocks</c> branch a row is resolved through, and
+        /// <c>SheetLayout.Stock</c> does not carry the tag back out of the engine,
+        /// so a key including it could never be matched at deduction time.
+        /// </summary>
+        private static (int W, int H, int T, string Color) BalanceKey(StockSize s) =>
+            (s.WidthMm, s.HeightMm, s.ThicknessMm, (s.Color ?? string.Empty).Trim());
+
+        /// <summary>
+        /// The pool as the floor sees it RIGHT NOW: every capped rack reduced by
+        /// what earlier cutting groups in this same run already consumed, and
+        /// exhausted racks removed.
+        ///
+        /// PHASE 9 / finding B2. Racks absent from <paramref name="ledger"/> are
+        /// unlimited — 0 is the <see cref="StockSize.UnlimitedSheets"/> sentinel,
+        /// not "none left" — and pass through untouched. An exhausted rack is
+        /// DROPPED rather than written as 0, because all three packer strategies
+        /// read 0 as infinite glass; zeroing a spent rack would hand the engine an
+        /// unlimited supply of the one rack that has run out.
+        /// </summary>
+        private static List<(StockSize Stock, string Composition)> ApplyRunBalance(
+            List<(StockSize Stock, string Composition)> pool,
+            Dictionary<(int W, int H, int T, string Color), int> ledger,
+            out bool reduced)
+        {
+            reduced = false;
+            if (ledger.Count == 0) return pool;
+
+            var result = new List<(StockSize Stock, string Composition)>(pool.Count);
+
+            foreach (var row in pool)
+            {
+                var key = BalanceKey(row.Stock);
+
+                if (!ledger.TryGetValue(key, out int remaining))
+                {
+                    result.Add(row);   // unlimited
+                    continue;
+                }
+
+                if (remaining <= 0)
+                {
+                    reduced = true;    // exhausted — drop it, never zero it
+                    continue;
+                }
+
+                if (remaining >= row.Stock.MaxSheets)
+                {
+                    result.Add(row);
+                    continue;
+                }
+
+                reduced = true;
+                result.Add((row.Stock.WithMaxSheets(remaining), row.Composition));
+            }
+
+            return result;
+        }
 
         private async Task RunCoreAsync(
             string stage, List<(string Composition, List<CutPiece> Pieces)> groups,
@@ -569,6 +658,35 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             try
             {
+                // ── RUN-WIDE BALANCE LEDGER (PHASE 9 / finding B2) ──────────
+                //
+                // ResolveGroupStocks is called once per cutting group and the pool
+                // it was handed never changed, so EVERY group saw the full Sheet
+                // Store balance. A rack with Available 10 and no composition tag
+                // could be committed 10 sheets to 6mm clear and another 10 to 8mm
+                // clear — twenty sheets cut from ten — and the sheet counts,
+                // utilization and cost for that phantom glass were published
+                // straight through to Step 6 and Step 9.
+                //
+                // Racks any row declares unlimited are left out of the ledger
+                // entirely, so they are never deducted.
+                var balanceLedger = new Dictionary<(int W, int H, int T, string Color), int>();
+                var unlimitedKeys = new HashSet<(int W, int H, int T, string Color)>();
+
+                foreach (var row in stockPool)
+                    if (row.Stock.MaxSheets == StockSize.UnlimitedSheets)
+                        unlimitedKeys.Add(BalanceKey(row.Stock));
+
+                foreach (var row in stockPool)
+                {
+                    var key = BalanceKey(row.Stock);
+                    if (unlimitedKeys.Contains(key)) continue;
+                    balanceLedger.TryGetValue(key, out int have);
+                    balanceLedger[key] = have + row.Stock.MaxSheets;
+                }
+
+                int balanceConstrainedGroups = 0;
+
                 var runs = new List<GroupRun>();
                 foreach (var (composition, groupPieces) in groups)
                 {
@@ -581,7 +699,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // (the sheet its pane was quoted on), falling back to
                     // manual "any group" racks only when no Step 4 sheet is
                     // recorded for that glass.
-                    var groupStocks = ResolveGroupStocks(composition, stockPool,
+                    // What the floor has LEFT after the groups already cut, not
+                    // what it started with. See the ledger above.
+                    var effectivePool = ApplyRunBalance(stockPool, balanceLedger,
+                        out bool poolReduced);
+                    if (poolReduced) balanceConstrainedGroups++;
+
+                    var groupStocks = ResolveGroupStocks(composition, effectivePool,
                         AllowCrossCompositionStock, out string stockNote);
                     string note = string.IsNullOrWhiteSpace(stockNote)
                         ? marginNote
@@ -697,6 +821,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                     int problems = result.ValidationProblems.Count;
 
+                    // Take this group's sheets out of the run-wide balance. Keyed
+                    // off SheetLayout.Stock, which is the rack the packer actually
+                    // opened, so a group that fell back to a different size
+                    // charges the rack it really used.
+                    foreach (var used in result.Sheets.GroupBy(sh => BalanceKey(sh.Stock)))
+                    {
+                        if (!balanceLedger.TryGetValue(used.Key, out int have)) continue;
+                        balanceLedger[used.Key] = have - used.Count();
+                    }
+
                     runs.Add(new GroupRun
                     {
                         Composition = composition,
@@ -714,6 +848,23 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         MarginNote = note
                     });
                 }
+
+                    // The codebase's standing rule is that a size- or
+                    // stock-driven change to the plan is surfaced, never silent.
+                    // Appended to scaleNotes so it travels the existing
+                    // append-never-replace path into the run header.
+                    if (balanceConstrainedGroups > 0)
+                    {
+                        int exhausted = balanceLedger.Values.Count(v => v <= 0);
+                        scaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
+                            "BALANCE: {0} cutting group(s) ran on a Sheet Store balance already "
+                            + "partly consumed by earlier groups in this run{1}.",
+                            balanceConstrainedGroups,
+                            exhausted > 0
+                                ? string.Format(CultureInfo.InvariantCulture,
+                                    "; {0} rack(s) ran out and were withdrawn from the later groups", exhausted)
+                                : string.Empty));
+                    }
 
                     ApplyResults(stage, runs, rotation);
 

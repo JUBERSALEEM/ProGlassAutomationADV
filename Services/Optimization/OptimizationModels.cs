@@ -220,6 +220,27 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         public const int UnlimitedSheets = 0;
 
+        /// <summary>
+        /// Returns a copy of this rack carrying a different Sheet Store balance.
+        /// Every property here is <c>init</c>, so re-pricing a rack part-way
+        /// through a run means making a new one rather than mutating the instance
+        /// the packer is still holding.
+        ///
+        /// PHASE 9 / finding B2. Callers must never pass
+        /// <see cref="UnlimitedSheets"/> to mean "exhausted" — 0 reads as
+        /// INFINITE GLASS in all three packer strategies. A rack with nothing
+        /// left has to be dropped from the pool, not zeroed.
+        /// </summary>
+        public StockSize WithMaxSheets(int maxSheets) => new StockSize
+        {
+            WidthMm = WidthMm,
+            HeightMm = HeightMm,
+            ThicknessMm = ThicknessMm,
+            Color = Color,
+            Label = Label,
+            MaxSheets = maxSheets
+        };
+
         public string SizeLabel => string.IsNullOrWhiteSpace(Label)
             ? $"{WidthMm.ToString(CultureInfo.InvariantCulture)} × {HeightMm.ToString(CultureInfo.InvariantCulture)}"
             : Label;

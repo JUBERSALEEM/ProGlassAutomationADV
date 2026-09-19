@@ -293,3 +293,72 @@ Two honesty notes on verification:
 2. **The Python packer harness is not in this workspace.** The 31-assertion harness used for the earlier phases lived outside the repository and is gone from the sandbox; it could not be re-run against this phase. What *was* re-verified for every file in this changeset: brace/paren balance with comments and strings stripped, and `tools/xaml_validator.py` across all 337 views (`ERROR=0`). Nothing here is claimed as runtime-proven — the 10-item runtime checklist above still stands, on the 2.0.4 build.
 
 **Open question for the owner:** the 180-day latest-run retention in finding 14 is a default I chose, not a requirement you stated. If quotes stay live longer than six months in your workflow, raise `DefaultLatestRunRetentionDays` before this ships.
+
+---
+
+# PHASE 9 — apply the Sheet Store balance
+
+Owner instruction: *"apply balance also."* In this codebase **balance** has one
+meaning — the Sheet Store quantity available on a rack, carried into the engine as
+`StockSize.MaxSheets` and surfaced on STOCKS as the *Available* column. It was
+parsed, validated and reported correctly after Phase 2, but it was **not actually
+applied** in three places.
+
+| # | Finding | Evidence | Fix |
+|---|---------|----------|-----|
+| **B1** | Duplicate stock rows lost their balance | `DistinctBySize` was `GroupBy(size).Select(g => g.First())`. Two deliveries of the same 3210 × 2250 with Available 10 and Available 15 collapsed into one rack carrying whichever row was first — the other 15 sheets vanished, and the plan then reported pieces unplaced against glass standing on the floor | Balances at the same size are now **summed**. If ANY row at a size is unlimited the merged rack is unlimited, because summing a real number into the unlimited sentinel would invent a cap nobody typed |
+| **B2** | The balance was per-group, never per-run | `RunCoreAsync` passed the same `stockPool` into `ResolveGroupStocks` for **every** cutting group, and nothing was ever deducted. A rack with Available 10 and no composition tag could be committed 10 sheets to 6mm clear *and* 10 to 8mm clear — twenty sheets cut from ten — with the sheet counts, utilization and cost for that phantom glass published through to Step 6 and Step 9 | A run-wide `balanceLedger` is built from the pool before the loop, each group receives `ApplyRunBalance(pool, ledger)` — what is LEFT, not what it started with — and the sheets in `result.Sheets` are deducted afterwards, keyed off `SheetLayout.Stock` so a group that fell back to another size charges the rack it really used. Surfaced as a `BALANCE:` note through the existing append-never-replace path |
+| **B3** | Racks carried no thickness | `Margins.cs` was the **only** place in the module that built a `StockSize`, and it set width, height and balance — never `ThicknessMm`. So every rack in every run carried 0 | Racks now carry `ParseThicknessMm(composition)` |
+
+### The trap in B2, and why the ledger drops racks instead of zeroing them
+
+`MaxSheets == 0` is `StockSize.UnlimitedSheets` — it reads as **infinite glass** in
+all three packer strategies (`GuillotinePacker.OpenNewSheet`, `Advanced`, `Smart`).
+So an exhausted rack written back as 0 would hand the engine an unlimited supply of
+the one rack that has run out. `ApplyRunBalance` therefore **removes** exhausted
+racks. `StockSelectionService` already follows this discipline
+(`if (effective <= 0 && sheet.Balance > 0) continue;`), so the ledger matches the
+Production module's established pattern rather than inventing one.
+
+### Why B3 matters more than bookkeeping
+
+`GuillotinePacker.VerifyComprehensive` contains a piece-vs-stock thickness check
+guarded by `sheet.Stock.ThicknessMm > 0`. With the field permanently 0 that check
+**could never fire from the Optimization module** — 8mm pieces laid onto a 6mm rack
+passed the oracle Phase 8 had just made the export gate. Setting the thickness wakes
+it. Pieces already derive their thickness from their own glass ref through the same
+parser, and a dedicated rack's composition *is* that glass ref, so the two sides
+agree by construction; a manual rack has no composition, the parser returns 0, and
+the check stays dormant exactly as today.
+
+**Behaviour change to be aware of:** with the cross-composition opt-in enabled
+(SETTINGS ▸ *Allow cross-composition stock*), a run that lays pieces onto the wrong
+thickness will now be **refused by the export gate** instead of exporting. That is
+the intended consequence — finding 5a already labelled such a plan as not real — but
+it is a change an operator will notice.
+
+### Ledger key, and the one case it cannot distinguish
+
+The key is size + thickness + colour, deliberately **not** composition: composition
+decides which `ResolveGroupStocks` branch a row is resolved through, and
+`SheetLayout.Stock` does not carry the tag back out of the engine, so a
+composition-keyed ledger could never be matched at deduction time. Thickness (B3) is
+what keeps two different glasses at the same dimensions from sharing an entry.
+
+Verified by case analysis that the size-based key cannot over-restrict: a group can
+only be handed less than its own rack's balance if another group genuinely consumed
+that physical glass, which requires the cross-composition path — where the
+consumption is real.
+
+### Checked and NOT changed
+
+`ProductionOptimizationBridge.GetStockAvailabilityAsync` also does
+`MaxSheets = gs.Balance` with no zero guard, which looks like the same bug — but its
+query already filters `.Where(g => g.Balance > 0)`, so a zero balance can never
+reach it. No patch. It does not subtract reserved/allocated the way
+`StockSelectionService` does; that is a separate design question about whether the
+Cutting Work Center should see committed stock, and it is recorded here rather than
+answered silently.
+
+No pinned test references `DistinctBySize`, and the tests that set `MaxSheets` build
+`StockSize` directly and call the packer — unaffected by all three changes.
