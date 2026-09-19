@@ -1,5 +1,5 @@
 <ResourceDictionary
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -565,7 +565,6 @@
                                            FontSize="{DynamicResource GlassBlush.FontKpi}"
                                            FontWeight="Bold"
                                            Foreground="{DynamicResource GlassBlush.Text}"
-                                           FontFeatures="tnum"
                                            TextOptions.TextFormattingMode="Display"/>
                                 <TextBlock Text="{TemplateBinding Tag}"
                                            FontSize="{DynamicResource GlassBlush.FontCaption}"
@@ -753,7 +752,6 @@
                                            FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
                                            FontWeight="Bold"
                                            Foreground="{DynamicResource GlassBlush.Text}"
-                                           FontFeatures="tnum"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                         </Grid>

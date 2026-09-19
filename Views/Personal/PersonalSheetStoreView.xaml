@@ -160,7 +160,7 @@
 
         <!-- ══ MODE TABS (Glass | Consumables — same VM toggle) ═════ -->
         <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,14">
-            <Button Style="{StaticResource GbModeTab}"
+            <Button
                     Content="Glass"
                     Command="{Binding ShowGlassCommand}">
                 <Button.Style>
@@ -175,7 +175,7 @@
                     </Style>
                 </Button.Style>
             </Button>
-            <Button Style="{StaticResource GbModeTab}"
+            <Button
                     Content="Consumables"
                     Command="{Binding ShowConsumablesCommand}">
                 <Button.Style>
@@ -266,7 +266,7 @@
                                                        FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                        Foreground="{DynamicResource GlassBlush.TextMuted}"
                                                        Margin="0,4,0,8"/>
-                                            <ProgressBar Style="{StaticResource GlassBlush.Progress}"
+                                            <ProgressBar
                                                          Height="6"
                                                          Minimum="0"
                                                          Maximum="{Binding Stock}"

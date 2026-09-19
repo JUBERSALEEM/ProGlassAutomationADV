@@ -182,7 +182,7 @@
         <ContentControl Grid.Column="2" Style="{StaticResource GlassBlush.GlassCard}">
             <Grid>
                 <!-- empty state (nothing selected) -->
-                <ContentControl Style="{StaticResource GlassBlush.EmptyState}"
+                <ContentControl
                                 Tag="&#xE7F4;"
                                 Content="Select a delivery">
                     <ContentControl.Style>

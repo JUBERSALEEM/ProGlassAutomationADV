@@ -95,8 +95,7 @@
                             <TextBlock Text="{Binding OverdueCount}"
                                        FontSize="{DynamicResource GlassBlush.FontMeta}"
                                        FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassBlush.Text}"
-                                       FontFeatures="tnum"/>
+                                       Foreground="{DynamicResource GlassBlush.Text}"/>
                         </Border>
                     </StackPanel>
                 </Border>
@@ -213,8 +212,7 @@
                                                            Text="{Binding AmountDisplay}"
                                                            FontSize="{DynamicResource GlassBlush.FontBody}"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource GlassBlush.Text}"
-                                                           FontFeatures="tnum"/>
+                                                           Foreground="{DynamicResource GlassBlush.Text}"/>
                                             </Grid>
                                             <ProgressBar Margin="0,7,0,0"
                                                          Minimum="0" Maximum="1"
@@ -316,16 +314,14 @@
                                                            FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                            Foreground="{DynamicResource GlassBlush.TextMuted}"
                                                            VerticalAlignment="Center"
-                                                           Margin="0,0,16,0"
-                                                           FontFeatures="tnum"/>
+                                                           Margin="0,0,16,0"/>
                                                 <TextBlock Grid.Column="2"
                                                            Text="{Binding AmountDisplay}"
                                                            FontSize="{DynamicResource GlassBlush.FontBody}"
                                                            FontWeight="SemiBold"
                                                            Foreground="{DynamicResource GlassBlush.Text}"
                                                            VerticalAlignment="Center"
-                                                           Margin="0,0,16,0"
-                                                           FontFeatures="tnum"/>
+                                                           Margin="0,0,16,0"/>
                                                 <Border Grid.Column="3"
                                                         Background="{DynamicResource GlassBlush.SurfaceFaint}"
                                                         BorderBrush="{DynamicResource GlassBlush.BorderSoft}"

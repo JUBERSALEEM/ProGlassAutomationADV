@@ -21,6 +21,16 @@ Static analysis gate for every .xaml file in the repository.
   W16 unauthorized StaticResource on runtime-owned tokens (Pg font / density /
       radius tokens must be DynamicResource — 2026-09-18 policy flip)
   W17 hardcoded hex colour in a view (NOTE; theme files are exempt)
+  W18 root element default xmlns is the XAML (non-presentation) namespace —
+      WPF UI types (incl. ResourceDictionary) live in .../xaml/presentation,
+      so the whole dictionary fails markup compilation (MC6002). Added
+      2026-09-19 after the first real build (GB-B1).
+  W19 non-existent WPF property in the denylist (e.g. FontFeatures — a CSS
+      property with no WPF equivalent; markup compilation fails MC3072).
+      Added 2026-09-19 (GB-B1).
+  W20 a property set BOTH as an attribute AND as a property element on the
+      same element (e.g. Style attribute + <Border.Style>) — MC3024
+      "can be set only once". Added 2026-09-19 (GB-B1).
 
 Usage:  python3 tools/xaml_validator.py [--files <paths...>]
 Writes: docs/ui-audit/XAML_VALIDATION_REPORT.{md,json}
@@ -70,6 +80,13 @@ MUST_BE_DYNAMIC = {"PgFontHero", "PgFontHeroSub", "PgFontCardTitle", "PgFontCard
     "PgPageMargin", "PgCardPadding", "PgTilePadding", "PgRowPadding",
     "PgGutter", "PgGutterHalfMargin", "PgKpiTileMinHeight", "PgChartMinHeight",
     "PgCardRadius", "PgTileRadius", "PgCtrlRadius", "PgIconRadius", "PgIconSmRadius"}
+
+# W19 denylist — names that look like WPF properties but do not exist.
+# Each entry was a real build break (GB-B1, first real build 2026-09-19).
+# Add here, with the error code, whenever a new one is discovered.
+NONEXISTENT_PROPS = {
+    "FontFeatures",   # CSS font-feature-settings; WPF has no XAML property
+}
 
 NUM = re.compile(r"^-?\d+(\.\d+)?$")
 THICK = re.compile(r"^(-?\d+(\.\d+)?|Auto|\*)(,(-?\d+(\.\d+)?)){0,3}$")
@@ -150,6 +167,16 @@ def check_file(path, merge_index, all_declared, i18n, findings):
     except ET.ParseError as e:
         F("ERROR", "W1", f"malformed XML: {e}")
         return
+    # W18 root default xmlns must be the PRESENTATION namespace. WPF UI
+    # types (Border, Style, …) and ResourceDictionary itself live in
+    # System.Windows / System.Windows.Media → .../xaml/presentation. A root
+    # defaulting to .../xaml (the XAML language namespace) fails markup
+    # compilation with MC6002 'Unrecognized tag'. Static ET parsing cannot
+    # catch this (the XML is well-formed) — hence the explicit check.
+    if isinstance(root.tag, str) and root.tag.startswith("{" + XAML_NS + "}"):
+        F("ERROR", "W18",
+          "root element defaults xmlns to the XAML namespace — must be "
+          "http://schemas.microsoft.com/winfx/2006/xaml/presentation (MC6002)")
     # (W13 removed: ET parsing already guarantees xmlns prefixes are declared —
     #  an undeclared prefix is a W1 parse failure, not a separate check.)
     # W4 duplicate attributes (raw scan, comments stripped, QUOTE-AWARE tokenizer
@@ -228,6 +255,19 @@ def check_file(path, merge_index, all_declared, i18n, findings):
     for k in re.findall(r"\bStaticResource\s+(Pg[A-Za-z0-9]+)", nocomm):
         if k in MUST_BE_DYNAMIC:
             F("ERROR", "W16", f"StaticResource {k} — runtime-owned token must be DynamicResource")
+    # W19 — non-existent WPF properties (denylist). These are real properties
+    # in OTHER technologies (CSS) that have no WPF equivalent; the markup
+    # compiler rejects them (MC3072 / XLS0413) but static XML parsing passes.
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        for attr, val in el.attrib.items():
+            an = local(attr)
+            if an in NONEXISTENT_PROPS:
+                F("ERROR", "W19", f"non-existent WPF property '{an}' (no such member — markup compile fails)")
+        for c in el:
+            if isinstance(c.tag, str) and c.get("Property") in NONEXISTENT_PROPS:
+                F("ERROR", "W19", f"Setter Property='{c.get('Property')}' is not a WPF property")
     # element checks
     for el in root.iter():
         if not isinstance(el.tag, str):
@@ -235,6 +275,18 @@ def check_file(path, merge_index, all_declared, i18n, findings):
         t = local(el.tag)
         a = el.attrib
         children = content_children(el)
+        # W20 — property set both as attribute AND as a property element
+        # (e.g. Style="..." attribute + <Border.Style> child). WPF: a property
+        # can be set only once (MC3024). Dot-qualified child local names keep
+        # the 'Parent.Property' form in ElementTree.
+        for c in el:
+            if not isinstance(c.tag, str):
+                continue
+            lt = local(c.tag)
+            if "." in lt:
+                qual, prop = lt.split(".", 1)
+                if qual == t and prop in a:
+                    F("ERROR", "W20", f"'{prop}' set as attribute AND as <{t}.{prop}> property element (set-once violation)")
         if t in ("Border", "ScrollViewer") and len(children) > 1:
             F("ERROR", "W10", f"<{t}> has {len(children)} content children (must be 1)")
         if t == "ContentControl" and len(children) > 1:
@@ -334,7 +386,9 @@ def main():
       "W6 static unresolved in parse scope · W7 dynamic unresolved & not runtime-published · W8 invalid numeric syntax · "
       "W9 Min>Max · W10 single-child violation · W11 Items+ItemsSource · W12 grid out-of-bounds (auto-extends) · "
       "W14 missing code-behind · W15 FindName missing · W16 unauthorized static on runtime token · "
-      "W17 hardcoded hex in view. W3 duplicate x:Key is WARN (WPF last-wins shadowing, latent). "
+      "W17 hardcoded hex in view · W18 root xmlns = XAML (not presentation) namespace · "
+      "W19 non-existent WPF property (denylist) · W20 property set as attribute AND property element. "
+      "W3 duplicate x:Key is WARN (WPF last-wins shadowing, latent). "
       "W7 covers keys published at runtime by Services (ThemeManager, PrintTokenService, …).")
     A("")
     A("**Honesty gate:** static analysis only. It cannot prove runtime layout, visual-tree construction or the "

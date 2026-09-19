@@ -11,6 +11,9 @@ screen, deviations, and verification status.
 **Honesty rules in force:** STATIC VERIFIED ≠ RUNTIME VERIFIED ·
 VISUALLY MATCHED ≠ NOT YET VERIFIED (no runtime exists in this environment —
 no .NET SDK, no screenshots possible; GB-P16 is tooling-ready but NOT RUN).
+A first REAL build was run externally on 2026-09-19 and its errors were
+fixed at the source (GB-B1) — the rebuild is still due in the SDK
+environment before anything may be labelled build-verified.
 
 ---
 
@@ -268,6 +271,67 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   - Primary text clears AA comfortably. Secondary/meta tokens sit at/above the 3:1 non-text threshold but below 4.5:1 for normal body text — an inherent property of the reference's translucent glass surfaces (raising the hue enough to clear 4.5 would visibly alter the source-of-truth look). Per the accessibility rule ("if the reference has low contrast, keep usable text contrast and document"), the reference colors are **kept** and this is documented here. Meta tokens are used only for secondary/timestamp text, never primary content.
   - Keyboard: all interactive Personal controls are native Button/ToggleButton/CheckBox/DatePicker/TextBox (keyboard-focusable); scroll containers are `Focusable=False` with `FocusVisualStyle` nulled (they are not tab stops by design). Focus visibility comes from the shell's default focus visual on focusable controls.
 
+## GB-B1 — First real build fix round (2026-09-19)
+- **Context:** the first REAL build (user's .NET SDK environment — this
+  sandbox has no SDK) surfaced markup-compiler errors that static
+  validation could not see. Three root causes, all fixed at the source:
+- **Root cause 1 (MC6002 — the big one): wrong root xmlns on 4 dictionaries.**
+  `GlassBlushTokens.xaml`, `GlassComponents.xaml`, `GlassShellStyles.xaml`
+  (GB-P1) and `PagePatterns.xaml` (MASTER P1) declared their root default
+  namespace as `http://schemas.microsoft.com/winfx/2006/xaml` (the XAML
+  *language* namespace) instead of `.../xaml/presentation`. `ResourceDictionary`
+  and every WPF UI/Media type live in the **presentation** namespace, so the
+  whole dictionary failed markup compilation at the root tag. This single
+  bug explains the flood of downstream designer errors: all
+  `XDG-0001 "GlassBlush.* could not be resolved"` (dictionaries never
+  compiled → resources absent) and `XDG0008 "GlassShell type not found"`
+  (build failure → assembly incomplete). Fixed: root default xmlns →
+  `.../xaml/presentation` in all 4 files.
+- **Root cause 2 (MC3072/XLS0413): `FontFeatures` is not a WPF property.**
+  It is a CSS property (`font-feature-settings`) with no WPF XAML
+  equivalent — a hallucinated attribute (19 occurrences across 5 files:
+  GlassComponents KPI template + the 4 Personal views with KPI/readout
+  numerals). Removed everywhere. Documented deviation: the references'
+  tabular (monospaced-digit) numerals cannot be expressed in WPF XAML
+  (no OpenType font-feature API on TextBlock); default proportional
+  numerals render — acceptable typographic delta, no visual regression
+  beyond digit advance width.
+- **Root cause 3 (MC3024): property set twice — attribute + property element.**
+  WPF allows a property to be set exactly once. Six sites carried both a
+  `Style="..."` attribute AND a `<El.Style>` property element (the element
+  was the real one, `BasedOn` the same style + triggers): `MainWindow.xaml`
+  (connectivity pill — PRE-EXISTING from the MERIDIAN stream),
+  `OverviewDashboardView.xaml` (overdue stat — PRE-EXISTING),
+  `PersonalDeliveryNoteView.xaml` (empty-state), `PersonalSheetStoreView.xaml`
+  (2 mode tabs + stock ProgressBar — GB-P8). The redundant attribute was
+  removed at all six sites.
+- **Errors needing NO file change (cascade / local-only):**
+  - `XDG0010 "MultiValueConverter must be specified"` +
+    `XDG-0001 "ExperienceGatedConverter incompatible type"` (MainWindow
+    popup gates, GB-P15): designer-level type resolution — the XDG designer
+    resolves `clr-namespace` types against a BUILT assembly, which a
+    clean checkout has never produced. Expected to clear with the first
+    successful build; the XAML syntax (`MultiBinding Converter=...`) is
+    standard and the converter implements `IMultiValueConverter`.
+  - `XDG0006 "DbChipStyle"` (MainWindow L137) and
+    `XDG0006 "views/production/controls/productionunitdetailtemplates.xaml"`
+    (lowercase pack URIs, L173–194): **not present in this branch** — no
+    `DbChipStyle` anywhere in the repo, and the only reference to
+    `ProductionUnitDetailTemplates.xaml` in our tree uses the correct
+    pack-URI case. These belong to the local `ProGlassAutomationperf`
+    working copy, which has diverged from this branch; re-sync the branch
+    and they disappear.
+- **Gate hardening (one fix over N edits):** `tools/xaml_validator.py`
+  gained three ERROR-level checks, each verified against synthetic bad
+  files — `W18` root default xmlns = XAML (non-presentation) namespace,
+  `W19` non-existent WPF property denylist (`FontFeatures`), `W20`
+  property set as both attribute and property element (set-once rule).
+  Lesson: static XML well-formedness (ET) cannot catch namespace choice,
+  property existence, or WPF set-once semantics — all three are now gates.
+- **Status:** fixes committed; the build is **NOT RE-RUN here** (no SDK).
+  The rebuild is due in the SDK environment — nothing in this stream may be
+  labelled build-verified until it passes there.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -289,3 +353,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P15 global visual consistency | ✅ STATIC VERIFIED (Personal-side popup anchors + error-bubble variant; BUILD NOT RUN) | `GB-P15` |
 | GB-P16 runtime screenshot fidelity | ❌ **NOT RUN — no WPF runtime in this environment** (verification plan documented) | — |
 | GB-P17 DPI/a11y/performance | ✅ STATIC VERIFIED (automation names on 10 icon buttons; contrast measured+documented; virtualization/effects audit) | `GB-P17` |
+| GB-B1 first real build fix round | ✅ FIXED at source (4 root-xmlns + 19 FontFeatures + 6 set-twice Style; validator +W18/W19/W20) — rebuild due in SDK env | `GB-B1` |

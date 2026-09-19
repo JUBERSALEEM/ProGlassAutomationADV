@@ -442,8 +442,7 @@
                             Margin="0,0,10,0"
                             ToolTip="{DynamicResource ToolTip.NetworkState}">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource PgTopPillIconStyle}"
-                                    Margin="0,0,10,0">
+                            <Border Margin="0,0,10,0">
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource PgTopPillIconStyle}">
                                         <Setter Property="Background" Value="{DynamicResource PgOkBrush}"/>

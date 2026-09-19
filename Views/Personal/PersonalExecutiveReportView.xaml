@@ -198,7 +198,6 @@
                                                            FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
                                                            FontWeight="Bold"
                                                            Foreground="{DynamicResource GlassBlush.Text}"
-                                                           FontFeatures="tnum"
                                                            Margin="0,6,0,2"
                                                            TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock Text="{Binding Subtitle}"
@@ -273,8 +272,7 @@
                                                FontWeight="SemiBold"
                                                Foreground="{DynamicResource GlassBlush.TextMuted}"
                                                VerticalAlignment="Center"
-                                               Margin="10,0,0,0"
-                                               FontFeatures="tnum"/>
+                                               Margin="10,0,0,0"/>
                                 </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -311,7 +309,6 @@
                                                            FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
                                                            FontWeight="Bold"
                                                            Foreground="{DynamicResource GlassBlush.Text}"
-                                                           FontFeatures="tnum"
                                                            Margin="0,6,0,2"
                                                            TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock Text="{Binding Subtitle}"
@@ -360,8 +357,7 @@
                                                            Text="{Binding SharePctDisplay}"
                                                            FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
-                                                           FontFeatures="tnum"/>
+                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"/>
                                             </Grid>
                                             <ProgressBar Margin="0,6,0,0"
                                                          Minimum="0" Maximum="100"
@@ -403,8 +399,7 @@
                                                            Text="{Binding SharePctDisplay}"
                                                            FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
-                                                           FontFeatures="tnum"/>
+                                                           Foreground="{DynamicResource GlassBlush.TextMuted}"/>
                                             </Grid>
                                             <ProgressBar Margin="0,6,0,0"
                                                          Minimum="0" Maximum="100"

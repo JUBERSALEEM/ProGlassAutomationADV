@@ -288,8 +288,7 @@
                                 <StackPanel Margin="10,0,0,0">
                                     <TextBlock Text="{DynamicResource Common.Overdue}"
                                                Style="{StaticResource PgStatLabelStyle}"/>
-                                    <TextBlock Text="{Binding OverdueDisplay}"
-                                               Style="{StaticResource PgStatValueStyle}">
+                                    <TextBlock Text="{Binding OverdueDisplay}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock" BasedOn="{StaticResource PgStatValueStyle}">
                                                 <Style.Triggers>
