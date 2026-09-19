@@ -40,6 +40,13 @@ Static analysis gate for every .xaml file in the repository.
       XamlParseException "'N*' string cannot be converted to Length"
       (startup crash from BAML parse; markup compile does not catch it).
       Added 2026-09-19 (GB-B5, GlassShell AI-overlay crash).
+  W23 an ItemsControl with element children whose effective
+      ItemContainerStyle (inline, or via a keyed Style + BasedOn chain)
+      targets a type that does not cover the child — runtime
+      InvalidOperationException "A style intended for type 'X' cannot be
+      applied to type 'Y'" on first layout (element children are their
+      own containers: IsItemItsOwnContainerOverride = 'item is UIElement').
+      Added 2026-09-19 (GB-B6, PgSkeletonKpiBandStyle startup crash).
 
 Usage:  python3 tools/xaml_validator.py [--files <paths...>]
 Writes: docs/ui-audit/XAML_VALIDATION_REPORT.{md,json}
@@ -168,7 +175,7 @@ def content_children(el):
         out.append(c)
     return out
 
-def check_file(path, merge_index, all_declared, i18n, findings):
+def check_file(path, merge_index, all_declared, i18n, findings, style_ict=None):
     F = lambda level, code, msg: findings.append({"file": path, "level": level, "code": code, "msg": msg})
     raw = _load(path)
     nocomm = re.sub(r"<!--.*?-->", "", raw, flags=re.S)
@@ -334,6 +341,85 @@ def check_file(path, merge_index, all_declared, i18n, findings):
                     F("ERROR", "W22",
                       f"Setter {c.get('Property')}='{v}' — star GridLength on a "
                       f"Length property; LengthConverter throws at runtime parse")
+    # W23 — an ItemsControl with ELEMENT children (explicit <ContentControl>,
+    # <Border>, …) + an ItemContainerStyle whose TargetType does not cover
+    # the child's type. In .NET (Core) WPF, ItemsControl.
+    # IsItemItsOwnContainerOverride is 'item is UIElement', so element
+    # children are their OWN containers and ApplyItemContainerStyle
+    # validates style.TargetType against them — a ContentPresenter-targeted
+    # style throws InvalidOperationException at runtime: "A style intended
+    # for type 'ContentPresenter' cannot be applied to type 'ContentControl'".
+    # Markup compile + designer do NOT catch it (fails on first layout).
+    # Added 2026-09-19 (GB-B6) after the PgSkeletonKpiBandStyle startup
+    # crash (inherited ItemContainerStyle via BasedOn).
+    if style_ict:
+        WPF_BASES = {
+            "UIElement": set(),
+            "FrameworkElement": {"UIElement"},
+            "FrameworkContentElement": {"UIElement"},
+            "Decorator": {"FrameworkElement", "UIElement"},
+            "Border": {"Decorator", "FrameworkElement", "UIElement"},
+            "Panel": {"FrameworkElement", "UIElement"},
+            "Grid": {"Panel", "FrameworkElement", "UIElement"},
+            "StackPanel": {"Panel", "FrameworkElement", "UIElement"},
+            "WrapPanel": {"Panel", "FrameworkElement", "UIElement"},
+            "UniformGrid": {"Panel", "FrameworkElement", "UIElement"},
+            "DockPanel": {"Panel", "FrameworkElement", "UIElement"},
+            "Canvas": {"Panel", "FrameworkElement", "UIElement"},
+            "Control": {"FrameworkElement", "UIElement"},
+            "ContentControl": {"Control", "FrameworkElement", "UIElement"},
+            "ContentPresenter": {"FrameworkElement", "UIElement"},
+            "Label": {"ContentControl", "Control", "FrameworkElement", "UIElement"},
+            "Button": {"Control", "FrameworkElement", "UIElement"},
+            "ItemsControl": {"Control", "FrameworkElement", "UIElement"},
+            "Selector": {"ItemsControl", "Control", "FrameworkElement", "UIElement"},
+            "ListBox": {"Selector", "ItemsControl", "Control", "FrameworkElement", "UIElement"},
+            "TextBlock": {"FrameworkContentElement", "UIElement"},
+            "Image": {"FrameworkElement", "UIElement"},
+        }
+        IC_PROP_ELEMS = {"ItemsPanel", "ItemsSource", "ItemTemplate",
+                         "ItemTemplateSelector", "ItemStringFormat",
+                         "ItemContainerStyle", "ItemContainerStyleSelector",
+                         "AlternationCount", "ItemBindingGroup", "GroupStyle",
+                         "Style", "Template", "Triggers", "Tag", "Content"}
+        def eff_ict_target(ic_el):
+            for c in ic_el:
+                if isinstance(c.tag, str) and local(c.tag) == "ItemContainerStyle":
+                    for vv in c.iter():
+                        if isinstance(vv.tag, str) and local(vv.tag) == "Style":
+                            return vv.get("TargetType")
+            mk = re.search(r"StaticResource\s+([A-Za-z0-9_.]+)", ic_el.get("Style") or "")
+            key, seen = (mk.group(1) if mk else None), set()
+            while key and key in style_ict and key not in seen:
+                seen.add(key)
+                s = style_ict[key]
+                if s["ict"]:
+                    return s["ict"]
+                key = s["basedon"]
+            return None
+        def wpf_covers(tgt, child):
+            if tgt == "UIElement" or tgt == child:
+                return True
+            return tgt in WPF_BASES.get(child, set())
+        for el in root.iter():
+            if not isinstance(el.tag, str) or local(el.tag) != "ItemsControl":
+                continue
+            kids = [local(c.tag) for c in el
+                    if isinstance(c.tag, str)
+                    and "." not in local(c.tag)
+                    and local(c.tag) not in IC_PROP_ELEMS]
+            if not kids:
+                continue
+            tgt = eff_ict_target(el)
+            if not tgt:
+                continue
+            for ln in set(kids):
+                if not wpf_covers(tgt, ln):
+                    F("ERROR", "W23",
+                      f"ItemsControl child <{ln}> is its own container "
+                      f"(IsItemItsOwnContainerOverride = 'item is UIElement') "
+                      f"but ItemContainerStyle targets '{tgt}' — runtime "
+                      f"InvalidOperationException (StyleForWrongType)")
     # element checks
     for el in root.iter():
         if not isinstance(el.tag, str):
@@ -429,10 +515,38 @@ def main():
     all_declared = set()
     for p in find_xamls():
         all_declared |= set(re.findall(r'x:Key="([A-Za-z0-9_.]+)"', _load(p)))
+    # W23 prepass — keyed Styles → their ItemContainerStyle TargetType
+    # (BasedOn chain resolved inside check_file). Cross-file because a
+    # style can be declared in ProfessionalCore.xaml and consumed by a
+    # dashboard view.
+    style_ict = {}
+    for p in find_xamls():
+        try:
+            rt = ET.fromstring(_load(p))
+        except ET.ParseError:
+            continue
+        for el in rt.iter():
+            if not isinstance(el.tag, str) or local(el.tag) != "Style":
+                continue
+            k = el.get("{" + XAML_NS + "}Key")
+            if not k or k in style_ict:
+                continue
+            ict = None
+            for c in el:
+                if isinstance(c.tag, str) and local(c.tag) == "Setter" \
+                        and local(c.get("Property", "")) == "ItemContainerStyle":
+                    for vv in c.iter():
+                        if isinstance(vv.tag, str) and local(vv.tag) == "Style":
+                            ict = vv.get("TargetType")
+                            break
+                    break
+            bo = el.get("BasedOn") or ""
+            mbo = re.search(r"StaticResource\s+([A-Za-z0-9_.]+)", bo)
+            style_ict[k] = {"ict": ict, "basedon": mbo.group(1) if mbo else None}
     i18n = i18n_keys()
     findings = []
     for p in files:
-        check_file(p, merge_index, all_declared, i18n, findings)
+        check_file(p, merge_index, all_declared, i18n, findings, style_ict)
     os.makedirs("docs/ui-audit", exist_ok=True)
     errors = sum(1 for f in findings if f["level"] == "ERROR")
     warns = sum(1 for f in findings if f["level"] == "WARN")
@@ -457,6 +571,8 @@ def main():
       "W21 TargetName setter outside a template (MC4011). "
       "W22 star GridLength ('N*') on a Length property — runtime "
       "LengthConverter crash (GlassShell AI overlay). "
+      "W23 ItemsControl element-child vs ItemContainerStyle TargetType "
+      "mismatch (via BasedOn chain) — runtime StyleForWrongType crash. "
       "W3 duplicate x:Key is WARN (WPF last-wins shadowing, latent). "
       "W7 covers keys published at runtime by Services (ThemeManager, PrintTokenService, …).")
     A("")

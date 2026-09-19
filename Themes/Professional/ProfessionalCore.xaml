@@ -887,8 +887,25 @@
         <UniformGrid Columns="4"/>
     </ItemsPanelTemplate>
 
+    <!-- Skeleton variant: explicit ContentControl children are their OWN
+         containers (.NET 8: ItemsControl.IsItemItsOwnContainerOverride =
+         'item is UIElement'), so the container style MUST target
+         ContentControl — same rule as PgPipelineSkeletonItemsStyle.
+         Inheriting PgKpiBandStyle's ContentPresenter-targeted
+         ItemContainerStyle threw "A style intended for type
+         'ContentPresenter' cannot be applied to type 'ContentControl'"
+         on first layout (startup crash ERR-5E83A3, 2026-09-19). -->
     <Style x:Key="PgSkeletonKpiBandStyle" TargetType="ItemsControl"
-           BasedOn="{StaticResource PgKpiBandStyle}"/>
+           BasedOn="{StaticResource PgKpiBandStyle}">
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Margin" Value="{DynamicResource PgGutterHalfMargin}"/>
+                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <DataTemplate x:Key="PgSkeletonChartTemplate">
         <Border Style="{StaticResource PgChartWellStyle}">
