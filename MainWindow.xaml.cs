@@ -19,6 +19,7 @@ using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels;
 using System;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -98,13 +99,18 @@ namespace ProGlassAutomation
                 bool In(DependencyObject root) =>
                     source != null && IsDescendantOf(source, root);
 
-                if (vm.IsUserSwitchOpen && !In(UserCardButton) && !In(UserSwitchPanelHost))
+                // GB-P15: the Personal shell's top-bar buttons toggle the
+                // SAME popup flags; a click on one must not be treated as
+                // click-outside (it would close-then-reopen the popup).
+                if (vm.IsUserSwitchOpen && !In(UserCardButton) && !In(UserSwitchPanelHost)
+                    && !InPersonalAnchor(source, "Shell.PersonalUserCardButton"))
                     vm.IsUserSwitchOpen = false;
 
                 if (vm.IsSettingsOpen && !In(SettingsButton) && !In(SettingsPanelHost))
                     vm.IsSettingsOpen = false;
 
-                if (vm.IsNotificationsOpen && !In(NotificationButton) && !In(ActivityPanelHost))
+                if (vm.IsNotificationsOpen && !In(NotificationButton) && !In(ActivityPanelHost)
+                    && !InPersonalAnchor(source, "Shell.PersonalNotificationsButton"))
                     vm.IsNotificationsOpen = false;
 
                 if (vm.IsScreenshotOpen && !In(ScreenshotButton) && !In(ScreenshotPanelHost))
@@ -193,6 +199,26 @@ namespace ProGlassAutomation
                 current = parent;
             }
 
+            return false;
+        }
+
+        /// <summary>
+        /// GB-P15 — true when the click originated inside a Personal-shell
+        /// top-bar anchor button (identified by its AutomationId). The
+        /// Personal buttons live in GlassShell, so they cannot be
+        /// ElementName-referenced from this window; the AutomationId walk
+        /// is the cross-control bridge. Lets a Personal anchor click
+        /// toggle its popup closed instead of close-then-reopen.
+        /// </summary>
+        private static bool InPersonalAnchor(DependencyObject? source, string anchorAutomationId)
+        {
+            if (source == null) return false;
+            for (var current = source; current != null;
+                 current = VisualTreeHelper.GetParent(current))
+            {
+                if (AutomationProperties.GetAutomationId(current) == anchorAutomationId)
+                    return true;
+            }
             return false;
         }
 

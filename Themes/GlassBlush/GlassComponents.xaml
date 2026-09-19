@@ -656,6 +656,29 @@
         </Setter>
     </Style>
 
+    <!-- GB-P15: error variant of the assistant bubble (ChatMessage.IsError).
+         Same glass geometry, danger-tinted surface + border (coral from
+         the token plane). -->
+    <Style x:Key="GlassBlush.ChatBubbleError" TargetType="ContentControl">
+        <Setter Property="MaxWidth" Value="640"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Margin" Value="0,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{DynamicResource GlassBlush.DangerSoft}"
+                            BorderBrush="{DynamicResource GlassBlush.Danger}"
+                            BorderThickness="1"
+                            CornerRadius="18"
+                            Padding="16,12"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="GlassBlush.ChatBubbleUser" TargetType="ContentControl">
         <Setter Property="MaxWidth" Value="640"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>

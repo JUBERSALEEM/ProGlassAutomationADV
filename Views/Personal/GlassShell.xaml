@@ -12,6 +12,7 @@
     xmlns:vmDelivery="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote"
     xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
     xmlns:vmSettings="clr-namespace:ProGlassAutomation.ViewModels.Settings"
+    xmlns:viewsShared="clr-namespace:ProGlassAutomation.Views.Shared"
     xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
@@ -420,11 +421,13 @@
                                     ToolTip="Professional UI"
                                     Command="{Binding ToggleExperienceCommand}"
                                     AutomationProperties.AutomationId="Shell.ExperienceSwitchPersonal"/>
-                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                            <Button x:Name="PersonalNotificationButton"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
                                     Content="&#xEA8F;"
                                     ToolTip="Notifications"
                                     Command="{Binding TogglePopupCommand}"
-                                    CommandParameter="Notifications"/>
+                                    CommandParameter="Notifications"
+                                    AutomationProperties.AutomationId="Shell.PersonalNotificationsButton"/>
                             <Button Style="{StaticResource GlassBlush.TopIconButton}"
                                     Content="&#xE8F2;"
                                     ToolTip="AI Assistant"
@@ -437,11 +440,13 @@
                                     Content="&#xE713;"
                                     ToolTip="Settings"
                                     Command="{Binding ShowSettingsCommand}"/>
-                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                            <Button x:Name="PersonalUserCardButton"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
                                     Content="&#xE77B;"
                                     ToolTip="Account"
                                     Command="{Binding TogglePopupCommand}"
-                                    CommandParameter="UserSwitch"/>
+                                    CommandParameter="UserSwitch"
+                                    AutomationProperties.AutomationId="Shell.PersonalUserCardButton"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -473,5 +478,53 @@
                                VerticalAlignment="Center"
                                Visibility="{Binding AiChatVM.IsOpen,
                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+        <!-- ══ GB-P15 — PERSONAL-SIDE TOP-BAR POPUPS ═════════════════════
+             The Professional popups (MainWindow) anchor to the
+             Professional top-bar buttons, which are collapsed in Personal
+             mode → un-gated they float at the window origin. These two
+             anchor to the Personal buttons and share the SAME
+             MainViewModel open flags (IsNotificationsOpen /
+             IsUserSwitchOpen) — the ExperienceGatedConverter decides
+             which anchored copy may open (one source of truth, no new
+             state). Click-outside dismissal comes from MainWindow's
+             PreviewMouseLeftButtonDown guard, which recognizes the
+             Personal anchors by AutomationId. -->
+        <Popup x:Name="PersonalNotificationsPopup"
+               PlacementTarget="{Binding ElementName=PersonalNotificationButton}"
+               Placement="Bottom"
+               VerticalOffset="8"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               Opened="PersonalNotificationsPopup_Opened">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}"
+                              ConverterParameter="Personal">
+                    <Binding Path="IsNotificationsOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:ActivityPanel x:Name="PersonalActivityPanelHost"/>
+        </Popup>
+
+        <Popup x:Name="PersonalUserSwitchPopup"
+               PlacementTarget="{Binding ElementName=PersonalUserCardButton}"
+               Placement="Bottom"
+               VerticalOffset="8"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               Opened="PersonalUserSwitchPopup_Opened"
+               Closed="PersonalUserSwitchPopup_Closed">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}"
+                              ConverterParameter="Personal">
+                    <Binding Path="IsUserSwitchOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:UserSwitchPanel x:Name="PersonalUserSwitchPanelHost" Width="360"/>
+        </Popup>
     </Grid>
 </UserControl>

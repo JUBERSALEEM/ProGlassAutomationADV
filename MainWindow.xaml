@@ -1165,6 +1165,11 @@
              single Popup inside the root Grid (not a second Window child),
              StaysOpen=True + the shell's click-outside handler lets clicking
              any module dismiss it. -->
+        <!-- GB-P15: IsOpen is experience-gated — in Personal mode the
+             Professional top bar is collapsed, so this popup would anchor
+             at the window origin. The Personal shell has its own anchored
+             popup on the SAME IsUserSwitchOpen flag (One source of
+             truth; the gate picks which anchored copy may open). -->
         <Popup x:Name="UserSwitchPopup"
                PlacementTarget="{Binding ElementName=UserCardButton}"
                Placement="Bottom"
@@ -1172,9 +1177,14 @@
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
-               IsOpen="{Binding IsUserSwitchOpen, Mode=TwoWay}"
                Opened="UserSwitchPopup_Opened"
                Closed="UserSwitchPopup_Closed">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}">
+                    <Binding Path="IsUserSwitchOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
             <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"
                                         />
         </Popup>
@@ -1196,6 +1206,7 @@
              About module (rich AboutView) via ClickToCommandBehavior. -->
 
         <!-- Notifications / activity popup (non-blocking) -->
+        <!-- GB-P15: experience-gated (see UserSwitchPopup above). -->
         <Popup x:Name="NotificationsPopup"
                PlacementTarget="{Binding ElementName=NotificationButton}"
                Placement="Bottom"
@@ -1203,8 +1214,13 @@
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
-               IsOpen="{Binding IsNotificationsOpen, Mode=TwoWay}"
                Opened="NotificationsPopup_Opened">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}">
+                    <Binding Path="IsNotificationsOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
             <viewsShared:ActivityPanel x:Name="ActivityPanelHost"
                                         />
         </Popup>

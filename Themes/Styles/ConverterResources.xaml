@@ -63,6 +63,13 @@
     <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
     <conv:StringEqualsMultiConverter        x:Key="StringEqualsMultiConverter"/>
 
+    <!-- GB-P15: experience gate for top-bar popups. values[0]=open flag,
+         values[1]=IsPersonalExperience. ConverterParameter="Personal"
+         opens in Personal mode only; default opens in Professional mode
+         only. Lets the Personal and Professional popup pairs share the
+         same MainViewModel open flags without both opening at once. -->
+    <conv:ExperienceGatedConverter          x:Key="ExperienceGatedConverter"/>
+
     <!-- Resolves a resource KEY carried as data (e.g. "Nav.Overview") to its
          localized string, so data-driven card lists stay translatable. -->
     <conv:ResourceKeyToStringConverter      x:Key="ResourceKeyToString"/>

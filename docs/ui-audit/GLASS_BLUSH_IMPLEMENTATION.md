@@ -218,8 +218,28 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   - Toggle affordances: Professional top bar `Shell.ExperienceSwitch` (E771) + Personal top bar `Shell.ExperienceSwitchPersonal` (E731).
 - **State semantics:** the module VM (`CurrentViewModel`) is untouched — switching experiences preserves module state (selected document, filters, loaded data); only the VIEW is recreated ("safe shell recreation"). Documented per the master prompt's fallback allowance.
 - **Template resolution in the Personal shell:** forked modules (Dashboard, PI, JobOrder, ProductionControlCenter, AI) resolve to their Personal glass views via `GlassShell`-scoped DataTemplates; **un-forked modules fall back to their Professional views** (template lookup walks up to `MainWindow.Window.Resources`) — functional, documented hybrid; Personal coverage grows as GB-P8…P12 land.
-- **Known limitation (→ GB-P15):** the MainWindow-level popups (user-switch / notifications / settings quick panel) are anchored to the Professional top-bar buttons; in Personal mode they still open but anchor to window origin. Personal-side popup anchors are a GB-P15 item.
+- **Known limitation (RESOLVED in GB-P15):** the MainWindow-level popups (user-switch / notifications / settings quick panel) are anchored to the Professional top-bar buttons; in Personal mode they still open but anchor to window origin. Fixed in GB-P15: experience-gated Professional popups + Personal-side anchored popups sharing the same flags.
 - **Verification:** XML well-formed (MainWindow + GlassShell); brace/paren balance on all touched C# (delta vs HEAD clean); xaml_validator 0 ERROR. BUILD/TESTS NOT RUN, RUNTIME NOT VERIFIED.
+
+## GB-P15 — Global visual consistency (2026-09-19)
+- **Status:** ✅ STATIC VERIFIED · BUILD NOT RUN (no .NET SDK) · RUNTIME NOT VERIFIED.
+- Two consistency items carried from earlier phases, both resolved:
+
+### 1. Personal-side top-bar popup anchors (carried from GB-P14 limitation)
+- **Problem:** the top-bar popups (Notifications, User Switch) live in `MainWindow` and are anchored to the Professional top-bar buttons. In Personal mode that top bar is collapsed, so an un-gated popup would open at the window origin instead of under the Personal button.
+- **Fix (one shared mechanism, no new VM state):**
+  - `Converters/ExperienceGatedConverter.cs` (new, view-only `IMultiValueConverter`), registered in `Themes/Styles/ConverterResources.xaml`. `values[0]` = the popup's open flag, `values[1]` = `IsPersonalExperience`; `ConverterParameter="Personal"` → open in Personal only, default → open in Professional only.
+  - `MainWindow.xaml`: the `NotificationsPopup` and `UserSwitchPopup` `IsOpen` are now a `MultiBinding` through the gate (Professional side). The two popups that only the Professional chrome can open (Settings/Screenshot/Record/Storage) are untouched — they have no Personal-mode trigger.
+  - `GlassShell.xaml`: two new Personal popups anchored to `PersonalNotificationButton` / `PersonalUserCardButton`, hosting the SAME shared panels (`ActivityPanel`, `UserSwitchPanel`), gated to Personal only, bound to the SAME `IsNotificationsOpen` / `IsUserSwitchOpen` flags — one source of truth, the gate selects which anchored copy may open.
+  - `GlassShell.xaml.cs`: `Opened`/`Closed` handlers mirror `MainWindow`'s (panel `LoadAsync`/`RefreshAsync`, `RefreshCurrentUserPublic` on user-switch close).
+  - `MainWindow.xaml.cs`: the click-outside guard now recognizes the Personal anchors via a visual-tree `AutomationId` walk (`Shell.PersonalNotificationsButton` / `Shell.PersonalUserCardButton`), so a Personal anchor click toggles its popup closed instead of close-then-reopen.
+- No business logic touched; both experiences share the same flags and panels.
+
+### 2. Glass error-bubble variant (carried from GB-P13)
+- `GlassBlush.ChatBubbleError` added to `Themes/GlassBlush/GlassComponents.xaml` (same glass geometry as the assistant bubble, coral `GlassBlush.Danger` border + `GlassBlush.DangerSoft` surface).
+- `PersonalAiChatView.xaml`: the AI bubble now keys off the model's own `IsAiResponse` flag (`!IsUser && !IsError`); error messages (`ChatMessage.IsError`) render in the coral-tinted bubble — matching the Professional view's error handling, expressed in glass.
+
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
 ## Phase status
 
@@ -239,6 +259,6 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P10 invoice aging (glass-07) + dashboard shell | ✅ STATIC VERIFIED (PersonalDashboardView shell + Overview/TiAging pages; runtime NOT VERIFIED) | `GB-P10` |
 | GB-P11 analytics (glass-08) + reports hub | ✅ STATIC VERIFIED (PersonalSalesReportView hub + ExecutiveReport glass-08; runtime NOT VERIFIED) | `GB-P11` |
 | GB-P12 settings (glass-09) | ✅ STATIC VERIFIED (PersonalSettingsView rail + Appearance glass-09 + 11 Professional section hosts; runtime NOT VERIFIED) | `GB-P12` |
-| GB-P15 global visual consistency | pending (incl. Personal-side popup anchors + error-bubble variant) | — |
+| GB-P15 global visual consistency | ✅ STATIC VERIFIED (Personal-side popup anchors + error-bubble variant; BUILD NOT RUN) | `GB-P15` |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
 | GB-P17 DPI/a11y/performance | pending (static parts only) | — |

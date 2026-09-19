@@ -156,10 +156,12 @@
                                                            Margin="0,6,0,0"/>
                                             </StackPanel>
                                         </ContentControl>
-                                        <!-- AI bubble (left, glass) -->
+                                        <!-- AI bubble (left, glass) —
+                                                 IsAiResponse = !IsUser && !IsError
+                                                 (the model's own flag) -->
                                         <ContentControl Style="{StaticResource GlassBlush.ChatBubbleAssistant}"
-                                                        Visibility="{Binding IsUser,
-                                                                  Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                        Visibility="{Binding IsAiResponse,
+                                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            TextWrapping="Wrap"
@@ -170,6 +172,23 @@
                                                            Margin="0,6,0,0">
                                                     <Run Text="{Binding ProviderIcon, Mode=OneWay}"/><Run Text="  "/><Run Text="{DynamicResource AI.Via}"/><Run Text="  "/><Run Text="{Binding ProviderName, Mode=OneWay}"/><Run Text="  ·  "/><Run Text="{Binding TimeLabel}"/>
                                                 </TextBlock>
+                                            </StackPanel>
+                                        </ContentControl>
+                                        <!-- ERROR bubble (GB-P15):
+                                                 ChatMessage.IsError →
+                                                 glass-10 coral-tinted variant -->
+                                        <ContentControl Style="{StaticResource GlassBlush.ChatBubbleError}"
+                                                        Visibility="{Binding IsError,
+                                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Text}"
+                                                           TextWrapping="Wrap"
+                                                           FontSize="{DynamicResource GlassBlush.FontBody}"
+                                                           Foreground="{DynamicResource GlassBlush.Danger}"/>
+                                                <TextBlock Text="{Binding TimeLabel}"
+                                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                                           Foreground="{DynamicResource GlassBlush.TextFaint}"
+                                                           Margin="0,6,0,0"/>
                                             </StackPanel>
                                         </ContentControl>
                                     </Grid>
