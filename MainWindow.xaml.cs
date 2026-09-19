@@ -75,6 +75,30 @@ namespace ProGlassAutomation
             // Shutdown safety guard
             Closing += MainWindow_Closing;
 
+            // SENIOR FIX 2026-09-19: on load and on deactivate, ensure AI
+            // overlays are closed by default — only top-panel buttons may
+            // open them. Previously Professional AiChatView was visible
+            // via InverseBool converter regardless of IsOpen, and Personal
+            // shell could carry IsOpen=true across experience switch.
+            Loaded += (_, _) =>
+            {
+                try
+                {
+                    if (DataContext is MainViewModel vm)
+                    {
+                        vm.IsAgentChatOpen = false;
+                        vm.IsSettingsOpen = false;
+                        vm.IsNotificationsOpen = false;
+                        vm.IsUserSwitchOpen = false;
+                        vm.IsScreenshotOpen = false;
+                        vm.IsScreenRecordOpen = false;
+                        vm.IsStorageOpen = false;
+                        if (vm.AiChatVM != null) vm.AiChatVM.IsOpen = false;
+                    }
+                }
+                catch { }
+            };
+
             // Close top-bar popups when the main window deactivates (app loses focus)
             Deactivated += (_, _) =>
             {
@@ -86,6 +110,11 @@ namespace ProGlassAutomation
                     vm.IsScreenshotOpen = false;
                     vm.IsScreenRecordOpen = false;
                     vm.IsStorageOpen = false;
+                    // SENIOR: also close AI on deactivate — prevents chat
+                    // staying open when app loses focus and returning to
+                    // find it covering modules.
+                    vm.IsAgentChatOpen = false;
+                    try { if (vm.AiChatVM != null) vm.AiChatVM.IsOpen = false; } catch { }
                 }
             };
 

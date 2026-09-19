@@ -28,6 +28,40 @@ namespace ProGlassAutomation.Views.Personal
         public GlassShell()
         {
             InitializeComponent();
+            Loaded += GlassShell_Loaded;
+            DataContextChanged += GlassShell_DataContextChanged;
+        }
+
+        // SENIOR FIX 2026-09-19: Personal shell must never show AI open by
+        // default. Previously AiChatVM.IsOpen and IsAgentChatOpen could be
+        // true when GlassShell loads (e.g., persisted from Professional
+        // or from previous session), causing centered 920x640 chat to cover
+        // all Personal modules immediately. Now we harden on Loaded and
+        // DataContextChanged — only top-panel buttons may open them.
+        private void GlassShell_Loaded(object sender, System.Windows.RoutedEventArgs e)
+        {
+            try
+            {
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.IsAgentChatOpen = false;
+                    if (vm.AiChatVM != null) vm.AiChatVM.IsOpen = false;
+                }
+            }
+            catch { }
+        }
+
+        private void GlassShell_DataContextChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+        {
+            try
+            {
+                if (e.NewValue is MainViewModel vm)
+                {
+                    vm.IsAgentChatOpen = false;
+                    if (vm.AiChatVM != null) vm.AiChatVM.IsOpen = false;
+                }
+            }
+            catch { }
         }
 
         // ── 2026-09-19: sidebar hamburger (rail 140 ⇄ 56 icon-only) ─────
