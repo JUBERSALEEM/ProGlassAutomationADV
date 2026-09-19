@@ -1,10 +1,10 @@
 {
-  "generated": "2026-09-18",
-  "protocol": "MASTER UI MODERNIZATION \u2014 320-XAML Industrial ERP Transformation (9 phases) \u2014 supersedes the 25-phase MERIDIAN audit protocol, builds on its baseline 5de4bc6",
+  "generated": "2026-09-19",
+  "protocol": "GLASS BLUSH 100% visual-fidelity Personal UI (17 phases) on top of MASTER UI MODERNIZATION (9 phases) on MERIDIAN baseline 5de4bc6",
   "branch": "arena/01a0b4a8-proglassautomationadv",
   "base_commit": "97160501c4f1fbcf9eef0d4f0d99ee7ff59fb68a",
-  "head_commit": "177efed",
-  "working_tree": "clean",
+  "head_commit": "738615f",
+  "working_tree": "clean (GB-P17 committed; only pre-existing non-mine mods remain)",
   "counts": {
     "xaml_files": 321,
     "xaml_cs_codebehind": 244,
@@ -22,32 +22,32 @@
     "xaml_files_note": "320 + PagePatterns.xaml (Phase 1 shared pattern dictionary)"
   },
   "phases": {
-    "Ph0_baseline_verification": "DONE \u2014 all prior claims re-verified vs HEAD (157 Pg* keys, inventory, merge order); 6.8/10 static baseline 2026-09-14 recorded",
-    "Ph1_xaml_inventory": "DONE \u2014 tools/ui_inventory.py, 320-row master matrix (brief's '500+' was never true)",
-    "Ph2_view_matrix": "DONE \u2014 docs/ui-audit/UI_VIEW_INVENTORY.{md,json}",
-    "Ph3_meridian_change_audit": "DONE \u2014 tools/meridian_audit.py + MERIDIAN_CHANGE_AUDIT.md + DYNAMIC_STATIC_AUDIT.md (post-fix verdicts: typography DYNAMIC-PARITY, zero static PgFont consumers; borders = documented intentional-static waiver)",
-    "Ph4_functional_surface_preservation": "DONE \u2014 9/9 contract re-verified vs HEAD: bindings/commands/x:Names/handlers/templates/converters/i18n preserved; sole Bg relocation documented (no code-behind ref)",
-    "Ph5_structural_safety": "DONE (static) \u2014 W1/W10/W11/W12 gates green repo-wide",
-    "Ph6_property_safety": "DONE (static) \u2014 W2/W3/W4/W8/W9 gates green repo-wide",
-    "Ph7_resource_safety": "DONE (static) \u2014 W5/W6/W7/W13-equivalent (parse) gates; 22 legacy WARNs documented",
-    "Ph8_namespace_class_safety": "DONE (static) \u2014 W14/W15 gates green",
-    "Ph9_pg_consumption": "DONE \u2014 7 dashboards + shell consume Pg* via shared ProfessionalCore/Shell styles; no per-view duplication of KPI/card/row grammar",
-    "Ph10_no_new_local_styles": "DONE \u2014 new view chrome goes to shared Pg* styles; local styles only where module-specific (documented in inventory LOCAL-STYLE-FAMILY column)",
-    "Ph11_industrial_layout": "DONE \u2014 dense workflow-oriented dashboards, zero decorative excess (mockups/ = acceptance reference)",
-    "Ph12_personal_ui_architecture": "DONE \u2014 docs/ui-audit/PERSONAL_UI_ARCHITECTURE.md (theme plane only, zero view forks, family pipeline, Pg-plane coexistence)",
-    "Ph13_shared_fix_over_n_edits": "DONE \u2014 one allowlisted converter + one ThemeManager republish instead of N ad-hoc view edits",
-    "Ph14_small_batches": "DONE \u2014 5 logical commits (census / rewrite / fix / gate / merge) + OPT isolation, no giant commit",
-    "Ph15_build_gate": "NOT RUN \u2014 no .NET SDK in environment; BUILD NOT EXECUTED",
-    "Ph16_tests": "NOT RUN \u2014 no .NET SDK in environment; TESTS NOT RUN; no test deleted/weakened (retirement guard ADDED)",
-    "Ph17_static_analysis_gate": "DONE \u2014 tools/xaml_validator.py, 320 files, 0 ERROR / 22 WARN / 2 NOTE, exit 0; report committed",
-    "Ph18_ui_regression_gate": "NOT RUN \u2014 requires running app (no SDK); static structural gate (Ph17) is the substitute on record",
-    "Ph19_dpi_resolution_gate": "NOT RUN \u2014 requires running app (no SDK); density republish logic verified by source inspection only",
-    "Ph20_full_diff_review": "DONE \u2014 every hunk of the 18 tracked files reviewed during Ph3/Ph4; post-flip re-verified 2026-09-18",
-    "Ph21_commit_gates_green": "DONE \u2014 all runnable gates green before commit; build gate recorded as NOT RUN, not claimed",
-    "Ph22_logical_granularity": "DONE \u2014 commit log below",
-    "Ph23_ui_progress": "DONE \u2014 docs/ui-audit/UI_PROGRESS.md",
-    "Ph24_agent_handoff": "DONE \u2014 docs/ui-audit/AGENT_HANDOFF.md",
-    "Ph25_project_state": "DONE \u2014 this file"
+    "Ph0_baseline_verification": "DONE — all prior claims re-verified vs HEAD (157 Pg* keys, inventory, merge order); 6.8/10 static baseline 2026-09-14 recorded",
+    "Ph1_xaml_inventory": "DONE — tools/ui_inventory.py, 320-row master matrix (brief's '500+' was never true)",
+    "Ph2_view_matrix": "DONE — docs/ui-audit/UI_VIEW_INVENTORY.{md,json}",
+    "Ph3_meridian_change_audit": "DONE — tools/meridian_audit.py + MERIDIAN_CHANGE_AUDIT.md + DYNAMIC_STATIC_AUDIT.md (post-fix verdicts: typography DYNAMIC-PARITY, zero static PgFont consumers; borders = documented intentional-static waiver)",
+    "Ph4_functional_surface_preservation": "DONE — 9/9 contract re-verified vs HEAD: bindings/commands/x:Names/handlers/templates/converters/i18n preserved; sole Bg relocation documented (no code-behind ref)",
+    "Ph5_structural_safety": "DONE (static) — W1/W10/W11/W12 gates green repo-wide",
+    "Ph6_property_safety": "DONE (static) — W2/W3/W4/W8/W9 gates green repo-wide",
+    "Ph7_resource_safety": "DONE (static) — W5/W6/W7/W13-equivalent (parse) gates; 22 legacy WARNs documented",
+    "Ph8_namespace_class_safety": "DONE (static) — W14/W15 gates green",
+    "Ph9_pg_consumption": "DONE — 7 dashboards + shell consume Pg* via shared ProfessionalCore/Shell styles; no per-view duplication of KPI/card/row grammar",
+    "Ph10_no_new_local_styles": "DONE — new view chrome goes to shared Pg* styles; local styles only where module-specific (documented in inventory LOCAL-STYLE-FAMILY column)",
+    "Ph11_industrial_layout": "DONE — dense workflow-oriented dashboards, zero decorative excess (mockups/ = acceptance reference)",
+    "Ph12_personal_ui_architecture": "DONE — docs/ui-audit/PERSONAL_UI_ARCHITECTURE.md (theme plane only, zero view forks, family pipeline, Pg-plane coexistence)",
+    "Ph13_shared_fix_over_n_edits": "DONE — one allowlisted converter + one ThemeManager republish instead of N ad-hoc view edits",
+    "Ph14_small_batches": "DONE — 5 logical commits (census / rewrite / fix / gate / merge) + OPT isolation, no giant commit",
+    "Ph15_build_gate": "NOT RUN — no .NET SDK in environment; BUILD NOT EXECUTED",
+    "Ph16_tests": "NOT RUN — no .NET SDK in environment; TESTS NOT RUN; no test deleted/weakened (retirement guard ADDED)",
+    "Ph17_static_analysis_gate": "DONE — tools/xaml_validator.py, 320 files, 0 ERROR / 22 WARN / 2 NOTE, exit 0; report committed",
+    "Ph18_ui_regression_gate": "NOT RUN — requires running app (no SDK); static structural gate (Ph17) is the substitute on record",
+    "Ph19_dpi_resolution_gate": "NOT RUN — requires running app (no SDK); density republish logic verified by source inspection only",
+    "Ph20_full_diff_review": "DONE — every hunk of the 18 tracked files reviewed during Ph3/Ph4; post-flip re-verified 2026-09-18",
+    "Ph21_commit_gates_green": "DONE — all runnable gates green before commit; build gate recorded as NOT RUN, not claimed",
+    "Ph22_logical_granularity": "DONE — commit log below",
+    "Ph23_ui_progress": "DONE — docs/ui-audit/UI_PROGRESS.md",
+    "Ph24_agent_handoff": "DONE — docs/ui-audit/AGENT_HANDOFF.md",
+    "Ph25_project_state": "DONE — this file"
   },
   "commits": {
     "this_stream": [
@@ -62,20 +62,20 @@
     "restored_lineage": "8300042..14140ed original MERIDIAN phase commits (absorbed via 177efed; content superseded by ce4b153+aebf21f)"
   },
   "verification": {
-    "xaml_static_validation": "PASS \u2014 0 ERROR / 22 WARN / 2 NOTE, 320 files (legacy-only findings)",
-    "functional_contract_9_views": "PASS \u2014 9/9 preserved vs HEAD (Bg relocation documented, no code-behind ref)",
-    "csharp_integrity": "PASS (static) \u2014 braces/parens balanced, restored region byte-identical to HEAD, zero Db* refs",
-    "build": "NOT RUN \u2014 no .NET SDK in environment",
-    "tests": "NOT RUN \u2014 no .NET SDK in environment",
-    "runtime_theme_density": "NOT VERIFIED \u2014 source-inspected only; app cannot run here",
-    "dpi_resolution": "NOT RUN \u2014 requires running app"
+    "xaml_static_validation": "PASS — 0 ERROR / 22 WARN / 2 NOTE, 320 files (legacy-only findings)",
+    "functional_contract_9_views": "PASS — 9/9 preserved vs HEAD (Bg relocation documented, no code-behind ref)",
+    "csharp_integrity": "PASS (static) — braces/parens balanced, restored region byte-identical to HEAD, zero Db* refs",
+    "build": "NOT RUN — no .NET SDK in environment",
+    "tests": "NOT RUN — no .NET SDK in environment",
+    "runtime_theme_density": "NOT VERIFIED — source-inspected only; app cannot run here",
+    "dpi_resolution": "NOT RUN — requires running app"
   },
   "known_issues_legacy_only": [
     "22 W7 dangling DynamicResources in untouched legacy views (WPF silent no-op, not crash): Ios26TileBadgeBrush, ShadowHeavy, FontSize.TitleLarge, SurfaceBrush, Chart.*.Alpha, Radius.Top.Large, Transparent",
     "6 W5 declared-after-use StaticResources that resolve at app level (EmptyState/StatCard IconFont, GlobalDesignSystem Tab.Inactive, DiagnosticsView EmojiToGlyph, SettingsView SettingsPageTemplateSelector)",
     "1 W3 duplicate x:Key SettingsCardMargin in SettingsView (identical values, last-wins no-op)",
     "2 W17 NOTE: legacy hex in AgentChatView (3) + SplashView (9)",
-    "PrintableInvoiceView print surface: Print.* tokens published at runtime by PrintTokenService (validated into W7 runtime set \u2014 0 findings)"
+    "PrintableInvoiceView print surface: Print.* tokens published at runtime by PrintTokenService (validated into W7 runtime set — 0 findings)"
   ],
   "head_note": "this commit (the docs batch) is the actual branch head - a commit cannot carry its own SHA; parent is 177efed. Confirm with: git log -1",
   "modernization": {
@@ -91,7 +91,7 @@
       "status": "IMPLEMENTED",
       "commit": "25518ff",
       "delta": "DashboardView.xaml: 2 typography literals tokenized (tab label->PgFontMeta, subtitle->PgFontBody, exact-value zero visual change)",
-      "verified": "core ERP already ~90% converged by prior pass (evidence in DESIGN_SYSTEM_LOCK.md \u00a7Phase 2 convergence record); Dn/Ti section styles = thin module layers BasedOn shared bases (kept); MERIDIAN structural literals documented as exempt",
+      "verified": "core ERP already ~90% converged by prior pass (evidence in DESIGN_SYSTEM_LOCK.md §Phase 2 convergence record); Dn/Ti section styles = thin module layers BasedOn shared bases (kept); MERIDIAN structural literals documented as exempt",
       "gate": "321 files 0E/22W/2N; DashboardView contract 11/2/2/1 preserved"
     },
     "phase_3": {
@@ -112,7 +112,7 @@
       "commit": "6852362",
       "delta": "review of all supporting surfaces: converged or deliberate special surface (Splash/Login/About-Ios26/Wizard/Crash/AI); hex documented as material/brand constants; zero visual changes (nothing to safely change)",
       "blocked": [
-        "InquiryListView EmptyState \u2014 needs new i18n key in 13 languages (HasInquiries/HasActiveFilters VM props ready)"
+        "InquiryListView EmptyState — needs new i18n key in 13 languages (HasInquiries/HasActiveFilters VM props ready)"
       ],
       "gate": "no XAML changes; validator unchanged 321 files 0E/22W/2N"
     },
@@ -149,13 +149,59 @@
     "blocked": 1,
     "dynamic_resource_markers": 17437,
     "static_resource_markers": 8630,
-    "hardcoded_theme_values_views": "53 literals (15 FontSize + 38 CornerRadius) \u2014 ALL documented structural keeps; 9 real hex (Splash material recipe)",
+    "hardcoded_theme_values_views": "53 literals (15 FontSize + 38 CornerRadius) — ALL documented structural keeps; 9 real hex (Splash material recipe)",
     "validation": "321 files 0 ERROR / 22 WARN / 2 NOTE (legacy-only findings, untouched per protocol)",
-    "build": "NOT RUN \u2014 .NET SDK unavailable",
-    "tests": "NOT RUN \u2014 .NET SDK unavailable",
+    "build": "NOT RUN — .NET SDK unavailable (MASTER + GLASS BLUSH streams)",
+    "tests": "NOT RUN — .NET SDK unavailable",
     "theme_runtime": "NOT VERIFIED (static verification only)",
     "density_runtime": "NOT VERIFIED (static verification only)",
     "dpi": "runtime NOT VERIFIED; static window-floor + scaling-mechanism verification PASS",
-    "personal_ui_architecture": "verified (0 forks, 0 layout keys in families, 0 theme-branching views)"
+    "personal_ui_architecture": "verified (0 forks, 0 layout keys in families, 0 theme-branching views)",
+    "glass_blush": "17/17 phases complete to static-verification limit; 10/10 screens STATIC VERIFIED, 0 RUNTIME VERIFIED, 0 VISUALLY MATCHED (no runtime); reference PNGs 07/08/09 lost (documented, re-verify on re-supply)"
+  },
+  "glass_blush": {
+    "doc": "docs/ui-audit/GLASS_BLUSH_IMPLEMENTATION.md (authoritative per-screen records, deviations, verification)",
+    "source_of_truth": "10 reference PNGs glass-01..glass-10 (1408x768) — glass-07/08/09 PNGs LOST in session restore; those 3 screens implemented from GB-P1 measured composition maps (documented)",
+    "token_plane": "Themes/GlassBlush/GlassBlushTokens.xaml (color/night/geometry/typography) + GlassShellStyles.xaml + GlassComponents.xaml (21 shared components + KpiTileTemplate); merged in App.xaml",
+    "shell": "Views/Personal/GlassShell.xaml — Personal chrome (140px sidebar, 72px top bar, atmospheric 3-layer bg, content host bound to PersonalContent)",
+    "screens": {
+      "glass-01_dashboard": "PersonalDashboardView (shell) + PersonalDashboardOverviewView — GB-P4/P10",
+      "glass-02_proforma_invoice": "PersonalProformaInvoiceView (9-step glow strip) — GB-P5",
+      "glass-03_job_order": "PersonalJobOrderView (tabs + status timeline) — GB-P6",
+      "glass-04_production": "PersonalProductionControlCenterView (GlassBlushNight palette) — GB-P7",
+      "glass-05_sheet_store": "PersonalSheetStoreView (glass card grid) — GB-P8",
+      "glass-06_delivery_note": "PersonalDeliveryNoteView (list + glass detail) — GB-P9",
+      "glass-07_invoice_aging": "PersonalTaxInvoiceDashboardView (+ dashboard shell restructure) — GB-P10",
+      "glass-08_analytics": "PersonalSalesReportView (reports hub) + PersonalExecutiveReportView — GB-P11",
+      "glass-09_settings": "PersonalSettingsView (rail + Appearance + 11 Professional section hosts) — GB-P12",
+      "glass-10_ai_assistant": "PersonalAiChatView (glass bubbles + chip rail) — GB-P13"
+    },
+    "phases": {
+      "GB-P1_tokens": "DONE 8d4ada5 — token plane from measurements",
+      "GB-P2_shell": "DONE 9f16f7d — GlassShell + shell styles",
+      "GB-P3_components": "DONE 39682d8 — 21 shared glass components",
+      "GB-P4_dashboard": "DONE 915e4ec — glass-01",
+      "GB-P5_pi": "DONE 22c14fc — glass-02",
+      "GB-P6_job_order": "DONE 7e146a5 — glass-03",
+      "GB-P7_production": "DONE 86ae73d — glass-04 (night)",
+      "GB-P13_ai": "DONE f74e914 — glass-10",
+      "GB-P14_experience_switch": "DONE ffde34c — live persisted Professional<->Personal (MainViewModel.Experience.cs; exactly one module view instance)",
+      "GB-P8_sheet_store": "DONE a5e4e71 — glass-05",
+      "GB-P9_delivery": "DONE e71ebfd — glass-06",
+      "GB-P10_aging": "DONE 27fd0c1 — glass-07 + dashboard shell",
+      "GB-P11_analytics": "DONE f1aff73 — glass-08 + reports hub",
+      "GB-P12_settings": "DONE d809dd5 — glass-09",
+      "GB-P15_consistency": "DONE a8cd672 — Personal popup anchors (ExperienceGatedConverter) + ChatBubbleError",
+      "GB-P16_runtime_screenshot": "NOT RUN — no .NET SDK / WPF runtime; verification plan documented (build, 1408x768@100% captures, reference diff loop, live switch)",
+      "GB-P17_dpi_a11y_perf": "DONE 738615f — automation names on 10 icon buttons; contrast measured+documented (primary 6.66:1 AA); virtualization/effects audit"
+    },
+    "fidelity_status": "all 10 screens STATIC VERIFIED; 0 RUNTIME VERIFIED; 0 VISUALLY MATCHED (no runtime) — never claim pixel-perfect until GB-P16 is run with the SDK",
+    "verification": {
+      "xaml_static_validation": "PASS — 337 files 0 ERROR / 22 WARN / 3 NOTE (legacy-only), exit 0",
+      "contract_preservation": "PASS — every Personal view re-verified member-by-member against its module VM (bindings/commands/x:Name/handlers/templates/converters/i18n)",
+      "build": "NOT RUN — no .NET SDK",
+      "tests": "NOT RUN — no .NET SDK",
+      "runtime": "NOT VERIFIED — no WPF runtime"
+    }
   }
 }

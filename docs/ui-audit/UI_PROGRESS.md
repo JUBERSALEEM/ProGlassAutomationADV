@@ -1,5 +1,37 @@
 # UI Engineering Progress (release-safe protocol)
 
+# GLASS BLUSH — Personal UI, 100% visual fidelity (2026-09-18 → 2026-09-19, baseline 5d86f11)
+
+Authoritative record: `docs/ui-audit/GLASS_BLUSH_IMPLEMENTATION.md` (per-screen
+records, deviations, verification). The 10 reference PNGs (glass-01…glass-10,
+1408×768) are the visual source of truth.
+
+| Phase | Status | Result |
+|---|---|---|
+| GB-P1 tokens | **DONE** `8d4ada5` | measured token plane (`Themes/GlassBlush/GlassBlushTokens.xaml`) + measurements doc |
+| GB-P2 shell | **DONE** `9f16f7d` | `Views/Personal/GlassShell.xaml` (140px rail · 72px top bar · 3-layer atmospheric bg) |
+| GB-P3 components | **DONE** `39682d8` | 21 shared glass components + KpiTileTemplate (all values from tokens) |
+| GB-P4 dashboard (01) | **DONE** `915e4ec` | PersonalDashboardView + routing |
+| GB-P5 PI (02) | **DONE** `22c14fc` | PersonalProformaInvoiceView (9-step glow strip) |
+| GB-P6 JO (03) | **DONE** `7e146a5` | PersonalJobOrderView (tabs + status timeline) |
+| GB-P7 production (04) | **DONE** `86ae73d` | PersonalProductionControlCenterView (Night palette) |
+| GB-P13 AI (10) | **DONE** `f74e914` | PersonalAiChatView (glass bubbles + chip rail) |
+| GB-P14 switch | **DONE** `ffde34c` | live persisted Professional↔Personal, no restart, single module-view instance |
+| GB-P8 sheet store (05) | **DONE** `a5e4e71` | PersonalSheetStoreView (glass card grid) |
+| GB-P9 delivery (06) | **DONE** `e71ebfd` | PersonalDeliveryNoteView (list + glass detail) |
+| GB-P10 aging (07) | **DONE** `27fd0c1` | PersonalTaxInvoiceDashboardView + dashboard shell restructure |
+| GB-P11 analytics (08) | **DONE** `f1aff73` | PersonalSalesReportView hub + PersonalExecutiveReportView |
+| GB-P12 settings (09) | **DONE** `d809dd5` | PersonalSettingsView (rail + Appearance + 11 section hosts) |
+| GB-P15 consistency | **DONE** `a8cd672` | Personal popup anchors (ExperienceGatedConverter) + ChatBubbleError |
+| GB-P16 runtime screenshots | **NOT RUN** | no .NET SDK / WPF runtime — verification plan documented; no screen may claim VISUALLY MATCHED |
+| GB-P17 DPI/a11y/perf | **DONE** `738615f` | automation names (10 icon buttons); contrast measured (primary 6.66:1 AA); virtualization/effects audit |
+
+**Fidelity status (honest):** 10/10 screens **STATIC VERIFIED** · 0 **RUNTIME
+VERIFIED** · 0 **VISUALLY MATCHED** (no runtime here). Reference PNGs
+glass-07/08/09 were lost in a session restore — those screens implemented from
+the GB-P1 measured composition maps (documented; re-verify on re-supply).
+Gate: `tools/xaml_validator.py` → 337 files 0 ERROR / 22 WARN / 3 NOTE (legacy).
+
 # MASTER UI MODERNIZATION (2026-09-18, baseline 5de4bc6)
 
 | Phase | Status | Result |
@@ -16,7 +48,7 @@
 
 
 
-**Branch:** `arena/01a0b4a8-proglassautomationadv` · **Updated:** 2026-09-18 ·
+**Branch:** `arena/01a0b4a8-proglassautomationadv` · **Updated:** 2026-09-19 (GLASS BLUSH complete) ·
 **State file:** `UI_PROJECT_STATE.json` (machine-readable) · **Handoff:** `AGENT_HANDOFF.md`
 
 ## Timeline (this environment)
@@ -32,6 +64,7 @@
 | 2026-09-18 (e) | Logical commits + push | `2dea95f` → `ce4b153` → `aebf21f` → `b44567f` |
 | 2026-09-18 (f) | Push rejected → discovered remote carries the **original MERIDIAN lineage** (5 OPT + 10 MERIDIAN commits) | absorbed via `git merge -s ours` (`177efed`): provenance restored, tree byte-identical, pushed |
 | 2026-09-18 (g) | Ph12 personal-UI architecture doc + Ph23/24/25 state docs | this file + `PERSONAL_UI_ARCHITECTURE.md` + `AGENT_HANDOFF.md` + `UI_PROJECT_STATE.json` |
+| 2026-09-18 → 09-19 | **GLASS BLUSH** 17 phases (GB-P1…P17) — the 10-screen Personal UI on the token plane, live persisted experience switch, consistency + DPI/a11y/perf passes | 15 commits `8d4ada5`…`738615f` pushed; all screens STATIC VERIFIED; GB-P16 runtime NOT RUN (no SDK) |
 
 ## What is DONE (gates green)
 
@@ -51,11 +84,17 @@
 ## What is NOT DONE (honest record)
 
 - **BUILD NOT EXECUTED — .NET SDK unavailable** in this environment.
-  Nothing claims compile success or release readiness.
+  Nothing claims compile success or release readiness (applies to BOTH the
+  MASTER UI MODERNIZATION and GLASS BLUSH streams).
 - **TESTS NOT RUN** (233 test .cs in `Tests/ProGlassAutomation.Tests.csproj`,
   incl. the new `ResourceTokenTypeTests` retirement guard).
 - Runtime theme/density/DPI behaviour: source-inspected only — **NOT VERIFIED**
   running. Phases 18/19 (UI regression, DPI gates) blocked on an SDK/runner.
+- **GLASS BLUSH runtime fidelity (GB-P16) NOT RUN** — no WPF runtime here, so
+  no screenshots, no reference-vs-actual diff. All 10 Personal screens are
+  **STATIC VERIFIED** only; **0 RUNTIME VERIFIED, 0 VISUALLY MATCHED**. Reference
+  PNGs glass-07/08/09 were lost in a session restore (those screens built from
+  the GB-P1 measured composition maps — re-verify when re-supplied).
 
 ## Next safe action (smallest, highest value)
 
@@ -64,13 +103,27 @@ Run the gate + build in an environment with the .NET SDK:
 — if green, the static-verified architecture becomes build-verified and the
 two "NOT RUN" rows in `UI_PROJECT_STATE.json` flip to PASS.
 
-## Final status (2026-09-18)
+## Final status (2026-09-19)
 
-All 9 phases of the MASTER UI MODERNIZATION are complete to the extent this
+**MASTER UI MODERNIZATION** — all 9 phases complete to the extent this
 environment allows: 93 exact-value tokenizations + 5 new shared patterns +
 1 shared-style fix across P1–P6 (zero visual change, zero business-surface
 change); P7/P8/P9 verified the personal-UI architecture, DPI floors, and
-classified all 321 files. **Build/tests/runtime remain NOT RUN — no .NET
-SDK.** The two open items are explicitly recorded: InquiryListView EmptyState
-(blocked on 13-language i18n) and the density-ladder/control-scale
-reconciliation (open product decision).
+classified all 321 files.
+
+**GLASS BLUSH (Personal UI)** — all 17 phases complete to the
+static-verification limit: a full second experience on a centralized
+`GlassBlush.*` token plane (21 shared components), all 10 reference screens
+reproduced on the SAME module ViewModels (zero business-logic duplication,
+zero view forks outside the documented Personal plane), a live persisted
+Professional↔Personal switch (single module-view instance), and the
+consistency + DPI/a11y/performance passes. **10/10 screens STATIC VERIFIED;
+0 RUNTIME VERIFIED; 0 VISUALLY MATCHED** — no .NET SDK / WPF runtime exists in
+this environment, so GB-P16 (screenshot diff loop) is the explicit remaining
+gate before any screen may be labelled visually matched.
+
+**Build/tests/runtime remain NOT RUN — no .NET SDK.** Open items explicitly
+recorded: (1) InquiryListView EmptyState (blocked on 13-language i18n);
+(2) density-ladder/control-scale reconciliation (open product decision);
+(3) GB-P16 runtime verification in an SDK environment; (4) re-verify
+glass-07/08/09 against the reference PNGs if re-supplied.

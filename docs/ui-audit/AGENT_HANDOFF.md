@@ -16,6 +16,15 @@ original MERIDIAN + OPT commit lineages were recovered from the remote and are
 in history (merge `177efed`). **No .NET SDK exists in this sandbox: build and
 tests have NEVER been run here — never claim PASS for them.**
 
+On top of that baseline, the **GLASS BLUSH** stream (the 10-screen Personal
+UI, 17 phases GB-P1…P17) is now complete to the static-verification limit and
+pushed (15 commits `8d4ada5`…`738615f`, 2026-09-18→19). All 10 reference
+screens are reproduced on the SAME module ViewModels on a centralized
+`GlassBlush.*` token plane, with a live persisted Professional↔Personal switch
+(single module-view instance). **10/10 STATIC VERIFIED; 0 RUNTIME VERIFIED;
+0 VISUALLY MATCHED** — the runtime screenshot gate (GB-P16) cannot run here
+(no SDK). See §0c and `GLASS_BLUSH_IMPLEMENTATION.md`.
+
 ## 0b. MASTER UI MODERNIZATION (started 2026-09-18, baseline 5de4bc6)
 
 New task layer on top of the MERIDIAN baseline: modernize ALL 320 XAML into
@@ -72,6 +81,61 @@ token, document the keep (glyphs, h/2 circles, print-locked geometry).
   Pg* colours — that would break the personal family re-tint); never chase
   the 24 legacy warnings.
 
+## 0c. GLASS BLUSH — Personal UI (started 2026-09-18, completed 2026-09-19, baseline 5d86f11)
+
+New task layer: reproduce the 10 reference PNGs (`glass-01`…`glass-10`,
+1408×768) as a real second experience — **not a recolor** — with 100% visual
+fidelity, centralized tokens, and a live persisted Professional↔Personal
+switch. Authoritative record: `docs/ui-audit/GLASS_BLUSH_IMPLEMENTATION.md`.
+
+**Where it lives:**
+- Token plane: `Themes/GlassBlush/GlassBlushTokens.xaml` (color +
+  `GlassBlushNight.*` + geometry + typography) — merged in `App.xaml`.
+- Components: `Themes/GlassBlush/GlassShellStyles.xaml` (shell + effects) +
+  `GlassComponents.xaml` (21 shared glass components + `GlassBlush.KpiTileTemplate`).
+- Shell: `Views/Personal/GlassShell.xaml` (140px rail · 72px top bar ·
+  3-layer atmospheric background · content host bound to `PersonalContent`).
+- Screens: one Personal view per screen in `Views/Personal/` (13 files), each
+  a DataTemplate in `GlassShell.xaml` keyed to the SAME module VM.
+- Switch: `ViewModels/MainViewModel.Experience.cs` (`IsPersonalExperience`,
+  `ProfessionalContent`/`PersonalContent`, `ToggleExperienceCommand`,
+  `UpdateExperienceContent()`); persisted via `AppearanceSettings.UiExperience`.
+
+**How it routes (do not fork views):** each module VM is mapped to its
+Personal view by a scoped DataTemplate in `GlassShell.xaml` resources. The
+template's `DataType` must be the EXACT routed VM type (WPF implicit
+templates match the exact type — the dashboard once silently fell back to
+Professional until it targeted `vm:DashboardViewModel`). Un-forked modules
+fall back to their Professional views (functional hybrid, documented).
+
+**Status (honest):** 10/10 screens STATIC VERIFIED; 0 RUNTIME VERIFIED;
+0 VISUALLY MATCHED. `xaml_validator.py` → 337 files 0 ERROR / 22 WARN / 3 NOTE
+(legacy). Reference PNGs **glass-07/08/09 were lost** in a session restore —
+those screens were built from the GB-P1 measured composition maps (documented
+per screen); re-verify against the PNGs when re-supplied.
+
+**Open for the next agent (GLASS BLUSH, priority order):**
+1. **GB-P16 in an SDK environment:** `dotnet build`, launch at 1408×768 @100%
+   DPI, capture each screen, diff vs reference (fix largest differences
+   first), exercise the live switch. Only then may screens be labelled
+   VISUALLY MATCHED. Plan is in `GLASS_BLUSH_IMPLEMENTATION.md` §GB-P16.
+2. Re-verify glass-07/08/09 if the reference PNGs are re-supplied.
+3. `dotnet test` (233 tests) — flips the NOT-RUN test rows.
+
+**Rules that are new / reaffirmed for this stream:**
+- PNG = visual source of truth — reproduce, don't reinterpret. Deviations only
+  for WPF impossibility / contract break / performance / usability, and every
+  deviation is documented per screen.
+- `DynamicResource` for all theme-controlled `GlassBlush.*` values; no token
+  duplication; reuse `Pg*` where an exact equivalent exists. `GradientStop.Color`
+  must take a `*Color` token (never a brush) — silent failure otherwise.
+- Glass performance rule: no per-row effects on virtualized data; DataGrid
+  virtualization stays ON; repeat-item effects are bounded (documented in GB-P17).
+- Accessibility: readable contrast + keyboard nav + focus visibility +
+  automation names (icon-only buttons got explicit `AutomationProperties.Name`
+  in GB-P17). Reference low-contrast kept-but-documented (see GB-P17 table).
+- Never claim "100% pixel perfect" without a matched-canvas reference diff.
+
 ## 1. Where everything is
 
 | Artifact | Path |
@@ -85,6 +149,10 @@ token, document the keep (glyphs, h/2 circles, print-locked geometry).
 | Token-owner verdicts per view | `docs/ui-audit/DYNAMIC_STATIC_AUDIT.md` |
 | Phase 17 gate report | `docs/ui-audit/XAML_VALIDATION_REPORT.{md,json}` |
 | Personal UI architecture (Ph12) | `docs/ui-audit/PERSONAL_UI_ARCHITECTURE.md` |
+| GLASS BLUSH authoritative record | `docs/ui-audit/GLASS_BLUSH_IMPLEMENTATION.md` |
+| Glass Blush token plane | `Themes/GlassBlush/` (Tokens / GlassShellStyles / GlassComponents) |
+| Personal shell + screens | `Views/Personal/` (GlassShell + 13 Personal views) |
+| Experience switch VM | `ViewModels/MainViewModel.Experience.cs` |
 | XAML census tool | `tools/ui_inventory.py` |
 | Change audit tool | `tools/meridian_audit.py` |
 | Token flip tool (allowlist = W16 source of truth) | `tools/dyn_token_flip.py` |
@@ -195,8 +263,14 @@ ThemeManager, and the gate enforces the rest.
 
 ## 7. Open items (in priority order)
 
-1. **Build + test in an SDK environment** (unblocks Ph15/16/18/19; flips two
-   NOT-RUN rows in `UI_PROJECT_STATE.json`).
+0. **GLASS BLUSH runtime fidelity (GB-P16)** — the 10 Personal screens are
+   STATIC VERIFIED only. In an SDK environment: build, capture at 1408×768
+   @100% DPI, diff vs the reference PNGs (fix largest differences first), and
+   exercise the live Professional↔Personal switch. Only then may screens be
+   labelled VISUALLY MATCHED. Re-verify glass-07/08/09 if their (lost) PNGs
+   are re-supplied.
+1. **Build + test in an SDK environment** (unblocks Ph15/16/18/19 + GLASS
+   BLUSH GB-P16; flips the NOT-RUN rows in `UI_PROJECT_STATE.json`).
 2. Visual pass on the 7 dashboards at 4K/1080/75Hz-class DPIs (Ph18/19) —
    needs the running app.
 3. Optional, only if asked: triage the 22 legacy WARNs
