@@ -113,7 +113,11 @@ namespace ProGlassAutomation
                     && !InPersonalAnchor(source, "Shell.PersonalNotificationsButton"))
                     vm.IsNotificationsOpen = false;
 
-                if (vm.IsScreenshotOpen && !In(ScreenshotButton) && !In(ScreenshotPanelHost))
+                // GB-B10: the Personal screenshot button (GlassShell)
+                // toggles the SAME IsScreenshotOpen flag; a click on it
+                // must not read as click-outside (close-then-reopen race).
+                if (vm.IsScreenshotOpen && !In(ScreenshotButton) && !In(ScreenshotPanelHost)
+                    && !InPersonalAnchor(source, "Shell.PersonalScreenshotButton"))
                     vm.IsScreenshotOpen = false;
 
                 // Storage popup — anchored to the sidebar card; clicking
@@ -129,7 +133,10 @@ namespace ProGlassAutomation
                 {
                     bool insideRecordUI = In(RecordButton)
                                        || In(ScreenRecordPanelHost)
-                                       || In(ScreenRecordPopup);
+                                       || In(ScreenRecordPopup)
+                                       // GB-B10: Personal record button
+                                       // (GlassShell) toggles the same flag.
+                                       || InPersonalAnchor(source, "Shell.PersonalScreenRecordButton");
 
                     if (!insideRecordUI)
                     {

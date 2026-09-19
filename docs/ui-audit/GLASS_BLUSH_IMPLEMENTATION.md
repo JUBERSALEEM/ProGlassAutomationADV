@@ -800,6 +800,97 @@ duplicate `x:Name`, canvas collisions.
   at any window width, (c) date/time + connectivity pills compact
   gracefully on resize.
 
+## GB-B10 — "agent stays open / top panel features missing" audit + fixes (2026-09-19)
+
+User pushback on GB-B9: the overlap was claimed blindly verified; the
+agent/AI window "opens by default, not getting closed, stays open";
+top-panel features (AI chat, screenshot, screen record, About) reported
+missing/removed; sidebar spacing "not industrial pattern based".
+Every claim re-traced through the actual code (no script verdicts).
+
+### 1. "Agent/AI opens by default, stays open" — code verdict + real bug FIXED
+
+- **No auto-open exists on this branch (proven by reading the code):**
+  `MainViewModel._isAgentChatOpen` defaults `false` and is touched ONLY
+  by `ToggleAgentChatCommand` (MainViewModel.Part1.cs:755 — the only
+  write site in the repo). `AiChatViewModel._isOpen` defaults `false`,
+  written only by `ToggleChatCommand` / `CloseChatCommand`.
+  `GlobalSearchViewModel.IsOpen` opens only after a real ≥2-char query.
+  `AgentChatViewModel`'s ctor only seeds one transcript message.
+- **The REAL defect:** the agent card (MainWindow, ZIndex 210) was NOT
+  experience-aware. Opened in Professional, switching to Personal left
+  it floating over the glass shell — and the glass top bar had no agent
+  control, so it could not be closed from there. That is the "stays
+  open over everything" behaviour.
+- **Fix:** experience hosting, the same pattern as the AI chat —
+  MainWindow's card now shows only in Professional mode
+  (MultiDataTrigger: IsAgentChatOpen && !IsPersonalExperience);
+  GlassShell hosts the identical card (same AgentChatVM, same flag)
+  only in Personal mode — ONE visible instance, state preserved across
+  the switch. Both chat surfaces (AI Professional panel, AI Personal
+  overlay, agent card) carry a working X (CloseChatCommand /
+  ToggleAgentChatCommand) in both experiences.
+- If a FRESH pull + rebuild still opens a chat at startup, it is a
+  stale exe — no code path on this branch can open one uninvited.
+
+### 2. Glass top bar parity — missing affordances RESTORED
+
+The glass-01 reference had 6 icons; that silently dropped real features
+(the user's "removed AI/chat, screen record, screenshots" report):
+  - **AI chat** was present but mislabeled with the E8F2 *contact*
+    glyph → now the app-wide E99A robot glyph (matches the AI chat
+    header in both experiences).
+  - **AGENT** — glass twin of `PgAiPillStyle` (soft-accent capsule +
+    ok dot + "AGENT"), `ToggleAgentChatCommand`.
+  - **ABOUT** — dedicated E949 button, `ShowAboutCommand` (the brand
+    tile also opens About; both kept).
+  - **SCREENSHOT** (EB9F) + **SCREEN RECORD** (E714, red while
+    recording via `ScreenRecordVM.IsRecording`, same trigger as the
+    Professional RecordButton) — `TogglePopupCommand` on the SAME
+    `IsScreenshotOpen` / `IsScreenRecordOpen` flags.
+  - The Professional `ScreenshotPopup` / `ScreenRecordPopup` are now
+    experience-gated (they anchored to collapsed Professional buttons
+    in Personal mode = floating-at-origin class, same as the GB-P15
+    notifications/user-switch bug); Personal-anchored copies live in
+    GlassShell (`ExperienceGatedConverter` Parameter="Personal").
+    MainWindow's click-outside guard extended with the two new
+    Personal AutomationIds (no close-then-reopen race).
+- Professional top bar: dedicated **About button restored** (E949,
+  `ShowAboutCommand`) — the Phase-1 rewrite had folded About into the
+  logo click only.
+
+### 3. Glass sidebar — REAL overlap found + fixed (the "not industrial
+pattern" / "ugly" report, concretely)
+
+`GlassBlush.NavGroupToggle`'s template put the 40px icon chip AND the
+group label in ONE Grid cell, both `HorizontalAlignment="Center"` —
+the label text rendered **on top of the icon** for all seven group
+headers (Sales Orders / Production / Dispatch / Finance / Reports /
+Master Data / System). Replaced with `NavItem`'s vertical StackPanel
+(chip over label) — the measured rail pattern. Professional sidebar
+(`Pg*`) re-verified token-consistent (items 40/34px, margins 10,2 /
+12,3, group labels 10,16,10,7 — the industrial pattern).
+
+### 4. Honest verification scope
+
+- All claims above are backed by the code read this round (files:
+  MainViewModel.Part1/Part2, AiChatViewModel.Part1, AgentChatViewModel,
+  GlobalSearchViewModel, AiChatView.xaml/.cs, PersonalAiChatView.xaml,
+  AgentChatView.xaml, MainWindow.xaml/.cs, GlassShell.xaml/.cs,
+  GlassShellStyles.xaml, ProfessionalShell.xaml, ExperienceGatedConverter).
+- 337 XAML files parse 0 ERROR (python structural validator); C#
+  mental-compile of the guard edits clean (InPersonalAnchor signature,
+  `source` in scope, no new usings).
+- **NOT RUN: MSBuild / BAML / runtime — no .NET SDK.** Visual pixel
+  match of the rebuilt top bars = NOT YET VERIFIED (user screen is the
+  confirmation).
+
+User: pull + **full rebuild** (delete bin/obj first to rule out a stale
+exe), then confirm: (a) nothing opens at startup; (b) agent/AI open
+and close in BOTH experiences; (c) glass top bar has AI / AGENT /
+About / Screenshot / Screen Record and they work; (d) glass sidebar
+group headers show icon OVER label, not text-on-icon.
+
 ## Phase status
 
 | Phase | Status | Commit |

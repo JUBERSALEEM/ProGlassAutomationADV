@@ -197,7 +197,13 @@
         </Setter>
     </Style>
 
-    <!-- GROUP TOGGLE — like NavItem + rotating chevron (0→90°). -->
+    <!-- GROUP TOGGLE — like NavItem + rotating chevron (0→90°).
+         2026-09-19 overlap fix: the template used a single Grid cell with
+         BOTH the icon chip and the label HorizontalAlignment="Center" —
+         the group label text rendered ON TOP of the 40px icon (Sales
+         Orders / Production / Dispatch / … all looked like garbage in
+         the rail). NavItem's vertical StackPanel (chip over label) is the
+         measured rail pattern; the toggle now uses the same structure. -->
     <Style x:Key="GlassBlush.NavGroupToggle" TargetType="ToggleButton">
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -213,7 +219,7 @@
                             CornerRadius="16"
                             Padding="8,7"
                             SnapsToDevicePixels="True">
-                        <Grid>
+                        <StackPanel>
                             <Border x:Name="Chip"
                                     Width="{DynamicResource GlassBlush.NavIconDiameter}"
                                     Height="{DynamicResource GlassBlush.NavIconDiameter}"
@@ -238,7 +244,7 @@
                                        HorizontalAlignment="Center"
                                        Margin="0,5,0,1"
                                        TextTrimming="CharacterEllipsis"/>
-                        </Grid>
+                        </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">

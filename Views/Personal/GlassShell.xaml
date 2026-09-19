@@ -13,6 +13,7 @@
     xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
     xmlns:vmSettings="clr-namespace:ProGlassAutomation.ViewModels.Settings"
     xmlns:viewsShared="clr-namespace:ProGlassAutomation.Views.Shared"
+    xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
     xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
@@ -427,7 +428,18 @@
                             </globalSearch:GlobalSearchBar.Style>
                         </globalSearch:GlobalSearchBar>
 
-                        <!-- RIGHT ICON CLUSTER (same commands as Professional) -->
+                        <!-- RIGHT ICON CLUSTER (same commands as
+                             Professional). 2026-09-19 parity fix: the
+                             glass-01 reference had only 6 icons, which
+                             silently DROPPED features the Professional
+                             top bar has — AI chat was mislabeled with a
+                             contact glyph, and Agent / About /
+                             Screenshot / Screen Record had no Personal
+                             affordance at all (the Professional popups
+                             anchor to collapsed Professional buttons, so
+                             they were unreachable here). The missing
+                             affordances are restored below, in the glass
+                             design language, on the SAME commands. -->
                         <StackPanel Grid.Column="2"
                                     Orientation="Horizontal"
                                     VerticalAlignment="Center"
@@ -441,19 +453,100 @@
                                     AutomationProperties.Name="Switch to Professional UI"
                                     Command="{Binding ToggleExperienceCommand}"
                                     AutomationProperties.AutomationId="Shell.ExperienceSwitchPersonal"/>
-                            <Button x:Name="PersonalNotificationButton"
-                                    Style="{StaticResource GlassBlush.TopIconButton}"
-                                    Content="&#xEA8F;"
-                                    ToolTip="Notifications"
-                                    AutomationProperties.Name="Notifications"
-                                    Command="{Binding TogglePopupCommand}"
-                                    CommandParameter="Notifications"
-                                    AutomationProperties.AutomationId="Shell.PersonalNotificationsButton"/>
+                            <!-- AI CHAT — E99A robot glyph (the app-wide
+                                 AI brand; the old E8F2 "contact" glyph
+                                 made the AI button unrecognizable). -->
                             <Button Style="{StaticResource GlassBlush.TopIconButton}"
-                                    Content="&#xE8F2;"
+                                    Content="&#xE99A;"
                                     ToolTip="AI Assistant"
                                     AutomationProperties.Name="AI Assistant"
+                                    AutomationProperties.AutomationId="Shell.PersonalAiButton"
                                     Command="{Binding AiChatVM.ToggleChatCommand}"/>
+                            <!-- AGENT — glass twin of the Professional
+                                 PgAiPillStyle (soft-accent capsule + ok
+                                 dot). Toggles the agent chat card, which
+                                 is experience-hosted (MainWindow shows it
+                                 in Professional, this shell in Personal). -->
+                            <Button x:Name="PersonalAgentButton"
+                                    Height="34"
+                                    Margin="6,0"
+                                    Cursor="Hand"
+                                    FocusVisualStyle="{x:Null}"
+                                    ToolTip="ProGlass Agent"
+                                    AutomationProperties.Name="ProGlass Agent"
+                                    AutomationProperties.AutomationId="Shell.PersonalAgentButton"
+                                    Command="{Binding ToggleAgentChatCommand}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="Bg"
+                                                Padding="12,0"
+                                                CornerRadius="17"
+                                                Background="{DynamicResource GlassBlush.AccentSoft}"
+                                                BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                                                BorderThickness="1"
+                                                SnapsToDevicePixels="True">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Ellipse Width="8" Height="8"
+                                                         Fill="{DynamicResource GlassBlush.AccentGlow}"
+                                                         VerticalAlignment="Center"
+                                                         Margin="0,0,7,0"
+                                                         IsHitTestVisible="False"/>
+                                                <TextBlock Text="AGENT"
+                                                           FontSize="10.5"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource GlassBlush.AccentDeep}"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bg" Property="Effect"
+                                                        Value="{StaticResource GlassBlush.GlowAccent}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsPressed" Value="True">
+                                                <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                            <!-- ABOUT — dedicated affordance (the brand
+                                 tile also opens About). -->
+                            <Button Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xE949;"
+                                    ToolTip="About ProGlass"
+                                    AutomationProperties.Name="About ProGlass"
+                                    AutomationProperties.AutomationId="Shell.PersonalAboutButton"
+                                    Command="{Binding ShowAboutCommand}"/>
+                            <!-- SCREENSHOT (same command as Professional) -->
+                            <Button x:Name="PersonalScreenshotButton"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xEB9F;"
+                                    ToolTip="Screenshot"
+                                    AutomationProperties.Name="Screenshot"
+                                    AutomationProperties.AutomationId="Shell.PersonalScreenshotButton"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="Screenshot"/>
+                            <!-- SCREEN RECORD (same command as Professional;
+                                 red while recording, like the Professional
+                                 RecordButton trigger). -->
+                            <Button x:Name="PersonalScreenRecordButton"
+                                    Content="&#xE714;"
+                                    ToolTip="Screen recording"
+                                    AutomationProperties.Name="Screen recording"
+                                    AutomationProperties.AutomationId="Shell.PersonalScreenRecordButton"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="ScreenRecord">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource GlassBlush.TopIconButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ScreenRecordVM.IsRecording}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource GlassBlush.Danger}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
                             <Button Style="{StaticResource GlassBlush.TopIconButton}"
                                     Content="&#xE793;"
                                     ToolTip="Theme"
@@ -464,6 +557,14 @@
                                     ToolTip="Settings"
                                     AutomationProperties.Name="Settings"
                                     Command="{Binding ShowSettingsCommand}"/>
+                            <Button x:Name="PersonalNotificationButton"
+                                    Style="{StaticResource GlassBlush.TopIconButton}"
+                                    Content="&#xEA8F;"
+                                    ToolTip="Notifications"
+                                    AutomationProperties.Name="Notifications"
+                                    Command="{Binding TogglePopupCommand}"
+                                    CommandParameter="Notifications"
+                                    AutomationProperties.AutomationId="Shell.PersonalNotificationsButton"/>
                             <Button x:Name="PersonalUserCardButton"
                                     Style="{StaticResource GlassBlush.TopIconButton}"
                                     Content="&#xE77B;"
@@ -515,6 +616,53 @@
                                Visibility="{Binding AiChatVM.IsOpen,
                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
 
+        <!-- ══ AGENT CHAT — PERSONAL-SIDE HOST (2026-09-19) ══════════════
+             The agent card lives in MainWindow and was NOT experience-
+             aware: opened in Professional it kept floating over the
+             Personal shell, and the glass top bar had no agent control
+             to close it — the "agent stays open over everything" report.
+             Now experience-hosted exactly like the AI chat: MainWindow
+             shows it only in Professional mode, this shell only in
+             Personal mode — ONE visible instance, SAME AgentChatVM,
+             state preserved across the switch. The glass top bar's
+             AGENT pill (and the card's own X) toggle it from here. -->
+        <Border Panel.ZIndex="210"
+                Width="560"
+                Height="680"
+                MaxHeight="{Binding ActualHeight,
+                            RelativeSource={RelativeSource AncestorType=Window},
+                            Converter={StaticResource WindowInsetConverter},
+                            ConverterParameter=120}"
+                Margin="0,16,24,24"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                CornerRadius="{DynamicResource GlassBlush.SectionRadius}"
+                ClipToBounds="False"
+                BorderBrush="{DynamicResource GlassBlush.AccentGlow}"
+                BorderThickness="1"
+                Background="{DynamicResource GlassBlush.SurfaceStrong}"
+                Effect="{StaticResource GlassBlush.CardShadowFx}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsAgentChatOpen}" Value="True"/>
+                                <Condition Binding="{Binding IsPersonalExperience}" Value="True"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Border CornerRadius="{DynamicResource GlassBlush.SectionRadius}"
+                    ClipToBounds="True"
+                    Background="{DynamicResource GlassBlush.SurfaceStrong}">
+                <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
+            </Border>
+        </Border>
+
         <!-- ══ GB-P15 — PERSONAL-SIDE TOP-BAR POPUPS ═════════════════════
              The Professional popups (MainWindow) anchor to the
              Professional top-bar buttons, which are collapsed in Personal
@@ -561,6 +709,49 @@
                 </MultiBinding>
             </Popup.IsOpen>
             <viewsShared:UserSwitchPanel x:Name="PersonalUserSwitchPanelHost" Width="360"/>
+        </Popup>
+
+        <!-- ══ GB-B10 — PERSONAL-SIDE SCREENSHOT / SCREEN-RECORD POPUPS ══
+             2026-09-19: the Professional copies are experience-gated
+             (their anchors are collapsed in Personal mode) and these two
+             anchor to the glass top bar buttons on the SAME
+             IsScreenshotOpen / IsScreenRecordOpen flags — one source of
+             truth, the converter picks which anchored copy may open.
+             Click-outside dismissal comes from MainWindow's
+             PreviewMouseLeftButtonDown guard, which recognizes the
+             Personal anchors by AutomationId (MainWindow.xaml.cs). -->
+        <Popup x:Name="PersonalScreenshotPopup"
+               PlacementTarget="{Binding ElementName=PersonalScreenshotButton}"
+               Placement="Bottom"
+               VerticalOffset="0"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}"
+                              ConverterParameter="Personal">
+                    <Binding Path="IsScreenshotOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:ScreenshotPanel x:Name="PersonalScreenshotPanelHost"/>
+        </Popup>
+
+        <Popup x:Name="PersonalScreenRecordPopup"
+               PlacementTarget="{Binding ElementName=PersonalScreenRecordButton}"
+               Placement="Bottom"
+               VerticalOffset="8"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}"
+                              ConverterParameter="Personal">
+                    <Binding Path="IsScreenRecordOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:ScreenRecordPanel x:Name="PersonalScreenRecordPanelHost"/>
         </Popup>
     </Grid>
 </UserControl>

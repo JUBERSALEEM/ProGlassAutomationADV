@@ -597,6 +597,18 @@
                         </Button.Style>
                     </Button>
 
+                    <!-- ABOUT — dedicated top-bar affordance (2026-09-19).
+                         The Phase-1 rewrite folded About into the logo
+                         click only; the user reported it as "missing", so
+                         the explicit button is restored. The logo click
+                         keeps working (both open the same About module). -->
+                    <Button x:Name="AboutButton"
+                            Style="{StaticResource PgTopIconButtonStyle}"
+                            Content="&#xE949;"
+                            Command="{Binding ShowAboutCommand}"
+                            ToolTip="{DynamicResource ToolTip.About}"
+                            Margin="0,0,10,0"/>
+
                     <!-- GB-P14 — EXPERIENCE SWITCH (Professional | Personal).
                          Live, persisted, no restart. Swaps the Professional
                          chrome for the Glass Blush Personal shell; the module
@@ -1207,7 +1219,15 @@
             <!-- AGENT CHAT — floating card, bottom-right.
                  Outer border owns the drop shadow (must not ClipToBounds).
                  Inner border clips the chat chrome to the 16px radius so
-                 the square UserControl fill cannot square-off the corners. -->
+                 the square UserControl fill cannot square-off the corners.
+                 2026-09-19: EXPERIENCE-GATED. Previously this card showed
+                 in BOTH experiences: opened in Professional, switching to
+                 the Personal shell left it floating over the glass UI with
+                 no glass-top-bar control to close it (the "agent window
+                 stays open" report). Now it is the Professional-side host
+                 only; GlassShell hosts the identical card (same
+                 AgentChatVM, same IsAgentChatOpen flag) in Personal mode —
+                 one visible instance, state preserved across the switch. -->
             <Border Panel.ZIndex="210"
                     Width="560"
                     Height="680"
@@ -1223,11 +1243,21 @@
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
-                    Effect="{StaticResource ShadowElevated}"
-                    Visibility="{Binding IsAgentChatOpen,
-                        Converter={StaticResource BoolToVisibilityConverter},
-                        FallbackValue=Collapsed,
-                        TargetNullValue=Collapsed}">
+                    Effect="{StaticResource ShadowElevated}">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsAgentChatOpen}" Value="True"/>
+                                    <Condition Binding="{Binding IsPersonalExperience}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
                 <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         ClipToBounds="True"
                         Background="{DynamicResource ModuleBackgroundBrush}">
@@ -1301,28 +1331,44 @@
                                         />
         </Popup>
 
-        <!-- Screenshot popup (dedicated, separate from About) -->
+        <!-- Screenshot popup (dedicated, separate from About).
+             2026-09-19: experience-gated — the Professional anchor is
+             collapsed in Personal mode; the glass shell's own anchored
+             copy (same IsScreenshotOpen flag, Personal parameter) opens
+             there instead. Without the gate this popup would float at
+             the window origin in Personal mode. -->
         <Popup x:Name="ScreenshotPopup"
                PlacementTarget="{Binding ElementName=ScreenshotButton}"
                Placement="Bottom"
                VerticalOffset="0"
                AllowsTransparency="True"
                StaysOpen="True"
-               PopupAnimation="Fade"
-               IsOpen="{Binding IsScreenshotOpen, Mode=TwoWay}">
+               PopupAnimation="Fade">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}">
+                    <Binding Path="IsScreenshotOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
             <viewsShared:ScreenshotPanel x:Name="ScreenshotPanelHost"
                                          />
         </Popup>
 
-        <!-- Screen record popup (independent of Demo Center) -->
+        <!-- Screen record popup (independent of Demo Center).
+             2026-09-19: experience-gated (same pattern as Screenshot). -->
         <Popup x:Name="ScreenRecordPopup"
                PlacementTarget="{Binding ElementName=RecordButton}"
                Placement="Bottom"
                VerticalOffset="8"
                AllowsTransparency="True"
                StaysOpen="True"
-               PopupAnimation="Fade"
-               IsOpen="{Binding IsScreenRecordOpen, Mode=TwoWay}">
+               PopupAnimation="Fade">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}">
+                    <Binding Path="IsScreenRecordOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
             <viewsShared:ScreenRecordPanel x:Name="ScreenRecordPanelHost"
                                            />
         </Popup>
