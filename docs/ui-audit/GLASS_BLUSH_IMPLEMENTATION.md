@@ -15,7 +15,10 @@ A first REAL build was run externally on 2026-09-19 and its errors were
 fixed at the source (GB-B1), with a second fix round (GB-B2: TargetName in
 Style triggers + a non-existent DropShadowEffect property) and a third
 (GB-B3: a C# compile blocker — unparenthesized ternary in a string
-interpolation — which was also the root of a ~100-error designer cascade) —
+interpolation — which was also the root of a ~100-error designer cascade)
+and a fourth (GB-B4: a missing `System.Collections.Specialized` using in
+the GB-P13 code-behind — root of the last 3 active CS errors; the 77 XDG
+errors in that list were verified cascade, all 54 named types exist) —
 the rebuild is still due in the SDK environment before anything may be
 labelled build-verified.
 
@@ -434,6 +437,41 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   expected to clear on its own (designer caches the stale failed
   assembly — a clean rebuild is the correct remedy, not XAML edits).
 
+## GB-B4 — Fourth real build fix round: missing using (2026-09-19)
+- **Context:** fourth real-build error list (80 errors). The 5 GuillotinePacker
+  CS errors from GB-B3 are GONE → `dc71201` confirmed effective. New shape:
+  3 active C# errors in ONE file + 77 designer errors.
+- **Root cause (1 line → 3 CS errors):**
+  `Views/Personal/PersonalAiChatView.xaml.cs` (GB-P13 code-behind) used
+  `NotifyCollectionChangedEventArgs` in the handler signature (L43) without
+  importing `System.Collections.Specialized` (the file had only
+  `using System.Collections;`). Verified against Microsoft Learn (view=net-8.0):
+  on net8.0 the type is still `System.Collections.Specialized.*` — it never
+  moved to `System.Collections`. CS0246 at L43 + CS0123 at L39/L55
+  ("no overload matches `NotifyCollectionChangedEventHandler`") are all one
+  root cause: the handler's parameter type failed to resolve.
+- **Fix:** added `using System.Collections.Specialized;` — identical to the
+  Professional sibling `Views/AI/AiChatView.xaml.cs` (same event, compiles).
+  No ambiguity risk: no other name in the file exists in two imported
+  namespaces.
+- **Cross-checks (before pushing):**
+  - all 20 repo files using `NotifyCollectionChanged*` audit: every one
+    imports Specialized or fully qualifies — no second instance of the bug.
+  - all 54 unique XDG0008 type names (63 list entries) verified to exist in
+    the EXACT namespace quoted by each error (scripted class-declaration
+    index vs the error list).
+  - XDG-0001 ×3: both converter classes exist; both keys declared in
+    `ConverterResources.xaml` (merged FIRST in App.xaml, app scope).
+  - XDG0010 ×11: both behavior classes exist in `Behaviors/`; csproj has no
+    exclusion covering any involved file.
+  - **line-number sync:** every error line in the user's list matches the
+    current branch files → their build is on this exact branch (no stale
+    copy this round).
+- **Status:** fixed, committed + pushed. C# compile NOT RUN here (no SDK);
+  compiler gate = user's rebuild. Expected result: 0 active C# errors
+  (csc is exhaustive — 3 was the complete set) and the full 77-error XDG
+  block clearing on a clean rebuild (designer cache of the failed assembly).
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -458,3 +496,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-B1 first real build fix round | ✅ FIXED at source (4 root-xmlns + 19 FontFeatures + 6 set-twice Style; validator +W18/W19/W20) — rebuild due in SDK env | `GB-B1` |
 | GB-B2 second build fix round | ✅ FIXED at source (TimelineItem TargetName → ControlTemplate triggers = MC4011; removed IsDirectionalLightOnly = MC3072; validator +W21, W19 denylist); rest of user's list verified stale/local-copy | `GB-B2` |
 | GB-B3 third build fix round — C# blocker | ✅ FIXED at source (unparenthesized ternary in interpolation, GuillotinePacker.Partitioned.cs L227 = CS8361 + 4 cascade CS errors; ~100 XDG errors = failed-assembly cascade, types/resources grep-verified); C# compile NOT RUN (no SDK) | `dc71201` |
+| GB-B4 fourth build fix round — missing using | ✅ FIXED at source (PersonalAiChatView.xaml.cs: `using System.Collections.Specialized;` = CS0246 + 2×CS0123, one root line; 77 XDG = cascade, all 54 types + 2 converters + 2 behaviors verified; line-sync proves user builds this branch); C# compile NOT RUN (no SDK) | `3c4dc23` |
