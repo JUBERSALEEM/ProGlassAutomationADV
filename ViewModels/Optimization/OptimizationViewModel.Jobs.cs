@@ -316,6 +316,32 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 }
 
                 var all = await repo.GetAllAsync().ConfigureAwait(false);
+
+                // PHASE 6 / finding 12 (2026-09-20): a headless host never
+                // shows the JOBS tab, so building up to 100 job cards — and the
+                // comment below is explicit that EVERY card runs the
+                // distribution engine — was pure waste. It held a second full
+                // copy of the job-order graph in memory beside the module's own,
+                // for a view model that only ever runs RunFromStep5.
+                //
+                // IsHeadlessHost is assigned by CreateOptimizationHost
+                // immediately after the constructor returns, so by the time this
+                // first await resumes the flag is already set. This is the same
+                // reasoning as the RC-007 guard in RebuildSelectedJobBreakdown,
+                // applied one stage earlier.
+                //
+                // It also makes an existing contract deterministic instead of
+                // racy: Run() only overwrites DocumentKey when exactly one job
+                // is selected, and its comment claims "a Step 5 host sets its
+                // own DocumentKey before calling here and is never overwritten
+                // (no jobs are selected there)". With no job list loaded, that
+                // is now true by construction rather than by timing.
+                if (IsHeadlessHost)
+                {
+                    JobsStatusText = string.Empty;
+                    return;
+                }
+
                 var options = new List<JobOptionVm>();
 
                 // Phase 3: the list is capped at the 100 most recent jobs —
@@ -725,12 +751,43 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>Leading thickness in mm (0 when unreadable).</summary>
+        // PHASE 1 / finding 4 (2026-09-20): thickness is scraped from a
+        // free-text glass label, and it decides which house margin profile a
+        // cutting group is packed with. The old pattern was start-anchored
+        // (@"^\s*(\d+(?:\.\d+)?)\s*mm") AND parsed with NumberStyles.Integer,
+        // which made it fail in three everyday ways:
+        //   "HD Grey 6mm"     → 0   (thickness not first)
+        //   "Clear 6mm FT"    → 0   (thickness not first)
+        //   "6.5mm laminated" → 0   (the regex captured 6.5, the integer
+        //                            parse rejected it — the pattern accepted
+        //                            a decimal the parser could not read)
+        // Zero then flowed into ResolveGroupMargins and became
+        // MarginProfile.DefaultFor(6), so a 12mm unit labelled "Clear 12mm"
+        // was cut with 6mm house margins and nothing on the result said so.
+        // Matching anywhere in the label and rounding a decimal to the nearest
+        // whole millimetre removes all three. Compiled: this runs once per
+        // piece row and once per cutting group on every run.
+        private static readonly System.Text.RegularExpressions.Regex ThicknessMmRegex =
+            new System.Text.RegularExpressions.Regex(
+                @"(?<![\d.])(\d+(?:[.,]\d+)?)\s*mm\b",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+                | System.Text.RegularExpressions.RegexOptions.CultureInvariant
+                | System.Text.RegularExpressions.RegexOptions.Compiled);
+
         private static int ParseThicknessMm(string? composition)
         {
-            var m = System.Text.RegularExpressions.Regex.Match(
-                composition ?? string.Empty, @"^\s*(\d+(?:\.\d+)?)\s*mm");
-            return m.Success && int.TryParse(m.Groups[1].Value, NumberStyles.Integer,
-                CultureInfo.InvariantCulture, out int t) ? t : 0;
+            if (string.IsNullOrWhiteSpace(composition)) return 0;
+
+            var m = ThicknessMmRegex.Match(composition);
+            if (!m.Success) return 0;
+
+            // A decimal comma is accepted as well as a point: the label is free
+            // text the operator typed, and "6,5mm" is the same glass as "6.5mm".
+            string raw = m.Groups[1].Value.Replace(',', '.');
+            return double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out double t)
+                   && t > 0
+                ? (int)Math.Round(t, MidpointRounding.AwayFromZero)
+                : 0;
         }
 
         /// <summary>Rebuilds the spec build-up strips from every ticked job.

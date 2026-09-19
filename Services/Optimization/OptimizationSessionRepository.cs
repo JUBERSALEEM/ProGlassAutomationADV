@@ -36,7 +36,11 @@ namespace ProGlassAutomation.Services.Optimization
         public async Task<SavedOptimizationSession?> GetLatestRunAsync(
             string? documentKey, CancellationToken ct = default)
         {
-            string id = SavedOptimizationSession.LatestRunIdFor(documentKey);
+            // PHASE 3 / finding 2: canonicalised, so a run stamped with a job
+            // order id and a lookup by proforma id address the SAME reserved row
+            // instead of two rows that can never find each other.
+            string id = SavedOptimizationSession.LatestRunIdFor(
+                OptimizationDocumentKey.Canonicalize(documentKey));
 
             await using var db = new OptimizationDbContext();
             return await db.Sessions
@@ -87,20 +91,50 @@ namespace ProGlassAutomation.Services.Optimization
             // Stamped with the document the run was produced for, so a quote
             // reopened later reads its OWN plan and not whichever run happened
             // to be newest globally.
-            session.Id = SavedOptimizationSession.LatestRunIdFor(documentKey);
+            session.Id = SavedOptimizationSession.LatestRunIdFor(
+                OptimizationDocumentKey.Canonicalize(documentKey));
 
-            await using var db = new OptimizationDbContext();
+            // PHASE 7 / finding 15 (2026-09-20): this was a read-then-write with
+            // no transaction. Two runs finishing near-simultaneously — the Step 5
+            // headless host and the module, or a double-clicked RUN — both read
+            // existing == null, both called Add with the SAME primary key, and
+            // the second threw DbUpdateException. WAL and busy_timeout (applied
+            // by SqliteResilience) handle lock CONTENTION, not this logical race.
+            // The caller logged the failure at Debug, so the lost save was
+            // invisible: the operator's run simply was not there next time.
+            //
+            // Now wrapped in a transaction with a bounded retry. A retry is the
+            // correct response to a PK collision because the next attempt reads
+            // the row the other writer just committed and updates it instead of
+            // inserting.
+            const int maxAttempts = 3;
 
-            var existing = await db.Sessions
-                .FirstOrDefaultAsync(s => s.Id == session.Id, ct)
-                .ConfigureAwait(false);
+            for (int attempt = 1; ; attempt++)
+            {
+                await using var db = new OptimizationDbContext();
+                try
+                {
+                    await using var tx = await db.Database
+                        .BeginTransactionAsync(ct).ConfigureAwait(false);
 
-            if (existing == null)
-                db.Sessions.Add(session);
-            else
-                db.Entry(existing).CurrentValues.SetValues(session);
+                    var existing = await db.Sessions
+                        .FirstOrDefaultAsync(s => s.Id == session.Id, ct)
+                        .ConfigureAwait(false);
 
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                    if (existing == null)
+                        db.Sessions.Add(session);
+                    else
+                        db.Entry(existing).CurrentValues.SetValues(session);
+
+                    await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                    await tx.CommitAsync(ct).ConfigureAwait(false);
+                    return;
+                }
+                catch (DbUpdateException) when (attempt < maxAttempts && !ct.IsCancellationRequested)
+                {
+                    await Task.Delay(50 * attempt, ct).ConfigureAwait(false);
+                }
+            }
         }
 
         public async Task DeleteAsync(string id, CancellationToken ct = default)

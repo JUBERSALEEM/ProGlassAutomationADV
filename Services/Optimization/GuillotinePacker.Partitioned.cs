@@ -236,6 +236,15 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
+            // PHASE 4 / findings 7-9: record the verdict on the plan actually
+            // RETURNED, not on the candidate that was discarded. Re-validating
+            // costs one more O(pieces²) pass and only happens on the rare
+            // fallback path; on the clean path the already-computed list is
+            // reused.
+            winningResult.RecordValidation(
+                problems.Count == 0 ? problems : ValidateResult(winningResult, pieces),
+                conservationChecked: true, geometryChecked: false);
+
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
                 $"{winningResult.Sheets.Count:N0} sheets cut · {winningResult.Unplaced.Count} unplaced"));
 

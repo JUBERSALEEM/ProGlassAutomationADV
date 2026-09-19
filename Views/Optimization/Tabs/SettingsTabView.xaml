@@ -56,13 +56,43 @@
                                              Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
                                     <TextBlock Text="MINIMUM BREAKOUT (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                     <TextBox Text="{Binding MinBreakoutText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                             Style="{StaticResource OptIntInput}" Margin="0,0,0,8"/>
+
+                                    <!-- PHASE 1 / finding 1e: the sanctioned 50 / 40 breakout
+                                         switch. Owner-specified for thick glass (9mm and above),
+                                         where 50 is the house default and 40 is accepted when the
+                                         narrower offcut is still worth keeping. Hidden on thin and
+                                         medium glass, where the breakout equals the margin and there
+                                         is nothing to choose between. -->
+                                    <StackPanel Visibility="{Binding HasBreakoutChoice, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                Margin="0,0,0,10">
+                                        <TextBlock Text="BREAKOUT CHOICE (9MM AND ABOVE)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                        <ComboBox ItemsSource="{Binding BreakoutOptions}"
+                                                  SelectedItem="{Binding SelectedBreakoutOption}"
+                                                  Style="{StaticResource OptComboStyle}" Width="140" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{Binding BreakoutHint}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,6,0,0"/>
+                                    </StackPanel>
 
                                     <CheckBox IsChecked="{Binding RotationEnabled}" Margin="0,10,0,6"
                                               Foreground="{DynamicResource TextPrimaryBrush}">
                                         <TextBlock Text="Allow rotation (0° / 90° mix) — enabled by default for all pieces"
                                                    TextWrapping="Wrap" FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    </CheckBox>
+
+                                    <!-- PHASE 5 / finding 5a: OFF by default. A cutting group whose
+                                         glass has no rack on STOCKS is now refused with a named reason
+                                         instead of being packed on another spec's racks, which produced
+                                         a sheet count and a cost for material that cannot physically be
+                                         cut. This is the explicit opt-in for an operator who wants a
+                                         ballpark across mixed racks anyway. -->
+                                    <CheckBox IsChecked="{Binding AllowCrossCompositionStock}" Margin="0,4,0,6"
+                                              Foreground="{DynamicResource TextPrimaryBrush}">
+                                        <TextBlock TextWrapping="Wrap" FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   Text="Allow packing on other specs' racks (ballpark only — the glass differs, so the plan is NOT cuttable)"/>
                                     </CheckBox>
 
                                     <TextBlock Text="OPTIMIZE EFFORT / STRATEGY STAGE" Style="{StaticResource OptHeader}" Margin="0,10,0,6"/>
@@ -77,9 +107,18 @@
                                         Command="{Binding LoadHouseDefaultsCommand}"/>
                             </StackPanel>
 
-                            <TextBlock Text="House defaults (floor-confirmed): 6mm glass → LM/RM/TM/BM 15mm, minimum breakout 15mm, kerf 3mm (4mm from 10mm). Every value is editable per run."
+                            <!-- PHASE 1 / finding 1d: this line used to be a frozen sentence
+                                 describing only the 6mm profile. It now reports the profile
+                                 that WILL be used for the thickness currently entered, and says
+                                 so explicitly when the operator's own values differ — so a
+                                 house-default substitution can never be invisible again. -->
+                            <TextBlock Text="{Binding MarginHint}"
                                        FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="Wrap"
                                        Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,14,0,0"/>
+
+                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,8,0,0"
+                                       Text="Changing the thickness auto-selects that thickness's house profile while these fields are untouched. Once you edit a value it is yours: it is used exactly as entered, and LOAD HOUSE DEFAULTS is the only thing that replaces it."/>
                         </StackPanel>
                     </Border>
                 </Grid>

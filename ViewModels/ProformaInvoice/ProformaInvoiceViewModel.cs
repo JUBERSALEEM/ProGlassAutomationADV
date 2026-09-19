@@ -622,6 +622,30 @@ public ProformaInvoiceViewModel() : this(
             try { SavedInvoicesListVM?.Dispose(); }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ExceptionMessages.Deep(ex)); }
 
+            // PHASE 6 / finding 12 (2026-09-20): the headless Step 5
+            // optimization host is a FULL OptimizationViewModel, and
+            // CreateOptimizationHost subscribes to its PropertyChanged. That
+            // delegate's target is THIS instance, so the host held a strong
+            // reference to the whole Proforma Invoice tree — all nine step view
+            // models — and nothing ever released it. The host also owns its own
+            // DispatcherTimer and two cancellation sources, so a run in flight at
+            // teardown rooted: timer → host → this VM → Steps 1-9.
+            //
+            // Unsubscribe first, then dispose. Order matters: disposing while
+            // still subscribed leaves the handler reachable from the host's event
+            // list until the host itself is collected.
+            try
+            {
+                var optimizationHost = _optimizationHost;
+                if (optimizationHost != null)
+                {
+                    optimizationHost.PropertyChanged -= OnOptimizationHostPropertyChanged;
+                    optimizationHost.Dispose();
+                }
+                _optimizationHost = null;
+            }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort optimization host teardown: " + ExceptionMessages.Deep(ex)); }
+
             GC.SuppressFinalize(this);
         }
 

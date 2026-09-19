@@ -265,8 +265,17 @@ namespace ProGlassAutomation.Services.Optimization
                 if (_current.Count == 0) return false;
                 if (string.IsNullOrWhiteSpace(_documentKey)) return true;
                 if (string.IsNullOrWhiteSpace(documentKey)) return true;
-                return string.Equals(_documentKey.Trim(), documentKey.Trim(),
-                    StringComparison.OrdinalIgnoreCase);
+
+                // PHASE 3 / finding 2 (2026-09-20): this was a plain
+                // string.Equals, and the two stamping callers use different
+                // identity namespaces — Step 5 stamps the PROFORMA id, the
+                // module stamps the JOB ORDER id when one job is ticked, and
+                // DeriveJobOrderId is only a "PI-" → "JOB-" prefix swap. So a
+                // run produced from the JOBS tab could never satisfy this guard,
+                // and Step 6 of the source quote silently kept its manual
+                // values. Comparison now goes through the canonical form; the
+                // two unstamped cases above keep their documented leniency.
+                return OptimizationDocumentKey.Same(_documentKey, documentKey);
             }
         }
 

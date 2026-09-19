@@ -173,6 +173,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// re-verify every sheet of every group a second time, and Verify
             /// is O(pieces^2) per sheet.</summary>
             public int ProblemCount;
+
+            /// <summary>
+            /// PHASE 4 / finding 4c: true when an oracle reported a problem
+            /// against this group's plan. Such a group stays on screen for
+            /// inspection but is excluded from the cut-list export and from the
+            /// Step 6 feed — a plan that fails geometry or conservation must
+            /// never become production work or drive a quote's charges.
+            /// </summary>
+            public bool ValidationFailed;
+
             public string SheetsLabel = string.Empty;
             public string MarginNote = string.Empty;
         }
@@ -182,6 +192,30 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             public GroupRun Run = null!;
             public int SheetIndex;
+        }
+
+        /// <summary>
+        /// Names what the oracles ACTUALLY checked, so a green label can never
+        /// claim a guarantee that was not made.
+        ///
+        /// PHASE 4 / finding 4e: "Verified" used to mean "GuillotinePacker.Verify
+        /// found nothing", and Verify checks geometry only. On the QUICK path
+        /// conservation had never been checked at all, so a plan that had lost
+        /// pieces could still display "Verified" — the exact failure class the
+        /// owner has been chasing, wearing a green label.
+        /// </summary>
+        private static string BuildOracleLabel(OptimizationResult result, int problems)
+        {
+            if (problems > 0)
+                return problems.ToString(CultureInfo.InvariantCulture) +
+                       " issue(s) — not exportable";
+
+            if (result.ConservationChecked && result.GeometryChecked)
+                return "Verified";
+
+            return result.GeometryChecked
+                ? "Geometry checked — conservation NOT verified"
+                : "Not verified";
         }
 
         private readonly List<GroupRun> _groupRuns = new();
@@ -273,6 +307,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // A run that never starts must not leave the "reopen to REPORT"
             // flag dangling — clear it on every early exit.
             if (IsRunning) { _openToReportAfterRun = false; return; }
+            ClearInputWarnings();
             if (!TryBuildInputs(out var pieces, out var stockPool, out var margins))
             { _openToReportAfterRun = false; return; }
 
@@ -389,15 +424,36 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private static (MarginProfile Margins, string Note) ResolveGroupMargins(
             string composition, MarginProfile userMargins)
         {
-            // If user has customized margins or kerf, respect user settings strictly
-            if (userMargins != null && (userMargins.LeftMm != 0 || userMargins.TopMm != 0))
+            // PHASE 1 / finding 3 (2026-09-20): this used to read
+            //     if (userMargins != null && (userMargins.LeftMm != 0 || userMargins.TopMm != 0))
+            // i.e. "did the operator customize?" was INFERRED from two of the
+            // four margin fields being non-zero. An operator who deliberately
+            // set Left = 0 and Top = 0 — a normal trim pattern, and exactly
+            // what the house thick-glass profile does for its bottom edge —
+            // was read as having customized nothing, and house defaults for
+            // the parsed thickness were substituted with Note = string.Empty.
+            // Setting Right = 15 / Bottom = 15 while Left and Top stayed 0 was
+            // invisible too. The result was a wrong usable area, a wrong sheet
+            // count, and nothing on screen to explain either.
+            //
+            // Customization is now an explicit fact set where the operator's
+            // input is read (TryBuildInputs), so a deliberate zero is honoured.
+            if (userMargins != null && userMargins.IsCustomized)
                 return (userMargins, string.Empty);
 
             int thickness = ParseThicknessMm(composition);
             if (thickness <= 0 || (userMargins != null && thickness == userMargins.ThicknessMm))
                 return (userMargins ?? MarginProfile.DefaultFor(6), string.Empty);
-            return (MarginProfile.DefaultFor(thickness),
-                "cut with " + thickness.ToString(CultureInfo.InvariantCulture) + "mm house margins");
+
+            // A substituted profile is named WITH ITS VALUES. The old note said
+            // only "cut with 10mm house margins", which told the operator a
+            // substitution happened but not what it did — and the thick bucket
+            // is asymmetric (BM = 0), so the numbers are the part that matters.
+            var house = MarginProfile.DefaultFor(thickness);
+            return (house, string.Format(CultureInfo.InvariantCulture,
+                "cut with {0}mm house margins (LM {1} · RM {2} · TM {3} · BM {4} · breakout {5})",
+                thickness, house.LeftMm, house.RightMm, house.TopMm, house.BottomMm,
+                house.MinBreakoutMm));
         }
 
         /// <summary>
@@ -413,6 +469,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private static List<StockSize> ResolveGroupStocks(
             string composition,
             List<(StockSize Stock, string Composition)> pool,
+            bool allowCrossComposition,
             out string note)
         {
             note = string.Empty;
@@ -438,10 +495,36 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return SortStocksPrimaryFirst(manual);
             }
 
-            // 3. Nothing dedicated and nothing manual: keep the run alive
-            //    with every available rack rather than dropping the pieces.
+            // 3. Nothing dedicated and nothing manual.
+            //
+            // PHASE 5 / finding 5a (2026-09-20): this used to hand the group
+            // EVERY rack in the pool — "keep the run alive … rather than
+            // dropping the pieces" — so 6mm clear was packed onto a 12mm
+            // laminated rack. OpenNewSheet then picks the SMALLEST rack that
+            // fits, so it would happily choose a small offcut of the wrong
+            // glass. The note did surface, but the sheet count, utilisation and
+            // cost that reached Step 6 and Step 9 were for material that cannot
+            // physically be cut, and keeping the run alive is not worth
+            // inventing a plan.
+            //
+            // Now refused by default. The opt-in stays available in SETTINGS for
+            // an operator who genuinely wants a ballpark across mixed racks, and
+            // when it is used the note says so in terms nobody can mistake for a
+            // real plan.
             var all = DistinctBySize(pool.Select(t => t.Stock).ToList());
-            if (all.Count > 0) note = "no Step 4 sheet — packed on other specs' racks";
+            if (all.Count == 0) return all;
+
+            if (!allowCrossComposition)
+            {
+                note = "NO RACK FOR THIS GLASS — nothing was cut. Every rack on STOCKS belongs to a " +
+                       "different composition. Add this glass's sheet size, or a manual rack with no " +
+                       "composition, or enable \"allow packing on other specs' racks\" in SETTINGS " +
+                       "for a ballpark plan only.";
+                return new List<StockSize>();
+            }
+
+            note = "no Step 4 sheet — packed on OTHER SPECS' RACKS (glass differs, so this is a " +
+                   "ballpark plan, not a cut list)";
             return SortStocksPrimaryFirst(all);
         }
 
@@ -485,12 +568,52 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // (the sheet its pane was quoted on), falling back to
                     // manual "any group" racks only when no Step 4 sheet is
                     // recorded for that glass.
-                    var groupStocks = ResolveGroupStocks(composition, stockPool, out string stockNote);
+                    var groupStocks = ResolveGroupStocks(composition, stockPool,
+                        AllowCrossCompositionStock, out string stockNote);
                     string note = string.IsNullOrWhiteSpace(stockNote)
                         ? marginNote
                         : (string.IsNullOrWhiteSpace(marginNote)
                             ? stockNote
                             : marginNote + " · " + stockNote);
+
+                    // PHASE 5 / finding 5a: no rack for this glass means no plan.
+                    // Short-circuit rather than handing the packer an empty pool,
+                    // so the group reports "not cut" with every piece accounted
+                    // for as unplaced instead of producing 0 sheets and a
+                    // confusing silence. Conservation still holds: input count
+                    // equals placed (0) plus unplaced (all).
+                    if (groupStocks.Count == 0)
+                    {
+                        var refused = new OptimizationResult { Rotation = rotation };
+                        foreach (var refusedPiece in groupPieces)
+                            refused.Unplaced.Add(refusedPiece);
+                        if (!string.IsNullOrWhiteSpace(stockNote))
+                            refused.ScaleNotes.Add(stockNote);
+                        refused.RecordValidation(Array.Empty<string>(),
+                            conservationChecked: true, geometryChecked: true);
+
+                        runs.Add(new GroupRun
+                        {
+                            Composition = composition,
+                            Thickness = ParseThicknessLabel(composition),
+                            PieceCount = groupPieces.Count,
+                            Margins = groupMargins,
+                            Result = refused,
+                            UtilizationPct = 0,
+                            WasteM2 = 0,
+                            UnplacedLabel = groupPieces.Count.ToString(CultureInfo.InvariantCulture),
+                            OracleLabel = "NOT CUT — no rack for this glass",
+                            ProblemCount = 0,
+                            ValidationFailed = false,
+                            SheetsLabel = "0",
+                            MarginNote = note
+                        });
+
+                        RunProgressPercent = groupCount <= 0
+                            ? 0
+                            : (int)Math.Round(groupIndex * 100.0 / groupCount);
+                        continue;
+                    }
 
                     // Progress<T> captures the UI synchronization context when
                     // it is constructed, so the engine can report from the
@@ -544,7 +667,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                     double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
                     double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
-                    int problems = GuillotinePacker.Verify(result, groupMargins).Count;
+                    // PHASE 4 / findings 4b, 4c, 4e (2026-09-20): this line used
+                    // to be
+                    //     int problems = GuillotinePacker.Verify(result, groupMargins).Count;
+                    // and the group was then labelled "Verified" when it was 0.
+                    // Verify checks GEOMETRY only — margins, rotation policy,
+                    // dimension integrity, overlap, kerf. It never checks that
+                    // every input piece survived. So the label claimed a
+                    // conservation guarantee that had not been made, and on the
+                    // QUICK path conservation had not been checked at all until
+                    // Phase 4a. The plan's own verdict is now folded in and the
+                    // label says what was actually checked.
+                    var geometryProblems = GuillotinePacker.Verify(result, groupMargins);
+                    result.RecordValidation(
+                        geometryProblems, conservationChecked: false, geometryChecked: true);
+
+                    int problems = result.ValidationProblems.Count;
 
                     runs.Add(new GroupRun
                     {
@@ -556,20 +694,30 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         UtilizationPct = stockArea == 0 ? 0 : glass / stockArea * 100.0,
                         WasteM2 = Math.Max(0, (stockArea - glass) / 1_000_000.0),
                         UnplacedLabel = result.Unplaced.Count.ToString(CultureInfo.InvariantCulture),
-                        OracleLabel = problems == 0 ? "Verified" : problems.ToString(CultureInfo.InvariantCulture) + " issue(s)",
+                        OracleLabel = BuildOracleLabel(result, problems),
                         ProblemCount = problems,
+                        ValidationFailed = result.HasValidationFailure,
                         SheetsLabel = result.SheetsUsed.ToString(CultureInfo.InvariantCulture),
                         MarginNote = note
                     });
                 }
 
-                ApplyResults(stage, runs, rotation);
+                    ApplyResults(stage, runs, rotation);
 
-                // APPEND, never replace: ApplyResults has just written the
-                // sheet-count / utilization summary the operator reads first.
-                // Overwriting it would hide the result exactly on the large
-                // jobs where the note matters most.
-                if (scaleNotes.Count > 0)
+                    // PHASE 2 / finding 19: input warnings (excluded invalid
+                    // rows, racks left out at a zero balance) are appended here
+                    // rather than set in TryBuildInputs, because ApplyResults has
+                    // just written the summary the operator reads first. Same
+                    // append-never-replace rule as the scale notes below — and
+                    // these matter most on exactly the large jobs where a
+                    // replaced message would hide an exclusion.
+                    ApplyInputWarningsToRunMessage();
+
+                    // APPEND, never replace: ApplyResults has just written the
+                    // sheet-count / utilization summary the operator reads first.
+                    // Overwriting it would hide the result exactly on the large
+                    // jobs where the note matters most.
+                    if (scaleNotes.Count > 0)
                 {
                     string notes = string.Join(" ", scaleNotes);
                     RunMessage = string.IsNullOrWhiteSpace(RunMessage)

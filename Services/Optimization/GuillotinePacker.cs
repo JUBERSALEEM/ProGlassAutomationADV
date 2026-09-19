@@ -200,6 +200,31 @@ namespace ProGlassAutomation.Services.Optimization
             // single deterministic shelf pass — the operator must be able to
             // tell them apart on the result.
             result.Strategy = $"QUICK SHELF (Area / {split})";
+
+            // PHASE 4 / finding 7 (2026-09-20): QUICK never validated
+            // conservation. ValidateResult — the oracle that catches a piece
+            // missing from the plan, placed twice, or an input/output count
+            // mismatch — was called only by PackOptimize and the partitioned
+            // path, while the run header labelled every group from Verify, which
+            // checks GEOMETRY only. A QUICK plan that had lost pieces therefore
+            // displayed "Verified".
+            //
+            // QUICK is also PackOptimize's own fallback when the optimized plan
+            // fails validation, so validating it here means the safety net has a
+            // net. There is nothing left to fall back to, so a failure is
+            // recorded on the result rather than replaced: the plan stays
+            // visible for inspection and is excluded from export and from the
+            // Step 6 feed by the callers that read HasValidationFailure.
+            var quickProblems = ValidateResult(result, pieces);
+            result.RecordValidation(quickProblems, conservationChecked: true, geometryChecked: false);
+            if (quickProblems.Count > 0)
+            {
+                result.ScaleNotes.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    "WARNING: the QUICK plan failed conservation validation ({0}; {1} issue(s)) — " +
+                    "shown for inspection, not exportable.",
+                    quickProblems[0], quickProblems.Count));
+            }
+
             return result;
         }
 
@@ -424,9 +449,17 @@ namespace ProGlassAutomation.Services.Optimization
                 var quickProblems = ValidateResult(quick, pieces);
                 if (quickProblems.Count == 0)
                 {
-                    final.ScaleNotes.Add($"WARNING: selected plan failed layout validation " +
+                    // PHASE 4 / finding 24 (2026-09-20): this note used to be
+                    // added to `final.ScaleNotes` and THEN `final = quick` threw
+                    // that object away — so the warning travelled with the
+                    // discarded plan and the operator never saw that their
+                    // optimized result had failed validation and been replaced.
+                    // A safety net nobody can see is not a safety net. The note
+                    // now goes on the plan that is actually returned.
+                    quick.ScaleNotes.Add($"WARNING: selected plan failed layout validation " +
                         $"({problems[0]}); replaced with validated quick pass.");
                     final = quick;
+                    problems = quickProblems;
                 }
                 else
                 {
@@ -434,6 +467,11 @@ namespace ProGlassAutomation.Services.Optimization
                         $"({problems[0]}; {problems.Count} issue(s)) — result not re-run.");
                 }
             }
+
+            // PHASE 4: the verdict travels with the plan, so the run header can
+            // say what was actually checked and the export / Step 6 feed paths
+            // can refuse a plan that failed conservation.
+            final.RecordValidation(problems, conservationChecked: true, geometryChecked: false);
 
             progress?.Report(OptimizeProgress.Of("done", comboList.Count, comboList.Count,
                 $"{final.Sheets.Count} sheets"));
@@ -1202,11 +1240,21 @@ namespace ProGlassAutomation.Services.Optimization
                     if (result.Rotation == RotationPolicy.Locked && p.Rotated)
                         problems.Add($"Sheet {sheet.SheetNo}: {Label(p)} is rotated under Locked policy.");
 
-                    // Verify dimension integrity
-                    bool origMatch = (p.WidthMm == p.Piece.WidthMm && p.HeightMm == p.Piece.HeightMm) ||
-                                     (p.WidthMm == p.Piece.HeightMm && p.HeightMm == p.Piece.WidthMm && p.Rotated);
-                    if (!origMatch)
-                        problems.Add($"Sheet {sheet.SheetNo}: {Label(p)} dimension mutated from {p.Piece.WidthMm}x{p.Piece.HeightMm} to {p.WidthMm}x{p.HeightMm}.");
+                    // Verify dimension integrity.
+                    // PHASE 4 / finding 10: guarded, matching ValidateResult's
+                    // `src != null`. A missing back-reference is itself a
+                    // problem worth reporting; it must not be a crash.
+                    if (p.Piece == null)
+                    {
+                        problems.Add($"Sheet {sheet.SheetNo}: {Label(p)} has no source piece to verify dimensions against.");
+                    }
+                    else
+                    {
+                        bool origMatch = (p.WidthMm == p.Piece.WidthMm && p.HeightMm == p.Piece.HeightMm) ||
+                                         (p.WidthMm == p.Piece.HeightMm && p.HeightMm == p.Piece.WidthMm && p.Rotated);
+                        if (!origMatch)
+                            problems.Add($"Sheet {sheet.SheetNo}: {Label(p)} dimension mutated from {p.Piece.WidthMm}x{p.Piece.HeightMm} to {p.WidthMm}x{p.HeightMm}.");
+                    }
                 }
 
                 for (int i = 0; i < sheet.Pieces.Count; i++)
@@ -1275,9 +1323,27 @@ namespace ProGlassAutomation.Services.Optimization
             return problems;
         }
 
-        private static string Label(PlacedPiece p) =>
-            string.IsNullOrWhiteSpace(p.Piece.PieceLabel)
+        /// <summary>
+        /// Names a placed piece for an oracle message.
+        ///
+        /// PHASE 4 / finding 10 (2026-09-20): this dereferenced
+        /// <c>p.Piece</c> unconditionally, and it is called from inside the
+        /// failure branches of Verify's bounds, overlap and kerf checks. A
+        /// PlacedPiece with no back-reference — which ValidateResult explicitly
+        /// anticipates with a <c>src != null</c> guard — therefore threw while
+        /// the oracle was trying to REPORT a problem, and the exception
+        /// propagated out of RunCoreAsync as "Optimization failed: Object
+        /// reference not set to an instance of an object.", discarding every
+        /// group's results. Fixing it here rather than at one call site covers
+        /// all of them: a label must never be the thing that breaks a verifier.
+        /// </summary>
+        private static string Label(PlacedPiece p)
+        {
+            if (p == null) return "(null placement)";
+            if (p.Piece == null) return "(placement with no source piece)";
+            return string.IsNullOrWhiteSpace(p.Piece.PieceLabel)
                 ? p.Piece.GlassRef
                 : p.Piece.PieceLabel;
+        }
     }
 }

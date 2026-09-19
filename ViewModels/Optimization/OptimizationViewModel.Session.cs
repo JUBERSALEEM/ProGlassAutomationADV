@@ -150,6 +150,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// <summary>Display name stored on the reserved latest-run row.</summary>
         private const string LatestRunSessionName = "Latest run (auto-saved)";
 
+        // PHASE 7 / finding 16: consecutive auto-save failures, and whether the
+        // operator has already been told. Kept as a streak rather than a total so
+        // the escalation means "this is broken now", not "this broke once in
+        // March".
+        private int _latestRunSaveFailures;
+        private bool _latestRunSaveFailureReported;
+
         private void PopulateSessions(List<SavedOptimizationSession> list)
         {
             SavedSessions.Clear();
@@ -272,13 +279,50 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 await _sessions.EnsureCreatedAsync();
 
                 await _sessions.UpsertLatestRunAsync(snapshot, DocumentKey);
+
+                // A success clears the streak, so the escalation above reports a
+                // PERSISTENT failure rather than two unrelated hiccups a month apart.
+                _latestRunSaveFailures = 0;
+                _latestRunSaveFailureReported = false;
             }
             catch (Exception ex)
             {
                 // Plumbing for a reporting bridge. It must never surface as a
-                // failed run, and never block the UI thread.
-                AppLogService.Debug("[Optimization] latest-run snapshot not saved: " +
-                    ExceptionMessages.Deep(ex));
+                // failed run, and never block the UI thread — so a SINGLE
+                // transient failure stays at Debug, as it always has.
+                //
+                // PHASE 7 / finding 16 (2026-09-20): but a REPEATED failure is a
+                // different thing. Every failure was logged at Debug and nowhere
+                // else, so a permanently broken save — the primary-key race
+                // before Phase 7a, or schema drift, since EnsureCreatedAsync
+                // creates but never migrates — produced no operator-visible
+                // signal at all at a level most installs do not capture. That is
+                // exactly how RC-018 hid: the run silently was not saved and the
+                // only trace was a SessionStatus line. Escalate on the second
+                // consecutive failure and say it on the status line ONCE, so the
+                // operator knows VIEW RESULT will come back empty.
+                _latestRunSaveFailures++;
+
+                if (_latestRunSaveFailures == 1)
+                {
+                    AppLogService.Debug("[Optimization] latest-run snapshot not saved: " +
+                        ExceptionMessages.Deep(ex));
+                }
+                else
+                {
+                    AppLogService.Warning(
+                        $"[Optimization] latest-run snapshot has now failed {_latestRunSaveFailures} times " +
+                        $"in a row (doc='{DocumentKey}'). VIEW RESULT will find no run for this document. " +
+                        "Last error: " + ExceptionMessages.Deep(ex),
+                        new LogContext { Module = "Optimization", Operation = "PersistLatestRun" });
+
+                    if (!_latestRunSaveFailureReported)
+                    {
+                        _latestRunSaveFailureReported = true;
+                        SessionStatus = "This run could not be auto-saved, so VIEW RESULT will not find it " +
+                            "later. Use SAVE on the SESSION tab to keep the plan.";
+                    }
+                }
             }
         }
 

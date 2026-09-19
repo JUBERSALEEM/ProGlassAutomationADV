@@ -540,11 +540,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             int thickness = TextParsing.ParseInt(CutListSpecThicknessText);
-            decimal price = decimal.TryParse(
-                TextParsing.CleanNum(CutListSpecPriceText),
-                NumberStyles.Number, CultureInfo.InvariantCulture, out decimal parsedPrice)
-                    ? parsedPrice
-                    : 0m;
+
+            // PHASE 2 / finding 6 (2026-09-20): this used to be
+            //     decimal.TryParse(TextParsing.CleanNum(CutListSpecPriceText), …) ? parsed : 0m;
+            // CleanNum strips EVERY comma, so a European decimal comma turned
+            // "45,5" into "455" — a tenfold price inflation written into the
+            // specification catalogue, which Step 4 and Step 9 read back as a
+            // fallback rate. And an unparseable value saved 0m with a status
+            // line reporting success, so "free glass" entered the catalogue.
+            //
+            // A parse failure is an error, never a default, and an ambiguous
+            // separator is refused rather than guessed: inflating a rate 10× is
+            // the one mistake here that quietly reaches a customer's invoice.
+            if (!TryParseMoney(CutListSpecPriceText, out decimal price) || price <= 0m)
+            {
+                CutListStatus = string.Format(CultureInfo.InvariantCulture,
+                    "A specification needs a price per m² greater than zero — “{0}” was not read as one. " +
+                    "Enter a plain number (45.5 or 45,5). Nothing was saved.",
+                    (CutListSpecPriceText ?? string.Empty).Trim());
+                return;
+            }
 
             IsSavingCutListSpec = true;
             try
