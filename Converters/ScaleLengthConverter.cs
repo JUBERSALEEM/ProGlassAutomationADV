@@ -27,6 +27,9 @@
 //   • null value            → Double.NaN (Length "unset" — element keeps
 //                              its own size; safe degradation)
 //   • unparseable value     → Double.NaN
+//   • value == 0            → Double.NaN (e.g. Window.ActualWidth before the
+//                              first layout pass — a cap of 0 px would make
+//                              the element vanish for a frame)
 //   • null/unparseable param→ the value passes through unscaled (×1)
 //   • negative result       → clamped to 0
 // ═══════════════════════════════════════════════════════════════════════
@@ -49,16 +52,19 @@ namespace ProGlassAutomation.Converters
                 return double.NaN;
 
             if (!double.TryParse(
-                    Convert.ToString(value, culture),
+                    System.Convert.ToString(value, culture),
                     NumberStyles.Float,
                     culture,
                     out double length))
                 return double.NaN;
 
+            if (length == 0)
+                return double.NaN;
+
             double scale = 1.0;
             if (parameter != null &&
                 double.TryParse(
-                    Convert.ToString(parameter, CultureInfo.InvariantCulture),
+                    System.Convert.ToString(parameter, CultureInfo.InvariantCulture),
                     NumberStyles.Float,
                     CultureInfo.InvariantCulture,
                     out double parsed))
