@@ -703,6 +703,103 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   the AI chat, Personal delivery-note detail, Personal sheet store and
   the Settings → Appearance radius slider are the screens to confirm.
 
+## GB-B9 — SheetStore crash (ERR-DE8757) + repo-wide UI overlap audit (2026-09-19)
+
+User-reported list #10: (1) crash ERR-DE8757 on first visit to the
+Personal Sheet Store; (2) explicit demand for a proper cross-check that
+**no UI overlaps** (collapse emphasis), with senior analysis +
+recommendations applied.
+
+### 1. ERR-DE8757 — MultiBinding converter crash (FIXED)
+
+- **Crash:** `XamlParseException` at `PersonalSheetStoreView.xaml:280` —
+  `InvalidCastException` casting `StockLevelBrushConverter` to
+  `IMultiValueConverter`.
+- **Root cause:** the stock bar uses a `MultiBinding` (Balance + Stock),
+  and `MultiBinding.Converter` requires `IMultiValueConverter`; the
+  GB-P8 converter implemented only `IValueConverter`. WPF performs the
+  cast at template load → crash on first row measure. Second
+  "shipped without compiling" incident after GB-B5b (CS0119) — the
+  sibling sweep below is the standing countermeasure.
+- **Fix (`Converters/StockLevelBrushConverter.cs`):**
+  `IValueConverter, IMultiValueConverter`. The `Convert(object[] …)`
+  overload delegates to the single-value core — which was already
+  object[]-aware — via an **explicit `(object)` cast**: without it,
+  overload resolution binds the `object[]` argument to the `object[]`
+  overload (more specific parameter type) → infinite recursion →
+  runtime `StackOverflowException`. The cast is commented in source.
+  `ConvertBack` returns an empty array (one-way converter).
+- **Class-wide sweep (`audit/multibinding_sweep.py`):** indexes every
+  converter class + every `x:Key`→class, resolves all
+  `<MultiBinding … Converter=…>` sites → **32 sites, 0 BAD**.
+  Independent grep: all 6 distinct converter classes used by
+  MultiBindings implement `IMultiValueConverter`
+  (PercentToWidth, ReferenceEquality, SliderValueLabel,
+  StringEqualsMulti, StockLevelBrush, ExperienceGated).
+
+### 2. Overlap audit — findings + fixes (FIXED where real)
+
+Method: full geometry read of `MainWindow.xaml` (1273 lines) +
+`GlassShell.xaml` (548 lines), collapse-mechanism audit (Professional
+drawer + glass sidebar), then static sweeps across all 337 XAML files:
+height-0 collapse leaks, negative margins, oversized fixed children,
+duplicate `x:Name`, canvas collisions.
+
+- **Top-bar overflow (REAL — the "agent overlapping" report):**
+  Professional top bar = Auto(hamburger 46) + Auto(brand ~190) +
+  `*`(search **MinWidth 280**) + Auto(right cluster ~905px: divider,
+  dark, AI bot, **AI-agent pill**, date/time, connectivity, bell,
+  settings, screenshot, record, experience switch, user card).
+  Minimum ≈ **1437px vs default window width 1280** → below ~1400px
+  the search bar (min 280) overflows its `*` column and renders over
+  the right cluster — the AI-agent pill area. This is the overlap the
+  user saw; it also explains why it appears "on other UIs": the search
+  frame paints across the divider/pill zone.
+  **Fix (senior, no code-behind):** the `*` column may always shrink —
+  search `MinWidth 280 → 120` (icon + trimmed placeholder stays
+  usable), and pure-XAML responsive density via the existing
+  `DecimalComparisonConverter` on `Window.ActualWidth` (fires on
+  resize AND maximized):
+  - < 1480px: date/time pill → icon-only
+  - < 1330px: connectivity pill → icon-only
+  - < 1180px: date/time pill → hidden
+  - < 1050px: connectivity pill → hidden
+  - < 950px: global search → hidden (right cluster always wins)
+  Geometry re-check at every threshold: at 1280 the bar still shows
+  everything (date/time icon-only from 1480 down — full at ≥1480);
+  at 1050–950 nothing overlaps; at 800 (window MinWidth) only clean
+  clipping of the far-right card (top bar `ClipToBounds=True`), never
+  an overlap. The AI-agent pill is never hidden or covered at any
+  width. Same class in the Personal glass top bar (search MinWidth 280
+  squeezed the page-title star column to zero) → identical fix
+  (120 + collapse < 950); `GlassBlush.PageTitle` already trims.
+- **Collapse mechanisms (CLEAN — no fix needed):** Professional
+  drawer groups + glass sidebar groups both collapse via
+  `Visibility={Binding IsChecked, ElementName=…,
+  Converter=BoolToVisibilityConverter}` on the sub-list Border — a
+  true Collapsed (no height/padding leak); accordion chevrons are
+  RenderTransform animations (no layout). Drawer is an intentional
+  ZIndex-10 overlay with dim layer.
+- **Sweep triage (63 raw flags → 0 true defects):**
+  - DUP-NAME (35 files): every duplicate sits in a separate
+    ControlTemplate/DataTemplate namescope (verified per occurrence —
+    none in the shared document namescope) → legal WPF.
+  - NEG-MARGIN (17): decorative glow orbs (`IsHitTestVisible=False`,
+    About/Login/Splash) + 2px nudges → intentional design.
+  - HEIGHT0-LEAK (3): `MinHeight="0"` resets, not collapses → benign.
+- **NOT VERIFIED (stated honestly):** runtime pixel check of the new
+  breakpoints — no .NET SDK/WPF runtime in this environment. Static
+  geometry + XML structure verified; the user's next real run is the
+  confirmation (resize the window across ~1500/1330/1180/1050/950px).
+
+- **Verification:** 337 XAML files parse 0 ERROR (python structural
+  validator); converter mental-compile incl. overload resolution clean;
+  MultiBinding sweep 32/0; namescope sweep 0 hard duplicates.
+  **NOT RUN: MSBuild / BAML / runtime.** User: pull + rebuild;
+  confirm (a) Personal Sheet Store opens without crash, (b) no overlap
+  at any window width, (c) date/time + connectivity pills compact
+  gracefully on resize.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -733,3 +830,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-B6 second runtime crash — container-style type mismatch | ✅ FIXED at source (PgSkeletonKpiBandStyle inherited ContentPresenter ItemContainerStyle via BasedOn, applied to explicit ContentControl item containers — .NET 8 IsItemItsOwnContainerOverride='item is UIElement'; ONE style fix clears 32 sites/7 dashboards; validator +W23 unit-tested; first-layout runtime NOT RUN) | `cb54d1b` |
 | GB-B7 dashboard overlapping-text audit | ✅ FIXED at source (NoWrap-untrimmed overflow + 5 same-cell title/meta headers → 2-col grids; PgStageValueStyle+PgMetaStyle trimmed; Personal KPI tile trimmed/wrapped; 7 XAML parse OK, dashboard re-scan 0, 337 files 0 ERROR; visual = user screen) | `d325125` |
 | GB-B8 AI-chat crash (ERR-2CE7AD) + no-999 radius sweep | ✅ FIXED at source (Run.Text TwoWay-default → Mode=OneWay on TimeLabel + 2 more latent ProgressBar.Value TwoWay crashes on computed read-only props, class-wide sweep 571 bindings / 0 CERTAIN; all 999 radii removed: PgChipRadius+GlassBlush.PillRadius → 12 default + customer-dynamic via the radius authority, 10 literal sites → token, Ios26RadiusBar → 12; 13 XAML parse OK, 0 functional 999; BAML runtime NOT RUN — no SDK) | `GB-B8` |
+| GB-B9 SheetStore crash (ERR-DE8757) + repo-wide overlap audit | ✅ FIXED at source (StockLevelBrushConverter → IMultiValueConverter, (object)-cast recursion guard; MultiBinding sweep 32/0; top-bar overflow quantified ~1437px vs 1280 → search MinWidth 280→120 + ActualWidth DataTrigger density ladder (1480/1330/1180/1050/950) in Professional AND Personal shells; collapse mechanisms clean; sweep 63 flags → 0 true defects; 337 XAML 0 ERROR; runtime NOT VERIFIED — no SDK) | `GB-B9` |

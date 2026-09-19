@@ -37,7 +37,15 @@ namespace ProGlassAutomation.Converters
     /// the Personal sheet-store stock bar. Fails soft: any parse error or
     /// zero denominator yields the muted text brush (never a crash).
     /// </summary>
-    public sealed class StockLevelBrushConverter : IValueConverter
+    /// <remarks>
+    /// 2026-09-19 (ERR-DE8757): the XAML uses a <c>MultiBinding</c>, whose
+    /// <c>Converter</c> must be an <see cref="IMultiValueConverter"/> —
+    /// the class originally implemented only <see cref="IValueConverter"/>
+    /// and WPF threw InvalidCastException at template load. Both interfaces
+    /// are now implemented; the object[] overload feeds the existing
+    /// object[]-aware core.
+    /// </remarks>
+    public sealed class StockLevelBrushConverter : IValueConverter, IMultiValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -76,6 +84,16 @@ namespace ProGlassAutomation.Converters
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             => Binding.DoNothing;
+
+        // ── IMultiValueConverter (MultiBinding usage) ─────────────────
+        // Cast to object on purpose: it forces dispatch to the
+        // single-value overload (whose core already handles object[]),
+        // avoiding infinite recursion to this overload.
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+            => Convert((object)(values ?? System.Array.Empty<object>()), targetType, parameter, culture);
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+            => System.Array.Empty<object>();
 
         private static double ToDouble(object o) => o switch
         {

@@ -399,14 +399,33 @@
                                    Style="{StaticResource GlassBlush.PageTitle}"
                                    Margin="0,0,24,0"/>
 
-                        <!-- GLOBAL SEARCH (existing control, existing VM) -->
+                        <!-- GLOBAL SEARCH (existing control, existing VM).
+                             2026-09-19 overlap fix (same class as the
+                             Professional top bar): min 280 squeezed the
+                             page-title star column to zero on narrow
+                             windows. 120 keeps it usable (icon + trimmed
+                             placeholder); below 950px it collapses. -->
                         <globalSearch:GlobalSearchBar Grid.Column="1"
-                                                      MinWidth="280"
+                                                      MinWidth="120"
                                                       MaxWidth="520"
                                                       HorizontalAlignment="Stretch"
                                                       Margin="0,8"
                                                       VerticalAlignment="Center"
-                                                      DataContext="{Binding GlobalSearchVM}"/>
+                                                      DataContext="{Binding GlobalSearchVM}">
+                            <globalSearch:GlobalSearchBar.Style>
+                                <Style TargetType="globalSearch:GlobalSearchBar">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ActualWidth,
+                                                    RelativeSource={RelativeSource AncestorType=Window},
+                                                    Converter={StaticResource DecimalComparisonConverter},
+                                                    ConverterParameter=950}"
+                                                  Value="LessThan">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </globalSearch:GlobalSearchBar.Style>
+                        </globalSearch:GlobalSearchBar>
 
                         <!-- RIGHT ICON CLUSTER (same commands as Professional) -->
                         <StackPanel Grid.Column="2"

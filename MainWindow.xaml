@@ -346,14 +346,36 @@
                 </StackPanel>
 
                 <!-- SEARCH — the control draws its own frame; host keeps
-                     the old geometry (min 280 / max 520, centred). -->
+                     the old geometry (min 280 / max 520, centred).
+                     2026-09-19 overlap fix: min 280 collided with the
+                     ~900px right cluster on windows <= ~1400px (the
+                     search bar rendered over the AI-agent pill area).
+                     120 keeps it usable (icon + trimmed placeholder);
+                     below 950px the host collapses it (see style). -->
                 <globalSearch:GlobalSearchBar Grid.Column="2"
-                                               MinWidth="280"
+                                               MinWidth="120"
                                                MaxWidth="520"
                                                HorizontalAlignment="Stretch"
                                                Margin="8,0"
                                                VerticalAlignment="Center"
-                                               DataContext="{Binding GlobalSearchVM}"/>
+                                               DataContext="{Binding GlobalSearchVM}">
+                    <globalSearch:GlobalSearchBar.Style>
+                        <Style TargetType="globalSearch:GlobalSearchBar">
+                            <!-- Extreme narrow: drop the search so the
+                                 right cluster (agent pill + user card)
+                                 always wins the remaining width. -->
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ActualWidth,
+                                                RelativeSource={RelativeSource AncestorType=Window},
+                                                Converter={StaticResource DecimalComparisonConverter},
+                                                ConverterParameter=950}"
+                                              Value="LessThan">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </globalSearch:GlobalSearchBar.Style>
+                </globalSearch:GlobalSearchBar>
 
                 <!-- RIGHT CLUSTER -->
                 <StackPanel Grid.Column="3"
@@ -413,10 +435,25 @@
                                    Foreground="{DynamicResource PgAccentBrush}"/>
                     </Button>
 
-                    <!-- DATE/TIME PILL -->
-                    <Border Style="{StaticResource PgTopPillStyle}"
-                            Margin="0,0,10,0"
+                    <!-- DATE/TIME PILL — responsive density (2026-09-19):
+                         icon-only below 1480px, hidden below 1180px, so
+                         the right cluster never squeezes the search bar
+                         into the AI-agent pill area. -->
+                    <Border Margin="0,0,10,0"
                             ToolTip="{DynamicResource ToolTip.DateTime}">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource PgTopPillStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActualWidth,
+                                                RelativeSource={RelativeSource AncestorType=Window},
+                                                Converter={StaticResource DecimalComparisonConverter},
+                                                ConverterParameter=1180}"
+                                              Value="LessThan">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource PgTopPillIconStyle}"
                                     Margin="0,0,10,0">
@@ -428,6 +465,19 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel VerticalAlignment="Center">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ActualWidth,
+                                                        RelativeSource={RelativeSource AncestorType=Window},
+                                                        Converter={StaticResource DecimalComparisonConverter},
+                                                        ConverterParameter=1480}"
+                                                      Value="LessThan">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
                                 <TextBlock Text="{Binding CurrentDateText}"
                                            Style="{StaticResource PgPillCaptionStyle}"/>
                                 <TextBlock Text="{Binding CurrentTimeText}"
@@ -437,10 +487,24 @@
                     </Border>
 
                     <!-- CONNECTIVITY PILL — neutral frame; the icon square
-                         carries the status (ok / danger) via IsOnline. -->
-                    <Border Style="{StaticResource PgTopPillStyle}"
-                            Margin="0,0,10,0"
+                         carries the status (ok / danger) via IsOnline.
+                         Responsive density (2026-09-19): icon-only below
+                         1330px, hidden below 1050px. -->
+                    <Border Margin="0,0,10,0"
                             ToolTip="{DynamicResource ToolTip.NetworkState}">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource PgTopPillStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ActualWidth,
+                                                RelativeSource={RelativeSource AncestorType=Window},
+                                                Converter={StaticResource DecimalComparisonConverter},
+                                                ConverterParameter=1050}"
+                                              Value="LessThan">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Margin="0,0,10,0">
                                 <Border.Style>
@@ -470,8 +534,21 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </Border>
-                            <TextBlock Text="{Binding ConnectivityLabel}"
-                                       Style="{StaticResource PgPillTitleStyle}"/>
+                            <TextBlock Text="{Binding ConnectivityLabel}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PgPillTitleStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ActualWidth,
+                                                        RelativeSource={RelativeSource AncestorType=Window},
+                                                        Converter={StaticResource DecimalComparisonConverter},
+                                                        ConverterParameter=1330}"
+                                                      Value="LessThan">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </Border>
 
