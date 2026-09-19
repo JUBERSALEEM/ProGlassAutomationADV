@@ -36,4 +36,4 @@ _none_
 
 - `W17` **Agent/UI/AgentChatView.xaml** — 3 hardcoded hex value(s) in view
 - `W17` **Views/Personal/PersonalSheetStoreView.xaml** — 5 hardcoded hex value(s) in view
-- `W17` **Views/Splash/SplashView.xaml** — 6 hardcoded hex value(s) in view
+- `W17` **Views/Splash/SplashView.xaml** — 5 hardcoded hex value(s) in view

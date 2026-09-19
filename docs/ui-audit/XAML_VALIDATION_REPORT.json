@@ -135,7 +135,7 @@
    "file": "Views/Splash/SplashView.xaml",
    "level": "NOTE",
    "code": "W17",
-   "msg": "6 hardcoded hex value(s) in view"
+   "msg": "5 hardcoded hex value(s) in view"
   }
  ]
 }
