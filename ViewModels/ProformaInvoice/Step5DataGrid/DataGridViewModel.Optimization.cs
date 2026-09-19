@@ -273,7 +273,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     // SENIOR FIX 2026-09-20: previously checked only W1/W2,
                     // ignoring H1/H2 — a row with W1>0 H1=0 passed filter then
                     // got dropped silently in ProductionDistributionEngine,
-                    // appearing as \"Step 5 not importing\".
+                    // appearing as 'Step 5 not importing'.
                     if (r.Qty <= 0) continue;
                     bool hasPane1 = r.W1 > 0 && r.H1 > 0;
                     bool hasPane2 = r.W2 > 0 && r.H2 > 0;
@@ -303,7 +303,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 int totalQty = result.Sum(s => s.ItemRows.Sum(row => row.Qty));
                 Services.Logging.AppLogService.Info(
                     $"[STEP5] snapshot for optimization: {result.Count} spec(s), {totalRows} row(s), {totalQty} total qty, outer/inner sheets preserved",
-                    new Services.Logging.LogContext { Module = \"Proforma\", Operation = \"Step5Snapshot\" });
+                    new Services.Logging.LogContext { Module = "Proforma", Operation = "Step5Snapshot" });
             }
             catch { }
 

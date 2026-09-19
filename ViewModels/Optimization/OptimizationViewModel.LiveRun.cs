@@ -334,7 +334,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 try
                 {
                     Services.Logging.AppLogService.Warning(
-                        $"[OPT-STEP5] no pieces after build: groups={groups.Count} cutItems={cut.Count} planWarnings={string.Join(\" | \", plan.Warnings.Take(3))}",
+                        $"[OPT-STEP5] no pieces after build: groups={groups.Count} cutItems={cut.Count} planWarnings={string.Join(" | ", plan.Warnings.Take(3))}",
                         new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
                 }
                 catch { }
