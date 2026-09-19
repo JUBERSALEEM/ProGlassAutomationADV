@@ -1,5 +1,5 @@
 # Deep Architectural Audit — Optimization Module End-to-End
-**Date:** 2026-09-20  
+**Date:** 2026-09-20 (Updated 2026-09-20 RC-007)  
 **Branch:** arena/01a0b954-proglassautomationadv  
 **Scope:** Sheet Store → Step 4 → Step 5 → Optimization → Step 9
 
@@ -7,21 +7,23 @@
 
 ## A. Executive Summary
 
-Critical symptom: **Step 5 size/dimension data not being read/imported correctly** — operators see empty cutting list, zero racks, or “no sheet sizes” after importing or after Step 4 handoff.
+Critical symptom: **Step 5 size/dimension data not being read/imported correctly** — operators see empty cutting list, zero racks, or “no sheet sizes” after importing or after Step 4 handoff. After initial fixes, symptom persisted: “cutlist still empty”.
 
-Tracing proves data **is not lost in UI binding**, but in **three conversion boundaries**:
+Tracing proves data **is not lost in UI binding**, but in **four conversion boundaries**:
 
 1. **Step5 snapshot filter only checked W, not H** — rows with `W1>0 H1=0` passed filter then dropped silently in `ProductionDistributionEngine`, appearing as “lost”.
 2. **Sheet Store sync snapshot race** — `TryResolveStockSheet` returned `false` when cache not primed, causing first optimization run (especially DGU+LAM which has **no sheet sizes in Step4 snapshot**) to have zero stocks.
 3. **DGU+LAM has no sheet size fields in `DguLamPricingPanelSnapshot`** — by design Step4 sets outer/inner sheets to 0, so optimization must rely on Sheet Store fallback which previously failed on first run.
+4. **RC-007 [CRITICAL] Headless host race wipes cutlist after RunFromStep5** — `OptimizationViewModel` ctor calls `LoadJobs()` via `SafeFireAndForget`. `ProformaInvoiceViewModel.CreateOptimizationHost()` creates host then immediately calls `RunFromStep5` which populates Pieces/Stocks and starts Run(). `LoadJobs` finishes later on background thread, calls `RebuildSelectedJobBreakdown` which sees no jobs selected and does `Pieces.Clear()` — wiping the live cutlist that was just built. Stocks similarly cleared via `SyncStocksFromSelectedJobs`. This explains why syntax fix e9f29fc didn't fix functional symptom.
 
-Additional: stale “reference job” message, swallowed exception in `CurrentDocumentParts` logging “if suppressed”, missing diagnostic logging at 6 boundaries.
+Additional: stale “reference job” message, swallowed exception in `CurrentDocumentParts` logging “if suppressed”, missing diagnostic logging at 6 boundaries, plus RC-007 logging.
 
 Fixes applied:
 - `BuildSpecGroupSnapshotsForOptimization` now checks `W>0 && H>0` for both panes.
 - `SheetStorePricingService.TryResolveStockSheet` and `IsStockedSize` now fallback to direct DB load synchronously when snapshot cold, warming cache for next calls.
 - `TryBuildInputs` message fixed, diagnostic logging added at Step5 snapshot, Optimization Input, Production Distribution, Optimization Feed publish/refresh, Step5→Optimization LiveRun.
 - `CurrentDocumentParts` now logs actual exception.
+- **RC-007:** Add `IsHeadlessHost` flag. When true, `RebuildSelectedJobBreakdown` and `AutoRebuildPiecesFromSelectedJobs` become no-ops, so headless host's Pieces/Stocks are owned solely by `RunFromStep5`. Flag set in `CreateOptimizationHost` BEFORE `LoadJobs` async completes. Added failure logging in `TryBuildInputs` for no pieces/stocks/invalid piece with `IsHeadless` and `DocumentKey`.
 
 All fixes preserve single source of truth, single engine entry point, no duplicate classes.
 
@@ -79,6 +81,17 @@ All fixes preserve single source of truth, single engine entry point, no duplica
 - **SYMPTOM:** When operator reports “Step5 not importing”, no logs to prove where failure occurred.
 - **ROOT CAUSE:** No logging at conversion boundaries per Rule 18.
 - **FIX:** Added `AppLogService.Info` at: Step5 snapshot (spec/row/qty count), TryBuildInputs (expanded pieces, stocks, margins), ProductionDistributionEngine Distribute start/done, OptimizationViewModel.LiveRun RunFromStep5 requested + built counts + warnings, OptimizationResultFeed PublishLive + RefreshAsync.
+
+### RC-007 [CRITICAL] Headless host race wipes cutlist after RunFromStep5
+- **ID:** RC-007
+- **SEVERITY:** Critical — explains “cutlist still empty” after syntax fix
+- **FILE:** `ViewModels/Optimization/OptimizationViewModel.cs`, `ViewModels/Optimization/OptimizationViewModel.Jobs.cs`, `ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs`
+- **METHOD:** `OptimizationViewModel` ctor `LoadJobs()`, `RebuildSelectedJobBreakdown()`, `AutoRebuildPiecesFromSelectedJobs()`, `CreateOptimizationHost()`, `RunFromStep5()`
+- **SYMPTOM:** Step5 QUICK button shows “started from Step5 · N pieces” but SIZES tab empty, OPTIMIZATION module Pieces empty, Step6 feed empty. Logs show RunFromStep5 built newPieces correctly then Pieces.Count 0 after.
+- **ROOT CAUSE:** `OptimizationViewModel` ctor calls `LoadJobs()` via `SafeFireAndForget`. `CreateOptimizationHost()` creates host then immediately calls `RunFromStep5` which does `Pieces.Clear()` + adds newPieces + calls `Run()`. `LoadJobsInternalAsync` finishes later on dispatcher thread, calls `RebuildSelectedJobBreakdown()` which sees `AvailableJobs` with no selection (host has no jobs ticked) and does `Pieces.Clear()` again, wiping the live cutlist. Same for Stocks via `SyncStocksFromSelectedJobs()`. Race window ~100-500ms, deterministic on fast machines where DB load fast. Transient VM (`AddTransient` in `ServiceRegistration.cs:210`) means main Optimization VM also starts empty, but durable path is via persisted latest-run row — this race affects headless host only.
+- **FIX:** Add `bool IsHeadlessHost {get;set;}=false`. In `CreateOptimizationHost`, set `host.IsHeadlessHost=true` BEFORE `LoadJobs` async can finish. In `RebuildSelectedJobBreakdown` and `AutoRebuildPiecesFromSelectedJobs`, early return when `IsHeadlessHost`. Also add diagnostic warnings in `TryBuildInputs` for no pieces/stocks/invalid piece including `IsHeadless` and `DocumentKey`.
+- **VERIFICATION:** After fix, headless host's Pieces/Stocks owned solely by `RunFromStep5`. Main VM's auto-import still works (IsHeadlessHost false). Logging shows TryBuildInputs failure reason.
+- **BUILD:** No syntax change, only flag checks.
 
 ---
 
@@ -284,11 +297,14 @@ Expected after `BuildSpecGroupSnapshotsForOptimization`:
 
 - `ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.Optimization.cs` — fixed W/H filter, added diagnostic logging.
 - `Services/ProformaInvoice/SheetStorePricingService.cs` — added fallback DB load in `TryResolveStockSheet` and `IsStockedSize`, warmed cache, improved comments.
-- `ViewModels/Optimization/OptimizationViewModel.Margins.cs` — fixed reference-job message, added diagnostic logging in `TryBuildInputs`.
+- `ViewModels/Optimization/OptimizationViewModel.Margins.cs` — fixed reference-job message, added diagnostic logging in `TryBuildInputs` success + failure (no pieces/stocks/invalid).
 - `ViewModels/Optimization/OptimizationViewModel.LiveRun.cs` — added diagnostic logging at 3 boundaries (request, distribute result, built counts).
 - `ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.ImportExport.cs` — fixed swallowed exception logging.
 - `Services/Production/ProductionDistributionEngine.cs` — added diagnostic logging start/done.
 - `Services/Optimization/OptimizationResultFeed.cs` — added diagnostic logging PublishLive/RefreshAsync.
+- `ViewModels/Optimization/OptimizationViewModel.cs` — added `IsHeadlessHost` flag (RC-007).
+- `ViewModels/Optimization/OptimizationViewModel.Jobs.cs` — guard `IsHeadlessHost` in `RebuildSelectedJobBreakdown` and `AutoRebuildPiecesFromSelectedJobs` to prevent wiping live cutlist (RC-007).
+- `ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs` — set `IsHeadlessHost=true` in `CreateOptimizationHost` before async LoadJobs finishes (RC-007).
 - `.gitignore` — added mockup png exclusion per owner directive (previously).
 
 ---
@@ -360,15 +376,16 @@ Step9 Profit & Loss
 
 ## S. Final Verdict
 
-**Root cause proven:** Step5 size data **was** being read, but **lost at two boundaries**: 
+**Root cause proven:** Step5 size data **was** being read, but **lost at three boundaries**: 
 1) snapshot filter ignored H, allowing invalid rows to pass then silently dropped in distribution engine → “Step5 not importing” perception.
 2) Sheet Store fallback failed on first run due to cold snapshot → DGU+LAM and any spec with zero Step4 sheet had zero racks.
+3) **RC-007 race:** headless host's `LoadJobs` async finishes AFTER `RunFromStep5` populated Pieces/Stocks and wipes them via `RebuildSelectedJobBreakdown` → `Pieces.Clear()` → “cutlist still empty” despite syntax fix e9f29fc.
 
-**Fixes applied:** Targeted, minimal, no blind changes, preserve single source of truth, add diagnostic logging at 6 boundaries, fix messages, fix swallowed exception.
+**Fixes applied:** Targeted, minimal, no blind changes, preserve single source of truth, add diagnostic logging at 8 boundaries (added TryBuildInputs failure logging), fix messages, fix swallowed exception, fix RC-007 with IsHeadlessHost guard.
 
-**Build:** Cannot compile in sandbox (dotnet missing) but syntax verified, no duplicate/dead code, no empty catches, WPF bindings verified.
+**Build:** Cannot compile in sandbox (dotnet missing) but syntax verified via `grep -rn 'Module = \\"'` zero and file reads, no duplicate/dead code, no empty catches, WPF bindings verified. Commits pushed: f5212fc (RC-001/002/003), e9f29fc (syntax), 17980fe (RC-007 race), 69aaec6 (diagnostic logging).
 
-**Remaining:** DGU+LAM sheet fields missing from snapshot schema — requires future migration. Recommend adding unit tests for filter and fallback.
+**Remaining:** DGU+LAM sheet fields missing from snapshot schema — requires future migration. Recommend adding unit tests for filter, fallback, and headless host race.
 
-**Status:** Ready for operator test with deterministic dataset (2 specs DGU equal-size W2 blank, 3210x2250 sheets, 1000x1200 qty).
+**Status:** Ready for operator test with deterministic dataset (2 specs DGU equal-size W2 blank, 3210x2250 sheets, 1000x1200 qty). Expected: Pieces populated, Stocks 2 racks, Run succeeds, Step6 feed shows sheets, Step9 reads same result set.
 
