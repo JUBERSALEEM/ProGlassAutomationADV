@@ -96,8 +96,10 @@
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
                         <Pen Thickness="1" Brush="{DynamicResource SplashCerulean}">
+                            <!-- 2026-09-19 build fix: DashStyle has NO Interval
+                                 property (MC3072/XLS0413) — Dashes only. -->
                             <Pen.DashStyle>
-                                <DashStyle Dashes="1 3" Interval="0"/>
+                                <DashStyle Dashes="1 3"/>
                             </Pen.DashStyle>
                         </Pen>
                     </GeometryDrawing.Pen>

@@ -53,7 +53,10 @@
         <Setter Property="Foreground" Value="{DynamicResource GlassBlush.TextFaint}"/>
         <Setter Property="Margin" Value="16,16,16,6"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
-        <!-- 2026-09-19: hidden in the collapsed (56px icon-only) rail -->
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <!-- 2026-09-19: hidden in the collapsed (56px icon-only) rail.
+             2026-09-19 build fix (MC3088): Style.Triggers must come AFTER
+             all Setters — it was inserted mid-setter-list. -->
         <Style.Triggers>
             <DataTrigger Value="True">
                 <DataTrigger.Binding>
@@ -63,7 +66,6 @@
                 <Setter Property="Visibility" Value="Collapsed"/>
             </DataTrigger>
         </Style.Triggers>
-        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
     </Style>
 
     <!-- NAV ITEM — 40×40 glass icon chip + 11px label (measured rail).
