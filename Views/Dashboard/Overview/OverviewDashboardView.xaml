@@ -144,7 +144,8 @@
                             <ItemsControl Style="{StaticResource PgPipelineSkeletonItemsStyle}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
-                                        <WrapPanel Orientation="Horizontal"/>
+                                        <!-- mirrors the data pipeline: even 5-cell row -->
+                                        <UniformGrid Columns="5"/>
                                     </ItemsPanelTemplate>
                                 </ItemsControl.ItemsPanel>
                                 <ContentControl ContentTemplate="{StaticResource PgSkeletonPipelineStageTemplate}"/>
@@ -201,15 +202,24 @@
                                    Margin="0,0,0,12"/>
                         <ItemsControl ItemsSource="{Binding WorkflowStages}"
                                       ItemTemplate="{StaticResource PgPipelineStageTemplate}">
+                            <!-- 2026-09-19 overlap fix: WrapPanel measures
+                                 children at INFINITE width, so the stage
+                                 TextTrimming (name/value, GB-B7) could never
+                                 engage and each card took its natural width
+                                 — layout then depended on data length and
+                                 spilled/wrapped unpredictably. UniformGrid
+                                 gives every stage a FINITE equal cell, so
+                                 all existing trims actually work and the
+                                 5-stage flow (design: Quote→Payment) always
+                                 reads as one even row. -->
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal"/>
+                                    <UniformGrid Columns="5"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="ContentPresenter">
                                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                                    <Setter Property="MinWidth" Value="120"/>
                                     <Setter Property="Margin" Value="0,0,4,0"/>
                                 </Style>
                             </ItemsControl.ItemContainerStyle>

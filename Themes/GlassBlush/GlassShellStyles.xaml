@@ -2,6 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -52,6 +53,16 @@
         <Setter Property="Foreground" Value="{DynamicResource GlassBlush.TextFaint}"/>
         <Setter Property="Margin" Value="16,16,16,6"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
+        <!-- 2026-09-19: hidden in the collapsed (56px icon-only) rail -->
+        <Style.Triggers>
+            <DataTrigger Value="True">
+                <DataTrigger.Binding>
+                    <Binding Path="SidebarCollapsed"
+                             RelativeSource="{RelativeSource AncestorType={x:Type pv:GlassShell}}"/>
+                </DataTrigger.Binding>
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </DataTrigger>
+        </Style.Triggers>
         <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
     </Style>
 
@@ -130,6 +141,14 @@
                             <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
                             <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
                         </DataTrigger>
+                        <!-- 2026-09-19: icon-only rail (hamburger collapsed) -->
+                        <DataTrigger Value="True">
+                            <DataTrigger.Binding>
+                                <Binding Path="SidebarCollapsed"
+                                         RelativeSource="{RelativeSource AncestorType={x:Type pv:GlassShell}}"/>
+                            </DataTrigger.Binding>
+                            <Setter TargetName="Label" Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -190,6 +209,14 @@
                             <Setter TargetName="Chip" Property="Background" Value="{DynamicResource GlassBlush.AccentGlow}"/>
                             <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
                             <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
+                        </DataTrigger>
+                        <!-- 2026-09-19: icon-only rail (hamburger collapsed) -->
+                        <DataTrigger Value="True">
+                            <DataTrigger.Binding>
+                                <Binding Path="SidebarCollapsed"
+                                         RelativeSource="{RelativeSource AncestorType={x:Type pv:GlassShell}}"/>
+                            </DataTrigger.Binding>
+                            <Setter TargetName="Label" Property="Visibility" Value="Collapsed"/>
                         </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -257,6 +284,14 @@
                             <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource GlassBlush.AccentGlow}"/>
                             <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource GlassBlush.Text}"/>
                         </Trigger>
+                        <!-- 2026-09-19: icon-only rail (hamburger collapsed) -->
+                        <DataTrigger Value="True">
+                            <DataTrigger.Binding>
+                                <Binding Path="SidebarCollapsed"
+                                         RelativeSource="{RelativeSource AncestorType={x:Type pv:GlassShell}}"/>
+                            </DataTrigger.Binding>
+                            <Setter TargetName="Label" Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>

@@ -42,8 +42,15 @@
 
         <!-- pipeline stage (WorkflowStageModel → glass inset card) -->
         <DataTemplate x:Key="GbPipelineStageTemplate">
+            <!-- 2026-09-19 overlap fix: the name row was a horizontal
+                 StackPanel — a StackPanel measures its children at infinite
+                 width, so the Name trim could never engage and a long stage
+                 name spilled out of the glass card onto the next stage's
+                 icon chip. Now a Grid (Auto | *) constrains the name. The
+                 host panel is a UniformGrid (5 finite cells), which makes
+                 every TextTrimming in this template real. -->
             <ContentControl Style="{StaticResource GlassBlush.InsetCard}"
-                            MinWidth="170" Margin="0,0,14,0"
+                            Margin="0,0,14,0"
                             HorizontalContentAlignment="Stretch">
                 <ContentControl.Template>
                     <ControlTemplate TargetType="ContentControl">
@@ -54,7 +61,11 @@
                                 Padding="16,12"
                                 SnapsToDevicePixels="True">
                             <StackPanel>
-                                <StackPanel Orientation="Horizontal">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
                                     <Border Width="30" Height="30" CornerRadius="10"
                                             Background="{DynamicResource GlassBlush.Surface}"
                                             BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
@@ -68,12 +79,13 @@
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="{Binding Name}"
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Name}"
                                                FontSize="{DynamicResource GlassBlush.FontCaption}"
                                                Foreground="{DynamicResource GlassBlush.TextMuted}"
                                                VerticalAlignment="Center"
                                                TextTrimming="CharacterEllipsis"/>
-                                </StackPanel>
+                                </Grid>
                                 <!-- GB-B7: trim the 22px value so a wide
                                      currency number can never spill over
                                      the neighbouring glass card. -->
@@ -329,9 +341,12 @@
                                    Margin="0,0,0,14"/>
                         <ItemsControl ItemsSource="{Binding WorkflowStages}"
                                       ItemTemplate="{StaticResource GbPipelineStageTemplate}">
+                            <!-- 2026-09-19 overlap fix (same class as the
+                                 Professional overview): finite 5-cell row so
+                                 the trims inside GbPipelineStageTemplate work. -->
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Horizontal"/>
+                                    <UniformGrid Columns="5"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>

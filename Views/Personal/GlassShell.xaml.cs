@@ -23,11 +23,34 @@ namespace ProGlassAutomation.Views.Personal
     /// Glass Blush Personal UI shell (sidebar rail + top bar + content host).
     /// Binds to the same MainViewModel as the Professional chrome.
     /// </summary>
-    public partial class GlassShell : UserControl
+    public partial class GlassShell : UserControl, System.ComponentModel.INotifyPropertyChanged
     {
         public GlassShell()
         {
             InitializeComponent();
+        }
+
+        // ── 2026-09-19: sidebar hamburger (rail 140 ⇄ 56 icon-only) ─────
+        // Shell-local UI state (not user config yet — the phase plan
+        // persists it). The nav styles in GlassShellStyles.xaml hide their
+        // label elements while this is true, and the rail Border collapses
+        // to the 56px icon column; ClipToBounds keeps any open accordion
+        // sub-list inside the rail instead of spilling onto the content.
+        public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+
+        private void OnPropertyChanged(string name)
+            => PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(name));
+
+        private bool _sidebarCollapsed;
+        public bool SidebarCollapsed
+        {
+            get => _sidebarCollapsed;
+            set
+            {
+                if (_sidebarCollapsed == value) return;
+                _sidebarCollapsed = value;
+                OnPropertyChanged(nameof(SidebarCollapsed));
+            }
         }
 
         // ── GB-P15 personal-side popups ─────────────────────────────────

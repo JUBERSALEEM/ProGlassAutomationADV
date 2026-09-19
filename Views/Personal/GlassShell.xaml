@@ -99,8 +99,28 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ── SIDEBAR RAIL (140px) ────────────────────────────────── -->
-            <Border Grid.Column="0" Style="{StaticResource GlassBlush.Sidebar}">
+            <!-- ── SIDEBAR RAIL (140px ⇄ 56px via hamburger) ──────────── -->
+            <!-- 2026-09-19: the rail had no way to collapse — the 140px
+                 glass column was permanent, eating the centre workspace
+                 ("center window is too small" report). The hamburger
+                 below toggles GlassShell.SidebarCollapsed: rail → 56px
+                 icon-only (labels hidden by the nav style triggers in
+                 GlassShellStyles.xaml), ClipToBounds keeps open accordion
+                 sub-lists inside the rail. -->
+            <Border Grid.Column="0" ClipToBounds="True">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource GlassBlush.Sidebar}">
+                        <Style.Triggers>
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <Binding Path="SidebarCollapsed"
+                                             RelativeSource="{RelativeSource AncestorType={x:Type pv:GlassShell}}"/>
+                                </DataTrigger.Binding>
+                                <Setter Property="Width" Value="56"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
                 <DockPanel>
                     <!-- BRAND (click = About, command preserved) -->
                     <Button DockPanel.Dock="Top"
@@ -121,6 +141,24 @@
                                        VerticalAlignment="Center"/>
                         </Border>
                     </Button>
+
+                    <!-- HAMBURGER — collapse/expand the rail (2026-09-19) -->
+                    <ToggleButton DockPanel.Dock="Top"
+                                  Style="{StaticResource GlassBlush.TopIconButton}"
+                                  IsChecked="{Binding SidebarCollapsed,
+                                              RelativeSource={RelativeSource AncestorType={x:Type pv:GlassShell}},
+                                              Mode=TwoWay}"
+                                  ToolTip="Collapse / expand the sidebar"
+                                  AutomationProperties.Name="Toggle sidebar"
+                                  AutomationProperties.AutomationId="Shell.PersonalSidebarToggle"
+                                  Margin="0,4,0,8">
+                        <TextBlock Text="&#xE700;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="16"
+                                   Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </ToggleButton>
 
                     <!-- NAV (same items, keys, commands as Professional.
                          Settings + user live in the top bar — same as

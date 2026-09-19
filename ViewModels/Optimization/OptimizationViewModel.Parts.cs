@@ -139,13 +139,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>
-        /// Lists every confirmed (non-draft, non-void) Job Order and expands
-        /// its cutting pieces via the production distribution engine — the
-        /// same code the floor uses, so sizes/semantics never drift.
-        /// Never throws: any failure surfaces as a status line.
+        /// Loads the hardcoded benchmark calibration job (the owner's
+        /// reference: Spec 1 — 34 rows, Spec 2 — 12 rows — expanded into
+        /// 152 cutting pieces across low-e outer / clear inner / ramly
+        /// inner, plus the 3 reference racks the benchmark packs against).
+        ///
+        /// 2026-09-19 regression fix: a reference load is a FRESH baseline —
+        /// any previously selected cutting group is reset to ALL first.
+        /// Without this, a stale selection (a glass no longer in the piece
+        /// list) filtered every group out of SizeGroups/CutPlanRows and the
+        /// SIZES tab looked as if "the reference job did not import sizes",
+        /// even though all 152 pieces were present (KPIs looked normal).
         /// </summary>
         private void LoadReferenceJob()
         {
+            // A fresh reference baseline always shows the whole set —
+            // reset BEFORE RefreshDerived() filters on the selection.
+            SelectedCuttingGroup = AllCuttingGroups;
+
             // Phase 2: canonical composition keys (same normalisation as the
             // Job Order import) — the benchmark rows only ever join a real
             // job's cutting group when the glass is genuinely the same.
@@ -212,6 +223,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         private void RefreshDerived()
         {
+            // 2026-09-19 regression fix: validate/reset the cutting-group
+            // selection FIRST (against the CURRENT piece set). The old order
+            // built SizeGroups + CutPlan with a possibly-stale selection and
+            // only then re-validated it — after a Pieces.Clear() by any
+            /// caller (reference load, session restore, clear), a stale
+            // selection filtered every group out and the SIZES tab + cut
+            // plan rendered empty while KPIs still showed the full count.
+            RebuildCuttingGroups();
+
             int count = 0;
             double area = 0;
             foreach (var p in Pieces)
@@ -261,7 +281,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 });
             }
 
-            RebuildCuttingGroups();
             RebuildCutPlan();
             RefreshKpis();
             RebuildIndustrialReport();
