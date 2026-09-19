@@ -147,6 +147,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (!p.TryParse(out int w, out int h, out int q))
                 {
                     RunMessage = $"Piece \"{p.PieceLabel}\" is invalid — needs positive W×H and qty.";
+                    try
+                    {
+                        Services.Logging.AppLogService.Warning(
+                            $"[OPT-INPUT] TryBuildInputs FAIL invalid piece: label={p.PieceLabel} glass={p.GlassRef} Wtext={p.WidthText} Htext={p.HeightText} QtyText={p.QtyText} IsHeadless={IsHeadlessHost} doc={DocumentKey}",
+                            new Services.Logging.LogContext { Module = "Optimization", Operation = "TryBuildInputs" });
+                    }
+                    catch { }
                     return false;
                 }
                 for (int i = 0; i < q; i++)
@@ -173,6 +180,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (pieces.Count == 0)
             {
                 RunMessage = "Add pieces first (JOBS tab) or import a cutting list from Step 5.";
+                try
+                {
+                    Services.Logging.AppLogService.Warning(
+                        $"[OPT-INPUT] TryBuildInputs FAIL no pieces: PiecesRows={Pieces.Count} IsHeadless={IsHeadlessHost} doc={DocumentKey}",
+                        new Services.Logging.LogContext { Module = "Optimization", Operation = "TryBuildInputs" });
+                }
+                catch { }
                 return false;
             }
 
@@ -197,6 +211,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (stocks.Count == 0)
             {
                 RunMessage = "Add at least one stock size and tick it for use (STOCKS tab).";
+                try
+                {
+                    Services.Logging.AppLogService.Warning(
+                        $"[OPT-INPUT] TryBuildInputs FAIL no stocks: StocksRows={Stocks.Count} StocksUsed={Stocks.Count(s=>s.IsUsedInRun)} IsHeadless={IsHeadlessHost} doc={DocumentKey} PiecesRows={Pieces.Count}",
+                        new Services.Logging.LogContext { Module = "Optimization", Operation = "TryBuildInputs" });
+                }
+                catch { }
                 return false;
             }
 
