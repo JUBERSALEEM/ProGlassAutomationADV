@@ -457,6 +457,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         /// thickness match and falling back to any thickness of that colour.
         /// Sync and non-blocking (see the header note): false means "the store
         /// cannot say", never "the store is empty".
+        /// SENIOR FIX 2026-09-20: previously returned false when snapshot not
+        /// primed, causing first optimization run to have zero stocks for
+        /// DGU+LAM and any spec with zero Step4 sheet. Now attempts direct DB
+        /// load synchronously as fallback, so first run still gets a rack.
         /// </summary>
         public static bool TryResolveStockSheet(
             string? color, int thicknessMm, out int widthMm, out int heightMm)
@@ -465,7 +469,28 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             heightMm = 0;
             var key = Norm(color);
             if (key.Length == 0) return false;
-            if (!TryGetSnapshot(out var snapshot)) return false;
+            List<GlassSheet> snapshot;
+            if (!TryGetSnapshot(out snapshot))
+            {
+                try
+                {
+                    var repo = new ProGlassAutomation.Services.SheetStore.SheetStoreRepository();
+                    var task = repo.GetAllAsync();
+                    if (!task.Wait(2000)) return false;
+                    snapshot = task.Result ?? new List<GlassSheet>();
+                    // Warm cache for next calls
+                    lock (_snapshotGate)
+                    {
+                        _snapshot = snapshot;
+                        _snapshotAtUtc = DateTime.UtcNow;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Debug($"[SheetStorePricingService] fallback load failed: {ex.Message}");
+                    return false;
+                }
+            }
             try
             {
                 var candidates = snapshot
@@ -476,8 +501,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     .OrderByDescending(s => (long)s.WidthMm * s.HeightMm)
                     .ToList();
                 if (candidates.Count == 0) return false;
-                // Same preference the async GetSizesAsync uses: exact thickness
-                // first, largest area first.
                 var pick = thicknessMm > 0
                     ? candidates.FirstOrDefault(s => s.ThicknessMm == thicknessMm) ?? candidates[0]
                     : candidates[0];
@@ -499,12 +522,25 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         /// rack on screen is not one inventory holds. False also covers "the
         /// store cannot say right now", so callers must treat it as a note, never
         /// as an error.
+        /// SENIOR FIX 2026-09-20: fallback to direct DB load when snapshot cold,
+        /// so cross-check note does not lie on first run.
         /// </summary>
         public static bool IsStockedSize(string? color, int thicknessMm, int widthMm, int heightMm)
         {
             var key = Norm(color);
             if (key.Length == 0 || widthMm <= 0 || heightMm <= 0) return false;
-            if (!TryGetSnapshot(out var snapshot)) return false;
+            List<GlassSheet> snapshot;
+            if (!TryGetSnapshot(out snapshot))
+            {
+                try
+                {
+                    var repo = new ProGlassAutomation.Services.SheetStore.SheetStoreRepository();
+                    var task = repo.GetAllAsync();
+                    if (!task.Wait(1500)) return false;
+                    snapshot = task.Result ?? new List<GlassSheet>();
+                }
+                catch { return false; }
+            }
             try
             {
                 return snapshot.Any(s => s != null

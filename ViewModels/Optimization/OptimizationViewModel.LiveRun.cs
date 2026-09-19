@@ -81,6 +81,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             message = string.Empty;
 
+            // ── DIAGNOSTIC LOGGING (Rule 18) ────────────────────────────────
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-STEP5] RunFromStep5 requested stage={stage} doc={DocumentKey} groups={specGroups?.Count ?? 0}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
+            }
+            catch { }
+
             if (IsRunning)
             {
                 message = "An optimization run is already in progress — wait for it to finish.";
@@ -107,6 +116,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 invoice.Company.ProformaId = DocumentKey;
 
             var plan = ProductionDistributionEngine.Distribute(DocumentKey, invoice);
+
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-STEP5] Distribute result: {plan.Items.Count} items, {plan.Warnings.Count} warnings, doc={DocumentKey}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
+            }
+            catch { }
 
             // Same filter as the Job Order path: only cutting-stage items with
             // real dimensions become pieces.
@@ -302,9 +319,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             racksAdded += storeRacks;
 
+            // ── DIAGNOSTIC LOGGING ────────────────────────────────────────
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-STEP5] built newPieces={newPieces.Count} newStocks={newStocks.Count} piecesAdded={piecesAdded} racksAdded={racksAdded} storeRacks={storeRacks} wantedGroups={wantedByGroup.Count}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
+            }
+            catch { }
+
             if (newPieces.Count == 0)
             {
                 message = "No cutting rows found on Step 5 — enter pane sizes and quantities first.";
+                try
+                {
+                    Services.Logging.AppLogService.Warning(
+                        $"[OPT-STEP5] no pieces after build: groups={groups.Count} cutItems={cut.Count} planWarnings={string.Join(\" | \", plan.Warnings.Take(3))}",
+                        new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
+                }
+                catch { }
                 return false;
             }
 
@@ -313,6 +346,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 message = "The Step 5 specs have no sheet sizes, so there is no rack to cut against — "
                     + "set the outer/inner sheet size on Step 4 first. "
                     + "The Sheet Store had no stocked size for these glass colours either.";
+                try
+                {
+                    Services.Logging.AppLogService.Warning(
+                        $"[OPT-STEP5] no stocks after build: groups={groups.Count} wantedByGroup={wantedByGroup.Count} rackedKeys={rackedKeys.Count} doc={DocumentKey}",
+                        new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
+                }
+                catch { }
                 return false;
             }
 

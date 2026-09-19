@@ -338,6 +338,14 @@ namespace ProGlassAutomation.Services.Optimization
 
             try
             {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-FEED] RefreshAsync doc={documentKey}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RefreshAsync" });
+            }
+            catch { }
+
+            try
+            {
                 var repo = new OptimizationSessionRepository();
                 await repo.EnsureCreatedAsync(ct).ConfigureAwait(false);
 
@@ -397,6 +405,14 @@ namespace ProGlassAutomation.Services.Optimization
             IReadOnlyList<OptimizationPaneResult> rows, string label,
             string? documentKey = null)
         {
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-FEED] PublishLive doc={documentKey} rows={rows?.Count ?? 0} label={label}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "PublishLive" });
+            }
+            catch { }
+
             Set(rows ?? Array.Empty<OptimizationPaneResult>(),
                 string.IsNullOrWhiteSpace(label) ? "live optimization run" : label,
                 isLive: true,

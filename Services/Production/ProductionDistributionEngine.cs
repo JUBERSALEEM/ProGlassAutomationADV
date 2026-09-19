@@ -87,6 +87,14 @@ namespace ProGlassAutomation.Services.Production
         public static ProductionJobPlan Distribute(
             string jobRef, ProformaInvoiceSnapshot snapshot)
         {
+            try
+            {
+                AppLogService.Info(
+                    $"[PROD-DIST] Distribute start jobRef={jobRef} specs={snapshot?.SpecGroups?.Count ?? 0}",
+                    new LogContext { Module = "Production", Operation = "Distribute" });
+            }
+            catch { }
+
             var plan = new ProductionJobPlan
             {
                 JobRef = jobRef ?? "",
@@ -137,6 +145,15 @@ namespace ProGlassAutomation.Services.Production
                 .ThenBy(i => (int)i.Stage)
                 .ThenBy(i => i.Position, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+
+            try
+            {
+                int cutting = plan.Items.Count(i => i.Stage == ProductionStage.Cutting);
+                AppLogService.Info(
+                    $"[PROD-DIST] Distribute done jobRef={jobRef} totalItems={plan.Items.Count} cutting={cutting} warnings={plan.Warnings.Count}",
+                    new LogContext { Module = "Production", Operation = "Distribute" });
+            }
+            catch { }
 
             return plan;
         }

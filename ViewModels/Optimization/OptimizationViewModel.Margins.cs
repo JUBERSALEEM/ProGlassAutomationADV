@@ -172,7 +172,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             if (pieces.Count == 0)
             {
-                RunMessage = "Add pieces first (JOBS tab) or load the reference job.";
+                RunMessage = "Add pieces first (JOBS tab) or import a cutting list from Step 5.";
                 return false;
             }
 
@@ -231,6 +231,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 KerfMm = kerf,
                 MinBreakoutMm = breakout
             };
+
+            // ── DIAGNOSTIC LOGGING (Rule 18) ────────────────────────────────
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-INPUT] TryBuildInputs ok: {pieces.Count} expanded pieces (from {Pieces.Count} rows), {stocks.Count} stock racks, margins L={left} R={right} T={top} B={bottom} kerf={kerf} breakout={breakout} rot={RotationEnabled}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "TryBuildInputs" });
+            }
+            catch { }
+
             return true;
         }
     }

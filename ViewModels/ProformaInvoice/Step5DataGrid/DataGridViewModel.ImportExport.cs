@@ -133,9 +133,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         shell.Step3VM?.ProjectIdentifierName ?? "");
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
+                ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                    $"[Step5] CurrentDocumentParts suppressed: {ex.Message}");
             }
             return ("PI", "", "");
         }
