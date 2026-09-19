@@ -18,9 +18,13 @@ Style triggers + a non-existent DropShadowEffect property) and a third
 interpolation — which was also the root of a ~100-error designer cascade)
 and a fourth (GB-B4: a missing `System.Collections.Specialized` using in
 the GB-P13 code-behind — root of the last 3 active CS errors; the 77 XDG
-errors in that list were verified cascade, all 54 named types exist) —
-the rebuild is still due in the SDK environment before anything may be
-labelled build-verified.
+errors in that list were verified cascade, all 54 named types exist).
+After GB-B3/B4 the build went GREEN (verified by the user's runtime: the
+app now compiles, starts, opens the DB, signs in) — and the FIRST RUNTIME
+crash followed (GB-B5: a star GridLength `"0.94*"` on a Length property in
+GlassShell, which only fails at BAML runtime parse, not at markup
+compile) — fixed with a ScaleLengthConverter; runtime re-verification is
+still due in the SDK environment.
 
 ---
 
@@ -472,6 +476,43 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   (csc is exhaustive — 3 was the complete set) and the full 77-error XDG
   block clearing on a clean rebuild (designer cache of the failed assembly).
 
+## GB-B5 — First RUNTIME crash: invalid star Length in GlassShell (2026-09-19)
+- **Context:** the build is now GREEN (GB-B3/B4 verified effective — the app
+  compiles, starts, opens the DB, applies theme Monet, signs in). First
+  crash: `XamlParseException` from `GlassShell` BAML parse during
+  `MainWindow.InitializeComponent` → **every startup, both experiences**
+  (GlassShell BAML is loaded from MainWindow unconditionally).
+  Inner: `FormatException: '0.94*' string cannot be converted to Length`
+  (LengthConverter), GlassShell line 479.
+- **Root cause:** the GB-P13 AI overlay in `Views/Personal/GlassShell.xaml`
+  used `MaxWidth="0.94*" MaxHeight="0.94*"` intending "94% of the window".
+  Star units are legal ONLY on `ColumnDefinition.Width` /
+  `RowDefinition.Height` (GridLength). On any Length-typed property the
+  value is parsed by `LengthConverter` — which throws. Crucially, markup
+  COMPILATION does not catch this (the string is stored in BAML); it only
+  fails at RUNTIME parse of the BAML — invisible to the MSBuild gate and to
+  the structural validator.
+- **Fix (design intent preserved):** new `Converters/ScaleLengthConverter`
+  (bound Length × constant `ConverterParameter` factor; null/NaN-safe,
+  registered in `ConverterResources.xaml` per its house rule) +
+  `MaxWidth/MaxHeight = Binding Window.ActualWidth/ActualHeight` (RelativeSource
+  AncestorType=Window) × 0.94. Degraded fallback (no Window ancestor, e.g.
+  designer) → NaN → element keeps its fixed 920×640.
+- **Class sweep (before push):** repo-wide scan of all 337 XAML files for
+  star values on Length-typed properties: the 2 GlassShell sites were the
+  ONLY invalid ones (663 legitimate Grid star sites untouched); scan for
+  CSS-style units (`%`, `px`, `vh`, `vw`, `rem`) on length attributes:
+  zero hits.
+- **Gate hardened:** validator **W22 (ERROR)** — star GridLength on any
+  property except ColumnDefinition.Width/RowDefinition.Height (attribute
+  + Setter form). Unit-tested: synthetic `Border MaxWidth="0.94*"` flagged;
+  `ColumnDefinition Width="0.94*"`/`RowDefinition Height="2*"` clean.
+  Full run: 337 files **0 ERROR / 22 WARN (legacy) / 3 NOTE**.
+- **Honest scope:** static sweep covers the reported crash class + CSS-unit
+  values. Other runtime parse bombs (invalid colors, converter exceptions
+  on switch-to-Personal) are not statically provable — the next runtime
+  pass is the user's.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -497,3 +538,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-B2 second build fix round | ✅ FIXED at source (TimelineItem TargetName → ControlTemplate triggers = MC4011; removed IsDirectionalLightOnly = MC3072; validator +W21, W19 denylist); rest of user's list verified stale/local-copy | `GB-B2` |
 | GB-B3 third build fix round — C# blocker | ✅ FIXED at source (unparenthesized ternary in interpolation, GuillotinePacker.Partitioned.cs L227 = CS8361 + 4 cascade CS errors; ~100 XDG errors = failed-assembly cascade, types/resources grep-verified); C# compile NOT RUN (no SDK) | `dc71201` |
 | GB-B4 fourth build fix round — missing using | ✅ FIXED at source (PersonalAiChatView.xaml.cs: `using System.Collections.Specialized;` = CS0246 + 2×CS0123, one root line; 77 XDG = cascade, all 54 types + 2 converters + 2 behaviors verified; line-sync proves user builds this branch); C# compile NOT RUN (no SDK) | `3c4dc23` |
+| GB-B5 first runtime crash — star Length in GlassShell | ✅ FIXED at source (MaxWidth/MaxHeight="0.94*" → ScaleLengthConverter × 0.94 of Window Actual; repo-wide sweep: only 2 invalid star sites, 663 legit Grid stars; validator +W22 unit-tested; BAML runtime parse NOT RUN — no SDK) | `c46659d` |
