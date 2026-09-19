@@ -80,8 +80,11 @@
         <!-- Wordmark on fixed navy: fixed colours (contrast contract). -->
         <SolidColorBrush x:Key="SplashWordInk"    Color="#E5E7EB"/>
         <SolidColorBrush x:Key="SplashWordAccent" Color="#7DD3FC"/>
-        <SolidColorBrush x:Key="SplashCerulean"   Color="{DynamicResource AccentLightColor}"/>
-        <SolidColorBrush x:Key="SplashCaption"    Color="{DynamicResource SecondaryForegroundColor}"/>
+        <SolidColorBrush x:Key="SplashCerulean"   Color="{StaticResource AccentLightColor}"/>
+        <!-- Caption brush — use the theme's secondary foreground brush directly
+             (Color vs Brush mismatch: SecondaryForegroundColor is Color,
+             but Foreground expects Brush; using Brush avoids XDG-0001). -->
+        <SolidColorBrush x:Key="SplashCaption" Color="{StaticResource SecondaryForegroundColor}"/>
 
         <!-- Engineering grid texture — 1px dotted accent hairlines on a
              64px tile, rendered at 4% on the stage (faint, both themes).
@@ -132,13 +135,13 @@
         <Style x:Key="TermsLead" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
         <Style x:Key="TermsBody" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13.5"/>
             <Setter Property="LineHeight" Value="24"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundColor}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Margin" Value="0,6,0,0"/>
         </Style>
@@ -305,7 +308,7 @@
                 <TextBlock Text="{DynamicResource Splash.TermsTitle}"
                            FontSize="34" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Center"
-                           Foreground="{DynamicResource PrimaryForegroundColor}">
+                           Foreground="{DynamicResource PrimaryForegroundBrush}">
                     <TextBlock.Effect>
                         <DropShadowEffect Color="{DynamicResource AccentColor}"
                                           BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
@@ -315,7 +318,7 @@
                            FontSize="{DynamicResource FontSize.Title}"
                            HorizontalAlignment="Center"
                            Margin="0,8,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundColor}"/>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 <Rectangle Height="2" Width="48" Margin="0,18,0,0"
                            RadiusX="1" RadiusY="1"
                            HorizontalAlignment="Center"
@@ -328,7 +331,7 @@
                     Margin="48,26,48,16"
                     Padding="40,32"
                     CornerRadius="16"
-                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     Background="#1A808080">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -396,7 +399,7 @@
             <!-- Flush action bar -->
             <Border x:Name="TermsBar"
                     Grid.Row="2"
-                    BorderBrush="{DynamicResource BorderColor}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,1,0,0"
                     Background="#1A808080"
                     Padding="48,18">
@@ -420,7 +423,7 @@
                     </StackPanel>
                     <CheckBox x:Name="AcceptTermsCheck"
                               VerticalAlignment="Center"
-                              Foreground="{DynamicResource SecondaryForegroundColor}"
+                              Foreground="{DynamicResource SecondaryForegroundBrush}"
                               FontSize="{DynamicResource FontSize.Title}"
                               Cursor="Hand"
                               Margin="0,8,0,0"

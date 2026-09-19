@@ -182,21 +182,12 @@
 		<Resource Include="favicon.ico" />
 		<!-- Windows-native separators: the XAML DESIGNER indexes resources
 		     conservatively and has reported XDG0003 for forward-slash paths
-		     even though runtime packing accepts them (2026-09-05). -->
-		<!-- Primary icon: stored with lower-cased logical name so both
-		     pack://application:,,,/Resources/... and
-		     pack://application:,,,/resources/... resolve (WPF normalizes
-		     to lower case in error messages — \"Cannot locate resource
-		     'resources/proglass_icon_256.png'\"). Explicit LogicalName
-		     guarantees the lower-cased name exists regardless of SDK
-		     globbing case handling. -->
-		<Resource Include="Resources\proglass_icon_256.png">
-			<LogicalName>resources/proglass_icon_256.png</LogicalName>
-		</Resource>
-		<!-- Additional alias with original casing for designer compatibility -->
-		<Resource Include="Resources\proglass_icon_256.png">
-			<LogicalName>Resources/proglass_icon_256.png</LogicalName>
-		</Resource>
+		     even though runtime packing accepts them (2026-09-05).
+		     Single Resource entry only — duplicate entries with different
+		     LogicalName cause RG1000 'same key already added' in WinFX.targets.
+		     The SDK lower-cases the logical name to resources/... internally,
+		     so both /Resources/... and /resources/... pack URIs resolve. -->
+		<Resource Include="Resources\proglass_icon_256.png" />
 		<Resource Include="Resources\Glass3D\sgu-3d.png" />
 		<Resource Include="Resources\Glass3D\dgu-3d.png" />
 		<Resource Include="Resources\Glass3D\lam-3d.png" />
@@ -210,7 +201,6 @@
 	<ItemGroup>
 		<Content Include="Resources\proglass_icon_256.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-			<Link>Resources\proglass_icon_256.png</Link>
 		</Content>
 	</ItemGroup>
 
