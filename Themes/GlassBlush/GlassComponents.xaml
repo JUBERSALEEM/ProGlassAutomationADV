@@ -686,4 +686,67 @@
         <Setter Property="FontWeight" Value="Normal"/>
     </Style>
 
+    <!-- ── KPI TILE (KpiTileModel → glass card with icon chip) ─────────
+         2026-09-19 (GB-P10): promoted from the Personal dashboard view so
+         every Personal dashboard page (overview, tax-invoice/aging, …)
+         renders KpiTileModel identically — one template, no duplication.
+         IsAlert → danger border (the model's own flag). -->
+    <DataTemplate x:Key="GlassBlush.KpiTileTemplate">
+        <ContentControl>
+            <ContentControl.Template>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource GlassBlush.CardRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            Effect="{StaticResource GlassBlush.CardShadowFx}"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Border CornerRadius="{DynamicResource GlassBlush.CardRadius}"
+                                    Background="{DynamicResource GlassBlush.Sheen}"
+                                    IsHitTestVisible="False"/>
+                            <StackPanel>
+                                <Border Width="40" Height="40"
+                                        CornerRadius="14"
+                                        Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                        BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                        BorderThickness="1"
+                                        HorizontalAlignment="Left"
+                                        SnapsToDevicePixels="True">
+                                    <TextBlock Text="{Binding Icon}"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="17"
+                                               Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="{Binding Label}"
+                                           FontSize="{DynamicResource GlassBlush.FontCaption}"
+                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                           Margin="0,14,0,4"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding DisplayValue}"
+                                           FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                           FontFeatures="tnum"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </ContentControl.Template>
+            <ContentControl.Style>
+                <Style TargetType="ContentControl" BasedOn="{StaticResource GlassBlush.KpiCard}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.Danger}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </DataTemplate>
+
 </ResourceDictionary>

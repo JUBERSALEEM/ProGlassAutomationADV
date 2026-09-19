@@ -22,7 +22,15 @@
          same ViewModel (zero business-logic duplication).
          Each new Personal screen (GB-P4…P13) adds exactly one template. -->
     <UserControl.Resources>
-        <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
+        <!-- 2026-09-19 (GB-P10 fix): the routed module VM is
+             DashboardViewModel (it hosts OverviewVM/TaxInvoiceVM/… as
+             tabs). The template previously targeted OverviewDashboardViewModel,
+             which CurrentViewModel never IS — WPF implicit templates match
+             the EXACT type, so the Personal dashboard silently fell back to
+             the Professional DashboardView. Template now targets the routed
+             type; PersonalDashboardView re-points its DataContext to
+             OverviewVM internally (the VM it was designed against). -->
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
             <pv:PersonalDashboardView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmPi:ProformaInvoiceViewModel}">

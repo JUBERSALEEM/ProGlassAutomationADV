@@ -96,6 +96,7 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 
 ### glass-01 — Dashboard Overview (GB-P4)
 - **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED (no runtime capture possible).
+- **2026-09-19 template-dispatch fix (found during GB-P10):** the GlassShell template targeted `OverviewDashboardViewModel`, but the routed module VM is `DashboardViewModel` (which hosts `OverviewVM`/`TaxInvoiceVM` as tabs). WPF implicit DataTemplates match the **exact** type, so the Personal dashboard silently fell back to the Professional `DashboardView`. Fixed: template now targets `vm:DashboardViewModel`; `PersonalDashboardView` re-points `DataContext="{Binding OverviewVM}"` at its root (all bindings + the NewInvoice/ViewJobs/ViewDeliveries commands live on `OverviewDashboardViewModel` — verified). Lesson recorded: implicit-template dispatch is a RUNTIME behavior — static validation cannot prove a Personal template actually wins the lookup.
 - **Architecture:** Personal view fork `Views/Personal/PersonalDashboardView.xaml` (+ minimal code-behind, no logic) referencing the **same `OverviewDashboardViewModel`**. Routed from the Personal shell via a scoped `DataTemplate` in `GlassShell.xaml` resources — Professional's app-level templates and view are untouched.
 - **Components used:** GlassKpiCard (4 floating KPI cards), ChartCard + TrendChartControl (revenue bar), ChartCard + DonutChartControl (delivery mix), GlassCard + InsetCard pipeline stages (WorkflowStages), GlassCard + GlassDataGrid (RecentActivity, virtualized), GlassButton/GlassButtonSoft (module actions), StatusDot + live pulse, Skeleton (4-state contract: loading/error/empty/data preserved).
 - **Contract preserved:** all bindings (SalesTiles/ProductionTiles/DeliveryTiles/InventoryTiles, MonthlySalesBars, DeliveryMixSlices, WorkflowStages, RecentActivity, LastRefreshed, IsLoading/HasError/ErrorMessage/HasRecentActivity, InProductionDisplay…), commands (NewInvoiceCommand, ViewJobsCommand, ViewDeliveriesCommand), chart control properties, i18n keys (Dashboard.*, Common.*).
@@ -170,6 +171,17 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   4. Phone affordance on the driver card is an informational chip (no call command exists on the VM — no dead button).
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+### glass-07 — Invoice Aging (GB-P10)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Reference note (honesty):** the glass-07 reference PNG (like glass-08/09) was **lost from the workspace when this session was restored** (only the repo was persisted; `/home/user/mockups-generated/` and the measurements JSON are gone). This screen was implemented against the **measured composition map recorded in GB-P1** ("filter pills (Overdue active) · 3 stat cards · invoice table + glowing aging bars") + the established token plane / component library. Re-verify against the reference file when it is re-supplied.
+- **Architecture (dashboard shell restructure):** the routed Dashboard module VM is `DashboardViewModel` — a multi-page shell (`Pages` / `ActivePage` / `SelectTabCommand`, the SAME contract as the Professional `DashboardView` tab strip; pages = Overview/SheetStore/PI/JO/DN/TaxInvoice/Statement sub-VMs, all `DashboardPageBase`). `PersonalDashboardView` is now the **Personal dashboard shell**: glass page-pill strip (active pill via `ReferenceEqualityConverter` vs `ActivePage` — the Professional mechanism — `SelectTabCommand` same command+parameter) + content host `Content="{Binding ActivePage}"`. Scoped implicit templates: `OverviewDashboardViewModel` → `PersonalDashboardOverviewView` (the glass-01 surface, content moved out intact), `TiDashboardViewModel` → `PersonalTaxInvoiceDashboardView` (this screen). Other forked module pages resolve to their Personal views via GlassShell; un-forked pages fall back to Professional views (functional, documented).
+- **glass-07 surface (TiDashboardViewModel contract, member-verified):** filter pill pair (All Invoices → `ViewAllInvoicesCommand` · Overdue → `ViewOverdueCommand` + `OverdueCount` badge when `HasOverdueInvoices`), 5 KPI stat cards (`KpiTiles` via the new SHARED `GlassBlush.KpiTileTemplate` — promoted to `GlassComponents.xaml` so every Personal dashboard page renders KPI tiles identically), invoice-aging card (`AgingBrackets`: Label · `AmountDisplay` · glowing bar = `NormalizedWidth` (0..1, Maximum=1) filled with the bracket's `SeverityColor` theme brush via `BrushKeyConverter` · `CountDisplay`; empty state when `!HasAgingData`), recent-invoices glass list (`RecentInvoices`: InvoiceNumber/CustomerName/IssueDateDisplay/AmountDisplay/Status+dot; virtualized Recycling ListBox; whole-row `MouseBinding` → `OpenInvoiceCommand` with the item — the Professional contract). Four-state contract (IsLoading skeleton / HasError / empty / data) preserved.
+- **Deviations (documented):**
+  1. The reference "3 stat cards" note vs the VM's 5 KPI tiles: all 5 are rendered (data-complete superset) — with the reference PNG lost, the specific 3-tile subset could not be re-verified; no data is dropped.
+  2. Filter pills are navigation actions (the VM exposes no live filter state — both commands open the TaxInvoice module); the Overdue pill carries the overdue badge as its live indicator.
+  3. `AgingMixSlices` donut + `RevenueBars` + `TopCustomers` (also on the VM) are not rendered — the recorded glass-07 composition is pills · stat cards · aging bars · invoice table; those extras remain in the Professional TI dashboard page.
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## GB-P14 — Professional ↔ Personal experience switch (the enabler)
 - **Status:** ✅ STATIC VERIFIED · BUILD NOT RUN (no .NET SDK) · RUNTIME NOT VERIFIED.
 - **Architecture (live, persisted, no restart):**
@@ -202,7 +214,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P14 experience switch (live, persisted) | ✅ STATIC VERIFIED (single-view-instance design, safe shell recreation; BUILD NOT RUN) | `GB-P14` |
 | GB-P8 sheet store (glass-05) | ✅ STATIC VERIFIED (PersonalSheetStoreView, glass card grid; runtime NOT VERIFIED) | `GB-P8` |
 | GB-P9 delivery note (glass-06) | ✅ STATIC VERIFIED (PersonalDeliveryNoteView, list + glass detail; runtime NOT VERIFIED) | `GB-P9` |
-| GB-P10…P12 screens (3) | pending | — |
+| GB-P10 invoice aging (glass-07) + dashboard shell | ✅ STATIC VERIFIED (PersonalDashboardView shell + Overview/TiAging pages; runtime NOT VERIFIED) | `GB-P10` |
+| GB-P11…P12 screens (2) | pending (glass-08/09 refs lost in session restore) | — |
 | GB-P15 global visual consistency | pending (incl. Personal-side popup anchors + error-bubble variant) | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
 | GB-P17 DPI/a11y/performance | pending (static parts only) | — |
