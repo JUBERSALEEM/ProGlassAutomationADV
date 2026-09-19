@@ -23,8 +23,11 @@ After GB-B3/B4 the build went GREEN (verified by the user's runtime: the
 app now compiles, starts, opens the DB, signs in) — and the FIRST RUNTIME
 crash followed (GB-B5: a star GridLength `"0.94*"` on a Length property in
 GlassShell, which only fails at BAML runtime parse, not at markup
-compile) — fixed with a ScaleLengthConverter; runtime re-verification is
-still due in the SDK environment.
+compile) — fixed with a ScaleLengthConverter) and a second (GB-B6: a
+ContentPresenter-targeted ItemContainerStyle inherited via BasedOn was
+applied to explicit ContentControl item containers — startup crash on
+first layout; one style fixed, 32 sites cleared; validator +W23).
+Runtime re-verification is still due in the SDK environment.
 
 ---
 
@@ -554,6 +557,45 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   RUN here (no SDK); the compile is the user's rebuild. The XDG block is
   expected to clear once the copy is in sync AND a clean build succeeds.
 
+## GB-B6 — Second runtime crash: container-style type mismatch (2026-09-19)
+- **Context:** build GREEN, GlassShell crash GONE — the app now reaches
+  sign-in and dies on FIRST LAYOUT with `InvalidOperationException: A
+  style intended for type 'ContentPresenter' cannot be applied to type
+  'ContentControl'` from `ItemsControl.ApplyItemContainerStyle`
+  (UniformGrid → GenerateChildren).
+- **Root cause (verified against .NET 8 WPF source, ItemsControl.cs):**
+  `ItemsControl.IsItemItsOwnContainerOverride` returns **`item is
+  UIElement`** — so an ItemsControl with explicit element children
+  (`<ContentControl …/>` skeleton placeholders) uses those children as
+  their OWN containers, and `ApplyItemContainerStyle` validates
+  `style.TargetType.IsInstanceOfType(container)` — a
+  ContentPresenter-targeted ItemContainerStyle on such a control throws
+  at first layout. Markup compile and the designer do NOT catch it.
+- **Defect (one style → 32 sites):** `PgSkeletonKpiBandStyle`
+  (ProfessionalCore.xaml L890) was `BasedOn="PgKpiBandStyle"` WITHOUT
+  overriding its `ItemContainerStyle` → inherited the
+  ContentPresenter-targeted container style, while every consumer feeds
+  it explicit `<ContentControl>` children. The sibling
+  `PgPipelineSkeletonItemsStyle` does override it (TargetType=
+  ContentControl) — the correct pattern existed, this one style missed
+  it. Affected consumers (all 7 dashboards' skeletons): Overview ×8,
+  Dn/Jo/Pi/SheetStore/St/Ti ×4 each = **32 sites**.
+- **Fix (ONE source change):** `PgSkeletonKpiBandStyle` now overrides
+  `ItemContainerStyle` with `TargetType="ContentControl"` (same Margin +
+  Stretch setters as the base) — the single fix clears all 32 sites.
+- **Sweep (before push):** scripted all 337 XAML files — every
+  ItemsControl with element children vs its effective ItemContainerStyle
+  TargetType (resolving keyed styles + BasedOn chains): 32 problems,
+  ALL this one style; re-sweep after fix = 0.
+- **Gate hardened:** validator **W23 (ERROR)** — same cross-file style
+  resolution, flags any ItemsControl whose element children are not
+  covered by the effective container style TargetType. Unit-tested:
+  synthetic BasedOn-inheritance case flagged, overridden case clean.
+  Full run 337 files **0 ERROR / 22 WARN (legacy) / 3 NOTE**.
+- **Honest scope:** static + source-verified; the first-layout runtime
+  is the user's run. If the next crash is in the same family, W23 should
+  have caught it — report anything new.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -581,3 +623,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-B4 fourth build fix round — missing using | ✅ FIXED at source (PersonalAiChatView.xaml.cs: `using System.Collections.Specialized;` = CS0246 + 2×CS0123, one root line; 77 XDG = cascade, all 54 types + 2 converters + 2 behaviors verified; line-sync proves user builds this branch); C# compile NOT RUN (no SDK) | `3c4dc23` |
 | GB-B5 first runtime crash — star Length in GlassShell | ✅ FIXED at source (MaxWidth/MaxHeight="0.94*" → ScaleLengthConverter × 0.94 of Window Actual; repo-wide sweep: only 2 invalid star sites, 663 legit Grid stars; validator +W22 unit-tested; BAML runtime parse NOT RUN — no SDK) | `c46659d` |
 | GB-B5b CS0119 in my converter + stale-copy triage | ✅ FIXED at source (Convert.ToString shadowed by the Convert member → System.Convert.ToString ×2; zero-length guard; full identifier audit + repo-wide same-class scan; crash report proven stale = old exe; XDG0003/XDG0006 proven copy-divergence with verification commands) | `e324bf4` |
+| GB-B6 second runtime crash — container-style type mismatch | ✅ FIXED at source (PgSkeletonKpiBandStyle inherited ContentPresenter ItemContainerStyle via BasedOn, applied to explicit ContentControl item containers — .NET 8 IsItemItsOwnContainerOverride='item is UIElement'; ONE style fix clears 32 sites/7 dashboards; validator +W23 unit-tested; first-layout runtime NOT RUN) | `cb54d1b` |
