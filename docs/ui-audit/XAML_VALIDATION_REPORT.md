@@ -1,6 +1,6 @@
 # XAML Safety Validation Report (Phase 17 gate)
 
-**Generated:** 2026-09-19 · **Files checked:** 337 · **ERROR 0 / WARN 22 / NOTE 3**
+**Generated:** 2026-09-19 · **Files checked:** 337 · **ERROR 0 / WARN 19 / NOTE 3**
 
 **Legend:** W1 malformed · W2 dup x:Name · W3 dup x:Key · W4 dup attribute · W5 static declared-after-use · W6 static unresolved in parse scope · W7 dynamic unresolved & not runtime-published · W8 invalid numeric syntax · W9 Min>Max · W10 single-child violation · W11 Items+ItemsSource · W12 grid out-of-bounds (auto-extends) · W14 missing code-behind · W15 FindName missing · W16 unauthorized static on runtime token · W17 hardcoded hex in view · W18 root xmlns = XAML (not presentation) namespace · W19 non-existent WPF property (denylist) · W20 property set as attribute AND property element · W21 TargetName setter outside a template (MC4011). W22 star GridLength ('N*') on a Length property — runtime LengthConverter crash (GlassShell AI overlay). W23 ItemsControl element-child vs ItemContainerStyle TargetType mismatch (via BasedOn chain) — runtime StyleForWrongType crash. W3 duplicate x:Key is WARN (WPF last-wins shadowing, latent). W7 covers keys published at runtime by Services (ThemeManager, PrintTokenService, …).
 
@@ -10,7 +10,7 @@
 
 _none_
 
-## WARN (22)
+## WARN (19)
 
 - `W5` **Controls/EmptyState/EmptyStateControl.xaml** — StaticResource 'IconFont' declared after first use in file
 - `W5` **Controls/StatCard/StatCardControl.xaml** — StaticResource 'IconFont' declared after first use in file
@@ -31,12 +31,9 @@ _none_
 - `W7` **Views/Reports/StatementGenerator/Preview/PreviewStep.xaml** — DynamicResource 'Radius.Top.Large' declared nowhere & not runtime-published
 - `W3` **Views/Settings/SettingsView.xaml** — duplicate x:Key 'SettingsCardMargin' — later declaration shadows the earlier one (latent bug)
 - `W5` **Views/Settings/SettingsView.xaml** — StaticResource 'SettingsPageTemplateSelector' declared after first use in file
-- `W7` **Views/Splash/SplashView.xaml** — DynamicResource 'Transparent' declared nowhere & not runtime-published
-- `W7` **Views/Splash/SplashView.xaml** — DynamicResource 'Transparent' declared nowhere & not runtime-published
-- `W7` **Views/Splash/SplashView.xaml** — DynamicResource 'Transparent' declared nowhere & not runtime-published
 
 ## NOTE (3)
 
 - `W17` **Agent/UI/AgentChatView.xaml** — 3 hardcoded hex value(s) in view
 - `W17` **Views/Personal/PersonalSheetStoreView.xaml** — 5 hardcoded hex value(s) in view
-- `W17` **Views/Splash/SplashView.xaml** — 9 hardcoded hex value(s) in view
+- `W17` **Views/Splash/SplashView.xaml** — 6 hardcoded hex value(s) in view

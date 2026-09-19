@@ -1,21 +1,24 @@
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 // FILE: Views/Splash/SplashView.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Splash Screen — industrial glass identity
+// MODULE: Splash Screen — "Midnight Console" (v2 full redesign,
+//        2026-09-19)
 //
-// Professional crystal choreography (~2.5s, finishes inside App.xaml.cs
-// startup delay with margin):
-//   0ms   top trust chips fade in (frame effect, 100ms stagger)
-//   100ms logo settles (fade + gentle scale)
-//   450ms product name fades + slides up
-//   750ms tagline fades in
-//   1000ms frosted module chips fade in as ONE panel (no marketing
-//          stagger — professional, not flashy)
-//   700ms  luminous progress bar fills
-//   950ms  status pill + animated dots
+// ENTRANCE CHOREOGRAPHY (v2, ~2.3s, finishes inside App startup delay):
+//   0ms     header hairline — brand / enterprise / security (staggered)
+//   200ms   logo settles (fade + scale 0.9→1) — dotted ring already
+//           revolving (30s loop, ambient)
+//   450ms   wordmark fades + slides up (14px drift)
+//   700ms   tagline fades in
+//   850ms   16-chip module grid fades in as ONE panel (professional,
+//           no marketing stagger)
+//   400ms   luminous console sweep begins — 2px fill + LIVE PERCENT
+//           readout counting 0→100 over ~1.9s (smoothstep)
+//   0ms     console status line + animated dots (350ms cycle)
 //
-// PRESERVED (zero regression — App.xaml.cs depends on these):
-//   • FadeOutAndClose(Action), RunLoginAsync(), ShowTermsGate()
+// PRESERVED (zero regression — App.StartupCore.cs depends on these):
+//   • FadeOutAndClose(Action), RunLoginAsync(), RunFirstRunSetupAsync(),
+//     ShowTermsGate()
 //   • TermsAccepted / TermsResolved / SignedIn / HasAcceptedCurrentTerms
 //   • TermsVersion, RecordAcceptance
 //   • SplashView_Loaded / SplashView_Unloaded timers + cleanup
@@ -23,10 +26,11 @@
 //
 // PERFORMANCE:
 //   • Feature list is a static readonly array — allocated once.
-//   • One shared DataTemplate; the panel fades as one element (no
-//     per-badge storyboards).
-//   • All brushes frozen; all animations one-shot.
-// ═══════════════════════════════════════════════════════════════════════
+//   • One shared DataTemplate; the panel fades as one element.
+//   • Progress sweep = ONE 30ms DispatcherTimer driving width + label
+//     (no Storyboard/TextBlock animation machinery, no allocations in
+//     the tick beyond the percent string).
+// ═══════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.ViewModels.Login;
@@ -49,10 +53,9 @@ namespace ProGlassAutomation.Views.Splash
 {
     /// <summary>
     /// Splash window shown at application startup.
-    /// Animates in over ~2.5 seconds while App.xaml.cs performs
-    /// background initialization. When the main window is ready,
-    /// App.xaml.cs calls <see cref="FadeOutAndClose(Action)"/> to
-    /// dismiss the splash and reveal the main window.
+    /// Animates in over ~2.3 seconds while App performs background
+    /// initialization. When the main window is ready, App calls
+    /// <see cref="FadeOutAndClose"/> to dismiss the splash.
     /// </summary>
     public partial class SplashView : Window
     {
@@ -60,12 +63,23 @@ namespace ProGlassAutomation.Views.Splash
         private DispatcherTimer? _loadingDotsTimer;
         private int _loadingDotsCount;
 
-        // ══════════════════════════════════════════════════════════════════
-        //  FEATURE MODULE DATA — frosted crystal chips
-        // ══════════════════════════════════════════════════════════════════
+        // ── Console progress sweep (width + percent readout) ─────────
+        private DispatcherTimer? _progressSweepTimer;
+        private int _sweepTicks;
+        private double _progressTrackWidth = 280;
+
+        // 30ms tick · ~13 tick lead-in (~390ms hold at 0) · 63 ticks
+        // of motion (~1890ms) → total ≈ 2.28s, matches the v1 sweep
+        // window (700–2600ms of v1 ≈ 400–2300ms of v2).
+        private const int SweepLeadTicks = 13;
+        private const int SweepMotionTicks = 63;
+
+        // ══════════════════════════════════════════════════════════════
+        //  FEATURE MODULE DATA — 16 uniform glass chips (2×8 grid)
+        // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Immutable module descriptor rendered by FeatureBadgeTemplate.
+        /// Immutable module descriptor rendered by FeatureChipTemplate.
         /// Icon = Segoe MDL2 glyph, Label = module name, BorderBrush is
         /// reserved for per-chip tinting.
         /// </summary>
@@ -83,11 +97,10 @@ namespace ProGlassAutomation.Views.Splash
                 return brush;
             }
 
-            // 2026-08-25 redesign: module glyphs follow the ACTIVE accent
-            // instead of a hard-coded blue ramp, so the splash adapts to
-            // whatever theme/accent the operator chose. The type is first
-            // touched when App builds the splash (after themes apply), so
-            // the lookup is safe here.
+            // Module glyphs follow the ACTIVE accent instead of a
+            // hard-coded blue ramp, so the splash adapts to whatever
+            // theme/accent the operator chose. The type is first touched
+            // when App builds the splash (after themes apply) — safe.
             static System.Windows.Media.Brush AccentGlyph()
             {
                 if (System.Windows.Application.Current?.TryFindResource("AccentBrush")
@@ -110,15 +123,16 @@ namespace ProGlassAutomation.Views.Splash
             // Splash module showcase — mirrors the REAL application module
             // set (MainWindow sidebar), not a hard-coded list. Labels are
             // resolved from the live Nav.* localization resources so the
-            // splash is correct in every shipped language; glyphs match the
-            // sidebar's Segoe MDL2 icons. Shown as frosted glass tiles in a
-            // centered WrapPanel (see FeaturePanel in the XAML).
+            // splash is correct in every shipped language; glyphs match
+            // the sidebar's Segoe MDL2 icons.
             static string Nav(string key, string fallback)
             {
                 if (System.Windows.Application.Current?
                         .TryFindResource("Nav." + key) is string s
                     && !string.IsNullOrWhiteSpace(s))
+                {
                     return s;
+                }
                 return fallback;
             }
 
@@ -147,7 +161,7 @@ namespace ProGlassAutomation.Views.Splash
         {
             InitializeComponent();
 
-            // Populate the frosted module chip strip once.
+            // Populate the module chip grid once.
             FeaturePanel.ItemsSource = _features;
 
             // Phase 3.7: terms gate is VM-backed (state + commands);
@@ -169,23 +183,28 @@ namespace ProGlassAutomation.Views.Splash
             Unloaded += SplashView_Unloaded;
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  LOADED — start animation sequence (calm, ~2.5s)
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
+        //  LOADED — start animation sequence (calm, ~2.3s)
+        // ══════════════════════════════════════════════════════════════
 
         private void SplashView_Loaded(object sender, RoutedEventArgs e)
         {
-            // ─── PHASE 1: Top trust chips fade in (0–600ms) — frame ──
-            FadeIn(TopLeftBadge, fromMs: 0, durationMs: 400);
-            FadeIn(TopCenterPill, fromMs: 100, durationMs: 400);
-            FadeIn(TopRightBadge, fromMs: 200, durationMs: 400);
+            // Console sweep needs the track's real width (fixed 280 in
+            // v2 XAML; the guard keeps it safe on odd DPI rounds).
+            double track = ProgressTrack.ActualWidth;
+            _progressTrackWidth = track < 80 ? 280 : track;
 
-            // ─── PHASE 2: Logo settles in (100–600ms) ────────────────
+            // ─── 1) HAIRLINE HEADER — quiet chrome (0–540ms) ────────
+            FadeIn(TopLeftBadge, fromMs: 0, durationMs: 300);
+            FadeIn(TopCenterPill, fromMs: 120, durationMs: 300);
+            FadeIn(TopRightBadge, fromMs: 240, durationMs: 300);
+
+            // ─── 2) LOGO settles in (200–700ms) ─────────────────────
             var logoScale = new DoubleAnimation
             {
-                From = 0.92,
+                From = 0.9,
                 To = 1,
-                BeginTime = TimeSpan.FromMilliseconds(100),
+                BeginTime = TimeSpan.FromMilliseconds(200),
                 Duration = TimeSpan.FromMilliseconds(500),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
@@ -196,70 +215,55 @@ namespace ProGlassAutomation.Views.Splash
             {
                 From = 0,
                 To = 1,
-                BeginTime = TimeSpan.FromMilliseconds(100),
+                BeginTime = TimeSpan.FromMilliseconds(200),
                 Duration = TimeSpan.FromMilliseconds(500),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             LogoBorder.BeginAnimation(OpacityProperty, logoFade);
 
-            // ─── PHASE 3: App name fade + slide up (450–900ms) ───────
+            // ─── 3) WORDMARK fade + slide up (450–950ms) ────────────
             var nameFade = new DoubleAnimation
             {
                 From = 0,
                 To = 1,
-                Duration = TimeSpan.FromMilliseconds(450),
-                BeginTime = TimeSpan.FromMilliseconds(450)
+                Duration = TimeSpan.FromMilliseconds(500),
+                BeginTime = TimeSpan.FromMilliseconds(450),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             var nameSlide = new DoubleAnimation
             {
-                From = 12,
+                From = 14,
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(450),
+                Duration = TimeSpan.FromMilliseconds(500),
                 BeginTime = TimeSpan.FromMilliseconds(450),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             AppNameText.BeginAnimation(OpacityProperty, nameFade);
             AppNameTranslate.BeginAnimation(TranslateTransform.YProperty, nameSlide);
 
-            // ─── PHASE 4: Tagline fade (750–1150ms) ──────────────────
-            FadeIn(TaglineText, fromMs: 750, durationMs: 400);
+            // ─── 4) TAGLINE fade (700–1100ms) ───────────────────────
+            FadeIn(TaglineText, fromMs: 700, durationMs: 400);
 
-            // ─── PHASE 5: Module chips — one uniform fade (1000ms) ───
-            FadeIn(FeaturePanel, fromMs: 1000, durationMs: 450);
+            // ─── 5) MODULE GRID — one uniform fade (850–1350ms) ─────
+            FadeIn(FeaturePanel, fromMs: 850, durationMs: 500);
 
-            // ─── PHASE 6: Progress bar fill (700–2600ms) ─────────────
-            double track = ProgressTrack.ActualWidth;
-            if (track < 80)
-                track = Math.Max(240, ActualWidth * 0.35);
-            var progressAnim = new DoubleAnimation
-            {
-                From = 0,
-                To = track,
-                Duration = TimeSpan.FromMilliseconds(1900),
-                BeginTime = TimeSpan.FromMilliseconds(700),
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
-            };
-            ProgressFill.BeginAnimation(WidthProperty, progressAnim);
-
-            // ─── PHASE 7: Status pill fades in + dots start ──────────
-            FadeIn(LoadingText, fromMs: 950, durationMs: 350);
-            FadeIn(LoadingDots, fromMs: 950, durationMs: 350);
+            // ─── 6) CONSOLE — status + dots now, sweep from ~400ms ──
             StartLoadingDotsAnimation();
+            StartProgressSweep();
         }
 
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
         //  UNLOADED — cleanup safety net
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
 
         private void SplashView_Unloaded(object sender, RoutedEventArgs e)
         {
-            _loadingDotsTimer?.Stop();
-            _loadingDotsTimer = null;
+            StopLoadingIndicators();
         }
 
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
         //  ANIMATION HELPERS
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
 
         /// <summary>
         /// Convenience: fade a UIElement from 0→1 with CubicEase.
@@ -303,9 +307,52 @@ namespace ProGlassAutomation.Views.Splash
             };
         }
 
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
+        //  CONSOLE PROGRESS SWEEP — 2px luminous fill + live percent
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Drives ProgressFill.Width AND the PercentText readout from a
+        /// single 30ms timer (one allocation-free path per tick).
+        /// Lead-in (~390ms) holds at 0 so the sweep starts as the
+        /// wordmark lands; motion phase is a smoothstep curve.
+        /// </summary>
+        private void StartProgressSweep()
+        {
+            _sweepTicks = 0;
+            _progressSweepTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(30)
+            };
+            _progressSweepTimer.Tick += ProgressSweep_Tick;
+            _progressSweepTimer.Start();
+        }
+
+        private void ProgressSweep_Tick(object? sender, EventArgs e)
+        {
+            _sweepTicks++;
+            int t = _sweepTicks - SweepLeadTicks;
+            if (t <= 0) return;
+
+            double p = t / (double)SweepMotionTicks;
+            if (p >= 1.0)
+            {
+                ProgressFill.Width = _progressTrackWidth;
+                PercentText.Text = "100%";
+                _progressSweepTimer?.Stop();
+                _progressSweepTimer = null;
+                return;
+            }
+
+            // smoothstep — gentle acceleration, gentle landing
+            double eased = p * p * (3.0 - 2.0 * p);
+            ProgressFill.Width = _progressTrackWidth * eased;
+            PercentText.Text = ((int)Math.Round(eased * 100)).ToString() + "%";
+        }
+
+        // ══════════════════════════════════════════════════════════════
         //  TERMS GATE (UAE)
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
 
         /// <summary>
         /// Bump when the wording changes materially. A user who accepted an
@@ -317,7 +364,7 @@ namespace ProGlassAutomation.Views.Splash
         /// <summary>
         /// True once the user has ticked the box and pressed Continue, or
         /// when a previous acceptance of THIS version was already recorded.
-        /// App.xaml.cs must not proceed to sign-in unless this is true.
+        /// App must not proceed to sign-in unless this is true.
         /// </summary>
         private readonly TermsGateViewModel _termsVm = new();
 
@@ -340,8 +387,7 @@ namespace ProGlassAutomation.Views.Splash
 
         /// <summary>
         /// Has this exact terms version already been accepted on this machine?
-        /// Read failures return false: re-asking is the safe direction, since
-        /// wrongly assuming consent is the outcome that must never happen.
+        /// Read failures return false: re-asking is the safe direction.
         /// </summary>
         public static bool HasAcceptedCurrentTerms()
         {
@@ -349,9 +395,13 @@ namespace ProGlassAutomation.Views.Splash
             {
                 if (!File.Exists(TermsMarkerPath)) return false;
                 foreach (var line in File.ReadAllLines(TermsMarkerPath))
+                {
                     if (line.StartsWith("version=", StringComparison.Ordinal) &&
                         line["version=".Length..].Trim() == TermsVersion)
+                    {
                         return true;
+                    }
+                }
                 return false;
             }
             catch
@@ -366,10 +416,12 @@ namespace ProGlassAutomation.Views.Splash
             {
                 var dir = Path.GetDirectoryName(TermsMarkerPath);
                 if (!string.IsNullOrEmpty(dir))
+                {
                     Directory.CreateDirectory(dir);
+                }
 
-                // Plain text on purpose: this is a record the owner can read,
-                // and an auditor can be shown, without needing the app.
+                // Plain text on purpose: a record the owner can read (and an
+                // auditor can be shown) without the app.
                 File.WriteAllText(
                     TermsMarkerPath,
                     $"version={TermsVersion}" + Environment.NewLine +
@@ -379,22 +431,16 @@ namespace ProGlassAutomation.Views.Splash
             }
             catch (Exception ex)
             {
-                // Never block entry because the marker could not be written -
-                // the user did accept. They will simply be asked again.
+                // Never block entry because the marker could not be written.
                 AppLogService.Warning(
                     "Could not record terms acceptance: " + ExceptionMessages.Deep(ex),
-                    new LogContext
-                    {
-                        Module = "Startup",
-                        Class = nameof(SplashView),
-                        Operation = "RecordAcceptance"
-                    });
+                    new LogContext { Module = "Startup", Class = nameof(SplashView), Operation = "RecordAcceptance" });
             }
         }
 
         /// <summary>
-        /// Swaps the loading strip for the terms panel. Called by
-        /// App.xaml.cs once startup work has finished.
+        /// Swaps the console for the terms panel. Called by App once
+        /// startup work has finished.
         /// </summary>
         public void ShowTermsGate()
         {
@@ -415,18 +461,7 @@ namespace ProGlassAutomation.Views.Splash
 
         /// <summary>
         /// AUTO-SIGN-IN — the runtime side of the "Skip login until
-        /// update" pill in LoginPanel. Returns true when the splash
-        /// managed to sign the user in without showing the login
-        /// form; returns false when any prerequisite is missing (no
-        /// saved credentials, an app update reset the bound version,
-        /// the saved password no longer verifies, etc.) — the caller
-        /// then falls through to the normal login flow.
-        ///
-        /// Why this lives on SplashView and not App.xaml.cs: the
-        /// splash is the UI surface that would otherwise show the
-        /// login form, and it already owns the LoadingText / status
-        /// pill we want to keep alive during the auto-sign-in
-        /// round-trip.
+        /// update" pill in LoginPanel. (Unchanged in v2.)
         /// </summary>
         private static async Task<bool> TryAutoLoginAsync()
         {
@@ -434,11 +469,8 @@ namespace ProGlassAutomation.Views.Splash
             if (cfg == null) return false;
             if (!cfg.SkipLoginUntilUpdate) return false;
 
-            // Version binding — an update ships new binaries and
-            // we want the user to re-verify on the new build. The
-            // stored version is set when the pill is armed; if it
-            // does not equal AppInfo.Version now, one of the two
-            // has moved on and we cannot auto-sign-in.
+            // Version binding — an update ships new binaries; the stored
+            // version is set when the pill is armed.
             string running = AppInfo.Version ?? "";
             string bound = cfg.SkipLoginBoundVersion ?? "";
             if (string.IsNullOrEmpty(bound) ||
@@ -447,7 +479,7 @@ namespace ProGlassAutomation.Views.Splash
                 AppLogService.Info(
                     "Auto sign-in skipped: app version changed " +
                     $"(bound={bound}, running={running}).",
-                    new LogContext { Module = "Auth", Class = nameof(SplashView) });
+                    new LogContext { Module = "Auth", Class = nameof(SplashView), Operation = "TryAutoLogin" });
                 return false;
             }
 
@@ -470,29 +502,34 @@ namespace ProGlassAutomation.Views.Splash
                     () => AuditService.SwitchUserAsync(username, password));
                 if (!ok)
                 {
-                    // Saved credentials no longer verify — most
-                    // likely because the operator changed their
-                    // password. Clear the stale blob so we never
-                    // retry it and fall through to the login form.
                     AppLogService.Warning(
                         "Auto sign-in failed for saved user '" + username +
                         "': " + error + ". Clearing saved credentials.",
-                        new LogContext { Module = "Auth", Class = nameof(SplashView) });
-                    try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SplashView] Clearing stale skip-login credential failed: " + ExceptionMessages.Deep(ex)); }
+                        new LogContext { Module = "Auth", Class = nameof(SplashView), Operation = "TryAutoLogin" });
+                    try
+                    {
+                        SecretVault.Remove(LoginPanel.SkipLoginSecretKey);
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Debug("[SplashView] Clearing stale skip-login credential failed: " + ExceptionMessages.Deep(ex));
+                    }
                     try
                     {
                         cfg.SkipLoginUntilUpdate = false;
                         cfg.SkipLoginBoundVersion = "";
                         ConfigService.Save(cfg);
                     }
-                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SplashView] Skip-login reset persist failed: " + ExceptionMessages.Deep(ex)); }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Debug("[SplashView] Skip-login reset persist failed: " + ExceptionMessages.Deep(ex));
+                    }
                     return false;
                 }
 
                 // Force-password-change users must NEVER auto-sign-in
                 // without proving they know the new password first.
-                if (await Task.Run(
-                    () => AuditService.IsUsingDefaultPasswordAsync(username)))
+                if (await Task.Run(() => AuditService.IsUsingDefaultPasswordAsync(username)))
                 {
                     AuditService.LogSessionBoundary(login: false);
                     return false;
@@ -501,37 +538,24 @@ namespace ProGlassAutomation.Views.Splash
                 AuditService.LogSessionBoundary(login: true);
                 AppLogService.Info(
                     "Auto sign-in succeeded for '" + username + "' (skip-login pill).",
-                    new LogContext { Module = "Auth", Class = nameof(SplashView) });
+                    new LogContext { Module = "Auth", Class = nameof(SplashView), Operation = "TryAutoLogin" });
                 return true;
             }
             catch (Exception ex)
             {
-                AppLogService.Warning(
-                    "Auto sign-in threw: " + ExceptionMessages.Deep(ex),
-                    new LogContext { Module = "Auth", Class = nameof(SplashView) });
+                AppLogService.Warning("Auto sign-in threw: " + ExceptionMessages.Deep(ex),
+                    new LogContext { Module = "Auth", Class = nameof(SplashView), Operation = "TryAutoLogin" });
                 return false;
             }
         }
 
         /// <summary>
-        /// Replaces the loading strip with the sign-in form on THIS window.
-        /// Never opens a second maximized window — that is what kept
-        /// desyncing splash and login (Topmost fight + desktop flash).
-        ///
-        /// First tries <see cref="TryAutoLoginAsync"/>; if that succeeds
-        /// the login form is never even mounted and the splash proceeds
-        /// straight to the "opening workspace" fade. If it returns false
-        /// the regular sign-in form is shown as before.
+        /// Replaces the console with the sign-in form on THIS window.
+        /// Never opens a second maximized window. (Flow unchanged in v2.)
         /// </summary>
         public async Task<bool> RunLoginAsync()
         {
             // ── AUTO-SIGN-IN FAST PATH ────────────────────────────────
-            //
-            // A returning user who armed the "Skip login until update"
-            // pill last session never sees the sign-in form again on
-            // this device until we push an update. LoadingText stays
-            // as "Signing you in…" for the microsecond it takes to
-            // verify, then App.xaml.cs takes over.
             StopLoadingIndicators();
             LoadingText.Text = "Signing you in…";
             LoadingDots.Text = "";
@@ -546,13 +570,6 @@ namespace ProGlassAutomation.Views.Splash
 
             void Finish(bool signedIn)
             {
-                // Unsubscribe immediately so a subsequent Completed
-                // raise (e.g. the user tapping Exit after already
-                // signing in) cannot re-enter this handler for the
-                // same TCS. TrySetResult would then be a no-op, but
-                // symmetric unsubscribe is cleaner and keeps the
-                // event invocation list from growing across nested
-                // RunLoginAsync calls (first-run failure fallback).
                 LoginGate.Completed -= Finish;
                 SignedIn = signedIn;
                 done.TrySetResult(signedIn);
@@ -577,14 +594,14 @@ namespace ProGlassAutomation.Views.Splash
             });
 
             // Bring keyboard focus back to this window — a Topmost splash
-            // can lose activation (e.g. the user clicked the desktop), and
-            // controls in an inactive window ignore Focus(). Without this
-            // the caret never lands in the field, so typing/Enter does
-            // nothing until the user clicks.
-            try { Activate(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RunLoginAsync: window may be closing: " + ExceptionMessages.Deep(ex)); }
+            // can lose activation; controls in an inactive window ignore
+            // Focus() and the caret never lands in the field.
+            try { Activate(); }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[SplashView] RunLoginAsync: window may be closing: " + ExceptionMessages.Deep(ex));
+            }
 
-            // Focus now, then re-arm once the fade + layout settle so the
-            // caret is guaranteed in the field the moment the page appears.
             Dispatcher.BeginInvoke(new Action(() => LoginGate.FocusInitialFieldDeferred()),
                 DispatcherPriority.Input);
 
@@ -592,66 +609,24 @@ namespace ProGlassAutomation.Views.Splash
         }
 
         /// <summary>
-        /// First-run setup flow. Shown when the audit
-        /// database has no users yet.
-        ///
-        /// UX CONTRACT (industrial ERP norm — SAP / Odoo /
-        /// Dynamics all behave this way):
-        ///   • First boot ever   →  Splash → this setup panel
-        ///     → straight into the main window. The operator
-        ///     JUST typed their new password; forcing them to
-        ///     re-type it in a login form on the same boot is
-        ///     amateur UX.
-        ///   • Every subsequent boot →  Splash → login form
-        ///     → main window (unless the "Skip login until
-        ///     update" pill was armed).
-        ///
-        /// After the operator creates the first administrator
-        /// we silently call AuditService.SwitchUserAsync with
-        /// the freshly-typed credentials and return true so
-        /// App.xaml.cs proceeds to show the main window. The
-        /// auto-login pill is deliberately NOT armed here —
-        /// the operator has not seen that consent surface
-        /// yet, so the next boot presents the login form and
-        /// only writes the DPAPI-vault entry if the user
-        /// explicitly opts in on that screen.
-        ///
-        /// Call this INSTEAD of <see cref="RunLoginAsync"/>
-        /// on a fresh install. The choice is driven by
-        /// App.xaml.cs based on
-        /// <see cref="AuditService.HasAnyUsersAsync"/>.
+        /// First-run setup flow (flow unchanged in v2). UX CONTRACT:
+        /// first boot ever → splash → setup → straight into the main
+        /// window; every subsequent boot → splash → login (unless the
+        /// "Skip login until update" pill was armed).
         /// </summary>
         public Task<bool> RunFirstRunSetupAsync()
         {
             var done = new TaskCompletionSource<bool>();
 
-            // The setup panel raises Created with the
-            // (username, password) it just persisted. We
-            // establish the session ourselves and complete
-            // the task true so App.xaml.cs shows the main
-            // window without any further prompting.
             async void OnCreated(string newUsername, string newPassword)
             {
-                // Unsubscribe FIRST so a re-entrant Created (e.g. the
-                // panel raised it twice due to a fast double-click that
-                // slipped the re-entrancy guard) cannot double-invoke
-                // this handler and complete `done` twice with different
-                // results.
+                // Unsubscribe FIRST so a re-entrant Created cannot
+                // double-complete the TCS.
                 SetupGate.Created -= OnCreated;
 
-                // Lock the setup panel so the operator cannot
-                // double-submit while the sign-in is in progress.
                 SetupGate.IsEnabled = false;
                 LoadingText.Text = "Opening workspace…";
 
-                // Seed the remembered username so the
-                // NEXT boot's login form pre-fills it.
-                // The auto-login pill (armed by
-                // FirstRunSetupPanel.TryArmAutoLogin) is
-                // what lets the user skip that form until
-                // the next update — until then, subsequent
-                // boots follow the standard splash → login
-                // → main path.
                 try
                 {
                     if (App.Config != null)
@@ -661,25 +636,13 @@ namespace ProGlassAutomation.Views.Splash
                         ConfigService.Save(App.Config);
                     }
                 }
-                catch (System.Exception ex)
+                catch (Exception ex)
                 {
-                    // Best effort — the login form on any
-                    // future boot tolerates an empty
-                    // pre-filled username.
-                    ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView] Remember-username persist failed: " + ExceptionMessages.Deep(ex));
+                    AppLogService.Debug("[SplashView] Remember-username persist failed: " + ExceptionMessages.Deep(ex));
                 }
 
                 try
                 {
-                    // Establish the audit session for the
-                    // freshly-created administrator. We
-                    // just wrote their credentials in
-                    // CreateUserAsync, so this cannot fail
-                    // for a wrong-password reason — but we
-                    // still surface a failure cleanly so
-                    // App.xaml.cs never opens the main
-                    // window with an unauthenticated
-                    // context.
                     var (ok, error) = await Task.Run(
                         () => AuditService.SwitchUserAsync(newUsername, newPassword));
 
@@ -688,21 +651,7 @@ namespace ProGlassAutomation.Views.Splash
                         AppLogService.Error(
                             "First-run silent sign-in failed for '" + newUsername +
                             "' immediately after CreateUserAsync: " + error, null,
-                            new LogContext
-                            {
-                                Module = "Auth",
-                                Class = nameof(SplashView),
-                                Operation = "RunFirstRunSetupAsync"
-                            });
-                        // Fall back to the standard login form on
-                        // this same boot so the operator can retry
-                        // rather than being kicked back to the OS.
-                        // LoadingText is set explicitly here so the
-                        // brief "Signing you in…" flicker inside
-                        // RunLoginAsync (its own auto-login probe,
-                        // which will trivially fail because the
-                        // vault is empty right after first-run) does
-                        // not surface confusing status swaps.
+                            new LogContext { Module = "Auth", Class = nameof(SplashView), Operation = "RunFirstRunSetup" });
                         SetupHost.Visibility = Visibility.Collapsed;
                         SetupGate.IsEnabled = true;
                         LoadingText.Text = "Please sign in to continue.";
@@ -719,12 +668,7 @@ namespace ProGlassAutomation.Views.Splash
                 {
                     AppLogService.Error(
                         "First-run silent sign-in threw unexpectedly.", ex,
-                        new LogContext
-                        {
-                            Module = "Auth",
-                            Class = nameof(SplashView),
-                            Operation = "RunFirstRunSetupAsync"
-                        });
+                        new LogContext { Module = "Auth", Class = nameof(SplashView), Operation = "RunFirstRunSetup" });
                     done.TrySetResult(false);
                 }
             }
@@ -732,11 +676,6 @@ namespace ProGlassAutomation.Views.Splash
             SetupGate.Created += OnCreated;
             Closed += (_, __) =>
             {
-                // If the splash is closed while the
-                // setup is running (the operator
-                // clicked the X), the login never
-                // happens, so report not-signed-in so
-                // App.xaml.cs exits cleanly.
                 done.TrySetResult(false);
             };
 
@@ -755,7 +694,11 @@ namespace ProGlassAutomation.Views.Splash
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             });
 
-            try { Activate(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RunFirstRunSetupAsync: window may be closing: " + ExceptionMessages.Deep(ex)); }
+            try { Activate(); }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[SplashView] RunFirstRunSetupAsync: window may be closing: " + ExceptionMessages.Deep(ex));
+            }
             Dispatcher.BeginInvoke(new Action(() => SetupGate.Focus()),
                 DispatcherPriority.Input);
 
@@ -766,13 +709,8 @@ namespace ProGlassAutomation.Views.Splash
         {
             StopLoadingIndicators();
 
-            // Stay Topmost for the fade. The window underneath is only
-            // revealed by the opacity animation — releasing Topmost
-            // first is what flashed the desktop between splash and
-            // login. (2026-08-29: the splash is NOT a layered window —
-            // AllowsTransparency removed; an opaque stage renders it
-            // identically on every machine without the Win11
-            // software-rendered layered-window failure class.)
+            // Stay Topmost for the fade — the window underneath is only
+            // revealed by the opacity animation.
             IsHitTestVisible = false;
 
             var fadeOut = new DoubleAnimation
@@ -793,13 +731,17 @@ namespace ProGlassAutomation.Views.Splash
         }
 
         /// <summary>
-        /// Stops the dots timer and resets the dots text. Shared by
-        /// ShowTermsGate / RunLoginAsync / FadeOutAndClose.
+        /// Stops the dots timer AND the progress sweep, resets the dots.
+        /// Shared by ShowTermsGate / RunLoginAsync / FadeOutAndClose /
+        /// Unloaded.
         /// </summary>
         private void StopLoadingIndicators()
         {
             _loadingDotsTimer?.Stop();
             _loadingDotsTimer = null;
+
+            _progressSweepTimer?.Stop();
+            _progressSweepTimer = null;
         }
     }
 }

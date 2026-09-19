@@ -2,7 +2,7 @@
  "generated": "2026-09-19",
  "files": 337,
  "errors": 0,
- "warns": 22,
+ "warns": 19,
  "notes": 3,
  "findings": [
   {
@@ -133,27 +133,9 @@
   },
   {
    "file": "Views/Splash/SplashView.xaml",
-   "level": "WARN",
-   "code": "W7",
-   "msg": "DynamicResource 'Transparent' declared nowhere & not runtime-published"
-  },
-  {
-   "file": "Views/Splash/SplashView.xaml",
-   "level": "WARN",
-   "code": "W7",
-   "msg": "DynamicResource 'Transparent' declared nowhere & not runtime-published"
-  },
-  {
-   "file": "Views/Splash/SplashView.xaml",
-   "level": "WARN",
-   "code": "W7",
-   "msg": "DynamicResource 'Transparent' declared nowhere & not runtime-published"
-  },
-  {
-   "file": "Views/Splash/SplashView.xaml",
    "level": "NOTE",
    "code": "W17",
-   "msg": "9 hardcoded hex value(s) in view"
+   "msg": "6 hardcoded hex value(s) in view"
   }
  ]
 }
