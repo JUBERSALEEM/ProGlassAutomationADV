@@ -200,6 +200,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
+        private string _thirdGlassColor = "";
+        /// <summary>DGU+LAM laminated-inner colour. Empty on other builds.</summary>
+        public string ThirdGlassColor
+        {
+            get => _thirdGlassColor;
+            set
+            {
+                var next = value ?? "";
+                if (_thirdGlassColor == next) return;
+                _thirdGlassColor = next;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Null on invoices saved before Phase A.</summary>
+        public bool? MaterialIsValid { get; set; }
+        public string MaterialInvalidReason { get; set; } = "";
+
         // ══════════════════════════════════════════════════════════════
         //  PHASE G — SHEET PROVENANCE (Step 4 → Step 5 → Step 9)
         //
@@ -308,6 +326,50 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
+        private int _thirdSheetWidthMm;
+        public int ThirdSheetWidthMm
+        {
+            get => _thirdSheetWidthMm;
+            set
+            {
+                if (_thirdSheetWidthMm == value) return;
+                _thirdSheetWidthMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasThirdSheet));
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
+            }
+        }
+
+        private int _thirdSheetHeightMm;
+        public int ThirdSheetHeightMm
+        {
+            get => _thirdSheetHeightMm;
+            set
+            {
+                if (_thirdSheetHeightMm == value) return;
+                _thirdSheetHeightMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasThirdSheet));
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
+            }
+        }
+
+        private decimal _thirdSheetPricePerSqm;
+        public decimal ThirdSheetPricePerSqm
+        {
+            get => _thirdSheetPricePerSqm;
+            set
+            {
+                if (_thirdSheetPricePerSqm == value) return;
+                _thirdSheetPricePerSqm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
+            }
+        }
+
         private decimal _uInsertPricePerSqm;
         /// <summary>
         /// Step 4 seeded U-Insert rate for this spec. Step 5 does not render
@@ -389,6 +451,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public bool HasInnerSheet =>
             InnerSheetWidthMm > 0 && InnerSheetHeightMm > 0;
 
+        public bool HasThirdSheet =>
+            ThirdSheetWidthMm > 0 && ThirdSheetHeightMm > 0;
+
         /// <summary>e.g. "3210 × 2250 · 7.2225 SQM", or "—".</summary>
         public string OuterSheetDisplay => HasOuterSheet
             ? $"{OuterSheetWidthMm} × {OuterSheetHeightMm} · " +
@@ -418,6 +483,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     parts.Add(InnerSheetPricePerSqm > 0m
                         ? $"Inner sheet {InnerSheetDisplay} @ AED {InnerSheetPricePerSqm:N2}/SQM"
                         : $"Inner sheet {InnerSheetDisplay}");
+                if (HasThirdSheet)
+                    parts.Add(ThirdSheetPricePerSqm > 0m
+                        ? $"Lam inner sheet {ThirdSheetWidthMm} × {ThirdSheetHeightMm} @ AED {ThirdSheetPricePerSqm:N2}/SQM"
+                        : $"Lam inner sheet {ThirdSheetWidthMm} × {ThirdSheetHeightMm}");
                 return parts.Count == 0 ? "" : string.Join("  ·  ", parts);
             }
         }
@@ -862,6 +931,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     SelectedSpecName = snapshot.GeneratedSpecName;
 
                 ApplyStep4PaneAndSheetMetadata(snapshot, glassType);
+                MaterialIsValid = snapshot.MaterialIsValid;
+                MaterialInvalidReason = snapshot.MaterialInvalidReason ?? "";
 
                 // Keep provenance inside the atomic handoff. Besides avoiding a
                 // transient type/name mismatch, this makes any future caller of
@@ -917,6 +988,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     InnerSheetWidthMm = 0;
                     InnerSheetHeightMm = 0;
                     InnerSheetPricePerSqm = 0m;
+                    ThirdGlassColor = "";
+                    ThirdSheetWidthMm = 0;
+                    ThirdSheetHeightMm = 0;
+                    ThirdSheetPricePerSqm = 0m;
                     UInsertPricePerSqm = 0m;
                     Step4SpacerPricePerSqm = null;
                     Step4InterlayerCostPerSqm = null;
@@ -936,6 +1011,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     InnerSheetHeightMm = dgu.InnerSheetHeightMm;
                     OuterSheetPricePerSqm = dgu.OuterBasePrice;
                     InnerSheetPricePerSqm = dgu.InnerBasePrice;
+                    ThirdGlassColor = "";
+                    ThirdSheetWidthMm = 0;
+                    ThirdSheetHeightMm = 0;
+                    ThirdSheetPricePerSqm = 0m;
                     UInsertPricePerSqm = HasUInsertExtra(dgu.SpacerExtra)
                         ? dgu.UInsertPricePerSqm
                         : 0m;
@@ -957,6 +1036,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     InnerSheetHeightMm = lam.InnerSheetHeightMm;
                     OuterSheetPricePerSqm = lam.OuterBasePrice;
                     InnerSheetPricePerSqm = lam.InnerBasePrice;
+                    ThirdGlassColor = "";
+                    ThirdSheetWidthMm = 0;
+                    ThirdSheetHeightMm = 0;
+                    ThirdSheetPricePerSqm = 0m;
                     UInsertPricePerSqm = 0m;
                     // LAM's interlayer is the PVB material rate; cutting and
                     // tempering are stored as the summed pane-pair rates —
@@ -980,14 +1063,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     // lam inner values independently from this same snapshot.
                     OuterGlassColor = dguLam.LamOuterColor ?? "";
                     InnerGlassColor = dguLam.LamInnerColor ?? "";
-                    OuterSheetWidthMm = 0;
-                    OuterSheetHeightMm = 0;
-                    InnerSheetWidthMm = 0;
-                    InnerSheetHeightMm = 0;
+                    ThirdGlassColor = dguLam.LamInnerColor ?? "";
+                    OuterSheetWidthMm = dguLam.OuterSheetWidthMm;
+                    OuterSheetHeightMm = dguLam.OuterSheetHeightMm;
+                    InnerSheetWidthMm = dguLam.LamOuterSheetWidthMm;
+                    InnerSheetHeightMm = dguLam.LamOuterSheetHeightMm;
+                    ThirdSheetWidthMm = dguLam.LamInnerSheetWidthMm;
+                    ThirdSheetHeightMm = dguLam.LamInnerSheetHeightMm;
                     OuterSheetPricePerSqm = dguLam.OuterBasePrice;
-                    InnerSheetPricePerSqm = dguLam.LamInnerBasePrice > 0m
-                        ? dguLam.LamInnerBasePrice
-                        : dguLam.LamOuterBasePrice;
+                    InnerSheetPricePerSqm = dguLam.LamOuterBasePrice;
+                    ThirdSheetPricePerSqm = dguLam.LamInnerBasePrice;
                     UInsertPricePerSqm = 0m;
                     // Interlayer is costed at the laminator BUY price — the
                     // sell spread belongs to the quoted rate, not to cost.
@@ -1009,12 +1094,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     // from the previously selected build on screen.
                     OuterGlassColor = "";
                     InnerGlassColor = "";
+                    ThirdGlassColor = "";
                     OuterSheetWidthMm = 0;
                     OuterSheetHeightMm = 0;
                     InnerSheetWidthMm = 0;
                     InnerSheetHeightMm = 0;
+                    ThirdSheetWidthMm = 0;
+                    ThirdSheetHeightMm = 0;
                     OuterSheetPricePerSqm = 0m;
                     InnerSheetPricePerSqm = 0m;
+                    ThirdSheetPricePerSqm = 0m;
                     UInsertPricePerSqm = 0m;
                     Step4SpacerPricePerSqm = null;
                     Step4InterlayerCostPerSqm = null;
@@ -1132,8 +1221,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OuterSheetHeightMm = 0;
                 InnerSheetWidthMm = 0;
                 InnerSheetHeightMm = 0;
+                ThirdSheetWidthMm = 0;
+                ThirdSheetHeightMm = 0;
                 OuterSheetPricePerSqm = 0m;
                 InnerSheetPricePerSqm = 0m;
+                ThirdSheetPricePerSqm = 0m;
                 UInsertPricePerSqm = 0m;
 
                 var selection = ProGlassAutomation.Services.ProformaInvoice

@@ -308,6 +308,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // flag dangling — clear it on every early exit.
             if (IsRunning) { _openToReportAfterRun = false; return; }
             ClearInputWarnings();
+
+            if (!IsHeadlessHost)
+            {
+                var blocked = SelectedJobs.FirstOrDefault(j => !j.CanOptimizeMaterial);
+                if (blocked != null)
+                {
+                    _openToReportAfterRun = false;
+                    RunMessage = "Cannot optimize: "
+                        + (string.IsNullOrWhiteSpace(blocked.MaterialInvalidReason)
+                            ? "Step 4 material is unresolved or invalid — optimization cannot use this spec."
+                            : blocked.MaterialInvalidReason)
+                        + " Missing Sheet Store price or material identity is an invalid input state.";
+                    return;
+                }
+            }
+
             if (!TryBuildInputs(out var pieces, out var stockPool, out var margins))
             { _openToReportAfterRun = false; return; }
 

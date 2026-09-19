@@ -44,8 +44,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         public int OuterHeightMm { get; init; }
         public int InnerWidthMm { get; init; }
         public int InnerHeightMm { get; init; }
+        public int ThirdWidthMm { get; init; }
+        public int ThirdHeightMm { get; init; }
         public decimal OuterPricePerSqm { get; init; }
         public decimal InnerPricePerSqm { get; init; }
+        public decimal ThirdPricePerSqm { get; init; }
 
         /// <summary>
         /// Optional Step 4 seeded U-Insert rate for DGU builds. Lives in the

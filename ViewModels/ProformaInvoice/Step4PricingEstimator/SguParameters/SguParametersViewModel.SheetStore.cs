@@ -33,7 +33,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
     {
         /// <summary>Shown when the colour/thickness pair is not stocked.</summary>
         public const string NotInStoreHint =
-            "This glass is not in Sheet Store — check Sheet Store or enter manually (skippable).";
+            "This glass is not in Sheet Store — colour, thickness, sheet size and a store price must resolve before optimization can use it.";
 
         private bool _isAutoFilling;
         private bool _suspendSheetStoreRefresh;
@@ -142,6 +142,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         /// <summary>True when <see cref="SheetStoreHint"/> has content.</summary>
         public bool HasSheetStoreHint => !string.IsNullOrWhiteSpace(SheetStoreHint);
 
+        private bool _panePriceResolvedFromStore;
+        /// <summary>
+        /// True only after an exact Sheet Store lookup returned a positive
+        /// selling or purchase price. The constructor seed (46) is not this.
+        /// </summary>
+        public bool PanePriceResolvedFromStore => _panePriceResolvedFromStore;
+
+        internal void SetPanePriceResolvedFromStore(bool resolved) =>
+            _panePriceResolvedFromStore = resolved;
+
         // ═══════════════════════════════════════════════════════════════
         //  LOAD / REFRESH
         // ═══════════════════════════════════════════════════════════════
@@ -249,19 +259,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
 
             if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
-            bool inStore = price.HasValue
-                && (price.Value.SellPerSqm > 0m || price.Value.PurchasePerSqm > 0m);
+            decimal? resolved = Step4MaterialIntegrity.ResolveStorePrice(price);
+            _panePriceResolvedFromStore = resolved.HasValue;
 
-            if (price.HasValue)
+            if (resolved.HasValue)
             {
-                decimal sell = price.Value.SellPerSqm > 0m
-                    ? price.Value.SellPerSqm
-                    : price.Value.PurchasePerSqm;
-
-                if (sell > 0m) BasePricePerSqm = sell;
+                BasePricePerSqm = resolved.Value;
+                SheetStoreHint = "";
             }
-
-            SheetStoreHint = inStore ? "" : NotInStoreHint;
+            else
+            {
+                // PHASE A: a miss is invalid. Do not write 0 and do not
+                // treat the leftover constructor default (46) as a store price.
+                SheetStoreHint = Step4MaterialIntegrity.DescribeMiss(
+                    "SGU", GlassColor, mm, SheetWidthMm, SheetHeightMm);
+            }
         }
     }
 }

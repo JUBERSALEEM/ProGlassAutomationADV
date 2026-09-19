@@ -102,6 +102,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// pane structurally instead of guessing from a colour name.</summary>
             public List<(int W, int H, string Composition, string Source, decimal PricePerSqm, int SpecNumber, string Side)> Step4Sheets { get; } = new();
 
+            /// <summary>
+            /// False when Step 4 material is unresolved or invalid. Optimization
+            /// must not Distribute / Run / TryBuildInputs from this job.
+            /// </summary>
+            public bool CanOptimizeMaterial { get; set; } = true;
+            public string MaterialInvalidReason { get; set; } = "";
+
             public int TotalPcs => Specs.Sum(s => s.Layers.Where(l => l.Kind == "Pane").Sum(l => l.TotalPcs));
         }
 
@@ -363,6 +370,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     var snapshot = JobOrderMapper.DeserializeSnapshot(jo);
                     var invoice = snapshot?.EmbeddedInvoice;
+
+                    if (!TryAuthorizeJobInvoiceForOptimization(invoice, out _))
+                    {
+                        // PHASE A.1: invalid / unresolved Step 4 material must
+                        // not reach Distribute, Run, or TryBuildInputs.
+                        continue;
+                    }
+
                     var plan = ProductionDistributionEngine.Distribute(jo.JobOrderId, invoice);
 
                     var cut = plan.Items

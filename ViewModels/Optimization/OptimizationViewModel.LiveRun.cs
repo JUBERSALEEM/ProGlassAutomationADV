@@ -107,6 +107,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return false;
             }
 
+            if (!TryAuthorizeJobInvoiceForOptimization(
+                    new ProformaInvoiceSnapshot { SpecGroups = groups },
+                    out message))
+            {
+                return false;
+            }
+
             // A minimal invoice snapshot: Distribute only needs SpecGroups, and
             // every other field it reads (Company / Client / Project /
             // OtherCharges) is null-guarded and only feeds plan metadata.
@@ -198,6 +205,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     if (o == null) return string.Empty;
                     // Phase 2: canonical key — rack tag must match the
                     // cutting list rows byte-for-byte.
+                    return CompositionKey.Normalize(
+                        string.IsNullOrWhiteSpace(o.Composition)
+                            ? (group.SelectedSpecName ?? string.Empty)
+                            : o.Composition);
+                }
+
+                string ComposeForPosition(string position)
+                {
+                    var o = occurrences.FirstOrDefault(x =>
+                        string.Equals(x.Position, position, StringComparison.OrdinalIgnoreCase));
+                    if (o == null) return string.Empty;
                     return CompositionKey.Normalize(
                         string.IsNullOrWhiteSpace(o.Composition)
                             ? (group.SelectedSpecName ?? string.Empty)
@@ -298,6 +316,30 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     rackedKeys.Add(compKey(group.GroupNumber, innerComp));
                     CrossCheckStep4Sheet(group.GroupNumber, "inner", group.InnerGlassColor,
                         group.InnerSheetWidthMm, group.InnerSheetHeightMm, sheetNotes);
+                }
+
+                if (group.ThirdSheetWidthMm > 0 && group.ThirdSheetHeightMm > 0)
+                {
+                    string thirdComp = ComposeForPosition("Lam Inner");
+                    if (string.IsNullOrWhiteSpace(thirdComp))
+                        thirdComp = ComposeForSlot(PaneSlot.Pane2);
+                    int? thirdBalance = LookupStoreBalance(
+                        string.IsNullOrWhiteSpace(group.ThirdGlassColor)
+                            ? group.InnerGlassColor
+                            : group.ThirdGlassColor,
+                        glassThicknessMm, group.ThirdSheetWidthMm, group.ThirdSheetHeightMm);
+                    if (thirdBalance.HasValue) balancesApplied++;
+                    racksAdded += AddStep5Rack(rackSeen, newStocks,
+                        group.ThirdSheetWidthMm, group.ThirdSheetHeightMm,
+                        thirdComp,
+                        specLabel + " lam inner", group.ThirdSheetPricePerSqm,
+                        group.GroupNumber, "LamInner", thirdBalance);
+                    rackedKeys.Add(compKey(group.GroupNumber, thirdComp));
+                    CrossCheckStep4Sheet(group.GroupNumber, "lam inner",
+                        string.IsNullOrWhiteSpace(group.ThirdGlassColor)
+                            ? group.InnerGlassColor
+                            : group.ThirdGlassColor,
+                        group.ThirdSheetWidthMm, group.ThirdSheetHeightMm, sheetNotes);
                 }
             }
 

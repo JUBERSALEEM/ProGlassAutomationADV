@@ -286,14 +286,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                               LamVM.OuterSheetWidthMm,
                               LamVM.OuterSheetHeightMm),
 
-                    // DGU+LAM has colour fields but NO Sheet Store size
-                    // wiring (it has no .SheetStore.cs partial like the
-                    // other three), so there is no size to report here.
-                    // Sizes for this family come from SpecPaneResolver,
-                    // which matches each pane by colour + thickness.
                     "DGU+LAM" => (DguLamVM.OuterGlassColor,
                                   ParseThicknessMm(DguLamVM.OuterThickness),
-                                  0, 0),
+                                  DguLamVM.OuterSheetWidthMm,
+                                  DguLamVM.OuterSheetHeightMm),
 
                     _ => (null, 0, 0, 0)
                 };
@@ -369,6 +365,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                                     InnerHeightMm = LamVM.InnerSheetHeightMm,
                                     OuterPricePerSqm = LamVM.OuterBasePrice,
                                     InnerPricePerSqm = LamVM.InnerBasePrice
+                                });
+                        break;
+
+                    case "DGU+LAM":
+                        ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry
+                            .Record(specName,
+                                new ProGlassAutomation.Services.ProformaInvoice.SpecSheetSelection
+                                {
+                                    OuterWidthMm = DguLamVM.OuterSheetWidthMm,
+                                    OuterHeightMm = DguLamVM.OuterSheetHeightMm,
+                                    InnerWidthMm = DguLamVM.LamOuterSheetWidthMm,
+                                    InnerHeightMm = DguLamVM.LamOuterSheetHeightMm,
+                                    ThirdWidthMm = DguLamVM.LamInnerSheetWidthMm,
+                                    ThirdHeightMm = DguLamVM.LamInnerSheetHeightMm,
+                                    OuterPricePerSqm = DguLamVM.OuterBasePrice,
+                                    InnerPricePerSqm = DguLamVM.LamOuterBasePrice,
+                                    ThirdPricePerSqm = DguLamVM.LamInnerBasePrice
                                 });
                         break;
                 }

@@ -347,6 +347,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         OuterGlassColor = step4.DguLamVM.OuterGlassColor ?? "",
                         OuterTreatment = step4.DguLamVM.OuterTreatment ?? "",
                         OuterBasePrice = step4.DguLamVM.OuterBasePrice,
+                        OuterSheetWidthMm = step4.DguLamVM.OuterSheetWidthMm,
+                        OuterSheetHeightMm = step4.DguLamVM.OuterSheetHeightMm,
                         SpacerThickness = step4.DguLamVM.SpacerThickness ?? "",
                         SpacerPrice = step4.DguLamVM.SpacerPrice,
                         SpacerExtra = step4.DguLamVM.SpacerExtra ?? "",
@@ -354,6 +356,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         LamOuterColor = step4.DguLamVM.LamOuterColor ?? "",
                         LamOuterTreatment = step4.DguLamVM.LamOuterTreatment ?? "",
                         LamOuterBasePrice = step4.DguLamVM.LamOuterBasePrice,
+                        LamOuterSheetWidthMm = step4.DguLamVM.LamOuterSheetWidthMm,
+                        LamOuterSheetHeightMm = step4.DguLamVM.LamOuterSheetHeightMm,
                         InterlayerType = step4.DguLamVM.InterlayerType ?? "",
                         InterlayerThickness = step4.DguLamVM.InterlayerThickness ?? "",
                         InterlayerColor = step4.DguLamVM.InterlayerColor ?? "",
@@ -363,6 +367,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         LamInnerColor = step4.DguLamVM.LamInnerColor ?? "",
                         LamInnerTreatment = step4.DguLamVM.LamInnerTreatment ?? "",
                         LamInnerBasePrice = step4.DguLamVM.LamInnerBasePrice,
+                        LamInnerSheetWidthMm = step4.DguLamVM.LamInnerSheetWidthMm,
+                        LamInnerSheetHeightMm = step4.DguLamVM.LamInnerSheetHeightMm,
                         PanelExtra = step4.DguLamVM.PanelExtra ?? "",
                         EdgePolish = step4.DguLamVM.EdgePolish ?? "",
                         OuterCuttingCost = step4.DguLamVM.OuterCuttingCost,
@@ -375,6 +381,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         MarginProfitPercent = step4.DguLamVM.MarginProfitPercent
                     }
                 };
+                var step4Verdict = ProGlassAutomation.Services.ProformaInvoice
+                    .Step4MaterialIntegrity.Evaluate(snap.Step4Pricing);
+                snap.Step4Pricing.MaterialIsValid = step4Verdict.IsValid;
+                snap.Step4Pricing.MaterialInvalidReason = step4Verdict.Reason;
                 snap.Step4PricingSections = step4.CaptureSectionSnapshots().ToList();
                 snap.Step4SelectedSectionNumber = step4.SelectedCalculationSectionNumber;
             }
@@ -407,6 +417,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     ImportedPrice = group.ImportedPrice,
                     OuterGlassColor = group.OuterGlassColor ?? "",
                     InnerGlassColor = group.InnerGlassColor ?? "",
+                    ThirdGlassColor = group.ThirdGlassColor ?? "",
+                    MaterialIsValid = group.MaterialIsValid,
+                    MaterialInvalidReason = group.MaterialInvalidReason ?? "",
                     BaseRate = group.BaseRate,
                     SurchargePercent = group.SurchargePercent,
 
@@ -418,6 +431,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     InnerSheetHeightMm = group.InnerSheetHeightMm,
                     OuterSheetPricePerSqm = group.OuterSheetPricePerSqm,
                     InnerSheetPricePerSqm = group.InnerSheetPricePerSqm,
+                    ThirdSheetWidthMm = group.ThirdSheetWidthMm,
+                    ThirdSheetHeightMm = group.ThirdSheetHeightMm,
+                    ThirdSheetPricePerSqm = group.ThirdSheetPricePerSqm,
                     UInsertPricePerSqm = group.UInsertPricePerSqm,
 
                     // PHASE 1-AUDIT: persist the production rates this group
@@ -724,8 +740,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                             OuterHeightMm = gSnap.OuterSheetHeightMm,
                             InnerWidthMm = gSnap.InnerSheetWidthMm,
                             InnerHeightMm = gSnap.InnerSheetHeightMm,
+                            ThirdWidthMm = gSnap.ThirdSheetWidthMm,
+                            ThirdHeightMm = gSnap.ThirdSheetHeightMm,
                             OuterPricePerSqm = gSnap.OuterSheetPricePerSqm,
                             InnerPricePerSqm = gSnap.InnerSheetPricePerSqm,
+                            ThirdPricePerSqm = gSnap.ThirdSheetPricePerSqm,
                             UInsertPricePerSqm = gSnap.UInsertPricePerSqm
                         });
                 }
@@ -759,6 +778,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     InnerSheetHeightMm = gSnap.InnerSheetHeightMm,
                     OuterSheetPricePerSqm = gSnap.OuterSheetPricePerSqm,
                     InnerSheetPricePerSqm = gSnap.InnerSheetPricePerSqm,
+                    ThirdSheetWidthMm = gSnap.ThirdSheetWidthMm,
+                    ThirdSheetHeightMm = gSnap.ThirdSheetHeightMm,
+                    ThirdSheetPricePerSqm = gSnap.ThirdSheetPricePerSqm,
                     UInsertPricePerSqm = gSnap.UInsertPricePerSqm,
 
                     // PHASE 1-AUDIT: restore production-rate provenance.

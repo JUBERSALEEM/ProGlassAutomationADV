@@ -61,7 +61,6 @@
 
 using ProGlassAutomation.Services.ProformaInvoice;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -69,7 +68,7 @@ using System.Threading.Tasks;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters
 {
     /// <summary>Parameters for a DGU + laminated hybrid unit.</summary>
-    public class DguLamParametersViewModel : ViewModelBase
+    public partial class DguLamParametersViewModel : ViewModelBase
     {
         // ══════════════════════════════════════════════════════════════
         //  DROPDOWN SOURCES
@@ -122,49 +121,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 new[] { "Clear", "Frosted", "Milky White", "Grey", "Bronze", "Blue", "Green" });
 
         /// <summary>
-        /// Fills the pane-colour combos from Sheet Store inventory only.
-        /// Never throws (mirrors the other panels' store adapters).
+        /// Kept for the previous colour-only load path. Sheet sizes and
+        /// prices now live in the SheetStore partial.
         /// </summary>
-        public async Task LoadStoreColorsAsync()
-        {
-            try
-            {
-                await SheetStorePricingService
-                    .LoadColorsIntoAsync(ColorOptions)
-                    .ConfigureAwait(true);
-            }
-            catch (Exception ex)
-            {
-                Services.Logging.AppLogService.Debug(
-                    "[DguLamParametersViewModel] colour load failed: " +
-                    ex.Message);
-            }
-            finally
-            {
-                // The list was replaced wholesale — the outer-pane colour
-                // may have stopped (or started) being stocked.
-                OnPropertyChanged(nameof(SheetStoreHint));
-                OnPropertyChanged(nameof(HasSheetStoreHint));
-            }
-        }
-
-        // ── Cross-check hardening (2026-09-10): the hybrid previously had
-        // NO not-in-store warning even though its colours are store-only.
-        // Same contract as the SGU/DGU/LAM panels so the Step 4 banner can
-        // cover all four glass families. Evaluated on the OUTER pane — the
-        // leaf every build family quotes against.
-        public const string NotInStoreHint =
-            "This glass is not in Sheet Store — check Sheet Store or enter manually (skippable).";
-
-        public string SheetStoreHint =>
-            (ColorOptions.Count == 0 ||
-             !ColorOptions.Any(c =>
-                 SheetStorePricingService.Norm(c) ==
-                 SheetStorePricingService.Norm(OuterGlassColor)))
-                ? NotInStoreHint
-                : "";
-
-        public bool HasSheetStoreHint => !string.IsNullOrWhiteSpace(SheetStoreHint);
+        public Task LoadStoreColorsAsync() => LoadSheetStoreAsync();
 
         // ══════════════════════════════════════════════════════════════
         //  FABRICATION EXTRAS
@@ -277,7 +237,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public string OuterThickness
         {
             get => _outerThickness;
-            set { if (_outerThickness == value) return; _outerThickness = value; Changed(); }
+            set { if (_outerThickness == value) return; _outerThickness = value; Changed(); OnOuterGlassChanged(); }
         }
 
         private string _outerGlassColor = "HD Grey";
@@ -290,8 +250,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 if (_outerGlassColor == value) return;
                 _outerGlassColor = value;
                 Changed();
-                OnPropertyChanged(nameof(SheetStoreHint));
-                OnPropertyChanged(nameof(HasSheetStoreHint));
+                OnOuterGlassChanged();
             }
         }
 
@@ -346,14 +305,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public string LamOuterThickness
         {
             get => _lamOuterThickness;
-            set { if (_lamOuterThickness == value) return; _lamOuterThickness = value; Changed(); }
+            set { if (_lamOuterThickness == value) return; _lamOuterThickness = value; Changed(); OnLamOuterGlassChanged(); }
         }
 
         private string _lamOuterColor = "Clear";
         public string LamOuterColor
         {
             get => _lamOuterColor;
-            set { if (_lamOuterColor == value) return; _lamOuterColor = value; Changed(); }
+            set { if (_lamOuterColor == value) return; _lamOuterColor = value; Changed(); OnLamOuterGlassChanged(); }
         }
 
         private string _lamOuterTreatment = "FT";
@@ -495,14 +454,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public string LamInnerThickness
         {
             get => _lamInnerThickness;
-            set { if (_lamInnerThickness == value) return; _lamInnerThickness = value; Changed(); }
+            set { if (_lamInnerThickness == value) return; _lamInnerThickness = value; Changed(); OnLamInnerGlassChanged(); }
         }
 
         private string _lamInnerColor = "Clear";
         public string LamInnerColor
         {
             get => _lamInnerColor;
-            set { if (_lamInnerColor == value) return; _lamInnerColor = value; Changed(); }
+            set { if (_lamInnerColor == value) return; _lamInnerColor = value; Changed(); OnLamInnerGlassChanged(); }
         }
 
         private string _lamInnerTreatment = "FT";

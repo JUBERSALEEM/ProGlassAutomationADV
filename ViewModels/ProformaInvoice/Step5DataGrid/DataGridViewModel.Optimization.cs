@@ -251,6 +251,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     SelectedSpecName = g.SelectedSpecName ?? "",
                     OuterGlassColor = g.OuterGlassColor ?? "",
                     InnerGlassColor = g.InnerGlassColor ?? "",
+                    ThirdGlassColor = g.ThirdGlassColor ?? "",
+                    MaterialIsValid = g.MaterialIsValid,
+                    MaterialInvalidReason = g.MaterialInvalidReason ?? "",
 
                     // The rack this spec was quoted on. Zero on a spec whose
                     // Step 4 sheet was never chosen; RunFromStep5 reports that
@@ -260,7 +263,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     InnerSheetWidthMm = g.InnerSheetWidthMm,
                     InnerSheetHeightMm = g.InnerSheetHeightMm,
                     OuterSheetPricePerSqm = g.OuterSheetPricePerSqm,
-                    InnerSheetPricePerSqm = g.InnerSheetPricePerSqm
+                    InnerSheetPricePerSqm = g.InnerSheetPricePerSqm,
+                    ThirdSheetWidthMm = g.ThirdSheetWidthMm,
+                    ThirdSheetHeightMm = g.ThirdSheetHeightMm,
+                    ThirdSheetPricePerSqm = g.ThirdSheetPricePerSqm
                 };
 
                 foreach (var r in g.ItemRows)

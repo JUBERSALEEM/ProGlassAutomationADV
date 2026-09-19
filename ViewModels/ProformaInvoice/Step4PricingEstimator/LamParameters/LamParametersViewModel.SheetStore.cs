@@ -39,7 +39,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
     {
         /// <summary>Shown when a colour/thickness pair is not stocked.</summary>
         public const string NotInStoreHint =
-            "This glass is not in Sheet Store — check Sheet Store or enter manually (skippable).";
+            "This glass is not in Sheet Store — colour, thickness, sheet size and a store price must resolve before optimization can use it.";
 
         // Guards: auto-fill must not re-enter through its own setters.
         private bool _isAutoFillingOuter;
@@ -221,6 +221,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
 
         private bool _outerInStore;
         private bool _innerInStore;
+        private string _outerMissReason = "";
+        private string _innerMissReason = "";
+
+        public bool OuterPriceResolvedFromStore => _outerInStore;
+        public bool InnerPriceResolvedFromStore => _innerInStore;
+
+        internal void SetPanePriceResolvedFromStore(bool outer, bool inner)
+        {
+            _outerInStore = outer;
+            _innerInStore = inner;
+            UpdateHint();
+        }
 
         // ═══════════════════════════════════════════════════════════════
         //  LOAD / REFRESH
@@ -360,24 +372,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
 
             if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
-            _outerInStore = price.HasValue
-                && (price.Value.SellPerSqm > 0m || price.Value.PurchasePerSqm > 0m);
+            decimal? resolved = Step4MaterialIntegrity.ResolveStorePrice(price);
+            _outerInStore = resolved.HasValue;
 
-            if (price.HasValue)
+            if (resolved.HasValue)
             {
-                // Selling price is what the customer is quoted. Fall back to
-                // purchase only when no sell price has been entered.
-                decimal sell = price.Value.SellPerSqm > 0m
-                    ? price.Value.SellPerSqm
-                    : price.Value.PurchasePerSqm;
-
-                OuterBasePrice = sell > 0m ? sell : 0m;
+                OuterBasePrice = resolved.Value;
+                _outerMissReason = "";
             }
             else
             {
-                // Exact selected sheet not found: never keep a stale previous
-                // pane price such as Clear 25 on a Low-E/Ramly pane.
-                OuterBasePrice = 0m;
+                _outerMissReason = Step4MaterialIntegrity.DescribeMiss(
+                    "LAM outer", OuterGlassColor, mm, OuterSheetWidthMm, OuterSheetHeightMm);
             }
 
             UpdateHint();
@@ -398,22 +404,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
 
             if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
-            _innerInStore = price.HasValue
-                && (price.Value.SellPerSqm > 0m || price.Value.PurchasePerSqm > 0m);
+            decimal? resolved = Step4MaterialIntegrity.ResolveStorePrice(price);
+            _innerInStore = resolved.HasValue;
 
-            if (price.HasValue)
+            if (resolved.HasValue)
             {
-                decimal sell = price.Value.SellPerSqm > 0m
-                    ? price.Value.SellPerSqm
-                    : price.Value.PurchasePerSqm;
-
-                InnerBasePrice = sell > 0m ? sell : 0m;
+                InnerBasePrice = resolved.Value;
+                _innerMissReason = "";
             }
             else
             {
-                // Exact selected sheet not found: never keep a stale previous
-                // pane price such as Clear 25 on a Low-E/Ramly pane.
-                InnerBasePrice = 0m;
+                _innerMissReason = Step4MaterialIntegrity.DescribeMiss(
+                    "LAM inner", InnerGlassColor, mm, InnerSheetWidthMm, InnerSheetHeightMm);
             }
 
             UpdateHint();
@@ -432,7 +434,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             });
         }
 
-        private void UpdateHint() =>
-            SheetStoreHint = (!_outerInStore || !_innerInStore) ? NotInStoreHint : "";
+        private void UpdateHint()
+        {
+            if (_outerInStore && _innerInStore)
+            {
+                SheetStoreHint = "";
+                return;
+            }
+
+            var parts = new System.Collections.Generic.List<string>(2);
+            if (!_outerInStore && !string.IsNullOrWhiteSpace(_outerMissReason))
+                parts.Add(_outerMissReason);
+            if (!_innerInStore && !string.IsNullOrWhiteSpace(_innerMissReason))
+                parts.Add(_innerMissReason);
+            SheetStoreHint = parts.Count > 0 ? string.Join(" ", parts) : NotInStoreHint;
+        }
     }
 }

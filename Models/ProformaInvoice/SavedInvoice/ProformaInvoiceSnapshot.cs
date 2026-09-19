@@ -173,6 +173,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string SelectedGlassTypeCode { get; set; } = "";
         public string GeneratedSpecName { get; set; } = "";
         public decimal EstimatedRatePerSqm { get; set; }
+        /// <summary>
+        /// PHASE A: true only when every required pane has colour, thickness,
+        /// processing, sheet W/H and a store-resolved price. Null on invoices
+        /// saved before this field existed.
+        /// </summary>
+        public bool? MaterialIsValid { get; set; }
+        public string MaterialInvalidReason { get; set; } = "";
         public SguPricingPanelSnapshot Sgu { get; set; } = new();
         public DguPricingPanelSnapshot Dgu { get; set; } = new();
         public LamPricingPanelSnapshot Lam { get; set; } = new();
@@ -204,6 +211,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
             PutM(sgu.BasePricePerSqm); PutM(sgu.CuttingCostPerSqm); PutM(sgu.TemperingCostPerSqm);
             PutM(sgu.YieldFactor); PutM(sgu.TargetMarginPercent); Put(sgu.SelectedPolishOption);
             PutI(sgu.SheetWidthMm); PutI(sgu.SheetHeightMm);
+            Put(sgu.PriceResolvedFromStore.HasValue ? (sgu.PriceResolvedFromStore.Value ? "1" : "0") : "");
 
             var dgu = Dgu ?? new DguPricingPanelSnapshot();
             Put(dgu.OuterThickness); Put(dgu.OuterGlassColor); Put(dgu.OuterTreatment);
@@ -213,6 +221,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
             Put(dgu.InnerThickness); Put(dgu.InnerGlassColor); Put(dgu.InnerTreatment);
             PutM(dgu.InnerBasePrice); PutI(dgu.InnerSheetWidthMm); PutI(dgu.InnerSheetHeightMm);
             PutM(dgu.YieldFactor); PutM(dgu.MarginProfitPercent);
+            Put(dgu.OuterPriceResolvedFromStore.HasValue ? (dgu.OuterPriceResolvedFromStore.Value ? "1" : "0") : "");
+            Put(dgu.InnerPriceResolvedFromStore.HasValue ? (dgu.InnerPriceResolvedFromStore.Value ? "1" : "0") : "");
 
             var lam = Lam ?? new LamPricingPanelSnapshot();
             Put(lam.OuterThickness); Put(lam.OuterGlassColor); Put(lam.OuterTreatment);
@@ -224,22 +234,32 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
             PutM(lam.OuterCuttingCost); PutM(lam.InnerCuttingCost);
             PutM(lam.OuterTemperingCost); PutM(lam.InnerTemperingCost);
             PutM(lam.YieldFactor); PutM(lam.MarginProfitPercent);
+            Put(lam.OuterPriceResolvedFromStore.HasValue ? (lam.OuterPriceResolvedFromStore.Value ? "1" : "0") : "");
+            Put(lam.InnerPriceResolvedFromStore.HasValue ? (lam.InnerPriceResolvedFromStore.Value ? "1" : "0") : "");
 
             var dl = DguLam ?? new DguLamPricingPanelSnapshot();
             Put(dl.OuterThickness); Put(dl.OuterGlassColor); Put(dl.OuterTreatment);
             PutM(dl.OuterBasePrice);
+            PutI(dl.OuterSheetWidthMm); PutI(dl.OuterSheetHeightMm);
             Put(dl.SpacerThickness); PutM(dl.SpacerPrice); Put(dl.SpacerExtra);
             Put(dl.LamOuterThickness); Put(dl.LamOuterColor); Put(dl.LamOuterTreatment);
             PutM(dl.LamOuterBasePrice);
+            PutI(dl.LamOuterSheetWidthMm); PutI(dl.LamOuterSheetHeightMm);
             Put(dl.InterlayerType); Put(dl.InterlayerThickness); Put(dl.InterlayerColor);
             PutM(dl.InterlayerBuyPrice); PutM(dl.InterlayerSellPrice);
             Put(dl.LamInnerThickness); Put(dl.LamInnerColor); Put(dl.LamInnerTreatment);
             PutM(dl.LamInnerBasePrice);
+            PutI(dl.LamInnerSheetWidthMm); PutI(dl.LamInnerSheetHeightMm);
             Put(dl.PanelExtra); Put(dl.EdgePolish);
             PutM(dl.OuterCuttingCost); PutM(dl.OuterTemperingCost);
             PutM(dl.LamOuterCuttingCost); PutM(dl.LamOuterTemperingCost);
             PutM(dl.LamInnerCuttingCost); PutM(dl.LamInnerTemperingCost);
             PutM(dl.YieldFactor); PutM(dl.MarginProfitPercent);
+            Put(dl.OuterPriceResolvedFromStore.HasValue ? (dl.OuterPriceResolvedFromStore.Value ? "1" : "0") : "");
+            Put(dl.LamOuterPriceResolvedFromStore.HasValue ? (dl.LamOuterPriceResolvedFromStore.Value ? "1" : "0") : "");
+            Put(dl.LamInnerPriceResolvedFromStore.HasValue ? (dl.LamInnerPriceResolvedFromStore.Value ? "1" : "0") : "");
+            Put(MaterialIsValid.HasValue ? (MaterialIsValid.Value ? "1" : "0") : "");
+            Put(MaterialInvalidReason);
 
             return sb.ToString();
         }
@@ -258,6 +278,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string SelectedPolishOption { get; set; } = "";
         public int SheetWidthMm { get; set; }
         public int SheetHeightMm { get; set; }
+        /// <summary>Null on invoices saved before Phase A.</summary>
+        public bool? PriceResolvedFromStore { get; set; }
     }
 
     public class DguPricingPanelSnapshot
@@ -282,6 +304,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public int InnerSheetHeightMm { get; set; }
         public decimal YieldFactor { get; set; }
         public decimal MarginProfitPercent { get; set; }
+        /// <summary>Null on invoices saved before Phase A.</summary>
+        public bool? OuterPriceResolvedFromStore { get; set; }
+        public bool? InnerPriceResolvedFromStore { get; set; }
     }
 
     public class LamPricingPanelSnapshot
@@ -308,6 +333,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public decimal InnerTemperingCost { get; set; }
         public decimal YieldFactor { get; set; }
         public decimal MarginProfitPercent { get; set; }
+        /// <summary>Null on invoices saved before Phase A.</summary>
+        public bool? OuterPriceResolvedFromStore { get; set; }
+        public bool? InnerPriceResolvedFromStore { get; set; }
     }
 
     public class DguLamPricingPanelSnapshot
@@ -316,6 +344,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string OuterGlassColor { get; set; } = "";
         public string OuterTreatment { get; set; } = "";
         public decimal OuterBasePrice { get; set; }
+        public int OuterSheetWidthMm { get; set; }
+        public int OuterSheetHeightMm { get; set; }
         public string SpacerThickness { get; set; } = "";
         public decimal SpacerPrice { get; set; }
         public string SpacerExtra { get; set; } = "";
@@ -323,6 +353,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string LamOuterColor { get; set; } = "";
         public string LamOuterTreatment { get; set; } = "";
         public decimal LamOuterBasePrice { get; set; }
+        public int LamOuterSheetWidthMm { get; set; }
+        public int LamOuterSheetHeightMm { get; set; }
         public string InterlayerType { get; set; } = "";
         public string InterlayerThickness { get; set; } = "";
         public string InterlayerColor { get; set; } = "";
@@ -332,6 +364,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string LamInnerColor { get; set; } = "";
         public string LamInnerTreatment { get; set; } = "";
         public decimal LamInnerBasePrice { get; set; }
+        public int LamInnerSheetWidthMm { get; set; }
+        public int LamInnerSheetHeightMm { get; set; }
         public string PanelExtra { get; set; } = "";
         public string EdgePolish { get; set; } = "";
         public decimal OuterCuttingCost { get; set; }
@@ -342,6 +376,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public decimal LamInnerTemperingCost { get; set; }
         public decimal YieldFactor { get; set; }
         public decimal MarginProfitPercent { get; set; }
+        /// <summary>Null on invoices saved before Phase A.</summary>
+        public bool? OuterPriceResolvedFromStore { get; set; }
+        public bool? LamOuterPriceResolvedFromStore { get; set; }
+        public bool? LamInnerPriceResolvedFromStore { get; set; }
     }
 
     // ── Step 5: DataGrid spec groups ────────────────────────────────────
@@ -372,6 +410,11 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
         public string OuterGlassColor { get; set; } = "";
         public string InnerGlassColor { get; set; } = "";
+        /// <summary>DGU+LAM laminated-inner colour. Empty on other builds.</summary>
+        public string ThirdGlassColor { get; set; } = "";
+        /// <summary>Null on invoices saved before Phase A.</summary>
+        public bool? MaterialIsValid { get; set; }
+        public string MaterialInvalidReason { get; set; } = "";
 
         /// <summary>
         /// Original Step 4 reference rate shown in Step 5. This is separate
@@ -393,6 +436,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public int InnerSheetHeightMm { get; set; }
         public decimal OuterSheetPricePerSqm { get; set; }
         public decimal InnerSheetPricePerSqm { get; set; }
+        /// <summary>DGU+LAM third (laminated inner) stock sheet. Zero on other builds.</summary>
+        public int ThirdSheetWidthMm { get; set; }
+        public int ThirdSheetHeightMm { get; set; }
+        public decimal ThirdSheetPricePerSqm { get; set; }
 
         /// <summary>
         /// Step 4 seeded U-Insert rate for DGU-type specs. Additive: older
