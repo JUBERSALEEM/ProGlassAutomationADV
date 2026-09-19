@@ -142,23 +142,29 @@
                         </Border>
                     </Button>
 
-                    <!-- HAMBURGER — collapse/expand the rail (2026-09-19) -->
-                    <ToggleButton DockPanel.Dock="Top"
-                                  Style="{StaticResource GlassBlush.TopIconButton}"
-                                  IsChecked="{Binding SidebarCollapsed,
-                                              RelativeSource={RelativeSource AncestorType={x:Type pv:GlassShell}},
-                                              Mode=TwoWay}"
-                                  ToolTip="Collapse / expand the sidebar"
-                                  AutomationProperties.Name="Toggle sidebar"
-                                  AutomationProperties.AutomationId="Shell.PersonalSidebarToggle"
-                                  Margin="0,4,0,8">
+                    <!-- HAMBURGER — collapse/expand the rail (2026-09-19)
+                         2026-09-19 crash fix (ERR-AF067B): this was a
+                         ToggleButton wearing GlassBlush.TopIconButton,
+                         whose TargetType is Button — sibling types, so
+                         Style.CheckTargetType threw at startup and took
+                         MainWindow down with it. Now a plain Button;
+                         state lives in GlassShell.SidebarCollapsed and
+                         the rail width / label triggers all bind to that
+                         one property (single source of truth). -->
+                    <Button DockPanel.Dock="Top"
+                            Style="{StaticResource GlassBlush.TopIconButton}"
+                            Click="SidebarToggle_Click"
+                            ToolTip="Collapse / expand the sidebar"
+                            AutomationProperties.Name="Toggle sidebar"
+                            AutomationProperties.AutomationId="Shell.PersonalSidebarToggle"
+                            Margin="0,4,0,8">
                         <TextBlock Text="&#xE700;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="16"
                                    Foreground="{DynamicResource GlassBlush.TextMuted}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
-                    </ToggleButton>
+                    </Button>
 
                     <!-- NAV (same items, keys, commands as Professional.
                          Settings + user live in the top bar — same as

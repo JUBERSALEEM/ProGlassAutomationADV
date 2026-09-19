@@ -1,35 +1,28 @@
 // ═══════════════════════════════════════════════════════════════════
 // FILE: Views/Splash/SplashView.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Splash Screen — "Midnight Console" (v2 full redesign,
-//        2026-09-19)
+// MODULE: Splash Screen — "Split Diagonal" (v3, 2026-09-19)
 //
-// ENTRANCE CHOREOGRAPHY (v2, ~2.3s, finishes inside App startup delay):
-//   0ms     header hairline — brand / enterprise / security (staggered)
-//   200ms   logo settles (fade + scale 0.9→1) — dotted ring already
-//           revolving (30s loop, ambient)
-//   450ms   wordmark fades + slides up (14px drift)
-//   700ms   tagline fades in
-//   850ms   16-chip module grid fades in as ONE panel (professional,
-//           no marketing stagger)
-//   400ms   luminous console sweep begins — 2px fill + LIVE PERCENT
-//           readout counting 0→100 over ~1.9s (smoothstep)
-//   0ms     console status line + animated dots (350ms cycle)
+// ENTRANCE CHOREOGRAPHY (v3, ~2.3s, finishes inside App startup delay):
+//   0ms     captions bottom-right — MADE IN INDIA / ENTERPRISE /
+//           OFFLINE · SECURE (staggered 0/150/300, 350ms each)
+//   200ms   hexagon logo settles (fade + scale 0.92→1)
+//   450ms   two-line wordmark fades + slides up (14px drift)
+//   850ms   vertical progress track fades in on the split edge
+//   390ms   sweep begins — 2px fill grows bottom→top over ~1.89s
+//           (smoothstep, 30ms DispatcherTimer)
 //
 // PRESERVED (zero regression — App.StartupCore.cs depends on these):
 //   • FadeOutAndClose(Action), RunLoginAsync(), RunFirstRunSetupAsync(),
 //     ShowTermsGate()
 //   • TermsAccepted / TermsResolved / SignedIn / HasAcceptedCurrentTerms
 //   • TermsVersion, RecordAcceptance
-//   • SplashView_Loaded / SplashView_Unloaded timers + cleanup
-//   • Animated loading dots (one DispatcherTimer)
+//   • Auto sign-in (skip-login pill) fast path, first-run flow
 //
 // PERFORMANCE:
-//   • Feature list is a static readonly array — allocated once.
-//   • One shared DataTemplate; the panel fades as one element.
-//   • Progress sweep = ONE 30ms DispatcherTimer driving width + label
-//     (no Storyboard/TextBlock animation machinery, no allocations in
-//     the tick beyond the percent string).
+//   • One 30ms DispatcherTimer drives the sweep — no Storyboard
+//     machinery, no allocations in the tick.
+//   • No chips, no dots, no percent readout (approved minimal design).
 // ═══════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIConfig;
@@ -41,11 +34,9 @@ using ProGlassAutomation.Services.Updates;
 using ProGlassAutomation.Views.Login;
 using System;
 using ProGlassAutomation.Utilities;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -53,116 +44,26 @@ namespace ProGlassAutomation.Views.Splash
 {
     /// <summary>
     /// Splash window shown at application startup.
-    /// Animates in over ~2.3 seconds while App performs background
-    /// initialization. When the main window is ready, App calls
-    /// <see cref="FadeOutAndClose"/> to dismiss the splash.
+    /// "Split Diagonal" design (owner-approved mockup). Animates in over
+    /// ~2.3 seconds while App performs background initialization. When
+    /// the main window is ready, App calls <see cref="FadeOutAndClose"/>
+    /// to dismiss the splash.
     /// </summary>
     public partial class SplashView : Window
     {
-        // ── Animated loading dots (⋯) ────────────────────────────────
-        private DispatcherTimer? _loadingDotsTimer;
-        private int _loadingDotsCount;
-
-        // ── Console progress sweep (width + percent readout) ─────────
+        // ── Vertical progress sweep (height, bottom→top) ──────────────
         private DispatcherTimer? _progressSweepTimer;
         private int _sweepTicks;
-        private double _progressTrackWidth = 280;
+        private double _progressTrackHeight = 200;
 
-        // 30ms tick · ~13 tick lead-in (~390ms hold at 0) · 63 ticks
-        // of motion (~1890ms) → total ≈ 2.28s, matches the v1 sweep
-        // window (700–2600ms of v1 ≈ 400–2300ms of v2).
+        // 30ms tick · ~13 tick lead-in (~390ms hold at 0) · 63 ticks of
+        // motion (~1890ms) → sweep window 390–2280ms.
         private const int SweepLeadTicks = 13;
         private const int SweepMotionTicks = 63;
-
-        // ══════════════════════════════════════════════════════════════
-        //  FEATURE MODULE DATA — 16 uniform glass chips (2×8 grid)
-        // ══════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Immutable module descriptor rendered by FeatureChipTemplate.
-        /// Icon = Segoe MDL2 glyph, Label = module name, BorderBrush is
-        /// reserved for per-chip tinting.
-        /// </summary>
-        private sealed record FeatureItem(string Icon, string Label, Brush BorderBrush);
-
-        // Static — allocated once at type init, referenced by all instances.
-        private static readonly IReadOnlyList<FeatureItem> _features = BuildFeatures();
-
-        private static IReadOnlyList<FeatureItem> BuildFeatures()
-        {
-            static SolidColorBrush Frozen(byte r, byte g, byte b)
-            {
-                var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
-                brush.Freeze();
-                return brush;
-            }
-
-            // Module glyphs follow the ACTIVE accent instead of a
-            // hard-coded blue ramp, so the splash adapts to whatever
-            // theme/accent the operator chose. The type is first touched
-            // when App builds the splash (after themes apply) — safe.
-            static System.Windows.Media.Brush AccentGlyph()
-            {
-                if (System.Windows.Application.Current?.TryFindResource("AccentBrush")
-                        is System.Windows.Media.Brush b)
-                {
-                    if (b.IsFrozen) return b;
-                    if (b.CanFreeze)
-                    {
-                        var c = b.Clone();
-                        c.Freeze();
-                        return c;
-                    }
-                    return b;
-                }
-                return Frozen(0x60, 0xA5, 0xFA); // brand blue fallback
-            }
-
-            var glyph = AccentGlyph();
-
-            // Splash module showcase — mirrors the REAL application module
-            // set (MainWindow sidebar), not a hard-coded list. Labels are
-            // resolved from the live Nav.* localization resources so the
-            // splash is correct in every shipped language; glyphs match
-            // the sidebar's Segoe MDL2 icons.
-            static string Nav(string key, string fallback)
-            {
-                if (System.Windows.Application.Current?
-                        .TryFindResource("Nav." + key) is string s
-                    && !string.IsNullOrWhiteSpace(s))
-                {
-                    return s;
-                }
-                return fallback;
-            }
-
-            return new[]
-            {
-                new FeatureItem("\uE80F", Nav("Dashboard",          "Dashboard"),     glyph),
-                new FeatureItem("\uE7B8", Nav("SheetStore",         "Sheet Store"),   glyph),
-                new FeatureItem("\uE8F1", Nav("Specifications",     "Specifications"),glyph),
-                new FeatureItem("\uE721", Nav("Inquiry",            "Inquiry"),       glyph),
-                new FeatureItem("\uE8A5", Nav("ProformaInvoice",    "Proforma"),      glyph),
-                new FeatureItem("\uE9D9", Nav("JobOrder",           "Job Order"),     glyph),
-                new FeatureItem("\uE8C7", Nav("TaxInvoice",         "Tax Invoice"),   glyph),
-                new FeatureItem("\uE8C6", Nav("ProductionItems",    "Production"),    glyph),
-                new FeatureItem("\uE9CE", Nav("Optimization",       "Optimization"),  glyph),
-                new FeatureItem("\uE7F4", Nav("Dispatch",           "Dispatch"),      glyph),
-                new FeatureItem("\uE8F7", Nav("StatementGenerator", "Statements"),    glyph),
-                new FeatureItem("\uE9F9", Nav("Reports",            "Reports"),       glyph),
-                new FeatureItem("\uE90E", Nav("JobProfitability",   "Profitability"), glyph),
-                new FeatureItem("\uE8C8", Nav("VatSubmission",      "VAT"),           glyph),
-                new FeatureItem("\uE822", Nav("MasterDataItems",    "Master Data"),   glyph),
-                new FeatureItem("\uE713", Nav("System",             "System"),        glyph),
-            };
-        }
 
         public SplashView()
         {
             InitializeComponent();
-
-            // Populate the module chip grid once.
-            FeaturePanel.ItemsSource = _features;
 
             // Phase 3.7: terms gate is VM-backed (state + commands);
             // the view keeps the window-side side effects.
@@ -189,20 +90,20 @@ namespace ProGlassAutomation.Views.Splash
 
         private void SplashView_Loaded(object sender, RoutedEventArgs e)
         {
-            // Console sweep needs the track's real width (fixed 280 in
-            // v2 XAML; the guard keeps it safe on odd DPI rounds).
-            double track = ProgressTrack.ActualWidth;
-            _progressTrackWidth = track < 80 ? 280 : track;
+            // Sweep needs the track's real height (200 in XAML; the
+            // guard keeps it safe on odd DPI rounds).
+            double track = ProgressTrack.ActualHeight;
+            _progressTrackHeight = track < 80 ? 200 : track;
 
-            // ─── 1) HAIRLINE HEADER — quiet chrome (0–540ms) ────────
-            FadeIn(TopLeftBadge, fromMs: 0, durationMs: 300);
-            FadeIn(TopCenterPill, fromMs: 120, durationMs: 300);
-            FadeIn(TopRightBadge, fromMs: 240, durationMs: 300);
+            // ─── 1) CAPTIONS — quiet chrome, staggered (0–650ms) ──────
+            FadeIn(CaptionMadeIn, fromMs: 0, durationMs: 350);
+            FadeIn(CaptionEnterprise, fromMs: 150, durationMs: 350);
+            FadeIn(CaptionSecure, fromMs: 300, durationMs: 350);
 
-            // ─── 2) LOGO settles in (200–700ms) ─────────────────────
+            // ─── 2) LOGO settles in (200–700ms) ───────────────────────
             var logoScale = new DoubleAnimation
             {
-                From = 0.9,
+                From = 0.92,
                 To = 1,
                 BeginTime = TimeSpan.FromMilliseconds(200),
                 Duration = TimeSpan.FromMilliseconds(500),
@@ -221,7 +122,7 @@ namespace ProGlassAutomation.Views.Splash
             };
             LogoBorder.BeginAnimation(OpacityProperty, logoFade);
 
-            // ─── 3) WORDMARK fade + slide up (450–950ms) ────────────
+            // ─── 3) WORDMARK fade + slide up (450–950ms) ──────────────
             var nameFade = new DoubleAnimation
             {
                 From = 0,
@@ -241,14 +142,10 @@ namespace ProGlassAutomation.Views.Splash
             AppNameText.BeginAnimation(OpacityProperty, nameFade);
             AppNameTranslate.BeginAnimation(TranslateTransform.YProperty, nameSlide);
 
-            // ─── 4) TAGLINE fade (700–1100ms) ───────────────────────
-            FadeIn(TaglineText, fromMs: 700, durationMs: 400);
+            // ─── 4) PROGRESS TRACK fades in (850–1250ms) ──────────────
+            FadeIn(ProgressTrack, fromMs: 850, durationMs: 400);
 
-            // ─── 5) MODULE GRID — one uniform fade (850–1350ms) ─────
-            FadeIn(FeaturePanel, fromMs: 850, durationMs: 500);
-
-            // ─── 6) CONSOLE — status + dots now, sweep from ~400ms ──
-            StartLoadingDotsAnimation();
+            // ─── 5) SWEEP from ~390ms ─────────────────────────────────
             StartProgressSweep();
         }
 
@@ -258,16 +155,13 @@ namespace ProGlassAutomation.Views.Splash
 
         private void SplashView_Unloaded(object sender, RoutedEventArgs e)
         {
-            StopLoadingIndicators();
+            StopProgressSweep();
         }
 
         // ══════════════════════════════════════════════════════════════
         //  ANIMATION HELPERS
         // ══════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Convenience: fade a UIElement from 0→1 with CubicEase.
-        /// </summary>
         private static void FadeIn(UIElement target, int fromMs, int durationMs)
         {
             var fade = new DoubleAnimation
@@ -281,42 +175,10 @@ namespace ProGlassAutomation.Views.Splash
             target.BeginAnimation(UIElement.OpacityProperty, fade);
         }
 
-        /// <summary>
-        /// Animates the "⋯" dots after the status text: cycles
-        /// ""→"."→".."→"..." every 350ms.
-        /// </summary>
-        private void StartLoadingDotsAnimation()
-        {
-            _loadingDotsTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(350)
-            };
-            _loadingDotsTimer.Tick += LoadingDotsTimer_Tick;
-            _loadingDotsTimer.Start();
-        }
-
-        private void LoadingDotsTimer_Tick(object? sender, EventArgs e)
-        {
-            _loadingDotsCount = (_loadingDotsCount + 1) % 4;
-            LoadingDots.Text = _loadingDotsCount switch
-            {
-                0 => "",
-                1 => ".",
-                2 => "..",
-                _ => "..."
-            };
-        }
-
         // ══════════════════════════════════════════════════════════════
-        //  CONSOLE PROGRESS SWEEP — 2px luminous fill + live percent
+        //  VERTICAL PROGRESS SWEEP — 2px luminous fill, bottom→top
         // ══════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Drives ProgressFill.Width AND the PercentText readout from a
-        /// single 30ms timer (one allocation-free path per tick).
-        /// Lead-in (~390ms) holds at 0 so the sweep starts as the
-        /// wordmark lands; motion phase is a smoothstep curve.
-        /// </summary>
         private void StartProgressSweep()
         {
             _sweepTicks = 0;
@@ -337,8 +199,7 @@ namespace ProGlassAutomation.Views.Splash
             double p = t / (double)SweepMotionTicks;
             if (p >= 1.0)
             {
-                ProgressFill.Width = _progressTrackWidth;
-                PercentText.Text = "100%";
+                ProgressFill.Height = _progressTrackHeight;
                 _progressSweepTimer?.Stop();
                 _progressSweepTimer = null;
                 return;
@@ -346,8 +207,7 @@ namespace ProGlassAutomation.Views.Splash
 
             // smoothstep — gentle acceleration, gentle landing
             double eased = p * p * (3.0 - 2.0 * p);
-            ProgressFill.Width = _progressTrackWidth * eased;
-            PercentText.Text = ((int)Math.Round(eased * 100)).ToString() + "%";
+            ProgressFill.Height = _progressTrackHeight * eased;
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -361,11 +221,6 @@ namespace ProGlassAutomation.Views.Splash
         /// </summary>
         public const string TermsVersion = "2026-08-UAE-1";
 
-        /// <summary>
-        /// True once the user has ticked the box and pressed Continue, or
-        /// when a previous acceptance of THIS version was already recorded.
-        /// App must not proceed to sign-in unless this is true.
-        /// </summary>
         private readonly TermsGateViewModel _termsVm = new();
 
         /// <summary>True after the user explicitly accepted the terms
@@ -444,10 +299,7 @@ namespace ProGlassAutomation.Views.Splash
         /// </summary>
         public void ShowTermsGate()
         {
-            StopLoadingIndicators();
-
-            LoadingText.Text = "Please review the terms to continue";
-            LoadingDots.Text = "";
+            StopProgressSweep();
 
             TermsPanel.Visibility = Visibility.Visible;
             TermsPanel.BeginAnimation(OpacityProperty, new DoubleAnimation
@@ -461,7 +313,7 @@ namespace ProGlassAutomation.Views.Splash
 
         /// <summary>
         /// AUTO-SIGN-IN — the runtime side of the "Skip login until
-        /// update" pill in LoginPanel. (Unchanged in v2.)
+        /// update" pill in LoginPanel. (Unchanged in v3.)
         /// </summary>
         private static async Task<bool> TryAutoLoginAsync()
         {
@@ -551,14 +403,12 @@ namespace ProGlassAutomation.Views.Splash
 
         /// <summary>
         /// Replaces the console with the sign-in form on THIS window.
-        /// Never opens a second maximized window. (Flow unchanged in v2.)
+        /// Never opens a second maximized window. (Flow unchanged in v3.)
         /// </summary>
         public async Task<bool> RunLoginAsync()
         {
             // ── AUTO-SIGN-IN FAST PATH ────────────────────────────────
-            StopLoadingIndicators();
-            LoadingText.Text = "Signing you in…";
-            LoadingDots.Text = "";
+            StopProgressSweep();
 
             if (await TryAutoLoginAsync())
             {
@@ -578,9 +428,7 @@ namespace ProGlassAutomation.Views.Splash
             LoginGate.Completed += Finish;
             Closed += (_, __) => Finish(LoginGate.SignedIn);
 
-            StopLoadingIndicators();
-            LoadingText.Text = "Sign in to continue";
-            LoadingDots.Text = "";
+            StopProgressSweep();
 
             TermsPanel.Visibility = Visibility.Collapsed;
             PosterHost.Visibility = Visibility.Collapsed;
@@ -609,7 +457,7 @@ namespace ProGlassAutomation.Views.Splash
         }
 
         /// <summary>
-        /// First-run setup flow (flow unchanged in v2). UX CONTRACT:
+        /// First-run setup flow (flow unchanged in v3). UX CONTRACT:
         /// first boot ever → splash → setup → straight into the main
         /// window; every subsequent boot → splash → login (unless the
         /// "Skip login until update" pill was armed).
@@ -625,7 +473,6 @@ namespace ProGlassAutomation.Views.Splash
                 SetupGate.Created -= OnCreated;
 
                 SetupGate.IsEnabled = false;
-                LoadingText.Text = "Opening workspace…";
 
                 try
                 {
@@ -654,7 +501,6 @@ namespace ProGlassAutomation.Views.Splash
                             new LogContext { Module = "Auth", Class = nameof(SplashView), Operation = "RunFirstRunSetup" });
                         SetupHost.Visibility = Visibility.Collapsed;
                         SetupGate.IsEnabled = true;
-                        LoadingText.Text = "Please sign in to continue.";
                         bool loggedIn = await RunLoginAsync();
                         done.TrySetResult(loggedIn);
                         return;
@@ -679,9 +525,7 @@ namespace ProGlassAutomation.Views.Splash
                 done.TrySetResult(false);
             };
 
-            StopLoadingIndicators();
-            LoadingText.Text = "Setting up the first administrator";
-            LoadingDots.Text = "";
+            StopProgressSweep();
 
             TermsPanel.Visibility = Visibility.Collapsed;
             PosterHost.Visibility = Visibility.Collapsed;
@@ -707,7 +551,7 @@ namespace ProGlassAutomation.Views.Splash
 
         public void FadeOutAndClose(Action onCompleted)
         {
-            StopLoadingIndicators();
+            StopProgressSweep();
 
             // Stay Topmost for the fade — the window underneath is only
             // revealed by the opacity animation.
@@ -730,16 +574,8 @@ namespace ProGlassAutomation.Views.Splash
             BeginAnimation(OpacityProperty, fadeOut);
         }
 
-        /// <summary>
-        /// Stops the dots timer AND the progress sweep, resets the dots.
-        /// Shared by ShowTermsGate / RunLoginAsync / FadeOutAndClose /
-        /// Unloaded.
-        /// </summary>
-        private void StopLoadingIndicators()
+        private void StopProgressSweep()
         {
-            _loadingDotsTimer?.Stop();
-            _loadingDotsTimer = null;
-
             _progressSweepTimer?.Stop();
             _progressSweepTimer = null;
         }

@@ -1,3 +1,11 @@
+# ⚠ SUPERSEDED (2026-09-19) — the splash was redesigned to the owner-approved
+# "SPLIT DIAGONAL" mockup (`/home/user/splash_designs/01-split-diagonal.png`,
+# SplashView.xaml v3). The v2 "Midnight Console" layout documented below no
+# longer exists. Still valid: the palette table, all en-US strings, the
+# public-API contract and the terms-gate structure. The 10-frame table and
+# the v2 geometry/timeline sections are stale — do not use them as a build
+# reference.
+
 # SPLASH v2 "MIDNIGHT CONSOLE" — 10 FRAME MOCKUPS + 100% VERIFICATION TABLE (2026-09-19)
 
 **Purpose:** ten mockup images of the v2 splash (`Views/Splash/SplashView.xaml`

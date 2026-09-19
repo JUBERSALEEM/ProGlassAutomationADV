@@ -1,43 +1,44 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — "Midnight Console" (v2 full redesign,
-            2026-09-19 — owner directive: complete rewrite, not a reskin)
+     MODULE: Splash Screen — "SPLIT DIAGONAL" (v3, 2026-09-19)
+            Owner-approved mockup: /home/user/splash_designs/01-split-diagonal.png
+            ("i want this first mockup approved. splash redesign to this one.")
 
-     DESIGN LANGUAGE (deliberately different from v1's centered-poster):
-       • full-bleed cinematic stage: theme diagonal gradient + faint
-         engineering grid + two drifting accent orbs + hero spotlight
-       • QUIET HAIRLINE HEADER — one thin chrome line (brand line left,
-         enterprise/version centre, security right) replaces the three
-         boxed chips
-       • ASYMMETRIC HERO (left-anchored, ~96px in): rotating dotted
-         orbit ring around the crystal logo tile, 40px two-tone
-         gradient wordmark, single accent tagline
-       • INDUSTRIAL MODULE GRID — 16 uniform 130×38 glass chips in a
-         strict 2×8 grid (one clean machine-regular band)
-       • FULL-WIDTH CONSOLE BAR (bottom): live status + dots on the
-         left, luminous 2px progress sweep + live percent readout in
-         the centre, copyright/version on the right
-       • TERMS GATE restyled to the same console language: accent-tick
-         title, 860px glass card, per-clause layout, flush action bar
-         (ACCEPT disabled at 45% until the checkbox is ticked)
+     DESIGN (faithful to the approved image):
+       • sharp diagonal split, top-left → bottom-right: LEFT ~40% deep
+         navy panel (fixed #102244 — design identity, both themes) with
+         a 2px accent edge along the split; RIGHT side soft theme
+         off-white → pale gray diagonal
+       • navy panel, top-left: hexagon logo outline (3px, accent light)
+         + PGA, then the 30px two-line wordmark — "ProGlass" light ink /
+         "Automation" sky blue (fixed colours: they sit on fixed navy)
+       • thin 2px VERTICAL progress track on the split edge (lower
+         third), fills bottom→top with a cyan glow over ~1.9s
+       • light side: three quiet uppercase captions bottom-right
+         (MADE IN INDIA / ENTERPRISE · v2.0.1 / OFFLINE · SECURE)
+       • very faint 64px engineering grid texture on the stage
+       • no header row, no module chips, no status line — clean, as
+         approved
 
-     PRESERVED (zero regression — public API of SplashView.xaml.cs +
-     App.StartupCore.cs):
+     PRESERVED (public API of SplashView.xaml.cs + App.StartupCore.cs):
        • Window flags (Maximized / None / Topmost / NoTaskbar)
        • FadeOutAndClose(Action), RunLoginAsync(), RunFirstRunSetupAsync(),
-         ShowTermsGate()
-       • TermsAccepted / TermsResolved / SignedIn / HasAcceptedCurrentTerms
+         ShowTermsGate(), TermsAccepted / TermsResolved / SignedIn /
+         HasAcceptedCurrentTerms / TermsVersion
        • Terms gate (UAE legal copy unchanged, all 9 clauses) + login +
          first-run gates (shared LoginPanel / FirstRunSetupPanel views)
        • x:Name used by code-behind: PosterHost, LogoBorder, LogoScale,
-         AppNameText, AppNameTranslate, TaglineText, ProgressTrack,
-         ProgressFill, LoadingText, LoadingDots, LoadingStrip,
-         TermsPanel, TermsBar, AcceptTermsCheck, DeclineButton,
-         ContinueButton, LoginHost, LoginGate, SetupHost, SetupGate,
-         TopLeftBadge, TopCenterPill, TopRightBadge, FeaturePanel
-       • NEW x:Name: PercentText (live % readout), RingRotate /
-         StatusDot / HeroGlowScale / Orb*Move / Orb*Scale (ambience)
+         AppNameText, AppNameTranslate, ProgressTrack, ProgressFill,
+         CaptionMadeIn, CaptionEnterprise, CaptionSecure, TermsPanel,
+         TermsBar, AcceptTermsCheck, DeclineButton, ContinueButton,
+         LoginHost, LoginGate, SetupHost, SetupGate
+
+     BUILD-GATE NOTES (2026-09-19, from owner's real build):
+       • DashStyle has NO Interval property (MC3072) — Dashes only.
+       • Style.Triggers must come AFTER all Setters (MC3088).
+       • A style's TargetType must match the element (sibling types
+         like Button vs ToggleButton throw at startup — ERR-AF067B).
 ═══════════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -65,30 +66,26 @@
 
     <Window.Resources>
 
-        <BlurEffect x:Key="HaloBlur" Radius="30" RenderingBias="Performance"/>
-
-        <!-- ═══ THEME-AWARE SPLASH PALETTE (shared Liquid* identity) ═══ -->
-        <SolidColorBrush x:Key="SplashCerulean"      Color="{DynamicResource AccentLightColor}"/>
-        <SolidColorBrush x:Key="SplashCeruleanLite"  Color="{DynamicResource AccentLightColor}"/>
-        <SolidColorBrush x:Key="SplashOutline"       Color="{DynamicResource BorderColor}"/>
-        <SolidColorBrush x:Key="SplashTrackBg"       Color="#22808080"/>
-        <!-- Console bar + terms card: 10% neutral glass (reads on both themes) -->
-        <SolidColorBrush x:Key="SplashConsoleBg"     Color="#1A808080"/>
-        <SolidColorBrush x:Key="SplashChipBg"        Color="#14FFFFFF"/>
-        <SolidColorBrush x:Key="SplashTextPrimary"   Color="{DynamicResource PrimaryForegroundColor}"/>
-        <SolidColorBrush x:Key="SplashTextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
-
-        <!-- ═══ STAGE — theme diagonal mesh (same contract as v1) ═══ -->
-        <LinearGradientBrush x:Key="PageBg" StartPoint="0.05,0" EndPoint="0.85,1">
-            <GradientStop Color="{DynamicResource WindowBackgroundColor}"  Offset="0.0"/>
-            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.45"/>
-            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0.72"/>
-            <GradientStop Color="{DynamicResource AccentDarkColor}"       Offset="1.0"/>
+        <!-- ═══ SPLIT DIAGONAL PALETTE ═══ -->
+        <!-- Right side: theme diagonal (light: warm off-white → pale;
+             dark: deep navy → blue-black). -->
+        <LinearGradientBrush x:Key="SideBg" StartPoint="0.05,0" EndPoint="0.85,1">
+            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- ENGINEERING GRID — 1px accent hairlines on a 64px tile.
-             Applied at 0.06 opacity on the stage rectangle: a faint
-             precision texture, invisible up close, premium at a glance. -->
+        <!-- Navy panel: FIXED #102244 in both themes — it is the
+             approved design's identity, not a theme surface. -->
+        <SolidColorBrush x:Key="SplashNavy" Color="#102244"/>
+        <!-- Wordmark on fixed navy: fixed colours (contrast contract). -->
+        <SolidColorBrush x:Key="SplashWordInk"    Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="SplashWordAccent" Color="#7DD3FC"/>
+        <SolidColorBrush x:Key="SplashCerulean"   Color="{DynamicResource AccentLightColor}"/>
+        <SolidColorBrush x:Key="SplashCaption"    Color="{DynamicResource SecondaryForegroundColor}"/>
+
+        <!-- Engineering grid texture — 1px dotted accent hairlines on a
+             64px tile, rendered at 4% on the stage (faint, both themes).
+             NOTE: DashStyle exposes only Dashes — no Interval. -->
         <DrawingBrush x:Key="GridTextureBrush"
                       TileMode="Tile" Viewport="0,0,64,64" ViewportUnits="Absolute"
                       Stretch="None">
@@ -96,8 +93,6 @@
                 <GeometryDrawing>
                     <GeometryDrawing.Pen>
                         <Pen Thickness="1" Brush="{DynamicResource SplashCerulean}">
-                            <!-- 2026-09-19 build fix: DashStyle has NO Interval
-                                 property (MC3072/XLS0413) — Dashes only. -->
                             <Pen.DashStyle>
                                 <DashStyle Dashes="1 3"/>
                             </Pen.DashStyle>
@@ -113,521 +108,166 @@
             </DrawingBrush.Drawing>
         </DrawingBrush>
 
-        <!-- Accent orbs (theme-aware, alpha falloff to transparent) -->
-        <RadialGradientBrush x:Key="OrbRight"
-                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
-            <GradientStop Color="{DynamicResource AccentColor}"      Offset="0.55"/>
-            <GradientStop Color="Transparent"      Offset="1.0"/>
-        </RadialGradientBrush>
-        <RadialGradientBrush x:Key="OrbLeft"
-                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="{DynamicResource AccentColor}"     Offset="0.0"/>
-            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0.55"/>
-            <GradientStop Color="Transparent"     Offset="1.0"/>
-        </RadialGradientBrush>
-        <RadialGradientBrush x:Key="HeroGlow"
-                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="{DynamicResource AccentColor}"     Offset="0.0"/>
-            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0.5"/>
-            <GradientStop Color="Transparent"     Offset="1.0"/>
-        </RadialGradientBrush>
-
-        <!-- WORDMARK — metallic ink→accent gradient -->
-        <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0.15">
-            <GradientStop Color="{DynamicResource PrimaryForegroundColor}" Offset="0.0"/>
-            <GradientStop Color="{DynamicResource AccentLightColor}"       Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <!-- LOGO TILE — theme surface plate + translucent top sheen -->
-        <LinearGradientBrush x:Key="SplashPlate" StartPoint="0,0" EndPoint="0.85,1">
-            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>
-            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="1.0"/>
-        </LinearGradientBrush>
-        <LinearGradientBrush x:Key="TileSheen" StartPoint="0,0" EndPoint="0.35,1">
-            <GradientStop Color="#4CFFFFFF" Offset="0.0"/>
-            <GradientStop Color="#12FFFFFF" Offset="0.30"/>
-            <GradientStop Color="#00FFFFFF" Offset="0.55"/>
-        </LinearGradientBrush>
-
-        <!-- PROGRESS — luminous accent sweep -->
-        <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
+        <!-- Progress fill — vertical, bottom→top luminous accent -->
+        <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,1" EndPoint="0,0">
             <GradientStop Color="{DynamicResource AccentDarkColor}"  Offset="0.0"/>
             <GradientStop Color="{DynamicResource AccentColor}"      Offset="0.5"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- MODULE CHIP badge fill (accent gradient) -->
-        <LinearGradientBrush x:Key="TileIconBadgeBg" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
-            <GradientStop Color="{DynamicResource AccentDarkColor}"  Offset="1.0"/>
-        </LinearGradientBrush>
+        <DropShadowEffect x:Key="TrackGlow" Color="{DynamicResource AccentLightColor}"
+                          BlurRadius="9" ShadowDepth="0" Opacity="0.55"/>
+        <DropShadowEffect x:Key="LogoGlow" Color="{DynamicResource AccentColor}"
+                          BlurRadius="22" ShadowDepth="0" Opacity="0.45"/>
 
-        <!-- CRYSTAL SHADOWS (theme accent glow) -->
-        <DropShadowEffect x:Key="IconShadow" Color="{DynamicResource AccentColor}"
-                          BlurRadius="34" ShadowDepth="0" Opacity="0.45"/>
-
-        <!-- ═══ TYPOGRAPHY HELPERS ═══ -->
-        <Style x:Key="HeaderCaps" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
+        <Style x:Key="CaptionStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SplashTextSecondary}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground" Value="{DynamicResource SplashCaption}"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="Margin" Value="0,0,0,7"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
-        <Style x:Key="HeaderGlyph" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="{DynamicResource SplashCerulean}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-        </Style>
+        <!-- Terms card typography (same contract as v2) -->
         <Style x:Key="TermsLead" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SplashTextPrimary}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundColor}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
         <Style x:Key="TermsBody" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13.5"/>
             <Setter Property="LineHeight" Value="24"/>
-            <Setter Property="Foreground" Value="{DynamicResource SplashTextSecondary}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundColor}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Margin" Value="0,6,0,0"/>
         </Style>
 
-        <!-- ═══ MODULE CHIP — uniform 130×38 glass pill (2×8 grid) ═══ -->
-        <DataTemplate x:Key="FeatureChipTemplate">
-            <!-- Uniform 130×38 chip; 130 + 12 gap = 142 per slot, 8 slots
-                 = 1136 = the FeaturePanel MaxWidth → exact 2×8 grid.
-                 Inner: 9 pad + 20 badge + 8 gap + label ≤ 84 + 9 pad.
-                 Label is 11px so "Specifications" (longest module) fits. -->
-            <Border Width="130" Height="38"
-                    Margin="6"
-                    CornerRadius="12"
-                    Background="{DynamicResource SplashChipBg}"
-                    BorderBrush="{DynamicResource SplashOutline}"
-                    BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    SnapsToDevicePixels="True"
-                    IsHitTestVisible="False">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
-                            Margin="9,0">
-                    <Border Width="20" Height="20"
-                            CornerRadius="7"
-                            Background="{DynamicResource TileIconBadgeBg}"
-                            VerticalAlignment="Center"
-                            Margin="0,0,8,0"
-                            SnapsToDevicePixels="True">
-                        <TextBlock Text="{Binding Icon}"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="11.5"
-                                   Foreground="{DynamicResource PaperBrush}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="{Binding Label}"
-                               FontSize="11"
-                               FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource SplashTextPrimary}"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
-                               MaxWidth="84"/>
-                </StackPanel>
-            </Border>
-        </DataTemplate>
-
     </Window.Resources>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         AMBIENT MOTION — slow, eased, AutoReverse loops (v1 contract,
-         extended: dotted orbit ring revolution + status-dot pulse).
-         Decorative transforms only — never layout, never code-owned
-         properties.
-    ═══════════════════════════════════════════════════════════════════ -->
-    <Window.Triggers>
-        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
-            <BeginStoryboard>
-                <Storyboard>
-                    <!-- Hero glow: luminous breathing (7s) -->
-                    <DoubleAnimation Storyboard.TargetName="HeroGlowScale"
-                                     Storyboard.TargetProperty="ScaleX"
-                                     From="1" To="1.09" Duration="0:0:7"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                    <DoubleAnimation Storyboard.TargetName="HeroGlowScale"
-                                     Storyboard.TargetProperty="ScaleY"
-                                     From="1" To="1.09" Duration="0:0:7"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
+    <Grid Background="{DynamicResource SideBg}">
 
-                    <!-- Right orb: drift + swell -->
-                    <DoubleAnimation Storyboard.TargetName="OrbRightMove"
-                                     Storyboard.TargetProperty="X"
-                                     From="0" To="-34" Duration="0:0:19"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                    <DoubleAnimation Storyboard.TargetName="OrbRightMove"
-                                     Storyboard.TargetProperty="Y"
-                                     From="0" To="26" Duration="0:0:23"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                    <DoubleAnimation Storyboard.TargetName="OrbRightScale"
-                                     Storyboard.TargetProperty="ScaleX"
-                                     From="1" To="1.08" Duration="0:0:16"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                    <DoubleAnimation Storyboard.TargetName="OrbRightScale"
-                                     Storyboard.TargetProperty="ScaleY"
-                                     From="1" To="1.08" Duration="0:0:16"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-
-                    <!-- Left orb: counter-drift (different periods, no lockstep) -->
-                    <DoubleAnimation Storyboard.TargetName="OrbLeftMove"
-                                     Storyboard.TargetProperty="X"
-                                     From="0" To="30" Duration="0:0:26"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                    <DoubleAnimation Storyboard.TargetName="OrbLeftMove"
-                                     Storyboard.TargetProperty="Y"
-                                     From="0" To="-22" Duration="0:0:21"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                    <DoubleAnimation Storyboard.TargetName="OrbLeftScale"
-                                     Storyboard.TargetProperty="ScaleX"
-                                     From="1.06" To="1" Duration="0:0:18"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                    <DoubleAnimation Storyboard.TargetName="OrbLeftScale"
-                                     Storyboard.TargetProperty="ScaleY"
-                                     From="1.06" To="1" Duration="0:0:18"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-
-                    <!-- Dotted orbit ring: one slow linear revolution (30s) -->
-                    <DoubleAnimation Storyboard.TargetName="RingRotate"
-                                     Storyboard.TargetProperty="Angle"
-                                     From="0" To="360" Duration="0:0:30"
-                                     RepeatBehavior="Forever"/>
-
-                    <!-- Console status dot: calm pulse (2.4s round trip) -->
-                    <DoubleAnimation Storyboard.TargetName="StatusDot"
-                                     Storyboard.TargetProperty="Opacity"
-                                     From="1" To="0.35" Duration="0:0:1.2"
-                                     AutoReverse="True" RepeatBehavior="Forever">
-                        <DoubleAnimation.EasingFunction>
-                            <SineEase EasingMode="EaseInOut"/>
-                        </DoubleAnimation.EasingFunction>
-                    </DoubleAnimation>
-                </Storyboard>
-            </BeginStoryboard>
-        </EventTrigger>
-    </Window.Triggers>
-
-    <Grid Background="{DynamicResource PageBg}">
-
-        <!-- Engineering grid texture (faint, theme-aware) -->
+        <!-- Faint engineering grid over the whole stage (barely visible) -->
         <Rectangle Fill="{DynamicResource GridTextureBrush}"
                    IsHitTestVisible="False"
-                   Opacity="0.05"/>
+                   Opacity="0.04"/>
 
-        <!-- ── ATMOSPHERE — drifting orbs + hero spotlight ── -->
-        <Ellipse x:Name="OrbRightShape" Width="520" Height="520"
-                 Fill="{DynamicResource OrbRight}"
-                 HorizontalAlignment="Right" VerticalAlignment="Top"
-                 Margin="0,-160,-160,0" IsHitTestVisible="False"
-                 RenderTransformOrigin="0.5,0.5">
-            <Ellipse.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="OrbRightScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="OrbRightMove" X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-        <Ellipse x:Name="OrbLeftShape" Width="440" Height="440"
-                 Fill="{DynamicResource OrbLeft}"
-                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                 Margin="-140,0,0,-140" IsHitTestVisible="False"
-                 RenderTransformOrigin="0.5,0.5">
-            <Ellipse.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform x:Name="OrbLeftScale" ScaleX="1" ScaleY="1"/>
-                    <TranslateTransform x:Name="OrbLeftMove" X="0" Y="0"/>
-                </TransformGroup>
-            </Ellipse.RenderTransform>
-        </Ellipse>
-        <Ellipse x:Name="HeroGlowOrb" Width="680" Height="680"
-                 Fill="{DynamicResource HeroGlow}"
-                 HorizontalAlignment="Left" VerticalAlignment="Center"
-                 Margin="40,0,0,0" IsHitTestVisible="False"
-                 RenderTransformOrigin="0.5,0.5">
-            <Ellipse.RenderTransform>
-                <ScaleTransform x:Name="HeroGlowScale" ScaleX="1" ScaleY="1"/>
-            </Ellipse.RenderTransform>
-        </Ellipse>
+        <!-- ── NAVY PANEL — skewed so its right edge is the diagonal ──
+             Width = 40% of the window; SkewAngleY=15° about the
+             top-left origin shifts the bottom edge ~27% of the height
+             to the right → split runs top-left → bottom-right, left
+             region ≈ 40% top / ≈ 55% bottom (approved mockup shape).
+             The 2px right border rides the split as the accent edge. -->
+        <Border HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window},
+                              Converter={StaticResource ScaleLengthConverter}, ConverterParameter=0.40}"
+                Background="{StaticResource SplashNavy}"
+                BorderBrush="{DynamicResource SplashCerulean}"
+                BorderThickness="0,0,2,0"
+                Opacity="0.85"
+                RenderTransformOrigin="0,0"
+                IsHitTestVisible="False">
+            <Border.RenderTransform>
+                <SkewTransform SkewAngleY="15"/>
+            </Border.RenderTransform>
+        </Border>
 
         <!-- ═══════════════════════════════════════════════════════════
-             POSTER — header hairline · asymmetric hero · console bar
+             POSTER — logo + wordmark (navy panel) · progress (split
+             edge) · captions (light side)
         ═══════════════════════════════════════════════════════════════ -->
-        <Grid x:Name="PosterHost" Margin="28,0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/><!-- hairline header -->
-                <RowDefinition Height="*"/><!-- hero -->
-                <RowDefinition Height="Auto"/><!-- console bar -->
-            </Grid.RowDefinitions>
+        <Grid x:Name="PosterHost">
 
-            <!-- ── HAIRLINE HEADER — quiet chrome line ─────────────── -->
-            <Grid Grid.Row="0" Margin="0,16,0,0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+            <!-- NAVY PANEL CONTENT — top-left brand moment -->
+            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center"
+                        Margin="56,0,0,0" IsHitTestVisible="False">
 
-                    <StackPanel Grid.Column="0" Orientation="Horizontal"
-                                x:Name="TopLeftBadge" Opacity="0">
-                        <TextBlock Text="&#xE774;" Style="{StaticResource HeaderGlyph}"/>
-                        <TextBlock Text="{DynamicResource Splash.MadeInIndia}"
-                                   Style="{StaticResource HeaderCaps}"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                x:Name="TopCenterPill" Opacity="0">
-                        <TextBlock Text="&#xE735;" Style="{StaticResource HeaderGlyph}"/>
-                        <TextBlock Style="{StaticResource HeaderCaps}">
-                            <Run Text="{DynamicResource Splash.Enterprise}"/>
-                            <Run Text="{DynamicResource Splash.V}"/>
-                            <Run Text="{x:Static updates:AppInfo.Version}"/>
-                        </TextBlock>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2" Orientation="Horizontal"
-                                x:Name="TopRightBadge" Opacity="0">
-                        <TextBlock Text="&#xE72E;" Style="{StaticResource HeaderGlyph}"/>
-                        <TextBlock Text="{DynamicResource Splash.OfflineSecure}"
-                                   Style="{StaticResource HeaderCaps}"/>
-                    </StackPanel>
-                </Grid>
-                <!-- the hairline that makes it "chrome" -->
-                <Rectangle Grid.Row="1" Height="1" Margin="0,14,0,0"
-                           Fill="{DynamicResource SplashOutline}"
-                           Opacity="0.5" IsHitTestVisible="False"/>
-            </Grid>
-
-            <!-- ── HERO — left-anchored brand moment ────────────────── -->
-            <!-- No MaxWidth on the hero: children are left-aligned /
-                 fixed-width; the module band owns its own 1136 cap. -->
-            <StackPanel Grid.Row="1"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center"
-                        Margin="96,24,0,0">
-
-                <!-- Logo — crystal tile + rotating dotted orbit ring -->
-                <Border x:Name="LogoBorder" Width="168" Height="168"
-                        HorizontalAlignment="Left"
-                        RenderOptions.BitmapScalingMode="HighQuality"
-                        IsHitTestVisible="False"
-                        Opacity="0">
+                <!-- Hexagon logo outline + PGA -->
+                <Border x:Name="LogoBorder" Width="64" Height="64"
+                        Opacity="0"
+                        Effect="{StaticResource LogoGlow}">
                     <Border.RenderTransform>
-                        <ScaleTransform x:Name="LogoScale" ScaleX="0.9" ScaleY="0.9"/>
+                        <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92"/>
                     </Border.RenderTransform>
-                    <Grid>
-                        <!-- Broad accent halo bloom -->
-                        <Ellipse Width="168" Height="168"
-                                 Fill="{DynamicResource SplashCerulean}"
-                                 Opacity="0.30" Effect="{StaticResource HaloBlur}"/>
-
-                        <!-- Dotted orbit ring (30s linear revolution) -->
-                        <Ellipse Width="150" Height="150"
-                                 Stroke="{DynamicResource SplashCerulean}"
-                                 Opacity="0.55" StrokeThickness="1.5"
-                                 StrokeDashArray="1 9"
-                                 RenderTransformOrigin="0.5,0.5">
-                            <Ellipse.RenderTransform>
-                                <RotateTransform x:Name="RingRotate" Angle="0"/>
-                            </Ellipse.RenderTransform>
-                        </Ellipse>
-
-                        <!-- Crystal glass tile (96×96, 12px radius) -->
-                        <Border Width="96" Height="96"
-                                CornerRadius="{DynamicResource Radius.Large}"
-                                Effect="{StaticResource IconShadow}"
-                                Background="{DynamicResource SplashPlate}"
-                                BorderBrush="{DynamicResource SplashCerulean}"
-                                BorderThickness="1"
-                                SnapsToDevicePixels="True">
-                            <Grid>
-                                <Viewbox Width="54" Height="54">
-                                    <Grid Width="72" Height="72">
-                                        <Path Stroke="{DynamicResource SplashCerulean}"
-                                              StrokeThickness="3"
-                                              StrokeLineJoin="Round"
-                                              Data="M20,5 L52,5 L68,36 L52,67 L20,67 L4,36 Z"/>
-                                        <TextBlock Text="PGA"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   FontSize="{DynamicResource FontSize.H1}"
-                                                   FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource SplashCeruleanLite}"/>
-                                    </Grid>
-                                </Viewbox>
-                                <Border Width="96" Height="96"
-                                        CornerRadius="{DynamicResource Radius.Large}"
-                                        Background="{DynamicResource TileSheen}"
-                                        IsHitTestVisible="False"/>
-                            </Grid>
-                        </Border>
-                    </Grid>
+                    <Viewbox Width="56" Height="56">
+                        <Grid Width="72" Height="72">
+                            <Path Stroke="{DynamicResource SplashCerulean}"
+                                  StrokeThickness="3"
+                                  StrokeLineJoin="Round"
+                                  Data="M20,5 L52,5 L68,36 L52,67 L20,67 L4,36 Z"/>
+                            <TextBlock Text="PGA"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="15"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource SplashCerulean}"/>
+                        </Grid>
+                    </Viewbox>
                 </Border>
 
-                <!-- Wordmark — 40px two-tone, metallic gradient on the
-                     second word (deliberately oversized display). -->
+                <!-- Wordmark — 30px, two lines, fixed on-navy colours -->
                 <TextBlock x:Name="AppNameText"
-                           FontSize="40"
+                           FontSize="30"
                            FontWeight="{DynamicResource Weight.Bold}"
+                           LineHeight="37"
                            HorizontalAlignment="Left"
-                           Margin="0,26,0,0"
+                           Margin="0,22,0,0"
                            Opacity="0">
                     <TextBlock.RenderTransform>
                         <TranslateTransform x:Name="AppNameTranslate" Y="14"/>
                     </TextBlock.RenderTransform>
-                    <Run Text="ProGlass " Foreground="{DynamicResource SplashTextPrimary}"/><Run Text="Automation" Foreground="{DynamicResource NameGradient}"/>
+                    <Run Text="ProGlass" Foreground="{StaticResource SplashWordInk}"/><LineBreak/><Run Text="Automation" Foreground="{StaticResource SplashWordAccent}"/>
                 </TextBlock>
-
-                <TextBlock x:Name="TaglineText"
-                           Text="{DynamicResource Splash.MadeInIndiaDesc}"
-                           FontSize="{DynamicResource FontSize.Title}"
-                           HorizontalAlignment="Left"
-                           Margin="0,10,0,0"
-                           Foreground="{DynamicResource SplashCerulean}"
-                           Opacity="0"/>
-
-                <!-- MODULE GRID — 16 uniform chips, strict 2×8
-                     (130 + 12 gap = 142 per slot × 8 = 1136). -->
-                <ItemsControl x:Name="FeaturePanel"
-                              ItemTemplate="{StaticResource FeatureChipTemplate}"
-                              HorizontalAlignment="Left"
-                              MaxWidth="1136"
-                              Margin="0,32,0,0"
-                              Opacity="0">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
             </StackPanel>
 
-            <!-- ── CONSOLE BAR — full-width status console ──────────── -->
-            <Border Grid.Row="2"
-                    BorderBrush="{DynamicResource SplashOutline}"
-                    BorderThickness="0,1,0,0"
-                    Background="{DynamicResource SplashConsoleBg}"
-                    Padding="28,14">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- LEFT — live status -->
-                    <StackPanel x:Name="LoadingStrip" Grid.Column="0"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Ellipse x:Name="StatusDot" Width="8" Height="8"
-                                 Fill="{DynamicResource SplashCerulean}"
-                                 VerticalAlignment="Center"
-                                 Margin="0,0,10,0"
-                                 IsHitTestVisible="False"/>
-                        <TextBlock x:Name="LoadingText"
-                                   Text="{DynamicResource Splash.Starting}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SplashTextSecondary}"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock x:Name="LoadingDots"
-                                   Text=""
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource SplashCerulean}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-
-                    <!-- CENTRE — luminous sweep + live percent -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <TextBlock x:Name="PercentText"
-                                   Text="0%"
-                                   FontSize="12"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource SplashCerulean}"
-                                   TextAlignment="Right"
-                                   Width="46"
-                                   Margin="0,0,12,0"
-                                   VerticalAlignment="Center"/>
-                        <Grid x:Name="ProgressTrack"
-                              Width="280" Height="2"
-                              VerticalAlignment="Center">
-                            <Border Height="2" CornerRadius="1"
-                                    Background="{DynamicResource SplashTrackBg}"/>
-                            <Border x:Name="ProgressFill"
-                                    Height="2" Width="0"
-                                    HorizontalAlignment="Left"
-                                    CornerRadius="1"
-                                    Background="{DynamicResource ProgressGradient}"/>
-                        </Grid>
-                    </StackPanel>
-
-                    <!-- RIGHT — copyright / version -->
-                    <TextBlock Grid.Column="2"
-                               FontSize="11"
-                               Foreground="{DynamicResource SplashTextSecondary}"
-                               Opacity="0.6"
-                               VerticalAlignment="Center">
-                        <Run Text="{DynamicResource Splash.Copyright}"/>
-                        <Run Text="{DynamicResource Splash.V}"/>
-                        <Run Text="{x:Static updates:AppInfo.Version}"/>
-                    </TextBlock>
+            <!-- VERTICAL PROGRESS — on the split edge, lower third.
+                 A left-anchored wrapper takes 47% of the window width
+                 (double → Width, NOT Margin — a single double would
+                 fan out to all four margin sides); the 2px track sits
+                 at the wrapper's right edge, 110px above the bottom.
+                 At common 16:9 sizes that x lands on the diagonal in
+                 the lower third (approved mockup position). -->
+            <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                  Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window},
+                                Converter={StaticResource ScaleLengthConverter}, ConverterParameter=0.47}"
+                  IsHitTestVisible="False">
+                <Grid x:Name="ProgressTrack"
+                      Width="2" Height="200"
+                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                      Margin="0,0,0,110"
+                      Opacity="0">
+                    <Border Width="2" CornerRadius="1"
+                            Background="{DynamicResource SplashCerulean}"
+                            Opacity="0.18"/>
+                    <Border x:Name="ProgressFill"
+                            Width="2" Height="0"
+                            VerticalAlignment="Bottom"
+                            CornerRadius="1"
+                            Background="{StaticResource ProgressGradient}"
+                            Effect="{StaticResource TrackGlow}"/>
                 </Grid>
-            </Border>
+            </Grid>
+
+            <!-- LIGHT-SIDE CAPTIONS — quiet chrome, bottom-right -->
+            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                        Margin="0,0,56,40" IsHitTestVisible="False">
+                <TextBlock x:Name="CaptionMadeIn"
+                           Text="{DynamicResource Splash.MadeInIndia}"
+                           Style="{StaticResource CaptionStyle}"
+                           Opacity="0"/>
+                <TextBlock x:Name="CaptionEnterprise"
+                           Style="{StaticResource CaptionStyle}"
+                           Opacity="0">
+                    <Run Text="{DynamicResource Splash.Enterprise}"/>
+                    <Run Text="{DynamicResource Splash.V}"/>
+                    <Run Text="{x:Static updates:AppInfo.Version}"/>
+                </TextBlock>
+                <TextBlock x:Name="CaptionSecure"
+                           Text="{DynamicResource Splash.OfflineSecure}"
+                           Style="{StaticResource CaptionStyle}"
+                           Margin="0"
+                           Opacity="0"/>
+            </StackPanel>
         </Grid>
 
         <!-- ═══ LOGIN GATE — same window as splash (no second window) ═══ -->
@@ -646,10 +286,10 @@
             <login:FirstRunSetupPanel x:Name="SetupGate"/>
         </Grid>
 
-        <!-- ═══ TERMS GATE — console-language restyle (defs unchanged,
-             legal copy intact, all 9 clauses) ═══ -->
+        <!-- ═══ TERMS GATE — transparent: the split stage shows through
+             behind the glass card (legal copy intact, all 9 clauses) ═══ -->
         <Grid x:Name="TermsPanel"
-              Background="{DynamicResource PageBg}"
+              Background="Transparent"
               Visibility="Collapsed"
               Opacity="0"
               Panel.ZIndex="10">
@@ -665,7 +305,7 @@
                 <TextBlock Text="{DynamicResource Splash.TermsTitle}"
                            FontSize="34" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Center"
-                           Foreground="{DynamicResource SplashTextPrimary}">
+                           Foreground="{DynamicResource PrimaryForegroundColor}">
                     <TextBlock.Effect>
                         <DropShadowEffect Color="{DynamicResource AccentColor}"
                                           BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
@@ -675,8 +315,7 @@
                            FontSize="{DynamicResource FontSize.Title}"
                            HorizontalAlignment="Center"
                            Margin="0,8,0,0"
-                           Foreground="{DynamicResource SplashTextSecondary}"/>
-                <!-- accent tick (replaces the 360px hairline) -->
+                           Foreground="{DynamicResource SecondaryForegroundColor}"/>
                 <Rectangle Height="2" Width="48" Margin="0,18,0,0"
                            RadiusX="1" RadiusY="1"
                            HorizontalAlignment="Center"
@@ -689,9 +328,9 @@
                     Margin="48,26,48,16"
                     Padding="40,32"
                     CornerRadius="16"
-                    BorderBrush="{DynamicResource SplashOutline}"
+                    BorderBrush="{DynamicResource BorderColor}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    Background="{DynamicResource SplashConsoleBg}">
+                    Background="#1A808080">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               PanningMode="VerticalOnly">
@@ -757,9 +396,9 @@
             <!-- Flush action bar -->
             <Border x:Name="TermsBar"
                     Grid.Row="2"
-                    BorderBrush="{DynamicResource SplashOutline}"
+                    BorderBrush="{DynamicResource BorderColor}"
                     BorderThickness="0,1,0,0"
-                    Background="{DynamicResource SplashConsoleBg}"
+                    Background="#1A808080"
                     Padding="48,18">
                 <DockPanel LastChildFill="True" MaxWidth="860">
                     <StackPanel DockPanel.Dock="Right"
@@ -781,7 +420,7 @@
                     </StackPanel>
                     <CheckBox x:Name="AcceptTermsCheck"
                               VerticalAlignment="Center"
-                              Foreground="{DynamicResource SplashTextSecondary}"
+                              Foreground="{DynamicResource SecondaryForegroundColor}"
                               FontSize="{DynamicResource FontSize.Title}"
                               Cursor="Hand"
                               Margin="0,8,0,0"

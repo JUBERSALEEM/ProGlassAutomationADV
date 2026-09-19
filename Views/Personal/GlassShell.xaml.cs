@@ -53,6 +53,15 @@ namespace ProGlassAutomation.Views.Personal
             }
         }
 
+        /// <summary>Hamburger click — flips the rail 140 ⇄ 56. A plain
+        /// Button (NOT a ToggleButton): GlassBlush.TopIconButton targets
+        /// Button, and a sibling-type style throws StyleForWrongType at
+        /// startup (the ERR-AF067B crash).</summary>
+        private void SidebarToggle_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            SidebarCollapsed = !SidebarCollapsed;
+        }
+
         // ── GB-P15 personal-side popups ─────────────────────────────────
         // Mirrors MainWindow's NotificationsPopup_Opened: refresh the
         // activity feed when the Personal notifications panel opens.
