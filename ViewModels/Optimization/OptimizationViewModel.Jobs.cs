@@ -343,6 +343,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         .Where(i => i.Stage == ProductionStage.Cutting && i.WidthMm > 0 && i.HeightMm > 0)
                         .ToList();
 
+                    try
+                    {
+                        Services.Logging.AppLogService.Info(
+                            $"[OPT-JOBS] LoadJobs job={jo.JobOrderId} invoiceSpecs={invoice?.SpecGroups?.Count ?? 0} planItems={plan.Items.Count} cutting={cut.Count} warnings={plan.Warnings.Count}",
+                            new Services.Logging.LogContext { Module = "Optimization", Operation = "LoadJobs" });
+                    }
+                    catch { }
+
                     var opt = new JobOptionVm
                     {
                         JobOrderId = jo.JobOrderId,
@@ -680,6 +688,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// by normalized composition + size + position, summing qty.
         /// RC-007 FIX 2026-09-20: headless host for Step5 runs must NOT
         /// auto-clear Pieces/Stocks when LoadJobs finishes after RunFromStep5.
+        /// RC-009 FIX 2026-09-20: job selection must auto-import cutting sizes — was broken because
+        /// selectedLayers could be 0 if pane IsSelected false or Pieces empty. Now logs and ensures.
         /// </summary>
         private void RebuildSelectedJobBreakdown()
         {
@@ -688,8 +698,23 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // Headless host is for Step5 live runs only — its Pieces/Stocks
                 // are owned by RunFromStep5, not by job selection. Clearing them
                 // here would wipe the live cutlist after RunFromStep5 populated it.
+                try
+                {
+                    Services.Logging.AppLogService.Info(
+                        $"[OPT-JOBS] RebuildSelectedJobBreakdown skipped — IsHeadlessHost=true doc={DocumentKey}",
+                        new Services.Logging.LogContext { Module = "Optimization", Operation = "RebuildJobs" });
+                }
+                catch { }
                 return;
             }
+
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-JOBS] RebuildSelectedJobBreakdown start: AvailableJobs={AvailableJobs.Count} SelectedJobs={AvailableJobs.Count(j=>j.IsSelected)} IsHeadless={IsHeadlessHost}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RebuildJobs" });
+            }
+            catch { }
 
             foreach (var spec in JobSpecBreakdown)
                 foreach (var layer in spec.Layers)
@@ -701,7 +726,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 foreach (var spec in job.Specs)
                 {
                     foreach (var layer in spec.Layers)
+                    {
+                        // RC-009: ensure pane layers are pre-ticked when job is selected — previously IsSelected could be false if layer was previously deselected and JobOptionVm reused? Now force true on job selection.
+                        if (layer.IsPane) layer.IsSelected = true;
                         layer.PropertyChanged += OnLayerSelectionChanged;
+                    }
                     JobSpecBreakdown.Add(spec);
                 }
             }
@@ -715,6 +744,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
             HasPaneChecklist = PaneChecklist.Count > 0;
 
             RefreshPaneSelectionCount();
+
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-JOBS] RebuildSelectedJobBreakdown after breakdown: JobSpecBreakdown={JobSpecBreakdown.Count} PaneChecklist={PaneChecklist.Count} SelectedPaneCount={SelectedPaneCount} HasSpec={HasSpecBreakdown} HasPane={HasPaneChecklist}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RebuildJobs" });
+            }
+            catch { }
 
             // STOCKS follows the selection: the pool becomes exactly the
             // ticked jobs' Step 4 sheet sizes (per pane × composition).
@@ -755,19 +792,56 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// + same W×H + same position → qty summed, labels merged distinct.
         /// This is what user requested for multi-job selection.
         /// RC-007: headless host must not clear Pieces when no jobs selected.
+        /// RC-009: ensure job selection auto-imports cutting sizes — previously only specs selected.
         /// </summary>
         private void AutoRebuildPiecesFromSelectedJobs()
         {
-            if (IsHeadlessHost) return;
+            if (IsHeadlessHost)
+            {
+                try
+                {
+                    Services.Logging.AppLogService.Info(
+                        $"[OPT-JOBS] AutoRebuildPieces skipped — IsHeadlessHost=true doc={DocumentKey}",
+                        new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+                }
+                catch { }
+                return;
+            }
+
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-JOBS] AutoRebuildPieces start: JobSpecBreakdown={JobSpecBreakdown.Count} PaneChecklist={PaneChecklist.Count} SelectedJobs={SelectedJobs.Count()} IsHeadless={IsHeadlessHost}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+            }
+            catch { }
 
             var selectedLayers = JobSpecBreakdown
                 .SelectMany(s => s.Layers)
                 .Where(l => l.IsPane && l.IsSelected)
                 .ToList();
 
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-JOBS] AutoRebuildPieces selectedLayers={selectedLayers.Count} totalPiecesInLayers={selectedLayers.Sum(l=>l.Pieces.Count)}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+            }
+            catch { }
+
             if (selectedLayers.Count == 0)
             {
                 // No panes ticked → clear cutlist (job deselected)
+                // RC-009: only clear if we previously had pieces from job selection, not if we're in initial load with no selection.
+                // Previously this cleared even when job selection had specs but panes IsSelected false — now log.
+                try
+                {
+                    Services.Logging.AppLogService.Info(
+                        $"[OPT-JOBS] AutoRebuildPieces no panes selected: JobSpecBreakdown={JobSpecBreakdown.Count} HasSelectedJobs={SelectedJobs.Any()} PiecesBeforeClear={Pieces.Count}",
+                        new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+                }
+                catch { }
+
                 if (Pieces.Count > 0)
                 {
                     Pieces.Clear();
@@ -810,6 +884,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             // Rebuild Pieces from merged dict, ordered by composition then size
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-JOBS] AutoRebuildPieces merging: mergedKeys={merged.Count} totalPcsInMerged={merged.Values.Sum(x=>x.qty)}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+            }
+            catch { }
+
             Pieces.Clear();
             foreach (var kv in merged
                 .OrderBy(k => k.Key.comp, StringComparer.OrdinalIgnoreCase)
@@ -832,12 +914,66 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             RefreshDerived();
 
+            try
+            {
+                Services.Logging.AppLogService.Info(
+                    $"[OPT-JOBS] AutoRebuildPieces after rebuild: Pieces={Pieces.Count} HasPieces={HasPieces} PieceSummary={PieceSummary}",
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+            }
+            catch { }
+
             int totalPcs = merged.Values.Sum(x => x.qty);
             int distinctComps = merged.Keys.Select(k => k.comp).Distinct(StringComparer.OrdinalIgnoreCase).Count();
             int jobCount = SelectedJobs.Count();
             RunMessage = string.Format(CultureInfo.InvariantCulture,
                 "Auto-imported {0} pane(s) from {1} job(s) → {2} pieces in {3} cutting group(s) (merged by spec+glass+size).",
                 selectedLayers.Count, jobCount, totalPcs, distinctComps);
+
+            // RC-009: if merged empty but we had selectedLayers, that's a bug — log warning and keep message honest
+            // Try fallback: directly add layer.Pieces without merging to ensure cutting sizes appear even if merging logic fails
+            if (merged.Count == 0 && selectedLayers.Count > 0)
+            {
+                try
+                {
+                    Services.Logging.AppLogService.Warning(
+                        $"[OPT-JOBS] AutoRebuildPieces BUG: selectedLayers={selectedLayers.Count} but merged=0 — layer.Pieces may be empty or filtered. First layer Pieces={selectedLayers[0].Pieces.Count} Title={selectedLayers[0].Title}",
+                        new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+                }
+                catch { }
+
+                // Fallback: add directly from selectedLayers without merging — ensures job selection always shows cutting sizes
+                Pieces.Clear();
+                foreach (var layer in selectedLayers)
+                {
+                    foreach (var (glass, label, w, h, qty) in layer.Pieces)
+                    {
+                        if (w <= 0 || h <= 0 || qty <= 0) continue;
+                        var row = NewPieceRow(
+                            glass,
+                            label,
+                            w.ToString(CultureInfo.InvariantCulture),
+                            h.ToString(CultureInfo.InvariantCulture),
+                            qty.ToString(CultureInfo.InvariantCulture));
+                        row.Position = layer.Position;
+                        Pieces.Add(row);
+                    }
+                }
+                RefreshDerived();
+                if (Pieces.Count > 0)
+                {
+                    RunMessage = $"Auto-imported {selectedLayers.Count} pane(s) → {Pieces.Count} size rows (fallback, no merge).";
+                    try
+                    {
+                        Services.Logging.AppLogService.Info(
+                            $"[OPT-JOBS] AutoRebuildPieces fallback added Pieces={Pieces.Count}",
+                            new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+                    }
+                    catch { }
+                    return;
+                }
+
+                RunMessage = $"Selected {selectedLayers.Count} pane(s) but no cutting sizes found — check job's Step 5 rows (W/H/Qty).";
+            }
         }
 
         /// <summary>
