@@ -233,6 +233,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     && int.TryParse(m.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int mh))
                     seen.Add((mw, mh, (m.Composition ?? string.Empty).Trim()));
             }
+            // How many Step 4 racks inventory could price unambiguously, and how
+            // many it could not. Both are reported: silently applying a balance to
+            // some racks and not others is how an operator ends up trusting a
+            // number on one row and not knowing the next one is a default.
+            int balancesApplied = 0;
+            int balancesUnknown = 0;
+
             foreach (var (w, h, composition, source, pricePerSqm, specNumber, side) in sheets)
             {
                 if (w <= 0 || h <= 0) continue;
@@ -242,30 +249,61 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // Step 4 sheets are auto-selected for the run (outer and
                 // inner, colour-based); the operator can untick any rack.
                 //
-                // PHASE 10 — DELIBERATE GAP, not an oversight. These racks are
-                // still built without an Available value, so they keep the
-                // "effectively unlimited" default while the Step 5 feed now asks
-                // the Sheet Store how many are actually on hand. The reason is
-                // attribution: Step4Sheets carries (w, h, composition, source,
-                // price, spec, side) and NO colour, and inventory is keyed by
-                // colour. Looking a balance up on size + thickness alone would
-                // merge a Clear and a Low-E rack at the same dimensions — the
-                // exact double-count RefreshStockUsage's header comment warns
-                // about — and hand the run a number belonging to glass it is not
-                // cutting. Applying a balance we cannot attribute to the right
-                // rack is a guess, and a wrong balance is worse than no balance:
-                // it refuses groups that do have stock. The operator can see the
-                // default in the Available column and type the real count.
-                Stocks.Add(new StockEntryVm(
+                // PHASE 11 — the Step 5 feed asks inventory how many sheets are
+                // on hand; this path can only ask when the answer is CERTAIN.
+                //
+                // Step4Sheets carries (w, h, composition, source, price, spec,
+                // side) and NO colour, and inventory is keyed by colour. Looking a
+                // balance up on size alone would merge a Clear and a Low-E rack at
+                // the same dimensions — the exact double-count
+                // RefreshStockUsage's header comment exists to prevent — and hand
+                // the run a number belonging to glass it is not cutting. A wrong
+                // balance is worse than no balance, because it refuses groups that
+                // do have stock.
+                //
+                // So this uses TryGetUnambiguousStockBalance, which answers only
+                // when inventory holds exactly ONE colour at that size and
+                // thickness — where the rack cannot be anything else — and
+                // otherwise says nothing. Racks it cannot attribute keep the
+                // visible "effectively unlimited" default for the operator to
+                // correct, rather than being handed a guess.
+                var rack = new StockEntryVm(
                     w.ToString(CultureInfo.InvariantCulture),
                     h.ToString(CultureInfo.InvariantCulture),
                     comp,
                     "Step 4 · " + source)
-                { IsUsedInRun = true, PricePerSqm = pricePerSqm, SpecNumber = specNumber, Side = side });
+                { IsUsedInRun = true, PricePerSqm = pricePerSqm, SpecNumber = specNumber, Side = side };
+
+                if (Services.ProformaInvoice.SheetStorePricingService
+                        .TryGetUnambiguousStockBalance(ParseThicknessMm(comp), w, h, out int storeBalance))
+                {
+                    rack.AvailableText = storeBalance.ToString(CultureInfo.InvariantCulture);
+                    balancesApplied++;
+                }
+                else
+                {
+                    balancesUnknown++;
+                }
+
+                Stocks.Add(rack);
             }
 
             if (sheets.Count == 0 && Stocks.Count == 0)
                 StocksStatusText = "Tick a Job Order — its Step 4 sheet sizes become the stock pool for this run.";
+            else if (balancesApplied > 0 || balancesUnknown > 0)
+            {
+                // Never silent: the operator has to be able to tell which
+                // Available figures came from inventory and which are the
+                // unlimited default waiting to be typed over.
+                StocksStatusText = balancesUnknown == 0
+                    ? string.Format(CultureInfo.InvariantCulture,
+                        "{0} Step 4 rack(s) now carry their Sheet Store balance.", balancesApplied)
+                    : string.Format(CultureInfo.InvariantCulture,
+                        "{0} Step 4 rack(s) carry their Sheet Store balance; {1} could not be "
+                        + "matched to one glass in inventory and are left unlimited — type their "
+                        + "Available count if the run must respect it.",
+                        balancesApplied, balancesUnknown);
+            }
 
             return Stocks.Count;
         }

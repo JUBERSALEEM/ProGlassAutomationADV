@@ -570,3 +570,75 @@ bridge.
 Full chain now traceable: `GlassSheet.Balance` → `TryGetStockBalance` →
 `AvailableText` → `TryBuildInputs` → `StockSize.MaxSheets` → run ledger →
 `OpenNewSheet`'s `MaxSheets` gate, which both QUICK and OPTIMIZE reach.
+
+---
+
+# PHASE 11 — close the safe half of the remaining gap, and pin all of it
+
+Owner instruction: *"do a proper senior developer recommendations implementation
+for these, add if required."* Two things were required.
+
+## 1. The JOBS-tab gap was closable after all — for the cases that are certain
+
+Phase 10 left `SyncStocksFromSelectedJobs` without a balance, because `Step4Sheets`
+carries no colour and a size-only lookup would merge a Clear and a Low-E rack at the
+same dimensions. That reasoning holds — but it argued against *guessing*, not against
+*asking a narrower question*.
+
+`TryGetUnambiguousStockBalance(thicknessMm, w, h, out balance)` matches on size and
+thickness, then collects the **distinct colours inventory holds there**. Exactly one
+colour means the rack cannot be anything else, and the balance is safe to apply.
+Zero or two-plus colours returns false and the rack keeps its visible default.
+
+This is safe by construction rather than by argument: it never attributes a balance to
+a rack it cannot identify. `GlassSheet.Color` defaults to `"Clear"`, so single-glass
+sizes — the common case — resolve, and genuinely mixed sizes decline.
+
+The result is reported both ways. `StocksStatusText` now says how many Step 4 racks
+carry a real balance **and how many could not be matched**, because silently applying
+a balance to some rows and not others is how an operator ends up trusting a number on
+one row without knowing the next one is a default.
+
+## 2. Three phases of behavioural change had no tests at all
+
+Phases 9, 10 and 11 changed what glass a run believes it has — which flows into sheet
+counts, utilization, and the cost published to Step 6 and Step 9 — and not one line of
+it was covered. `Tests/Agent/OptimizationBalanceApplicationTests.cs` adds **18 tests**.
+
+They follow the convention already established across `Tests/Agent`: behavioural
+assertions against the public engine and service API, plus source-text pins for the
+private view-model logic that cannot be called from a test (`RunCoreAsync` needs a
+Dispatcher). The pins target the exact expression carrying each invariant, so a
+refactor that drops it fails in CI rather than on the shop floor.
+
+| Invariant pinned | Why its loss would be silent and expensive |
+|---|---|
+| `UnlimitedSheets != EffectivelyUnlimitedSheets` | conflating them either caps infinite glass or grants it |
+| `WithMaxSheets` copies **every** property | dropping `ThicknessMm` would put the B3 oracle back to sleep |
+| The packer gate reads `MaxSheets == 0` as unlimited, therefore `ApplyRunBalance` drops and never zeroes | an exhausted rack written as 0 becomes infinite glass |
+| `DistinctBySize` sums in `long` and clamps | int overflow at ~22 default rows reads a full rack as exhausted |
+| The `99999999` default never enters the ledger | a BALANCE warning on every run nobody set a balance for |
+| Rows merge on `BalanceKey`, not size alone | two glasses at one size become one rack of double the stock |
+| Racks carry `ThicknessMm` | the dormant piece-vs-stock oracle goes back to sleep |
+| Groups get `effectivePool`, not `stockPool` | the original per-group double-commit returns |
+| The refusal distinguishes `ranOutOfBalance` | an operator hunts for a rack that is standing there, empty |
+| The note names the constrained groups | a count cannot say whether *your* group was starved |
+| All three inventory consumers filter `Balance > 0` | one dropping the filter diverges from the others silently |
+| "Cannot say" is `null`, never `0` | 0 is the infinite-glass sentinel |
+| The unambiguous lookup declines on 2+ colours | a wrong balance refuses groups that do have stock |
+| No blocking lookup without an explicit timeout | the UI thread freezes on a cold cache |
+| The export gate still runs `VerifyComprehensive` and a pre-run count check | a plan that lost pieces reaches a cut file |
+| `AllowRotate` and `RotationLocked` reach the engine and survive save/load | a locked pane gets rotated anyway |
+
+**Every assertion in the file was verified by simulating the test's own `Read` and
+`Slice` helpers against the shipped sources: 0 failures.** There is no dotnet SDK in
+this workspace, so the file has not been compiled or run — it is written to the
+repository's conventions and its string assertions are machine-checked, but it is not
+proven green.
+
+## Also corrected, not deleted
+
+`Step5ProgressAndViewResultTests.The_sync_store_lookup_never_blocks_and_never_throws`
+was already red before Phase 10 (see that section). The new test file carries the same
+corrected invariant — never block *without a timeout* — and extends the sweep to the
+Phase 11 lookup.

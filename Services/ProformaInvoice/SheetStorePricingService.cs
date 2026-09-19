@@ -677,6 +677,63 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         }
 
         /// <summary>
+        /// Balance for a size when — and ONLY when — inventory can attribute it to
+        /// one kind of glass without being told the colour.
+        ///
+        /// PHASE 11. The JOBS-tab Step 4 import builds racks from
+        /// <c>Step4Sheets</c>, whose tuple carries no colour, so it cannot call
+        /// <see cref="TryGetStockBalance"/>. Looking a balance up on size alone
+        /// would merge a Clear and a Low-E rack at the same dimensions — the exact
+        /// double-count <c>RefreshStockUsage</c>'s header comment exists to prevent
+        /// — and hand a run a number belonging to glass it is not cutting. A wrong
+        /// balance is worse than no balance, because it refuses groups that do have
+        /// stock.
+        ///
+        /// So this answers only the cases that are certain. It matches on size and
+        /// thickness and collects the distinct colours inventory holds there:
+        /// exactly one colour means the rack cannot be anything else, and the
+        /// balance is safe to apply. Zero or two-plus colours means the caller
+        /// cannot be told, and it gets false — leaving the rack on its visible
+        /// "effectively unlimited" default for the operator to correct.
+        /// </summary>
+        public static bool TryGetUnambiguousStockBalance(
+            int thicknessMm, int widthMm, int heightMm, out int balance)
+        {
+            balance = 0;
+            if (widthMm <= 0 || heightMm <= 0) return false;
+
+            if (!TryGetSnapshotWithBoundedFallback(out var snapshot, 1500)) return false;
+
+            try
+            {
+                var matches = snapshot
+                    .Where(s => s != null
+                                && s.WidthMm > 0 && s.HeightMm > 0
+                                && (thicknessMm <= 0 || s.ThicknessMm == thicknessMm)
+                                && ((s.WidthMm == widthMm && s.HeightMm == heightMm)
+                                    || (s.WidthMm == heightMm && s.HeightMm == widthMm)))
+                    .ToList();
+
+                if (matches.Count == 0) return false;
+
+                // More than one colour at this size and thickness: attribution
+                // would be a guess, and a guessed balance is the unsafe answer.
+                var colours = matches.Select(m => Norm(m.Color)).Distinct().ToList();
+                if (colours.Count != 1) return false;
+
+                long total = 0;
+                foreach (var m in matches) total += m.Balance;
+                balance = total >= int.MaxValue ? int.MaxValue : (int)total;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SheetStorePricingService] unambiguous balance lookup failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Balance-aware sibling of <see cref="TryResolveStockSheet(string, int, out int, out int)"/>:
         /// the largest sheet the store stocks for a colour that is ACTUALLY IN
         /// STOCK, plus how many are on hand.
