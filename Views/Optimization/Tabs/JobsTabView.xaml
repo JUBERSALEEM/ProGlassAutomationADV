@@ -126,8 +126,8 @@
                                 <TextBlock Text="{Binding SelectedPaneSummary}" FontSize="{DynamicResource FontSize.BodySmall}"
                                            FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,12"/>
 
-                                <!-- empty hint -->
-                                <TextBlock Text="Tick a job order on the left — its Step 4/5 panes (outer → inner) appear here for selection."
+                                <!-- empty hint — SENIOR 2026-09-20: auto-import -->
+                                <TextBlock Text="Tick job orders on the left — their Step 4/5 panes (outer → inner) auto-import into breakdown and cutting list, merged by matching spec+glass+size."
                                            FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"
                                            Visibility="{Binding HasPaneChecklist, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
@@ -228,8 +228,6 @@
                                                    Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Button Content="Load reference job" Style="{StaticResource OptGhostButton}"
-                                                Command="{Binding LoadReferenceJobCommand}" Margin="0,0,4,0"/>
                                         <Button Content="Clear list" Style="{StaticResource OptGhostButton}"
                                                 Command="{Binding ClearPiecesCommand}"/>
                                     </StackPanel>

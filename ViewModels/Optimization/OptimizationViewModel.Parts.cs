@@ -92,7 +92,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand AddPieceCommand { get; }
         public ICommand RemovePieceCommand { get; }
         public ICommand ClearPiecesCommand { get; }
-        public ICommand LoadReferenceJobCommand { get; }
+        // REMOVED 2026-09-20: LoadReferenceJobCommand — per user request
+        // "load reference job in optimization in module in jobs page is not
+        // working remove it and left side is job selection so job list should
+        // auto import". Auto-import now handles job → spec → cutlist.
 
         private string _pieceSummary = "No pieces yet";
         public string PieceSummary { get => _pieceSummary; private set { _pieceSummary = value; OnPropertyChanged(); } }
@@ -138,87 +141,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RefreshDerived();
         }
 
-        /// <summary>
-        /// Loads the hardcoded benchmark calibration job (the owner's
-        /// reference: Spec 1 — 34 rows, Spec 2 — 12 rows — expanded into
-        /// 152 cutting pieces across low-e outer / clear inner / ramly
-        /// inner, plus the 3 reference racks the benchmark packs against).
-        ///
-        /// 2026-09-19 regression fix: a reference load is a FRESH baseline —
-        /// any previously selected cutting group is reset to ALL first.
-        /// Without this, a stale selection (a glass no longer in the piece
-        /// list) filtered every group out of SizeGroups/CutPlanRows and the
-        /// SIZES tab looked as if "the reference job did not import sizes",
-        /// even though all 152 pieces were present (KPIs looked normal).
-        /// </summary>
+        // REMOVED 2026-09-20: LoadReferenceJob() — hardcoded 152-piece benchmark
+        // removed per owner request. Job selection now auto-imports real jobs
+        // with merging. Method kept as no-op for binary compat if referenced
+        // via reflection, but does nothing.
         private void LoadReferenceJob()
         {
-            // A fresh reference baseline always shows the whole set —
-            // reset BEFORE RefreshDerived() filters on the selection.
-            SelectedCuttingGroup = AllCuttingGroups;
-
-            // Phase 2: canonical composition keys (same normalisation as the
-            // Job Order import) — the benchmark rows only ever join a real
-            // job's cutting group when the glass is genuinely the same.
-            const string lowE = "6mm climaguard hp neutral 70 low e ft";
-            const string clear = "6mm clear ft";
-            const string ramly = "6mm obscure clear ramly ft";
-
-            // Step 5 rows: ref, W×H (unit size — equal-size DGU, both panes
-            // cut the same), qty. Spec 1 first (34 rows), Spec 2 (12 rows).
-            (string Ref, int W, int H, int Qty)[] spec1 =
-            {
-                ("11",1050,2127,2),("9",1054,2130,2),("10",1055,2130,2),("12",800,1798,2),
-                ("1",905,2536,2),("2",1054,1986,2),("4",854,1981,2),("7",1003,1857,2),
-                ("3",856,1970,2),("8",844,1457,2),("13",650,1382,2),("14",650,1372,2),
-                ("2",605,1471,2),("5",553,1448,2),("SA",499,1430,2),("S",509,1421,2),
-                ("R17",1815,725,1),("R8",1515,530,1),("R10",2013,828,1),("R10",2513,535,1),
-                ("A2",1055,1985,2),("A11",1046,2130,2),("A9",1050,2130,2),("A10",1055,2130,2),
-                ("A7",968,1889,2),("A4",850,1970,2),("A3",837,1984,2),("A1",838,2532,2),
-                ("A14",657,1350,2),("A8",935,1418,2),("A13",652,1350,2),("A5",654,1479,2),
-                ("A6",655,1474,2),("A12",800,1805,2)
-            };
-
-            (string Ref, int W, int H)[] spec2 =
-            {
-                ("A7",525,380),("A11",725,430),("A13",720,430),("A14",720,430),
-                ("A18",725,430),("A19",725,430),("8",520,375),("12",725,430),
-                ("14",710,430),("15",730,430),("19",720,430),("20",720,430)
-            };
-
-            Pieces.Clear();
-            void Add(string composition, string position, string label, int w, int h, int qty)
-            {
-                var row = NewPieceRow(
-                    composition, label,
-                    w.ToString(CultureInfo.InvariantCulture),
-                    h.ToString(CultureInfo.InvariantCulture),
-                    qty.ToString(CultureInfo.InvariantCulture));
-                row.Position = position;
-                Pieces.Add(row);
-            }
-
-            // 76 low-e OUTER panes — every unit of both specs.
-            foreach (var (r, w, h, q) in spec1) Add(lowE, "Outer", r, w, h, q);
-            foreach (var (r, w, h) in spec2) Add(lowE, "Outer", r, w, h, 1);
-            // 64 clear INNER panes (Spec 1).
-            foreach (var (r, w, h, q) in spec1) Add(clear, "Inner", r, w, h, q);
-            // 12 ramly obscure INNER panes (Spec 2).
-            foreach (var (r, w, h) in spec2) Add(ramly, "Inner", r, w, h, 1);
-
-            // STOCKS: the benchmark rack set — each cutting group packs
-            // against its OWN Step 4 rack so the run reproduces the owner's
-            // reference exactly (Low-E 17 sheets @ 82.77% on 3210×2250;
-            // ramly 1 sheet on 2500×1875). Composition tags route each glass
-            // group to its own rack instead of a shared pool.
-            Stocks.Clear();
-            Stocks.Add(new StockEntryVm("3210", "2250", lowE, "reference · low-e outer rack"));
-            Stocks.Add(new StockEntryVm("3210", "2250", clear, "reference · clear inner rack"));
-            Stocks.Add(new StockEntryVm("2500", "1875", ramly, "reference · ramly inner rack"));
-            StocksStatusText = "Reference racks loaded — low-e & clear pack on 3210×2250, ramly on 2500×1875.";
-
-            RunMessage = "Reference calibration job loaded — 152 pieces: 76 low-e outer · 64 clear inner · 12 ramly inner.";
-            RefreshDerived();
+            RunMessage = "Reference job loader removed — tick real jobs on the left to auto-import (merged by spec+glass+size).";
         }
 
         private void RefreshDerived()

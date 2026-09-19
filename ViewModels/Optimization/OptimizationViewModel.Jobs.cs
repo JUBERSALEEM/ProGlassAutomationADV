@@ -255,10 +255,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             private set { _hasPieces = value; OnPropertyChanged(); OnPropertyChanged(nameof(PiecesEmptyHint)); }
         }
 
-        /// <summary>Shown on JOBS/SIZES tabs while the cutting list is empty.</summary>
+        /// <summary>Shown on JOBS/SIZES tabs while the cutting list is empty.
+        /// SENIOR 2026-09-20: updated to reflect auto-import (no manual load).</summary>
         public string PiecesEmptyHint => HasPieces
             ? string.Empty
-            : "No pieces yet — select a confirmed job order on the left and load its cutting list, or add pieces manually below.";
+            : "No pieces yet — tick job orders on the left to auto-import their Step 4/5 cutting sizes (merged by matching spec+glass). Or add pieces manually below.";
 
         public ICommand RefreshJobsCommand { get; }
         public ICommand AddSelectedPanesCommand { get; }
@@ -666,7 +667,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 CultureInfo.InvariantCulture, out int t) ? t : 0;
         }
 
-        /// <summary>Rebuilds the spec build-up strips from every ticked job.</summary>
+        /// <summary>Rebuilds the spec build-up strips from every ticked job.
+        /// SENIOR FIX 2026-09-20: job selection now AUTO-IMPORTS into cutlist
+        /// with merging of matching spec/glass across multi-jobs (user req:
+        /// 'left side is job selection so job list should auto import the
+        /// related specification and related cutting sizes automatically in
+        /// the step4/5 pane breakdown and cutlist section and if multi jobs
+        /// selected then should merge the matching specification and their
+        /// related glass. step 5 export have this pattern to merge').
+        /// Previously user had to tick jobs, then manually click 'Add selected
+        /// panes → cutting list' — now auto on selection change, with merge
+        /// by normalized composition + size + position, summing qty.
+        /// </summary>
         private void RebuildSelectedJobBreakdown()
         {
             foreach (var spec in JobSpecBreakdown)
@@ -697,12 +709,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // STOCKS follows the selection: the pool becomes exactly the
             // ticked jobs' Step 4 sheet sizes (per pane × composition).
             SyncStocksFromSelectedJobs();
+
+            // AUTO-IMPORT: when jobs are ticked, their panes (pre-ticked)
+            // immediately populate the cutting list, merged across jobs.
+            AutoRebuildPiecesFromSelectedJobs();
         }
 
         private void OnLayerSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(BuildUpLayerVm.IsSelected)) return;
             RefreshPaneSelectionCount();
+            // AUTO-UPDATE cutlist when pane checklist tick changes
+            AutoRebuildPiecesFromSelectedJobs();
         }
 
         private void RefreshPaneSelectionCount()
@@ -717,6 +735,96 @@ namespace ProGlassAutomation.ViewModels.Optimization
             foreach (var layer in JobSpecBreakdown.SelectMany(s => s.Layers).Where(l => l.IsPane))
                 layer.IsSelected = selected;
             RefreshPaneSelectionCount();
+            AutoRebuildPiecesFromSelectedJobs();
+        }
+
+        /// <summary>
+        /// SENIOR: auto rebuilds Pieces from currently selected jobs/panes,
+        /// merging matching spec + glass + size + position across multi-jobs.
+        /// Pattern mirrors Step 5 export merging: same normalized composition
+        /// + same W×H + same position → qty summed, labels merged distinct.
+        /// This is what user requested for multi-job selection.
+        /// </summary>
+        private void AutoRebuildPiecesFromSelectedJobs()
+        {
+            var selectedLayers = JobSpecBreakdown
+                .SelectMany(s => s.Layers)
+                .Where(l => l.IsPane && l.IsSelected)
+                .ToList();
+
+            if (selectedLayers.Count == 0)
+            {
+                // No panes ticked → clear cutlist (job deselected)
+                if (Pieces.Count > 0)
+                {
+                    Pieces.Clear();
+                    RefreshDerived();
+                    RunMessage = SelectedJobs.Any()
+                        ? "No panes selected — tick pane boxes to populate cutting list."
+                        : "No jobs selected — tick jobs on left to auto-import.";
+                }
+                return;
+            }
+
+            // Merge key: normalized composition + W + H + position (case-insensitive)
+            // Value: original glass string, distinct labels, qty sum, position
+            var merged = new Dictionary<(string comp, int w, int h, string pos), (string glass, HashSet<string> labels, int w, int h, int qty, string pos)>();
+
+            foreach (var layer in selectedLayers)
+            {
+                foreach (var (glass, label, w, h, qty) in layer.Pieces)
+                {
+                    if (w <= 0 || h <= 0 || qty <= 0) continue;
+                    string normComp = CompositionKey.Normalize(glass);
+                    string posKey = (layer.Position ?? string.Empty).Trim().ToLowerInvariant();
+                    var key = (normComp, w, h, posKey);
+
+                    if (merged.TryGetValue(key, out var existing))
+                    {
+                        existing.qty += qty;
+                        if (!string.IsNullOrWhiteSpace(label) && label != "—")
+                            existing.labels.Add(label.Trim());
+                        merged[key] = existing;
+                    }
+                    else
+                    {
+                        var labels = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                        if (!string.IsNullOrWhiteSpace(label) && label != "—")
+                            labels.Add(label.Trim());
+                        merged[key] = (glass, labels, w, h, qty, layer.Position);
+                    }
+                }
+            }
+
+            // Rebuild Pieces from merged dict, ordered by composition then size
+            Pieces.Clear();
+            foreach (var kv in merged
+                .OrderBy(k => k.Key.comp, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(k => k.Key.w)
+                .ThenBy(k => k.Key.h))
+            {
+                var v = kv.Value;
+                string label = v.labels.Count > 0
+                    ? string.Join(", ", v.labels.Distinct().Take(8))
+                    : "—";
+                var row = NewPieceRow(
+                    v.glass,
+                    label,
+                    v.w.ToString(CultureInfo.InvariantCulture),
+                    v.h.ToString(CultureInfo.InvariantCulture),
+                    v.qty.ToString(CultureInfo.InvariantCulture));
+                row.Position = v.pos;
+                Pieces.Add(row);
+            }
+
+            RefreshDerived();
+
+            int totalPcs = merged.Values.Sum(x => x.qty);
+            int distinctComps = merged.Keys.Select(k => k.comp).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+            int jobCount = SelectedJobs.Count();
+            RunMessage = string.Format(CultureInfo.InvariantCulture,
+                "Auto-imported {0} pane(s) from {1} job(s) → {2} pieces in {3} cutting group(s) (merged by spec+glass+size).",
+                selectedLayers.Count, jobCount, totalPcs, distinctComps);
         }
 
         /// <summary>
@@ -724,92 +832,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// keeps its per-pane glass composition (so SIZES merges the low-e
         /// outers from BOTH specs into ONE 76-piece group, clear inners into
         /// 64 and ramly inners into 12) and its pane position for the 2D view.
+        /// SENIOR 2026-09-20: now delegates to AutoRebuildPiecesFromSelectedJobs
+        /// which merges matching spec+glass+size across multi-jobs (qty summed,
+        /// labels merged distinct) — pattern from Step 5 export. Manual button
+        /// still works but auto-import already does it on job tick.
         /// </summary>
         private void AddSelectedPanes()
         {
-            var selected = JobSpecBreakdown
-                .SelectMany(s => s.Layers)
-                .Where(l => l.IsPane && l.IsSelected)
-                .ToList();
-            if (selected.Count == 0)
-            {
-                RunMessage = "Tick at least one pane box (outer / inner) to add.";
-                return;
-            }
-
-            int addedPieces = 0;
-            int skipped = 0;
-            int merged = 0;
-            foreach (var layer in selected)
-            {
-                foreach (var (glass, label, w, h, qty) in layer.Pieces)
-                {
-                    string wText = w.ToString(CultureInfo.InvariantCulture);
-                    string hText = h.ToString(CultureInfo.InvariantCulture);
-
-                    // Guard against double-import — but the key MUST include
-                    // the pane position: an equal-size same-glass DGU has
-                    // identical outer and inner rows (same glass, label and
-                    // size), and keying without position silently dropped the
-                    // inner pane on the first import.
-                    PieceEntryVm? existing = null;
-                    foreach (var p in Pieces)
-                    {
-                        if (string.Equals(p.GlassRef, glass, StringComparison.OrdinalIgnoreCase)
-                            && string.Equals(p.PieceLabel, label, StringComparison.OrdinalIgnoreCase)
-                            && p.WidthText == wText && p.HeightText == hText
-                            && string.Equals(p.Position, layer.Position, StringComparison.OrdinalIgnoreCase))
-                        {
-                            existing = p;
-                            break;
-                        }
-                    }
-                    if (existing != null)
-                    {
-                        int existingQty = int.TryParse(existing.QtyText, NumberStyles.Integer,
-                            CultureInfo.InvariantCulture, out int eq) ? eq : 0;
-                        if (existingQty == qty)
-                        {
-                            // True duplicate (same job re-imported): skip.
-                            skipped++;
-                            continue;
-                        }
-                        // Same pane arriving with a different quantity —
-                        // a second job's identical pane, or a corrected Step 5
-                        // qty. Merge and say so; never fail silently.
-                        existing.QtyText = (existingQty + qty).ToString(CultureInfo.InvariantCulture);
-                        merged++;
-                        continue;
-                    }
-
-                    var row = NewPieceRow(glass, label, wText, hText,
-                        qty.ToString(CultureInfo.InvariantCulture));
-                    row.Position = layer.Position;
-                    Pieces.Add(row);
-                    addedPieces += qty;
-                }
-            }
-
-            RefreshDerived();
-
-            var compositions = selected
-                .Select(l => l.Title)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-            string extras = string.Join(" ",
-                skipped > 0
-                    ? string.Format(CultureInfo.InvariantCulture,
-                        "{0} identical row(s) skipped.", skipped)
-                    : string.Empty,
-                merged > 0
-                    ? string.Format(CultureInfo.InvariantCulture,
-                        "{0} row(s) merged into existing rows (quantities added — check the total).", merged)
-                    : string.Empty);
-            RunMessage = string.Format(CultureInfo.InvariantCulture,
-                "Added {0} pane layer(s) → {1} pieces in {2} cutting group(s): {3}.{4}",
-                selected.Count, addedPieces, compositions.Count,
-                string.Join(" · ", compositions),
-                string.IsNullOrWhiteSpace(extras) ? string.Empty : " " + extras);
+            // Auto path already merges correctly — reuse it for manual button too
+            AutoRebuildPiecesFromSelectedJobs();
         }
 
         /// <summary>

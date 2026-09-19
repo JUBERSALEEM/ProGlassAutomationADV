@@ -430,8 +430,11 @@
 
             <!-- ── MAIN COLUMN ─────────────────────────────────────────── -->
             <DockPanel Grid.Column="1">
-                <!-- TOP BAR -->
-                <Border DockPanel.Dock="Top" Style="{StaticResource GlassBlush.TopBar}">
+                <!-- TOP BAR — SENIOR FIX 2026-09-20: ZIndex 300 > AI 200 so top
+                     bar remains clickable when AI open (AI was Z200 covering
+                     top bar, blocking toggle button — reported as 'top panel
+                     ai button not working'). -->
+                <Border DockPanel.Dock="Top" Style="{StaticResource GlassBlush.TopBar}" Panel.ZIndex="300">
                     <Grid Margin="24,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -643,7 +646,7 @@
              MaxWidth/MaxHeight="0.94*" was a star GridLength on a Length
              property — invalid WPF; crashed every startup with
              XamlParseException "'0.94*' cannot be converted to Length". -->
-        <pv:PersonalAiChatView DataContext="{Binding AiChatVM}"
+        <pv:PersonalAiChatView x:Name="PersonalAiChatViewHost" DataContext="{Binding AiChatVM}"
                                Panel.ZIndex="200"
                                Width="920"
                                MaxWidth="{Binding ActualWidth,
@@ -657,7 +660,7 @@
                                          ConverterParameter=0.94}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Visibility="{Binding AiChatVM.IsOpen,
+                               Visibility="{Binding IsOpen,
                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
 
         <!-- ══ AGENT CHAT — PERSONAL-SIDE HOST (2026-09-19) ══════════════

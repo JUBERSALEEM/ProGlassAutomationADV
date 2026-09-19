@@ -30,6 +30,110 @@ namespace ProGlassAutomation.Views.Personal
             InitializeComponent();
             Loaded += GlassShell_Loaded;
             DataContextChanged += GlassShell_DataContextChanged;
+
+            // SENIOR 2026-09-20: click-outside dismiss for Personal AI + Agent
+            // — previously AI stayed open covering modules and top bar
+            // ZIndex 200 > top bar, blocking toggle button (reported as
+            // 'top panel ai button not working'). Now top bar ZIndex 300 and
+            // click outside closes AI, but toggle buttons excluded.
+            PreviewMouseLeftButtonDown += GlassShell_PreviewMouseLeftButtonDown;
+        }
+
+        private void GlassShell_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            try
+            {
+                if (DataContext is not MainViewModel vm) return;
+                var source = e.OriginalSource as System.Windows.DependencyObject;
+                if (source == null) return;
+
+                bool IsDescendant(System.Windows.DependencyObject? element, System.Windows.DependencyObject? root)
+                {
+                    if (element == null || root == null) return false;
+                    var cur = element;
+                    while (cur != null)
+                    {
+                        if (ReferenceEquals(cur, root)) return true;
+                        System.Windows.DependencyObject? parent = null;
+                        try { parent = System.Windows.Media.VisualTreeHelper.GetParent(cur); } catch { }
+                        if (parent == null)
+                        {
+                            try { parent = System.Windows.LogicalTreeHelper.GetParent(cur) as System.Windows.DependencyObject; } catch { }
+                        }
+                        if (parent == null && cur is System.Windows.FrameworkElement fe)
+                            parent = fe.Parent ?? fe.TemplatedParent as System.Windows.DependencyObject;
+                        cur = parent;
+                    }
+                    return false;
+                }
+
+                bool IsPersonalAnchor(string id)
+                {
+                    for (var cur = source; cur != null;)
+                    {
+                        try
+                        {
+                            var aid = System.Windows.Automation.AutomationProperties.GetAutomationId(cur);
+                            if (aid == id) return true;
+                            cur = System.Windows.Media.VisualTreeHelper.GetParent(cur);
+                        }
+                        catch { break; }
+                    }
+                    return false;
+                }
+
+                // Direct field access via x:Name (PersonalAiChatViewHost) + fallback visual tree search
+                bool insidePersonalAi = false;
+                try
+                {
+                    if (PersonalAiChatViewHost != null && IsDescendant(source, PersonalAiChatViewHost))
+                        insidePersonalAi = true;
+                    else
+                    {
+                        for (var cur = source; cur != null; cur = System.Windows.Media.VisualTreeHelper.GetParent(cur))
+                        {
+                            if (cur is PersonalAiChatView)
+                            {
+                                insidePersonalAi = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                catch { }
+
+                if (vm.AiChatVM != null && vm.AiChatVM.IsOpen)
+                {
+                    bool insideAi = insidePersonalAi
+                        || IsPersonalAnchor("Shell.PersonalAiButton");
+                    if (!insideAi)
+                    {
+                        vm.AiChatVM.IsOpen = false;
+                    }
+                }
+                if (vm.IsAgentChatOpen)
+                {
+                    bool insideAgent = IsPersonalAnchor("Shell.PersonalAgentButton");
+                    try
+                    {
+                        // Agent chat view inside Personal shell
+                        for (var cur = source; cur != null; cur = System.Windows.Media.VisualTreeHelper.GetParent(cur))
+                        {
+                            if (cur is Agent.UI.AgentChatView)
+                            {
+                                insideAgent = true;
+                                break;
+                            }
+                        }
+                    }
+                    catch { }
+                    if (!insideAgent)
+                    {
+                        vm.IsAgentChatOpen = false;
+                    }
+                }
+            }
+            catch { }
         }
 
         // SENIOR FIX 2026-09-19: Personal shell must never show AI open by

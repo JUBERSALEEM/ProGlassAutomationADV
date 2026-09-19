@@ -172,6 +172,32 @@ namespace ProGlassAutomation
                         vm.IsScreenRecordOpen = false;
                     }
                 }
+
+                // SENIOR 2026-09-20: AI overlays click-outside dismiss.
+                // Previously AI stayed open and blocked top bar (ZIndex),
+                // and top-panel button appeared 'not working' because click
+                // was intercepted by AI panel itself. Now clicking outside
+                // AI panel closes it, but clicking the AI toggle buttons
+                // (Professional AiBotButton + Personal AiButton) is excluded
+                // to allow toggle close.
+                if (vm.AiChatVM != null && vm.AiChatVM.IsOpen)
+                {
+                    bool insideAi = In(ProAiChatView)
+                        || In(AiBotButton)
+                        || InPersonalAnchor(source, "Shell.PersonalAiButton");
+                    if (!insideAi)
+                    {
+                        vm.AiChatVM.IsOpen = false;
+                    }
+                }
+                if (vm.IsAgentChatOpen)
+                {
+                    bool insideAgent = In(ProAgentChatHost)
+                        || In(AgentPillButton)
+                        || InPersonalAnchor(source, "Shell.PersonalAgentButton");
+                    if (!insideAgent)
+                        vm.IsAgentChatOpen = false;
+                }
             };
         }
 

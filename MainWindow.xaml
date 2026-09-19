@@ -293,7 +293,7 @@
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
                 Style="{StaticResource PgTopBarStyle}"
-                Panel.ZIndex="50"
+                Panel.ZIndex="300"
                 ClipToBounds="True"
                 SnapsToDevicePixels="True"
                 Visibility="{Binding IsPersonalExperience,
@@ -426,7 +426,8 @@
                     </Button>
 
                     <!-- AI AGENT PILL — soft-accent capsule, pulsing ok dot -->
-                    <Button Style="{StaticResource PgAiPillStyle}"
+                    <Button x:Name="AgentPillButton"
+                            Style="{StaticResource PgAiPillStyle}"
                             Margin="0,0,10,0"
                             Command="{Binding ToggleAgentChatCommand}"
                             ToolTip="{DynamicResource ToolTip.Agent}">
@@ -1208,16 +1209,18 @@
                 </Grid>
             </Border>
 
-            <!-- AI CHAT OVERLAY — SENIOR FIX 2026-09-19: previously visible
-                 whenever IsPersonalExperience=false (i.e. ALWAYS in
-                 Professional mode) regardless of IsOpen, causing the
-                 "overlap keep opening" bug — chat covered all modules
-                 from launch. Now requires BOTH IsOpen=true AND
-                 IsPersonalExperience=false. Closed by default, only
-                 toggled via top-bar AiBotButton (AiChatVM.ToggleChatCommand).
-                 GB-P14: Personal shell hosts its own glass overlay on the
-                 same VM; this host is Professional-only. -->
-            <viewsAi:AiChatView DataContext="{Binding AiChatVM}"
+            <!-- AI CHAT OVERLAY — SENIOR FIX 2026-09-20: previously visible
+                 whenever IsPersonalExperience=false (ALWAYS in Professional)
+                 regardless of IsOpen, and bindings were wrong (DataContext=
+                 AiChatVM but path AiChatVM.IsOpen + IsPersonalExperience on
+                 AiChatVM — never matched, so outer stayed Collapsed and inner
+                 Border Visible caused hit-test block). Now correct:
+                 IsOpen on AiChatVM, IsPersonalExperience via Window.DataContext,
+                 closed by default, only top-panel AiBotButton toggles.
+                 GB-P14: Personal shell hosts its own glass overlay on same VM;
+                 this host is Professional-only. ZIndex 200 < top bar 300 so
+                 top bar remains clickable when chat open. -->
+            <viewsAi:AiChatView x:Name="ProAiChatView" DataContext="{Binding AiChatVM}"
                                 Panel.ZIndex="200">
                 <viewsAi:AiChatView.Style>
                     <Style TargetType="viewsAi:AiChatView">
@@ -1225,8 +1228,8 @@
                         <Style.Triggers>
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding AiChatVM.IsOpen}" Value="True"/>
-                                    <Condition Binding="{Binding IsPersonalExperience}" Value="False"/>
+                                    <Condition Binding="{Binding IsOpen}" Value="True"/>
+                                    <Condition Binding="{Binding DataContext.IsPersonalExperience, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
                                 </MultiDataTrigger.Conditions>
                                 <Setter Property="Visibility" Value="Visible"/>
                             </MultiDataTrigger>
@@ -1247,7 +1250,7 @@
                  only; GlassShell hosts the identical card (same
                  AgentChatVM, same IsAgentChatOpen flag) in Personal mode —
                  one visible instance, state preserved across the switch. -->
-            <Border Panel.ZIndex="210"
+            <Border x:Name="ProAgentChatHost" Panel.ZIndex="210"
                     Width="560"
                     Height="680"
                     MaxHeight="{Binding ActualHeight,
