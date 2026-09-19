@@ -30,6 +30,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:updates="clr-namespace:ProGlassAutomation.Services.Updates"
+             xmlns:viewsAbout="clr-namespace:ProGlassAutomation.Views.About"
              PreviewKeyDown="Root_PreviewKeyDown"
              FontFamily="{DynamicResource AppFontFamily}"
              FontWeight="{DynamicResource AppFontWeight}"
@@ -84,7 +85,7 @@
                                         SnapsToDevicePixels="True"
                                         HorizontalAlignment="Center">
                                     <Border.Background>
-                                        <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
+                                        <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
                                                     Stretch="UniformToFill"/>
                                     </Border.Background>
                                     <Border.Effect>

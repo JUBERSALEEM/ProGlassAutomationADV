@@ -168,7 +168,7 @@
                 RenderTransformOrigin="0,0"
                 IsHitTestVisible="False">
             <Border.RenderTransform>
-                <SkewTransform SkewAngleY="15"/>
+                <SkewTransform AngleY="15"/>
             </Border.RenderTransform>
         </Border>
 

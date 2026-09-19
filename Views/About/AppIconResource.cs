@@ -71,25 +71,71 @@ namespace ProGlassAutomation.Views.About
                     if (existing != null) return existing;
                     if (!_loadFailed)
                     {
-                        try
+                        // Try several pack URIs (case / assembly-qualified)
+                        // to survive XAML designer / build variations that
+                        // report \"Cannot locate resource 'resources/...'\".
+                        string[] candidates =
                         {
-                            var bmp = new BitmapImage();
-                            bmp.BeginInit();
-                            bmp.UriSource = new Uri(
-                                "pack://application:,,,/Resources/proglass_icon_256.png",
-                                UriKind.Absolute);
-                            bmp.CacheOption = BitmapCacheOption.OnLoad;
-                            bmp.CreateOptions =
-                                BitmapCreateOptions.IgnoreColorProfile;
-                            bmp.EndInit();
-                            bmp.Freeze();
-                            _icon = bmp;
+                            "pack://application:,,,/Resources/proglass_icon_256.png",
+                            "pack://application:,,,/ProGlassAutomation;component/Resources/proglass_icon_256.png",
+                            "pack://application:,,,/resources/proglass_icon_256.png",
+                            "pack://application:,,,/ProGlassAutomation;component/resources/proglass_icon_256.png"
+                        };
+
+                        foreach (var uri in candidates)
+                        {
+                            try
+                            {
+                                var bmp = new BitmapImage();
+                                bmp.BeginInit();
+                                bmp.UriSource = new Uri(uri, UriKind.Absolute);
+                                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                                bmp.CreateOptions =
+                                    BitmapCreateOptions.IgnoreColorProfile;
+                                bmp.EndInit();
+                                bmp.Freeze();
+                                _icon = bmp;
+                                break;
+                            }
+                            catch
+                            {
+                                // try next candidate
+                            }
                         }
-                        catch
+
+                        if (_icon == null)
                         {
-                            // Load failed (missing resource, corrupt
-                            // file) — stay null. The icon renders
-                            // blank; the page must still load.
+                            // Final fallback: try loading from disk relative
+                            // to the executable (useful when Resource build
+                            // action is mis-configured).
+                            try
+                            {
+                                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                                var diskPath = System.IO.Path.Combine(baseDir, "Resources", "proglass_icon_256.png");
+                                if (!System.IO.File.Exists(diskPath))
+                                {
+                                    diskPath = System.IO.Path.Combine(baseDir, "resources", "proglass_icon_256.png");
+                                }
+                                if (System.IO.File.Exists(diskPath))
+                                {
+                                    var bmp = new BitmapImage();
+                                    bmp.BeginInit();
+                                    bmp.UriSource = new Uri(diskPath, UriKind.Absolute);
+                                    bmp.CacheOption = BitmapCacheOption.OnLoad;
+                                    bmp.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+                                    bmp.EndInit();
+                                    bmp.Freeze();
+                                    _icon = bmp;
+                                }
+                            }
+                            catch
+                            {
+                                // ignore
+                            }
+                        }
+
+                        if (_icon == null)
+                        {
                             _loadFailed = true;
                         }
                     }
