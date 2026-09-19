@@ -427,5 +427,17 @@ activations.json
 
 # 2026-09-16 owner directive: never commit PNG/image mockups to the repo.
 # Approved mockups stay on disk (untracked) as review artefacts.
+# Owner directive 2026-09-19: splash mockups are generated in home dir
+# (/home/user/splash_designs/) and must NEVER be pushed to GitHub.
 docs/mockups/**/*.png
 *.png.tmp
+splash_designs/
+**/splash_designs/
+**/splash_designs/**/*.png
+/home/user/splash_designs/
+*.mockup.png
+mockups/**/*.png
+**/mockups/
+*.splash.png
+splash_*.png
+ios_*.png
