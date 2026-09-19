@@ -212,7 +212,23 @@ namespace ProGlassAutomation.ViewModels
         public bool IsAgentChatOpen
         {
             get => _isAgentChatOpen;
-            set { if (_isAgentChatOpen == value) return; _isAgentChatOpen = value; OnPropertyChanged(); }
+            set
+            {
+                if (_isAgentChatOpen == value) return;
+                _isAgentChatOpen = value;
+                OnPropertyChanged();
+                // SENIOR FIX 2026-09-19: when Agent opens, close AI and other popups
+                if (value)
+                {
+                    try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
+                    IsSettingsOpen = false;
+                    IsNotificationsOpen = false;
+                    IsScreenshotOpen = false;
+                    IsUserSwitchOpen = false;
+                    IsScreenRecordOpen = false;
+                    IsStorageOpen = false;
+                }
+            }
         }
 
         private bool _isUserSwitchOpen;
@@ -752,7 +768,61 @@ namespace ProGlassAutomation.ViewModels
                 AgentChatVM = new ProGlassAutomation.Agent.UI.AgentChatViewModel();
             }
 
-            ToggleAgentChatCommand = new RelayCommand(_ => IsAgentChatOpen = !IsAgentChatOpen);
+            // SENIOR FIX 2026-09-19: Agent chat toggle now closes all
+            // other popups and the ProGlass AI chat to prevent overlap
+            // (ZIndex 200 vs 210). Previously both chats could stay open
+            // simultaneously, and opening Agent left Notifications/Settings
+            // popups underneath. Only top-panel buttons may open AI surfaces.
+            ToggleAgentChatCommand = new RelayCommand(_ =>
+            {
+                bool willOpen = !IsAgentChatOpen;
+                if (willOpen)
+                {
+                    // Close everything else before opening Agent
+                    IsSettingsOpen = false;
+                    IsNotificationsOpen = false;
+                    IsScreenshotOpen = false;
+                    IsUserSwitchOpen = false;
+                    IsScreenRecordOpen = false;
+                    IsStorageOpen = false;
+                    try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
+                }
+                IsAgentChatOpen = willOpen;
+            });
+
+            // SENIOR FIX 2026-09-19: enforce closed-by-default for AI chats.
+            // IsOpen defaults false in VM, but we harden here against any
+            // future init that might flip it, and wire mutual exclusivity:
+            // when ProGlass AI opens, Agent closes, and vice versa, plus
+            // all other popups close to prevent overlap.
+            try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
+            IsAgentChatOpen = false;
+
+            try
+            {
+                if (AiChatVM != null)
+                {
+                    AiChatVM.PropertyChanged += (s, e) =>
+                    {
+                        if (e.PropertyName == nameof(AiChatVM.IsOpen) && AiChatVM.IsOpen)
+                        {
+                            // ProGlass AI opened — close Agent + other popups
+                            IsAgentChatOpen = false;
+                            IsSettingsOpen = false;
+                            IsNotificationsOpen = false;
+                            IsScreenshotOpen = false;
+                            IsUserSwitchOpen = false;
+                            IsScreenRecordOpen = false;
+                            IsStorageOpen = false;
+                        }
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                    "[MainViewModel] AiChatVM PropertyChanged wiring failed: " + ProGlassAutomation.Utilities.ExceptionMessages.Deep(ex));
+            }
 
             IsDarkTheme = ProGlassAutomation.Services.ThemeManager.CurrentTheme == ProGlassAutomation.Services.AppTheme.Dark;
             SettingsVM.PropertyChanged += (_, e) =>

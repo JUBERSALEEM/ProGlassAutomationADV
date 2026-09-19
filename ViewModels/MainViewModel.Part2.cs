@@ -78,6 +78,17 @@ namespace ProGlassAutomation.ViewModels
                 IsUserSwitchOpen = which == "UserSwitch";
                 IsScreenshotOpen = which == "Screenshot";
                 IsScreenRecordOpen = which == "ScreenRecord";
+
+                // SENIOR FIX 2026-09-19: opening any top-bar popup must
+                // close the AI chat overlays to prevent overlap. Previously
+                // AiChat (ZIndex 200) stayed open under Settings/Notifications
+                // popups, and AgentChat (210) floated over everything.
+                // Only the dedicated top-panel AI buttons may open them.
+                if (!string.IsNullOrWhiteSpace(which))
+                {
+                    IsAgentChatOpen = false;
+                    try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
+                }
             }
         }
 
@@ -89,6 +100,13 @@ namespace ProGlassAutomation.ViewModels
             IsUserSwitchOpen = false;
             IsScreenRecordOpen = false;
             IsStorageOpen = false;
+            // SENIOR FIX 2026-09-19: include AI overlays in the global
+            // close — clicking the dim overlay or hamburger must not leave
+            // a chat floating over the next module. They are still only
+            // opened via their top-panel buttons, but they must be
+            // closable via the same outside-click that closes popups.
+            IsAgentChatOpen = false;
+            try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
         }
 
         private T ResolveOrNew<T>() where T : class

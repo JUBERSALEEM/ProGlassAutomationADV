@@ -1208,13 +1208,32 @@
                 </Grid>
             </Border>
 
-            <!-- AI CHAT OVERLAY (preserved). GB-P14: hidden while the
-                 Personal experience is active — the Personal shell hosts
-                 its own glass AI overlay (PersonalAiChatView, same VM). -->
+            <!-- AI CHAT OVERLAY — SENIOR FIX 2026-09-19: previously visible
+                 whenever IsPersonalExperience=false (i.e. ALWAYS in
+                 Professional mode) regardless of IsOpen, causing the
+                 "overlap keep opening" bug — chat covered all modules
+                 from launch. Now requires BOTH IsOpen=true AND
+                 IsPersonalExperience=false. Closed by default, only
+                 toggled via top-bar AiBotButton (AiChatVM.ToggleChatCommand).
+                 GB-P14: Personal shell hosts its own glass overlay on the
+                 same VM; this host is Professional-only. -->
             <viewsAi:AiChatView DataContext="{Binding AiChatVM}"
-                                Panel.ZIndex="200"
-                                Visibility="{Binding IsPersonalExperience,
-                                  Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                Panel.ZIndex="200">
+                <viewsAi:AiChatView.Style>
+                    <Style TargetType="viewsAi:AiChatView">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding AiChatVM.IsOpen}" Value="True"/>
+                                    <Condition Binding="{Binding IsPersonalExperience}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </viewsAi:AiChatView.Style>
+            </viewsAi:AiChatView>
 
             <!-- AGENT CHAT — floating card, bottom-right.
                  Outer border owns the drop shadow (must not ClipToBounds).

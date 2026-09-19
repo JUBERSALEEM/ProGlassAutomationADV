@@ -1,27 +1,36 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — "SPLIT DIAGONAL" (v3, 2026-09-19)
-            Owner-approved mockup: /home/user/splash_designs/01-split-diagonal.png
-            ("i want this first mockup approved. splash redesign to this one.")
+     MODULE: Splash Screen — "FLUID CRYSTAL BLOB" (v4, 2026-09-19)
+            Owner-approved mockup: /home/user/splash_designs/12-fluid-crystal-blob.png
+            "12-fluid-crystal-blob.png — stylish animated bouncy splash,
+             iOS transparent fluid crystal glass light theme, full-screen
+             soft off-white background with subtle blurred cyan and blue
+             liquid blobs floating bouncy, centered large frosted crystal
+             glass hexagon with 40% opacity and 24px radius."
 
-     DESIGN (faithful to the approved image):
-       • sharp diagonal split, top-left → bottom-right: LEFT ~40% deep
-         navy panel (fixed #102244 — design identity, both themes) with
-         a 2px accent edge along the split; RIGHT side soft theme
-         off-white → pale gray diagonal
-       • navy panel, top-left: hexagon logo outline (3px, accent light)
-         + PGA, then the 30px two-line wordmark — "ProGlass" light ink /
-         "Automation" sky blue (fixed colours: they sit on fixed navy)
-       • thin 2px VERTICAL progress track on the split edge (lower
-         third), fills bottom→top with a cyan glow over ~1.9s
-       • light side: three quiet uppercase captions bottom-right
-         (MADE IN INDIA / ENTERPRISE · v2.0.1 / OFFLINE · SECURE)
-       • very faint 64px engineering grid texture on the stage
-       • no header row, no module chips, no status line — clean, as
-         approved
+     DESIGN (faithful to approved 12-fluid-crystal-blob):
+       • full-screen soft off-white #FBFDFF (fixed light, iOS)
+       • 4 large blurred blobs (cyan/blue) floating bouncy in corners:
+         top-left light blue, bottom-left cyan, bottom-right off-white,
+         top-right small blue — BlurRadius 50-70, Opacity 0.4-0.6
+       • 6 small glass droplets (20-48px) circling/bouncing around center
+         with BounceEase, like iOS liquid
+       • center: organic fluid blob (water-like) behind frosted hexagon,
+         gradient #E0F2FE→#BAE6FD→#7DD3FC, with cyan edge glow
+       • centered large frosted crystal glass hexagon: 280x280, 40% opacity
+         white (#66FFFFFF), 24px radius, 1.5px white border, soft shadow,
+         hexagon clip (rounded via CornerRadius)
+       • inside hexagon: PGA logo — P dark #1E293B, G accent #0EA5E9,
+         A dark with blue dot, 56px bold
+       • below hexagon: wordmark "ProGlass Automation" — ProGlass #1E293B,
+         Automation #0EA5E9, 28px bold, fade+slide up
+       • below wordmark: circular progress ring 48px, track #E5E7EB,
+         fill gradient cyan→blue, rotating bouncy, 3.5px thick
+       • bottom-right: MADE IN INDIA with tricolor bar (quiet chrome)
+       • no vertical track, no navy panel — clean iOS fluid
 
-     PRESERVED (public API of SplashView.xaml.cs + App.StartupCore.cs):
+     PRESERVED (public API for SplashView.xaml.cs + App.StartupCore.cs):
        • Window flags (Maximized / None / Topmost / NoTaskbar)
        • FadeOutAndClose(Action), RunLoginAsync(), RunFirstRunSetupAsync(),
          ShowTermsGate(), TermsAccepted / TermsResolved / SignedIn /
@@ -33,12 +42,19 @@
          CaptionMadeIn, CaptionEnterprise, CaptionSecure, TermsPanel,
          TermsBar, AcceptTermsCheck, DeclineButton, ContinueButton,
          LoginHost, LoginGate, SetupHost, SetupGate
+       • Additional bouncy names for new choreography: BgBlob1Translate,
+         BgBlob2Translate, BgBlob3Translate, BgBlob4Translate,
+         Droplet1Translate…Droplet6Translate, FluidBlobScale,
+         FluidBlobTranslate, ProgressRotate
 
-     BUILD-GATE NOTES (2026-09-19, from owner's real build):
-       • DashStyle has NO Interval property (MC3072) — Dashes only.
-       • Style.Triggers must come AFTER all Setters (MC3088).
-       • A style's TargetType must match the element (sibling types
-         like Button vs ToggleButton throw at startup — ERR-AF067B).
+     BUILD-GATE NOTES (senior):
+       • No SkewTransform.SkewAngleY (invalid) — use AngleY only if needed
+       • TranslateTransform/ScaleTransform require System.Windows.Media
+         (imported in code-behind, XAML uses property element syntax)
+       • No DynamicResource inside SolidColorBrush.Color (XDG-0001) —
+         use Brush directly or StaticResource for Color
+       • Style.Triggers after Setters (MC3088)
+       • TargetType matches element (Button vs ToggleButton)
 ═══════════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -50,7 +66,7 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="{DynamicResource AppBackgroundBrush}"
+        Background="#FBFDFF"
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
@@ -66,72 +82,60 @@
 
     <Window.Resources>
 
-        <!-- ═══ SPLIT DIAGONAL PALETTE ═══ -->
-        <!-- Right side: theme diagonal (light: warm off-white → pale;
-             dark: deep navy → blue-black). -->
-        <LinearGradientBrush x:Key="SideBg" StartPoint="0.05,0" EndPoint="0.85,1">
-            <GradientStop Color="{DynamicResource WindowBackgroundColor}" Offset="0.0"/>
-            <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="1.0"/>
+        <!-- ═══ FLUID CRYSTAL PALETTE (fixed light iOS) ═══ -->
+        <SolidColorBrush x:Key="SplashBg" Color="#FBFDFF"/>
+        <SolidColorBrush x:Key="SplashTextDark" Color="#1E293B"/>
+        <SolidColorBrush x:Key="SplashAccent" Color="#0EA5E9"/>
+        <SolidColorBrush x:Key="SplashCaptionBrush" Color="#6B7280"/>
+        <SolidColorBrush x:Key="SplashTrackBrush" Color="#E5E7EB"/>
+        <SolidColorBrush x:Key="SplashGlassBg" Color="#66FFFFFF"/>
+        <SolidColorBrush x:Key="SplashGlassBorder" Color="#99FFFFFF"/>
+
+        <!-- Gradients for blobs -->
+        <LinearGradientBrush x:Key="Blob1Gradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#DBEAFE" Offset="0.0"/>
+            <GradientStop Color="#BFDBFE" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="Blob2Gradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#A5F3FC" Offset="0.0"/>
+            <GradientStop Color="#7DD3FC" Offset="0.6"/>
+            <GradientStop Color="#BAE6FD" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="Blob3Gradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#F0F9FF" Offset="0.0"/>
+            <GradientStop Color="#E0F2FE" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="FluidBlobGradient" StartPoint="0.2,0.1" EndPoint="0.8,0.9">
+            <GradientStop Color="#E0F2FE" Offset="0.0"/>
+            <GradientStop Color="#BAE6FD" Offset="0.45"/>
+            <GradientStop Color="#7DD3FC" Offset="0.75"/>
+            <GradientStop Color="#A5F3FC" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#22D3EE" Offset="0.0"/>
+            <GradientStop Color="#0EA5E9" Offset="0.5"/>
+            <GradientStop Color="#0284C7" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Navy panel: FIXED #102244 in both themes — it is the
-             approved design's identity, not a theme surface. -->
-        <SolidColorBrush x:Key="SplashNavy" Color="#102244"/>
-        <!-- Wordmark on fixed navy: fixed colours (contrast contract). -->
-        <SolidColorBrush x:Key="SplashWordInk"    Color="#E5E7EB"/>
-        <SolidColorBrush x:Key="SplashWordAccent" Color="#7DD3FC"/>
-        <SolidColorBrush x:Key="SplashCerulean"   Color="{StaticResource AccentLightColor}"/>
-        <!-- Caption brush — use the theme's secondary foreground brush directly
-             (Color vs Brush mismatch: SecondaryForegroundColor is Color,
-             but Foreground expects Brush; using Brush avoids XDG-0001). -->
-        <SolidColorBrush x:Key="SplashCaption" Color="{StaticResource SecondaryForegroundColor}"/>
+        <!-- Effects -->
+        <DropShadowEffect x:Key="GlassShadow" Color="#0EA5E9" BlurRadius="28" ShadowDepth="0" Opacity="0.18"/>
+        <DropShadowEffect x:Key="FluidGlow" Color="#7DD3FC" BlurRadius="32" ShadowDepth="0" Opacity="0.35"/>
+        <DropShadowEffect x:Key="DropletShadow" Color="#0EA5E9" BlurRadius="12" ShadowDepth="0" Opacity="0.22"/>
 
-        <!-- Engineering grid texture — 1px dotted accent hairlines on a
-             64px tile, rendered at 4% on the stage (faint, both themes).
-             NOTE: DashStyle exposes only Dashes — no Interval. -->
-        <DrawingBrush x:Key="GridTextureBrush"
-                      TileMode="Tile" Viewport="0,0,64,64" ViewportUnits="Absolute"
-                      Stretch="None">
-            <DrawingBrush.Drawing>
-                <GeometryDrawing>
-                    <GeometryDrawing.Pen>
-                        <Pen Thickness="1" Brush="{DynamicResource SplashCerulean}">
-                            <Pen.DashStyle>
-                                <DashStyle Dashes="1 3"/>
-                            </Pen.DashStyle>
-                        </Pen>
-                    </GeometryDrawing.Pen>
-                    <GeometryDrawing.Geometry>
-                        <GeometryGroup>
-                            <LineGeometry StartPoint="0,0" EndPoint="64,0"/>
-                            <LineGeometry StartPoint="0,0" EndPoint="0,64"/>
-                        </GeometryGroup>
-                    </GeometryDrawing.Geometry>
-                </GeometryDrawing>
-            </DrawingBrush.Drawing>
-        </DrawingBrush>
-
-        <!-- Progress fill — vertical, bottom→top luminous accent -->
-        <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,1" EndPoint="0,0">
-            <GradientStop Color="{DynamicResource AccentDarkColor}"  Offset="0.0"/>
-            <GradientStop Color="{DynamicResource AccentColor}"      Offset="0.5"/>
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <DropShadowEffect x:Key="TrackGlow" Color="{DynamicResource AccentLightColor}"
-                          BlurRadius="9" ShadowDepth="0" Opacity="0.55"/>
-        <DropShadowEffect x:Key="LogoGlow" Color="{DynamicResource AccentColor}"
-                          BlurRadius="22" ShadowDepth="0" Opacity="0.45"/>
+        <!-- Droplet glass fill -->
+        <RadialGradientBrush x:Key="DropletFill" GradientOrigin="0.35,0.3" Center="0.5,0.5" RadiusX="0.8" RadiusY="0.8">
+            <GradientStop Color="#EFFFFFFF" Offset="0.0"/>
+            <GradientStop Color="#CCDBEAFE" Offset="0.5"/>
+            <GradientStop Color="#99BAE6FD" Offset="1.0"/>
+        </RadialGradientBrush>
 
         <Style x:Key="CaptionStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SplashCaption}"/>
+            <Setter Property="Foreground" Value="{StaticResource SplashCaptionBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Margin" Value="0,0,0,7"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
-        <!-- Terms card typography (same contract as v2) -->
         <Style x:Key="TermsLead" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -148,130 +152,282 @@
 
     </Window.Resources>
 
-    <Grid Background="{DynamicResource SideBg}">
+    <Grid Background="{StaticResource SplashBg}">
 
-        <!-- Faint engineering grid over the whole stage (barely visible) -->
-        <Rectangle Fill="{DynamicResource GridTextureBrush}"
-                   IsHitTestVisible="False"
-                   Opacity="0.04"/>
+        <!-- ═══ LARGE BLURRED BLOBS (bouncy floating) ═══ -->
+        <Canvas IsHitTestVisible="False">
+            <!-- Top-left light blue blob -->
+            <Ellipse x:Name="BgBlob1" Width="560" Height="420"
+                     Fill="{StaticResource Blob1Gradient}" Opacity="0.55"
+                     Canvas.Left="-140" Canvas.Top="-90">
+                <Ellipse.Effect>
+                    <BlurEffect Radius="60"/>
+                </Ellipse.Effect>
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="BgBlob1Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <!-- Bottom-left cyan blob -->
+            <Ellipse x:Name="BgBlob2" Width="680" Height="520"
+                     Fill="{StaticResource Blob2Gradient}" Opacity="0.60"
+                     Canvas.Left="-180" Canvas.Bottom="-140">
+                <Ellipse.Effect>
+                    <BlurEffect Radius="70"/>
+                </Ellipse.Effect>
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="BgBlob2Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <!-- Bottom-right off-white blob -->
+            <Ellipse x:Name="BgBlob3" Width="520" Height="380"
+                     Fill="{StaticResource Blob3Gradient}" Opacity="0.50"
+                     Canvas.Right="-120" Canvas.Bottom="-80">
+                <Ellipse.Effect>
+                    <BlurEffect Radius="50"/>
+                </Ellipse.Effect>
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="BgBlob3Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <!-- Top-right small blue blob -->
+            <Ellipse x:Name="BgBlob4" Width="240" Height="240"
+                     Fill="#FFBFDBFE" Opacity="0.42"
+                     Canvas.Right="-40" Canvas.Top="-30">
+                <Ellipse.Effect>
+                    <BlurEffect Radius="40"/>
+                </Ellipse.Effect>
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="BgBlob4Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+        </Canvas>
 
-        <!-- ── NAVY PANEL — skewed so its right edge is the diagonal ──
-             Width = 40% of the window; SkewAngleY=15° about the
-             top-left origin shifts the bottom edge ~27% of the height
-             to the right → split runs top-left → bottom-right, left
-             region ≈ 40% top / ≈ 55% bottom (approved mockup shape).
-             The 2px right border rides the split as the accent edge. -->
-        <Border HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window},
-                              Converter={StaticResource ScaleLengthConverter}, ConverterParameter=0.40}"
-                Background="{StaticResource SplashNavy}"
-                BorderBrush="{DynamicResource SplashCerulean}"
-                BorderThickness="0,0,2,0"
-                Opacity="0.85"
-                RenderTransformOrigin="0,0"
-                IsHitTestVisible="False">
-            <Border.RenderTransform>
-                <SkewTransform AngleY="15"/>
-            </Border.RenderTransform>
-        </Border>
+        <!-- ═══ SMALL GLASS DROPLETS (circling bouncy) ═══ -->
+        <Canvas IsHitTestVisible="False">
+            <!-- Droplet 1 — top near fluid -->
+            <Ellipse x:Name="Droplet1" Width="48" Height="48"
+                     Fill="{StaticResource DropletFill}"
+                     Stroke="#99FFFFFF" StrokeThickness="1.2"
+                     Effect="{StaticResource DropletShadow}"
+                     Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="Droplet1Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <!-- Droplet 2 — left mid -->
+            <Ellipse x:Name="Droplet2" Width="32" Height="32"
+                     Fill="{StaticResource DropletFill}"
+                     Stroke="#99FFFFFF" StrokeThickness="1"
+                     Effect="{StaticResource DropletShadow}"
+                     Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="Droplet2Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <!-- Droplet 3 — right mid -->
+            <Ellipse x:Name="Droplet3" Width="28" Height="28"
+                     Fill="{StaticResource DropletFill}"
+                     Stroke="#99FFFFFF" StrokeThickness="1"
+                     Effect="{StaticResource DropletShadow}"
+                     Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="Droplet3Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <!-- Droplet 4 — bottom near wordmark -->
+            <Ellipse x:Name="Droplet4" Width="24" Height="24"
+                     Fill="{StaticResource DropletFill}"
+                     Stroke="#99FFFFFF" StrokeThickness="1"
+                     Effect="{StaticResource DropletShadow}"
+                     Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="Droplet4Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <!-- Droplet 5 — bottom-right small -->
+            <Ellipse x:Name="Droplet5" Width="36" Height="28"
+                     Fill="{StaticResource DropletFill}"
+                     Stroke="#99FFFFFF" StrokeThickness="1"
+                     Effect="{StaticResource DropletShadow}"
+                     Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="Droplet5Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <!-- Droplet 6 — left small -->
+            <Ellipse x:Name="Droplet6" Width="28" Height="22"
+                     Fill="{StaticResource DropletFill}"
+                     Stroke="#99FFFFFF" StrokeThickness="1"
+                     Effect="{StaticResource DropletShadow}"
+                     Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="Droplet6Translate" X="0" Y="0"/>
+                </Ellipse.RenderTransform>
+            </Ellipse>
+        </Canvas>
 
         <!-- ═══════════════════════════════════════════════════════════
-             POSTER — logo + wordmark (navy panel) · progress (split
-             edge) · captions (light side)
+             CENTER POSTER — fluid blob + frosted hexagon + wordmark +
+             circular progress
         ═══════════════════════════════════════════════════════════════ -->
-        <Grid x:Name="PosterHost">
+        <Grid x:Name="PosterHost"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center">
 
-            <!-- NAVY PANEL CONTENT — top-left brand moment -->
-            <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Margin="56,0,0,0" IsHitTestVisible="False">
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
 
-                <!-- Hexagon logo outline + PGA -->
-                <Border x:Name="LogoBorder" Width="64" Height="64"
-                        Opacity="0"
-                        Effect="{StaticResource LogoGlow}">
-                    <Border.RenderTransform>
-                        <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92"/>
-                    </Border.RenderTransform>
-                    <Viewbox Width="56" Height="56">
-                        <Grid Width="72" Height="72">
-                            <Path Stroke="{DynamicResource SplashCerulean}"
-                                  StrokeThickness="3"
-                                  StrokeLineJoin="Round"
-                                  Data="M20,5 L52,5 L68,36 L52,67 L20,67 L4,36 Z"/>
-                            <TextBlock Text="PGA"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="15"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource SplashCerulean}"/>
+                <!-- Fluid crystal area -->
+                <Grid Width="420" Height="420"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center">
+
+                    <!-- Organic fluid blob behind hexagon -->
+                    <Path x:Name="FluidBlob"
+                          Opacity="0.72"
+                          Fill="{StaticResource FluidBlobGradient}"
+                          Effect="{StaticResource FluidGlow}"
+                          Stretch="Fill"
+                          Data="M 120,30 C 180,10 260,20 310,70 C 370,110 390,190 350,260 C 310,330 210,370 130,320 C 50,270 20,180 40,110 C 60,60 80,45 120,30 Z">
+                        <Path.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform x:Name="FluidBlobScale" ScaleX="1" ScaleY="1" CenterX="200" CenterY="200"/>
+                                <TranslateTransform x:Name="FluidBlobTranslate" X="0" Y="0"/>
+                            </TransformGroup>
+                        </Path.RenderTransform>
+                    </Path>
+
+                    <!-- Frosted crystal glass hexagon — 280x280, 40% opacity, 24px radius -->
+                    <Border x:Name="LogoBorder"
+                            Width="280" Height="280"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Background="{StaticResource SplashGlassBg}"
+                            BorderBrush="{StaticResource SplashGlassBorder}"
+                            BorderThickness="1.5"
+                            CornerRadius="24"
+                            Effect="{StaticResource GlassShadow}"
+                            Opacity="0">
+                        <Border.Clip>
+                            <!-- Hexagon clip — regular hexagon, center 140,140 radius 120 -->
+                            <PathGeometry>
+                                <PathFigure StartPoint="140,14" IsClosed="True">
+                                    <LineSegment Point="244,74"/>
+                                    <LineSegment Point="244,206"/>
+                                    <LineSegment Point="140,266"/>
+                                    <LineSegment Point="36,206"/>
+                                    <LineSegment Point="36,74"/>
+                                </PathFigure>
+                            </PathGeometry>
+                        </Border.Clip>
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92" CenterX="140" CenterY="140"/>
+                        </Border.RenderTransform>
+                        <Grid>
+                            <!-- Inner soft highlight for frosted glass -->
+                            <Border CornerRadius="24"
+                                    Background="#22FFFFFF"
+                                    Margin="8"
+                                    Opacity="0.6"
+                                    IsHitTestVisible="False"/>
+                            <!-- PGA logo — P dark, G accent, A dark with dot -->
+                            <StackPanel HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Orientation="Horizontal">
+                                <TextBlock FontSize="58"
+                                           FontWeight="Bold"
+                                           FontFamily="{DynamicResource AppFontFamily}"
+                                           LetterSpacing="-1">
+                                    <Run Text="P" Foreground="#1E293B"/><Run Text="G" Foreground="#0EA5E9"/><Run Text="A" Foreground="#1E293B"/>
+                                </TextBlock>
+                                <!-- Blue dot for A -->
+                                <Ellipse Width="10" Height="10"
+                                         Fill="#0EA5E9"
+                                         VerticalAlignment="Center"
+                                         Margin="2,18,0,0"/>
+                            </StackPanel>
                         </Grid>
-                    </Viewbox>
-                </Border>
+                    </Border>
 
-                <!-- Wordmark — 30px, two lines, fixed on-navy colours -->
+                </Grid>
+
+                <!-- Wordmark — ProGlass Automation -->
                 <TextBlock x:Name="AppNameText"
-                           FontSize="30"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           LineHeight="37"
-                           HorizontalAlignment="Left"
-                           Margin="0,22,0,0"
-                           Opacity="0">
+                           FontSize="28"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Margin="0,28,0,0"
+                           Opacity="0"
+                           TextAlignment="Center">
                     <TextBlock.RenderTransform>
                         <TranslateTransform x:Name="AppNameTranslate" Y="14"/>
                     </TextBlock.RenderTransform>
-                    <Run Text="ProGlass" Foreground="{StaticResource SplashWordInk}"/><LineBreak/><Run Text="Automation" Foreground="{StaticResource SplashWordAccent}"/>
+                    <Run Text="ProGlass" Foreground="#1E293B"/><Run Text=" Automation" Foreground="#0EA5E9"/>
                 </TextBlock>
-            </StackPanel>
 
-            <!-- VERTICAL PROGRESS — on the split edge, lower third.
-                 A left-anchored wrapper takes 47% of the window width
-                 (double → Width, NOT Margin — a single double would
-                 fan out to all four margin sides); the 2px track sits
-                 at the wrapper's right edge, 110px above the bottom.
-                 At common 16:9 sizes that x lands on the diagonal in
-                 the lower third (approved mockup position). -->
-            <Grid HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                  Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Window},
-                                Converter={StaticResource ScaleLengthConverter}, ConverterParameter=0.47}"
-                  IsHitTestVisible="False">
+                <!-- Circular progress ring — 48px, bouncy -->
                 <Grid x:Name="ProgressTrack"
-                      Width="2" Height="200"
-                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                      Margin="0,0,0,110"
+                      Width="48" Height="48"
+                      HorizontalAlignment="Center"
+                      Margin="0,28,0,0"
                       Opacity="0">
-                    <Border Width="2" CornerRadius="1"
-                            Background="{DynamicResource SplashCerulean}"
-                            Opacity="0.18"/>
-                    <Border x:Name="ProgressFill"
-                            Width="2" Height="0"
-                            VerticalAlignment="Bottom"
-                            CornerRadius="1"
-                            Background="{StaticResource ProgressGradient}"
-                            Effect="{StaticResource TrackGlow}"/>
+                    <!-- Track -->
+                    <Ellipse Stroke="{StaticResource SplashTrackBrush}"
+                             StrokeThickness="3"
+                             Opacity="0.7"/>
+                    <!-- Fill — arc with gradient, rotating -->
+                    <Path x:Name="ProgressFill"
+                          Stroke="{StaticResource ProgressGradient}"
+                          StrokeThickness="3.5"
+                          StrokeLineCap="Round"
+                          StrokeLineJoin="Round"
+                          Data="M 24,3 A 21,21 0 1 1 23.9,3"
+                          RenderTransformOrigin="0.5,0.5">
+                        <Path.RenderTransform>
+                            <RotateTransform x:Name="ProgressRotate" Angle="0" CenterX="24" CenterY="24"/>
+                        </Path.RenderTransform>
+                    </Path>
                 </Grid>
-            </Grid>
 
-            <!-- LIGHT-SIDE CAPTIONS — quiet chrome, bottom-right -->
-            <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                        Margin="0,0,56,40" IsHitTestVisible="False">
-                <TextBlock x:Name="CaptionMadeIn"
-                           Text="{DynamicResource Splash.MadeInIndia}"
-                           Style="{StaticResource CaptionStyle}"
-                           Opacity="0"/>
-                <TextBlock x:Name="CaptionEnterprise"
-                           Style="{StaticResource CaptionStyle}"
-                           Opacity="0">
-                    <Run Text="{DynamicResource Splash.Enterprise}"/>
-                    <Run Text="{DynamicResource Splash.V}"/>
-                    <Run Text="{x:Static updates:AppInfo.Version}"/>
-                </TextBlock>
-                <TextBlock x:Name="CaptionSecure"
-                           Text="{DynamicResource Splash.OfflineSecure}"
-                           Style="{StaticResource CaptionStyle}"
-                           Margin="0"
-                           Opacity="0"/>
             </StackPanel>
         </Grid>
+
+        <!-- ═══ CAPTIONS — bottom-right quiet chrome ═══ -->
+        <StackPanel HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom"
+                    Margin="0,0,36,28"
+                    IsHitTestVisible="False">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,0,0">
+                <!-- Tricolor bar -->
+                <Border Width="3" Height="14"
+                        CornerRadius="1"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#FF9933" Offset="0.0"/>
+                            <GradientStop Color="#FFFFFF" Offset="0.5"/>
+                            <GradientStop Color="#138808" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+                <TextBlock x:Name="CaptionMadeIn"
+                           Text="MADE IN INDIA"
+                           Style="{StaticResource CaptionStyle}"
+                           Opacity="0"/>
+            </StackPanel>
+            <!-- Preserved names for code-behind fade (hidden in new design) -->
+            <TextBlock x:Name="CaptionEnterprise"
+                       Opacity="0"
+                       Visibility="Collapsed"
+                       Text="ENTERPRISE"/>
+            <TextBlock x:Name="CaptionSecure"
+                       Opacity="0"
+                       Visibility="Collapsed"
+                       Text="OFFLINE · SECURE"/>
+        </StackPanel>
 
         <!-- ═══ LOGIN GATE — same window as splash (no second window) ═══ -->
         <Grid x:Name="LoginHost"
@@ -289,7 +445,7 @@
             <login:FirstRunSetupPanel x:Name="SetupGate"/>
         </Grid>
 
-        <!-- ═══ TERMS GATE — transparent: the split stage shows through
+        <!-- ═══ TERMS GATE — transparent: fluid stage shows through
              behind the glass card (legal copy intact, all 9 clauses) ═══ -->
         <Grid x:Name="TermsPanel"
               Background="Transparent"
@@ -322,7 +478,7 @@
                 <Rectangle Height="2" Width="48" Margin="0,18,0,0"
                            RadiusX="1" RadiusY="1"
                            HorizontalAlignment="Center"
-                           Fill="{DynamicResource SplashCerulean}"/>
+                           Fill="{DynamicResource AccentBrush}"/>
             </StackPanel>
 
             <!-- Glass terms card — per-clause layout -->
@@ -333,7 +489,7 @@
                     CornerRadius="16"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    Background="#1A808080">
+                    Background="#CCFFFFFF">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               PanningMode="VerticalOnly">
@@ -401,7 +557,7 @@
                     Grid.Row="2"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,1,0,0"
-                    Background="#1A808080"
+                    Background="#CCFFFFFF"
                     Padding="48,18">
                 <DockPanel LastChildFill="True" MaxWidth="860">
                     <StackPanel DockPanel.Dock="Right"
