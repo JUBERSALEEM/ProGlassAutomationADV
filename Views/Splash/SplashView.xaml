@@ -1,61 +1,42 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — "FLUID CRYSTAL BLOB" v5 (2026-09-19)
-            Owner-approved mockup: /home/user/splash_designs/12-fluid-crystal-blob.png
-            Exact description: stylish animated bouncy splash, iOS
-            transparent fluid crystal glass light theme, full-screen soft
-            off-white background with subtle blurred cyan and blue liquid
-            blobs floating bouncy, centered large frosted crystal glass
-            hexagon with 40% opacity and 24px radius.
+     MODULE: Splash Screen — "FLUID CRYSTAL BLOB" v6 (2026-09-19)
+            Owner-approved mockup: 12-fluid-crystal-blob.png
+            Exact description: iOS transparent fluid crystal glass light
+            theme, full-screen soft off-white #FBFDFF with subtle blurred
+            cyan/blue liquid blobs floating bouncy, centered large frosted
+            crystal hexagon 40% opacity 24px radius, PGA logo, wordmark,
+            progress ring, MADE IN INDIA tricolor.
 
-     VISUAL MATCH (pixel-faithful to 12-fluid-crystal-blob.png):
-       • Background #FBFDFF soft off-white, full-screen
-       • 4 large blurred blobs (measured from mockup):
-         - TL: 580x440 light blue #DBEAFE→#BFDBFE, -160,-100, blur 90, op 0.48
-         - BL: 720x560 cyan #A5F3FC→#7DD3FC→#BAE6FD, -200,-160, blur 95, op 0.58
-         - BR: 560x420 off-white #F0F9FF→#E0F2FE, -140,-100 (right/bottom), blur 75, op 0.42
-         - TR: 260x260 blue #BFDBFE, -60,-50 (right/top), blur 55, op 0.38
-       • 6 small glass droplets (measured positions around center):
-         - D1 44px top  -180px from center, radial glass + white stroke 1.2 + shadow
-         - D2 28px left -260px, etc — all with TranslateTransform for bouncy orbit
-       • Center organic fluid blob: traced from mockup — 8-lobe irregular
-         water shape, gradient #E6F4FF→#C7E8FF→#7DD3FC→#A5F3FC, 72% opacity,
-         FluidGlow (32 blur, 0.35 op), plus glossy edge Path stroke 1.8px
-         gradient cyan→blue, 0.85 op
-       • Frosted hexagon: 300x300, Background #66FFFFFF (40% opacity),
-         BorderBrush #99FFFFFF 1.5px, CornerRadius 24, Effect GlassShadow
-         (28 blur, 0.18 op), Clip to ROUNDED hexagon (24px corner radius
-         via ArcSegments) — true rounded hexagon, not sharp
-       • Inside hexagon: PGA — P #1E293B, G #0EA5E9, A #1E293B, 60px bold,
-         plus 10px blue dot for A, centered, with inner highlight Border
-         #22FFFFFF margin 10 op 0.65
-       • Wordmark below: "ProGlass Automation" 26px Bold, ProGlass #1E293B,
-         Automation #0EA5E9, fade+slide 14px, 28px top margin
-       • Progress ring: 40x40, track #E5E7EB 2.5px op 0.7, fill Path arc
-         270° gap at top, gradient #22D3EE→#0EA5E9→#0284C7, 3px thick,
-         Start/End Round, rotating 0→360 linear 1.2s infinite
-       • Caption bottom-right: tricolor bar 3x14 orange/white/green +
-         "MADE IN INDIA" 11px SemiBold #6B7280, fade in
-       • Animations: large blobs X/Y BounceEase 1-2 bounces, 3-4.2s infinite
-         AutoReverse; droplets bouncy orbit 2.6-3.6s; fluid blob scale
-         0.86→1 BounceEase 2 bounces + floating Y SineEase infinite;
-         progress rotation 16ms timer ~60fps
+     v6 PIXEL-FAITHFUL IMPROVEMENTS over v5:
+       • Rounded hexagon clip now uses true 24px corner radius path
+         generated via offset math (13.86 offset, 6 arcs), not sharp
+         LineSegments — matches mockup's soft rounded hex.
+       • Fluid blob v6: 8-lobe organic liquid shape traced from mockup
+         with varying radii 180-225, Bezier controls with perpendicular
+         offsets, Stretch=Fill inside 460x460 grid, gradient #F0F9FF→
+         #BAE6FD→#7DD3FC→#A5F3FC 74% op, FluidGlow 36 blur, edge stroke
+         1.8px cyan→blue 85% op, plus inner highlight path (white 22% op)
+         for liquid 3D effect.
+       • Background blobs: same 4 but with responsive Canvas positioning
+         via code-behind, blur 55-95, op 0.38-0.58, colors measured from
+         mockup.
+       • Droplets: 6 glass bubbles radial fill + white stroke + shadow,
+         bouncy orbit via TranslateTransform + BounceEase.
+       • No invalid props: no LetterSpacing, no StrokeLineCap on Path
+         (uses Start/End), no SkewAngleY, no icon URI.
 
-     PRESERVED API (App.StartupCore + code-behind):
-       • Window flags Maximized/None/Topmost/NoTaskbar
-       • FadeOutAndClose, RunLoginAsync, RunFirstRunSetupAsync, ShowTermsGate
-       • TermsAccepted/Resolved/SignedIn/HasAcceptedCurrentTerms/Version
-       • x:Name: PosterHost, LogoBorder, LogoScale, AppNameText,
+     PRESERVED API (StartupCore + code-behind):
+       • x:Names: PosterHost, LogoBorder, LogoScale, AppNameText,
          AppNameTranslate, ProgressTrack, ProgressFill, ProgressRotate,
          CaptionMadeIn/Enterprise/Secure, TermsPanel/Bar, AcceptTermsCheck,
          Decline/ContinueButton, LoginHost/Gate, SetupHost/Gate,
          BgBlob1..4Translate, Droplet1..6Translate, FluidBlobScale/Translate,
-         FluidBlob, Droplet1..6, BgBlob1..4
-       • No LetterSpacing (WPF invalid), no StrokeLineCap on Path (use
-         Start/End), no SkewAngleY, no DynamicResource inside Color
+         FluidBlob, Droplet1..6, BgBlob1..4, FluidEdge, FluidHighlight
+       • Window Maximized/None/Topmost/NoTaskbar, FadeOutAndClose etc.
 
-     BUILD-GATE: XDG0012, XLS0413, MC3072, CS0219, RG1000, XDG-0001 all fixed
+     BUILD-GATE: verified no XDG0012, XLS0413, MC3072, RG1000.
 ═══════════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -132,6 +113,25 @@
             <GradientStop Color="#99BAE6FD" Offset="1.0"/>
         </RadialGradientBrush>
 
+        <!-- Rounded hexagon clip geometry — 300x300, 24px corner radius, center 150,150
+             Generated via offset=24/tan(60°)=13.856, 6 vertices with ArcSegments -->
+        <PathGeometry x:Key="RoundedHexClip">
+            <PathFigure StartPoint="138.00,24.93" IsClosed="True">
+                <ArcSegment Point="162.00,24.93" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
+                <LineSegment Point="252.32,77.07"/>
+                <ArcSegment Point="264.32,97.86" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
+                <LineSegment Point="264.32,202.14"/>
+                <ArcSegment Point="252.32,222.93" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
+                <LineSegment Point="162.00,275.07"/>
+                <ArcSegment Point="138.00,275.07" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
+                <LineSegment Point="47.68,222.93"/>
+                <ArcSegment Point="35.68,202.14" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
+                <LineSegment Point="35.68,97.86"/>
+                <ArcSegment Point="47.68,77.07" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
+                <LineSegment Point="138.00,24.93"/>
+            </PathFigure>
+        </PathGeometry>
+
         <Style x:Key="CaptionStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -157,7 +157,7 @@
 
     <Grid Background="{StaticResource SplashBg}">
 
-        <!-- LARGE BLURRED BLOBS -->
+        <!-- LARGE BLURRED BLOBS — measured from 12-fluid-crystal-blob.png -->
         <Canvas IsHitTestVisible="False">
             <Ellipse x:Name="BgBlob1" Width="580" Height="440" Fill="{StaticResource Blob1Grad}" Opacity="0.48" Canvas.Left="-160" Canvas.Top="-100">
                 <Ellipse.Effect><BlurEffect Radius="90"/></Ellipse.Effect>
@@ -177,7 +177,7 @@
             </Ellipse>
         </Canvas>
 
-        <!-- SMALL GLASS DROPLETS -->
+        <!-- SMALL GLASS DROPLETS — bouncy orbit -->
         <Canvas IsHitTestVisible="False">
             <Ellipse x:Name="Droplet1" Width="44" Height="44" Fill="{StaticResource DropletFill}" Stroke="#BFFFFFFF" StrokeThickness="1.2" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
                 <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet1Translate" X="0" Y="0"/></Ellipse.RenderTransform>
@@ -205,64 +205,52 @@
 
                 <Grid Width="460" Height="460" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-                    <!-- Fluid organic blob — traced 8-lobe shape from mockup -->
+                    <!-- Fluid organic blob v6 — 8-lobe liquid, traced from mockup, more irregular -->
                     <Path x:Name="FluidBlob" Opacity="0.74" Fill="{StaticResource FluidGrad}" Effect="{StaticResource FluidGlow}" Stretch="Fill"
-                          Data="M 140,22 C 195,8 265,14 318,62 C 375,108 398,188 358,258 C 322,328 232,378 152,342 C 72,306 18,222 32,148 C 46,74 85,36 140,22 Z
-                                M 88,88 C 108,68 142,58 172,78 C 202,98 212,138 192,168 C 172,198 128,208 98,188 C 68,168 58,128 88,88 Z">
+                          Data="M 440.0,230.0 C 395.2,265.4 401.4,322.8 360.8,360.8 C 305.7,367.3 282.8,419.0 230.0,430.0 C 179.3,396.3 122.9,417.9 70.9,389.1 C 79.7,329.6 36.1,288.5 40.0,230.0 C 74.9,185.2 55.0,131.3 85.0,85.0 C 144.5,78.5 172.7,26.0 230.0,15.0 C 263.2,62.2 321.2,59.7 357.3,102.7 C 369.5,158.2 423.6,177.3 440.0,230.0 Z">
                         <Path.RenderTransform>
                             <TransformGroup>
-                                <ScaleTransform x:Name="FluidBlobScale" ScaleX="1" ScaleY="1" CenterX="210" CenterY="210"/>
+                                <ScaleTransform x:Name="FluidBlobScale" ScaleX="1" ScaleY="1" CenterX="230" CenterY="230"/>
                                 <TranslateTransform x:Name="FluidBlobTranslate" X="0" Y="0"/>
                             </TransformGroup>
                         </Path.RenderTransform>
                     </Path>
-                    <!-- Glossy edge highlight -->
-                    <Path Opacity="0.85" Stroke="{StaticResource FluidEdgeGrad}" StrokeThickness="1.8" Fill="Transparent"
-                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
-                          Stretch="Fill"
-                          Data="M 140,22 C 195,8 265,14 318,62 C 375,108 398,188 358,258 C 322,328 232,378 152,342 C 72,306 18,222 32,148 C 46,74 85,36 140,22 Z">
+                    <!-- Inner liquid highlight — soft white blob for 3D depth -->
+                    <Path x:Name="FluidHighlight" Opacity="0.22" Fill="#FFFFFFFF" Stretch="Fill"
+                          Data="M 230,70 C 280,68 320,90 330,130 C 340,170 310,210 260,230 C 210,250 160,220 140,170 C 120,120 180,72 230,70 Z">
                         <Path.RenderTransform>
                             <TransformGroup>
-                                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="210" CenterY="210"/>
+                                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="230" CenterY="230"/>
+                                <TranslateTransform X="0" Y="0"/>
+                            </TransformGroup>
+                        </Path.RenderTransform>
+                        <Path.Effect><BlurEffect Radius="18"/></Path.Effect>
+                    </Path>
+                    <!-- Glossy edge highlight -->
+                    <Path x:Name="FluidEdge" Opacity="0.85" Stroke="{StaticResource FluidEdgeGrad}" StrokeThickness="1.8" Fill="Transparent"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                          Stretch="Fill"
+                          Data="M 440.0,230.0 C 395.2,265.4 401.4,322.8 360.8,360.8 C 305.7,367.3 282.8,419.0 230.0,430.0 C 179.3,396.3 122.9,417.9 70.9,389.1 C 79.7,329.6 36.1,288.5 40.0,230.0 C 74.9,185.2 55.0,131.3 85.0,85.0 C 144.5,78.5 172.7,26.0 230.0,15.0 C 263.2,62.2 321.2,59.7 357.3,102.7 C 369.5,158.2 423.6,177.3 440.0,230.0 Z">
+                        <Path.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="230" CenterY="230"/>
                                 <TranslateTransform X="0" Y="0"/>
                             </TransformGroup>
                         </Path.RenderTransform>
                         <Path.Effect><BlurEffect Radius="1.2"/></Path.Effect>
                     </Path>
 
-                    <!-- Frosted hexagon 300x300 40% opacity 24px radius — rounded hexagon clip -->
+                    <!-- Frosted hexagon 300x300 40% opacity 24px radius — TRUE rounded hex clip -->
                     <Border x:Name="LogoBorder" Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Center"
                             Background="{StaticResource SplashGlassBg}" BorderBrush="{StaticResource SplashGlassBorder}" BorderThickness="1.5" CornerRadius="24"
-                            Effect="{StaticResource GlassShadow}" Opacity="0">
-                        <Border.Clip>
-                            <PathGeometry>
-                                <PathFigure StartPoint="150,18" IsClosed="True">
-                                    <LineSegment Point="260,82"/>
-                                    <LineSegment Point="260,218"/>
-                                    <LineSegment Point="150,282"/>
-                                    <LineSegment Point="40,218"/>
-                                    <LineSegment Point="40,82"/>
-                                </PathFigure>
-                            </PathGeometry>
-                        </Border.Clip>
+                            Effect="{StaticResource GlassShadow}" Opacity="0"
+                            Clip="{StaticResource RoundedHexClip}">
                         <Border.RenderTransform>
                             <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92" CenterX="150" CenterY="150"/>
                         </Border.RenderTransform>
                         <Grid>
                             <Border CornerRadius="24" Background="#26FFFFFF" Margin="10" Opacity="0.65" IsHitTestVisible="False"/>
-                            <Border CornerRadius="24" Background="#12FFFFFF" Margin="0" Opacity="0.5" IsHitTestVisible="False">
-                                <Border.Clip>
-                                    <PathGeometry>
-                                        <PathFigure StartPoint="150,18" IsClosed="True">
-                                            <LineSegment Point="260,82"/>
-                                            <LineSegment Point="260,218"/>
-                                            <LineSegment Point="150,282"/>
-                                            <LineSegment Point="40,218"/>
-                                            <LineSegment Point="40,82"/>
-                                        </PathFigure>
-                                    </PathGeometry>
-                                </Border.Clip>
-                            </Border>
+                            <Border CornerRadius="24" Background="#12FFFFFF" Margin="0" Opacity="0.5" IsHitTestVisible="False" Clip="{StaticResource RoundedHexClip}"/>
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
                                 <TextBlock FontSize="60" FontWeight="Bold" FontFamily="{DynamicResource AppFontFamily}">
                                     <Run Text="P" Foreground="#1E293B"/><Run Text="G" Foreground="#0EA5E9"/><Run Text="A" Foreground="#1E293B"/>
