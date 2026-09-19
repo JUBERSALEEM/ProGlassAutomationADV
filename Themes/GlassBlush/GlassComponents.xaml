@@ -190,21 +190,24 @@
                                 SnapsToDevicePixels="True"/>
                         <ContentPresenter Grid.Column="1" Margin="14,0,0,0"/>
                     </Grid>
+                    <ControlTemplate.Triggers>
+                        <!-- GB-B2: Tag triggers moved from Style.Triggers into
+                             the template — TargetName setters are only legal
+                             in a ControlTemplate (MC4011). -->
+                        <Trigger Property="Tag" Value="done">
+                            <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Dot" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+                        </Trigger>
+                        <Trigger Property="Tag" Value="active">
+                            <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.AccentDeep}"/>
+                            <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            <Setter TargetName="Dot" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Style.Triggers>
-            <Trigger Property="Tag" Value="done">
-                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.AccentGlow}"/>
-                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
-                <Setter TargetName="Dot" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
-            </Trigger>
-            <Trigger Property="Tag" Value="active">
-                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource GlassBlush.AccentDeep}"/>
-                <Setter TargetName="Dot" Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
-                <Setter TargetName="Dot" Property="Effect" Value="{StaticResource GlassBlush.GlowAccent}"/>
-            </Trigger>
-        </Style.Triggers>
     </Style>
 
     <!-- ── PROGRESS BAR (glass-05 stock / glass-07 aging) ──────────────

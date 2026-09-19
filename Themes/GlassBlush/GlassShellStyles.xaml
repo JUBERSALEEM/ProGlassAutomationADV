@@ -25,9 +25,11 @@
     ═══════════════════════════════════════════════════════════════════ -->
 
     <!-- ── shared effects (frozen, shared instances) ─────────────────── -->
+    <!-- GB-B2: removed IsDirectionalLightOnly — no such property on
+         DropShadowEffect (MC3072). -->
     <DropShadowEffect x:Key="GlassBlush.GlowAccent"
                       Color="{DynamicResource GlassBlush.AccentGlowColor}"
-                      BlurRadius="18" ShadowDepth="0" Opacity="0.55" IsDirectionalLightOnly="False">
+                      BlurRadius="18" ShadowDepth="0" Opacity="0.55">
     </DropShadowEffect>
     <DropShadowEffect x:Key="GlassBlush.CardShadowFx"
                       Color="{DynamicResource GlassBlush.CardShadowColor}"

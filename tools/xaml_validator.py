@@ -31,6 +31,10 @@ Static analysis gate for every .xaml file in the repository.
   W20 a property set BOTH as an attribute AND as a property element on the
       same element (e.g. Style attribute + <Border.Style>) — MC3024
       "can be set only once". Added 2026-09-19 (GB-B1).
+  W21 a Setter with TargetName outside a ControlTemplate/DataTemplate
+      context (e.g. TargetName in <Style.Triggers> of an explicit Style) —
+      MC4011 "TargetName property cannot be set on a Style Setter".
+      Added 2026-09-19 (GB-B2).
 
 Usage:  python3 tools/xaml_validator.py [--files <paths...>]
 Writes: docs/ui-audit/XAML_VALIDATION_REPORT.{md,json}
@@ -85,7 +89,8 @@ MUST_BE_DYNAMIC = {"PgFontHero", "PgFontHeroSub", "PgFontCardTitle", "PgFontCard
 # Each entry was a real build break (GB-B1, first real build 2026-09-19).
 # Add here, with the error code, whenever a new one is discovered.
 NONEXISTENT_PROPS = {
-    "FontFeatures",   # CSS font-feature-settings; WPF has no XAML property
+    "FontFeatures",             # CSS font-feature-settings; WPF has no XAML property
+    "IsDirectionalLightOnly",   # no WPF effect carries this (MC3072, GB-B2)
 }
 
 NUM = re.compile(r"^-?\d+(\.\d+)?$")
@@ -268,6 +273,27 @@ def check_file(path, merge_index, all_declared, i18n, findings):
         for c in el:
             if isinstance(c.tag, str) and c.get("Property") in NONEXISTENT_PROPS:
                 F("ERROR", "W19", f"Setter Property='{c.get('Property')}' is not a WPF property")
+    # W21 — TargetName is only legal inside a ControlTemplate or DataTemplate
+    # (template parts / named template elements). A Setter with TargetName in
+    # <Style.Setters> or <Style.Triggers> of an explicit Style fails markup
+    # compilation with MC4011 'TargetName property cannot be set on a Style
+    # Setter'. Static ET parsing passes — hence the explicit ancestry check.
+    for el in root.iter():
+        if not isinstance(el.tag, str) or local(el.tag) != "Setter":
+            continue
+        if not el.get("TargetName"):
+            continue
+        anc = parent.get(el)
+        in_template = False
+        while anc is not None:
+            if local(anc.tag) in ("ControlTemplate", "DataTemplate"):
+                in_template = True
+                break
+            anc = parent.get(anc)
+        if not in_template:
+            F("ERROR", "W21",
+              f"Setter TargetName='{el.get('TargetName')}' outside a "
+              "ControlTemplate/DataTemplate (MC4011)")
     # element checks
     for el in root.iter():
         if not isinstance(el.tag, str):
@@ -387,7 +413,8 @@ def main():
       "W9 Min>Max · W10 single-child violation · W11 Items+ItemsSource · W12 grid out-of-bounds (auto-extends) · "
       "W14 missing code-behind · W15 FindName missing · W16 unauthorized static on runtime token · "
       "W17 hardcoded hex in view · W18 root xmlns = XAML (not presentation) namespace · "
-      "W19 non-existent WPF property (denylist) · W20 property set as attribute AND property element. "
+      "W19 non-existent WPF property (denylist) · W20 property set as attribute AND property element · "
+      "W21 TargetName setter outside a template (MC4011). "
       "W3 duplicate x:Key is WARN (WPF last-wins shadowing, latent). "
       "W7 covers keys published at runtime by Services (ThemeManager, PrintTokenService, …).")
     A("")

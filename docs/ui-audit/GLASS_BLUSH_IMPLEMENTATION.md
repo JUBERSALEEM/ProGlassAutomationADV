@@ -12,8 +12,10 @@ screen, deviations, and verification status.
 VISUALLY MATCHED ≠ NOT YET VERIFIED (no runtime exists in this environment —
 no .NET SDK, no screenshots possible; GB-P16 is tooling-ready but NOT RUN).
 A first REAL build was run externally on 2026-09-19 and its errors were
-fixed at the source (GB-B1) — the rebuild is still due in the SDK
-environment before anything may be labelled build-verified.
+fixed at the source (GB-B1), with a second fix round (GB-B2: TargetName in
+Style triggers + a non-existent DropShadowEffect property) — the rebuild is
+still due in the SDK environment before anything may be labelled
+build-verified.
 
 ---
 
@@ -332,6 +334,54 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   The rebuild is due in the SDK environment — nothing in this stream may be
   labelled build-verified until it passes there.
 
+## GB-B2 — Second build fix round (2026-09-19)
+- **Context:** after the GB-B1 fixes the user's SDK environment still
+  reported a full error list. Verified every listed error against this
+  branch's files line-by-line; exactly **two markup-compiler root causes
+  remained in this tree** — both in the Glass Blush theme dictionaries,
+  both of which keep the whole dictionary from compiling and therefore
+  regenerate the entire downstream cascade (hundreds of
+  `XDG-0001 "GlassBlush.* could not be resolved"` + `XDG0008 "GlassShell
+  does not exist"` + the `ExperienceGatedConverter` MultiBinding designer
+  errors, which need a built assembly to resolve clr-namespace types).
+- **Root cause 1 (MC4011): `TargetName` in an explicit Style's triggers.**
+  `GlassBlush.TimelineItem` (GlassComponents.xaml) set
+  `<Setter TargetName="Dot" ...>` inside `<Style.Triggers>` (two Tag
+  triggers × 3 setters). `TargetName` is only legal inside a
+  ControlTemplate or DataTemplate — in an explicit Style the markup
+  compiler rejects it ("TargetName property cannot be set on a Style
+  Setter"). Fixed: the two Tag triggers moved into the style's
+  ControlTemplate as `ControlTemplate.Triggers` (same setters, same
+  visual result: the dot glows for `done`/`active` timeline stages).
+- **Root cause 2 (MC3072): `IsDirectionalLightOnly` on DropShadowEffect.**
+  `GlassBlush.GlowAccent` (GlassShellStyles.xaml) carried
+  `IsDirectionalLightOnly="False"` — no WPF effect type has that property.
+  Removed; the effect is otherwise unchanged (Color/BlurRadius/
+  ShadowDepth/Opacity).
+- **Errors from the user's list verified NOT present in this branch
+  (stale list / local-copy divergence):**
+  - MC6002 (4 dictionaries) / FontFeatures (19) / MC3024 (6 set-twice
+    Style) — already fixed at source in GB-B1; repo-wide re-scan on
+    2026-09-19 confirms 0 occurrences of each pattern in the current
+    tree.
+  - `XDG0006 "DbChipStyle"` (MainWindow L137) and `XDG0006
+    "views/production/controls/productionunitdetailtemplates.xaml"`
+    (L173–194): neither string exists anywhere in this branch's
+    `MainWindow.xaml` (or repo). These lines exist only in the local
+    `ProGlassAutomationperf` working copy, which diverged from this
+    branch. Re-sync the branch → they disappear.
+  - `XLS0414 "System.Object not found"` + `XDG0010/XDG-0001
+    ExperienceGatedConverter` + `XDG0008 GlassShell` — designer errors
+    against a missing/stale built assembly; clear with the first
+    successful build of the current tree.
+- **Gate hardening:** `tools/xaml_validator.py` — W19 denylist gains
+  `IsDirectionalLightOnly`; new **W21** (ERROR) catches any Setter with
+  `TargetName` outside a ControlTemplate/DataTemplate ancestry (unit
+  tested against the exact bad/good patterns).
+- **Status:** validator 337 files **0 ERROR / 22 WARN (legacy) / 3 NOTE**.
+  Build is **NOT RE-RUN here** (no SDK) — rebuild due in the SDK
+  environment.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -354,3 +404,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P16 runtime screenshot fidelity | ❌ **NOT RUN — no WPF runtime in this environment** (verification plan documented) | — |
 | GB-P17 DPI/a11y/performance | ✅ STATIC VERIFIED (automation names on 10 icon buttons; contrast measured+documented; virtualization/effects audit) | `GB-P17` |
 | GB-B1 first real build fix round | ✅ FIXED at source (4 root-xmlns + 19 FontFeatures + 6 set-twice Style; validator +W18/W19/W20) — rebuild due in SDK env | `GB-B1` |
+| GB-B2 second build fix round | ✅ FIXED at source (TimelineItem TargetName → ControlTemplate triggers = MC4011; removed IsDirectionalLightOnly = MC3072; validator +W21, W19 denylist); rest of user's list verified stale/local-copy | `GB-B2` |
