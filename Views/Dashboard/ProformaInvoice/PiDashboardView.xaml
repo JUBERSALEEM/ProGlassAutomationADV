@@ -223,12 +223,19 @@
                 <Border Grid.Row="4" Style="{StaticResource PgCardStyle}"
                         Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <DockPanel>
+                        <!-- GB-B7: 2-column header (title * / meta Auto) —
+                             the single-cell pair overlapped in tight cards. -->
                         <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-                            <TextBlock Text="{DynamicResource Dashboard.TopCustomers}"
-                                       Style="{StaticResource PgCardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Dashboard.RankedTotalInvoiceValueVATInclusive}"
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Dashboard.TopCustomers}"
+                                       Style="{StaticResource PgCardTitleStyle}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Dashboard.RankedTotalInvoiceValueVATInclusive}"
                                        Style="{StaticResource PgMetaStyle}"
-                                       HorizontalAlignment="Right"/>
+                                       Margin="12,0,0,0"/>
                         </Grid>
                         <Grid>
                             <Border Style="{StaticResource PgChartWellStyle}"

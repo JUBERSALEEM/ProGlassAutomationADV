@@ -572,12 +572,19 @@
 
                     <Border Grid.Column="1" Style="{StaticResource PgCardStyle}">
                         <DockPanel>
+                            <!-- GB-B7: 2-column header (title * / meta Auto) —
+                                 the single-cell pair overlapped in tight cards. -->
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="{DynamicResource Dashboard.RecentInvoices}"
-                                           Style="{StaticResource PgCardTitleStyle}"/>
-                                <TextBlock Text="{DynamicResource Dashboard.LatestActivity}"
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{DynamicResource Dashboard.RecentInvoices}"
+                                           Style="{StaticResource PgCardTitleStyle}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{DynamicResource Dashboard.LatestActivity}"
                                            Style="{StaticResource PgMetaStyle}"
-                                           HorizontalAlignment="Right"/>
+                                           Margin="12,0,0,0"/>
                             </Grid>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
                                           MaxHeight="400"

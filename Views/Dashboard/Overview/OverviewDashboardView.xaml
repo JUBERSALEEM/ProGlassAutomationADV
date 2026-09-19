@@ -324,12 +324,20 @@
 
                     <Border Grid.Column="0" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
                         <DockPanel>
+                            <!-- GB-B7: 2-column header — title (*) + meta (Auto)
+                                 in separate cells; the old single-cell pair
+                                 overlapped when the date range was long. -->
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-                                <TextBlock Text="{DynamicResource Dashboard.RevenueTrend}"
-                                           Style="{StaticResource PgCardTitleStyle}"/>
-                                <TextBlock Text="{Binding ChartTitle}"
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="{DynamicResource Dashboard.RevenueTrend}"
+                                           Style="{StaticResource PgCardTitleStyle}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="{Binding ChartTitle}"
                                            Style="{StaticResource PgMetaStyle}"
-                                           HorizontalAlignment="Right"/>
+                                           Margin="12,0,0,0"/>
                             </Grid>
                             <Border Style="{StaticResource PgChartWellStyle}">
                                 <trend:TrendChartControl

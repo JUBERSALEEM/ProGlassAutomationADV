@@ -121,6 +121,9 @@
         <Setter Property="FontSize" Value="{DynamicResource PgFontMeta}"/>
         <Setter Property="Foreground" Value="{DynamicResource PgText3Brush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+        <!-- GB-B7: card-header meta (dates/ranges) now trims instead of
+             colliding with the left title in tight headers. -->
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
     <Style x:Key="PgKpiLabelStyle" TargetType="TextBlock">
@@ -182,6 +185,10 @@
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource PgText1Brush}"/>
         <Setter Property="Margin" Value="0,7,0,0"/>
+        <!-- GB-B7: untrimmed stage values overflowed the card's right edge
+             onto the adjacent stage card (pipeline WrapPanel) — the
+             "overlapping text" seen on dashboards. -->
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
     <Style x:Key="PgStageFootStyle" TargetType="TextBlock">

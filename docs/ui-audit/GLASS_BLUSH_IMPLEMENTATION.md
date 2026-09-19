@@ -26,8 +26,10 @@ GlassShell, which only fails at BAML runtime parse, not at markup
 compile) — fixed with a ScaleLengthConverter) and a second (GB-B6: a
 ContentPresenter-targeted ItemContainerStyle inherited via BasedOn was
 applied to explicit ContentControl item containers — startup crash on
-first layout; one style fixed, 32 sites cleared; validator +W23).
-Runtime re-verification is still due in the SDK environment.
+first layout; one style fixed, 32 sites cleared; validator +W23), and a
+dashboard text-overlap audit (GB-B7: untrimmed NoWrap overflow +
+five same-cell title/meta headers — fixed). Runtime re-verification
+is still due in the SDK environment.
 
 ---
 
@@ -596,6 +598,47 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   is the user's run. If the next crash is in the same family, W23 should
   have caught it — report anything new.
 
+## GB-B7 — Dashboard "overlapping text" audit + fixes (2026-09-19)
+- **Context:** user report — "few overlap text issues in overview
+  dashboard". No screenshot supplied → static layout audit of both
+  Overview dashboards + a repo-wide scan for the collision pattern
+  (two TextBlocks sharing one Grid cell with no columns/rows; or
+  untrimmed text in a width-constrained cell).
+- **Root cause pattern (WPF-specific):** a TextBlock with NoWrap text
+  and no TextTrimming overflows its cell and renders ON TOP of the
+  neighbour — the classic "overlapping text". Two variants found:
+  1. **Same-cell title + right-aligned meta** (single Grid cell, no
+     columns): card titles vs date-range/meta strings collide in the
+     middle. Present in 5 dashboard card headers (Overview trend, Dn,
+     Jo, Pi, Ti "recent activity" cards).
+  2. **Untrimmed value in a fixed card** beside other cards: pipeline
+     stage `ValueDisplay` (PgStageValueStyle had no trimming) could
+     spill over the card edge onto the adjacent stage card; Personal
+     glass KPI 22px value likewise.
+- **Fixes (centralized where possible):**
+  - `PgStageValueStyle` + TextTrimming=CharacterEllipsis (all dashboards'
+    pipeline stages — one token, all consumers).
+  - `PgMetaStyle` + TextTrimming=CharacterEllipsis (all meta strings).
+  - 5 card headers restructured to 2-column Grids (`*` title + `Auto`
+    meta, 12px gap) — titles trim via PgCardTitleStyle, meta always
+    visible at natural width.
+  - Personal glass KPI tile: ValueDisplay trimmed, Foot wrapped.
+- **Audited and SAFE (no change):** KPI tile template (label trimmed,
+  value in DownOnly Viewbox, footnote wraps), feed rows (title/sub
+  trimmed; value in Auto column), hero (title trimmed, sub wraps),
+  error band (wraps via PgStateTextStyle base), stats values (trimmed),
+  ON/OFF toggle labels, nav chip icon+label (StackPanel), Personal
+  overview (no same-cell pairs found).
+- **Legacy candidates noted, NOT touched (out of scope, pre-existing
+  business views):** InquiryAttachmentPreviewWindow, InquiryEditorWindow,
+  FirstRunSetupPanel, CompanySetupView, ClientProfileView,
+  WastagesSectionView, TiFamilySection ×3, ComingSoonView,
+  SettingsSectionStyles, ShellStyles, PiIndustrialStyles.
+- **Verification:** 7 modified XAML parse OK; collision re-scan over the
+  dashboard family = 0 candidates; validator 337 files 0 ERROR.
+  Visual confirmation = user's screen (asked for a screenshot if any
+  overlap remains after pull).
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -624,3 +667,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-B5 first runtime crash — star Length in GlassShell | ✅ FIXED at source (MaxWidth/MaxHeight="0.94*" → ScaleLengthConverter × 0.94 of Window Actual; repo-wide sweep: only 2 invalid star sites, 663 legit Grid stars; validator +W22 unit-tested; BAML runtime parse NOT RUN — no SDK) | `c46659d` |
 | GB-B5b CS0119 in my converter + stale-copy triage | ✅ FIXED at source (Convert.ToString shadowed by the Convert member → System.Convert.ToString ×2; zero-length guard; full identifier audit + repo-wide same-class scan; crash report proven stale = old exe; XDG0003/XDG0006 proven copy-divergence with verification commands) | `e324bf4` |
 | GB-B6 second runtime crash — container-style type mismatch | ✅ FIXED at source (PgSkeletonKpiBandStyle inherited ContentPresenter ItemContainerStyle via BasedOn, applied to explicit ContentControl item containers — .NET 8 IsItemItsOwnContainerOverride='item is UIElement'; ONE style fix clears 32 sites/7 dashboards; validator +W23 unit-tested; first-layout runtime NOT RUN) | `cb54d1b` |
+| GB-B7 dashboard overlapping-text audit | ✅ FIXED at source (NoWrap-untrimmed overflow + 5 same-cell title/meta headers → 2-col grids; PgStageValueStyle+PgMetaStyle trimmed; Personal KPI tile trimmed/wrapped; 7 XAML parse OK, dashboard re-scan 0, 337 files 0 ERROR; visual = user screen) | (see below) |
