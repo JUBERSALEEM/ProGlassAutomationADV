@@ -221,9 +221,44 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                 var resultRows = BuildResultRows();
 
-                // No pane identity means nothing can be joined to a Step 6 row,
-                // so there is nothing worth writing.
-                if (resultRows.Count == 0) return;
+                // RC-018 (2026-09-20): this used to read
+                //     if (resultRows.Count == 0) return;
+                // with the comment "No pane identity means nothing can be
+                // joined to a Step 6 row, so there is nothing worth writing."
+                //
+                // The premise is right and the conclusion is wrong. An empty
+                // projection means the STEP 6 feed has no pane identity to join
+                // on — it does not mean the run is worthless, because this same
+                // reserved row is what Step 5's VIEW RESULT restores:
+                // MainViewModel wires NavigateToOptimizationSummaryRequested →
+                // Navigate("Optimization") + OptimizationVM.ShowLatestRunAsync
+                // (documentKey) → RestoreSessionCore, which repopulates Pieces
+                // and Stocks and therefore the SIZES tab. Skipping the write
+                // made the operator's own run invisible: they ran it from
+                // Step 5, saw a result, pressed VIEW RESULT, landed on SUMMARY
+                // and found no sizes anywhere — "how is it optimized with no
+                // sizes?" It was optimized; the run was simply never saved, and
+                // the only trace was a SessionStatus line.
+                //
+                // resultRows is a projection of CostingRows, so it is empty
+                // whenever costing produced nothing — which is exactly what
+                // happens when Step 4 pane prices were zeroed by the destructive
+                // sheet-store refresh (RC-016). The two defects compounded.
+                //
+                // The manual Save Session path never had this gate: it checks
+                // HasPieces only. Both paths now agree, and the Step 6
+                // consequence is logged instead of silently discarding the run.
+                if (!HasPieces) return;
+
+                if (resultRows.Count == 0)
+                {
+                    AppLogService.Warning(
+                        $"[Optimization] latest run for '{DocumentKey}' was saved with an empty " +
+                        "result projection (CostingRows is empty — no pane identity or no priced " +
+                        "racks). SIZES/STOCKS/2D will restore normally, but Step 6 will show no " +
+                        "optimization feed for this run.",
+                        new LogContext { Module = "Optimization", Operation = "PersistLatestRun" });
+                }
 
                 // Captured synchronously, before the first await. The snapshot
                 // reads four UI-bound ObservableCollections — Pieces, Stocks,

@@ -558,3 +558,99 @@ INVOICE, attach a document. **Before RC-017:** the attachment is stored and
 nothing else happens. **After:** the Signed-PI/LPO dialog appears, the PI becomes
 Approved, a Job Order is created Released, an audit entry is written, and the job
 appears in the Optimization JOBS tab with its specs and sizes.
+
+---
+
+# Addendum 3 — 2026-09-20: Option A already existed; it was defeated by one gate
+
+Owner decision received: **Option A** (module adopts the last Step 5 run). No new
+plumbing was needed — the plumbing is already in the codebase and correct.
+
+## The path (verified, file:line)
+
+1. Step 5 fires `NavigateToOptimizationSummaryRequested?.Invoke(CurrentDocumentKey)`
+   (`ProformaInvoiceViewModel.cs:279`).
+2. `MainViewModel.Part1.cs:911-915` handles it:
+   `Navigate("Optimization"); _ = OptimizationVM.ShowLatestRunAsync(documentKey);`
+   — i.e. **the module instance** (`OptimizationVM`), not the headless host.
+3. `ShowLatestRunAsync` (`Session.cs:499`) → `_sessions.GetLatestRunAsync(documentKey)`
+   → stamps `DocumentKey` → `RestoreSessionCore(s, openToReport: false)`.
+4. `RestoreSessionCore` deserializes `PiecesJson`/`StocksJson` and **repopulates
+   `Pieces` (Session.cs:435-448) and `Stocks` (452-457)**, then `RefreshDerived()`.
+
+The document key matches on both ends: `host.DocumentKey = CurrentDocumentKey`
+(`ProformaInvoiceViewModel.cs:486`) and the event carries `CurrentDocumentKey`
+(:279) — both resolve to `ActiveInvoiceContext.ProformaId`, which does not change
+when the PI is saved.
+
+**So Option A was already implemented.** The reason the operator saw "a result but
+no sizes" is step 3 finding nothing to restore.
+
+## RC-018 — the auto-save gate discarded the whole run
+
+`PersistLatestRunAsync` (`Session.cs:216`) read:
+
+```csharp
+var resultRows = BuildResultRows();
+// No pane identity means nothing can be joined to a Step 6 row,
+// so there is nothing worth writing.
+if (resultRows.Count == 0) return;      // ← nothing persisted at all
+```
+
+`BuildResultRows()` is a straight projection of `CostingRows` (Session.cs:187-206),
+so the row count is zero whenever costing produced nothing.
+
+The premise is right and the conclusion is wrong. An empty projection means the
+**Step 6 feed** has no pane identity to join on; it does not mean the run is
+worthless, because this same reserved row is what VIEW RESULT restores. Skipping
+the write made the operator's own run invisible: SUMMARY opened, `SessionStatus`
+took a quiet line ("No optimisation run has been saved for this document yet"),
+and **SIZES / STOCKS / 2D came back empty** because `Pieces` and `Stocks` were
+never restored.
+
+The manual save path proves this gate was an over-restriction, not an invariant:
+`SaveSessionAsync` (Session.cs:338) checks **`HasPieces` only** — it has no
+`resultRows.Count` gate.
+
+**Interaction with RC-016:** `CostingRows` is empty precisely when pane prices are
+zero — which is what the destructive sheet-store refresh (RC-016) produced. The two
+defects compounded into the single symptom reported.
+
+**Fix:** the gate now reads `if (!HasPieces) return;`, matching the manual path, and
+an empty projection logs a warning naming the Step 6 consequence instead of
+silently discarding the run. `BuildSessionSnapshot` already serializes an empty
+`resultRows` as `"[]"` and restore deserializes it back to an empty list, so an
+empty projection now yields **empty SUMMARY rows but populated SIZES** — strictly
+better than the previous all-or-nothing loss.
+
+## Status after Addendum 3
+
+| ID | Symptom | Status |
+|---|---|---|
+| RC-015 | Approved PI leaves the job order Draft → hidden by Optimization | ROOT CAUSE CONFIRMED + FIX NOT YET VERIFIED |
+| RC-016 | Step 4 color resets on wizard navigation | ROOT CAUSE CONFIRMED + FIX NOT YET VERIFIED |
+| RC-017 | Approved PI never becomes a job order | ROOT CAUSE CONFIRMED + FIX NOT YET VERIFIED |
+| RC-018 | Step 5 VIEW RESULT shows a result but SIZES has no sizes | ROOT CAUSE CONFIRMED + FIX NOT YET VERIFIED |
+
+## What is deliberately NOT changed
+
+- **Not** unified into one VM instance (Option B declined; keeps RC-007 safe).
+- **Not** auto-syncing `JobOrderSnapshot.EmbeddedInvoice` on every PI save — it is
+  frozen at conversion by design so later PI edits cannot mutate a historical
+  record. The safe, correct route stays an explicit operator-initiated re-sync.
+- **Not** re-priced on store miss — RC-016 removes the destructive trigger rather
+  than layering an ownership flag across the SGU/DGU/LAM panels.
+
+## Verification for 2.0.3 (build first)
+
+1. Step 4: price a pane → APPLY → navigate Step 3/5 and back → **color and rate
+   survive** (RC-016).
+2. Step 5 → run → **VIEW RESULT** → the module opens on SUMMARY and **SIZES lists
+   sizes, STOCKS lists racks, 2D shows the layout** (RC-018). This is the direct
+   test of the complaint that started this audit.
+3. Step 7 SAVE → Step 8 attach + approve → **Status becomes Approved**, and a job
+   order exists (RC-017).
+4. That job order shows as **Released** — and it appears in the Optimization JOBS
+   pane with sizes (RC-015).
+5. Open an **old** PI whose job order is already Draft: approving it now upgrades
+   that job order to Released (RC-015 retroactive path).
