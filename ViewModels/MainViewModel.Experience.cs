@@ -59,6 +59,28 @@ namespace ProGlassAutomation.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsProfessionalExperience));
                 UpdateExperienceContent();
+
+                // SENIOR FIX 2026-09-19: experience switch must NOT carry
+                // AI overlays open. Previously AiChatVM.IsOpen and
+                // IsAgentChatOpen survived the switch, so opening AI in
+                // Professional then switching to Personal left a 920x640
+                // centered chat covering all Personal modules with no
+                // obvious close affordance (user reported "ai window open
+                // in personal ui switch mode"). Now both chats close on
+                // every experience switch — only top-panel buttons may
+                // open them in the new experience.
+                try
+                {
+                    IsAgentChatOpen = false;
+                    IsSettingsOpen = false;
+                    IsNotificationsOpen = false;
+                    IsScreenshotOpen = false;
+                    IsUserSwitchOpen = false;
+                    IsScreenRecordOpen = false;
+                    IsStorageOpen = false;
+                    if (AiChatVM != null) AiChatVM.IsOpen = false;
+                }
+                catch { }
             }
         }
 

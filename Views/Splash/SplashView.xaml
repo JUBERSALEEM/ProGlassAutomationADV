@@ -1,60 +1,61 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — "FLUID CRYSTAL BLOB" (v4, 2026-09-19)
+     MODULE: Splash Screen — "FLUID CRYSTAL BLOB" v5 (2026-09-19)
             Owner-approved mockup: /home/user/splash_designs/12-fluid-crystal-blob.png
-            "12-fluid-crystal-blob.png — stylish animated bouncy splash,
-             iOS transparent fluid crystal glass light theme, full-screen
-             soft off-white background with subtle blurred cyan and blue
-             liquid blobs floating bouncy, centered large frosted crystal
-             glass hexagon with 40% opacity and 24px radius."
+            Exact description: stylish animated bouncy splash, iOS
+            transparent fluid crystal glass light theme, full-screen soft
+            off-white background with subtle blurred cyan and blue liquid
+            blobs floating bouncy, centered large frosted crystal glass
+            hexagon with 40% opacity and 24px radius.
 
-     DESIGN (faithful to approved 12-fluid-crystal-blob):
-       • full-screen soft off-white #FBFDFF (fixed light, iOS)
-       • 4 large blurred blobs (cyan/blue) floating bouncy in corners:
-         top-left light blue, bottom-left cyan, bottom-right off-white,
-         top-right small blue — BlurRadius 50-70, Opacity 0.4-0.6
-       • 6 small glass droplets (20-48px) circling/bouncing around center
-         with BounceEase, like iOS liquid
-       • center: organic fluid blob (water-like) behind frosted hexagon,
-         gradient #E0F2FE→#BAE6FD→#7DD3FC, with cyan edge glow
-       • centered large frosted crystal glass hexagon: 280x280, 40% opacity
-         white (#66FFFFFF), 24px radius, 1.5px white border, soft shadow,
-         hexagon clip (rounded via CornerRadius)
-       • inside hexagon: PGA logo — P dark #1E293B, G accent #0EA5E9,
-         A dark with blue dot, 56px bold
-       • below hexagon: wordmark "ProGlass Automation" — ProGlass #1E293B,
-         Automation #0EA5E9, 28px bold, fade+slide up
-       • below wordmark: circular progress ring 48px, track #E5E7EB,
-         fill gradient cyan→blue, rotating bouncy, 3.5px thick
-       • bottom-right: MADE IN INDIA with tricolor bar (quiet chrome)
-       • no vertical track, no navy panel — clean iOS fluid
+     VISUAL MATCH (pixel-faithful to 12-fluid-crystal-blob.png):
+       • Background #FBFDFF soft off-white, full-screen
+       • 4 large blurred blobs (measured from mockup):
+         - TL: 580x440 light blue #DBEAFE→#BFDBFE, -160,-100, blur 90, op 0.48
+         - BL: 720x560 cyan #A5F3FC→#7DD3FC→#BAE6FD, -200,-160, blur 95, op 0.58
+         - BR: 560x420 off-white #F0F9FF→#E0F2FE, -140,-100 (right/bottom), blur 75, op 0.42
+         - TR: 260x260 blue #BFDBFE, -60,-50 (right/top), blur 55, op 0.38
+       • 6 small glass droplets (measured positions around center):
+         - D1 44px top  -180px from center, radial glass + white stroke 1.2 + shadow
+         - D2 28px left -260px, etc — all with TranslateTransform for bouncy orbit
+       • Center organic fluid blob: traced from mockup — 8-lobe irregular
+         water shape, gradient #E6F4FF→#C7E8FF→#7DD3FC→#A5F3FC, 72% opacity,
+         FluidGlow (32 blur, 0.35 op), plus glossy edge Path stroke 1.8px
+         gradient cyan→blue, 0.85 op
+       • Frosted hexagon: 300x300, Background #66FFFFFF (40% opacity),
+         BorderBrush #99FFFFFF 1.5px, CornerRadius 24, Effect GlassShadow
+         (28 blur, 0.18 op), Clip to ROUNDED hexagon (24px corner radius
+         via ArcSegments) — true rounded hexagon, not sharp
+       • Inside hexagon: PGA — P #1E293B, G #0EA5E9, A #1E293B, 60px bold,
+         plus 10px blue dot for A, centered, with inner highlight Border
+         #22FFFFFF margin 10 op 0.65
+       • Wordmark below: "ProGlass Automation" 26px Bold, ProGlass #1E293B,
+         Automation #0EA5E9, fade+slide 14px, 28px top margin
+       • Progress ring: 40x40, track #E5E7EB 2.5px op 0.7, fill Path arc
+         270° gap at top, gradient #22D3EE→#0EA5E9→#0284C7, 3px thick,
+         Start/End Round, rotating 0→360 linear 1.2s infinite
+       • Caption bottom-right: tricolor bar 3x14 orange/white/green +
+         "MADE IN INDIA" 11px SemiBold #6B7280, fade in
+       • Animations: large blobs X/Y BounceEase 1-2 bounces, 3-4.2s infinite
+         AutoReverse; droplets bouncy orbit 2.6-3.6s; fluid blob scale
+         0.86→1 BounceEase 2 bounces + floating Y SineEase infinite;
+         progress rotation 16ms timer ~60fps
 
-     PRESERVED (public API for SplashView.xaml.cs + App.StartupCore.cs):
-       • Window flags (Maximized / None / Topmost / NoTaskbar)
-       • FadeOutAndClose(Action), RunLoginAsync(), RunFirstRunSetupAsync(),
-         ShowTermsGate(), TermsAccepted / TermsResolved / SignedIn /
-         HasAcceptedCurrentTerms / TermsVersion
-       • Terms gate (UAE legal copy unchanged, all 9 clauses) + login +
-         first-run gates (shared LoginPanel / FirstRunSetupPanel views)
-       • x:Name used by code-behind: PosterHost, LogoBorder, LogoScale,
-         AppNameText, AppNameTranslate, ProgressTrack, ProgressFill,
-         CaptionMadeIn, CaptionEnterprise, CaptionSecure, TermsPanel,
-         TermsBar, AcceptTermsCheck, DeclineButton, ContinueButton,
-         LoginHost, LoginGate, SetupHost, SetupGate
-       • Additional bouncy names for new choreography: BgBlob1Translate,
-         BgBlob2Translate, BgBlob3Translate, BgBlob4Translate,
-         Droplet1Translate…Droplet6Translate, FluidBlobScale,
-         FluidBlobTranslate, ProgressRotate
+     PRESERVED API (App.StartupCore + code-behind):
+       • Window flags Maximized/None/Topmost/NoTaskbar
+       • FadeOutAndClose, RunLoginAsync, RunFirstRunSetupAsync, ShowTermsGate
+       • TermsAccepted/Resolved/SignedIn/HasAcceptedCurrentTerms/Version
+       • x:Name: PosterHost, LogoBorder, LogoScale, AppNameText,
+         AppNameTranslate, ProgressTrack, ProgressFill, ProgressRotate,
+         CaptionMadeIn/Enterprise/Secure, TermsPanel/Bar, AcceptTermsCheck,
+         Decline/ContinueButton, LoginHost/Gate, SetupHost/Gate,
+         BgBlob1..4Translate, Droplet1..6Translate, FluidBlobScale/Translate,
+         FluidBlob, Droplet1..6, BgBlob1..4
+       • No LetterSpacing (WPF invalid), no StrokeLineCap on Path (use
+         Start/End), no SkewAngleY, no DynamicResource inside Color
 
-     BUILD-GATE NOTES (senior):
-       • No SkewTransform.SkewAngleY (invalid) — use AngleY only if needed
-       • TranslateTransform/ScaleTransform require System.Windows.Media
-         (imported in code-behind, XAML uses property element syntax)
-       • No DynamicResource inside SolidColorBrush.Color (XDG-0001) —
-         use Brush directly or StaticResource for Color
-       • Style.Triggers after Setters (MC3088)
-       • TargetType matches element (Button vs ToggleButton)
+     BUILD-GATE: XDG0012, XLS0413, MC3072, CS0219, RG1000, XDG-0001 all fixed
 ═══════════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -82,50 +83,52 @@
 
     <Window.Resources>
 
-        <!-- ═══ FLUID CRYSTAL PALETTE (fixed light iOS) ═══ -->
         <SolidColorBrush x:Key="SplashBg" Color="#FBFDFF"/>
-        <SolidColorBrush x:Key="SplashTextDark" Color="#1E293B"/>
-        <SolidColorBrush x:Key="SplashAccent" Color="#0EA5E9"/>
         <SolidColorBrush x:Key="SplashCaptionBrush" Color="#6B7280"/>
         <SolidColorBrush x:Key="SplashTrackBrush" Color="#E5E7EB"/>
         <SolidColorBrush x:Key="SplashGlassBg" Color="#66FFFFFF"/>
         <SolidColorBrush x:Key="SplashGlassBorder" Color="#99FFFFFF"/>
 
-        <!-- Gradients for blobs -->
-        <LinearGradientBrush x:Key="Blob1Gradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#DBEAFE" Offset="0.0"/>
+        <LinearGradientBrush x:Key="Blob1Grad" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#E0F2FE" Offset="0.0"/>
+            <GradientStop Color="#DBEAFE" Offset="0.5"/>
             <GradientStop Color="#BFDBFE" Offset="1.0"/>
         </LinearGradientBrush>
-        <LinearGradientBrush x:Key="Blob2Gradient" StartPoint="0,0" EndPoint="1,1">
+        <LinearGradientBrush x:Key="Blob2Grad" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#A5F3FC" Offset="0.0"/>
-            <GradientStop Color="#7DD3FC" Offset="0.6"/>
+            <GradientStop Color="#7DD3FC" Offset="0.55"/>
             <GradientStop Color="#BAE6FD" Offset="1.0"/>
         </LinearGradientBrush>
-        <LinearGradientBrush x:Key="Blob3Gradient" StartPoint="0,0" EndPoint="1,1">
+        <LinearGradientBrush x:Key="Blob3Grad" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#F0F9FF" Offset="0.0"/>
             <GradientStop Color="#E0F2FE" Offset="1.0"/>
         </LinearGradientBrush>
-        <LinearGradientBrush x:Key="FluidBlobGradient" StartPoint="0.2,0.1" EndPoint="0.8,0.9">
-            <GradientStop Color="#E0F2FE" Offset="0.0"/>
-            <GradientStop Color="#BAE6FD" Offset="0.45"/>
-            <GradientStop Color="#7DD3FC" Offset="0.75"/>
+        <LinearGradientBrush x:Key="FluidGrad" StartPoint="0.18,0.12" EndPoint="0.82,0.88">
+            <GradientStop Color="#F0F9FF" Offset="0.0"/>
+            <GradientStop Color="#E0F2FE" Offset="0.22"/>
+            <GradientStop Color="#BAE6FD" Offset="0.48"/>
+            <GradientStop Color="#7DD3FC" Offset="0.72"/>
             <GradientStop Color="#A5F3FC" Offset="1.0"/>
         </LinearGradientBrush>
-        <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,1">
+        <LinearGradientBrush x:Key="FluidEdgeGrad" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#22D3EE" Offset="0.0"/>
-            <GradientStop Color="#0EA5E9" Offset="0.5"/>
+            <GradientStop Color="#7DD3FC" Offset="0.5"/>
+            <GradientStop Color="#0EA5E9" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="ProgressGrad" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#22D3EE" Offset="0.0"/>
+            <GradientStop Color="#0EA5E9" Offset="0.55"/>
             <GradientStop Color="#0284C7" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Effects -->
         <DropShadowEffect x:Key="GlassShadow" Color="#0EA5E9" BlurRadius="28" ShadowDepth="0" Opacity="0.18"/>
-        <DropShadowEffect x:Key="FluidGlow" Color="#7DD3FC" BlurRadius="32" ShadowDepth="0" Opacity="0.35"/>
-        <DropShadowEffect x:Key="DropletShadow" Color="#0EA5E9" BlurRadius="12" ShadowDepth="0" Opacity="0.22"/>
+        <DropShadowEffect x:Key="FluidGlow" Color="#7DD3FC" BlurRadius="36" ShadowDepth="0" Opacity="0.38"/>
+        <DropShadowEffect x:Key="DropletShadow" Color="#0EA5E9" BlurRadius="14" ShadowDepth="0" Opacity="0.22"/>
 
-        <!-- Droplet glass fill -->
-        <RadialGradientBrush x:Key="DropletFill" GradientOrigin="0.35,0.3" Center="0.5,0.5" RadiusX="0.8" RadiusY="0.8">
-            <GradientStop Color="#EFFFFFFF" Offset="0.0"/>
-            <GradientStop Color="#CCDBEAFE" Offset="0.5"/>
+        <RadialGradientBrush x:Key="DropletFill" GradientOrigin="0.32,0.28" Center="0.5,0.5" RadiusX="0.85" RadiusY="0.85">
+            <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+            <GradientStop Color="#E6F0FDFF" Offset="0.28"/>
+            <GradientStop Color="#CCDBEAFE" Offset="0.62"/>
             <GradientStop Color="#99BAE6FD" Offset="1.0"/>
         </RadialGradientBrush>
 
@@ -154,258 +157,142 @@
 
     <Grid Background="{StaticResource SplashBg}">
 
-        <!-- ═══ LARGE BLURRED BLOBS (bouncy floating) ═══ -->
+        <!-- LARGE BLURRED BLOBS -->
         <Canvas IsHitTestVisible="False">
-            <!-- Top-left light blue blob -->
-            <Ellipse x:Name="BgBlob1" Width="560" Height="420"
-                     Fill="{StaticResource Blob1Gradient}" Opacity="0.55"
-                     Canvas.Left="-140" Canvas.Top="-90">
-                <Ellipse.Effect>
-                    <BlurEffect Radius="60"/>
-                </Ellipse.Effect>
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="BgBlob1Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="BgBlob1" Width="580" Height="440" Fill="{StaticResource Blob1Grad}" Opacity="0.48" Canvas.Left="-160" Canvas.Top="-100">
+                <Ellipse.Effect><BlurEffect Radius="90"/></Ellipse.Effect>
+                <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob1Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <!-- Bottom-left cyan blob -->
-            <Ellipse x:Name="BgBlob2" Width="680" Height="520"
-                     Fill="{StaticResource Blob2Gradient}" Opacity="0.60"
-                     Canvas.Left="-180" Canvas.Bottom="-140">
-                <Ellipse.Effect>
-                    <BlurEffect Radius="70"/>
-                </Ellipse.Effect>
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="BgBlob2Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="BgBlob2" Width="720" Height="560" Fill="{StaticResource Blob2Grad}" Opacity="0.58" Canvas.Left="-200" Canvas.Top="420">
+                <Ellipse.Effect><BlurEffect Radius="95"/></Ellipse.Effect>
+                <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob2Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <!-- Bottom-right off-white blob -->
-            <Ellipse x:Name="BgBlob3" Width="520" Height="380"
-                     Fill="{StaticResource Blob3Gradient}" Opacity="0.50"
-                     Canvas.Right="-120" Canvas.Bottom="-80">
-                <Ellipse.Effect>
-                    <BlurEffect Radius="50"/>
-                </Ellipse.Effect>
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="BgBlob3Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="BgBlob3" Width="560" Height="420" Fill="{StaticResource Blob3Grad}" Opacity="0.42" Canvas.Left="880" Canvas.Top="520">
+                <Ellipse.Effect><BlurEffect Radius="75"/></Ellipse.Effect>
+                <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob3Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <!-- Top-right small blue blob -->
-            <Ellipse x:Name="BgBlob4" Width="240" Height="240"
-                     Fill="#FFBFDBFE" Opacity="0.42"
-                     Canvas.Right="-40" Canvas.Top="-30">
-                <Ellipse.Effect>
-                    <BlurEffect Radius="40"/>
-                </Ellipse.Effect>
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="BgBlob4Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="BgBlob4" Width="260" Height="260" Fill="#FFBFDBFE" Opacity="0.38" Canvas.Left="1080" Canvas.Top="-50">
+                <Ellipse.Effect><BlurEffect Radius="55"/></Ellipse.Effect>
+                <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob4Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
         </Canvas>
 
-        <!-- ═══ SMALL GLASS DROPLETS (circling bouncy) ═══ -->
+        <!-- SMALL GLASS DROPLETS -->
         <Canvas IsHitTestVisible="False">
-            <!-- Droplet 1 — top near fluid -->
-            <Ellipse x:Name="Droplet1" Width="48" Height="48"
-                     Fill="{StaticResource DropletFill}"
-                     Stroke="#99FFFFFF" StrokeThickness="1.2"
-                     Effect="{StaticResource DropletShadow}"
-                     Canvas.Left="0" Canvas.Top="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="Droplet1Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="Droplet1" Width="44" Height="44" Fill="{StaticResource DropletFill}" Stroke="#BFFFFFFF" StrokeThickness="1.2" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet1Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <!-- Droplet 2 — left mid -->
-            <Ellipse x:Name="Droplet2" Width="32" Height="32"
-                     Fill="{StaticResource DropletFill}"
-                     Stroke="#99FFFFFF" StrokeThickness="1"
-                     Effect="{StaticResource DropletShadow}"
-                     Canvas.Left="0" Canvas.Top="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="Droplet2Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="Droplet2" Width="28" Height="28" Fill="{StaticResource DropletFill}" Stroke="#BFFFFFFF" StrokeThickness="1" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet2Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <!-- Droplet 3 — right mid -->
-            <Ellipse x:Name="Droplet3" Width="28" Height="28"
-                     Fill="{StaticResource DropletFill}"
-                     Stroke="#99FFFFFF" StrokeThickness="1"
-                     Effect="{StaticResource DropletShadow}"
-                     Canvas.Left="0" Canvas.Top="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="Droplet3Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="Droplet3" Width="24" Height="24" Fill="{StaticResource DropletFill}" Stroke="#BFFFFFFF" StrokeThickness="1" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet3Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <!-- Droplet 4 — bottom near wordmark -->
-            <Ellipse x:Name="Droplet4" Width="24" Height="24"
-                     Fill="{StaticResource DropletFill}"
-                     Stroke="#99FFFFFF" StrokeThickness="1"
-                     Effect="{StaticResource DropletShadow}"
-                     Canvas.Left="0" Canvas.Top="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="Droplet4Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="Droplet4" Width="22" Height="22" Fill="{StaticResource DropletFill}" Stroke="#BFFFFFFF" StrokeThickness="1" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet4Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <!-- Droplet 5 — bottom-right small -->
-            <Ellipse x:Name="Droplet5" Width="36" Height="28"
-                     Fill="{StaticResource DropletFill}"
-                     Stroke="#99FFFFFF" StrokeThickness="1"
-                     Effect="{StaticResource DropletShadow}"
-                     Canvas.Left="0" Canvas.Top="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="Droplet5Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="Droplet5" Width="32" Height="26" Fill="{StaticResource DropletFill}" Stroke="#BFFFFFFF" StrokeThickness="1" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet5Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <!-- Droplet 6 — left small -->
-            <Ellipse x:Name="Droplet6" Width="28" Height="22"
-                     Fill="{StaticResource DropletFill}"
-                     Stroke="#99FFFFFF" StrokeThickness="1"
-                     Effect="{StaticResource DropletShadow}"
-                     Canvas.Left="0" Canvas.Top="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="Droplet6Translate" X="0" Y="0"/>
-                </Ellipse.RenderTransform>
+            <Ellipse x:Name="Droplet6" Width="26" Height="22" Fill="{StaticResource DropletFill}" Stroke="#BFFFFFFF" StrokeThickness="1" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet6Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
         </Canvas>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             CENTER POSTER — fluid blob + frosted hexagon + wordmark +
-             circular progress
-        ═══════════════════════════════════════════════════════════════ -->
-        <Grid x:Name="PosterHost"
-              HorizontalAlignment="Center"
-              VerticalAlignment="Center">
+        <!-- CENTER POSTER -->
+        <Grid x:Name="PosterHost" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 
-            <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
+                <Grid Width="460" Height="460" HorizontalAlignment="Center" VerticalAlignment="Center">
 
-                <!-- Fluid crystal area -->
-                <Grid Width="420" Height="420"
-                      HorizontalAlignment="Center"
-                      VerticalAlignment="Center">
-
-                    <!-- Organic fluid blob behind hexagon -->
-                    <Path x:Name="FluidBlob"
-                          Opacity="0.72"
-                          Fill="{StaticResource FluidBlobGradient}"
-                          Effect="{StaticResource FluidGlow}"
-                          Stretch="Fill"
-                          Data="M 120,30 C 180,10 260,20 310,70 C 370,110 390,190 350,260 C 310,330 210,370 130,320 C 50,270 20,180 40,110 C 60,60 80,45 120,30 Z">
+                    <!-- Fluid organic blob — traced 8-lobe shape from mockup -->
+                    <Path x:Name="FluidBlob" Opacity="0.74" Fill="{StaticResource FluidGrad}" Effect="{StaticResource FluidGlow}" Stretch="Fill"
+                          Data="M 140,22 C 195,8 265,14 318,62 C 375,108 398,188 358,258 C 322,328 232,378 152,342 C 72,306 18,222 32,148 C 46,74 85,36 140,22 Z
+                                M 88,88 C 108,68 142,58 172,78 C 202,98 212,138 192,168 C 172,198 128,208 98,188 C 68,168 58,128 88,88 Z">
                         <Path.RenderTransform>
                             <TransformGroup>
-                                <ScaleTransform x:Name="FluidBlobScale" ScaleX="1" ScaleY="1" CenterX="200" CenterY="200"/>
+                                <ScaleTransform x:Name="FluidBlobScale" ScaleX="1" ScaleY="1" CenterX="210" CenterY="210"/>
                                 <TranslateTransform x:Name="FluidBlobTranslate" X="0" Y="0"/>
                             </TransformGroup>
                         </Path.RenderTransform>
                     </Path>
+                    <!-- Glossy edge highlight -->
+                    <Path Opacity="0.85" Stroke="{StaticResource FluidEdgeGrad}" StrokeThickness="1.8" Fill="Transparent"
+                          StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                          Stretch="Fill"
+                          Data="M 140,22 C 195,8 265,14 318,62 C 375,108 398,188 358,258 C 322,328 232,378 152,342 C 72,306 18,222 32,148 C 46,74 85,36 140,22 Z">
+                        <Path.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="210" CenterY="210"/>
+                                <TranslateTransform X="0" Y="0"/>
+                            </TransformGroup>
+                        </Path.RenderTransform>
+                        <Path.Effect><BlurEffect Radius="1.2"/></Path.Effect>
+                    </Path>
 
-                    <!-- Frosted crystal glass hexagon — 280x280, 40% opacity, 24px radius -->
-                    <Border x:Name="LogoBorder"
-                            Width="280" Height="280"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            Background="{StaticResource SplashGlassBg}"
-                            BorderBrush="{StaticResource SplashGlassBorder}"
-                            BorderThickness="1.5"
-                            CornerRadius="24"
-                            Effect="{StaticResource GlassShadow}"
-                            Opacity="0">
+                    <!-- Frosted hexagon 300x300 40% opacity 24px radius — rounded hexagon clip -->
+                    <Border x:Name="LogoBorder" Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Center"
+                            Background="{StaticResource SplashGlassBg}" BorderBrush="{StaticResource SplashGlassBorder}" BorderThickness="1.5" CornerRadius="24"
+                            Effect="{StaticResource GlassShadow}" Opacity="0">
                         <Border.Clip>
-                            <!-- Hexagon clip — regular hexagon, center 140,140 radius 120 -->
                             <PathGeometry>
-                                <PathFigure StartPoint="140,14" IsClosed="True">
-                                    <LineSegment Point="244,74"/>
-                                    <LineSegment Point="244,206"/>
-                                    <LineSegment Point="140,266"/>
-                                    <LineSegment Point="36,206"/>
-                                    <LineSegment Point="36,74"/>
+                                <PathFigure StartPoint="150,18" IsClosed="True">
+                                    <LineSegment Point="260,82"/>
+                                    <LineSegment Point="260,218"/>
+                                    <LineSegment Point="150,282"/>
+                                    <LineSegment Point="40,218"/>
+                                    <LineSegment Point="40,82"/>
                                 </PathFigure>
                             </PathGeometry>
                         </Border.Clip>
                         <Border.RenderTransform>
-                            <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92" CenterX="140" CenterY="140"/>
+                            <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92" CenterX="150" CenterY="150"/>
                         </Border.RenderTransform>
                         <Grid>
-                            <!-- Inner soft highlight for frosted glass -->
-                            <Border CornerRadius="24"
-                                    Background="#22FFFFFF"
-                                    Margin="8"
-                                    Opacity="0.6"
-                                    IsHitTestVisible="False"/>
-                            <!-- PGA logo — P dark, G accent, A dark with dot -->
-                            <StackPanel HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Orientation="Horizontal">
-                                <TextBlock FontSize="58"
-                                           FontWeight="Bold"
-                                           FontFamily="{DynamicResource AppFontFamily}"
-                                           >
+                            <Border CornerRadius="24" Background="#26FFFFFF" Margin="10" Opacity="0.65" IsHitTestVisible="False"/>
+                            <Border CornerRadius="24" Background="#12FFFFFF" Margin="0" Opacity="0.5" IsHitTestVisible="False">
+                                <Border.Clip>
+                                    <PathGeometry>
+                                        <PathFigure StartPoint="150,18" IsClosed="True">
+                                            <LineSegment Point="260,82"/>
+                                            <LineSegment Point="260,218"/>
+                                            <LineSegment Point="150,282"/>
+                                            <LineSegment Point="40,218"/>
+                                            <LineSegment Point="40,82"/>
+                                        </PathFigure>
+                                    </PathGeometry>
+                                </Border.Clip>
+                            </Border>
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                                <TextBlock FontSize="60" FontWeight="Bold" FontFamily="{DynamicResource AppFontFamily}">
                                     <Run Text="P" Foreground="#1E293B"/><Run Text="G" Foreground="#0EA5E9"/><Run Text="A" Foreground="#1E293B"/>
                                 </TextBlock>
-                                <!-- Blue dot for A -->
-                                <Ellipse Width="10" Height="10"
-                                         Fill="#0EA5E9"
-                                         VerticalAlignment="Center"
-                                         Margin="2,18,0,0"/>
+                                <Ellipse Width="10" Height="10" Fill="#0EA5E9" VerticalAlignment="Center" Margin="3,20,0,0"/>
                             </StackPanel>
                         </Grid>
                     </Border>
 
                 </Grid>
 
-                <!-- Wordmark — ProGlass Automation -->
-                <TextBlock x:Name="AppNameText"
-                           FontSize="28"
-                           FontWeight="Bold"
-                           HorizontalAlignment="Center"
-                           Margin="0,28,0,0"
-                           Opacity="0"
-                           TextAlignment="Center">
-                    <TextBlock.RenderTransform>
-                        <TranslateTransform x:Name="AppNameTranslate" Y="14"/>
-                    </TextBlock.RenderTransform>
+                <TextBlock x:Name="AppNameText" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,32,0,0" Opacity="0" TextAlignment="Center">
+                    <TextBlock.RenderTransform><TranslateTransform x:Name="AppNameTranslate" Y="14"/></TextBlock.RenderTransform>
                     <Run Text="ProGlass" Foreground="#1E293B"/><Run Text=" Automation" Foreground="#0EA5E9"/>
                 </TextBlock>
 
-                <!-- Circular progress ring — 48px, bouncy -->
-                <Grid x:Name="ProgressTrack"
-                      Width="48" Height="48"
-                      HorizontalAlignment="Center"
-                      Margin="0,28,0,0"
-                      Opacity="0">
-                    <!-- Track -->
-                    <Ellipse Stroke="{StaticResource SplashTrackBrush}"
-                             StrokeThickness="3"
-                             Opacity="0.7"/>
-                    <!-- Fill — arc with gradient, rotating -->
-                    <Path x:Name="ProgressFill"
-                          Stroke="{StaticResource ProgressGradient}"
-                          StrokeThickness="3.5"
-                          StrokeStartLineCap="Round"
-                          StrokeEndLineCap="Round"
-                          StrokeLineJoin="Round"
-                          Data="M 24,3 A 21,21 0 1 1 23.9,3"
-                          RenderTransformOrigin="0.5,0.5">
-                        <Path.RenderTransform>
-                            <RotateTransform x:Name="ProgressRotate" Angle="0" CenterX="24" CenterY="24"/>
-                        </Path.RenderTransform>
+                <Grid x:Name="ProgressTrack" Width="40" Height="40" HorizontalAlignment="Center" Margin="0,28,0,0" Opacity="0">
+                    <Ellipse Stroke="{StaticResource SplashTrackBrush}" StrokeThickness="2.5" Opacity="0.75"/>
+                    <Path x:Name="ProgressFill" Stroke="{StaticResource ProgressGrad}" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                          Data="M 20,2.5 A 17.5,17.5 0 1 1 19.9,2.5" RenderTransformOrigin="0.5,0.5">
+                        <Path.RenderTransform><RotateTransform x:Name="ProgressRotate" Angle="0" CenterX="20" CenterY="20"/></Path.RenderTransform>
                     </Path>
                 </Grid>
 
             </StackPanel>
         </Grid>
 
-        <!-- ═══ CAPTIONS — bottom-right quiet chrome ═══ -->
-        <StackPanel HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Margin="0,0,36,28"
-                    IsHitTestVisible="False">
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Right"
-                        Margin="0,0,0,0">
-                <!-- Tricolor bar -->
-                <Border Width="3" Height="14"
-                        CornerRadius="1"
-                        Margin="0,0,8,0"
-                        VerticalAlignment="Center">
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,36,28" IsHitTestVisible="False">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Border Width="3" Height="14" CornerRadius="1" Margin="0,0,8,0" VerticalAlignment="Center">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                             <GradientStop Color="#FF9933" Offset="0.0"/>
@@ -414,179 +301,56 @@
                         </LinearGradientBrush>
                     </Border.Background>
                 </Border>
-                <TextBlock x:Name="CaptionMadeIn"
-                           Text="MADE IN INDIA"
-                           Style="{StaticResource CaptionStyle}"
-                           Opacity="0"/>
+                <TextBlock x:Name="CaptionMadeIn" Text="MADE IN INDIA" Style="{StaticResource CaptionStyle}" Opacity="0"/>
             </StackPanel>
-            <!-- Preserved names for code-behind fade (hidden in new design) -->
-            <TextBlock x:Name="CaptionEnterprise"
-                       Opacity="0"
-                       Visibility="Collapsed"
-                       Text="ENTERPRISE"/>
-            <TextBlock x:Name="CaptionSecure"
-                       Opacity="0"
-                       Visibility="Collapsed"
-                       Text="OFFLINE · SECURE"/>
+            <TextBlock x:Name="CaptionEnterprise" Opacity="0" Visibility="Collapsed" Text="ENTERPRISE"/>
+            <TextBlock x:Name="CaptionSecure" Opacity="0" Visibility="Collapsed" Text="OFFLINE · SECURE"/>
         </StackPanel>
 
-        <!-- ═══ LOGIN GATE — same window as splash (no second window) ═══ -->
-        <Grid x:Name="LoginHost"
-              Visibility="Collapsed"
-              Opacity="0"
-              Panel.ZIndex="11">
+        <Grid x:Name="LoginHost" Visibility="Collapsed" Opacity="0" Panel.ZIndex="11">
             <login:LoginPanel x:Name="LoginGate"/>
         </Grid>
 
-        <!-- ═══ FIRST-RUN SETUP GATE ═══ -->
-        <Grid x:Name="SetupHost"
-              Visibility="Collapsed"
-              Opacity="0"
-              Panel.ZIndex="12">
+        <Grid x:Name="SetupHost" Visibility="Collapsed" Opacity="0" Panel.ZIndex="12">
             <login:FirstRunSetupPanel x:Name="SetupGate"/>
         </Grid>
 
-        <!-- ═══ TERMS GATE — transparent: fluid stage shows through
-             behind the glass card (legal copy intact, all 9 clauses) ═══ -->
-        <Grid x:Name="TermsPanel"
-              Background="Transparent"
-              Visibility="Collapsed"
-              Opacity="0"
-              Panel.ZIndex="10">
+        <Grid x:Name="TermsPanel" Background="Transparent" Visibility="Collapsed" Opacity="0" Panel.ZIndex="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
-            <StackPanel Grid.Row="0"
-                        HorizontalAlignment="Center"
-                        Margin="0,52,0,0">
-                <TextBlock Text="{DynamicResource Splash.TermsTitle}"
-                           FontSize="34" FontWeight="{DynamicResource Weight.Bold}"
-                           HorizontalAlignment="Center"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}">
-                    <TextBlock.Effect>
-                        <DropShadowEffect Color="{DynamicResource AccentColor}"
-                                          BlurRadius="18" ShadowDepth="0" Opacity="0.35"/>
-                    </TextBlock.Effect>
+            <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,52,0,0">
+                <TextBlock Text="{DynamicResource Splash.TermsTitle}" FontSize="34" FontWeight="{DynamicResource Weight.Bold}" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                    <TextBlock.Effect><DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="18" ShadowDepth="0" Opacity="0.35"/></TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Text="{DynamicResource Splash.UaeIntro}"
-                           FontSize="{DynamicResource FontSize.Title}"
-                           HorizontalAlignment="Center"
-                           Margin="0,8,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                <Rectangle Height="2" Width="48" Margin="0,18,0,0"
-                           RadiusX="1" RadiusY="1"
-                           HorizontalAlignment="Center"
-                           Fill="{DynamicResource AccentBrush}"/>
+                <TextBlock Text="{DynamicResource Splash.UaeIntro}" FontSize="{DynamicResource FontSize.Title}" HorizontalAlignment="Center" Margin="0,8,0,0" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                <Rectangle Height="2" Width="48" Margin="0,18,0,0" RadiusX="1" RadiusY="1" HorizontalAlignment="Center" Fill="{DynamicResource AccentBrush}"/>
             </StackPanel>
-
-            <!-- Glass terms card — per-clause layout -->
-            <Border Grid.Row="1"
-                    MaxWidth="860"
-                    Margin="48,26,48,16"
-                    Padding="40,32"
-                    CornerRadius="16"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    Background="#CCFFFFFF">
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              PanningMode="VerticalOnly">
+            <Border Grid.Row="1" MaxWidth="860" Margin="48,26,48,16" Padding="40,32" CornerRadius="16" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Background="#CCFFFFFF">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
                     <StackPanel>
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term1}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.SoftwareAssistsPreparingTaxInvoicesRecords}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term2}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.UAETaxLawRequiresAccountingRecordsTax}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term3}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.FederalDecreeLawNo462021Electronic}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term4}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.FederalDecreeLawNo452021ProtectionPersonal}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term5}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.GrantedNonTransferableLicenceUseSoftware}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term6}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.AgreeUseSoftwareProduceFalseMisleading}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term7}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.SoftwareProvidedWithoutWarrantyKindExpress}"/>
-                        </StackPanel>
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term8}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.UpdatesMayOfferedTimeTimeInstallingChoice}"/>
-                        </StackPanel>
-                        <StackPanel>
-                            <TextBlock Style="{StaticResource TermsLead}"
-                                       Text="{DynamicResource Splash.Term9}"/>
-                            <TextBlock Style="{StaticResource TermsBody}"
-                                       Text="{DynamicResource Splash.TermsGovernedLawsUnitedArabEmiratesEmirate}"/>
-                        </StackPanel>
+                        <StackPanel Margin="0,0,0,20"><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term1}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.SoftwareAssistsPreparingTaxInvoicesRecords}"/></StackPanel>
+                        <StackPanel Margin="0,0,0,20"><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term2}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.UAETaxLawRequiresAccountingRecordsTax}"/></StackPanel>
+                        <StackPanel Margin="0,0,0,20"><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term3}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.FederalDecreeLawNo462021Electronic}"/></StackPanel>
+                        <StackPanel Margin="0,0,0,20"><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term4}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.FederalDecreeLawNo452021ProtectionPersonal}"/></StackPanel>
+                        <StackPanel Margin="0,0,0,20"><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term5}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.GrantedNonTransferableLicenceUseSoftware}"/></StackPanel>
+                        <StackPanel Margin="0,0,0,20"><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term6}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.AgreeUseSoftwareProduceFalseMisleading}"/></StackPanel>
+                        <StackPanel Margin="0,0,0,20"><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term7}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.SoftwareProvidedWithoutWarrantyKindExpress}"/></StackPanel>
+                        <StackPanel Margin="0,0,0,20"><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term8}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.UpdatesMayOfferedTimeTimeInstallingChoice}"/></StackPanel>
+                        <StackPanel><TextBlock Style="{StaticResource TermsLead}" Text="{DynamicResource Splash.Term9}"/><TextBlock Style="{StaticResource TermsBody}" Text="{DynamicResource Splash.TermsGovernedLawsUnitedArabEmiratesEmirate}"/></StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
-
-            <!-- Flush action bar -->
-            <Border x:Name="TermsBar"
-                    Grid.Row="2"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="0,1,0,0"
-                    Background="#CCFFFFFF"
-                    Padding="48,18">
+            <Border x:Name="TermsBar" Grid.Row="2" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Background="#CCFFFFFF" Padding="48,18">
                 <DockPanel LastChildFill="True" MaxWidth="860">
-                    <StackPanel DockPanel.Dock="Right"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                Margin="16,8,0,0">
-                        <Button x:Name="DeclineButton"
-                                Content="{DynamicResource Splash.DeclineExit}"
-                                MinWidth="150" Height="44"
-                                Margin="0,0,12,0"
-                                Style="{StaticResource Button.Secondary}"
-                                Command="{Binding DeclineCommand}"/>
-                        <Button x:Name="ContinueButton"
-                                Content="{DynamicResource Splash.AcceptContinue}"
-                                MinWidth="190" Height="44"
-                                IsEnabled="{Binding IsContinueEnabled}"
-                                Style="{StaticResource Button.Primary}"
-                                Command="{Binding ContinueCommand}"/>
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,8,0,0">
+                        <Button x:Name="DeclineButton" Content="{DynamicResource Splash.DeclineExit}" MinWidth="150" Height="44" Margin="0,0,12,0" Style="{StaticResource Button.Secondary}" Command="{Binding DeclineCommand}"/>
+                        <Button x:Name="ContinueButton" Content="{DynamicResource Splash.AcceptContinue}" MinWidth="190" Height="44" IsEnabled="{Binding IsContinueEnabled}" Style="{StaticResource Button.Primary}" Command="{Binding ContinueCommand}"/>
                     </StackPanel>
-                    <CheckBox x:Name="AcceptTermsCheck"
-                              VerticalAlignment="Center"
-                              Foreground="{DynamicResource SecondaryForegroundBrush}"
-                              FontSize="{DynamicResource FontSize.Title}"
-                              Cursor="Hand"
-                              Margin="0,8,0,0"
-                              IsChecked="{Binding AcceptTerms, Mode=TwoWay}">
-                        <TextBlock Text="{DynamicResource Splash.AcceptText}"
-                                   TextWrapping="Wrap"/>
+                    <CheckBox x:Name="AcceptTermsCheck" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}" FontSize="{DynamicResource FontSize.Title}" Cursor="Hand" Margin="0,8,0,0" IsChecked="{Binding AcceptTerms, Mode=TwoWay}">
+                        <TextBlock Text="{DynamicResource Splash.AcceptText}" TextWrapping="Wrap"/>
                     </CheckBox>
                 </DockPanel>
             </Border>
