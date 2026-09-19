@@ -193,6 +193,17 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   3. Native `DatePicker` controls (Professional contract) inside the glass filter bar — no glass DatePicker style exists in the component library.
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+### glass-09 — Settings / Appearance (GB-P12)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Reference note (honesty):** the glass-09 reference PNG was **lost from the workspace when this session was restored**. Implemented from the GB-P1 measured composition map ("section list rail · theme tiles · accent swatches · density segmented control · motion toggle"). Re-verify against the reference file when re-supplied.
+- **Architecture (Settings module):** routed Settings module = `SettingsViewModel` (`SettingsPage` string key + `SwitchSettingsPageCommand` + `NavRows` (Key/Glyph/Label/GroupLabel/IsActive) + `ActivePageLabel`). `PersonalSettingsView` mirrors the Professional shell: glass section rail (the same `NavRows`/command/IsActive mechanism) + the Professional's **lazy page host** — one `ContentControl Content="{Binding SettingsPage}"` with the **existing** `SettingsPageTemplateSelector` (reused, zero new C#): it resolves `SettingsPage.<key>` templates from this view's resources, so exactly one page tree exists at a time (the same architecture that fixed the Professional "sidebar vs main screen sync" bug).
+- **glass-09 surface (Appearance page, SettingsViewModel members verified):** base-mode tiles Light/Dark (`ThemeMode` string, TwoWay — Professional's canonical path: `ThemePipeline.Rebuild` → persist → audit, one theme-change path) · visual-family tiles (`VisualThemeOptions` Key/Display, `SelectedValue` = `SelectedVisualTheme` TwoWay) · accent swatches (`AccentPalette` chips → `ApplyAccentCommand` with `Key` — the exact colour the VM applies, plus the custom-hex row: `CustomAccentHex`/`CustomAccentSwatch`/`ApplyCustomAccentCommand`/`CustomAccentStatus`) · density segmented control (`DisplayDensityOptions` = Compact/Normal/Comfortable/Spacious, `SelectedItem` = `DisplayDensity` TwoWay) · motion toggle (`ReducedMotion` TwoWay).
+- **Deviations (documented):**
+  1. All 11 non-Appearance pages (Themes/AI/Agent/Voice/Updates/Data/Demo/License/Features/Sharing/About) host the **Professional section UserControls** inside the glass content card (hybrid, as in P4–P10/P11) — Settings stays fully functional in Personal mode; the reference only shows the Appearance surface.
+  2. The glass-09 page rail uses the Professional `SettingsNavRow` `Label` (localized at runtime) directly rather than per-row i18n keys — the rows already resolve localization in the VM.
+  3. The Appearance base-mode control is a 2-tile glass ListBox bound to `ThemeMode` (the Professional page uses the same property via `AppearanceModeCard`'s segmented control — same property, glass presentation).
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## GB-P14 — Professional ↔ Personal experience switch (the enabler)
 - **Status:** ✅ STATIC VERIFIED · BUILD NOT RUN (no .NET SDK) · RUNTIME NOT VERIFIED.
 - **Architecture (live, persisted, no restart):**
@@ -227,7 +238,7 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P9 delivery note (glass-06) | ✅ STATIC VERIFIED (PersonalDeliveryNoteView, list + glass detail; runtime NOT VERIFIED) | `GB-P9` |
 | GB-P10 invoice aging (glass-07) + dashboard shell | ✅ STATIC VERIFIED (PersonalDashboardView shell + Overview/TiAging pages; runtime NOT VERIFIED) | `GB-P10` |
 | GB-P11 analytics (glass-08) + reports hub | ✅ STATIC VERIFIED (PersonalSalesReportView hub + ExecutiveReport glass-08; runtime NOT VERIFIED) | `GB-P11` |
-| GB-P12 settings (glass-09) | pending (glass-09 ref lost in session restore) | — |
+| GB-P12 settings (glass-09) | ✅ STATIC VERIFIED (PersonalSettingsView rail + Appearance glass-09 + 11 Professional section hosts; runtime NOT VERIFIED) | `GB-P12` |
 | GB-P15 global visual consistency | pending (incl. Personal-side popup anchors + error-bubble variant) | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
 | GB-P17 DPI/a11y/performance | pending (static parts only) | — |

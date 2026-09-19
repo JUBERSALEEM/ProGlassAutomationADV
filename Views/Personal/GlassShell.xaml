@@ -11,6 +11,7 @@
     xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
     xmlns:vmDelivery="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote"
     xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
+    xmlns:vmSettings="clr-namespace:ProGlassAutomation.ViewModels.Settings"
     xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
@@ -53,6 +54,12 @@
              same SalesReportViewModel with different ActiveKey) -->
         <DataTemplate DataType="{x:Type vmReports:SalesReportViewModel}">
             <pv:PersonalSalesReportView/>
+        </DataTemplate>
+        <!-- GB-P12: Settings module (same SettingsViewModel, glass-09
+             composition). PersonalSettingsView hosts the Professional
+             section UserControls for the non-Appearance pages. -->
+        <DataTemplate DataType="{x:Type vmSettings:SettingsViewModel}">
+            <pv:PersonalSettingsView/>
         </DataTemplate>
     </UserControl.Resources>
 

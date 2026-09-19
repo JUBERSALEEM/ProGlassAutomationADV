@@ -1,0 +1,413 @@
+<UserControl x:Class="ProGlassAutomation.Views.Personal.PersonalSettingsView"
+             TextOptions.TextHintingMode="Fixed"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sections="clr-namespace:ProGlassAutomation.Views.Settings.Sections"
+             xmlns:settingsViews="clr-namespace:ProGlassAutomation.Views.Settings"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GB-P12 — GLASS BLUSH SETTINGS (glass-09 reference)
+
+         Personal version of the Settings module on the SAME
+         SettingsViewModel: glass section rail (NavRows: Key/Glyph/Label/
+         GroupLabel/IsActive + SwitchSettingsPageCommand, the Professional
+         mechanism) + lazy page host — ONE ContentControl bound to
+         SettingsPage with the EXISTING SettingsPageTemplateSelector
+         (re-run on every rail click; resolves "SettingsPage.&lt;key&gt;"
+         templates from this view's resources, exactly one page tree at a
+         time — the Professional architecture, zero new C#).
+
+         glass-09 surface ("Appearance" page): base mode tiles (Light/Dark
+         IsDarkTheme) · visual-family tiles (VisualThemeOptions /
+         SelectedVisualTheme) · accent swatches (AccentPalette /
+         ApplyAccentCommand + custom hex) · density segmented control
+         (DisplayDensityOptions / DisplayDensity) · motion toggle
+         (ReducedMotion). All other pages host the Professional section
+         views inside a glass card (documented hybrid — keeps Settings
+         fully functional in Personal mode).
+
+         NOTE: the glass-09 reference PNG was lost when this session was
+         restored; the composition follows the GB-P1 measured map
+         ("section list rail · theme tiles · accent swatches · density
+         segmented control · motion toggle").
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <UserControl.Resources>
+        <!-- Note: the hosted Professional section UserControls each merge
+             SettingsCardStyles/SettingsSectionStyles themselves, so no
+             style-context dictionaries are needed here. -->
+        <settingsViews:SettingsPageTemplateSelector x:Key="GbSettingsPageSelector"/>
+
+        <!-- base-mode options (string array → ListBox SelectedItem matches
+             SettingsViewModel.ThemeMode = "Light" | "Dark" by value) -->
+        <x:Array x:Key="GbThemeModeOptions" Type="{x:Type sys:String}">
+            <sys:String>Light</sys:String>
+            <sys:String>Dark</sys:String>
+        </x:Array>
+
+        <!-- glass tile (theme family / base mode) -->
+        <Style x:Key="GbThemeTile" TargetType="ListBoxItem">
+            <Setter Property="Margin" Value="0,0,12,12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Tile"
+                                Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                BorderThickness="1"
+                                CornerRadius="14"
+                                Padding="16,12"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Tile" Property="Background"
+                                        Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                                <Setter TargetName="Tile" Property="BorderBrush"
+                                        Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                                <Setter TargetName="Tile" Property="Effect"
+                                        Value="{StaticResource GlassBlush.GlowAccent}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Tile" Property="BorderBrush"
+                                        Value="{DynamicResource GlassBlush.Border}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- density segment item -->
+        <Style x:Key="GbDensityItem" TargetType="ListBoxItem">
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="Seg"
+                                Background="{DynamicResource GlassBlush.SurfaceFaint}"
+                                BorderBrush="{DynamicResource GlassBlush.BorderSoft}"
+                                BorderThickness="1"
+                                CornerRadius="999"
+                                Padding="18,8"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Seg" Property="Background"
+                                        Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                                <Setter TargetName="Seg" Property="BorderBrush"
+                                        Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- rail item (SettingsNavRow) -->
+        <Style x:Key="GbSettingsRailItem" TargetType="Button"
+               BasedOn="{StaticResource GlassBlush.GlassButtonSoft}">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource GlassBlush.AccentSoft}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource GlassBlush.AccentGlow}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ══ PAGE TEMPLATES (selector keys "SettingsPage.&lt;key&gt;") ══ -->
+
+        <!-- Appearance — the glass-09 surface -->
+        <DataTemplate x:Key="SettingsPage.Appearance">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False">
+                <StackPanel Margin="0,0,0,8">
+
+                    <!-- BASE MODE (Light / Dark — ThemeMode, Professional's
+                         canonical path: ThemePipeline.Rebuild → persist → audit) -->
+                    <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                                    Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Theme"
+                                       Style="{StaticResource GlassBlush.SectionTitle}"
+                                       Margin="0,0,0,12"/>
+                            <ListBox ItemsSource="{StaticResource GbThemeModeOptions}"
+                                     SelectedItem="{Binding ThemeMode, Mode=TwoWay}"
+                                     ItemContainerStyle="{StaticResource GbThemeTile}"
+                                     BorderThickness="0" Background="Transparent"
+                                     Focusable="False"
+                                     HorizontalAlignment="Left">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"
+                                                   FontSize="{DynamicResource GlassBlush.FontHeading}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </ContentControl>
+
+
+                    <!-- VISUAL FAMILY TILES -->
+                    <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                                    Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Visual family"
+                                       Style="{StaticResource GlassBlush.SectionTitle}"
+                                       Margin="0,0,0,12"/>
+                            <ListBox ItemsSource="{Binding VisualThemeOptions}"
+                                     SelectedValuePath="Key"
+                                     SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
+                                     ItemContainerStyle="{StaticResource GbThemeTile}"
+                                     BorderThickness="0" Background="Transparent"
+                                     Focusable="False"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Display}"
+                                                   FontSize="{DynamicResource GlassBlush.FontHeading}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </ContentControl>
+
+                    <!-- ACCENT SWATCHES -->
+                    <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                                    Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Accent"
+                                       Style="{StaticResource GlassBlush.SectionTitle}"
+                                       Margin="0,0,0,12"/>
+                            <ItemsControl ItemsSource="{Binding AccentPalette}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource GlassBlush.GlassButtonSoft}"
+                                                Margin="0,0,10,10"
+                                                Padding="12,8"
+                                                Command="{Binding DataContext.ApplyAccentCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding Key}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="14" Height="14"
+                                                         Fill="{Binding Swatch}"
+                                                         VerticalAlignment="Center"
+                                                         Margin="0,0,9,0"/>
+                                                <TextBlock Text="{Binding DisplayName}"
+                                                           FontSize="{DynamicResource GlassBlush.FontCaption}"
+                                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <!-- custom hex -->
+                            <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                <Ellipse Width="14" Height="14"
+                                         Fill="{Binding CustomAccentSwatch}"
+                                         VerticalAlignment="Center"
+                                         Margin="0,0,10,0"/>
+                                <TextBox Text="{Binding CustomAccentHex, UpdateSourceTrigger=PropertyChanged}"
+                                         Width="110"
+                                         Style="{StaticResource GlassBlush.TextBox}"
+                                         Height="38"
+                                         VerticalAlignment="Center"/>
+                                <Button Content="Apply"
+                                        Style="{StaticResource GlassBlush.GlassButton}"
+                                        Padding="16,8"
+                                        Margin="12,0,0,0"
+                                        Command="{Binding ApplyCustomAccentCommand}"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding CustomAccentStatus}"
+                                       FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                       Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                       Margin="0,8,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </ContentControl>
+
+                    <!-- DENSITY SEGMENTED CONTROL -->
+                    <ContentControl Style="{StaticResource GlassBlush.GlassCard}"
+                                    Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="Density"
+                                       Style="{StaticResource GlassBlush.SectionTitle}"
+                                       Margin="0,0,0,12"/>
+                            <ListBox ItemsSource="{Binding DisplayDensityOptions}"
+                                     SelectedItem="{Binding DisplayDensity, Mode=TwoWay}"
+                                     ItemContainerStyle="{StaticResource GbDensityItem}"
+                                     BorderThickness="0" Background="Transparent"
+                                     Focusable="False"
+                                     HorizontalAlignment="Left">
+                                <ListBox.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ListBox.ItemsPanel>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}"
+                                                   FontSize="{DynamicResource GlassBlush.FontCaption}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                                   VerticalAlignment="Center"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </ContentControl>
+
+                    <!-- MOTION TOGGLE -->
+                    <ContentControl Style="{StaticResource GlassBlush.GlassCard}">
+                        <Grid Margin="0,2,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                <TextBlock Text="Reduced motion"
+                                           FontSize="{DynamicResource GlassBlush.FontHeading}"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource GlassBlush.Text}"/>
+                                <TextBlock Text="Minimize ambient animation and card motion"
+                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                           Foreground="{DynamicResource GlassBlush.TextMuted}"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+                            <CheckBox Grid.Column="1"
+                                      IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
+                                      VerticalAlignment="Center"
+                                      Focusable="True"/>
+                        </Grid>
+                    </ContentControl>
+                </StackPanel>
+            </ScrollViewer>
+        </DataTemplate>
+
+        <!-- Every other page: the Professional section in a glass card -->
+        <DataTemplate x:Key="SettingsPage.Themes"><sections:SettingsThemesSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.AI"><sections:SettingsAiSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.Agent"><sections:SettingsAgentSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.Voice"><sections:SettingsVoiceSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.Updates"><sections:SettingsUpdatesSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.Data"><sections:SettingsDataSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.Demo"><sections:SettingsDemoSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.License"><sections:SettingsLicenseSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.Features"><sections:SettingsFeaturesSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.Sharing"><sections:SettingsSharingSection/></DataTemplate>
+        <DataTemplate x:Key="SettingsPage.About"><sections:SettingsAboutSection/></DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ══ SECTION RAIL (NavRows / SwitchSettingsPageCommand) ═════ -->
+        <ContentControl Grid.Column="0" Style="{StaticResource GlassBlush.GlassCard}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False">
+                <ItemsControl ItemsSource="{Binding NavRows}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,0,0,4">
+                                <TextBlock Text="{Binding GroupLabel}"
+                                           FontSize="{DynamicResource GlassBlush.FontMeta}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource GlassBlush.TextFaint}"
+                                           Margin="14,10,14,4">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding GroupLabel}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <Button Style="{StaticResource GbSettingsRailItem}"
+                                        AutomationProperties.Name="{Binding Label}"
+                                        Command="{Binding DataContext.SwitchSettingsPageCommand,
+                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding Key}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Glyph}"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="15"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"
+                                                   Foreground="{DynamicResource GlassBlush.TextMuted}"/>
+                                        <TextBlock Text="{Binding Label}"
+                                                   FontSize="{DynamicResource GlassBlush.FontCaption}"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </ContentControl>
+
+        <!-- ══ PAGE CONTENT (SettingsPage + selector; one page tree) ═══ -->
+        <ContentControl Grid.Column="2" Style="{StaticResource GlassBlush.GlassCard}">
+            <Grid>
+                <TextBlock Text="{Binding ActivePageLabel}"
+                           FontSize="{DynamicResource GlassBlush.FontTitle}"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource GlassBlush.Text}"
+                           Margin="0,0,0,16"
+                           HorizontalAlignment="Left"
+                           VerticalAlignment="Top"/>
+                <ContentControl Content="{Binding SettingsPage}"
+                                ContentTemplateSelector="{StaticResource GbSettingsPageSelector}"
+                                Margin="0,44,0,0"
+                                Focusable="False"/>
+            </Grid>
+        </ContentControl>
+    </Grid>
+</UserControl>
