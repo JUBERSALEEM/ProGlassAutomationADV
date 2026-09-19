@@ -13,9 +13,11 @@ VISUALLY MATCHED ≠ NOT YET VERIFIED (no runtime exists in this environment —
 no .NET SDK, no screenshots possible; GB-P16 is tooling-ready but NOT RUN).
 A first REAL build was run externally on 2026-09-19 and its errors were
 fixed at the source (GB-B1), with a second fix round (GB-B2: TargetName in
-Style triggers + a non-existent DropShadowEffect property) — the rebuild is
-still due in the SDK environment before anything may be labelled
-build-verified.
+Style triggers + a non-existent DropShadowEffect property) and a third
+(GB-B3: a C# compile blocker — unparenthesized ternary in a string
+interpolation — which was also the root of a ~100-error designer cascade) —
+the rebuild is still due in the SDK environment before anything may be
+labelled build-verified.
 
 ---
 
@@ -382,6 +384,56 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   Build is **NOT RE-RUN here** (no SDK) — rebuild due in the SDK
   environment.
 
+## GB-B3 — Third real build fix round: C# compile blocker (2026-09-19)
+- **Context:** third real-build error list from the SDK environment
+  (`C:\Users\DELL\source\repos\ProGlassAutomationperf`). Shape changed
+  completely: **5 active C# errors, all on one line**, plus ~100 designer
+  (XDG) errors.
+- **Root cause (1 line → 5 CS errors):**
+  `Services/Optimization/GuillotinePacker.Partitioned.cs` L227 contained
+  an unparenthesized ternary inside a string interpolation:
+  `$"…{bestGlobal == other ? "batch-combined" : "global"} pass…"`. C#
+  forbids a conditional directly in an interpolation — the `:` terminates
+  the hole — producing CS8361 + CS8076 + CS8088 + CS1003 ×2 + CS0103
+  (`'global' does not exist in the current context`) on that single line.
+  The break was **committed** in this branch (carried in by `fe760e4`,
+  opt-workstream commit) and invisible until now: while XAML
+  markup-compilation was still failing (pre-GB-B1/GB-B2), MSBuild never
+  reached C# compilation. Once markup compiles cleanly, the compiler runs
+  and hits this line.
+- **Fix:** parenthesize the conditional —
+  `{(bestGlobal == other ? "batch-combined" : "global")}`. Identical
+  runtime message text, zero business-logic change (message string only).
+- **Triage of the rest of the list — all cascade, no XAML defects:**
+  - ~70 × XDG0008 "name does not exist in clr-namespace" for the
+    project's own types (all Professional VMs/views in MainWindow.xaml
+    L137–210, TrendChartControl, DonutChartControl,
+    SmoothScrollBehavior/SmartScrollBubblingBehavior): when the assembly
+    fails to compile, the designer cannot resolve ANY clr-namespace type
+    in it. Every named type was grep-verified to exist in the repo
+    (views, VMs, both chart controls, both behaviors in `Behaviors/`).
+  - XDG-0001 "incompatible type" for
+    `InverseBoolToVisibilityConverter` (Overview L241/400) and
+    `BrushKeyConverter` (L373): both classes exist
+    (`Converters/*.cs`) and both keys are declared in
+    `Themes/Styles/ConverterResources.xaml` (merged FIRST in App.xaml
+    L20, app-level scope) — the designer error is the failed-assembly
+    cascade, not a missing/mistyped resource.
+  - 11 × XDG0010 "Operation is not valid due to the current state" at
+    behavior-attached-property sites in PersonalProductionControlCenterView:
+    same cascade (behavior types unresolved).
+- **Sweep for the same bug class:** repo-wide scan for unparenthesized
+  ternaries inside interpolations across all `.cs` — the fixed line is
+  the only real instance (2 scanner hits in
+  SettingsViewModel.ThemeWallpaper.cs were null-coalescing + format
+  specifiers, valid C#).
+- **Status:** fixed at source, committed `dc71201`, **PUSHED**.
+  C# compilation is **NOT RUN here** (no SDK) — the parenthesization is
+  the documented, canonical fix for CS8361; rebuild due in the SDK
+  environment. After a successful compile, the full XDG block is
+  expected to clear on its own (designer caches the stale failed
+  assembly — a clean rebuild is the correct remedy, not XAML edits).
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -405,3 +457,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P17 DPI/a11y/performance | ✅ STATIC VERIFIED (automation names on 10 icon buttons; contrast measured+documented; virtualization/effects audit) | `GB-P17` |
 | GB-B1 first real build fix round | ✅ FIXED at source (4 root-xmlns + 19 FontFeatures + 6 set-twice Style; validator +W18/W19/W20) — rebuild due in SDK env | `GB-B1` |
 | GB-B2 second build fix round | ✅ FIXED at source (TimelineItem TargetName → ControlTemplate triggers = MC4011; removed IsDirectionalLightOnly = MC3072; validator +W21, W19 denylist); rest of user's list verified stale/local-copy | `GB-B2` |
+| GB-B3 third build fix round — C# blocker | ✅ FIXED at source (unparenthesized ternary in interpolation, GuillotinePacker.Partitioned.cs L227 = CS8361 + 4 cascade CS errors; ~100 XDG errors = failed-assembly cascade, types/resources grep-verified); C# compile NOT RUN (no SDK) | `dc71201` |
