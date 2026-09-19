@@ -9,6 +9,7 @@
     xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.JobOrder"
     xmlns:vmProd="clr-namespace:ProGlassAutomation.ViewModels.Production"
     xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
+    xmlns:vmDelivery="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote"
     xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
@@ -35,6 +36,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmSheetStore:SheetStoreViewModel}">
             <pv:PersonalSheetStoreView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmDelivery:DeliveryNoteViewModel}">
+            <pv:PersonalDeliveryNoteView/>
         </DataTemplate>
     </UserControl.Resources>
 

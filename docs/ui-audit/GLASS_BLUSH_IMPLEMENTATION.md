@@ -158,6 +158,18 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   2. Card grid uses a WrapPanel `ItemsControl` (cards, not a virtualizing DataGrid) — sheet lists are card-bounded in the reference; virtualized DataGrid remains in Professional mode (performance rule honored there).
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+### glass-06 — Delivery Note (GB-P9)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Architecture:** `Views/Personal/PersonalDeliveryNoteView.xaml` (InitializeComponent only) on the **same `DeliveryNoteViewModel`** (routed: `case "DeliveryNote"` → DeliveryNoteVM — verified at Part2 L255). Two-column glass layout per the reference: left list card + right detail card.
+- **Contract preserved (verified member-by-member):** `ListVM.AllItems` (flat DN rows, virtualized Recycling ListBox), per-row `DeliveryNoteId/CustomerName/ProjectName/DeliveryTime/StatusLabel/StatusBrushKey/IsSelected`, `ListVM.SelectRowCommand` (click, same command+parameter as Professional), `DetailVM` (`DeliveryNoteId/DriverName/VehicleNumber/DeliveryProgressPercent/VisibleItemRows`), item rows (`GlassRef/DimensionDisplay/OrderedQty/IsFullyDeliveredLine`).
+- **Components used:** GlassBlush.GlassCard (both columns + driver card + items card), GlassBlush.Pill (time + plate), GlassBlush.Progress (delivery progress), GlassBlush.EmptyState (no deliveries / select-a-delivery), GlassBlush.SectionTitle (table headers), local `GbDnRow` (glass tile + `IsSelected` glow — same row-property mechanism Professional uses).
+- **Deviations (documented):**
+  1. Status pill = glass tint + colored dot + `StatusLabel` text (the theme `StatusBrushKey` brush is used for the dot only, so the pill stays readable over both Light and Dark theme tint families — accessibility rule).
+  2. The reference "Picked up → On route → Delivered" timeline is not exposed by the VM as discrete stages (real status vocabulary: Draft/Dispatching/Dispatched/Delivered/Signed/Received); rendered as `DeliveryProgressPercent` progress bar + status instead (no state fabrication).
+  3. The full editable Professional `DeliveryNoteDetailView` is hosted inside a glass inset below the reference header block (documented hybrid, GB-P6 pattern) so the delivery workflow (quantity entry, save, attachments, history) stays fully available in Personal mode.
+  4. Phone affordance on the driver card is an informational chip (no call command exists on the VM — no dead button).
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## GB-P14 — Professional ↔ Personal experience switch (the enabler)
 - **Status:** ✅ STATIC VERIFIED · BUILD NOT RUN (no .NET SDK) · RUNTIME NOT VERIFIED.
 - **Architecture (live, persisted, no restart):**
@@ -189,7 +201,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P13 ai assistant (glass-10) | ✅ STATIC VERIFIED (PersonalAiChatView, glass bubbles + chip rail; runtime NOT VERIFIED) | `GB-P13` |
 | GB-P14 experience switch (live, persisted) | ✅ STATIC VERIFIED (single-view-instance design, safe shell recreation; BUILD NOT RUN) | `GB-P14` |
 | GB-P8 sheet store (glass-05) | ✅ STATIC VERIFIED (PersonalSheetStoreView, glass card grid; runtime NOT VERIFIED) | `GB-P8` |
-| GB-P9…P12 screens (4) | pending | — |
+| GB-P9 delivery note (glass-06) | ✅ STATIC VERIFIED (PersonalDeliveryNoteView, list + glass detail; runtime NOT VERIFIED) | `GB-P9` |
+| GB-P10…P12 screens (3) | pending | — |
 | GB-P15 global visual consistency | pending (incl. Personal-side popup anchors + error-bubble variant) | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
 | GB-P17 DPI/a11y/performance | pending (static parts only) | — |
