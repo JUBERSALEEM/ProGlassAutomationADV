@@ -84,11 +84,13 @@
                             <Button Content="&#xE711;"
                                     Style="{StaticResource GlassBlush.TopIconButton}"
                                     ToolTip="Clear chat"
+                                    AutomationProperties.Name="Clear chat"
                                     Command="{Binding ClearChatCommand}"
                                     Margin="0,0,4,0"/>
                             <Button Content="&#xE8BB;"
                                     Style="{StaticResource GlassBlush.TopIconButton}"
                                     ToolTip="Close"
+                                    AutomationProperties.Name="Close"
                                     Command="{Binding ToggleChatCommand}"/>
                         </StackPanel>
                     </Grid>
@@ -218,6 +220,7 @@
                                 Style="{StaticResource GlassBlush.TopIconButton}"
                                 FontSize="18"
                                 ToolTip="Voice input"
+                                AutomationProperties.Name="Voice input"
                                 Command="{Binding VoiceInputCommand}"
                                 Margin="8,0,0,0"
                                 Width="44" Height="44"/>

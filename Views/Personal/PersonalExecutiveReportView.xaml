@@ -97,7 +97,8 @@
                                 Style="{StaticResource GlassBlush.GlassButton}"
                                 Padding="14,8"
                                 Command="{Binding RefreshCommand}"
-                                ToolTip="Refresh"/>
+                                ToolTip="Refresh"
+                                AutomationProperties.Name="Refresh report"/>
                     </StackPanel>
                 </Grid>
             </ContentControl>

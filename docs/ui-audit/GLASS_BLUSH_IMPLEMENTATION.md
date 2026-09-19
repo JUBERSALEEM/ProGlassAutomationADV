@@ -143,7 +143,7 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 - **Components used:** GlassBlush.ChatBubbleUser (accent, right) / ChatBubbleAssistant (glass, left + provider footer via Runs: ProviderIcon · AI.Via · ProviderName · TimeLabel), GlassBlush.SuggestionChip rail (Suggestions + SuggestionCommand), GlassBlush.TextBox (CurrentInput), GlassButton (SendCommand), TopIconButton (VoiceInputCommand/ClearChatCommand/ToggleChatCommand), glass empty state (AI.HelloIMProglassAI + hint).
 - **Contract preserved:** Messages (ChatMessage immutable model), Suggestions, CurrentInput, HasMessages, ActiveProviderSubtitle, all 5 commands, all AI.* i18n keys.
 - **Deviations (documented):**
-  1. Error-state bubble (IsError) renders as the assistant glass bubble (the Professional view has a dedicated red bubble; a GbChatBubbleError variant is a candidate for the GB-P15 consistency pass — no data difference).
+  1. (RESOLVED in GB-P15) Error-state bubble (IsError) initially rendered as the assistant glass bubble; GB-P15 added the dedicated `GlassBlush.ChatBubbleError` coral variant and switched the AI bubble to the model's `IsAiResponse` flag.
   2. Auto-scroll uses a CollectionChanged → ScrollToEnd in view code-behind (chat UX plumbing; no business logic).
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
@@ -241,6 +241,33 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+## GB-P16 — Runtime screenshot fidelity — **NOT RUN (no .NET SDK / WPF runtime)**
+- **Status:** ❌ NOT RUN. There is no .NET SDK or WPF runtime in this environment, so no build, no launch, no screenshots, and no reference-vs-actual diff are possible here.
+- **What WAS delivered:** the static gate (xaml_validator 0 ERROR across all Personal + Professional XAML) and the full token/contract verification for every screen. All ten screens are **STATIC VERIFIED**; none is **RUNTIME VERIFIED** or **VISUALLY MATCHED**.
+- **Verification plan for an environment with the SDK (to be run there):**
+  1. `dotnet build` (0 errors) + run the unit/integration test suites.
+  2. Launch at a fixed 1408×768 (16:9) canvas and 100% DPI to match the references; capture each Personal screen (glass-01…glass-10) to PNG.
+  3. Diff each capture against its reference under matched canvas/aspect/DPI; fix the largest differences first, re-capture, iterate.
+  4. Exercise the Professional↔Personal switch live (no restart) and confirm module state is preserved.
+  5. Only then may any screen be labelled **VISUALLY MATCHED**. Until then the honest status is **NOT YET VERIFIED**.
+
+## GB-P17 — DPI / accessibility / performance (static pass)
+- **Status:** ✅ STATIC VERIFIED · BUILD NOT RUN (no .NET SDK).
+- **Fix applied (accessibility):** icon-only buttons previously exposed only a `ToolTip` (not an automation Name). Added explicit `AutomationProperties.Name` to all ten icon-only buttons on the Personal plane: the six top-bar buttons in `GlassShell` (Professional UI, Notifications, AI Assistant, Theme, Settings, Account), the three in `PersonalAiChatView` (Clear chat, Close, Voice input), and the Refresh button in `PersonalExecutiveReportView`. Text-bearing buttons/nav items already derive names from their Content.
+- **DPI:** WPF is DPI-virtualized — layout is expressed in logical pixels and scales with the system DPI setting; no bitmap assets and no absolute physical-pixel assumptions in the Personal views, so the composition scales uniformly. No fixed-DPI breakage. (Runtime scale testing is part of the GB-P16 plan.)
+- **Performance:**
+  - `GlassBlush.DataGrid` keeps `VirtualizingPanel.IsVirtualizing=True` + `VirtualizationMode=Recycling`; the glass skin adds **no per-row effects**.
+  - Effects inside repeat-item templates are **bounded**, not per-thousand-row: the executive report's KPI tiles (4 SummaryCards + 4 HealthCards, `CardShadowFx`) and the order-to-cash funnel (≤5 stages, `GlowAccent`), and the sheet-store card list (single card shadow). These are small fixed sets, not virtualized data rows — within the glass performance rule.
+  - Atmospheric background = 3 static gradient layers (no bitmap, no live blur, no animation by default; `ReducedMotion` respected).
+- **Accessibility (contrast, measured statically against the measured dark canvas #021749):**
+  | Text token | On Surface (glass) | On SurfaceFaint | WCAG |
+  |---|---|---|---|
+  | `GlassBlush.Text` (primary) | **6.66:1** | 9.57:1 | AA pass (≥4.5) |
+  | `GlassBlush.TextMuted` (secondary) | 3.87:1 | 5.57:1 | ≥3.0 non-text/UI |
+  | `GlassBlush.TextFaint` (meta/timestamp) | 3.41:1 | 4.90:1 | ≥3.0 non-text/UI |
+  - Primary text clears AA comfortably. Secondary/meta tokens sit at/above the 3:1 non-text threshold but below 4.5:1 for normal body text — an inherent property of the reference's translucent glass surfaces (raising the hue enough to clear 4.5 would visibly alter the source-of-truth look). Per the accessibility rule ("if the reference has low contrast, keep usable text contrast and document"), the reference colors are **kept** and this is documented here. Meta tokens are used only for secondary/timestamp text, never primary content.
+  - Keyboard: all interactive Personal controls are native Button/ToggleButton/CheckBox/DatePicker/TextBox (keyboard-focusable); scroll containers are `Focusable=False` with `FocusVisualStyle` nulled (they are not tab stops by design). Focus visibility comes from the shell's default focus visual on focusable controls.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -260,5 +287,5 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P11 analytics (glass-08) + reports hub | ✅ STATIC VERIFIED (PersonalSalesReportView hub + ExecutiveReport glass-08; runtime NOT VERIFIED) | `GB-P11` |
 | GB-P12 settings (glass-09) | ✅ STATIC VERIFIED (PersonalSettingsView rail + Appearance glass-09 + 11 Professional section hosts; runtime NOT VERIFIED) | `GB-P12` |
 | GB-P15 global visual consistency | ✅ STATIC VERIFIED (Personal-side popup anchors + error-bubble variant; BUILD NOT RUN) | `GB-P15` |
-| GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
-| GB-P17 DPI/a11y/performance | pending (static parts only) | — |
+| GB-P16 runtime screenshot fidelity | ❌ **NOT RUN — no WPF runtime in this environment** (verification plan documented) | — |
+| GB-P17 DPI/a11y/performance | ✅ STATIC VERIFIED (automation names on 10 icon buttons; contrast measured+documented; virtualization/effects audit) | `GB-P17` |
