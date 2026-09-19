@@ -255,8 +255,14 @@ namespace ProGlassAutomation
                 }
             };
 
+            // RC-014: log the FULL build identity, not just the version. Nine
+            // days of behaviour-changing commits shipped under one frozen
+            // 2.0.1, so "the version says 2.0.1" told nobody whether the
+            // running binary contained a given fix. Version + the assembly
+            // build timestamp is unique per build and is the first line of
+            // every log.
             AppLogService.Info(
-                $"ProGlass {Services.Updates.AppInfo.Version} starting",
+                $"ProGlass {Services.Updates.AppInfo.BuildStamp} starting",
                 new LogContext { Operation = "Startup" });
 
             // 1) Load persisted config

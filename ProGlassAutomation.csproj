@@ -23,10 +23,20 @@
 		<!-- ── ONE authoritative version source (OTA spec §5) ────────
 		     About / Settings / update checker / installer / releases all
 		     read this via AppInfo (assembly identity). Bump HERE only:
-		     MAJOR.MINOR.PATCH  →  2.0.0 → 2.0.1 → 2.1.0 ...          -->
-		<Version>2.0.1</Version>
-		<AssemblyVersion>2.0.1.0</AssemblyVersion>
-		<FileVersion>2.0.1.0</FileVersion>
+		     MAJOR.MINOR.PATCH  →  2.0.0 → 2.0.1 → 2.1.0 ...
+
+		     RC-014 (2026-09-20): this sat at 2.0.1 from d6fb00e7
+		     (2026-09-10) through 6c7224f1 and e32f0caf (2026-09-19).
+		     UpdateService.IsNewer is a STRICT greater-than compare, so
+		     every one of those behaviour-changing builds was
+		     indistinguishable to OTA and to About — a machine on an
+		     older 2.0.1 was never offered the fix, and no log excerpt
+		     could say which 2.0.1 produced it. Bump the PATCH digit on
+		     every behavioural fix; that is what makes the update
+		     reachable and the build identifiable.          -->
+		<Version>2.0.2</Version>
+		<AssemblyVersion>2.0.2.0</AssemblyVersion>
+		<FileVersion>2.0.2.0</FileVersion>
 	</PropertyGroup>
 
 	<!-- ══════════════════════════════════════════════════════════════

@@ -300,8 +300,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // specific composition (outer / inner / …) is selected.
             if (!string.Equals(_selectedCuttingGroup, AllCuttingGroups, StringComparison.OrdinalIgnoreCase))
             {
+                // RC-012 (2026-09-20): compare on the SAME canonical key the
+                // groups were built with. The dropdown carries the piece row's
+                // raw GlassRef while BuildCuttingGroups groups by
+                // CompositionKey.Normalize(GlassRef) and labels the group with
+                // the FIRST row's raw ref — so a hand-typed list holding both
+                // "6mm clear ft" and "6mm Clear FT Glass" produced ONE group
+                // labelled with whichever row came first, and picking the
+                // other spelling in the dropdown refused the run with "The
+                // selected cutting group has no valid pieces." Normalising both
+                // sides removes the whole mismatch class.
+                string wantedGroup = CompositionKey.Normalize(_selectedCuttingGroup);
                 groups = groups
-                    .Where(g => string.Equals(g.Composition, _selectedCuttingGroup, StringComparison.OrdinalIgnoreCase))
+                    .Where(g => string.Equals(
+                        CompositionKey.Normalize(g.Composition), wantedGroup,
+                        StringComparison.OrdinalIgnoreCase))
                     .ToList();
                 if (groups.Count == 0)
                 {
@@ -353,13 +366,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 .GroupBy(p =>
                 {
                     string key = CompositionKey.Normalize(p.GlassRef);
-                    return key.Length == 0 ? "(unlabelled glass)" : key;
+                    return key.Length == 0 ? UnlabelledGlass : key;
                 })
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
                 .Select(g =>
                 {
-                    string label = g.Key == "(unlabelled glass)"
-                        ? "(unlabelled glass)"
+                    string label = g.Key == UnlabelledGlass
+                        ? UnlabelledGlass
                         : g.First().GlassRef.Trim();
                     return (label, g.ToList());
                 })

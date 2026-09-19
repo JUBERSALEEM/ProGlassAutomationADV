@@ -180,10 +180,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // Merge groups carry ONLY their own pcs + area (low-e 76, clear
             // 64, ramly 12) — and reflect the cutting-group selector, so
             // picking "low-e outer" shows that group alone.
+            //
+            // RC-010: keyed through CompositionLabel so the group key, the
+            // dropdown entry and the cut-plan key are the SAME string. The raw
+            // `(p.GlassRef ?? "").Trim()` key produced "" for unlabelled glass,
+            // which the dropdown deliberately excluded — so SelectedGroupMatches
+            // filtered that whole group out of the cards whenever a specific
+            // composition was selected, and glass quietly left the SIZES tab.
             SizeGroups.Clear();
             foreach (var grp in Pieces
                 .Where(p => p.TryParse(out _, out _, out _))
-                .GroupBy(p => (p.GlassRef ?? string.Empty).Trim())
+                .GroupBy(p => CompositionLabel(p.GlassRef), StringComparer.OrdinalIgnoreCase)
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase))
             {
                 if (!SelectedGroupMatches(grp.Key)) continue;

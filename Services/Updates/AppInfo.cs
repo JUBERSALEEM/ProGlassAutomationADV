@@ -22,8 +22,12 @@ namespace ProGlassAutomation.Services.Updates
         public const string GitHubOwner = "JUBERSALEEM";
         public const string GitHubRepo = "ProGlassAutomationADV";
 
-        /// <summary>Fallback only — real value comes from the assembly.</summary>
-        private const string FallbackVersion = "2.0.1";
+        /// <summary>
+        /// Fallback only — real value comes from the assembly. Kept in step
+        /// with the .csproj &lt;Version&gt; and exposed so the licensing
+        /// wrapper does not carry its own third copy of the number.
+        /// </summary>
+        public const string FallbackVersion = "2.0.2";
 
         /// <summary>
         /// Current application version (MAJOR.MINOR.PATCH), resolved once
@@ -36,6 +40,30 @@ namespace ProGlassAutomation.Services.Updates
         /// from the build artifact timestamp. Never hard-coded.
         /// </summary>
         public static string BuildLabel { get; } = ResolveBuildLabel();
+
+        /// <summary>
+        /// Full build identity for logs and diagnostics: version + the UTC
+        /// timestamp of the built assembly, e.g.
+        /// <c>2.0.2 (build 2026.09.20 14:03:11 UTC)</c>.
+        /// <para>
+        /// RC-014 (2026-09-20): &lt;Version&gt; sat at 2.0.1 for nine days
+        /// across several behaviour-changing commits. Because
+        /// <see cref="UpdateService.IsNewer"/> is a strict greater-than
+        /// compare, OTA could therefore never offer those builds — and a log
+        /// excerpt could never tell anyone WHICH build produced it. Every
+        /// Optimization log line now stamps this, so "is the user running the
+        /// fixed build?" is answerable from the log alone.
+        /// </para>
+        /// </summary>
+        public static string BuildStamp =>
+            Version + " (build " + BuildLabel + " " + BuildTimeUtc + " UTC)";
+
+        /// <summary>
+        /// Exact UTC build time of the entry assembly (falls back to now).
+        /// <see cref="BuildLabel"/> is deliberately date-only for the About
+        /// page; two builds on the same day are indistinguishable there.
+        /// </summary>
+        public static string BuildTimeUtc { get; } = ResolveBuildTimeUtc();
 
         public static string AssemblyVersion =>
             Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)
@@ -72,6 +100,19 @@ namespace ProGlassAutomation.Services.Updates
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AppInfo] ResolveBuildLabel: fall through: " + ex.Message); }
 
             return DateTime.Now.ToString("yyyy.MM.dd");
+        }
+
+        private static string ResolveBuildTimeUtc()
+        {
+            try
+            {
+                var path = Assembly.GetEntryAssembly()?.Location;
+                if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                    return File.GetLastWriteTimeUtc(path).ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
+            }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AppInfo] ResolveBuildTimeUtc: fall through: " + ex.Message); }
+
+            return DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
         }
     }
 

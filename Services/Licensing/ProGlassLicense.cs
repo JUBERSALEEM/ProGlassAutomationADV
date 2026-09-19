@@ -37,7 +37,7 @@ public static class ProGlassLicense
     public const string ProductId = ProductIds.ProGlassAutomation;
 
     public static string AppVersion =>
-        Services.Updates.AppInfo.Version ?? "2.0.1";
+        Services.Updates.AppInfo.Version ?? Services.Updates.AppInfo.FallbackVersion;
 
     public static LicenseValidationResult VerifyFile(string path) =>
         ContractLicenseService.VerifyAndValidate(

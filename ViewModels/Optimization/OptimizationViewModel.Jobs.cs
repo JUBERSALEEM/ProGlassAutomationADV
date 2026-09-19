@@ -539,7 +539,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         {
                             if (keepSelectedIds.Contains(o.JobOrderId))
                                 o.IsSelected = true;
-                            o.PropertyChanged += OnJobSelectionChanged;
+                            AttachJobOption(o);
                             AvailableJobs.Add(o);
                         }
                         SelectedJob = null;
@@ -596,7 +596,65 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private void OnJobSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(JobOptionVm.IsSelected)) return;
+
+            // RC-013 (2026-09-20) replaces RC-009's blanket force.
+            //
+            // Pane tick state lives on BuildUpLayerVm, which is OWNED BY THE
+            // JobOptionVm — not by JobSpecBreakdown. So "Clear" (or unticking a
+            // single pane) permanently unticks that job's panes, and re-ticking
+            // the job rebuilt the SAME layer objects still unticked: the specs
+            // and panes appeared, the cutting list stayed empty. RC-009 fixed
+            // that by forcing EVERY pane of EVERY selected job back to
+            // IsSelected=true inside RebuildSelectedJobBreakdown — which also
+            // silently re-added glass the operator had just removed from an
+            // unrelated, still-ticked job.
+            //
+            // Correct semantic: a job's panes return to their pre-ticked
+            // default when THAT JOB is (re-)selected, and an operator's pane
+            // choice is left alone while the job stays selected.
+            //
+            // Safe from re-entrancy: a job that is only now becoming selected
+            // is not in JobSpecBreakdown yet, so its layers carry no
+            // OnLayerSelectionChanged subscription (the previous rebuild
+            // detached it) and these writes raise nothing.
+            if (sender is JobOptionVm job && job.IsSelected)
+                ResetPaneTicksToDefault(job);
+
             RebuildSelectedJobBreakdown();
+        }
+
+        /// <summary>
+        /// Puts every pane of one job back to the pre-ticked default the picker
+        /// builds it with (<c>IsSelected = true</c>, Jobs.cs — "Panes are
+        /// pre-ticked so a job's sizes import with a single click"). Called when
+        /// that job transitions unselected → selected, never for a job that is
+        /// already selected.
+        /// </summary>
+        private static void ResetPaneTicksToDefault(JobOptionVm job)
+        {
+            foreach (var spec in job.Specs)
+                foreach (var layer in spec.Layers)
+                    if (layer.IsPane) layer.IsSelected = true;
+        }
+
+        /// <summary>
+        /// Hooks one job option into the picker's selection wiring. Idempotent:
+        /// the handler is detached first, so calling this twice can never make a
+        /// single tick rebuild the breakdown twice.
+        /// <para>
+        /// Extracted from <c>LoadJobsInternalAsync</c> so there is ONE way to
+        /// wire a job, whether it came from the database or was supplied
+        /// directly (a host, or Tests/Optimization — which cannot use
+        /// <c>LoadJobs()</c> at all, because that method only applies its
+        /// results through <c>Application.Current.Dispatcher</c> and xUnit has no
+        /// WPF Application).
+        /// </para>
+        /// </summary>
+        public void AttachJobOption(JobOptionVm? job)
+        {
+            if (job == null) return;
+            job.PropertyChanged -= OnJobSelectionChanged;
+            job.PropertyChanged += OnJobSelectionChanged;
         }
 
         /// <summary>
@@ -688,8 +746,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// by normalized composition + size + position, summing qty.
         /// RC-007 FIX 2026-09-20: headless host for Step5 runs must NOT
         /// auto-clear Pieces/Stocks when LoadJobs finishes after RunFromStep5.
-        /// RC-009 FIX 2026-09-20: job selection must auto-import cutting sizes — was broken because
-        /// selectedLayers could be 0 if pane IsSelected false or Pieces empty. Now logs and ensures.
+        /// RC-009 FIX 2026-09-20: forced every pane layer IsSelected=true here.
+        /// RC-013 (second-pass audit) REMOVED that force — it re-added glass the
+        /// operator had deliberately removed from any still-ticked job. Pane
+        /// ticks are now reset per job, in <see cref="OnJobSelectionChanged"/>,
+        /// only for the job that just became selected.
         /// </summary>
         private void RebuildSelectedJobBreakdown()
         {
@@ -698,23 +759,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // Headless host is for Step5 live runs only — its Pieces/Stocks
                 // are owned by RunFromStep5, not by job selection. Clearing them
                 // here would wipe the live cutlist after RunFromStep5 populated it.
-                try
-                {
-                    Services.Logging.AppLogService.Info(
-                        $"[OPT-JOBS] RebuildSelectedJobBreakdown skipped — IsHeadlessHost=true doc={DocumentKey}",
-                        new Services.Logging.LogContext { Module = "Optimization", Operation = "RebuildJobs" });
-                }
-                catch { }
                 return;
             }
-
-            try
-            {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-JOBS] RebuildSelectedJobBreakdown start: AvailableJobs={AvailableJobs.Count} SelectedJobs={AvailableJobs.Count(j=>j.IsSelected)} IsHeadless={IsHeadlessHost}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RebuildJobs" });
-            }
-            catch { }
 
             foreach (var spec in JobSpecBreakdown)
                 foreach (var layer in spec.Layers)
@@ -726,11 +772,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 foreach (var spec in job.Specs)
                 {
                     foreach (var layer in spec.Layers)
-                    {
-                        // RC-009: ensure pane layers are pre-ticked when job is selected — previously IsSelected could be false if layer was previously deselected and JobOptionVm reused? Now force true on job selection.
-                        if (layer.IsPane) layer.IsSelected = true;
                         layer.PropertyChanged += OnLayerSelectionChanged;
-                    }
                     JobSpecBreakdown.Add(spec);
                 }
             }
@@ -745,20 +787,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             RefreshPaneSelectionCount();
 
-            try
-            {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-JOBS] RebuildSelectedJobBreakdown after breakdown: JobSpecBreakdown={JobSpecBreakdown.Count} PaneChecklist={PaneChecklist.Count} SelectedPaneCount={SelectedPaneCount} HasSpec={HasSpecBreakdown} HasPane={HasPaneChecklist}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RebuildJobs" });
-            }
-            catch { }
-
             // STOCKS follows the selection: the pool becomes exactly the
             // ticked jobs' Step 4 sheet sizes (per pane × composition).
             SyncStocksFromSelectedJobs();
 
             // AUTO-IMPORT: when jobs are ticked, their panes (pre-ticked)
             // immediately populate the cutting list, merged across jobs.
+            // Added by 6c7224f1 — this single call is what makes a job tick
+            // reach the SIZES tab at all. Everything downstream of it is
+            // derived state; without it JobSpecBreakdown / PaneChecklist /
+            // Stocks all fill while Pieces stays empty, which is EXACTLY the
+            // "specs populate but the cutting-size list is empty" report.
             AutoRebuildPiecesFromSelectedJobs();
         }
 
@@ -786,82 +825,98 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>
-        /// SENIOR: auto rebuilds Pieces from currently selected jobs/panes,
-        /// merging matching spec + glass + size + position across multi-jobs.
-        /// Pattern mirrors Step 5 export merging: same normalized composition
-        /// + same W×H + same position → qty summed, labels merged distinct.
-        /// This is what user requested for multi-job selection.
-        /// RC-007: headless host must not clear Pieces when no jobs selected.
-        /// RC-009: ensure job selection auto-imports cutting sizes — previously only specs selected.
+        /// Rebuilds <see cref="Pieces"/> from the currently selected jobs'
+        /// ticked panes, merging matching composition + size + position across
+        /// jobs (the same key the Step 5 export uses). This is the ONLY path
+        /// from a job tick to the SIZES tab: everything that tab renders
+        /// (<see cref="SizeGroups"/>, <see cref="CutPlanRows"/>,
+        /// <see cref="CuttingGroups"/>, <see cref="PieceSummary"/>) is derived
+        /// from <see cref="Pieces"/> by <see cref="RefreshDerived"/>.
+        /// <para>
+        /// RC-007: the headless host must not clear Pieces when no jobs are
+        /// selected — <c>RunFromStep5</c> owns them there.
+        /// </para>
+        /// <para>
+        /// RC-009's "fallback" (re-add <c>layer.Pieces</c> unmerged when
+        /// <c>merged.Count == 0</c>) is REMOVED. It read the identical
+        /// <c>layer.Pieces</c> through the identical <c>w&lt;=0 || h&lt;=0 ||
+        /// qty&lt;=0</c> filter that had just produced zero rows, so it could
+        /// never produce a different result: dead code whose only effect was to
+        /// relabel a correct empty outcome as a bug. What replaces it is the
+        /// honest version — measure the quantity at every hop, and when
+        /// conservation fails say so on screen and in the log instead of
+        /// silently retrying the same filter.
+        /// </para>
         /// </summary>
         private void AutoRebuildPiecesFromSelectedJobs()
         {
-            if (IsHeadlessHost)
-            {
-                try
-                {
-                    Services.Logging.AppLogService.Info(
-                        $"[OPT-JOBS] AutoRebuildPieces skipped — IsHeadlessHost=true doc={DocumentKey}",
-                        new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
-                }
-                catch { }
-                return;
-            }
-
-            try
-            {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-JOBS] AutoRebuildPieces start: JobSpecBreakdown={JobSpecBreakdown.Count} PaneChecklist={PaneChecklist.Count} SelectedJobs={SelectedJobs.Count()} IsHeadless={IsHeadlessHost}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
-            }
-            catch { }
+            // The headless host a proforma quote drives its Step 5 runs through
+            // owns its Pieces exclusively (RunFromStep5). Job selection is not
+            // its input — see RC-007.
+            if (IsHeadlessHost) return;
 
             var selectedLayers = JobSpecBreakdown
                 .SelectMany(s => s.Layers)
                 .Where(l => l.IsPane && l.IsSelected)
                 .ToList();
 
-            try
+            // ── Q2: everything the ticked panes actually carry ────────────────
+            // layer.Pieces is filled once, in LoadJobsInternalAsync, from the
+            // job's Step 5 rows that already survived
+            // ProductionDistributionEngine.DistributeGroup's own filter
+            // (Stage==Cutting && W>0 && H>0 && Qty>0). It is never re-read from
+            // the database here — so a pane with zero rows means the job itself
+            // has no cutting rows, not that this method lost them.
+            int paneRows = 0;
+            int paneQty = 0;
+            foreach (var layer in selectedLayers)
             {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-JOBS] AutoRebuildPieces selectedLayers={selectedLayers.Count} totalPiecesInLayers={selectedLayers.Sum(l=>l.Pieces.Count)}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+                paneRows += layer.Pieces.Count;
+                foreach (var (_, _, _, _, qty) in layer.Pieces)
+                    if (qty > 0) paneQty += qty;
             }
-            catch { }
 
             if (selectedLayers.Count == 0)
             {
-                // No panes ticked → clear cutlist (job deselected)
-                // RC-009: only clear if we previously had pieces from job selection, not if we're in initial load with no selection.
-                // Previously this cleared even when job selection had specs but panes IsSelected false — now log.
-                try
-                {
-                    Services.Logging.AppLogService.Info(
-                        $"[OPT-JOBS] AutoRebuildPieces no panes selected: JobSpecBreakdown={JobSpecBreakdown.Count} HasSelectedJobs={SelectedJobs.Any()} PiecesBeforeClear={Pieces.Count}",
-                        new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
-                }
-                catch { }
-
+                // No panes ticked → the cutting list mirrors the selection and
+                // is empty. Only touch Pieces when there is something to clear,
+                // so an unrelated refresh never re-derives the whole SIZES tab.
                 if (Pieces.Count > 0)
                 {
                     Pieces.Clear();
                     RefreshDerived();
-                    RunMessage = SelectedJobs.Any()
-                        ? "No panes selected — tick pane boxes to populate cutting list."
-                        : "No jobs selected — tick jobs on left to auto-import.";
                 }
+                RunMessage = SelectedJobs.Any()
+                    ? "No panes selected — tick pane boxes to populate cutting list."
+                    : "No jobs selected — tick jobs on left to auto-import.";
+                LogImportConservation(selectedLayers.Count, paneRows, paneQty, 0, 0, 0);
                 return;
             }
 
-            // Merge key: normalized composition + W + H + position (case-insensitive)
-            // Value: original glass string, distinct labels, qty sum, position
+            // ── Q3: merge ─────────────────────────────────────────────────────
+            // Key: canonical composition + W + H + pane position. Position is
+            // part of the key because an equal-size DGU has IDENTICAL outer and
+            // inner rows (same glass, same label, same size) — keying without it
+            // silently dropped the inner pane.
             var merged = new Dictionary<(string comp, int w, int h, string pos), (string glass, HashSet<string> labels, int w, int h, int qty, string pos)>();
+            int mergedQty = 0;
+            int rejectedRows = 0;
+            int rejectedQty = 0;
 
             foreach (var layer in selectedLayers)
             {
                 foreach (var (glass, label, w, h, qty) in layer.Pieces)
                 {
-                    if (w <= 0 || h <= 0 || qty <= 0) continue;
+                    if (w <= 0 || h <= 0 || qty <= 0)
+                    {
+                        // A row that cannot be cut is not a piece. Counted
+                        // rather than silently dropped, so the conservation
+                        // check below can tell "filtered" from "lost".
+                        rejectedRows++;
+                        if (qty > 0) rejectedQty += qty;
+                        continue;
+                    }
+
                     string normComp = CompositionKey.Normalize(glass);
                     string posKey = (layer.Position ?? string.Empty).Trim().ToLowerInvariant();
                     var key = (normComp, w, h, posKey);
@@ -880,18 +935,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             labels.Add(label.Trim());
                         merged[key] = (glass, labels, w, h, qty, layer.Position);
                     }
+                    mergedQty += qty;
                 }
             }
 
-            // Rebuild Pieces from merged dict, ordered by composition then size
-            try
-            {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-JOBS] AutoRebuildPieces merging: mergedKeys={merged.Count} totalPcsInMerged={merged.Values.Sum(x=>x.qty)}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
-            }
-            catch { }
-
+            // ── Q4: the authoritative cutting list ────────────────────────────
             Pieces.Clear();
             foreach (var kv in merged
                 .OrderBy(k => k.Key.comp, StringComparer.OrdinalIgnoreCase)
@@ -914,66 +962,111 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             RefreshDerived();
 
-            try
+            // ── Q5/Q6: what the SIZES tab can actually show ───────────────────
+            // Measured, not assumed: re-apply the exact filter the tab applies
+            // (parseable rows + the cutting-group selector) and sum quantity.
+            int piecesQty = 0;
+            int sizesQty = 0;
+            foreach (var p in Pieces)
             {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-JOBS] AutoRebuildPieces after rebuild: Pieces={Pieces.Count} HasPieces={HasPieces} PieceSummary={PieceSummary}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
+                if (!p.TryParse(out _, out _, out int q)) continue;
+                piecesQty += q;
+                if (SelectedGroupMatches(CompositionLabel(p.GlassRef))) sizesQty += q;
             }
-            catch { }
 
-            int totalPcs = merged.Values.Sum(x => x.qty);
             int distinctComps = merged.Keys.Select(k => k.comp).Distinct(StringComparer.OrdinalIgnoreCase).Count();
             int jobCount = SelectedJobs.Count();
+
             RunMessage = string.Format(CultureInfo.InvariantCulture,
                 "Auto-imported {0} pane(s) from {1} job(s) → {2} pieces in {3} cutting group(s) (merged by spec+glass+size).",
-                selectedLayers.Count, jobCount, totalPcs, distinctComps);
+                selectedLayers.Count, jobCount, mergedQty, distinctComps);
 
-            // RC-009: if merged empty but we had selectedLayers, that's a bug — log warning and keep message honest
-            // Try fallback: directly add layer.Pieces without merging to ensure cutting sizes appear even if merging logic fails
-            if (merged.Count == 0 && selectedLayers.Count > 0)
+            // ── conservation invariant ────────────────────────────────────────
+            // A merge may COMBINE rows; it must never make glass disappear. So
+            // every hop has to carry the same total quantity and the SIZES tab
+            // has to be able to show all of it. When that breaks, the operator
+            // is told here — on screen — instead of being left staring at an
+            // empty cutting-size list with no explanation.
+            bool lostInMerge = mergedQty != paneQty - rejectedQty;
+            bool lostInRebuild = piecesQty != mergedQty;
+            bool nothingCuttable = paneRows > 0 && mergedQty == 0;
+            bool noPaneRows = paneRows == 0;
+
+            if (noPaneRows)
             {
-                try
-                {
-                    Services.Logging.AppLogService.Warning(
-                        $"[OPT-JOBS] AutoRebuildPieces BUG: selectedLayers={selectedLayers.Count} but merged=0 — layer.Pieces may be empty or filtered. First layer Pieces={selectedLayers[0].Pieces.Count} Title={selectedLayers[0].Title}",
-                        new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
-                }
-                catch { }
-
-                // Fallback: add directly from selectedLayers without merging — ensures job selection always shows cutting sizes
-                Pieces.Clear();
-                foreach (var layer in selectedLayers)
-                {
-                    foreach (var (glass, label, w, h, qty) in layer.Pieces)
-                    {
-                        if (w <= 0 || h <= 0 || qty <= 0) continue;
-                        var row = NewPieceRow(
-                            glass,
-                            label,
-                            w.ToString(CultureInfo.InvariantCulture),
-                            h.ToString(CultureInfo.InvariantCulture),
-                            qty.ToString(CultureInfo.InvariantCulture));
-                        row.Position = layer.Position;
-                        Pieces.Add(row);
-                    }
-                }
-                RefreshDerived();
-                if (Pieces.Count > 0)
-                {
-                    RunMessage = $"Auto-imported {selectedLayers.Count} pane(s) → {Pieces.Count} size rows (fallback, no merge).";
-                    try
-                    {
-                        Services.Logging.AppLogService.Info(
-                            $"[OPT-JOBS] AutoRebuildPieces fallback added Pieces={Pieces.Count}",
-                            new Services.Logging.LogContext { Module = "Optimization", Operation = "AutoRebuildPieces" });
-                    }
-                    catch { }
-                    return;
-                }
-
-                RunMessage = $"Selected {selectedLayers.Count} pane(s) but no cutting sizes found — check job's Step 5 rows (W/H/Qty).";
+                RunMessage = string.Format(CultureInfo.InvariantCulture,
+                    "{0} pane(s) ticked but they carry no Step 5 cutting rows — the job's pane sizes never reached the picker.",
+                    selectedLayers.Count);
             }
+            else if (nothingCuttable)
+            {
+                RunMessage = string.Format(CultureInfo.InvariantCulture,
+                    "{0} pane(s) ticked but every Step 5 row was rejected (W≤0, H≤0 or Qty≤0) — nothing cuttable to import.",
+                    selectedLayers.Count);
+            }
+            else if (lostInMerge || lostInRebuild)
+            {
+                RunMessage = string.Format(CultureInfo.InvariantCulture,
+                    "Quantity not conserved: panes {0} pcs → merged {1} pcs → cutting list {2} pcs. Investigate before running.",
+                    paneQty, mergedQty, piecesQty);
+            }
+
+            LogImportConservation(selectedLayers.Count, paneRows, paneQty, merged.Count, mergedQty, piecesQty,
+                sizesQty, rejectedRows, rejectedQty);
+        }
+
+        /// <summary>
+        /// ONE consolidated line per job-selection rebuild, replacing the six
+        /// verbose <c>[OPT-JOBS]</c> entries the first RC-009 pass added. It
+        /// carries the build identity — so a log excerpt answers "which build
+        /// produced this?" without a separate lookup — plus the quantity
+        /// measured at every hop of the JOBS → SIZES chain, which is the only
+        /// way to tell "correctly empty" apart from "silently lost".
+        /// </summary>
+        private void LogImportConservation(
+            int panes, int paneRows, int paneQty, int mergedKeys, int mergedQty, int piecesQty,
+            int sizesQty = 0, int rejectedRows = 0, int rejectedQty = 0)
+        {
+            try
+            {
+                // Q5 is a VIEW of Q4 narrowed by the cutting-group dropdown, so
+                // it must equal Q4 while the dropdown is on ALL and must be a
+                // non-empty subset while a specific group is picked.
+                // (RebuildCuttingGroups resets the selection to ALL whenever the
+                // picked group no longer exists, so a specific selection always
+                // has at least one matching piece — and an empty Pieces always
+                // leaves the selection on ALL.)
+                bool allGroupsSelected = string.Equals(
+                    SelectedCuttingGroup, AllCuttingGroups, StringComparison.OrdinalIgnoreCase);
+                bool sizesConserved = allGroupsSelected
+                    ? sizesQty == piecesQty
+                    : sizesQty > 0 && sizesQty <= piecesQty;
+
+                bool conserved =
+                    paneQty - rejectedQty == mergedQty
+                    && mergedQty == piecesQty
+                    && sizesConserved;
+
+                string msg = string.Format(CultureInfo.InvariantCulture,
+                    "[OPT-JOBS] import build={0} jobs={1} specs={2} panes={3} paneRows={4} paneQty={5} " +
+                    "rejectedRows={6} rejectedQty={7} mergedKeys={8} mergedQty={9} pieces={10} piecesQty={11} " +
+                    "sizeGroups={12} sizesQty={13} stocks={14} hasPieces={15}{16}",
+                    Services.Updates.AppInfo.BuildStamp,
+                    SelectedJobs.Count(), JobSpecBreakdown.Count, panes, paneRows, paneQty,
+                    rejectedRows, rejectedQty, mergedKeys, mergedQty,
+                    Pieces.Count, piecesQty, SizeGroups.Count, sizesQty, Stocks.Count, HasPieces,
+                    conserved ? string.Empty : " — QUANTITY NOT CONSERVED");
+
+                var ctx = new Services.Logging.LogContext
+                {
+                    Module = "Optimization",
+                    Operation = "AutoRebuildPieces"
+                };
+
+                if (conserved) Services.Logging.AppLogService.Info(msg, ctx);
+                else Services.Logging.AppLogService.Warning(msg, ctx);
+            }
+            catch { }
         }
 
         /// <summary>

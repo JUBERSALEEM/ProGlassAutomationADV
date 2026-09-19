@@ -439,7 +439,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase))
             {
                 string composition = string.IsNullOrWhiteSpace(grp.Key)
-                    ? "(unlabelled glass)"
+                    ? UnlabelledGlass
                     : grp.Key;
 
                 var spec = new IndustrialReportSpecVm

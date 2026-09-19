@@ -72,8 +72,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // kills the process before any exception handler can run, so the
             // LAST line in app-*.log is the only evidence of where it died).
             // Written synchronously to disk by AppLogService.
+            //
+            // RC-014: stamped with the build identity. This module's whole
+            // "specs populate but SIZES is empty" investigation turned on
+            // WHICH build was running, and nothing in the module's own log
+            // lines said so. Now the first line written by the Optimization
+            // module identifies the binary exactly.
             ProGlassAutomation.Services.Logging.AppLogService.Info(
-                "Optimization module opening — constructing view model",
+                "Optimization module opening — constructing view model — build " +
+                    Services.Updates.AppInfo.BuildStamp,
                 new ProGlassAutomation.Services.Logging.LogContext
                 {
                     Module = "Optimization",
