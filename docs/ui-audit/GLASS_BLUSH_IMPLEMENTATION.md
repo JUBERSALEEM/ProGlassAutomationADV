@@ -182,6 +182,17 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   3. `AgingMixSlices` donut + `RevenueBars` + `TopCustomers` (also on the VM) are not rendered — the recorded glass-07 composition is pills · stat cards · aging bars · invoice table; those extras remain in the Professional TI dashboard page.
 - **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
 
+### glass-08 — Analytics / Executive Report (GB-P11)
+- **Status:** ✅ STATIC VERIFIED · RUNTIME NOT VERIFIED (no .NET SDK) · VISUALLY NOT YET VERIFIED.
+- **Reference note (honesty):** the glass-08 reference PNG was **lost from the workspace when this session was restored**. Implemented against the **measured composition map recorded in GB-P1** ("filter bar · multi-line hero chart · radial gauge · bar cards") mapped onto the data the VM actually exposes (no fabrication). Re-verify against the reference file when re-supplied.
+- **Architecture (reports hub):** the routed Reports module (`"SalesReport"` and the other report keys all map to `SalesReportViewModel` with different `ActiveKey`) is a HUB: `NavItems` (ReportNavItem Key/TitleKey/Icon/SubtitleKey/Group) + `NavigateReportCommand` (parameter = Key) + `ActiveKey` string + `ActiveViewModel` content. `PersonalSalesReportView` is the Personal hub: glass report pill strip (active via `StringEqualsMultiConverter` Key vs `ActiveKey` — the Professional mechanism) + content host `Content="{Binding ActiveViewModel}"`. Scoped template: `ExecutiveReportViewModel` → `PersonalExecutiveReportView` (this screen); all other sub-reports fall back to their Professional views (functional, documented).
+- **glass-08 surface (ExecutiveReportViewModel contract, member-verified):** glass filter bar (DateFrom/DateTo native DatePickers TwoWay — the Professional control; `ClearFilterCommand` "All time" · `RefreshCommand`), `PeriodDescription` header + `HasCostGap`/`CostGapNote` warning, `SummaryCards` (4 bar cards: QUOTED/INVOICED/PROFIT/OUTSTANDING — KpiItem Title/Value/Subtitle/`BrushKey` accent), the glowing **order-to-cash funnel** hero (`Funnel`: Label · SharePct bar via the Professional `PercentToWidthConverter` MultiBinding pattern (pct + track `ActualWidth`) with accent gradient + glow · SharePctDisplay), `HealthCards` (4 cards), `TopSpecifications`/`TopCustomers` glass mix rows (Label · SharePct progress · SharePctDisplay). Four-state contract (IsLoading skeleton / HasError / IsEmpty / IsContentVisible) preserved.
+- **Deviations (documented):**
+  1. The reference "multi-line hero chart" is rendered as the order-to-cash funnel (the VM's hero data — a multi-line chart series does not exist on the VM; no fabrication).
+  2. The reference "radial gauge" has no gauge data on the VM (delivery completion exists only as a KpiItem percentage) — shown as a health card, not a fake gauge.
+  3. Native `DatePicker` controls (Professional contract) inside the glass filter bar — no glass DatePicker style exists in the component library.
+- **Build:** NOT RUN (.NET SDK unavailable). Runtime fidelity: NOT YET VERIFIED (GB-P16).
+
 ## GB-P14 — Professional ↔ Personal experience switch (the enabler)
 - **Status:** ✅ STATIC VERIFIED · BUILD NOT RUN (no .NET SDK) · RUNTIME NOT VERIFIED.
 - **Architecture (live, persisted, no restart):**
@@ -215,7 +226,8 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-P8 sheet store (glass-05) | ✅ STATIC VERIFIED (PersonalSheetStoreView, glass card grid; runtime NOT VERIFIED) | `GB-P8` |
 | GB-P9 delivery note (glass-06) | ✅ STATIC VERIFIED (PersonalDeliveryNoteView, list + glass detail; runtime NOT VERIFIED) | `GB-P9` |
 | GB-P10 invoice aging (glass-07) + dashboard shell | ✅ STATIC VERIFIED (PersonalDashboardView shell + Overview/TiAging pages; runtime NOT VERIFIED) | `GB-P10` |
-| GB-P11…P12 screens (2) | pending (glass-08/09 refs lost in session restore) | — |
+| GB-P11 analytics (glass-08) + reports hub | ✅ STATIC VERIFIED (PersonalSalesReportView hub + ExecutiveReport glass-08; runtime NOT VERIFIED) | `GB-P11` |
+| GB-P12 settings (glass-09) | pending (glass-09 ref lost in session restore) | — |
 | GB-P15 global visual consistency | pending (incl. Personal-side popup anchors + error-bubble variant) | — |
 | GB-P16 runtime screenshot fidelity | **NOT RUN — no WPF runtime in this environment** (tooling to be delivered) | — |
 | GB-P17 DPI/a11y/performance | pending (static parts only) | — |

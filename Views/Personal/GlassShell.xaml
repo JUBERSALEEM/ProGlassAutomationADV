@@ -10,6 +10,7 @@
     xmlns:vmProd="clr-namespace:ProGlassAutomation.ViewModels.Production"
     xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
     xmlns:vmDelivery="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote"
+    xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
     xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
@@ -47,6 +48,11 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmDelivery:DeliveryNoteViewModel}">
             <pv:PersonalDeliveryNoteView/>
+        </DataTemplate>
+        <!-- All report keys (SalesReport/PiReport/JoReport/… map to the
+             same SalesReportViewModel with different ActiveKey) -->
+        <DataTemplate DataType="{x:Type vmReports:SalesReportViewModel}">
+            <pv:PersonalSalesReportView/>
         </DataTemplate>
     </UserControl.Resources>
 
