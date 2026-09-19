@@ -34,6 +34,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             private string _widthText = string.Empty;
             private string _heightText = string.Empty;
             private string _qtyText = "1";
+            private bool _rotationLocked;
 
             /// <summary>Raised when an editable field changes (VM refreshes
             /// the summary, merge groups and cut plan).</summary>
@@ -46,6 +47,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string WidthText { get => _widthText; set { _widthText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
             public string HeightText { get => _heightText; set { _heightText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
             public string QtyText { get => _qtyText; set { _qtyText = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
+
+            /// <summary>
+            /// PHASE 8 / finding 8e (2026-09-20): per-piece rotation lock.
+            /// <c>CutPiece.AllowRotate</c> has been honoured by the packer all
+            /// along — <c>Orientations</c>, the smart-placement candidate filter and
+            /// the placement verifier all test it — but <c>TryBuildInputs</c> wrote
+            /// <c>AllowRotate = RotationEnabled</c> for every row, so the only
+            /// choice on offer was all-or-nothing. This surfaces the per-piece flag
+            /// that already existed underneath it.
+            /// Default false keeps today's behaviour exactly: rotation follows the
+            /// SETTINGS choice. Locking a row removes its 90° candidate only, which
+            /// is what an operator needs for a pane whose edge work, pattern,
+            /// coating direction or tempering must not be turned.
+            /// </summary>
+            public bool RotationLocked { get => _rotationLocked; set { _rotationLocked = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
 
             public bool TryParse(out int width, out int height, out int qty)
             {

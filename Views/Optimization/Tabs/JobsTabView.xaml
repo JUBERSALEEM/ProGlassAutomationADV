@@ -278,12 +278,16 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="110"/>
                                         <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="76"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="LABEL / PANE" Style="{StaticResource OptHeader}"/>
                                     <TextBlock Grid.Column="1" Text="GLASS COMPOSITION" Style="{StaticResource OptHeader}"/>
                                     <TextBlock Grid.Column="2" Text="W × H (MM)" Style="{StaticResource OptHeader}"/>
                                     <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource OptHeader}"/>
+                                    <!-- PHASE 8 / finding 8e: per-pane rotation lock -->
+                                    <TextBlock Grid.Column="4" Text="ROT LOCK" Style="{StaticResource OptHeader}" HorizontalAlignment="Center"
+                                               ToolTip="Untick a pane to let the engine also try it turned 90 degrees. Ticking it locks the orientation you entered. SETTINGS Rotation still governs every unlocked pane."/>
                                     <TextBlock Grid.Column="4" Text="ACTION" Style="{StaticResource OptHeader}" TextAlignment="Right"/>
                                 </Grid>
 
@@ -301,6 +305,7 @@
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="110"/>
                                                             <ColumnDefinition Width="60"/>
+                                                            <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="76"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel Grid.Column="0" Margin="0,0,8,0">
@@ -320,7 +325,10 @@
                                                         <TextBox Grid.Column="3" Text="{Binding QtyText, UpdateSourceTrigger=PropertyChanged}"
                                                                  Style="{StaticResource OptIntInput}" Width="48" HorizontalAlignment="Left" Margin="0,0,4,0"
                                                                  ToolTip="Edit the quantity — the cut plan and run update automatically"/>
-                                                        <Button Grid.Column="4" Content="Remove" Style="{StaticResource OptGhostButton}"
+                                                        <CheckBox Grid.Column="4" IsChecked="{Binding RotationLocked, UpdateSourceTrigger=PropertyChanged}"
+                                                                  VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,6,0"
+                                                                  ToolTip="Ticked means this pane must NOT be turned 90 degrees. Unticked means the engine may rotate it if SETTINGS Rotation allows. Saved with the session."/>
+                                                        <Button Grid.Column="5" Content="Remove" Style="{StaticResource OptGhostButton}"
                                                                 HorizontalAlignment="Right"
                                                                 Command="{Binding DataContext.RemovePieceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                 CommandParameter="{Binding}"/>

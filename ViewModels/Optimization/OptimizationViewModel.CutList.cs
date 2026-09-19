@@ -299,42 +299,81 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // enters the module already canonicalised.
             string composition = CompositionKey.Normalize(ResolveCutListComposition());
 
-            Pieces.Clear();
+            // PHASE 7 / finding 17 (2026-09-20): this used to open with
+            //     Pieces.Clear();
+            // — no confirmation, no undo, no merge. Tick jobs on the JOBS tab and
+            // their panes auto-import into the cutting list; press SEND TO ENGINE
+            // afterwards and that import was simply gone, replaced by whatever the
+            // manual grid happened to hold.
+            //
+            // The fix is not a modal prompt. This module has NO dialog service at
+            // all — it communicates through status lines, which is also what lets
+            // the headless Step 5 host run without any UI, and injecting
+            // IDialogService into a DI-resolved view model is the change the PI
+            // wizard records as having broken construction once already (ERR-633EEB).
+            // So the action itself stops being destructive: SEND now MERGES on the
+            // same key the job auto-import uses — normalized composition + size +
+            // position, summing quantity — and CLEAR CUT LIST stays the explicit,
+            // separate way to start from nothing.
+
+            int rowsBefore = Pieces.Count;
+            int mergedRows = 0;
+
+            var mergeIndex = new Dictionary<(string Comp, int W, int H, string Pos), PieceEntryVm>();
+            foreach (var existing in Pieces)
+            {
+                if (existing == null || !existing.TryParse(out int ew, out int eh, out _)) continue;
+                mergeIndex[(CompositionKey.Normalize(existing.GlassRef), ew, eh,
+                    (existing.Position ?? string.Empty).Trim())] = existing;
+            }
+
             int pieces = 0;
             int units = 0;
             int skipped = 0;
+
+            // Adds a pane, or folds its quantity into the row already holding the
+            // same glass at the same size and position. Merging may combine; it
+            // must never make pieces disappear, so the summed quantity is written
+            // back to the surviving row rather than replacing it.
+            void AddOrMerge(string position, string label, int w, int h, int qty)
+            {
+                var key = (composition, w, h, (position ?? string.Empty).Trim());
+
+                if (mergeIndex.TryGetValue(key, out var target) &&
+                    target != null &&
+                    target.TryParse(out _, out _, out int existingQty))
+                {
+                    target.QtyText = (existingQty + qty).ToString(CultureInfo.InvariantCulture);
+                    mergedRows++;
+                }
+                else
+                {
+                    var row = NewPieceRow(composition, label,
+                        w.ToString(CultureInfo.InvariantCulture),
+                        h.ToString(CultureInfo.InvariantCulture),
+                        qty.ToString(CultureInfo.InvariantCulture));
+                    row.Position = position;
+                    mergeIndex[key] = row;
+                    Pieces.Add(row);
+                }
+
+                pieces += qty;
+            }
 
             foreach (var r in rows)
             {
                 string label = string.IsNullOrWhiteSpace(r.GlassRef)
                     ? "—"
                     : r.GlassRef.Trim();
-                string qty = r.Qty.ToString(CultureInfo.InvariantCulture);
                 units += r.Qty;
 
                 if (r.W1 > 0 && r.H1 > 0)
-                {
-                    var outer = NewPieceRow(composition, label,
-                        r.W1.ToString(CultureInfo.InvariantCulture),
-                        r.H1.ToString(CultureInfo.InvariantCulture), qty);
-                    outer.Position = OuterPaneLabel;
-                    Pieces.Add(outer);
-                    pieces += r.Qty;
-                }
+                    AddOrMerge(OuterPaneLabel, label, r.W1, r.H1, r.Qty);
                 else
-                {
                     skipped++;
-                }
 
                 if (r.W2 > 0 && r.H2 > 0)
-                {
-                    var inner = NewPieceRow(composition, label,
-                        r.W2.ToString(CultureInfo.InvariantCulture),
-                        r.H2.ToString(CultureInfo.InvariantCulture), qty);
-                    inner.Position = InnerPaneLabel;
-                    Pieces.Add(inner);
-                    pieces += r.Qty;
-                }
+                    AddOrMerge(InnerPaneLabel, label, r.W2, r.H2, r.Qty);
             }
 
             RefreshDerived();
@@ -343,6 +382,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 "{0} row(s) → {1} piece(s) across {2} unit(s), cut from “{3}”. "
                 + "Check the racks on STOCKS, then press RUN QUICK or RUN OPTIMIZE.",
                 rows.Count, pieces, units, composition);
+
+            if (rowsBefore > 0)
+            {
+                CutListStatus += string.Format(CultureInfo.InvariantCulture,
+                    " MERGED into the {0} row(s) already on the cutting list{1} — nothing was discarded. "
+                    + "Use CLEAR CUT LIST first to replace them instead.",
+                    rowsBefore,
+                    mergedRows > 0
+                        ? string.Format(CultureInfo.InvariantCulture,
+                            " ({0} row(s) matched an existing size and had their quantity added)", mergedRows)
+                        : string.Empty);
+            }
 
             if (skipped > 0)
             {

@@ -126,6 +126,122 @@ namespace ProGlassAutomation.ViewModels.Optimization
             return text;
         }
 
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 4 / findings 4b, 4c — THE EXPORT GATE
+        //
+        //  A run result was applied to the screen, published to Step 6 and
+        //  written to a report or cut file with nothing standing between the
+        //  plan and the paper. ProblemCount existed and only ever became a
+        //  column label. Two of the three oracles in GuillotinePacker were
+        //  reachable from production code, and the strongest of them —
+        //  VerifyComprehensive, the only check covering MINIMUM BREAKOUT and
+        //  MATERIAL CONSERVATION as well as geometry — had zero callers
+        //  anywhere in the repository, tests included.
+        //
+        //  The gate belongs here rather than on every run: the search evaluates
+        //  up to 147 candidate plans and Verify is O(pieces²) per sheet, so
+        //  running the comprehensive oracle per candidate would be unaffordable,
+        //  while export happens once and is the moment a number becomes glass
+        //  somebody cuts and somebody invoices.
+        //
+        //  The plan stays on screen when the gate refuses it. An operator who
+        //  cannot see the plan cannot diagnose it, and hiding the result would
+        //  repeat the original RC-009 complaint — a module that shows nothing.
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Rebuilds an input-piece list from a finished result. Used only for the
+        /// oracles whose geometry and material checks need it; the CONSERVATION
+        /// check deliberately does NOT use this, because a list reconstructed
+        /// from a result always agrees with that result and would pass by
+        /// construction.
+        /// </summary>
+        private static List<CutPiece> ReconstructInputPieces(OptimizationResult result)
+        {
+            var list = new List<CutPiece>();
+            if (result == null) return list;
+
+            foreach (var sheet in result.Sheets)
+            {
+                if (sheet?.Pieces == null) continue;
+                foreach (var placed in sheet.Pieces)
+                    if (placed?.Piece != null) list.Add(placed.Piece);
+            }
+
+            foreach (var unplaced in result.Unplaced)
+                if (unplaced != null) list.Add(unplaced);
+
+            return list;
+        }
+
+        /// <summary>
+        /// True when every cutting group in the current result may be exported.
+        /// On refusal, <see cref="RunMessage"/> names the groups and the first
+        /// problem found in each, and the reason is logged.
+        /// </summary>
+        private bool TryPassExportGate(string what)
+        {
+            if (_groupRuns.Count == 0) return true;
+
+            var problems = new List<string>();
+
+            foreach (var r in _groupRuns)
+            {
+                if (r?.Result == null) continue;
+
+                // 1. A plan any oracle already failed during the run.
+                if (r.ValidationFailed)
+                {
+                    problems.Add(string.Format(CultureInfo.InvariantCulture,
+                        "{0}: {1} layout validation issue(s)", r.Composition, r.ProblemCount));
+                    continue;
+                }
+
+                // 2. Genuine quantity conservation, against the count this group
+                //    was BUILT from (GroupRun.PieceCount, captured before the
+                //    engine ran) rather than a list reconstructed afterwards.
+                int placed = r.Result.Sheets.Sum(sh => sh.Pieces.Count);
+                int unplaced = r.Result.Unplaced.Count;
+                if (placed + unplaced != r.PieceCount)
+                {
+                    problems.Add(string.Format(CultureInfo.InvariantCulture,
+                        "{0}: {1} piece(s) went in but the plan accounts for {2} placed + {3} unplaced",
+                        r.Composition, r.PieceCount, placed, unplaced));
+                    continue;
+                }
+
+                // 3. The comprehensive oracle. First call site it has ever had.
+                var deep = GuillotinePacker.VerifyComprehensive(
+                    r.Result, ReconstructInputPieces(r.Result), r.Margins);
+                if (deep.Count > 0)
+                {
+                    problems.Add(string.Format(CultureInfo.InvariantCulture,
+                        "{0}: {1}", r.Composition, deep[0]));
+                }
+            }
+
+            if (problems.Count == 0) return true;
+
+            string detail = string.Join(" | ", problems.Take(4).ToArray())
+                + (problems.Count > 4
+                    ? string.Format(CultureInfo.InvariantCulture, " | +{0} more group(s)", problems.Count - 4)
+                    : string.Empty);
+
+            RunMessage = "EXPORT BLOCKED — " + what + " was NOT written. " + detail +
+                " The plan is still on screen for inspection; fix the cause or re-run before exporting.";
+
+            try
+            {
+                Services.Logging.AppLogService.Warning(
+                    $"[Optimization] export of {what} blocked for {problems.Count} cutting group(s): " +
+                    string.Join(" | ", problems.ToArray()),
+                    new Services.Logging.LogContext { Module = "Optimization", Operation = "ExportGate" });
+            }
+            catch { }
+
+            return false;
+        }
+
         private void ExportLayoutReport(ExportFormat format)
         {
             if (!HasResult || SheetRows.Count == 0)
@@ -133,6 +249,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 RunMessage = "Run a cut first — the layout summary has no sheets yet.";
                 return;
             }
+
+            if (!TryPassExportGate("the layout summary")) return;
             AsyncUtility.SafeFireAndForget(
                 async () => await OptimizationReportExport.RunAsync(
                     format,
@@ -207,6 +325,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
 
+            if (!TryPassExportGate("the industrial cut report")) return;
+
             if (format == ExportFormat.Csv)
             {
                 // Owner format: utilization line(s) then the GLASS REF /
@@ -272,6 +392,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 RunMessage = "Nothing to export — add pieces, select job orders and run a cut first.";
                 return;
             }
+
+            if (!TryPassExportGate("the combined export")) return;
 
             var rows = new List<OptimizationReportExport.CombinedRow>();
 

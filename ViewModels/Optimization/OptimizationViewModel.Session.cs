@@ -72,6 +72,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string W { get; set; } = string.Empty;
             public string H { get; set; } = string.Empty;
             public string Qty { get; set; } = "1";
+
+            /// <summary>
+            /// PHASE 8 / finding 8e: per-piece rotation lock. Absent from sessions
+            /// saved before 2.0.4, where System.Text.Json leaves it false — the
+            /// pre-existing behaviour, in which rotation followed the SETTINGS
+            /// choice for every row.
+            /// </summary>
+            public bool RotationLocked { get; set; }
         }
 
         public sealed class StockDto
@@ -124,11 +132,78 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         // ── load ───────────────────────────────────────────────────────
 
+        // ── session store maintenance ────────────────────────────────────
+        //
+        // PHASE 6 / finding 14 and PHASE 7 / finding 7c. Both were silent
+        // failure modes rather than crashes:
+        //
+        //   • optimization.db grew forever. Every document that ever ran an
+        //     optimization left a reserved row carrying full piece, stock and
+        //     result JSON, and ListAsync only shows the newest 100 — so the
+        //     accumulation was unbounded AND invisible.
+        //   • EnsureCreatedAsync creates the table but never MIGRATES it. Add a
+        //     column to SavedOptimizationSession and every existing install
+        //     starts failing every insert, reported only at Debug by
+        //     PersistLatestRunAsync — a permanently broken save with no signal.
+        //
+        // Once per process: 0 = not yet run, 1 = done. Interlocked so two
+        // OptimizationViewModel instances (the module and a headless Step 5 host)
+        // cannot both start it.
+
+        private static int _sessionStoreMaintenanceState;
+
+        private async Task RunSessionStoreMaintenanceAsync()
+        {
+            if (System.Threading.Interlocked.Exchange(ref _sessionStoreMaintenanceState, 1) == 1)
+                return;
+
+            try
+            {
+                var missing = await _sessions.DetectSchemaDriftAsync().ConfigureAwait(false);
+                if (missing.Count > 0)
+                {
+                    string columns = string.Join(", ", missing.ToArray());
+                    AppLogService.Warning(
+                        "[Optimization] optimization.db is missing column(s) the current version expects: " +
+                        columns + ". Saved sessions and auto-saved runs will fail to write until the " +
+                        "database is migrated. Rename or delete optimization.db in the app-data folder to " +
+                        "rebuild it (saved optimization sessions will be lost; nothing else uses that file).",
+                        new LogContext { Module = "Optimization", Operation = "SchemaDriftProbe" });
+
+                    SessionStatus = "This optimization database is out of date (missing " + columns +
+                        ") — runs cannot be saved until it is rebuilt. See the log for the file location.";
+                }
+
+                int pruned = await _sessions.PruneStaleLatestRunsAsync().ConfigureAwait(false);
+                if (pruned > 0)
+                {
+                    AppLogService.Info(
+                        $"[Optimization] pruned {pruned} auto-saved latest-run row(s) older than " +
+                        $"{OptimizationSessionRepository.DefaultLatestRunRetentionDays} days. " +
+                        "Named saved sessions were not touched.",
+                        new LogContext { Module = "Optimization", Operation = "RetentionPrune" });
+                }
+            }
+            catch (Exception ex)
+            {
+                // Maintenance must never stop the module from opening. A failed
+                // probe leaves the store exactly as it was.
+                AppLogService.Debug("[Optimization] session store maintenance skipped: " +
+                    ExceptionMessages.Deep(ex));
+            }
+        }
+
         private async Task LoadSavedSessionsAsync()
         {
             try
             {
                 await _sessions.EnsureCreatedAsync().ConfigureAwait(false);
+
+                // PHASE 6/7 (findings 14 and 7c): schema-drift probe and
+                // retention pruning, once per process, before the list is read
+                // so a pruned row cannot appear in it.
+                await RunSessionStoreMaintenanceAsync().ConfigureAwait(false);
+
                 var list = await _sessions.ListAsync().ConfigureAwait(false);
 
                 var dispatcher = System.Windows.Application.Current?.Dispatcher;
@@ -353,7 +428,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     Position = p.Position ?? string.Empty,
                     W = p.WidthText,
                     H = p.HeightText,
-                    Qty = p.QtyText
+                    Qty = p.QtyText,
+                    // A rotation lock that does not survive save-and-load silently
+                    // rotates glass the operator locked (finding 8e).
+                    RotationLocked = p.RotationLocked
                 })
                 .ToList();
 
@@ -524,6 +602,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     p.PieceLabel ?? string.Empty,
                     p.W, p.H, p.Qty);
                 restored.Position = p.Position ?? string.Empty;
+                restored.RotationLocked = p.RotationLocked;
                 Pieces.Add(restored);
             }
 

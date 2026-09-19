@@ -489,7 +489,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         ThicknessMm = ParseThicknessMm(p.GlassRef),
                         WidthMm = w,
                         HeightMm = h,
-                        AllowRotate = RotationEnabled
+                        // PHASE 8 / finding 8e (2026-09-20): per-row rotation lock.
+                        // The packer has always honoured CutPiece.AllowRotate —
+                        // Orientations(), the smart-placement candidate filter and
+                        // the placement verifier all test it — but this line wrote
+                        // the global SETTINGS choice for every row, so the only
+                        // option on offer was all-or-nothing. A locked pane now
+                        // keeps the orientation the operator typed; every unlocked
+                        // pane behaves exactly as before.
+                        AllowRotate = RotationEnabled && !p.RotationLocked
                     });
                 }
             }

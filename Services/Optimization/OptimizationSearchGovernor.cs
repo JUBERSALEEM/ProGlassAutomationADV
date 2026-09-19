@@ -61,6 +61,99 @@ namespace ProGlassAutomation.Services.Optimization
 
         /// <summary>Short grid-cell tag.</summary>
         public string ShortTag { get; init; } = string.Empty;
+
+        // ── PHASE 8 / finding 8b (2026-09-20): a wall-clock budget ──────
+        //
+        // Until now the governor bounded BREADTH only. Effort level widened the
+        // candidate grid, and the tier caps narrowed it by part count, but
+        // nothing anywhere bounded ELAPSED TIME: Tier 1 left
+        // MaxConsolidationSweeps, OpenSheetWindow and MaxDonorAttempts at
+        // int.MaxValue, and PackQuick's own comment concedes that
+        // "ConsolidateAll still restarts its donor sweep after every
+        // improvement, which is unbounded in the number of sheets". The only
+        // escape from a pathological layout was the operator noticing and
+        // pressing CANCEL.
+        //
+        // The budgets below are deliberately generous — multiples of what a
+        // normal run takes — so this bounds the pathological case without ever
+        // truncating a healthy search. When a budget does engage, the search
+        // stops adding candidates and KEEPS THE BEST PLAN FOUND SO FAR, and says
+        // so in ScaleNotes. A usable plan now beats an unfinished search.
+
+        /// <summary>Wall-clock budget for one cutting group's search.</summary>
+        public TimeSpan TimeBudget { get; init; } = TimeSpan.FromMinutes(10);
+
+        /// <summary>
+        /// Memory the machine had available when this plan was built, in bytes.
+        /// Zero means the platform did not report it, in which case no
+        /// memory-driven narrowing was applied.
+        /// </summary>
+        public long ObservedAvailableMemoryBytes { get; init; }
+
+        /// <summary>
+        /// Copies this plan with selected fields replaced. SearchPlan is
+        /// immutable, so every transformation goes through here — one place that
+        /// has to be kept in step with the property list, instead of several
+        /// object initialisers that can each quietly omit a field and reset it to
+        /// its default.
+        /// </summary>
+        private SearchPlan CopyWith(
+            SearchTier? tier = null,
+            int? shuffleCap = null,
+            bool? forceFullGrid = null,
+            int? openSheetWindow = null,
+            SplitMode[]? fillWallSplits = null,
+            int? maxRectOrders = null,
+            int? maxConsolidationSweeps = null,
+            int? maxDonorAttempts = null,
+            int? batchTargetSize = null,
+            int? candidateWindowSize = null,
+            TimeSpan? timeBudget = null,
+            long? observedMemory = null,
+            string? shortTag = null,
+            string? note = null) => new SearchPlan
+            {
+                Tier = tier ?? Tier,
+                ShuffleCap = shuffleCap ?? ShuffleCap,
+                ForceFullGrid = forceFullGrid ?? ForceFullGrid,
+                OpenSheetWindow = openSheetWindow ?? OpenSheetWindow,
+                FillWallSplits = fillWallSplits ?? FillWallSplits,
+                MaxRectOrders = maxRectOrders ?? MaxRectOrders,
+                MaxConsolidationSweeps = maxConsolidationSweeps ?? MaxConsolidationSweeps,
+                MaxDonorAttempts = maxDonorAttempts ?? MaxDonorAttempts,
+                BatchTargetSize = batchTargetSize ?? BatchTargetSize,
+                CandidateWindowSize = candidateWindowSize ?? CandidateWindowSize,
+                TimeBudget = timeBudget ?? TimeBudget,
+                ObservedAvailableMemoryBytes = observedMemory ?? ObservedAvailableMemoryBytes,
+                ShortTag = shortTag ?? ShortTag,
+                Note = note ?? Note
+            };
+
+        /// <summary>Records the wall-clock budget for this group's search.</summary>
+        public SearchPlan WithTimeBudget(TimeSpan budget) => CopyWith(timeBudget: budget);
+
+        /// <summary>Records what the memory probe saw, without changing breadth.</summary>
+        public SearchPlan WithObservedMemory(long bytes) => CopyWith(observedMemory: bytes);
+
+        /// <summary>
+        /// Returns a narrower copy of this plan. Used when the observed memory
+        /// will not comfortably hold the workload, so the search gives up
+        /// breadth before the allocator gives up entirely.
+        /// </summary>
+        public SearchPlan WithReducedBreadth(string reason) => CopyWith(
+            tier: Tier == SearchTier.Full ? SearchTier.Narrowed
+                : Tier == SearchTier.Narrowed ? SearchTier.Minimum
+                : SearchTier.Minimum,
+            shuffleCap: System.Math.Min(ShuffleCap, 1),
+            forceFullGrid: false,
+            openSheetWindow: System.Math.Min(OpenSheetWindow, 400),
+            fillWallSplits: FillWallSplits.Length > 1 ? new[] { FillWallSplits[0] } : FillWallSplits,
+            maxRectOrders: System.Math.Min(MaxRectOrders, 1),
+            maxConsolidationSweeps: System.Math.Min(MaxConsolidationSweeps, 2),
+            maxDonorAttempts: System.Math.Min(MaxDonorAttempts, 1000),
+            candidateWindowSize: System.Math.Min(CandidateWindowSize, 400),
+            shortTag: ShortTag + " · memory-narrowed",
+            note: string.IsNullOrEmpty(Note) ? reason : Note + " " + reason);
     }
 
     public static class OptimizationSearchGovernor
@@ -75,11 +168,98 @@ namespace ProGlassAutomation.Services.Optimization
         private static string Count(int n) =>
             n.ToString("N0", CultureInfo.InvariantCulture);
 
+        // ── PHASE 8 / finding 8d: the governor never looked at memory ──────
+        //
+        // The class is titled "Adaptive Industrial Resource & Search Governor"
+        // and documents "dynamic hardware-aware scaling", but PlanForOptimize
+        // read exactly one hardware input: Environment.ProcessorCount. Available
+        // memory was never consulted, so the only memory backstop in the whole
+        // engine was the catch (OutOfMemoryException) in RunCoreAsync — which
+        // fires AFTER the allocation has already failed.
+
+        /// <summary>
+        /// Conservative working-set estimate per expanded part. Each part is a
+        /// CutPiece plus its "3/24" style label, and the orderings and shuffles
+        /// each materialise a fresh copy of the piece list, so the peak is a
+        /// small multiple of the input rather than the input itself. 1 KB per
+        /// part is deliberately pessimistic: at this figure 2,000 parts need
+        /// 2 MB (never a constraint) and 1,000,000 parts need ~1 GB (where a
+        /// tier drop is exactly the right response).
+        /// </summary>
+        internal const long EstimatedBytesPerPart = 1024;
+
+        /// <summary>
+        /// Memory the machine can still give this process, in bytes, or 0 when
+        /// the platform does not report it. Never throws — a failed probe must
+        /// degrade to "no memory-driven narrowing", not to a crashed run.
+        /// </summary>
+        public static long GetAvailableMemoryBytes()
+        {
+            try
+            {
+                var info = GC.GetGCMemoryInfo();
+                long total = info.TotalAvailableMemoryBytes;
+                long load = info.MemoryLoadBytes;
+
+                if (total > 0 && load > 0 && total > load) return total - load;
+                if (total > 0) return total;
+            }
+            catch { }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Narrows the plan when the estimated working set will not comfortably
+        /// fit in what the machine has. The threshold is half of available
+        /// memory: the estimate is rough, the process is not the only consumer,
+        /// and a tier drop costs sheet quality while an OutOfMemoryException
+        /// costs the whole run.
+        /// </summary>
+        private static SearchPlan ApplyMemoryPressure(SearchPlan plan, int pieceCount)
+        {
+            long available = GetAvailableMemoryBytes();
+            if (available <= 0) return plan.WithObservedMemory(available);
+
+            long estimatedNeed = (long)pieceCount * EstimatedBytesPerPart;
+            if (estimatedNeed <= available / 2) return plan.WithObservedMemory(available);
+
+            string reason = string.Format(CultureInfo.InvariantCulture,
+                "MEMORY GUARD: {0} parts need roughly {1:F1} GB of working set and only {2:F1} GB " +
+                "was available, so the search was narrowed a tier to finish instead of exhausting " +
+                "memory. Close other applications or split the job for the full search.",
+                Count(pieceCount),
+                estimatedNeed / 1_073_741_824.0,
+                available / 1_073_741_824.0);
+
+            return plan.WithReducedBreadth(reason).WithObservedMemory(available);
+        }
+
         /// <summary>
         /// Adaptively derives search parameters based on piece count, hardware concurrency, and requested effort.
         /// Scales continuously from 100 to 1,000,000+ parts without reverting to un-optimized shelf packing.
         /// </summary>
         public static SearchPlan PlanForOptimize(int pieceCount, int effortLevel)
+        {
+            var core = PlanForOptimizeCore(pieceCount, effortLevel);
+            return ApplyMemoryPressure(core.WithTimeBudget(BudgetFor(core.Tier, effortLevel)), pieceCount);
+        }
+
+        /// <summary>
+        /// Wall-clock budget for one cutting group, by tier and effort. Generous
+        /// by design — see <see cref="SearchPlan.TimeBudget"/>.
+        /// </summary>
+        private static TimeSpan BudgetFor(SearchTier tier, int effortLevel) => tier switch
+        {
+            SearchTier.Full => effortLevel >= 5 ? TimeSpan.FromMinutes(25)
+                             : effortLevel >= 4 ? TimeSpan.FromMinutes(15)
+                             : effortLevel >= 3 ? TimeSpan.FromMinutes(8)
+                             : TimeSpan.FromMinutes(5),
+            SearchTier.Narrowed => TimeSpan.FromMinutes(20),
+            _ => TimeSpan.FromMinutes(40)
+        };
+
+        private static SearchPlan PlanForOptimizeCore(int pieceCount, int effortLevel)
         {
             int cpuCores = Environment.ProcessorCount;
 
@@ -146,15 +326,23 @@ namespace ProGlassAutomation.Services.Optimization
         /// <summary>Search plan for PackQuick.</summary>
         public static SearchPlan PlanForQuick(int pieceCount)
         {
-            return new SearchPlan
+            // PHASE 8 / finding 8b: QUICK is bounded too. Its own source comment
+            // records that ConsolidateAll "restarts its donor sweep after every
+            // improvement, which is unbounded in the number of sheets", and below
+            // 2,000 parts MaxConsolidationSweeps was left at its cap. QUICK is
+            // the interactive path — the operator is watching — so its budget is
+            // the tightest of the three, and it is still far above what a normal
+            // quick pass takes.
+            return ApplyMemoryPressure(new SearchPlan
             {
                 Tier = pieceCount <= 2000 ? SearchTier.Full : SearchTier.Narrowed,
                 OpenSheetWindow = int.MaxValue,
                 MaxConsolidationSweeps = pieceCount <= 2000 ? 3 : 2,
                 MaxDonorAttempts = 1500,
                 ShortTag = pieceCount <= 2000 ? "Quick Single-Pass" : "Adaptive Quick Pass",
-                Note = pieceCount <= 2000 ? "" : $"Packing {Count(pieceCount)} parts with full open-plate quick pass."
-            };
+                Note = pieceCount <= 2000 ? "" : $"Packing {Count(pieceCount)} parts with full open-plate quick pass.",
+                TimeBudget = TimeSpan.FromMinutes(5)
+            }, pieceCount);
         }
     }
 }

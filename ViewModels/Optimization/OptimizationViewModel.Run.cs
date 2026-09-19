@@ -481,7 +481,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 .Select(t => t.Stock)
                 .ToList();
             dedicated = DistinctBySize(dedicated);
-            if (dedicated.Count > 0) return SortStocksPrimaryFirst(dedicated);
+            if (dedicated.Count > 0) return SortStocksLargestFirstForTieBreak(dedicated);
 
             // 2. Manual "any group" racks (no composition tag).
             var manual = pool
@@ -492,7 +492,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (manual.Count > 0)
             {
                 note = "no Step 4 sheet — packed on manual racks";
-                return SortStocksPrimaryFirst(manual);
+                return SortStocksLargestFirstForTieBreak(manual);
             }
 
             // 3. Nothing dedicated and nothing manual.
@@ -525,10 +525,23 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             note = "no Step 4 sheet — packed on OTHER SPECS' RACKS (glass differs, so this is a " +
                    "ballpark plan, not a cut list)";
-            return SortStocksPrimaryFirst(all);
+            return SortStocksLargestFirstForTieBreak(all);
         }
 
-        private static List<StockSize> SortStocksPrimaryFirst(List<StockSize> stocks) =>
+        /// <summary>
+        /// Orders a group's racks largest-first.
+        ///
+        /// PHASE 5 / finding 5b (2026-09-20): the name claimed this decides
+        /// which rack the group is cut on. It does not — OpenNewSheet re-sorts
+        /// the whole pool ASCENDING by area and takes the smallest rack that
+        /// fits, which is the owner's "save the large racks for the glass that
+        /// needs them" rule and correctly overrides this. What survives is the
+        /// tie-break: OpenNewSheet's ordering ends in ThenBy(i => i), so among
+        /// racks of EQUAL area the one this put first wins. Renaming the intent
+        /// rather than deleting it, because a tie-break that looks like a
+        /// preference is how the next person "fixes" it in the wrong direction.
+        /// </summary>
+        private static List<StockSize> SortStocksLargestFirstForTieBreak(List<StockSize> stocks) =>
             stocks.OrderByDescending(s => (long)s.WidthMm * s.HeightMm).ToList();
 
         private static List<StockSize> DistinctBySize(List<StockSize> stocks) =>

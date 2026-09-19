@@ -251,6 +251,18 @@ namespace ProGlassAutomation.Services.Optimization
             var plan = OptimizationSearchGovernor.PlanForOptimize(pieces.Count, effortLevel);
             var scale = ScaleProfile.For(pieces.Count, effortLevel);
 
+            // PHASE 8 / finding 8b (2026-09-20): the search now has a deadline.
+            // Every candidate boundary checks it, and when it engages the search
+            // STOPS ADDING CANDIDATES AND KEEPS THE BEST PLAN FOUND SO FAR —
+            // Better() only ever replaces best with something strictly better, so
+            // truncating the sequence can never make the returned plan worse than
+            // one already in hand. Cancellation still throws; the budget does not,
+            // because a budget expiry is a normal outcome with a usable result,
+            // not a failure.
+            var budgetWatch = System.Diagnostics.Stopwatch.StartNew();
+            bool budgetStopped = false;
+            bool BudgetExhausted() => budgetWatch.Elapsed >= plan.TimeBudget;
+
             if (pieces.Count == 0)
                 return new OptimizationResult { Rotation = rotation };
 
@@ -311,6 +323,16 @@ namespace ProGlassAutomation.Services.Optimization
             for (int ci = 0; ci < comboList.Count; ci++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                // Checked at the candidate boundary, never mid-placement: a plan
+                // half-built is worth nothing, a plan completed and then stopped
+                // is worth exactly what it always was.
+                if (BudgetExhausted())
+                {
+                    budgetStopped = true;
+                    break;
+                }
+
                 var (order, split, shuffle) = comboList[ci];
 
                 if (!sortCache.TryGetValue(order, out var ordered))
@@ -353,7 +375,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             // With windowed candidate scanning, advanced strategies (BestSplit, SheetFill,
             // WallSeed, SmartPlacement) run in bounded O(K * N) time across all tiers.
-            if (effortLevel >= 2)
+            if (effortLevel >= 2 && !budgetStopped)
             {
                 int windowSize = scale.Tier == ScaleTier.Huge ? 300 : scale.Tier == ScaleTier.Large ? 400 : int.MaxValue;
 
@@ -397,7 +419,7 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
-            if (effortLevel >= 3)
+            if (effortLevel >= 3 && !budgetStopped)
             {
                 // Math.Min with an unlimited cap leaves the standard band
                 // exactly as it was (6 orderings at effort 5, 3 below).
@@ -437,6 +459,19 @@ namespace ProGlassAutomation.Services.Optimization
             // Never let a size-driven reduction be invisible: the operator sees
             // exactly what was skipped and why, next to the sheet count.
             if (scale.IsReduced) final.ScaleNotes.Add(scale.Summary);
+
+            // Same rule for the time budget. A truncated search that reported
+            // nothing would look like a complete one, and the operator would have
+            // no way to know that raising the effort level or splitting the job
+            // could still buy sheets.
+            if (budgetStopped)
+            {
+                final.ScaleNotes.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                    "TIME BUDGET: the search reached its {0:mm\\:ss} limit after {1:F1}s and stopped " +
+                    "adding candidates — this is the best plan found by then, not a fully searched one. " +
+                    "Splitting the job into smaller cutting groups would search deeper.",
+                    plan.TimeBudget, budgetWatch.Elapsed.TotalSeconds));
+            }
 
             // Industrial safety net: a plan that fails validation must never
             // reach a cut file. Fall back to the quick pass, which is an
