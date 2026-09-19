@@ -224,7 +224,7 @@ namespace ProGlassAutomation.Services.Optimization
                 if (other != null && ValidateResult(other, pieces).Count == 0)
                 {
                     other.ScaleNotes.Add($"WARNING: consolidated plan failed layout validation " +
-                        $"({problems[0]}); replaced with the validated {bestGlobal == other ? "batch-combined" : "global"} pass.");
+                        $"({problems[0]}); replaced with the validated {(bestGlobal == other ? "batch-combined" : "global")} pass.");
                     winningResult = other;
                 }
                 else
