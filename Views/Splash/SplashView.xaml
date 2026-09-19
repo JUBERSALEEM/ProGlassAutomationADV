@@ -337,7 +337,7 @@
                                 <TextBlock FontSize="58"
                                            FontWeight="Bold"
                                            FontFamily="{DynamicResource AppFontFamily}"
-                                           LetterSpacing="-1">
+                                           >
                                     <Run Text="P" Foreground="#1E293B"/><Run Text="G" Foreground="#0EA5E9"/><Run Text="A" Foreground="#1E293B"/>
                                 </TextBlock>
                                 <!-- Blue dot for A -->
@@ -379,7 +379,8 @@
                     <Path x:Name="ProgressFill"
                           Stroke="{StaticResource ProgressGradient}"
                           StrokeThickness="3.5"
-                          StrokeLineCap="Round"
+                          StrokeStartLineCap="Round"
+                          StrokeEndLineCap="Round"
                           StrokeLineJoin="Round"
                           Data="M 24,3 A 21,21 0 1 1 23.9,3"
                           RenderTransformOrigin="0.5,0.5">

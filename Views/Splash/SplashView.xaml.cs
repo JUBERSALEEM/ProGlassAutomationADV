@@ -176,8 +176,6 @@ namespace ProGlassAutomation.Views.Splash
             // Position droplets initially around center, then animate in orbit
             try
             {
-                var centerX = 0.0;
-                var centerY = 0.0;
                 // We position via Canvas — but we animate via TranslateTransform
                 // relative to 0,0; we set initial Canvas positions in code-behind
                 // based on window size for better centering.
