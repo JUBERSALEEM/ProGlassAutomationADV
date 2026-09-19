@@ -513,6 +513,47 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
   on switch-to-Personal) are not statically provable — the next runtime
   pass is the user's.
 
+## GB-B5b — CS0119 in ScaleLengthConverter + stale-copy evidence (2026-09-19)
+- **Context:** build after GB-B5 returned 2 ACTIVE CS errors + 9 XDG errors
+  + a crash report identical to the previous one.
+- **CS0119 ×2 (L52/L61) — my bug, root-caused:** inside
+  `ScaleLengthConverter`, the simple name `Convert` binds to the class's
+  own `Convert(object,Type,object,CultureInfo)` member (C# name lookup:
+  current-type members beat namespaces/types in scope), so
+  `Convert.ToString(...)` was a method-group access →
+  "is a method, which is not valid in the given context". Fix:
+  `System.Convert.ToString` (both sites). Plus a `length == 0 → NaN`
+  guard (Window.ActualWidth before first layout; a 0-px MaxWidth would
+  hide the overlay for a frame). Cross-checked before push: full-file
+  identifier audit, repo-wide scan for any other Convert-member +
+  bare-Convert.X file (none), validator 337 files 0 ERROR.
+- **Crash report ERR-9ABC30 is STALE (proven, not assumed):** it still
+  shows `0.94*` in GlassShell BAML. With CS0119 active, MSBuild produced
+  no new exe — the app that crashed was the previous (GB-B4-era) binary,
+  which still contained `0.94*`. Timestamp 09:39 > pull time is consistent
+  with "build failed → old exe ran".
+- **XDG0003 '0.94*' at MainWindow.xaml L283 (proven):** L283 of the branch
+  is exactly `<viewsPersonal:GlassShell ...>` — the designer parses the
+  GlassShell BAML from that reference, so the error attributes to the
+  reference site. It proves the user's COPY still has the old GlassShell
+  even though ScaleLengthConverter.cs (same commit c46659d) is present →
+  their pull is partial/conflicted on that file (or designer BAML cache).
+  Verification commands given to the user (git status/diff, findstr).
+- **XDG0006 ×8 'views/production/controls/productionunitdetailtemplates'
+  (triaged):** the file EXISTS on the branch
+  (`Views/Production/Controls/ProductionUnitDetailTemplates.xaml`,
+  PascalCase, committed in base 9716050 — pre-existing, long-shipped),
+  referenced correctly from ProductionUnitDetailControl.xaml L30; no
+  csproj exclusion; the lowercase in the error is .NET's lowercased
+  resource-KEY display, not a casing bug. Error attributed to the
+  MainWindow DataTemplate lines (L173–194) where the consuming production
+  views are referenced (via ProductionStationBody). In a clean branch
+  build this resolves; in the user's copy the file/assembly is stale or
+  missing — same partial-sync signature as above.
+- **Status:** CS0119 fixed at source (e324bf4), pushed. C# compile NOT
+  RUN here (no SDK); the compile is the user's rebuild. The XDG block is
+  expected to clear once the copy is in sync AND a clean build succeeds.
+
 ## Phase status
 
 | Phase | Status | Commit |
@@ -539,3 +580,4 @@ top-right and a faint orb bottom-left (measured corner luminance spread).
 | GB-B3 third build fix round — C# blocker | ✅ FIXED at source (unparenthesized ternary in interpolation, GuillotinePacker.Partitioned.cs L227 = CS8361 + 4 cascade CS errors; ~100 XDG errors = failed-assembly cascade, types/resources grep-verified); C# compile NOT RUN (no SDK) | `dc71201` |
 | GB-B4 fourth build fix round — missing using | ✅ FIXED at source (PersonalAiChatView.xaml.cs: `using System.Collections.Specialized;` = CS0246 + 2×CS0123, one root line; 77 XDG = cascade, all 54 types + 2 converters + 2 behaviors verified; line-sync proves user builds this branch); C# compile NOT RUN (no SDK) | `3c4dc23` |
 | GB-B5 first runtime crash — star Length in GlassShell | ✅ FIXED at source (MaxWidth/MaxHeight="0.94*" → ScaleLengthConverter × 0.94 of Window Actual; repo-wide sweep: only 2 invalid star sites, 663 legit Grid stars; validator +W22 unit-tested; BAML runtime parse NOT RUN — no SDK) | `c46659d` |
+| GB-B5b CS0119 in my converter + stale-copy triage | ✅ FIXED at source (Convert.ToString shadowed by the Convert member → System.Convert.ToString ×2; zero-length guard; full identifier audit + repo-wide same-class scan; crash report proven stale = old exe; XDG0003/XDG0006 proven copy-divergence with verification commands) | `e324bf4` |
