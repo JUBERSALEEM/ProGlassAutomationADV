@@ -464,7 +464,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 // Panes are pre-ticked so a job's sizes import
                                 // with a single click on "Add selected panes";
                                 // the operator can still untick any pane.
-                                IsSelected = true
+                                IsSelected = true,
+                                JobOrderId = jo.JobOrderId,
+                                ProformaId = jo.SourceProformaId ?? string.Empty,
+                                SpecGroupNumber = group.GroupNumber,
+                                Color = occ.Pane?.Color ?? string.Empty,
+                                ThicknessMm = occ.ThicknessMm,
+                                Processing = occ.Treatment ?? string.Empty,
+                                MaterialKey = OptimizationMaterialIdentity.BuildKey(
+                                    string.Empty, occ.Pane?.Color, occ.ThicknessMm, occ.Treatment, string.Empty)
                             };
 
                             // merge identical sizes; the row refs ride along
@@ -966,11 +974,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             // ── Q3: merge ─────────────────────────────────────────────────────
-            // Key: canonical composition + W + H + pane position. Position is
-            // part of the key because an equal-size DGU has IDENTICAL outer and
-            // inner rows (same glass, same label, same size) — keying without it
-            // silently dropped the inner pane.
-            var merged = new Dictionary<(string comp, int w, int h, string pos), (string glass, HashSet<string> labels, int w, int h, int qty, string pos)>();
+            // Key includes JobOrderId so two jobs never collapse into one row
+            // (qty and identity must remain recoverable). Same material across
+            // jobs still packs together later via MaterialKey. Position stays
+            // in the key because an equal-size DGU has identical outer/inner
+            // sizes — keying without it dropped the inner pane.
+            var merged = new Dictionary<(string job, string mat, int w, int h, string pos),
+                (string glass, HashSet<string> labels, int w, int h, int qty, string pos,
+                 string job, string pi, int spec, string color, int thk, string proc, string matKey)>();
             int mergedQty = 0;
             int rejectedRows = 0;
             int rejectedQty = 0;
@@ -989,9 +1000,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         continue;
                     }
 
-                    string normComp = CompositionKey.Normalize(glass);
+                    string matKey = !string.IsNullOrWhiteSpace(layer.MaterialKey)
+                        ? layer.MaterialKey
+                        : CompositionKey.Normalize(glass);
                     string posKey = (layer.Position ?? string.Empty).Trim().ToLowerInvariant();
-                    var key = (normComp, w, h, posKey);
+                    string jobId = layer.JobOrderId ?? string.Empty;
+                    var key = (jobId, matKey, w, h, posKey);
 
                     if (merged.TryGetValue(key, out var existing))
                     {
@@ -1005,7 +1019,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         var labels = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                         if (!string.IsNullOrWhiteSpace(label) && label != "—")
                             labels.Add(label.Trim());
-                        merged[key] = (glass, labels, w, h, qty, layer.Position);
+                        merged[key] = (glass, labels, w, h, qty, layer.Position,
+                            jobId, layer.ProformaId ?? string.Empty, layer.SpecGroupNumber,
+                            layer.Color ?? string.Empty, layer.ThicknessMm,
+                            layer.Processing ?? string.Empty, layer.MaterialKey ?? string.Empty);
                     }
                     mergedQty += qty;
                 }
@@ -1014,7 +1031,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // ── Q4: the authoritative cutting list ────────────────────────────
             Pieces.Clear();
             foreach (var kv in merged
-                .OrderBy(k => k.Key.comp, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(k => k.Key.job, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(k => k.Key.mat, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(k => k.Key.w)
                 .ThenBy(k => k.Key.h))
             {
@@ -1029,6 +1047,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     v.h.ToString(CultureInfo.InvariantCulture),
                     v.qty.ToString(CultureInfo.InvariantCulture));
                 row.Position = v.pos;
+                row.JobOrderId = v.job;
+                row.ProformaId = v.pi;
+                row.SpecGroupNumber = v.spec;
+                row.Color = v.color;
+                row.ThicknessMm = v.thk;
+                row.Processing = v.proc;
+                row.MaterialKey = v.matKey;
+                if (string.Equals(v.pos, "Inner", StringComparison.OrdinalIgnoreCase)
+                    || v.pos.IndexOf("Lam", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    row.W2 = v.w;
+                    row.H2 = v.h;
+                }
+                else
+                {
+                    row.W1 = v.w;
+                    row.H1 = v.h;
+                }
+                row.EnsureMaterialKey();
                 Pieces.Add(row);
             }
 
@@ -1046,7 +1083,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (SelectedGroupMatches(CompositionLabel(p.GlassRef))) sizesQty += q;
             }
 
-            int distinctComps = merged.Keys.Select(k => k.comp).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+            int distinctComps = merged.Keys.Select(k => k.mat).Distinct(StringComparer.OrdinalIgnoreCase).Count();
             int jobCount = SelectedJobs.Count();
 
             RunMessage = string.Format(CultureInfo.InvariantCulture,

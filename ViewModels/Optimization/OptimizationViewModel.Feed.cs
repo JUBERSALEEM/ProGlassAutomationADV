@@ -146,7 +146,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // driven from the JOBS tab with exactly one job ticked, while
                 // Step 6 compares against a PROFORMA id — see
                 // OptimizationDocumentKey, which reconciles the two.
-                DocumentKey);
+                DocumentKey,
+                runId: _lastRunId,
+                inputFingerprint: _lastInputFingerprint);
         }
     }
 }

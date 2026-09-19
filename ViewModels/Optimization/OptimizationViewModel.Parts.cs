@@ -63,6 +63,33 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// </summary>
             public bool RotationLocked { get => _rotationLocked; set { _rotationLocked = value; OnPropertyChanged(); OnEdited?.Invoke(); } }
 
+            // Canonical identity — copied from PI/JO/Step 5, never invented.
+            public string ProformaId { get; set; } = "";
+            public string JobOrderId { get; set; } = "";
+            public int SpecGroupNumber { get; set; }
+            public int SourceRowSerial { get; set; }
+            public string GlassType { get; set; } = "";
+            public string Color { get; set; } = "";
+            public int ThicknessMm { get; set; }
+            public string Processing { get; set; } = "";
+            public string Coating { get; set; } = "";
+            public int W1 { get; set; }
+            public int H1 { get; set; }
+            public int W2 { get; set; }
+            public int H2 { get; set; }
+            public string SheetStoreSku { get; set; } = "";
+            public int SheetWidthMm { get; set; }
+            public int SheetHeightMm { get; set; }
+            public decimal SheetPricePerSqm { get; set; }
+            public string MaterialKey { get; set; } = "";
+
+            public void EnsureMaterialKey()
+            {
+                if (!string.IsNullOrWhiteSpace(MaterialKey)) return;
+                MaterialKey = OptimizationMaterialIdentity.BuildKey(
+                    GlassType, Color, ThicknessMm, Processing, Coating);
+            }
+
             public bool TryParse(out int width, out int height, out int qty)
             {
                 width = height = qty = 0;
@@ -130,7 +157,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 HeightText = h,
                 QtyText = qty
             };
-            row.OnEdited = () => RefreshDerived();
+            row.OnEdited = () =>
+            {
+                OptimizationResultFeed.Invalidate("optimization input changed");
+                RefreshDerived();
+            };
             return row;
         }
 

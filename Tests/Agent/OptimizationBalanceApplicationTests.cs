@@ -236,7 +236,8 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("sheet.Stock.ThicknessMm > 0", packer);
 
             string margins = Read(MarginsVm);
-            Assert.Contains("ThicknessMm = ParseThicknessMm(s.Composition)", margins);
+            Assert.Contains("ParseThicknessMm(s.Composition)", margins);
+            Assert.Contains("s.ThicknessMm > 0 ? s.ThicknessMm", margins);
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -310,12 +311,13 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(".Where(g => g.Balance > 0)", Read(StockSelection));
             Assert.Contains("MaxSheets = gs.Balance", Read(ProductionBridge));
 
-            // The balance-aware rack resolve filters too.
+            // The balance-aware rack resolve filters too — exact colour +
+            // thickness, never a largest-of-any-thickness fallback.
             string svc = Read(SheetStoreSvc);
-            string body = Slice(svc,
-                "public static bool TryResolveStockSheet(\n            string? color, int thicknessMm, out int widthMm, out int heightMm, out int balance)",
-                "catch (Exception ex)");
-            Assert.Contains("s.Balance > 0", body);
+            Assert.Contains("public static bool TryPickStockSheet(", svc);
+            Assert.Contains("s.Balance > 0", svc);
+            Assert.Contains("s.ThicknessMm == thicknessMm", svc);
+            Assert.Contains("requirePositiveBalance: true", svc);
         }
 
         [Fact]

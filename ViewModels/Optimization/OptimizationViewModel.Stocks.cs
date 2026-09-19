@@ -73,6 +73,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// <summary>"Outer" or "Inner" — the pane of that spec this rack
             /// serves. Matches SpecGroupColorSide.SemanticSideLabel.</summary>
             public string Side { get; set; } = string.Empty;
+            public string Color { get; set; } = string.Empty;
+            public int ThicknessMm { get; set; }
+            public string MaterialKey { get; set; } = string.Empty;
+            public string SheetStoreSku { get; set; } = string.Empty;
 
             public bool HasPrice => _pricePerSqm > 0m;
 

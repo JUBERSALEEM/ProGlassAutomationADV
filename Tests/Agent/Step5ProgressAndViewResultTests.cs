@@ -225,11 +225,12 @@ namespace ProGlassAutomation.Tests.Agent
         {
             string live = Read(LiveRunVm);
             string helper = Slice(live, "private static void CrossCheckStep4Sheet(", "notes.Add(string.Format(CultureInfo.InvariantCulture,");
-            Assert.Contains("List<string> notes)", helper);
-            // Silent when the store cannot answer at all — a cold snapshot must
-            // never manufacture a warning.
-            Assert.Contains("TryResolveStockSheet(colour, 0, out int stockedW, out int stockedH))", helper);
-            Assert.Contains("IsStockedSize(colour, 0, widthMm, heightMm))", helper);
+            Assert.Contains("List<string> notes, int thicknessMm = 0)", helper);
+            // Silent when the store cannot answer, and never a thickness-0
+            // wildcard (that used to pick the largest sheet of any thickness).
+            Assert.Contains("thicknessMm <= 0) return;", helper);
+            Assert.Contains("TryResolveStockSheet(colour, thicknessMm, out int stockedW, out int stockedH))", helper);
+            Assert.Contains("IsStockedSize(colour, thicknessMm, widthMm, heightMm))", helper);
             // It writes into notes; nothing in it touches Stocks.
             Assert.DoesNotContain("Stocks.Add", helper);
         }

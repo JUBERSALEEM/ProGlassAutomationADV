@@ -477,8 +477,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     string baseLabel = string.IsNullOrWhiteSpace(p.PieceLabel)
                         ? (p.GlassRef ?? string.Empty).Trim()
                         : p.PieceLabel.Trim();
+                    p.EnsureMaterialKey();
                     pieces.Add(new CutPiece
                     {
+                        JobRef = string.IsNullOrWhiteSpace(p.JobOrderId) ? (p.ProformaId ?? string.Empty) : p.JobOrderId,
                         GlassRef = p.GlassRef ?? string.Empty,
                         // "G-101 3/24" — piece identity the 2D view / cut
                         // plan carry, matching the design doc's labelling.
@@ -486,7 +488,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             ? $"{baseLabel} {i + 1}/{q}"
                             : baseLabel,
                         Position = p.Position ?? string.Empty,
-                        ThicknessMm = ParseThicknessMm(p.GlassRef),
+                        Color = p.Color ?? string.Empty,
+                        ThicknessMm = p.ThicknessMm > 0 ? p.ThicknessMm : ParseThicknessMm(p.GlassRef),
                         WidthMm = w,
                         HeightMm = h,
                         // PHASE 8 / finding 8e (2026-09-20): per-row rotation lock.
@@ -497,7 +500,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         // option on offer was all-or-nothing. A locked pane now
                         // keeps the orientation the operator typed; every unlocked
                         // pane behaves exactly as before.
-                        AllowRotate = RotationEnabled && !p.RotationLocked
+                        AllowRotate = RotationEnabled && !p.RotationLocked,
+                        ProformaId = p.ProformaId ?? string.Empty,
+                        JobOrderId = p.JobOrderId ?? string.Empty,
+                        SpecGroupNumber = p.SpecGroupNumber,
+                        SourceRowSerial = p.SourceRowSerial,
+                        GlassType = p.GlassType ?? string.Empty,
+                        Processing = p.Processing ?? string.Empty,
+                        Coating = p.Coating ?? string.Empty,
+                        W1 = p.W1 > 0 ? p.W1 : w,
+                        H1 = p.H1 > 0 ? p.H1 : h,
+                        W2 = p.W2,
+                        H2 = p.H2,
+                        SheetStoreSku = p.SheetStoreSku ?? string.Empty,
+                        SheetWidthMm = p.SheetWidthMm,
+                        SheetHeightMm = p.SheetHeightMm,
+                        SheetPricePerSqm = p.SheetPricePerSqm,
+                        MaterialKey = p.MaterialKey ?? string.Empty,
+                        Qty = 1
                     });
                 }
             }
@@ -614,7 +634,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     WidthMm = w,
                     HeightMm = h,
                     MaxSheets = max,
-                    ThicknessMm = ParseThicknessMm(s.Composition)
+                    ThicknessMm = s.ThicknessMm > 0 ? s.ThicknessMm : ParseThicknessMm(s.Composition),
+                    Color = s.Color ?? string.Empty,
+                    MaterialKey = s.MaterialKey ?? string.Empty
                 }, s.Composition ?? string.Empty));
             }
 

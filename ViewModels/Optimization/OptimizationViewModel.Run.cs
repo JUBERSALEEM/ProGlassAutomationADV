@@ -293,6 +293,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// session with the same stage.</summary>
         private string _lastRunStage = "QUICK";
         public string LastRunStage => _lastRunStage;
+        private string _lastInputFingerprint = string.Empty;
+        private string _lastRunId = string.Empty;
 
         // ── run ────────────────────────────────────────────────────────
 
@@ -324,8 +326,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 }
             }
 
+            OptimizationResultFeed.Invalidate("optimization run started");
+
             if (!TryBuildInputs(out var pieces, out var stockPool, out var margins))
             { _openToReportAfterRun = false; return; }
+
+            _lastInputFingerprint = OptimizationMaterialIdentity.Fingerprint(pieces);
+            _lastRunId = Guid.NewGuid().ToString("N");
 
             int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
                 CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
@@ -416,6 +423,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             return pieces
                 .GroupBy(p =>
                 {
+                    if (!string.IsNullOrWhiteSpace(p.MaterialKey))
+                        return "M:" + p.MaterialKey;
                     string key = CompositionKey.Normalize(p.GlassRef);
                     return key.Length == 0 ? UnlabelledGlass : key;
                 })
@@ -486,14 +495,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
             string composition,
             List<(StockSize Stock, string Composition)> pool,
             bool allowCrossComposition,
-            out string note)
+            out string note,
+            string? materialKey = null)
         {
             note = string.Empty;
 
-            // 1. Dedicated Step 4 racks for this glass.
+            // 1. Dedicated Step 4 racks for this glass (material key first,
+            // composition text only as a fallback label match).
             var dedicated = pool
-                .Where(t => !string.IsNullOrWhiteSpace(t.Composition)
-                            && string.Equals(t.Composition, composition, StringComparison.OrdinalIgnoreCase))
+                .Where(t =>
+                    (!string.IsNullOrWhiteSpace(materialKey)
+                        && string.Equals(t.Stock.MaterialKey, materialKey, StringComparison.OrdinalIgnoreCase))
+                    || (!string.IsNullOrWhiteSpace(t.Composition)
+                        && string.Equals(t.Composition, composition, StringComparison.OrdinalIgnoreCase)))
                 .Select(t => t.Stock)
                 .ToList();
             dedicated = DistinctBySize(dedicated);
@@ -780,8 +794,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             balanceConstrainedNames.Add(composition);
                     }
 
+                    string groupMaterialKey = groupPieces
+                        .Select(p => p.MaterialKey)
+                        .FirstOrDefault(k => !string.IsNullOrWhiteSpace(k)) ?? string.Empty;
                     var groupStocks = ResolveGroupStocks(composition, effectivePool,
-                        AllowCrossCompositionStock, out string stockNote);
+                        AllowCrossCompositionStock, out string stockNote, groupMaterialKey);
                     string note = string.IsNullOrWhiteSpace(stockNote)
                         ? marginNote
                         : (string.IsNullOrWhiteSpace(marginNote)
@@ -806,7 +823,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // the balance is what ran out.
                     bool ranOutOfBalance = groupStocks.Count == 0 && poolReduced &&
                         ResolveGroupStocks(composition, stockPool,
-                            AllowCrossCompositionStock, out _).Count > 0;
+                            AllowCrossCompositionStock, out _, groupMaterialKey).Count > 0;
 
                     if (groupStocks.Count == 0)
                     {

@@ -493,20 +493,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             }
             try
             {
-                var candidates = snapshot
-                    .Where(s => s != null
-                                && Norm(s.Color) == key
-                                && s.WidthMm > 0
-                                && s.HeightMm > 0)
-                    .OrderByDescending(s => (long)s.WidthMm * s.HeightMm)
-                    .ToList();
-                if (candidates.Count == 0) return false;
-                var pick = thicknessMm > 0
-                    ? candidates.FirstOrDefault(s => s.ThicknessMm == thicknessMm) ?? candidates[0]
-                    : candidates[0];
-                widthMm = pick.WidthMm;
-                heightMm = pick.HeightMm;
-                return true;
+                return TryPickStockSheet(
+                    snapshot, color, thicknessMm, requirePositiveBalance: false,
+                    out widthMm, out heightMm, out _);
             }
             catch (Exception ex)
             {
@@ -543,9 +532,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             }
             try
             {
+                if (thicknessMm <= 0) return false;
                 return snapshot.Any(s => s != null
                     && Norm(s.Color) == key
-                    && (thicknessMm <= 0 || s.ThicknessMm == thicknessMm)
+                    && s.ThicknessMm == thicknessMm
                     && ((s.WidthMm == widthMm && s.HeightMm == heightMm)
                         || (s.WidthMm == heightMm && s.HeightMm == widthMm)));
             }
@@ -700,7 +690,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             int thicknessMm, int widthMm, int heightMm, out int balance)
         {
             balance = 0;
-            if (widthMm <= 0 || heightMm <= 0) return false;
+            if (thicknessMm <= 0 || widthMm <= 0 || heightMm <= 0) return false;
 
             if (!TryGetSnapshotWithBoundedFallback(out var snapshot, 1500)) return false;
 
@@ -709,7 +699,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 var matches = snapshot
                     .Where(s => s != null
                                 && s.WidthMm > 0 && s.HeightMm > 0
-                                && (thicknessMm <= 0 || s.ThicknessMm == thicknessMm)
+                                && s.ThicknessMm == thicknessMm
                                 && ((s.WidthMm == widthMm && s.HeightMm == heightMm)
                                     || (s.WidthMm == heightMm && s.HeightMm == widthMm)))
                     .ToList();
@@ -760,23 +750,54 @@ namespace ProGlassAutomation.Services.ProformaInvoice
 
             try
             {
+                return TryPickStockSheet(
+                    snapshot, color, thicknessMm, requirePositiveBalance: true,
+                    out widthMm, out heightMm, out balance);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug($"[SheetStorePricingService] balance-aware resolve failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Material-aware stock pick: exact colour + exact thickness. Never
+        /// falls back to another thickness, another colour, or the globally
+        /// largest sheet. Thickness 0 is a missing identity, not a wildcard.
+        /// </summary>
+        public static bool TryPickStockSheet(
+            IReadOnlyList<GlassSheet>? snapshot,
+            string? color,
+            int thicknessMm,
+            bool requirePositiveBalance,
+            out int widthMm,
+            out int heightMm,
+            out int balance)
+        {
+            widthMm = 0;
+            heightMm = 0;
+            balance = 0;
+
+            var key = Norm(color);
+            if (key.Length == 0 || thicknessMm <= 0) return false;
+            if (snapshot == null || snapshot.Count == 0) return false;
+
+            try
+            {
                 var candidates = snapshot
                     .Where(s => s != null
                                 && Norm(s.Color) == key
+                                && s.ThicknessMm == thicknessMm
                                 && s.WidthMm > 0
                                 && s.HeightMm > 0
-                                && s.Balance > 0)
+                                && (!requirePositiveBalance || s.Balance > 0))
                     .OrderByDescending(s => (long)s.WidthMm * s.HeightMm)
                     .ToList();
 
                 if (candidates.Count == 0) return false;
 
-                var pick = thicknessMm > 0
-                    ? candidates.FirstOrDefault(s => s.ThicknessMm == thicknessMm) ?? candidates[0]
-                    : candidates[0];
-
-                // Everything stocked at the picked size, not just the first row:
-                // inventory can hold the same size under several entries.
+                var pick = candidates[0];
                 long total = 0;
                 foreach (var c in candidates)
                     if (c.WidthMm == pick.WidthMm && c.HeightMm == pick.HeightMm)
@@ -789,7 +810,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             }
             catch (Exception ex)
             {
-                AppLogService.Debug($"[SheetStorePricingService] balance-aware resolve failed: {ex.Message}");
+                AppLogService.Debug($"[SheetStorePricingService] pick failed: {ex.Message}");
                 return false;
             }
         }

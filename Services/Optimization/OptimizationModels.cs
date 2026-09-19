@@ -200,6 +200,7 @@ namespace ProGlassAutomation.Services.Optimization
         public int ThicknessMm { get; init; }
         public string Color { get; init; } = "";
         public string Label { get; init; } = "";
+        public string MaterialKey { get; init; } = "";
 
         /// <summary>
         /// Optional cap (Sheet Store balance). <see cref="UnlimitedSheets"/> = no limit.
@@ -253,6 +254,7 @@ namespace ProGlassAutomation.Services.Optimization
             ThicknessMm = ThicknessMm,
             Color = Color,
             Label = Label,
+            MaterialKey = MaterialKey,
             MaxSheets = maxSheets
         };
 
@@ -276,6 +278,25 @@ namespace ProGlassAutomation.Services.Optimization
 
         /// <summary>Identity for the 2D view, e.g. "G-101 · 3/24".</summary>
         public string PieceLabel { get; init; } = "";
+
+        // Canonical provenance — copied from the source row, never invented.
+        public string ProformaId { get; init; } = "";
+        public string JobOrderId { get; init; } = "";
+        public int SpecGroupNumber { get; init; }
+        public int SourceRowSerial { get; init; }
+        public string GlassType { get; init; } = "";
+        public string Processing { get; init; } = "";
+        public string Coating { get; init; } = "";
+        public int W1 { get; init; }
+        public int H1 { get; init; }
+        public int W2 { get; init; }
+        public int H2 { get; init; }
+        public string SheetStoreSku { get; init; } = "";
+        public int SheetWidthMm { get; init; }
+        public int SheetHeightMm { get; init; }
+        public decimal SheetPricePerSqm { get; init; }
+        public string MaterialKey { get; init; } = "";
+        public int Qty { get; init; } = 1;
     }
 
     /// <summary>One placed piece on one sheet (integer mm coordinates).</summary>

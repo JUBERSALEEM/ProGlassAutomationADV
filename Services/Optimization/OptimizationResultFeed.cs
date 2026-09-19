@@ -171,6 +171,10 @@ namespace ProGlassAutomation.Services.Optimization
         // usable before, rather than being rejected for lack of a stamp.
         private static string _documentKey = string.Empty;
 
+        private static string _runId = string.Empty;
+        private static string _inputFingerprint = string.Empty;
+        private static bool _isCurrent;
+
         /// <summary>The most recently refreshed run, per pane. Empty until
         /// RefreshAsync succeeds — consumers must treat empty as "not available"
         /// and fall back to their own manual numbers, never as zero.</summary>
@@ -243,6 +247,27 @@ namespace ProGlassAutomation.Services.Optimization
             get { lock (Gate) return _documentKey; }
         }
 
+        /// <summary>Identity of the run that produced <see cref="Current"/>.</summary>
+        public static string RunId
+        {
+            get { lock (Gate) return _runId; }
+        }
+
+        /// <summary>Fingerprint of the cutting list the current run consumed.</summary>
+        public static string InputFingerprint
+        {
+            get { lock (Gate) return _inputFingerprint; }
+        }
+
+        /// <summary>
+        /// True when Current is a successful run that has not been invalidated
+        /// by a later fail / cancel / input change.
+        /// </summary>
+        public static bool IsCurrent
+        {
+            get { lock (Gate) return _isCurrent && _current.Count > 0; }
+        }
+
         /// <summary>
         /// Whether the current snapshot may be applied to
         /// <paramref name="documentKey"/>.
@@ -262,7 +287,7 @@ namespace ProGlassAutomation.Services.Optimization
         {
             lock (Gate)
             {
-                if (_current.Count == 0) return false;
+                if (!_isCurrent || _current.Count == 0) return false;
                 if (string.IsNullOrWhiteSpace(_documentKey)) return true;
                 if (string.IsNullOrWhiteSpace(documentKey)) return true;
 
@@ -287,7 +312,20 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         public static void Reset() =>
             Set(Array.Empty<OptimizationPaneResult>(),
-                "no optimization run loaded", isLive: false, documentKey: string.Empty);
+                "no optimization run loaded", isLive: false, documentKey: string.Empty,
+                runId: string.Empty, inputFingerprint: string.Empty, isCurrent: false);
+
+        /// <summary>
+        /// Drops CURRENT so a failed, cancelled, or input-changed run cannot
+        /// keep driving Step 6 / Step 9.
+        /// </summary>
+        public static void Invalidate(string reason)
+        {
+            Set(Array.Empty<OptimizationPaneResult>(),
+                string.IsNullOrWhiteSpace(reason) ? "optimization result invalidated" : reason,
+                isLive: false, documentKey: string.Empty,
+                runId: string.Empty, inputFingerprint: string.Empty, isCurrent: false);
+        }
 
         /// <summary>
         /// Maps a Step 6 pane onto the two racks the optimization module imports
@@ -368,7 +406,8 @@ namespace ProGlassAutomation.Services.Optimization
                     {
                         var ownRows = Parse(own.ResultJson, own.Name, own.CreatedUtc);
                         Set(ownRows, DescribeSavedRun(own, ownRows.Count),
-                            isLive: false, documentKey: documentKey);
+                            isLive: false, documentKey: documentKey,
+                            isCurrent: ownRows.Count > 0);
                         return;
                     }
                 }
@@ -377,7 +416,7 @@ namespace ProGlassAutomation.Services.Optimization
                 if (sessions == null || sessions.Count == 0)
                 {
                     Set(Array.Empty<OptimizationPaneResult>(),
-                        "no saved optimization run", isLive: false);
+                        "no saved optimization run", isLive: false, isCurrent: false);
                     return;
                 }
 
@@ -412,7 +451,9 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         public static void PublishLive(
             IReadOnlyList<OptimizationPaneResult> rows, string label,
-            string? documentKey = null)
+            string? documentKey = null,
+            string? runId = null,
+            string? inputFingerprint = null)
         {
             try
             {
@@ -425,7 +466,10 @@ namespace ProGlassAutomation.Services.Optimization
             Set(rows ?? Array.Empty<OptimizationPaneResult>(),
                 string.IsNullOrWhiteSpace(label) ? "live optimization run" : label,
                 isLive: true,
-                documentKey: documentKey ?? string.Empty);
+                documentKey: documentKey ?? string.Empty,
+                runId: string.IsNullOrWhiteSpace(runId) ? Guid.NewGuid().ToString("N") : runId,
+                inputFingerprint: inputFingerprint ?? string.Empty,
+                isCurrent: rows != null && rows.Count > 0);
 
             // Raised outside the lock: a handler that refreshes a wizard step
             // must never run while the snapshot gate is held.
@@ -487,7 +531,10 @@ namespace ProGlassAutomation.Services.Optimization
 
         private static void Set(
             IReadOnlyList<OptimizationPaneResult> rows, string label, bool? isLive = null,
-            string? documentKey = null)
+            string? documentKey = null,
+            string? runId = null,
+            string? inputFingerprint = null,
+            bool? isCurrent = null)
         {
             lock (Gate)
             {
@@ -501,6 +548,9 @@ namespace ProGlassAutomation.Services.Optimization
                 // null = "leave the stamp alone" (an error path must not unstamp
                 // a snapshot it did not replace); empty = "explicitly unstamped".
                 if (documentKey != null) _documentKey = documentKey.Trim();
+                if (runId != null) _runId = runId.Trim();
+                if (inputFingerprint != null) _inputFingerprint = inputFingerprint.Trim();
+                if (isCurrent.HasValue) _isCurrent = isCurrent.Value && _current.Count > 0;
             }
         }
 

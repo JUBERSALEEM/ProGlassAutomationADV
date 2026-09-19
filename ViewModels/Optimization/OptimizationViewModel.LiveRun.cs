@@ -277,6 +277,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             sizeGroup.Key.HeightMm.ToString(CultureInfo.InvariantCulture),
                             qty.ToString(CultureInfo.InvariantCulture));
                         row.Position = occ.Position;
+                        row.ProformaId = DocumentKey ?? string.Empty;
+                        row.SpecGroupNumber = group.GroupNumber;
+                        row.Color = occ.Pane?.Color ?? string.Empty;
+                        row.ThicknessMm = occ.ThicknessMm;
+                        row.Processing = occ.Treatment ?? string.Empty;
+                        row.MaterialKey = OptimizationMaterialIdentity.BuildKey(
+                            string.Empty, occ.Pane?.Color, occ.ThicknessMm, occ.Treatment, string.Empty);
+                        if (occ.Slot == PaneSlot.Pane2)
+                        {
+                            row.W2 = sizeGroup.Key.WidthMm;
+                            row.H2 = sizeGroup.Key.HeightMm;
+                        }
+                        else
+                        {
+                            row.W1 = sizeGroup.Key.WidthMm;
+                            row.H1 = sizeGroup.Key.HeightMm;
+                        }
+                        row.EnsureMaterialKey();
                         newPieces.Add(row);
                         piecesAdded += qty;
                     }
@@ -289,33 +307,51 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
                 {
                     string outerComp = ComposeForSlot(PaneSlot.Pane1);
-                    int? outerBalance = LookupStoreBalance(group.OuterGlassColor,
-                        glassThicknessMm, group.OuterSheetWidthMm, group.OuterSheetHeightMm);
+                    var outerOcc = occurrences.FirstOrDefault(x => x.Slot == PaneSlot.Pane1);
+                    int outerThk = outerOcc != null && outerOcc.ThicknessMm > 0
+                        ? outerOcc.ThicknessMm : 0;
+                    string outerKey = OptimizationMaterialIdentity.BuildKey(
+                        string.Empty, outerOcc?.Pane?.Color ?? group.OuterGlassColor,
+                        outerThk, outerOcc?.Treatment, string.Empty);
+                    int? outerBalance = outerThk > 0
+                        ? LookupStoreBalance(group.OuterGlassColor,
+                            outerThk, group.OuterSheetWidthMm, group.OuterSheetHeightMm)
+                        : null;
                     if (outerBalance.HasValue) balancesApplied++;
                     racksAdded += AddStep5Rack(rackSeen, newStocks,
                         group.OuterSheetWidthMm, group.OuterSheetHeightMm,
                         outerComp,
                         specLabel + " outer", group.OuterSheetPricePerSqm,
-                        group.GroupNumber, "Outer", outerBalance);
+                        group.GroupNumber, "Outer", outerBalance,
+                        group.OuterGlassColor, outerThk, outerKey);
                     rackedKeys.Add(compKey(group.GroupNumber, outerComp));
                     CrossCheckStep4Sheet(group.GroupNumber, "outer", group.OuterGlassColor,
-                        group.OuterSheetWidthMm, group.OuterSheetHeightMm, sheetNotes);
+                        group.OuterSheetWidthMm, group.OuterSheetHeightMm, sheetNotes, outerThk);
                 }
 
                 if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
                 {
                     string innerComp = ComposeForSlot(PaneSlot.Pane2);
-                    int? innerBalance = LookupStoreBalance(group.InnerGlassColor,
-                        glassThicknessMm, group.InnerSheetWidthMm, group.InnerSheetHeightMm);
+                    var innerOcc = occurrences.FirstOrDefault(x => x.Slot == PaneSlot.Pane2);
+                    int innerThk = innerOcc != null && innerOcc.ThicknessMm > 0
+                        ? innerOcc.ThicknessMm : 0;
+                    string innerKey = OptimizationMaterialIdentity.BuildKey(
+                        string.Empty, innerOcc?.Pane?.Color ?? group.InnerGlassColor,
+                        innerThk, innerOcc?.Treatment, string.Empty);
+                    int? innerBalance = innerThk > 0
+                        ? LookupStoreBalance(group.InnerGlassColor,
+                            innerThk, group.InnerSheetWidthMm, group.InnerSheetHeightMm)
+                        : null;
                     if (innerBalance.HasValue) balancesApplied++;
                     racksAdded += AddStep5Rack(rackSeen, newStocks,
                         group.InnerSheetWidthMm, group.InnerSheetHeightMm,
                         innerComp,
                         specLabel + " inner", group.InnerSheetPricePerSqm,
-                        group.GroupNumber, "Inner", innerBalance);
+                        group.GroupNumber, "Inner", innerBalance,
+                        group.InnerGlassColor, innerThk, innerKey);
                     rackedKeys.Add(compKey(group.GroupNumber, innerComp));
                     CrossCheckStep4Sheet(group.GroupNumber, "inner", group.InnerGlassColor,
-                        group.InnerSheetWidthMm, group.InnerSheetHeightMm, sheetNotes);
+                        group.InnerSheetWidthMm, group.InnerSheetHeightMm, sheetNotes, innerThk);
                 }
 
                 if (group.ThirdSheetWidthMm > 0 && group.ThirdSheetHeightMm > 0)
@@ -363,15 +399,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // actually IN STOCK. The 4-argument one is untouched and still
                     // answers the weaker "does inventory hold this size at all?"
                     // question the cross-check note asks.
+                    int paneThk = ParseThicknessMm(comp);
+                    if (paneThk <= 0) continue;
                     if (!Services.ProformaInvoice.SheetStorePricingService.TryResolveStockSheet(
-                            colour, glassThicknessMm, out int sheetW, out int sheetH,
+                            colour, paneThk, out int sheetW, out int sheetH,
                             out int sheetBalance))
                     {
                         continue;
                     }
                     storeRacks += AddStep5Rack(rackSeen, newStocks, sheetW, sheetH, comp,
                         "Sheet Store cross-check", group.OuterSheetPricePerSqm,
-                        group.GroupNumber, "Outer", sheetBalance);
+                        group.GroupNumber, "Outer", sheetBalance,
+                        colour, paneThk,
+                        OptimizationMaterialIdentity.BuildKey(string.Empty, colour, paneThk, string.Empty, string.Empty));
                     balancesApplied++;
                     rackedKeys.Add(compKey(group.GroupNumber, comp));
                     sheetNotes.Add(string.Format(CultureInfo.InvariantCulture,
@@ -493,19 +533,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </remarks>
         private static void CrossCheckStep4Sheet(
             int specNumber, string side, string? colour, int widthMm, int heightMm,
-            List<string> notes)
+            List<string> notes, int thicknessMm = 0)
         {
             if (widthMm <= 0 || heightMm <= 0) return;
-            if (string.IsNullOrWhiteSpace(colour)) return;
+            if (string.IsNullOrWhiteSpace(colour) || thicknessMm <= 0) return;
             // "Can the store say anything about this colour?" False means unknown
             // — cold snapshot or an unstocked colour — not "wrong size".
             if (!Services.ProformaInvoice.SheetStorePricingService
-                    .TryResolveStockSheet(colour, 0, out int stockedW, out int stockedH))
+                    .TryResolveStockSheet(colour, thicknessMm, out int stockedW, out int stockedH))
             {
                 return;
             }
             if (Services.ProformaInvoice.SheetStorePricingService
-                    .IsStockedSize(colour, 0, widthMm, heightMm))
+                    .IsStockedSize(colour, thicknessMm, widthMm, heightMm))
             {
                 return;
             }
@@ -551,7 +591,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             List<StockEntryVm> target,
             int widthMm, int heightMm, string composition, string source,
             decimal pricePerSqm, int specNumber, string side,
-            int? storeBalance = null)
+            int? storeBalance = null,
+            string? color = null,
+            int thicknessMm = 0,
+            string? materialKey = null)
         {
             if (widthMm <= 0 || heightMm <= 0) return 0;
 
@@ -567,7 +610,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 IsUsedInRun = true,
                 PricePerSqm = pricePerSqm,
                 SpecNumber = specNumber,
-                Side = side
+                Side = side,
+                Color = color ?? string.Empty,
+                ThicknessMm = thicknessMm,
+                MaterialKey = materialKey ?? string.Empty,
+                SheetStoreSku = OptimizationMaterialIdentity.StockSku(color, thicknessMm, widthMm, heightMm)
             };
 
             // PHASE 10: until now this row was built without an Available value,

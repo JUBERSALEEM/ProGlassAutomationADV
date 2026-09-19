@@ -286,20 +286,20 @@ namespace ProGlassAutomation.Services.Production
             {
                 foreach (var occ in occurrences)
                 {
-                    int w = occ.Slot == PaneSlot.Pane1 ? row.W1 : row.W2;
-                    int h = occ.Slot == PaneSlot.Pane1 ? row.H1 : row.H2;
-
-                    // STEP 4/5 SIZE RULE (industry semantics):
-                    //  • W2/H2 filled in → OVERLAP glass: the pane is cut
-                    //    to exactly W2×H2.
-                    //  • W2/H2 blank on a multi-pane build → EQUAL-SIZE
-                    //    unit: the pane inherits W1×H1 (only one size is
-                    //    entered when both panes cut the same).
-                    if ((w <= 0 || h <= 0) && multiPane &&
-                        occ.Slot == PaneSlot.Pane2 && row.W1 > 0 && row.H1 > 0)
+                    int w;
+                    int h;
+                    if (occ.Slot == PaneSlot.Pane1)
                     {
                         w = row.W1;
                         h = row.H1;
+                    }
+                    else if (!DguDimensionSemantics.TryResolveInnerSize(
+                                 row.W1, row.H1, row.W2, row.H2, out w, out h, out _))
+                    {
+                        plan.Warnings.Add(
+                            $"Spec {group.GroupNumber}: row {row.SerialNumber} ({SafeRef(row)}) has an incomplete " +
+                            $"W2/H2 size ({row.W2}×{row.H2}) — the {occ.Position} pane was skipped.");
+                        continue;
                     }
 
                     if (w <= 0 || h <= 0)
