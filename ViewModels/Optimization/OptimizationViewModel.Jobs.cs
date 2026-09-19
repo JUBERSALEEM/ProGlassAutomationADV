@@ -678,9 +678,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// Previously user had to tick jobs, then manually click 'Add selected
         /// panes → cutting list' — now auto on selection change, with merge
         /// by normalized composition + size + position, summing qty.
+        /// RC-007 FIX 2026-09-20: headless host for Step5 runs must NOT
+        /// auto-clear Pieces/Stocks when LoadJobs finishes after RunFromStep5.
         /// </summary>
         private void RebuildSelectedJobBreakdown()
         {
+            if (IsHeadlessHost)
+            {
+                // Headless host is for Step5 live runs only — its Pieces/Stocks
+                // are owned by RunFromStep5, not by job selection. Clearing them
+                // here would wipe the live cutlist after RunFromStep5 populated it.
+                return;
+            }
+
             foreach (var spec in JobSpecBreakdown)
                 foreach (var layer in spec.Layers)
                     layer.PropertyChanged -= OnLayerSelectionChanged;
@@ -744,9 +754,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// Pattern mirrors Step 5 export merging: same normalized composition
         /// + same W×H + same position → qty summed, labels merged distinct.
         /// This is what user requested for multi-job selection.
+        /// RC-007: headless host must not clear Pieces when no jobs selected.
         /// </summary>
         private void AutoRebuildPiecesFromSelectedJobs()
         {
+            if (IsHeadlessHost) return;
+
             var selectedLayers = JobSpecBreakdown
                 .SelectMany(s => s.Layers)
                 .Where(l => l.IsPane && l.IsSelected)

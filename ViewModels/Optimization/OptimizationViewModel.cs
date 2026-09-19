@@ -55,6 +55,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
             get => _selectedTabIndex;
             set { _selectedTabIndex = value; OnPropertyChanged(); }
         }
+
+        /// <summary>
+        /// True when this VM is the headless host ProformaInvoiceViewModel
+        /// creates for Step5 QUICK/OPTIMIZE runs. When true, job auto-import
+        /// must NOT clear Pieces/Stocks — otherwise LoadJobs finishing after
+        /// RunFromStep5 wipes the live cutlist (RC-007).
+        /// </summary>
+        public bool IsHeadlessHost { get; set; } = false;
+
         // ── ctor ───────────────────────────────────────────────────────
 
         public OptimizationViewModel()

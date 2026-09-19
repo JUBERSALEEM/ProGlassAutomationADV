@@ -499,6 +499,11 @@ public ProformaInvoiceViewModel() : this(
         private ViewModels.Optimization.OptimizationViewModel CreateOptimizationHost()
         {
             var host = new ViewModels.Optimization.OptimizationViewModel();
+            // RC-007 FIX: mark as headless host BEFORE LoadJobs async finishes,
+            // so RebuildSelectedJobBreakdown does not wipe Pieces/Stocks that
+            // RunFromStep5 just populated (race: ctor LoadJobs -> async
+            // Rebuild -> Pieces.Clear() after RunFromStep5).
+            host.IsHeadlessHost = true;
             host.PropertyChanged += OnOptimizationHostPropertyChanged;
             // Warm the Sheet Store snapshot that RunFromStep5 cross-checks sheet
             // sizes against (2026-09-17). Fire-and-forget and non-blocking: a run
