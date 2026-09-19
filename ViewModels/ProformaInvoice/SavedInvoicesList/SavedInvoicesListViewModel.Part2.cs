@@ -127,7 +127,81 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             {
                 var existing = await _jobs.GetBySourceProformaIdAsync(
                     piEntity.ProformaId ?? "");
-                if (existing != null && existing.Count > 0) return;   // already converted
+                if (existing != null && existing.Count > 0)
+                {
+                    // RC-015 (2026-09-20): a Job Order created BEFORE its quote
+                    // was approved is born Draft — JobOrderMapper writes
+                    // Released only when the PI is already "Approved" at the
+                    // instant of conversion (JobOrderMapper.cs:92), and that is
+                    // the ONLY place in the codebase that ever assigns
+                    // Released. So the early return here left such a job Draft
+                    // forever: approving the PI created nothing new and
+                    // upgraded nothing existing.
+                    //
+                    // The consequence is invisible from the Proforma side. The
+                    // Optimization picker's source lock filters Draft out
+                    // (OptimizationViewModel.Jobs.cs — !Is(j.Status, Draft)),
+                    // so the confirmed job simply never appeared in the JOBS
+                    // tab while the status line still read "Loading confirmed
+                    // job orders…". That is the reported "not reading confirmed
+                    // PI as job order".
+                    //
+                    // Approval is the confirmation, so approval releases the
+                    // job — the same intent the mapper documents. Follows the
+                    // list-side status-change pattern exactly: validate the
+                    // transition, update the indexed column, keep the embedded
+                    // snapshot's Production.Status in sync (the detail view,
+                    // its save path and the production-sheet exports read the
+                    // status from the snapshot), then audit.
+                    foreach (var job in existing)
+                    {
+                        if (job == null || job.IsVoid) continue;
+                        if (!ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus
+                                .JobOrderStatusValues.Is(
+                                    job.Status,
+                                    ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus
+                                        .JobOrderStatusValues.Draft))
+                            continue;
+
+                        var transition = StatusTransitions.Validate(
+                            StatusTransitions.Kind.JobOrder,
+                            job.Status,
+                            ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus
+                                .JobOrderStatusValues.Released);
+                        if (!transition.IsValid)
+                        {
+                            ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                                $"Approved PI {piEntity.ProformaId} has job {job.JobOrderId} in " +
+                                $"status '{job.Status}' that cannot be released: {transition.Reason}");
+                            continue;
+                        }
+
+                        string released = ProGlassAutomation.Models.JobOrder.Common
+                            .JobOrderStatus.JobOrderStatusValues.Released;
+
+                        job.Status = released;
+                        job.UpdatedAt = DateTime.Now;
+
+                        var jobSnapshot = JobOrderMapper.DeserializeSnapshot(job);
+                        if (jobSnapshot?.Production != null)
+                        {
+                            jobSnapshot.Production.Status = released;
+                            jobSnapshot.Production.LastEditedAt = DateTime.Now;
+                            jobSnapshot.Production.LastEditedBy = Environment.UserName;
+                            job.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(jobSnapshot);
+                        }
+
+                        await _jobs.UpdateAsync(job);
+
+                        AuditService.Log(
+                            AuditSections.JobOrder,
+                            "Draft job released on invoice approval",
+                            $"{job.JobOrderId} ← {piEntity.ProformaId} (was Draft)",
+                            "JO", job.JobOrderId);
+                    }
+
+                    return;   // already converted — nothing to insert
+                }
 
                 var jobSnapshot = JobOrderMapper.BuildFromProformaInvoice(piEntity);
                 if (await _jobs.ExistsByJobOrderIdAsync(jobSnapshot.JobOrderId))

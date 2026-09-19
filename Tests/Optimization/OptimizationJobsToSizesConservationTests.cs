@@ -729,7 +729,7 @@ namespace ProGlassAutomation.Tests.Optimization
             Assert.Contains(ProGlassAutomation.Services.Updates.AppInfo.Version, stamp, StringComparison.Ordinal);
             Assert.Contains("build", stamp, StringComparison.Ordinal);
             Assert.Contains("UTC", stamp, StringComparison.Ordinal);
-            Assert.Equal(ProGlassAutomation.Services.Updates.AppInfo.FallbackVersion, "2.0.2");
+            Assert.Equal(ProGlassAutomation.Services.Updates.AppInfo.FallbackVersion, "2.0.3");
         }
     }
 }

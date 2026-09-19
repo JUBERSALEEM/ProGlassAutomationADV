@@ -348,6 +348,43 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         /// </summary>
         public void RefreshSheetStoreData() => AsyncUtility.SafeFireAndForget(LoadSheetStoreDataAsync, "PricingEstimator Refresh");
 
+        /// <summary>
+        /// True once any calculation section has produced a quoted rate — i.e.
+        /// Step 4 holds value the operator would lose.
+        /// <para>
+        /// RC-016 (2026-09-20): <see cref="RefreshSheetStoreData"/> is not a
+        /// read-only refresh. It ends in <c>RefreshOuterFromStoreAsync</c> /
+        /// <c>RefreshInnerFromStoreAsync</c>, which call
+        /// <c>ReplaceSizes(...)</c> — and that does <c>target.Clear()</c>
+        /// UNCONDITIONALLY, even when the Sheet Store returns no matching
+        /// sizes — and then <c>RepriceOuterAsync</c> / <c>RepriceInnerAsync</c>,
+        /// which set <c>OuterBasePrice = 0m</c> / <c>InnerBasePrice = 0m</c> on
+        /// a store miss ("never keep a stale previous pane price"). A colour
+        /// the store does not stock under that exact spelling therefore wipes
+        /// the size dropdown and destroys the quoted selling rate.
+        /// </para>
+        /// <para>
+        /// The wizard fired that refresh on EVERY navigation into Step 4 while
+        /// <c>HasRestoredSnapshotState</c> was false — which is the normal state
+        /// for any newly created invoice, since only a snapshot restore sets it.
+        /// So switching stations and coming back blanked Step 4, the Step 4 →
+        /// Step 5 handoff then carried the zeroed rate and blanked colours into
+        /// Step 5, and the silent draft save persisted the damage without the
+        /// operator pressing Save. Step 9 recomputed on a zero selling rate
+        /// against a live cost side, which is how a profitable quote printed as
+        /// a loss on Step 7.
+        /// </para>
+        /// <para>
+        /// This flag lets the caller refresh a Step 4 that has nothing to lose
+        /// and leave a priced one alone. Nothing is lost by gating: the store
+        /// is still re-read when stock actually changes
+        /// (<c>MainViewModel</c> hooks <c>SheetStoreVM.StockLedgerChanged</c> to
+        /// <see cref="RefreshSheetStoreData"/>) and on snapshot restore.
+        /// </para>
+        /// </summary>
+        public bool HasPricedStep4Data =>
+            CaptureSectionSnapshots().Any(s => s != null && s.EstimatedRatePerSqm > 0m);
+
         public IReadOnlyList<Step4PricingSnapshot> CaptureSectionSnapshots()
         {
             UpdateCurrentCalculationSectionSnapshot();

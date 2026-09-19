@@ -327,3 +327,141 @@ dotnet test Tests/ProGlassAutomation.Tests.csproj --filter "FullyQualifiedName~O
   and awaiting execution on a machine with the SDK.
 * The words *fixed*, *working* and *resolved* are deliberately **not** used
   anywhere in this document to describe runtime behaviour.
+
+---
+---
+
+# ADDENDUM — same day, second session: the upstream chain (RC-015 / RC-016)
+
+**Trigger:** the operator reported four symptoms together and confirmed they are
+**running the 2.0.2 build** — so RC-010…RC-014 are in the binary and the cutting
+list is *still* empty. That rules out the SIZES-tab derivation as the cause of
+what they see and moves the defect upstream, into the Proforma Invoice wizard.
+The first-pass audit stopped at the Optimization module boundary; this addendum
+crosses it.
+
+**Operator-reported symptoms**
+1. Step 4 spec **colors get reset**.
+2. Step 7 shows a **negative profit margin** — the invoice prints as a loss.
+3. The Optimization source lock **shows jobs but no sizes** in the cutting list.
+4. A **confirmed PI is not read as a Job Order**.
+
+**Operator-supplied facts:** running 2.0.2 · Step 5 grid **does** show real W×H
+and Qty · Step 4 **goes empty as soon as steps are switched** (corrected from an
+earlier "still filled after restart").
+
+## A. The causal chain, proven at code level
+
+```
+GoToStep(4)  ProformaInvoiceViewModel.cs:815-822
+  └─ if (!Step4VM.HasRestoredSnapshotState) Step4VM.RefreshSheetStoreData();
+        HasRestoredSnapshotState is set ONLY by RestoreFromSnapshot
+        (PricingEstimatorViewModel.Part1.cs:858/867) ⇒ FALSE for every
+        newly created invoice ⇒ the refresh fires on EVERY entry to Step 4.
+     └─ LoadSheetStoreDataAsync → RefreshOuterFromStoreAsync / RefreshInnerFromStoreAsync
+          ├─ ReplaceSizes(...)  →  target.Clear()  UNCONDITIONALLY,
+          │                        even when the store returns 0 sizes
+          │                        (DguParametersViewModel.SheetStore.cs:302, 330, 422-433)
+          │                        ⇒ the sheet-size dropdown is EMPTIED   ← symptom "Step 4 goes empty"
+          └─ RepriceOuterAsync / RepriceInnerAsync
+               else branch:  OuterBasePrice = 0m;  InnerBasePrice = 0m;
+               ("never keep a stale previous pane price")
+               (DguParametersViewModel.SheetStore.cs:376-381, 411-416)
+               ⇒ the QUOTED SELLING RATE IS DESTROYED on any store miss
+GoToStep crossing 4→5  (:827-828)
+  └─ PrepareStep5FromStep4 → SyncStep5SelectionsFromStep4 (:672)
+       └─ ApplyStep4PricingSnapshot (SpecGroup.Part1.cs:839)
+            clears HasManualStep5SpecOverride / HasManualStep5GlassTypeOverride
+            and overwrites type, spec name, colours and BaseRate from the
+            now-zeroed Step 4                        ← symptom 1 "colours reset"
+            (and RefreshGlassColorsFromSpecName, :1084, sets OuterGlassColor=""
+             AND InnerGlassColor="" whenever the spec name is blank)
+GoToStep (:839-840)  silent draft save built AFTER the handoff
+  └─ the degraded state is PERSISTED with no Save press
+GoToStep(9) (:836-837)  Step9VM.RecalculateAsync
+  └─ selling rate 0 against a live cost side        ← symptom 2 "negative margin / loss"
+     and Step 7 simply prints Step 9's numbers
+```
+
+**Why symptom 3 survives the 2.0.2 build — the frozen snapshot.**
+`JobOrderSnapshot.EmbeddedInvoice` is assigned in **exactly one place in the
+codebase**: `JobOrderMapper.cs:88`, at conversion. Every other reference
+(`DeliveryNoteMapper`, the CSV/PDF/Excel layouts, `BuildEntityFromSnapshot`) is a
+**read**. The mapper deep-clones deliberately — *"so subsequent PI edits don't
+mutate the historical record preserved in the job order"*. So the Optimization
+picker does not read the PI the operator is looking at; it reads the clone frozen
+at the moment of approval. **Fixing Step 4 today does not heal a Job Order that
+was converted while Step 4 was degraded.** That is why "Step 5 shows real sizes"
+and "the cutting list is empty" are both true at once.
+
+**Symptom 4 is an independent, separately proven bug.**
+`JobOrderStatus.Released` is written in **exactly one place in the codebase**:
+`JobOrderMapper.cs:92`, and only when the PI is *already* `"Approved"` at that
+instant. Nothing ever upgrades an existing Draft. Meanwhile
+`ConvertToJobOrderAsync` (`SavedInvoicesListViewModel.Part2.cs:129`) **returned
+early** when any Job Order already existed for the PI. So a job created before
+approval — the Job Orders → New picker even has a `ProceededWithoutApproval`
+path, audited as *"RELEASED WITHOUT CONFIRMED APPROVAL"*
+(`SavedJobOrdersListViewModel.Part1.cs:826`) — stayed **Draft forever**, and the
+picker's `!Is(j.Status, Draft)` filter (`Jobs.cs:330`) hid it, while the status
+line still read *"Loading confirmed job orders…"*.
+
+## B. Fixes applied in this addendum
+
+| ID | File · member | Change |
+|---|---|---|
+| **RC-015** | `SavedInvoicesListViewModel.Part2.cs` · `ConvertToJobOrderAsync` | Approval now **releases** an existing Draft job instead of returning early. Follows the list-side status-change pattern exactly: `StatusTransitions.Validate(Kind.JobOrder, Draft → Released)` (a legal transition, `StatusTransitions.cs:82`), update the indexed `Status` column, keep `FullSnapshotJson`'s `Production.Status` in sync (the detail view, its save path and the production-sheet exports read the status from the snapshot), audit-log it. Voided jobs and non-Draft jobs are skipped; an illegal transition logs a Warning and is skipped rather than forced. |
+| **RC-016** | `PricingEstimatorViewModel.Part1.cs:349` · `ProformaInvoiceViewModel.cs:815` | New `HasPricedStep4Data` (any section with `EstimatedRatePerSqm > 0`) gates the navigation-triggered `RefreshSheetStoreData()`. A Step 4 that has produced a rate is no longer wiped on entry; a fresh one still picks up current stock. Nothing is lost by gating — genuine stock changes still reach Step 4 via `SheetStoreVM.StockLedgerChanged → RefreshSheetStoreData` (`MainViewModel.Part2.cs:254`), and restores via `RestoreFromSnapshot` (`Part1.cs:840`). |
+
+**Deliberately NOT changed:** the `OuterBasePrice = 0m` store-miss behaviour
+itself. It is a documented decision (*"never keep a stale previous pane price
+such as Clear 25 on a Low-E/Ramly pane"*) and the correct replacement is an
+operator-ownership flag like Step 5's `HasManualStep5BaseRateOverride` — which
+does not exist in any of the SGU/DGU/LAM panels and would mean new state plus
+XAML bindings across three sub-view-models in the pricing heart of the app,
+written blind with no compiler. RC-016 removes the *trigger* (an unrequested
+refresh on navigation) without changing how a price is computed when the operator
+genuinely changes a colour. Adding the ownership flag is the recommended
+follow-up.
+
+**Also NOT changed:** the frozen `EmbeddedInvoice` contract. Auto re-syncing it
+on every PI save would violate the mapper's explicit historical-record guarantee.
+Healing it needs an operator-initiated "re-sync from source PI" action — a
+feature decision, not a bug fix.
+
+## C. How to get sizes for the job that is broken RIGHT NOW
+
+The existing Job Order still carries the degraded clone, and no code path
+refreshes it. Two ways forward, no rebuild needed for the first:
+
+1. **Re-convert (immediate).** Job Orders → New → pick the approved PI → accept
+   the *"already has N job(s)"* prompt. `CreateJobOrderAsync` mints the next free
+   `JOB-…` id and embeds **today's** PI. Because the PI is Approved, the new job
+   is born **Released** and the Optimization picker will show it with sizes.
+   Void the stale job afterwards so the two are not both cut.
+2. **RC-015 (after this build).** Approving the PI again releases a Draft job —
+   but it does **not** re-embed the snapshot, so a job whose *data* was degraded
+   still needs route 1.
+
+## D. Status of this addendum
+
+# ROOT CAUSE CONFIRMED + FIX NOT YET VERIFIED
+
+Every mechanism above is read from source with file:line evidence, and the
+two destructive writes (`ReplaceSizes` → `Clear()`, `Reprice*Async` → `= 0m`)
+are unconditional in the code as written. But this workspace still has no .NET
+SDK: RC-015 and RC-016 are **not compiled and not run**. Verification requires
+the operator's Windows machine:
+
+1. Build. Confirm About / first log line reads **2.0.3-or-later** (bump the
+   patch digit again for this change set — see RC-014's rationale).
+2. Create a NEW invoice, fill Step 4, switch to Step 5, return to Step 4.
+   **Before RC-016:** sizes and prices blank. **After:** unchanged.
+3. Approve a PI whose job was created as Draft beforehand. **Before RC-015:**
+   job stays Draft and never appears in Optimization. **After:** status becomes
+   Released, an audit entry *"Draft job released on invoice approval"* appears,
+   and the job is listed in the Optimization JOBS tab.
+4. Step 7 margin on a quote that previously printed a loss.
+5. For the job that is already broken: route C.1, then confirm the cutting list
+   populates and `[OPT-JOBS] import build=…` reports `paneQty == piecesQty ==
+   sizesQty`.

@@ -817,7 +817,21 @@ public ProformaInvoiceViewModel() : this(
                 if (Step5VM.TotalSpecGroups > Step4VM.CalculationSectionCount)
                     Step4VM.EnsureCalculationSectionCount(Step5VM.TotalSpecGroups);
 
-                if (!Step4VM.HasRestoredSnapshotState)
+                // RC-016 (2026-09-20): this refresh is destructive — on a Sheet
+                // Store miss it clears the size dropdown and zeroes the pane
+                // base prices (see PricingEstimatorViewModel.HasPricedStep4Data).
+                // It used to fire on EVERY navigation into Step 4 for any
+                // invoice that was not loaded from a snapshot, so switching
+                // stations and coming back blanked a Step 4 the operator had
+                // already priced; the 4→5 handoff then carried the zeroed rate
+                // into Step 5 and the silent draft save persisted it.
+                //
+                // Still refresh a Step 4 that has produced no rate (nothing to
+                // lose) so a fresh invoice picks up current stock. A priced one
+                // is left alone; genuine stock changes still reach it through
+                // SheetStoreVM.StockLedgerChanged, and restores through
+                // RestoreFromSnapshot.
+                if (!Step4VM.HasRestoredSnapshotState && !Step4VM.HasPricedStep4Data)
                     Step4VM.RefreshSheetStoreData();
             }
 

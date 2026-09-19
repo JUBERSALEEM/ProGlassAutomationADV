@@ -27,7 +27,7 @@ namespace ProGlassAutomation.Services.Updates
         /// with the .csproj &lt;Version&gt; and exposed so the licensing
         /// wrapper does not carry its own third copy of the number.
         /// </summary>
-        public const string FallbackVersion = "2.0.2";
+        public const string FallbackVersion = "2.0.3";
 
         /// <summary>
         /// Current application version (MAJOR.MINOR.PATCH), resolved once
@@ -44,7 +44,7 @@ namespace ProGlassAutomation.Services.Updates
         /// <summary>
         /// Full build identity for logs and diagnostics: version + the UTC
         /// timestamp of the built assembly, e.g.
-        /// <c>2.0.2 (build 2026.09.20 14:03:11 UTC)</c>.
+        /// <c>2.0.3 (build 2026.09.20 14:03:11 UTC)</c>.
         /// <para>
         /// RC-014 (2026-09-20): &lt;Version&gt; sat at 2.0.1 for nine days
         /// across several behaviour-changing commits. Because
