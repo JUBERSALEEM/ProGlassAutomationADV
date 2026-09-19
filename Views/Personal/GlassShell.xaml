@@ -474,12 +474,23 @@
         <!-- AI OVERLAY (glass-10): same AiChatVM as the Professional
              overlay; the Professional overlay is hidden when the Personal
              experience is active (GB-P14). -->
+        <!-- GB-B5: 94%-of-window cap via ScaleLengthConverter (bound to the
+             Window's ActualWidth/ActualHeight × 0.94). The original
+             MaxWidth/MaxHeight="0.94*" was a star GridLength on a Length
+             property — invalid WPF; crashed every startup with
+             XamlParseException "'0.94*' cannot be converted to Length". -->
         <pv:PersonalAiChatView DataContext="{Binding AiChatVM}"
                                Panel.ZIndex="200"
                                Width="920"
-                               MaxWidth="0.94*"
+                               MaxWidth="{Binding ActualWidth,
+                                         RelativeSource={RelativeSource AncestorType=Window},
+                                         Converter={StaticResource ScaleLengthConverter},
+                                         ConverterParameter=0.94}"
                                Height="640"
-                               MaxHeight="0.94*"
+                               MaxHeight="{Binding ActualHeight,
+                                         RelativeSource={RelativeSource AncestorType=Window},
+                                         Converter={StaticResource ScaleLengthConverter},
+                                         ConverterParameter=0.94}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
                                Visibility="{Binding AiChatVM.IsOpen,

@@ -60,6 +60,11 @@
     <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
     <conv:SliderValueLabelConverter         x:Key="SliderValueLabelConverter"/>
     <conv:FractionToStarConverter           x:Key="FractionToStarConverter"/>
+    <!-- Bound Length × constant factor (ConverterParameter). Glass Blush
+         AI overlay: cap MaxWidth/MaxHeight at 94% of the window — WPF
+         has no percentage Length, and "0.94*" (star) is invalid on a
+         Length property (startup crash ERR — GlassShell L479). -->
+    <conv:ScaleLengthConverter              x:Key="ScaleLengthConverter"/>
     <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
     <conv:StringEqualsMultiConverter        x:Key="StringEqualsMultiConverter"/>
 

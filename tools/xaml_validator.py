@@ -35,6 +35,11 @@ Static analysis gate for every .xaml file in the repository.
       context (e.g. TargetName in <Style.Triggers> of an explicit Style) —
       MC4011 "TargetName property cannot be set on a Style Setter".
       Added 2026-09-19 (GB-B2).
+  W22 a star GridLength ("N*") on a Length-typed property (any element
+      other than ColumnDefinition.Width / RowDefinition.Height) — runtime
+      XamlParseException "'N*' string cannot be converted to Length"
+      (startup crash from BAML parse; markup compile does not catch it).
+      Added 2026-09-19 (GB-B5, GlassShell AI-overlay crash).
 
 Usage:  python3 tools/xaml_validator.py [--files <paths...>]
 Writes: docs/ui-audit/XAML_VALIDATION_REPORT.{md,json}
@@ -294,6 +299,41 @@ def check_file(path, merge_index, all_declared, i18n, findings):
             F("ERROR", "W21",
               f"Setter TargetName='{el.get('TargetName')}' outside a "
               "ControlTemplate/DataTemplate (MC4011)")
+    # W22 — star GridLength ("N*") on a Length-typed property. Stars are
+    # ONLY legal on ColumnDefinition.Width / RowDefinition.Height (GridLength).
+    # On every other property (Width/MaxWidth/Height/... on any FrameworkElement)
+    # the LengthConverter fails at RUNTIME parse with
+    # "'0.94*' string cannot be converted to Length" (XamlParseException from
+    # BAML load — crashes startup; markup compile does NOT catch it, the value
+    # is only converted when the BAML is parsed at load time). Added 2026-09-19
+    # after the GlassShell AI-overlay crash (GB-B5).
+    LENGTH_ATTRS = {"Width","Height","MinWidth","MaxWidth","MinHeight","MaxHeight",
+                    "RadiusX","RadiusY","StrokeThickness","BorderThickness",
+                    "Thickness","CornerRadius","Padding","Margin","FontSize",
+                    "Indent","LineHeight","MaxLineHeight","MinLineHeight"}
+    STAR_OK = {("ColumnDefinition","Width"), ("RowDefinition","Height")}
+    STAR_RE = re.compile(r"^\d*\.?\d+\*$")
+    for el in root.iter():
+        if not isinstance(el.tag, str):
+            continue
+        t = local(el.tag)
+        for attr, val in el.attrib.items():
+            if local(attr) in LENGTH_ATTRS and (t, local(attr)) not in STAR_OK \
+                    and not val.startswith("{") and STAR_RE.match(val):
+                F("ERROR", "W22",
+                  f"star GridLength '{val}' on Length property "
+                  f"{t}.{local(attr)} — star is valid only on "
+                  f"ColumnDefinition.Width/RowDefinition.Height; "
+                  f"LengthConverter throws at runtime parse")
+        for c in el:
+            if isinstance(c.tag, str) and local(c.tag) == "Setter" \
+                    and c.get("Property","").split(".")[-1] in LENGTH_ATTRS \
+                    and (t, c.get("Property","").split(".")[-1]) not in STAR_OK:
+                v = c.get("Value","")
+                if not v.startswith("{") and STAR_RE.match(v):
+                    F("ERROR", "W22",
+                      f"Setter {c.get('Property')}='{v}' — star GridLength on a "
+                      f"Length property; LengthConverter throws at runtime parse")
     # element checks
     for el in root.iter():
         if not isinstance(el.tag, str):
@@ -415,6 +455,8 @@ def main():
       "W17 hardcoded hex in view · W18 root xmlns = XAML (not presentation) namespace · "
       "W19 non-existent WPF property (denylist) · W20 property set as attribute AND property element · "
       "W21 TargetName setter outside a template (MC4011). "
+      "W22 star GridLength ('N*') on a Length property — runtime "
+      "LengthConverter crash (GlassShell AI overlay). "
       "W3 duplicate x:Key is WARN (WPF last-wins shadowing, latent). "
       "W7 covers keys published at runtime by Services (ThemeManager, PrintTokenService, …).")
     A("")
