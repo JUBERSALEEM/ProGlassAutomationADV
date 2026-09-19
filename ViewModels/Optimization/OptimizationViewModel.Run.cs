@@ -602,7 +602,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                       // PHASE 9 (safe) — accumulate in long and clamp.
                       //
-                      // The Available field defaults to "99999999" ("effectively
+                      // The Available field defaults to
+                      // StockSize.EffectivelyUnlimitedSheets ("effectively
                       // unlimited — usage is tracked, not capped"), so summing
                       // duplicates in int overflows at around 22 rows sharing a
                       // size. An overflowed total goes NEGATIVE, and the packer's

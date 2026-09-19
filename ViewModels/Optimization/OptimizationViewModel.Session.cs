@@ -88,7 +88,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string H { get; set; } = string.Empty;
             public string Composition { get; set; } = string.Empty;
             public string Source { get; set; } = string.Empty;
-            public string Available { get; set; } = "99999999";
+            // Sourced from the engine constant rather than hard-coded: the run
+            // ledger recognises this value as "no balance was set" and must never
+            // drift away from the default it is meant to recognise.
+            public string Available { get; set; } =
+                StockSize.EffectivelyUnlimitedSheets.ToString(CultureInfo.InvariantCulture);
             public bool IsUsedInRun { get; set; } = true;
             public int SpecNumber { get; set; }
             public string Side { get; set; } = string.Empty;
@@ -615,7 +619,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 Stocks.Add(new StockEntryVm(st.W, st.H,
                     CompositionKey.Normalize(st.Composition), st.Source ?? string.Empty)
                 {
-                    AvailableText = string.IsNullOrWhiteSpace(st.Available) ? "99999999" : st.Available,
+                    AvailableText = string.IsNullOrWhiteSpace(st.Available)
+                        ? StockSize.EffectivelyUnlimitedSheets.ToString(CultureInfo.InvariantCulture)
+                        : st.Available,
                     IsUsedInRun = st.IsUsedInRun
                 });
             }

@@ -186,10 +186,17 @@ namespace ProGlassAutomation.Tests.Agent
                 ".ToList();");
             Assert.Contains("st.MaxSheets >= StockSize.EffectivelyUnlimitedSheets", distinct);
 
-            // One definition, not three hard-coded copies of the literal.
+            // One definition, and no hard-coded copies of the literal left
+            // anywhere the default is produced — otherwise a future change to
+            // the constant silently strands the ledger's "no balance was set"
+            // recognition behind a stale literal.
             string stocks = Read(StocksVm);
             Assert.Contains("StockSize.EffectivelyUnlimitedSheets", stocks);
             Assert.DoesNotContain("\"99999999\"", stocks);
+
+            string session = Read("ViewModels/Optimization/OptimizationViewModel.Session.cs");
+            Assert.Contains("StockSize.EffectivelyUnlimitedSheets", session);
+            Assert.DoesNotContain("\"99999999\"", session);
         }
 
         // ══════════════════════════════════════════════════════════════
