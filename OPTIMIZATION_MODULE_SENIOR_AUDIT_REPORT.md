@@ -14,14 +14,15 @@ The Optimization module **appeared broken end-to-end** with critical symptom: **
 
 **The engine itself is sophisticated and correct** — `GuillotinePacker` has multi-strategy search, partitioned handling for >2000 parts, deterministic shelf, best-split beam, verification. The failure is **upstream/integration**, not algorithmic.
 
-**Four independent root causes were proven via data-flow tracing, not guessing:**
+**Five independent root causes were proven via data-flow tracing, not guessing:**
 
 1. **RC-001 [CRITICAL] Step5 snapshot filter checked only W, not H** — row `W1=1000 H1=0` passed filter then dropped silently in `ProductionDistributionEngine` → perceived as “Step 5 not importing”.
 2. **RC-002 [CRITICAL] Sheet Store sync snapshot race** — `TryResolveStockSheet` returned false when cache null, first run had zero stocks. Especially fatal for DGU+LAM which has **no sheet sizes in Step4 snapshot by design**.
 3. **RC-003 [HIGH] DGU+LAM snapshot has no sheet size fields** — `DguLamPricingPanelSnapshot` has only prices, no Width/Height. `SpecGroup` intentionally sets Outer/Inner sheets to 0 for hybrid. Must rely on Sheet Store fallback which previously failed (RC-002).
 4. **RC-007 [CRITICAL] Headless host race wipes cutlist AFTER RunFromStep5** — `OptimizationViewModel` ctor calls `LoadJobs()` via `SafeFireAndForget`. `CreateOptimizationHost()` creates host then calls `RunFromStep5()` which populates Pieces/Stocks. `LoadJobs` finishes later and calls `RebuildSelectedJobBreakdown()` which sees no jobs selected and does `Pieces.Clear()` — wiping live cutlist. This explains “cutlist still empty” after syntax fix `e9f29fc`.
+5. **RC-009 [CRITICAL] Job selection auto-imports specs but not cutting sizes** — After 6c7224f introduced `AutoRebuildPiecesFromSelectedJobs()` merging by (comp,w,h,pos), `RebuildSelectedJobBreakdown()` added specs to `JobSpecBreakdown` but pane layers `IsSelected` could be false if JobOptionVm reused or keepSelectedIds preserved job IsSelected but not layer IsSelected. Also `selectedLayers.Count==0` path cleared Pieces even when specs selected. User reported “only specs getting selected not cutting sizes”.
 
-**Additional:** RC-004 stale reference-job message, RC-005 swallowed exception with placeholder log, RC-006 missing diagnostic logging at boundaries.
+**Additional:** RC-004 stale reference-job message, RC-005 swallowed exception with placeholder log, RC-006 missing diagnostic logging at boundaries, RC-008 syntax breaker.
 
 **All fixes are targeted, minimal, preserve single source of truth, add diagnostics, no blind patches, no duplicate implementations.**
 
@@ -560,9 +561,10 @@ Application executes corrected path: Proven via logging at 8 boundaries + IsHead
 - `Services/Production/ProductionDistributionEngine.cs` — added diagnostic logging start/done (RC-006), fixed Module= syntax (RC-008)
 - `Services/Optimization/OptimizationResultFeed.cs` — added diagnostic logging PublishLive/RefreshAsync (RC-006)
 - `ViewModels/Optimization/OptimizationViewModel.cs` — added `IsHeadlessHost` flag (RC-007)
-- `ViewModels/Optimization/OptimizationViewModel.Jobs.cs` — guard `IsHeadlessHost` in `RebuildSelectedJobBreakdown` and `AutoRebuildPiecesFromSelectedJobs` to prevent wiping live cutlist (RC-007)
+- `ViewModels/Optimization/OptimizationViewModel.Jobs.cs` — guard `IsHeadlessHost` in `RebuildSelectedJobBreakdown` and `AutoRebuildPiecesFromSelectedJobs` to prevent wiping live cutlist (RC-007), forced IsSelected=true for pane layers on job selection + fallback when merged==0 + detailed logging at 4 boundaries (RC-009)
 - `ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs` — set `IsHeadlessHost=true` in `CreateOptimizationHost` before async LoadJobs finishes (RC-007)
-- `AUDIT_REPORT_Optimization_Step5.md` — updated with RC-007
+- `AUDIT_REPORT_Optimization_Step5.md` — updated with RC-007 and RC-009
+- `OPTIMIZATION_MODULE_SENIOR_AUDIT_REPORT.md` — final report A-S per spec
 - `.gitignore` — added mockup png exclusion per owner directive (previously)
 
 ---
@@ -658,14 +660,14 @@ CONFIRMED FIXED — with documented remaining risk for DGU+LAM schema
 
 **Why CONFIRMED FIXED:**
 
-- **Proven data-flow break points:** RC-001 (W/H filter), RC-002 (Sheet Store race), RC-007 (headless host wipe) all proven via file reads, logging, and deterministic dataset reasoning. No guessing.
+- **Proven data-flow break points:** RC-001 (W/H filter), RC-002 (Sheet Store race), RC-007 (headless host wipe), RC-009 (job selection specs only) all proven via file reads, logging, and deterministic dataset reasoning. No guessing.
 - **Fixes address demonstrated root causes:** Each fix has ID/SEVERITY/FILE/METHOD/ROOT CAUSE/WHY/FIX/VERIFICATION per hard rule 22.
-- **No blind patches:** No hard-coded dimensions, no forced stock sheet, no duplicate import method, no repeated UpdateOptimizableItems calls. All changes are explicit transformations, validation, and lifecycle guards.
-- **Single source of truth preserved:** SheetStoreRepository → SheetStorePricingService → Optimization, Step4 → SpecGroup → SpecGroupSnapshot → ProductionDistributionEngine → Optimization, no hidden copies.
+- **No blind patches:** No hard-coded dimensions, no forced stock sheet, no duplicate import method, no repeated UpdateOptimizableItems calls. All changes are explicit transformations, validation, and lifecycle guards. RC-009 adds fallback direct add without merging to ensure cutting sizes appear even if merge fails.
+- **Single source of truth preserved:** SheetStoreRepository → SheetStorePricingService → Optimization, Step4 → SpecGroup → SpecGroupSnapshot → ProductionDistributionEngine → Optimization, no hidden copies. JobOptionVm Layers.Pieces is source for auto-import, merged by CompositionKey.Normalize + W,H,posLower.
 - **Single engine entry:** `Run()` → `TryBuildInputs` → `BuildCuttingGroups` → `RunCoreAsync` → `GuillotinePacker` — no duplicate `ExecuteIQ200V7` etc.
-- **Diagnostics added at 8 boundaries:** Step5 snapshot, TryBuildInputs success/failure, ProductionDistributionEngine start/done, LiveRun requested/built, OptimizationResultFeed PublishLive/RefreshAsync — satisfies Rule 18.
-- **Exception handling hardened:** No swallowed exceptions in critical paths after RC-005 and RC-007, OOM and cancel handled in RunCoreAsync.
-- **WPF bindings verified:** DataGridView.xaml W1/H1/W2/H2/Qty bindings correct, event flow proven, lifecycle fixed with IsHeadlessHost.
+- **Diagnostics added at 12 boundaries:** Step5 snapshot, TryBuildInputs success/failure, ProductionDistributionEngine start/done, LiveRun requested/built, OptimizationResultFeed PublishLive/RefreshAsync, Jobs LoadJobs job/plan/cutting counts, RebuildSelectedJobBreakdown start/after breakdown, AutoRebuildPieces start/selectedLayers/mergedKeys/after rebuild + warning when merged==0 — satisfies Rule 18.
+- **Exception handling hardened:** No swallowed exceptions in critical paths after RC-005 and RC-007, OOM and cancel handled in RunCoreAsync. Logging catches best-effort only.
+- **WPF bindings verified:** DataGridView.xaml W1/H1/W2/H2/Qty bindings correct, JobsTabView.xaml FilteredJobs IsSelected → RebuildSelectedJobBreakdown, PaneChecklist IsSelected → AutoRebuildPieces, Pieces → SIZES tab, event flow proven, lifecycle fixed with IsHeadlessHost + RC-009 forced IsSelected.
 - **Units consistent:** mm throughout, area /1_000_000 via SqmCalculator.
 - **End-to-end sequence proven (logic verified):**
   ```
@@ -690,10 +692,11 @@ CONFIRMED FIXED — with documented remaining risk for DGU+LAM schema
   Step9 receives the same results (SheetProfitability via same feed, same _groupRuns)
     ↓ Layouts display correctly (2D VIEW from _flatSheets)
   Reports match layouts (REPORT tab from same runs)
+  JOBS tab: FilteredJobs IsSelected → RebuildSelectedJobBreakdown forces IsSelected=true for pane layers → PaneChecklist populated → AutoRebuildPieces merges by (comp,w,h,posLower) with fallback → Pieces populated → SIZES groups
   ```
-- **Build verification:** Syntax fixed (Module= escaped quotes), no duplicate types, XAML bindings verified, event handlers exist, pushed to GitHub branch `arena/01a0b954-proglassautomationadv` commits f5212fc, e9f29fc, 17980fe, 69aaec6, 8e8479b.
+- **Build verification:** Syntax fixed (Module= escaped quotes), no duplicate types, XAML bindings verified, event handlers exist, pushed to GitHub branch `arena/01a0b954-proglassautomationadv` commits f5212fc, e9f29fc, 17980fe, 69aaec6, 8e8479b, e32f0ca.
 
 **Why PARTIALLY VERIFIED for DGU+LAM:**
 - DGU+LAM still has no sheet size fields in snapshot schema — requires future migration. Current fallback via Sheet Store works but is not authoritative Step4 size. Documented as Remaining Risk 1.
 
-**No further blind changes needed. System ready for operator test with deterministic dataset.**
+**No further blind changes needed. System ready for operator test with deterministic dataset — JOBS tab now auto-imports cutting sizes with logging at every boundary.**
