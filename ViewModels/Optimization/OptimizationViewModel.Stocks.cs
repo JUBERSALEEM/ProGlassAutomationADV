@@ -32,7 +32,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             private string _widthText;
             private string _heightText;
-            private string _availableText = "99999999"; // effectively unlimited — usage is tracked, not capped
+            // Effectively unlimited — usage is tracked, not capped. Sourced from
+            // the engine constant so the run ledger, which must recognise this
+            // value as "no balance set", can never drift away from it.
+            private string _availableText = StockSize.EffectivelyUnlimitedSheets
+                .ToString(CultureInfo.InvariantCulture);
             private string _usedLabel = string.Empty;
             private string _sourceLabel = string.Empty;
             private string _composition = string.Empty;

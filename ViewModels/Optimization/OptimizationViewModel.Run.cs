@@ -552,8 +552,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// and Available 15 — became ONE rack carrying whichever row happened to be
         /// first, and the other 15 sheets disappeared from the run. The plan then
         /// reported pieces as unplaced, or refused the group outright, against glass
-        /// that was physically standing on the floor. Balances at the same size are
-        /// now summed.
+        /// that was physically standing on the floor. Balances for the SAME
+        /// PHYSICAL GLASS are now summed.
+        ///
+        /// PHASE 9 (safe): the grouping key is size + thickness + colour, not size
+        /// alone. <c>AddStep5Rack</c> de-duplicates on (W, H, composition), so the
+        /// pool can legitimately hold two rows at the same dimensions that are
+        /// DIFFERENT GLASS — a 6mm and an 8mm 3210 × 2250. Keying on size alone
+        /// collapsed those into one rack and, once summed, claimed 20 sheets of a
+        /// glass that only has 10. Finding B3 made racks carry their thickness, so
+        /// the two are now distinguishable and stay apart. This is also the same
+        /// physical identity <see cref="BalanceKey"/> uses for the run ledger, so
+        /// merging and accounting can no longer disagree about what a rack is.
         ///
         /// The unlimited sentinel needs care. 0 means "no limit", not "none left",
         /// so if ANY row at a size is unlimited the merged rack is unlimited —
@@ -561,7 +571,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// operator never typed.
         /// </summary>
         private static List<StockSize> DistinctBySize(List<StockSize> stocks) =>
-            stocks.GroupBy(s => (s.WidthMm, s.HeightMm))
+            stocks.GroupBy(BalanceKey)
                   .Select(g =>
                   {
                       var first = g.First();
@@ -571,8 +581,41 @@ namespace ProGlassAutomation.ViewModels.Optimization
                               ? first
                               : first.WithMaxSheets(StockSize.UnlimitedSheets);
 
-                      int summed = g.Sum(s => s.MaxSheets);
-                      return summed == first.MaxSheets ? first : first.WithMaxSheets(summed);
+                      // PHASE 9 (safe): Available defaults to 99999999 — "no cap,
+                      // usage is tracked". That is a real int rather than the 0
+                      // sentinel, so without this branch the sum below would treat
+                      // a no-limit rack as a very large FINITE one: it would enter
+                      // the run ledger, be deducted sheet by sheet, and fire a
+                      // BALANCE warning on every ordinary run where nobody ever set
+                      // a balance. The largest such row wins instead of being
+                      // summed, because adding to "no limit" means nothing.
+                      int effectivelyUnlimited = 0;
+                      foreach (var st in g)
+                          if (st.MaxSheets >= StockSize.EffectivelyUnlimitedSheets &&
+                              st.MaxSheets > effectivelyUnlimited)
+                              effectivelyUnlimited = st.MaxSheets;
+
+                      if (effectivelyUnlimited > 0)
+                          return first.MaxSheets == effectivelyUnlimited
+                              ? first
+                              : first.WithMaxSheets(effectivelyUnlimited);
+
+                      // PHASE 9 (safe) — accumulate in long and clamp.
+                      //
+                      // The Available field defaults to "99999999" ("effectively
+                      // unlimited — usage is tracked, not capped"), so summing
+                      // duplicates in int overflows at around 22 rows sharing a
+                      // size. An overflowed total goes NEGATIVE, and the packer's
+                      // `sheetsPerStock[i] < stocks[i].MaxSheets` test then fails on
+                      // the very first sheet: the rack would read as exhausted and
+                      // every piece come back unplaced. Clamping to int.MaxValue
+                      // preserves the "effectively unlimited" meaning without
+                      // inventing a cap the operator never typed.
+                      long summed = 0;
+                      foreach (var st in g) summed += st.MaxSheets;
+                      int merged = summed >= int.MaxValue ? int.MaxValue : (int)summed;
+
+                      return merged == first.MaxSheets ? first : first.WithMaxSheets(merged);
                   })
                   .ToList();
 
@@ -601,7 +644,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private static List<(StockSize Stock, string Composition)> ApplyRunBalance(
             List<(StockSize Stock, string Composition)> pool,
-            Dictionary<(int W, int H, int T, string Color), int> ledger,
+            Dictionary<(int W, int H, int T, string Color), long> ledger,
             out bool reduced)
         {
             reduced = false;
@@ -613,7 +656,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 var key = BalanceKey(row.Stock);
 
-                if (!ledger.TryGetValue(key, out int remaining))
+                if (!ledger.TryGetValue(key, out long remaining))
                 {
                     result.Add(row);   // unlimited
                     continue;
@@ -632,7 +675,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 }
 
                 reduced = true;
-                result.Add((row.Stock.WithMaxSheets(remaining), row.Composition));
+                // remaining is strictly below this row's own cap here, and that cap
+                // is a valid int, so the narrowing is in range by construction.
+                result.Add((row.Stock.WithMaxSheets((int)remaining), row.Composition));
             }
 
             return result;
@@ -669,23 +714,31 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // straight through to Step 6 and Step 9.
                 //
                 // Racks any row declares unlimited are left out of the ledger
-                // entirely, so they are never deducted.
-                var balanceLedger = new Dictionary<(int W, int H, int T, string Color), int>();
+                // entirely, so they are never deducted — and that includes the
+                // 99999999 default, which is a finite int the packer honours as an
+                // enormous cap rather than the 0 sentinel. Leaving it in would
+                // report a balance constraint on runs where no balance was set.
+                // Values are long for the same reason DistinctBySize sums in long:
+                // the default Available of 99999999 overflows int when several rows
+                // share a size, and a negative balance reads as exhausted.
+                var balanceLedger = new Dictionary<(int W, int H, int T, string Color), long>();
                 var unlimitedKeys = new HashSet<(int W, int H, int T, string Color)>();
 
                 foreach (var row in stockPool)
-                    if (row.Stock.MaxSheets == StockSize.UnlimitedSheets)
+                    if (row.Stock.MaxSheets == StockSize.UnlimitedSheets ||
+                        row.Stock.MaxSheets >= StockSize.EffectivelyUnlimitedSheets)
                         unlimitedKeys.Add(BalanceKey(row.Stock));
 
                 foreach (var row in stockPool)
                 {
                     var key = BalanceKey(row.Stock);
                     if (unlimitedKeys.Contains(key)) continue;
-                    balanceLedger.TryGetValue(key, out int have);
+                    balanceLedger.TryGetValue(key, out long have);
                     balanceLedger[key] = have + row.Stock.MaxSheets;
                 }
 
                 int balanceConstrainedGroups = 0;
+                var balanceConstrainedNames = new List<string>();
 
                 var runs = new List<GroupRun>();
                 foreach (var (composition, groupPieces) in groups)
@@ -703,7 +756,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // what it started with. See the ledger above.
                     var effectivePool = ApplyRunBalance(stockPool, balanceLedger,
                         out bool poolReduced);
-                    if (poolReduced) balanceConstrainedGroups++;
+                    if (poolReduced)
+                    {
+                        balanceConstrainedGroups++;
+                        if (!balanceConstrainedNames.Contains(composition))
+                            balanceConstrainedNames.Add(composition);
+                    }
 
                     var groupStocks = ResolveGroupStocks(composition, effectivePool,
                         AllowCrossCompositionStock, out string stockNote);
@@ -719,6 +777,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // for as unplaced instead of producing 0 sheets and a
                     // confusing silence. Conservation still holds: input count
                     // equals placed (0) plus unplaced (all).
+                    // PHASE 9 (safe): "no rack for this glass" and "the rack ran
+                    // out earlier in this run" send an operator to two completely
+                    // different places — one to Step 4 to set a sheet size, the
+                    // other to the Sheet Store to top up a balance. Before the
+                    // run-wide ledger existed, both reported as the first, so a
+                    // group starved by an earlier group looked like missing setup
+                    // and the operator would go hunting for a rack that is there.
+                    // Re-resolving against the UNTOUCHED pool answers the question
+                    // exactly: if racks exist there but not in the reduced pool,
+                    // the balance is what ran out.
+                    bool ranOutOfBalance = groupStocks.Count == 0 && poolReduced &&
+                        ResolveGroupStocks(composition, stockPool,
+                            AllowCrossCompositionStock, out _).Count > 0;
+
                     if (groupStocks.Count == 0)
                     {
                         var refused = new OptimizationResult { Rotation = rotation };
@@ -726,6 +798,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             refused.Unplaced.Add(refusedPiece);
                         if (!string.IsNullOrWhiteSpace(stockNote))
                             refused.ScaleNotes.Add(stockNote);
+                        if (ranOutOfBalance)
+                            refused.ScaleNotes.Add(
+                                "BALANCE: the rack(s) for this glass were used up by earlier "
+                                + "cutting groups in this run — top up the balance on STOCKS, "
+                                + "or split the job across two runs.");
                         refused.RecordValidation(Array.Empty<string>(),
                             conservationChecked: true, geometryChecked: true);
 
@@ -739,7 +816,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             UtilizationPct = 0,
                             WasteM2 = 0,
                             UnplacedLabel = groupPieces.Count.ToString(CultureInfo.InvariantCulture),
-                            OracleLabel = "NOT CUT — no rack for this glass",
+                            OracleLabel = ranOutOfBalance
+                                ? "NOT CUT — rack balance exhausted earlier in this run"
+                                : "NOT CUT — no rack for this glass",
                             ProblemCount = 0,
                             ValidationFailed = false,
                             SheetsLabel = "0",
@@ -827,7 +906,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // charges the rack it really used.
                     foreach (var used in result.Sheets.GroupBy(sh => BalanceKey(sh.Stock)))
                     {
-                        if (!balanceLedger.TryGetValue(used.Key, out int have)) continue;
+                        if (!balanceLedger.TryGetValue(used.Key, out long have)) continue;
                         balanceLedger[used.Key] = have - used.Count();
                     }
 
@@ -855,11 +934,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // append-never-replace path into the run header.
                     if (balanceConstrainedGroups > 0)
                     {
-                        int exhausted = balanceLedger.Values.Count(v => v <= 0);
+                        long exhausted = balanceLedger.Values.Count(v => v <= 0);
+
+                        // Naming the groups matters: which one loses scarce glass
+                        // is decided by cutting-list order, so an operator reading
+                        // only a count cannot tell whether the group they care
+                        // about was the one starved.
+                        string named = string.Join(", ", balanceConstrainedNames.Take(4).ToArray())
+                            + (balanceConstrainedNames.Count > 4
+                                ? string.Format(CultureInfo.InvariantCulture,
+                                    " +{0} more", balanceConstrainedNames.Count - 4)
+                                : string.Empty);
+
                         scaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
                             "BALANCE: {0} cutting group(s) ran on a Sheet Store balance already "
-                            + "partly consumed by earlier groups in this run{1}.",
+                            + "partly consumed by earlier groups in this run — {1}{2}. Groups are "
+                            + "served in cutting-list order, so move a group up the list if it "
+                            + "should get first call on a short rack.",
                             balanceConstrainedGroups,
+                            named,
                             exhausted > 0
                                 ? string.Format(CultureInfo.InvariantCulture,
                                     "; {0} rack(s) ran out and were withdrawn from the later groups", exhausted)

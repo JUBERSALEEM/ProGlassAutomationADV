@@ -215,8 +215,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     r.Result, ReconstructInputPieces(r.Result), r.Margins);
                 if (deep.Count > 0)
                 {
+                    string first = deep[0];
+
+                    // PHASE 9 (safe): finding B3 made racks carry their thickness,
+                    // which woke VerifyComprehensive's piece-vs-stock thickness
+                    // check — dormant until then, because every rack reported 0mm
+                    // and the check is guarded by `Stock.ThicknessMm > 0`. The
+                    // common legitimate way to trip it is the cross-composition
+                    // opt-in, so when that setting is on the message says so,
+                    // rather than leaving an operator to work out why a run that
+                    // exported yesterday will not export today.
+                    if (AllowCrossCompositionStock &&
+                        first.IndexOf("does not match stock", StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        first += " SETTINGS ▸ Allow cross-composition stock is ON, which is what let "
+                               + "this group borrow a rack of a different thickness. Turn it off for a "
+                               + "plan you can actually cut.";
+                    }
+
                     problems.Add(string.Format(CultureInfo.InvariantCulture,
-                        "{0}: {1}", r.Composition, deep[0]));
+                        "{0}: {1}", r.Composition, first));
                 }
             }
 

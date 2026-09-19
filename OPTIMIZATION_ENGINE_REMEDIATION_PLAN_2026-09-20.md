@@ -362,3 +362,91 @@ answered silently.
 
 No pinned test references `DistinctBySize`, and the tests that set `MaxSheets` build
 `StockSize` directly and call the packer — unaffected by all three changes.
+
+---
+
+# PHASE 9 (safe) — hardening the balance work
+
+Owner instruction: *"apply balance safely."* Phase 9 as first written applied the
+balance correctly but not safely. Auditing it against the real data the module
+produces found four ways it could hurt. All four are now closed.
+
+### H1 — integer overflow could have marked a full rack as exhausted *(would have been a regression)*
+
+`StockEntryVm._availableText` defaults to **`"99999999"`** — *"effectively
+unlimited — usage is tracked, not capped"*. That is an ordinary `int`, not the `0`
+sentinel, so B1's new `g.Sum(s => s.MaxSheets)` summed it like any other balance.
+At roughly **22 rows sharing a size** the total passes `int.MaxValue` and wraps
+**negative** — and the packer's gate is
+
+```csharp
+.Where(i => sheetsPerStock[i] < stocks[i].MaxSheets || stocks[i].MaxSheets == 0)
+```
+
+A negative cap fails that test on the very first sheet, so the rack would read as
+exhausted and **every piece would come back unplaced**. Summation now accumulates in
+`long` and clamps to `int.MaxValue`, and the run ledger's values are `long` for the
+same reason.
+
+### H2 — the default balance would have fired a BALANCE warning on every ordinary run
+
+Because `99999999` is finite, default racks entered the run ledger, were deducted
+sheet by sheet, and made `poolReduced` true — so a run where **nobody had ever typed
+a balance** would have announced that groups "ran on a balance already partly
+consumed by earlier groups". Pure noise, and exactly the kind of message that trains
+an operator to ignore the real one.
+
+`StockSize.EffectivelyUnlimitedSheets` is now a named constant, tested alongside the
+`0` sentinel everywhere the question "is this rack limited?" is asked — in
+`DistinctBySize`, in the ledger build, and in the VM default that previously
+hard-coded the literal. Three hard-coded copies of the number are now one
+definition.
+
+### H3 — B1 summed balances across *different glass*
+
+`AddStep5Rack` de-duplicates on `(W, H, composition)`, so the pool can legitimately
+hold two rows at the same dimensions that are **different glass** — a 6mm and an 8mm
+3210 × 2250. `DistinctBySize` grouped on size alone, so B1's summing merged them and
+reported 20 sheets of a glass that only has 10.
+
+The grouping key is now size **+ thickness + colour** — the same physical identity
+`BalanceKey` uses for the ledger, so merging and accounting can no longer disagree
+about what a rack is. This only became possible because of B3; before it, every rack
+carried `ThicknessMm = 0` and the two glasses were indistinguishable.
+
+### H4 — a group starved by the ledger reported the wrong reason
+
+The refusal path hard-coded `OracleLabel = "NOT CUT — no rack for this glass"`. With
+a run-wide ledger that is now often false: the rack exists, it is **empty**. The two
+send an operator to different places — Step 4 to set a sheet size, or the Sheet Store
+to top up a balance — and the first sends them hunting for a rack that is standing
+right there.
+
+The refusal re-resolves against the **untouched** pool. If racks exist there but not
+in the reduced pool, the balance is what ran out, and the label says
+`NOT CUT — rack balance exhausted earlier in this run`, with a ScaleNote telling the
+operator to top up the balance or split the job across two runs.
+
+### H5 — which group loses scarce glass is decided by list order, and the note did not say who
+
+The ledger serves groups in cutting-list order, so the first group gets first call on
+a short rack. That is deterministic but arbitrary, and the Phase 9 note reported only
+a count. It now **names the affected groups** (first four, then `+N more`) and states
+the rule outright: *move a group up the list if it should get first call on a short
+rack.* An operator reading a bare count could not tell whether the group they cared
+about was the one starved.
+
+### Verified while hardening, and left alone
+
+* **Both stages enforce the balance.** `SheetLayout` is constructed in exactly three
+  places — `GuillotinePacker.OpenNewSheet`, `Advanced`, and `Smart` — and each has
+  its own `MaxSheets` gate. QUICK reaches `OpenNewSheet` through `RunPass`; OPTIMIZE
+  reaches it directly. `Smart` is the unreachable file from finding 21. There is no
+  live sheet-creation path that ignores the balance.
+* **`ProductionOptimizationBridge`** does `MaxSheets = gs.Balance` with no zero
+  guard, which reads like the same bug, but its query filters
+  `.Where(g => g.Balance > 0)` so a zero balance cannot reach it. No patch.
+* **Precedence when a size mixes sentinels:** a real `0` (unlimited) row beats a
+  `99999999` row, which beats a finite cap. Unlimited wins rather than being summed,
+  because adding to "no limit" is meaningless — the same rule B1 already applied to
+  the `0` sentinel, now extended consistently.

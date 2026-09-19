@@ -221,6 +221,21 @@ namespace ProGlassAutomation.Services.Optimization
         public const int UnlimitedSheets = 0;
 
         /// <summary>
+        /// The value the STOCKS <em>Available</em> field defaults to — a very large
+        /// finite number meaning "no cap; usage is tracked, not limited".
+        ///
+        /// PHASE 9 (safe): this is NOT the same thing as
+        /// <see cref="UnlimitedSheets"/>. 0 is the sentinel the three packer
+        /// strategies special-case; 99999999 is an ordinary int they honour as a
+        /// genuinely enormous cap. Any code asking "is this rack limited?" has to
+        /// test BOTH, or a rack nobody set a balance on gets counted, deducted and
+        /// reported as though an operator had typed a number into it. Named here so
+        /// the places that used to hard-code the literal — StockEntryVm's default,
+        /// the session DTO and its restore — share one definition.
+        /// </summary>
+        public const int EffectivelyUnlimitedSheets = 99999999;
+
+        /// <summary>
         /// Returns a copy of this rack carrying a different Sheet Store balance.
         /// Every property here is <c>init</c>, so re-pricing a rack part-way
         /// through a run means making a new one rather than mutating the instance
