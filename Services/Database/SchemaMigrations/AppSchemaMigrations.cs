@@ -469,7 +469,31 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
         // statements.db
         public static IReadOnlyList<SchemaMigration> Statements { get; }
-            = new List<SchemaMigration>();
+            = new List<SchemaMigration>
+            {
+                // Unique StatementNumber is in OnModelCreating (fresh EnsureCreated).
+                // Existing field DBs never received it via additive migration.
+                new(1003, "Statement: unique StatementNumber index", connection =>
+                {
+                    try
+                    {
+                        SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                            "CREATE UNIQUE INDEX IF NOT EXISTS IX_Statements_StatementNumber ON Statements(StatementNumber);");
+                    }
+                    catch (SqliteException ex)
+                    {
+                        AppLogService.Warning(
+                            "[Statements] unique StatementNumber index not applied: " +
+                            ex.Message,
+                            new LogContext
+                            {
+                                Module = "Database",
+                                Class = "SchemaMigrations",
+                                Operation = "StatementNumberUniqueIndex"
+                            });
+                    }
+                })
+            };
 
         // aimemory.db
         public static IReadOnlyList<SchemaMigration> AiMemory { get; }
