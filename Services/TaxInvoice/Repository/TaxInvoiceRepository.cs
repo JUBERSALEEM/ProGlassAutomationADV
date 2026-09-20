@@ -226,9 +226,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             if (members.Count == 0)
                 return new InvoiceFamilySummary { ProformaId = proformaId };
 
-            var issuedStatuses = new[] { "Issued", "Paid", "PartiallyPaid" };
             var issuedMembers = members
-                .Where(m => issuedStatuses.Contains(m.Status, StringComparer.OrdinalIgnoreCase))
+                .Where(m => ProGlassAutomation.Models.TaxInvoice.Common
+                    .TaxInvoiceStatus.TaxInvoiceStatusValues.HasBeenIssued(m.Status))
                 .ToList();
 
             return new InvoiceFamilySummary
@@ -267,15 +267,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             if (letters.Count == 0) return "A";
 
-            var validLetters = letters
-                .Where(l => l.Length == 1 && l[0] >= 'A' && l[0] <= 'Z')
-                .OrderBy(l => l)
-                .ToList();
+            var used = new HashSet<string>(
+                letters.Where(l => l.Length == 1 && l[0] >= 'A' && l[0] <= 'Z'),
+                StringComparer.OrdinalIgnoreCase);
 
-            if (validLetters.Count == 0) return "A";
+            for (char c = 'A'; c <= 'Z'; c++)
+            {
+                string letter = c.ToString();
+                if (!used.Contains(letter)) return letter;
+            }
 
-            char last = validLetters.Last()[0];
-            return last < 'Z' ? ((char)(last + 1)).ToString() : "A";
+            throw new InvalidOperationException(
+                "No free sequence letter A–Z remains for proforma '" +
+                proformaId + "'.");
         }
 
         public async Task<string> BuildInvoiceNumberAsync(string proformaId, string sequenceLetter = "")
@@ -296,15 +300,97 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         {
             OperationGuard.Demand(AppPermissions.TaxInvoiceEdit, "create a tax invoice");
             ReadOnlyGate.Demand("create a tax invoice");
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
             ThrowIfInvalid(TaxInvoiceValidationService.ValidateSave(entity));
 
-            using var ctx = new TaxInvoiceDbContext();
-            entity.CreatedAt = DateTime.Now;
-            entity.UpdatedAt = DateTime.Now;
-            ctx.TaxInvoices.Add(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
-            DocumentLifecycle.Raise();
-            return entity;
+            bool idReallocated = false;
+            for (int attempt = 0; attempt < 5; attempt++)
+            {
+                await using var ctx = new TaxInvoiceDbContext();
+
+                bool exists = await ctx.TaxInvoices
+                    .AnyAsync(x => x.InvoiceNumber == entity.InvoiceNumber)
+                    .ConfigureAwait(false);
+                if (exists)
+                {
+                    await ReallocateInvoiceNumberAsync(entity).ConfigureAwait(false);
+                    idReallocated = true;
+                    continue;
+                }
+
+                if (idReallocated)
+                    SyncSnapshotInvoiceNumber(entity);
+
+                entity.CreatedAt = DateTime.Now;
+                entity.UpdatedAt = DateTime.Now;
+                ctx.TaxInvoices.Add(entity);
+                try
+                {
+                    await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+                }
+                catch (DbUpdateException ex)
+                    when (SqliteErrorClassifier.IsUnique(ex) && attempt < 4)
+                {
+                    ctx.Entry(entity).State = EntityState.Detached;
+                    if (entity.Items != null)
+                    {
+                        foreach (var item in entity.Items)
+                            ctx.Entry(item).State = EntityState.Detached;
+                    }
+                    await ReallocateInvoiceNumberAsync(entity).ConfigureAwait(false);
+                    entity.Id = 0;
+                    idReallocated = true;
+                    continue;
+                }
+
+                DocumentLifecycle.Raise();
+                return entity;
+            }
+
+            throw new InvalidOperationException(
+                "Could not allocate a free InvoiceNumber after 5 retries " +
+                $"starting from '{entity.InvoiceNumber}'.");
+        }
+
+        private async Task ReallocateInvoiceNumberAsync(SavedTaxInvoice entity)
+        {
+            entity.SequenceNumber = Math.Max(1, entity.SequenceNumber) + 1;
+            string letter = await GetNextSequenceLetterAsync(entity.ProformaId)
+                .ConfigureAwait(false);
+            entity.SequenceLetter = letter;
+            entity.InvoiceType = string.IsNullOrWhiteSpace(letter) ? "Full" : "Partial";
+            entity.InvoiceNumber = await BuildInvoiceNumberAsync(
+                entity.ProformaId, letter).ConfigureAwait(false);
+            if (entity.Items == null) return;
+            foreach (var item in entity.Items)
+            {
+                item.InvoiceNumber = entity.InvoiceNumber;
+                item.Id = 0;
+            }
+        }
+
+        private static void SyncSnapshotInvoiceNumber(SavedTaxInvoice entity)
+        {
+            try
+            {
+                var snap = TaxInvoiceMapper.DeserializeSnapshot(entity);
+                if (snap?.Header == null) return;
+                if (string.Equals(snap.Header.InvoiceNumber, entity.InvoiceNumber,
+                        StringComparison.Ordinal))
+                    return;
+                snap.Header.InvoiceNumber = entity.InvoiceNumber;
+                snap.Header.SequenceLetter = entity.SequenceLetter;
+                snap.Header.SequenceNumber = entity.SequenceNumber;
+                snap.Header.InvoiceType = entity.InvoiceType;
+                entity.FullSnapshotJson = JsonSerializer.Serialize(snap);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not sync TI snapshot InvoiceNumber after reallocation: " +
+                    ex.Message);
+            }
         }
 
         public async Task UpdateAsync(SavedTaxInvoice entity)
@@ -445,7 +531,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             }
             catch (Exception ex)
             {
-                AppLogService.Debug("[TaxInvoiceRepository] Linked-DN badge cleanup failed: " + ex.Message);
+                AppLogService.Warning("[TaxInvoiceRepository] Linked-DN badge cleanup failed: " + ex.Message);
             }
         }
 
