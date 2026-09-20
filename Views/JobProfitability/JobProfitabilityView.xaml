@@ -69,18 +69,18 @@
                                 Margin="0,0,8,0">
                             <TextBlock Text="&#xE9D9;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBodyLarge}"
+                                       FontSize="{DynamicResource FontSize.Title}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
                         <TextBlock Grid.Column="1" Text="{Binding Title}"
-                                   FontSize="{StaticResource TextTitle}"
+                                   FontSize="{DynamicResource FontSize.H2}"
                                    FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="2" Text="{Binding Subtitle}"
-                                   FontSize="{StaticResource TextCaption}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
                                    TextTrimming="CharacterEllipsis"
                                    VerticalAlignment="Center"
@@ -155,7 +155,7 @@
                 <TabItem Style="{StaticResource PillTabItemStyle}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="JOB PROFITABILITY" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -190,7 +190,7 @@
                                         ToolTip="Base-price required target (DGU formula × uplift). A U-insert covered by the given price or billed separately in Step 6 is shown as information and is never added to the target. Click a row to see that PI's own required target.">
                                     <StackPanel>
                                         <TextBlock Text="REQUIRED TARGET VALUE"/>
-                                        <TextBlock Text="{Binding TopRequiredTargetValueDisplay}" FontSize="{StaticResource TextHeadline}"
+                                        <TextBlock Text="{Binding TopRequiredTargetValueDisplay}" FontSize="{DynamicResource FontSize.H1}"
                                                   />
                                         <TextBlock Text="{Binding TopRequiredTargetScope}"/>
                                     </StackPanel>
@@ -201,7 +201,7 @@
                                         ToolTip="The company base expected profit margin every PI's achieved margin is judged against (Settings > Features > Proforma Invoice > Step 9).">
                                     <StackPanel>
                                         <TextBlock Text="EXPECTED PROFIT MARGIN"/>
-                                        <TextBlock Text="{Binding BaseExpectedMarginDisplay}" FontSize="{StaticResource TextHeadline}"
+                                        <TextBlock Text="{Binding BaseExpectedMarginDisplay}" FontSize="{DynamicResource FontSize.H1}"
                                                   />
                                         <TextBlock>
                                             <Run Text="Uplift "/><Run Text="{Binding BaseExpectedMarginFactorLabel, Mode=OneWay}"/>
@@ -253,12 +253,12 @@
                                                     </Style>
                                                 </Border.Style>
                                                 <TextBlock Text="{Binding TopTargetStatusLabel}"
-                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                                            FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                             </Border>
                                         </Grid>
-                                        <TextBlock Text="{Binding TopTargetMarginDisplay}" FontSize="{StaticResource TextHeadline}">
+                                        <TextBlock Text="{Binding TopTargetMarginDisplay}" FontSize="{DynamicResource FontSize.H1}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
                                                     <Style.Triggers>
@@ -293,7 +293,7 @@
                                     </Border.Style>
                                     <StackPanel>
                                         <TextBlock Text="OVERALL MARGIN"/>
-                                        <TextBlock Text="{Binding TopOverallMarginDisplay}" FontSize="{StaticResource TextHeadline}">
+                                        <TextBlock Text="{Binding TopOverallMarginDisplay}" FontSize="{DynamicResource FontSize.H1}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
                                                     <Style.Triggers>
@@ -305,7 +305,7 @@
                                             </TextBlock.Style>
                                         </TextBlock>
                                         <TextBlock Text="{Binding TopOverallVerdict}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    FontWeight="{DynamicResource Weight.Bold}"
                                                    Margin="0,5,0,0"
                                                    TextWrapping="Wrap">
@@ -334,7 +334,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="{Binding TopScopeSummary}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            TextWrapping="Wrap"
                                            VerticalAlignment="Center"/>
@@ -363,28 +363,28 @@
                                 <Border Style="{StaticResource JpChipStyle}" Margin="0,0,4,0">
                                     <StackPanel>
                                         <TextBlock Text="CONFIRMED JOBS"/>
-                                        <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
+                                        <TextBlock Text="{Binding ConfirmedJobCountDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="REQUIRED TARGET"/>
-                                        <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
+                                        <TextBlock Text="{Binding TargetTotalRequiredValueDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="STEP 5 GIVEN VALUE"/>
-                                        <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}"
+                                        <TextBlock Text="{Binding TargetTotalGivenValueDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0">
                                     <StackPanel>
                                         <TextBlock Text="TOTAL DIFFERENCE"/>
-                                        <TextBlock Text="{Binding TargetTotalDifferenceValueDisplay}" FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}">
+                                        <TextBlock Text="{Binding TargetTotalDifferenceValueDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -404,7 +404,7 @@
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0,0,0">
                                     <StackPanel>
                                         <TextBlock Text="VALID · INCOMPLETE · STALE" Style="{StaticResource Field.Label}" TextWrapping="Wrap"/>
-                                        <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}">
+                                        <TextBlock FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}">
                                             <Run Text="{Binding ValidTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
                                             <Run Text="{Binding IncompleteTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
                                             <Run Text="{Binding StaleTargetJobCountDisplay, Mode=OneWay}"/>
@@ -414,7 +414,7 @@
                             </UniformGrid>
 
                             <TextBlock Text="{Binding TargetDataBasisNote}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                        TextWrapping="Wrap" Margin="2,8,0,0"/>
 
@@ -572,7 +572,7 @@
                                                                                MaxWidth="340"
                                                                                TextTrimming="CharacterEllipsis"/>
                                                                     <TextBlock Text="{Binding ProjectName}"
-                                                                               FontSize="{StaticResource TextCaption}"
+                                                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                                                Foreground="{DynamicResource TextTertiaryBrush}"
                                                                                MaxWidth="340"
                                                                                TextTrimming="CharacterEllipsis"
@@ -653,7 +653,7 @@
                                                                         </Style>
                                                                     </Border.Style>
                                                                     <TextBlock Text="{Binding TargetStatusLabel}"
-                                                                               FontSize="{StaticResource TextCaption}"
+                                                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                                                FontWeight="{DynamicResource Weight.Bold}"
                                                                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                                                 </Border>
@@ -673,17 +673,17 @@
                                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
                                             <TextBlock Text="&#xE9D9;"
                                                        FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="{StaticResource TextDisplay}"
+                                                       FontSize="{DynamicResource FontSize.Kpi}"
                                                        HorizontalAlignment="Center"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                                        Margin="0,0,0,12"/>
                                             <TextBlock Text="{DynamicResource JobProfitability.NoJobsShow}"
-                                                       FontSize="{StaticResource TextSection}"
+                                                       FontSize="{DynamicResource FontSize.H3}"
                                                        FontWeight="{DynamicResource Weight.SemiBold}"
                                                        HorizontalAlignment="Center"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             <TextBlock Text="{DynamicResource JobProfitability.NoSavedProformaMarkedPIConfirmedYetConfirm}"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
                                                        HorizontalAlignment="Center"
                                                        Margin="0,4,0,0"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -700,7 +700,7 @@
                          DataContext="{Binding PortfolioServiceProfitability}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                            <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="SERVICE DETAIL" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -713,7 +713,7 @@
                          DataContext="{Binding PortfolioWastageAnalysis}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                            <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="SHEET / WASTAGE DETAIL" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -726,7 +726,7 @@
                          DataContext="{Binding PortfolioGlassTypeComparison}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                            <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="GLASS / SPEC COMPARISON" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -741,7 +741,7 @@
                     Margin="20,8,20,14"
                     Padding="4,0">
                 <TextBlock Text="{Binding StatusMessage}"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource TextTertiaryBrush}"/>
             </Border>
@@ -786,7 +786,7 @@
                             Cursor="Hand"
                             ToolTip="Return to the confirmed-jobs list."/>
                     <TextBlock Grid.Column="1"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                TextWrapping="Wrap"
                                VerticalAlignment="Center"

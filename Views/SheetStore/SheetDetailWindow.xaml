@@ -492,7 +492,7 @@
                                          Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="{DynamicResource Weight.Bold}"
+                                         FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                                          TextAlignment="Center" Height="54"
                                          VerticalContentAlignment="Center"
                                          Background="{DynamicResource DialogInsetBrush}"
@@ -611,7 +611,7 @@
                             Visibility="{Binding HasError,
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap"
-                                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
 
@@ -633,7 +633,7 @@
                                          Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
                                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                         FontSize="{StaticResource TextDisplayLarge}" FontWeight="{DynamicResource Weight.Bold}"
+                                         FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                                          TextAlignment="Center" Height="54"
                                          VerticalContentAlignment="Center"
                                          Background="{DynamicResource DialogInsetBrush}"
@@ -745,7 +745,7 @@
                 <StackPanel DataContext="{Binding Editor}">
 
                     <TextBlock TextWrapping="Wrap" Margin="2,0,0,16"
-                               FontSize="{StaticResource TextBody}"
+                               FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Text="Every field is editable straight away — there is no edit mode to enter. Save stays disabled until all entries are valid."/>
 
@@ -900,7 +900,7 @@
                         <TextBlock Text="{Binding ValidationSummary}"
                                    VerticalAlignment="Center" Margin="0,0,16,0"
                                    TextWrapping="Wrap" MaxWidth="520"
-                                   FontSize="{StaticResource TextCaption}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                    FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource DangerBrush}"
                                    Visibility="{Binding HasValidationSummary,
@@ -930,7 +930,7 @@
 
                 <TextBlock Text="Loading movements…"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -946,7 +946,7 @@
 
                 <TextBlock Text="No movements recorded for this sheet yet."
                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                           FontSize="{StaticResource TextBody}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -1056,7 +1056,7 @@
 
                                         <TextBlock Grid.Column="0" VerticalAlignment="Center"
                                                    Text="{Binding Timestamp, StringFormat={}{0:dd MMM yyyy  HH:mm}}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                                         <!-- Action colour comes from the model's
@@ -1076,33 +1076,33 @@
                                                     Converter={StaticResource ColorStringConverter}}"/>
                                             </Border.Background>
                                             <TextBlock Text="{Binding Action}"
-                                                       FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                         </Border>
 
                                         <TextBlock Grid.Column="2" VerticalAlignment="Center"
                                                    HorizontalAlignment="Center"
                                                    Text="{Binding QuantityChanged}"
-                                                   FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <TextBlock Grid.Column="3" VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"
                                                    Text="{Binding ValueChanged, StringFormat={}{0:N2}}"
-                                                   FontSize="{StaticResource TextBody}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
 
                                         <TextBlock Grid.Column="5" VerticalAlignment="Center"
                                                    Text="{Binding Details}"
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip="{Binding Details}"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                                         <TextBlock Grid.Column="6" VerticalAlignment="Center"
                                                    Text="{Binding UserName}"
                                                    TextTrimming="CharacterEllipsis"
-                                                   FontSize="{StaticResource TextCaption}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     </Grid>
                                 </DataTemplate>
@@ -1160,13 +1160,13 @@
                         <StackPanel>
                             <TextBlock Text="MARGIN" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding MarginDisplay}"
-                                       FontSize="{StaticResource TextDisplayLarge}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"/>
                             <!-- "No cost basis" rather than a fake 0%: sheets
                                  are routinely entered before a purchase price
                                  is known, and 0% would read as a real loss. -->
                             <TextBlock TextWrapping="Wrap" Margin="0,8,0,0"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Text="Margin on the remaining balance, measured against its purchase cost.">
                                 <TextBlock.Style>
@@ -1187,10 +1187,10 @@
                         <StackPanel>
                             <TextBlock Text="CONSUMPTION" Style="{StaticResource StatLabel}" Margin="0,0,0,10"/>
                             <TextBlock Text="{Binding ConsumptionPercent, StringFormat={}{0:N1}% of stock used}"
-                                       FontSize="{StaticResource TextTitle}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding UsedValueAtCost, StringFormat=Used stock at cost: {0:N2} AED}"
-                                       FontSize="{StaticResource TextBody}" Margin="0,8,0,0"
+                                       FontSize="{DynamicResource FontSize.Body}" Margin="0,8,0,0"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
                     </Border>

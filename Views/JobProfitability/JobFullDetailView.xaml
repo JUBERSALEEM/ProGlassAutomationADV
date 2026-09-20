@@ -53,16 +53,16 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="{Binding ProformaId}"
-                                   FontSize="{StaticResource TextSection}" FontWeight="{DynamicResource Weight.Bold}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    TextWrapping="Wrap" Margin="0,2,0,0">
                             <Run Text="{Binding CustomerName, Mode=OneWay}"/>
                             <Run Text=" · "/>
                             <Run Text="{Binding ProjectName, Mode=OneWay}"/>
                         </TextBlock>
-                        <TextBlock FontSize="{StaticResource TextCaption}"
+                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Opacity="0.85" TextWrapping="Wrap" Margin="0,2,0,0">
                             <Run Text="{Binding CompanyName, Mode=OneWay}"/>
@@ -276,13 +276,13 @@
 
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Spec target ×1.15"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SpecificationTargetPerSqmDisplay}"
-                                           FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Right" Margin="10,3,0,3"/>
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert (target)"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
-                                           FontSize="{StaticResource TextCaption}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Right" Margin="10,3,0,3"/>
 
@@ -307,11 +307,11 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="MARGIN AGAINST TARGET"
-                                           FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="{Binding TargetMarginDisplay}"
-                                           FontSize="{StaticResource TextSection}" FontWeight="{DynamicResource Weight.Bold}">
+                                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -332,7 +332,7 @@
                             </Grid>
 
                             <TextBlock Text="{Binding UInsertTreatmentSummary}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                        TextWrapping="Wrap" Margin="0,6,0,0"/>
 
@@ -351,17 +351,17 @@
                                                     </Grid.ColumnDefinitions>
                                                     <Border Grid.Column="0" Width="22" Height="22" CornerRadius="{DynamicResource Radius.Medium}"
                                                             Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
-                                                        <TextBlock Text="{Binding SpecNumber}" FontSize="{StaticResource TextXSmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                        <TextBlock Text="{Binding SpecNumber}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                     </Border>
                                                     <TextBlock Grid.Column="1" Text="{Binding SpecName}"
-                                                               FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="8,0,8,0"
                                                                VerticalAlignment="Center"/>
                                                     <TextBlock Grid.Column="2" Text="{Binding StatusLabel}"
-                                                               FontSize="{StaticResource TextXSmall}" FontWeight="{DynamicResource Weight.Bold}">
+                                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -405,7 +405,7 @@
                                                 </Grid>
 
                                                 <TextBlock Text="{Binding UInsertNote}"
-                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                                            TextWrapping="Wrap" Margin="30,4,0,0"/>
                                             </StackPanel>
@@ -419,7 +419,7 @@
                     <!-- Target note when data missing -->
                     <TextBlock Text="{Binding TargetStatusMessage}"
                                Visibility="{Binding HasTargetData, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                               FontSize="{StaticResource TextCaption}"
+                               FontSize="{DynamicResource FontSize.BodySmall}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
                                TextWrapping="Wrap" Margin="0,4,0,0"/>
                 </StackPanel>
@@ -454,11 +454,11 @@
                                     Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="NET REVENUE (ex-VAT)"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding NetRevenueDisplay}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        HorizontalAlignment="Right" Margin="10,3,0,3"/>
                         </Grid>
@@ -489,11 +489,11 @@
                                     Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="TOTAL COST"
-                                       FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TotalCostDisplay}"
-                                       FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        HorizontalAlignment="Right" Margin="10,3,0,3"/>
                         </Grid>
@@ -510,14 +510,14 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Cost-Based (no U-insert)"
-                                               FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="(Revenue − Base Cost) ÷ Base Cost"
-                                               FontSize="{StaticResource TextCaption}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="{Binding MarginDisplay}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                             </Grid>
@@ -530,16 +530,16 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
+                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}">
                                         <Run Text="&#x2B50; Overall (with U-insert)"/>
                                     </TextBlock>
                                     <TextBlock Text="(Revenue − Total Cost) ÷ Total Cost"
-                                               FontSize="{StaticResource TextCaption}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="{Binding OverallMarginDisplay}"
-                                           FontSize="{StaticResource TextTitle}" FontWeight="{DynamicResource Weight.Bold}" VerticalAlignment="Center">
+                                           FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -562,14 +562,14 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="Net (accounting)"
-                                               FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="(Revenue − Total Cost) ÷ Revenue"
-                                               FontSize="{StaticResource TextCaption}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                                 </StackPanel>
                                 <TextBlock Grid.Column="1" Text="{Binding NetMarginDisplay}"
-                                           FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                             </Grid>
@@ -625,14 +625,14 @@
 
                                         <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
                                             <TextBlock Text="{Binding KindIcon}"
-                                                       FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
+                                                       FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Title}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"/>
                                             <StackPanel Margin="6,0,0,0">
                                                 <TextBlock Text="{Binding Description}"
                                                            Style="{StaticResource FullCell}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                                 <TextBlock Text="{Binding CalculationNote}"
-                                                           FontSize="{StaticResource TextCaption}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                                            TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
@@ -657,7 +657,7 @@
 
             <!-- Status -->
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="{StaticResource TextCaption}"
+                       FontSize="{DynamicResource FontSize.BodySmall}"
                        Foreground="{DynamicResource TextTertiaryBrush}"
                        TextWrapping="Wrap" Margin="0,10,0,0"/>
         </StackPanel>
