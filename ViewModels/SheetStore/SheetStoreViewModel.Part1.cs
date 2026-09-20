@@ -470,6 +470,19 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             IEnumerable<GlassSheet> filtered = result;
 
+            // SearchAsync already applied these, but the catch fallback
+            // returns the unfiltered in-memory set. Re-apply here so a
+            // SQL failure cannot show every sheet (and every total)
+            // while the dropdowns still say a filter is active.
+            if (SelectedCategory != ALL)
+                filtered = filtered.Where(g => g.Category == SelectedCategory);
+            if (SelectedColor != ALL)
+                filtered = filtered.Where(g => g.Color == SelectedColor);
+            if (SelectedSupplier != ALL)
+                filtered = filtered.Where(g => g.Supplier == SelectedSupplier);
+            if (thicknessMm.HasValue)
+                filtered = filtered.Where(g => g.ThicknessMm == thicknessMm.Value);
+
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 var q = SearchText.Trim().ToLower();
