@@ -158,6 +158,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             public bool IsPane => Kind == "Pane";
 
+            public string JobOrderId { get; set; } = string.Empty;
+            public string ProformaId { get; set; } = string.Empty;
+            public int SpecGroupNumber { get; set; }
+            public string Color { get; set; } = string.Empty;
+            public int ThicknessMm { get; set; }
+            public string Processing { get; set; } = string.Empty;
+            public string MaterialKey { get; set; } = string.Empty;
+
             public List<(string Glass, string Label, int W, int H, int Qty)> Pieces { get; } = new();
 
             public bool IsSelected
@@ -529,6 +537,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                         : o.Composition);
                             }
 
+                            string ComposeForPosition(string position)
+                            {
+                                var o = occurrences.FirstOrDefault(x =>
+                                    string.Equals(x.Position, position, StringComparison.OrdinalIgnoreCase));
+                                if (o == null) return string.Empty;
+                                return CompositionKey.Normalize(
+                                    string.IsNullOrWhiteSpace(o.Composition)
+                                        ? (group.SelectedSpecName ?? string.Empty)
+                                        : o.Composition);
+                            }
+
                             if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
                                 opt.Step4Sheets.Add((group.OuterSheetWidthMm, group.OuterSheetHeightMm,
                                     ComposeForSlot(PaneSlot.Pane1),
@@ -540,6 +559,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                     ComposeForSlot(PaneSlot.Pane2),
                                     "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner",
                                     group.InnerSheetPricePerSqm, group.GroupNumber, "Inner"));
+
+                            if (group.ThirdSheetWidthMm > 0 && group.ThirdSheetHeightMm > 0)
+                                opt.Step4Sheets.Add((group.ThirdSheetWidthMm, group.ThirdSheetHeightMm,
+                                    ComposeForPosition("Lam Inner"),
+                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " lam inner",
+                                    group.ThirdSheetPricePerSqm, group.GroupNumber, "LamInner"));
                         }
                     }
 
@@ -1000,9 +1025,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         continue;
                     }
 
-                    string matKey = !string.IsNullOrWhiteSpace(layer.MaterialKey)
-                        ? layer.MaterialKey
-                        : CompositionKey.Normalize(glass);
+                    // Never invent a material key from composition text.
+                    string identityKey = layer.MaterialKey ?? string.Empty;
+                    string matKey = !string.IsNullOrWhiteSpace(identityKey)
+                        ? identityKey
+                        : "UNRESOLVED|" + (layer.JobOrderId ?? string.Empty) + "|"
+                          + layer.SpecGroupNumber.ToString(CultureInfo.InvariantCulture) + "|"
+                          + (layer.Position ?? string.Empty);
                     string posKey = (layer.Position ?? string.Empty).Trim().ToLowerInvariant();
                     string jobId = layer.JobOrderId ?? string.Empty;
                     var key = (jobId, matKey, w, h, posKey);

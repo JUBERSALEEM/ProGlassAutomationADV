@@ -150,13 +150,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int racksAdded = 0;
             var rackSeen = new HashSet<(int W, int H, string C)>();
 
-            // PHASE 10: parsed once here rather than down in the Sheet Store
-            // fallback, because the balance lookup for a Step 4 rack needs the
-            // thickness too — without it a 6mm and an 8mm rack at the same
-            // dimensions are the same row as far as inventory is concerned.
-            int glassThicknessMm =
-                Services.ProformaInvoice.SheetStorePricingService.ParseMm(ThicknessText);
-
             // How many racks ended up carrying a real inventory count rather than
             // the "effectively unlimited" default. Announced below; applying a
             // balance silently is how an operator ends up with a refused group and
@@ -357,25 +350,31 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (group.ThirdSheetWidthMm > 0 && group.ThirdSheetHeightMm > 0)
                 {
                     string thirdComp = ComposeForPosition("Lam Inner");
-                    if (string.IsNullOrWhiteSpace(thirdComp))
-                        thirdComp = ComposeForSlot(PaneSlot.Pane2);
-                    int? thirdBalance = LookupStoreBalance(
-                        string.IsNullOrWhiteSpace(group.ThirdGlassColor)
-                            ? group.InnerGlassColor
-                            : group.ThirdGlassColor,
-                        glassThicknessMm, group.ThirdSheetWidthMm, group.ThirdSheetHeightMm);
+                    var thirdOcc = occurrences.FirstOrDefault(x =>
+                        string.Equals(x.Position, "Lam Inner", StringComparison.OrdinalIgnoreCase));
+                    // Independent of SETTINGS and of the other two panes.
+                    int thirdThk = OptimizationMaterialIdentity.DguLamThirdRackThicknessMm(
+                        thirdOcc != null ? thirdOcc.ThicknessMm : 0);
+                    string thirdColor = !string.IsNullOrWhiteSpace(group.ThirdGlassColor)
+                        ? group.ThirdGlassColor
+                        : (thirdOcc?.Pane?.Color ?? string.Empty);
+                    string thirdKey = OptimizationMaterialIdentity.BuildKey(
+                        string.Empty, thirdColor, thirdThk, thirdOcc?.Treatment, string.Empty);
+                    int? thirdBalance = thirdThk > 0 && !string.IsNullOrWhiteSpace(thirdColor)
+                        ? LookupStoreBalance(thirdColor, thirdThk,
+                            group.ThirdSheetWidthMm, group.ThirdSheetHeightMm)
+                        : null;
                     if (thirdBalance.HasValue) balancesApplied++;
                     racksAdded += AddStep5Rack(rackSeen, newStocks,
                         group.ThirdSheetWidthMm, group.ThirdSheetHeightMm,
                         thirdComp,
                         specLabel + " lam inner", group.ThirdSheetPricePerSqm,
-                        group.GroupNumber, "LamInner", thirdBalance);
+                        group.GroupNumber, "LamInner", thirdBalance,
+                        thirdColor, thirdThk, thirdKey);
                     rackedKeys.Add(compKey(group.GroupNumber, thirdComp));
                     CrossCheckStep4Sheet(group.GroupNumber, "lam inner",
-                        string.IsNullOrWhiteSpace(group.ThirdGlassColor)
-                            ? group.InnerGlassColor
-                            : group.ThirdGlassColor,
-                        group.ThirdSheetWidthMm, group.ThirdSheetHeightMm, sheetNotes);
+                        thirdColor,
+                        group.ThirdSheetWidthMm, group.ThirdSheetHeightMm, sheetNotes, thirdThk);
                 }
             }
 

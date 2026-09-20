@@ -96,6 +96,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public bool IsUsedInRun { get; set; } = true;
             public int SpecNumber { get; set; }
             public string Side { get; set; } = string.Empty;
+            public string Color { get; set; } = string.Empty;
+            public int ThicknessMm { get; set; }
+            public string MaterialKey { get; set; } = string.Empty;
+            public string SheetStoreSku { get; set; } = string.Empty;
+            public decimal PricePerSqm { get; set; }
         }
 
         /// <summary>
@@ -425,18 +430,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             var pieces = Pieces
                 .Where(p => p.TryParse(out _, out _, out _))
-                .Select(p => new PieceDto
-                {
-                    GlassRef = p.GlassRef ?? string.Empty,
-                    PieceLabel = p.PieceLabel ?? string.Empty,
-                    Position = p.Position ?? string.Empty,
-                    W = p.WidthText,
-                    H = p.HeightText,
-                    Qty = p.QtyText,
-                    // A rotation lock that does not survive save-and-load silently
-                    // rotates glass the operator locked (finding 8e).
-                    RotationLocked = p.RotationLocked
-                })
+                .Select(p => ToPieceRecord(p))
                 .ToList();
 
             var stocks = Stocks
@@ -449,7 +443,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     Available = s.AvailableText,
                     IsUsedInRun = s.IsUsedInRun,
                     SpecNumber = s.SpecNumber,
-                    Side = s.Side ?? string.Empty
+                    Side = s.Side ?? string.Empty,
+                    Color = s.Color ?? string.Empty,
+                    ThicknessMm = s.ThicknessMm,
+                    MaterialKey = s.MaterialKey ?? string.Empty,
+                    SheetStoreSku = s.SheetStoreSku ?? string.Empty,
+                    PricePerSqm = s.PricePerSqm
                 })
                 .ToList();
 
@@ -491,10 +490,46 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 UtilizationPct = util,
                 MarginsJson = JsonSerializer.Serialize(margins),
                 StocksJson = JsonSerializer.Serialize(stocks),
-                PiecesJson = JsonSerializer.Serialize(pieces),
+                PiecesJson = OptimizationSessionIdentity.Serialize(new OptimizationSessionPiecesPayload
+                {
+                    IdentityVersion = OptimizationSessionIdentity.CurrentIdentityVersion,
+                    RunId = _lastRunId ?? string.Empty,
+                    InputFingerprint = OptimizationSessionIdentity.FingerprintRows(pieces),
+                    DocumentKey = DocumentKey ?? string.Empty,
+                    Pieces = pieces
+                }),
                 ResultJson = JsonSerializer.Serialize(resultRows)
             };
         }
+
+        private static OptimizationSessionPieceRecord ToPieceRecord(PieceEntryVm p) => new()
+        {
+            GlassRef = p.GlassRef ?? string.Empty,
+            PieceLabel = p.PieceLabel ?? string.Empty,
+            Position = p.Position ?? string.Empty,
+            W = p.WidthText,
+            H = p.HeightText,
+            Qty = p.QtyText,
+            RotationLocked = p.RotationLocked,
+            ProformaId = p.ProformaId ?? string.Empty,
+            JobOrderId = p.JobOrderId ?? string.Empty,
+            SpecGroupNumber = p.SpecGroupNumber,
+            SourceRowSerial = p.SourceRowSerial,
+            GlassType = p.GlassType ?? string.Empty,
+            Color = p.Color ?? string.Empty,
+            ThicknessMm = p.ThicknessMm,
+            Processing = p.Processing ?? string.Empty,
+            Coating = p.Coating ?? string.Empty,
+            W1 = p.W1,
+            H1 = p.H1,
+            W2 = p.W2,
+            H2 = p.H2,
+            SheetStoreSku = p.SheetStoreSku ?? string.Empty,
+            SheetWidthMm = p.SheetWidthMm,
+            SheetHeightMm = p.SheetHeightMm,
+            SheetPricePerSqm = p.SheetPricePerSqm,
+            MaterialKey = p.MaterialKey ?? string.Empty
+        };
 
         private async Task SaveSessionAsync()
         {
@@ -574,7 +609,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private void RestoreSessionCore(SavedOptimizationSession s, bool openToReport)
         {
-            var pieces = JsonSerializer.Deserialize<List<PieceDto>>(s.PiecesJson) ?? new List<PieceDto>();
+            var payload = OptimizationSessionIdentity.Parse(s.PiecesJson);
+            var pieces = payload.Pieces ?? new List<OptimizationSessionPieceRecord>();
+            if (OptimizationSessionIdentity.IsCurrentIdentityVersion(payload.IdentityVersion))
+            {
+                _lastRunId = payload.RunId ?? string.Empty;
+                _lastInputFingerprint = payload.InputFingerprint ?? string.Empty;
+            }
+            else
+            {
+                // Legacy array / version ≤ 0: UNKNOWN — never auto-valid.
+                _lastRunId = string.Empty;
+                _lastInputFingerprint = string.Empty;
+            }
+
             var stocks = JsonSerializer.Deserialize<List<StockDto>>(s.StocksJson) ?? new List<StockDto>();
             var margins = JsonSerializer.Deserialize<MarginDto>(s.MarginsJson);
 
@@ -607,6 +655,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     p.W, p.H, p.Qty);
                 restored.Position = p.Position ?? string.Empty;
                 restored.RotationLocked = p.RotationLocked;
+                restored.ProformaId = p.ProformaId ?? string.Empty;
+                restored.JobOrderId = p.JobOrderId ?? string.Empty;
+                restored.SpecGroupNumber = p.SpecGroupNumber;
+                restored.SourceRowSerial = p.SourceRowSerial;
+                restored.GlassType = p.GlassType ?? string.Empty;
+                restored.Color = p.Color ?? string.Empty;
+                restored.ThicknessMm = p.ThicknessMm;
+                restored.Processing = p.Processing ?? string.Empty;
+                restored.Coating = p.Coating ?? string.Empty;
+                restored.W1 = p.W1;
+                restored.H1 = p.H1;
+                restored.W2 = p.W2;
+                restored.H2 = p.H2;
+                restored.SheetStoreSku = p.SheetStoreSku ?? string.Empty;
+                restored.SheetWidthMm = p.SheetWidthMm;
+                restored.SheetHeightMm = p.SheetHeightMm;
+                restored.SheetPricePerSqm = p.SheetPricePerSqm;
+                restored.MaterialKey = p.MaterialKey ?? string.Empty;
                 Pieces.Add(restored);
             }
 

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Services.Production;
@@ -36,6 +37,23 @@ namespace ProGlassAutomation.Tests.Agent
         {
             Assert.Equal(string.Empty, OptimizationMaterialIdentity.BuildKey("FLOAT", "Clear", 0, "FT", ""));
             Assert.Equal(string.Empty, OptimizationMaterialIdentity.BuildKey("", "", 6, "FT", ""));
+            Assert.Equal(string.Empty, OptimizationMaterialIdentity.BuildKey("FLOAT", "", 6, "FT", ""));
+            Assert.Equal(string.Empty, OptimizationMaterialIdentity.BuildKey("FLOAT", "   ", 6, "FT", ""));
+        }
+
+        [Fact]
+        public void Identity_version_zero_or_negative_is_never_current_valid()
+        {
+            Assert.False(OptimizationMaterialIdentity.IsCurrentIdentityVersion(0));
+            Assert.False(OptimizationMaterialIdentity.IsCurrentIdentityVersion(-1));
+            Assert.False(OptimizationSessionIdentity.IsCurrentIdentityVersion(0));
+            Assert.True(OptimizationSessionIdentity.IsCurrentIdentityVersion(1));
+            Assert.False(OptimizationSessionIdentity.IsCurrentValid(new OptimizationSessionPiecesPayload
+            {
+                IdentityVersion = 0,
+                RunId = "run",
+                InputFingerprint = "abc"
+            }));
         }
 
         [Fact]
@@ -218,6 +236,163 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(1600, h);
             Assert.Equal(5, bal);
         }
+
+        // ── Hardening: session identity persist / restore ──
+
+        [Fact]
+        public void New_session_save_restore_keeps_identity_unchanged()
+        {
+            var original = new OptimizationSessionPieceRecord
+            {
+                GlassRef = "6mm Clear FT Glass",
+                PieceLabel = "G-01",
+                Position = "Outer",
+                W = "1000",
+                H = "800",
+                Qty = "4",
+                ProformaId = "PI-2026-001",
+                JobOrderId = "JO-2026-001",
+                SpecGroupNumber = 1,
+                SourceRowSerial = 3,
+                Color = "Clear",
+                ThicknessMm = 6,
+                Processing = "FT",
+                MaterialKey = OptimizationMaterialIdentity.BuildKey("", "Clear", 6, "FT", ""),
+                SheetStoreSku = OptimizationMaterialIdentity.StockSku("Clear", 6, 3210, 2250),
+                W1 = 1000,
+                H1 = 800
+            };
+
+            string json = OptimizationSessionIdentity.Serialize(new OptimizationSessionPiecesPayload
+            {
+                IdentityVersion = OptimizationSessionIdentity.CurrentIdentityVersion,
+                RunId = "run-abc",
+                DocumentKey = "PI-2026-001",
+                Pieces = new List<OptimizationSessionPieceRecord> { original }
+            });
+
+            Assert.StartsWith("{", json.Trim());
+            var restored = OptimizationSessionIdentity.Parse(json);
+
+            Assert.True(OptimizationSessionIdentity.IsCurrentValid(restored));
+            Assert.Equal("run-abc", restored.RunId);
+            Assert.Equal(original.ProformaId, restored.Pieces[0].ProformaId);
+            Assert.Equal(original.JobOrderId, restored.Pieces[0].JobOrderId);
+            Assert.Equal(original.SpecGroupNumber, restored.Pieces[0].SpecGroupNumber);
+            Assert.Equal(original.SourceRowSerial, restored.Pieces[0].SourceRowSerial);
+            Assert.Equal(original.MaterialKey, restored.Pieces[0].MaterialKey);
+            Assert.Equal(original.SheetStoreSku, restored.Pieces[0].SheetStoreSku);
+            Assert.Equal(original.Color, restored.Pieces[0].Color);
+            Assert.Equal(original.ThicknessMm, restored.Pieces[0].ThicknessMm);
+            Assert.True(OptimizationSessionIdentity.MatchesCurrentInput(
+                restored, OptimizationSessionIdentity.FingerprintRows(restored.Pieces)));
+        }
+
+        [Fact]
+        public void Legacy_array_session_is_unknown_and_does_not_match_current_input()
+        {
+            const string legacy = "[{\"GlassRef\":\"6mm Clear FT Glass\",\"PieceLabel\":\"G-01\"," +
+                "\"Position\":\"Outer\",\"W\":\"1000\",\"H\":\"800\",\"Qty\":\"4\"}]";
+
+            var parsed = OptimizationSessionIdentity.Parse(legacy);
+            Assert.Equal(0, parsed.IdentityVersion);
+            Assert.Equal(string.Empty, parsed.RunId);
+            Assert.Equal(string.Empty, parsed.InputFingerprint);
+            Assert.False(OptimizationSessionIdentity.IsCurrentValid(parsed));
+
+            var current = new List<OptimizationSessionPieceRecord>
+            {
+                new()
+                {
+                    GlassRef = "6mm Clear FT Glass",
+                    W = "1000", H = "800", Qty = "4",
+                    Color = "Clear", ThicknessMm = 6,
+                    MaterialKey = OptimizationMaterialIdentity.BuildKey("", "Clear", 6, "FT", "")
+                }
+            };
+            string now = OptimizationSessionIdentity.FingerprintRows(current);
+            Assert.False(OptimizationSessionIdentity.MatchesCurrentInput(parsed, now));
+        }
+
+        [Fact]
+        public void Changed_input_fingerprint_does_not_match_saved_run()
+        {
+            var a = new OptimizationSessionPieceRecord
+            {
+                ProformaId = "PI-1", JobOrderId = "JO-1", MaterialKey = "FLOAT|CLEAR|6|FT|-",
+                W = "1000", H = "800", Qty = "1", Color = "Clear", ThicknessMm = 6
+            };
+            var saved = new OptimizationSessionPiecesPayload
+            {
+                IdentityVersion = 1,
+                RunId = "run-1",
+                InputFingerprint = OptimizationSessionIdentity.FingerprintRows(new[] { a }),
+                Pieces = new List<OptimizationSessionPieceRecord> { a }
+            };
+            var b = new OptimizationSessionPieceRecord
+            {
+                ProformaId = "PI-1", JobOrderId = "JO-1", MaterialKey = "FLOAT|CLEAR|8|FT|-",
+                W = "1000", H = "800", Qty = "1", Color = "Clear", ThicknessMm = 8
+            };
+            Assert.False(OptimizationSessionIdentity.MatchesCurrentInput(
+                saved, OptimizationSessionIdentity.FingerprintRows(new[] { b })));
+        }
+
+        [Fact]
+        public void DguLam_third_rack_thickness_follows_lam_inner_not_settings()
+        {
+            var group10 = OvernightInvoice.DguLamGroup(
+                "8mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass + 1.52mm Clear PVB + 10mm Clear FT Glass");
+            var group12 = OvernightInvoice.DguLamGroup(
+                "8mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass + 1.52mm Clear PVB + 12mm Clear FT Glass");
+
+            var occ10 = ProductionDistributionEngine.ResolvePaneOccurrences("DguLam", group10);
+            var occ12 = ProductionDistributionEngine.ResolvePaneOccurrences("DguLam", group12);
+
+            Assert.Equal(3, occ10.Count);
+            Assert.Equal("Outer", occ10[0].Position);
+            Assert.Equal("Lam Outer", occ10[1].Position);
+            Assert.Equal("Lam Inner", occ10[2].Position);
+            Assert.Equal(8, occ10[0].ThicknessMm);
+            Assert.Equal(6, occ10[1].ThicknessMm);
+            Assert.Equal(10, occ10[2].ThicknessMm);
+            Assert.Equal(12, occ12[2].ThicknessMm);
+
+            int settingsMm = 6;
+            int third10 = OptimizationMaterialIdentity.DguLamThirdRackThicknessMm(occ10[2].ThicknessMm);
+            int third12 = OptimizationMaterialIdentity.DguLamThirdRackThicknessMm(occ12[2].ThicknessMm);
+            Assert.Equal(10, third10);
+            Assert.Equal(12, third12);
+            Assert.NotEqual(settingsMm, third10);
+            Assert.NotEqual(occ10[0].ThicknessMm, third10);
+            Assert.NotEqual(occ10[1].ThicknessMm, third10);
+            Assert.NotEqual(third10, third12);
+            Assert.Equal(0, OptimizationMaterialIdentity.DguLamThirdRackThicknessMm(0));
+        }
+
+        [Fact]
+        public void Empty_colour_is_unresolved_and_not_invented_from_glassref()
+        {
+            string fromBlank = OptimizationMaterialIdentity.BuildKey("", "", 6, "FT", "");
+            string fromGlassSentence = OptimizationMaterialIdentity.BuildKey(
+                "6mm Clear FT Glass", "", 0, "", "");
+            Assert.Equal(string.Empty, fromBlank);
+            Assert.Equal(string.Empty, fromGlassSentence);
+            Assert.Equal(string.Empty, OptimizationMaterialIdentity.StockSku("", 6, 3210, 2250));
+        }
+
+        [Fact]
+        public void Live_publish_without_run_id_is_not_current_for_step6()
+        {
+            OptimizationResultFeed.Reset();
+            OptimizationResultFeed.PublishLive(
+                new[] { new OptimizationPaneResult { SpecNumber = 1, Side = "Outer", SheetQuantity = 3 } },
+                "legacy restore");
+            Assert.True(OptimizationResultFeed.HasData);
+            Assert.False(OptimizationResultFeed.IsCurrent);
+            Assert.False(OptimizationResultFeed.IsForDocument("PI-1"));
+            OptimizationResultFeed.Reset();
+        }
     }
 
     internal static class OvernightInvoice
@@ -247,5 +422,15 @@ namespace ProGlassAutomation.Tests.Agent
             });
             return snap;
         }
+
+        public static Models.ProformaInvoice.SavedInvoice.SpecGroupSnapshot DguLamGroup(string specName) =>
+            new()
+            {
+                GroupNumber = 1,
+                SelectedSpecName = specName,
+                SelectedGlassType = "DGU+LAM",
+                ThirdSheetWidthMm = 3210,
+                ThirdSheetHeightMm = 2250
+            };
     }
 }

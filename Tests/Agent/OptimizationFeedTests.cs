@@ -593,7 +593,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("var snapshot = BuildSessionSnapshot(LatestRunSessionName, resultRows);", session);
             Assert.Contains("var session = BuildSessionSnapshot(string.Format(CultureInfo.InvariantCulture,", session);
             Assert.Contains("StocksJson = JsonSerializer.Serialize(stocks)", session);
-            Assert.Contains("PiecesJson = JsonSerializer.Serialize(pieces)", session);
+            Assert.Contains("PiecesJson = OptimizationSessionIdentity.Serialize(", session);
             Assert.Contains("MarginsJson = JsonSerializer.Serialize(margins)", session);
 
             // The capture must stay ahead of the first await. The snapshot reads
@@ -653,6 +653,7 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Contains("group.GroupNumber, \"Outer\"", jobs);
             Assert.Contains("group.GroupNumber, \"Inner\"", jobs);
+            Assert.Contains("group.GroupNumber, \"LamInner\"", jobs);
         }
 
         // ────────────────────────────────────────────────────────────

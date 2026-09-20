@@ -199,6 +199,8 @@ namespace ProGlassAutomation.Tests.Agent
             // A Step 4 rack marks its (group, composition) as covered...
             Assert.Contains("rackedKeys.Add(compKey(group.GroupNumber, outerComp));", live);
             Assert.Contains("rackedKeys.Add(compKey(group.GroupNumber, innerComp));", live);
+            Assert.Contains("OptimizationMaterialIdentity.DguLamThirdRackThicknessMm", live);
+            Assert.DoesNotContain("ParseMm(ThicknessText)", live);
             // ...and the fallback skips anything already covered, so Step 4 is
             // never overridden — it is only supplemented.
             Assert.Contains("if (rackedKeys.Contains(compKey(group.GroupNumber, comp))) continue;", live);

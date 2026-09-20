@@ -22,10 +22,17 @@ namespace ProGlassAutomation.Services.Optimization
             (value ?? string.Empty).Trim().ToUpperInvariant();
 
         /// <summary>
+        /// Current session-identity contract version. Values ≤ 0 are UNKNOWN/LEGACY.
+        /// </summary>
+        public const int CurrentIdentityVersion = 1;
+
+        /// <summary>True only when a persisted identity version is current-valid.</summary>
+        public static bool IsCurrentIdentityVersion(int version) => version > 0;
+
+        /// <summary>
         /// Material key: type|color|thickness|processing|coating.
-        /// Empty when thickness is missing or both type and colour are blank —
-        /// callers then fall back to composition grouping rather than inventing
-        /// an identity.
+        /// Empty when colour or thickness is missing — never invented from
+        /// composition text, and never filled with a dash for a blank colour.
         /// </summary>
         public static string BuildKey(
             string? glassType,
@@ -36,17 +43,25 @@ namespace ProGlassAutomation.Services.Optimization
         {
             if (thicknessMm <= 0) return string.Empty;
 
-            string type = Normalize(glassType);
             string col = Normalize(color);
-            if (type.Length == 0 && col.Length == 0) return string.Empty;
+            if (col.Length == 0) return string.Empty;
 
+            string type = Normalize(glassType);
             return string.Join("|",
                 type.Length == 0 ? "-" : type,
-                col.Length == 0 ? "-" : col,
+                col,
                 thicknessMm.ToString(CultureInfo.InvariantCulture),
                 Token(processing),
                 Token(coating));
         }
+
+        /// <summary>
+        /// Thickness used to look up the DGU+LAM third (Lam Inner) rack.
+        /// Independent of SETTINGS and of the other two panes. Zero stays
+        /// unresolved — it is never substituted.
+        /// </summary>
+        public static int DguLamThirdRackThicknessMm(int lamInnerThicknessMm) =>
+            lamInnerThicknessMm > 0 ? lamInnerThicknessMm : 0;
 
         /// <summary>
         /// Stock identity for a physical sheet: colour|thickness|min×max.

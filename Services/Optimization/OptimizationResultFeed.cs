@@ -405,9 +405,13 @@ namespace ProGlassAutomation.Services.Optimization
                     if (own != null)
                     {
                         var ownRows = Parse(own.ResultJson, own.Name, own.CreatedUtc);
+                        var identity = OptimizationSessionIdentity.Parse(own.PiecesJson);
+                        bool currentValid = OptimizationSessionIdentity.IsCurrentValid(identity);
                         Set(ownRows, DescribeSavedRun(own, ownRows.Count),
                             isLive: false, documentKey: documentKey,
-                            isCurrent: ownRows.Count > 0);
+                            runId: identity.RunId,
+                            inputFingerprint: identity.InputFingerprint,
+                            isCurrent: currentValid && ownRows.Count > 0);
                         return;
                     }
                 }
@@ -463,13 +467,14 @@ namespace ProGlassAutomation.Services.Optimization
             }
             catch { }
 
+            string liveRunId = runId ?? string.Empty;
             Set(rows ?? Array.Empty<OptimizationPaneResult>(),
                 string.IsNullOrWhiteSpace(label) ? "live optimization run" : label,
                 isLive: true,
                 documentKey: documentKey ?? string.Empty,
-                runId: string.IsNullOrWhiteSpace(runId) ? Guid.NewGuid().ToString("N") : runId,
+                runId: liveRunId,
                 inputFingerprint: inputFingerprint ?? string.Empty,
-                isCurrent: rows != null && rows.Count > 0);
+                isCurrent: rows != null && rows.Count > 0 && !string.IsNullOrWhiteSpace(liveRunId));
 
             // Raised outside the lock: a handler that refreshes a wizard step
             // must never run while the snapshot gate is held.

@@ -472,12 +472,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         (p.QtyText ?? string.Empty).Trim()));
                     continue;
                 }
+                p.EnsureMaterialKey();
+                bool sourced = !string.IsNullOrWhiteSpace(p.JobOrderId)
+                    || !string.IsNullOrWhiteSpace(p.ProformaId)
+                    || p.SpecGroupNumber > 0;
+                if (sourced && string.IsNullOrWhiteSpace(p.MaterialKey))
+                {
+                    invalidRows.Add(string.Format(CultureInfo.InvariantCulture,
+                        "{0} unresolved colour/thickness (not invented from composition)",
+                        string.IsNullOrWhiteSpace(p.PieceLabel) ? "(unlabelled)" : p.PieceLabel.Trim()));
+                    continue;
+                }
                 for (int i = 0; i < q; i++)
                 {
                     string baseLabel = string.IsNullOrWhiteSpace(p.PieceLabel)
                         ? (p.GlassRef ?? string.Empty).Trim()
                         : p.PieceLabel.Trim();
-                    p.EnsureMaterialKey();
                     pieces.Add(new CutPiece
                     {
                         JobRef = string.IsNullOrWhiteSpace(p.JobOrderId) ? (p.ProformaId ?? string.Empty) : p.JobOrderId,
@@ -523,7 +533,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             if (pieces.Count == 0)
             {
-                RunMessage = invalidRows.Count > 0
+                bool unresolvedOnly = invalidRows.Count > 0
+                    && invalidRows.TrueForAll(r => r.IndexOf("unresolved", StringComparison.OrdinalIgnoreCase) >= 0);
+                RunMessage = unresolvedOnly
+                    ? $"Cannot optimize: {invalidRows.Count} pane(s) have unresolved colour or thickness — " +
+                      "identity was not invented from composition."
+                    : invalidRows.Count > 0
                     ? $"Nothing to cut: all {invalidRows.Count} piece row(s) are invalid — " +
                       "each needs a positive W×H and quantity."
                     : "Add pieces first (JOBS tab) or import a cutting list from Step 5.";
