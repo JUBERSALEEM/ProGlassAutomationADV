@@ -21,6 +21,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -804,42 +805,100 @@ namespace ProGlassAutomation.Services.Production
         /// 0 → Pending · partial → InProgress · full inflow → Completed.
         /// Every save writes a piece-flow ENTRY (who + when) so the audit
         /// trail shows which operator moved pieces through the factory.
+        /// Authoritative WorkItem quantity writer. Stage pages, Control
+        /// Center and CuttingCompletion must not increment QtyDone
+        /// themselves. SQLite BEGIN IMMEDIATE serializes two operators.
         /// </summary>
         public static async Task<(bool Ok, int AppliedQty, string Message)> SetDoneQtyAsync(
             int itemId, int requestedQty)
         {
             EnsureInitialized();
             using var db = new ProductionDbContext();
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            using var tx = await db.Database.BeginTransactionAsync(
+                IsolationLevel.Serializable).ConfigureAwait(false);
 
             var row = await db.WorkItems.FindAsync(itemId).ConfigureAwait(false);
             if (row == null) return (false, 0, "Work item not found.");
 
-            // Phase 14: cancelled work items cannot be worked
-            if (row.IsCancelled)
-                return (false, 0, $"Work item cancelled: {row.CancelReason} by {row.CancelledBy} at {row.CancelledAt:yyyy-MM-dd HH:mm}.");
-
-            // Flow context: how many pieces arrived at this item's stage.
             var all = await db.WorkItems.AsNoTracking().ToListAsync().ConfigureAwait(false);
             var flows = ComputeUnitFlows(all);
 
-            int inflow = row.Qty; // fallback = the item's own quantity
+            int inflow = row.Qty;
             var flowItem = flows
                 .SelectMany(f => f.StageItems.Values.SelectMany(list => list))
                 .FirstOrDefault(fi => fi.Item.Id == itemId);
             if (flowItem != null) inflow = flowItem.Inflow;
 
+            var apply = ApplyDoneQtyOnTrackedItem(db, row, requestedQty, inflow);
+            if (!apply.Ok)
+                return apply;
+
+            if (apply.Message == "Unchanged (idempotent)." ||
+                apply.Message == "Already completed (idempotent).")
+            {
+                await tx.CommitAsync().ConfigureAwait(false);
+                return apply;
+            }
+
+            await db.SaveChangesAsync().ConfigureAwait(false);
+            await tx.CommitAsync().ConfigureAwait(false);
+            RaiseWorkItemsChanged();
+
+            string message = requestedQty > inflow
+                ? $"Only {inflow.ToString(System.Globalization.CultureInfo.InvariantCulture)} piece(s) " +
+                  "have arrived from the previous stage — saved that many."
+                : apply.Message;
+
+            return (true, apply.AppliedQty, message);
+        }
+
+        /// <summary>
+        /// Same contract as <see cref="SetDoneQtyAsync"/> for a row already
+        /// tracked on <paramref name="db"/> (cutting complete, same IMMEDIATE tx).
+        /// Does not SaveChanges.
+        /// </summary>
+        public static (bool Ok, int AppliedQty, string Message) ApplyDoneQtyOnTrackedItem(
+            ProductionDbContext db,
+            SavedProductionWorkItem row,
+            int requestedQty,
+            int inflow,
+            string? notes = null)
+        {
+            if (row.IsCancelled || row.Status == (int)WorkItemStatus.Cancelled)
+                return (false, row.QtyDone,
+                    $"Work item cancelled: {row.CancelReason} by {row.CancelledBy} at {row.CancelledAt:yyyy-MM-dd HH:mm}.");
+
+            if (row.Status == (int)WorkItemStatus.Rejected)
+                return (false, row.QtyDone, "Rejected work cannot be completed.");
+
+            if (row.Status == (int)WorkItemStatus.QcFailed && requestedQty > row.QtyDone)
+                return (false, row.QtyDone, "QC failed — cannot increase completion.");
+
             int applied = Math.Clamp(requestedQty, 0, Math.Max(0, inflow));
 
+            if (row.Status == (int)WorkItemStatus.Completed
+                && row.QtyDone >= row.Qty
+                && applied <= row.QtyDone)
+                return (true, row.QtyDone, "Already completed (idempotent).");
+
+            if (applied == row.QtyDone)
+                return (true, applied, "Unchanged (idempotent).");
+
             row.QtyDone = applied;
-            row.Status = applied == 0 ? (int)WorkItemStatus.Pending
-                : applied >= inflow && inflow > 0 ? (int)WorkItemStatus.Completed
-                : (int)WorkItemStatus.InProgress;
+            if (row.Status != (int)WorkItemStatus.QcFailed
+                && row.Status != (int)WorkItemStatus.Rework)
+            {
+                row.Status = applied == 0 ? (int)WorkItemStatus.Pending
+                    : applied >= inflow && inflow > 0 ? (int)WorkItemStatus.Completed
+                    : (int)WorkItemStatus.InProgress;
+            }
+
             row.UpdatedAt = DateTime.Now;
             row.CompletedAt = row.Status == (int)WorkItemStatus.Completed ? DateTime.Now : null;
             if (row.Status == (int)WorkItemStatus.Completed)
                 row.CompletedBy = AuditService.CurrentUsername;
 
-            // Piece-flow entry: who marked these pieces done, and when.
             db.Entries.Add(new SavedProductionEntry
             {
                 WorkItemId = row.Id,
@@ -852,20 +911,11 @@ namespace ProGlassAutomation.Services.Production
                 GlassRef = row.GlassRef,
                 Qty = applied,
                 DoneBy = AuditService.CurrentUsername,
-                DoneAt = DateTime.Now
+                DoneAt = DateTime.Now,
+                Notes = notes ?? string.Empty
             });
 
-            await db.SaveChangesAsync().ConfigureAwait(false);
-
-            // Live refresh: every stage screen re-reads its list + detail.
-            RaiseWorkItemsChanged();
-
-            string message = requestedQty > inflow
-                ? $"Only {inflow.ToString(System.Globalization.CultureInfo.InvariantCulture)} piece(s) " +
-                  "have arrived from the previous stage — saved that many."
-                : "";
-
-            return (true, applied, message);
+            return (true, applied, string.Empty);
         }
 
         /// <summary>
@@ -880,6 +930,9 @@ namespace ProGlassAutomation.Services.Production
             if (updates.Count == 0) return (true, new List<string>());
             EnsureInitialized();
             using var db = new ProductionDbContext();
+            await db.Database.OpenConnectionAsync().ConfigureAwait(false);
+            using var tx = await db.Database.BeginTransactionAsync(
+                IsolationLevel.Serializable).ConfigureAwait(false);
 
             var ids = updates.Select(u => u.ItemId).ToHashSet();
             var rows = await db.WorkItems
@@ -887,12 +940,9 @@ namespace ProGlassAutomation.Services.Production
                 .ToListAsync().ConfigureAwait(false);
             if (rows.Count == 0) return (false, new List<string> { "No work items found." });
 
-            // Flow context — how many pieces arrived at each item's stage.
             var all = await db.WorkItems.AsNoTracking().ToListAsync().ConfigureAwait(false);
             var flows = ComputeUnitFlows(all);
 
-            var now = DateTime.Now;
-            string user = AuditService.CurrentUsername;
             var messages = new List<string>();
             int changed = 0;
 
@@ -901,54 +951,35 @@ namespace ProGlassAutomation.Services.Production
                 var row = rows.FirstOrDefault(r => r.Id == itemId);
                 if (row == null) continue;
 
-                // Phase 14: skip cancelled
-                if (row.IsCancelled)
-                {
-                    messages.Add($"Skipped cancelled {row.GlassRef} {row.SpecGroupNumber}/{row.SerialNumber}: {row.CancelReason}");
-                    continue;
-                }
-
-                int inflow = row.Qty; // fallback = the item's own quantity
+                int inflow = row.Qty;
                 var flowItem = flows
                     .SelectMany(f => f.StageItems.Values.SelectMany(list => list))
                     .FirstOrDefault(fi => fi.Item.Id == itemId);
                 if (flowItem != null) inflow = flowItem.Inflow;
 
-                int applied = Math.Clamp(requested, 0, Math.Max(0, inflow));
-
-                row.QtyDone = applied;
-                row.Status = applied == 0 ? (int)WorkItemStatus.Pending
-                    : applied >= inflow && inflow > 0 ? (int)WorkItemStatus.Completed
-                    : (int)WorkItemStatus.InProgress;
-                row.UpdatedAt = now;
-                row.CompletedAt = row.Status == (int)WorkItemStatus.Completed ? now : null;
-                if (row.Status == (int)WorkItemStatus.Completed)
-                    row.CompletedBy = user;
-
-                db.Entries.Add(new SavedProductionEntry
+                var apply = ApplyDoneQtyOnTrackedItem(db, row, requested, inflow);
+                if (!apply.Ok)
                 {
-                    WorkItemId = row.Id,
-                    JobRef = row.JobRef,
-                    Stage = row.Stage,
-                    SpecGroupNumber = row.SpecGroupNumber,
-                    SerialNumber = row.SerialNumber,
-                    Position = row.Position,
-                    SpecName = row.SpecName,
-                    GlassRef = row.GlassRef,
-                    Qty = applied,
-                    DoneBy = user,
-                    DoneAt = now
-                });
+                    messages.Add(apply.Message);
+                    continue;
+                }
 
                 if (requested > inflow)
                     messages.Add($"Only {inflow.ToString(System.Globalization.CultureInfo.InvariantCulture)} " +
                         "piece(s) have arrived for the previous stage — saved that many.");
 
-                changed++;
+                if (apply.Message != "Unchanged (idempotent)." &&
+                    apply.Message != "Already completed (idempotent).")
+                    changed++;
             }
 
-            if (changed == 0) return (true, messages);
+            if (changed == 0)
+            {
+                await tx.CommitAsync().ConfigureAwait(false);
+                return (true, messages);
+            }
             await db.SaveChangesAsync().ConfigureAwait(false);
+            await tx.CommitAsync().ConfigureAwait(false);
             RaiseWorkItemsChanged();
             return (true, messages);
         }

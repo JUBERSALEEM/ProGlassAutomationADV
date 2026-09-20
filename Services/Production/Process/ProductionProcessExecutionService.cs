@@ -244,43 +244,10 @@ namespace ProGlassAutomation.Services.Production.Process
                     exec.CompletedAt = DateTime.Now;
                 }
 
-                // Update WorkItem QtyDone — piece-flow, no destructive overwrite
-                if (exec.OutputWorkItemId > 0)
-                {
-                    var wi = await db.WorkItems.FindAsync(new object[] { exec.OutputWorkItemId }, ct).ConfigureAwait(false);
-                    if (wi != null && !wi.IsCancelled)
-                    {
-                        int wiNewDone = Math.Min(wi.Qty, wi.QtyDone + qtyDone);
-                        wi.QtyDone = wiNewDone;
-                        wi.Status = wiNewDone == 0 ? (int)WorkItemStatus.Pending : wiNewDone >= wi.Qty ? (int)WorkItemStatus.Completed : (int)WorkItemStatus.InProgress;
-                        wi.UpdatedAt = DateTime.Now;
-                        if (wi.Status == (int)WorkItemStatus.Completed)
-                        {
-                            wi.CompletedAt = DateTime.Now;
-                            wi.CompletedBy = AuditService.CurrentUsername;
-                        }
-
-                        // Audit entry
-                        db.Entries.Add(new SavedProductionEntry
-                        {
-                            WorkItemId = wi.Id,
-                            JobRef = wi.JobRef,
-                            Stage = wi.Stage,
-                            SpecGroupNumber = wi.SpecGroupNumber,
-                            SerialNumber = wi.SerialNumber,
-                            Position = wi.Position,
-                            SpecName = wi.SpecName,
-                            GlassRef = wi.GlassRef,
-                            Qty = qtyDone,
-                            DoneBy = AuditService.CurrentUsername,
-                            DoneAt = DateTime.Now,
-                            EntryType = exec.IsFoc ? 3 : 0, // Foc or Normal
-                            IsFoc = exec.IsFoc,
-                            Notes = $"Process {((ProductionProcessType)exec.ProcessType)} completed {qtyDone} piece(s) {exec.PieceId} → {exec.OutputPieceId}"
-                        });
-                    }
-                }
-
+                // ProcessExecution is SUPPORTING metadata. WorkItem.QtyDone is
+                // authoritative and is written only by SetDoneQtyAsync /
+                // ApplyDoneQtyOnTrackedItem. Completing an execution must not
+                // independently increment the floor quantity.
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
 
                 AppLogService.Info($"[ProcessExecution] Completed {exec.ProcessType} {executionId} QtyDone {newDone}/{exec.QtyRequired}",

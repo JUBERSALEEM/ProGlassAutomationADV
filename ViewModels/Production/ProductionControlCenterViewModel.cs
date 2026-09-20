@@ -98,18 +98,14 @@ namespace ProGlassAutomation.ViewModels.Production
                 return;
             }
 
-            string targetStage = SelectedStageTab switch
+            var filtered = SelectedStageTab switch
             {
-                0 => "Cutting",
-                1 => "Tempering",
-                2 => "Pairing",
-                _ => "All"
+                0 => items.Where(i => i.Stage == ProductionStage.Cutting).ToList(),
+                1 => items.Where(i => i.Stage == ProductionStage.Tempering).ToList(),
+                2 => items.Where(i => i.Stage == ProductionStage.Pairing
+                                   || i.Stage == ProductionStage.DoublingLamination).ToList(),
+                _ => items
             };
-
-            var filtered = targetStage == "All"
-                ? items
-                : items.Where(i => string.Equals(i.StageLabel, targetStage, StringComparison.OrdinalIgnoreCase) ||
-                                   string.Equals(i.Stage.ToString(), targetStage, StringComparison.OrdinalIgnoreCase)).ToList();
 
             // Work-item rows are not PCS. Use persisted Qty / QtyDone.
             // Area from W×H×qty (mm→m²), never a invented 1.575 m² average.
@@ -201,7 +197,7 @@ namespace ProGlassAutomation.ViewModels.Production
             $"Previous {Selected.PreviousLabel} → Current {Selected.CurrentLabel} → Next {Selected.NextLabel} | Trace {Selected.TraceabilityLabel} | Pair {Selected.PairId} Outer {Selected.OuterPieceId} Inner {Selected.InnerPieceId} Assembly {Selected.AssemblyId} | DGU Outer {Selected.OuterPieceId} Inner {Selected.InnerPieceId} Pair {Selected.PairId} Assembly {Selected.AssemblyId} QC {Selected.QcResult} Ready | Lam Glass A + Interlayer + Glass B → Laminate";
 
         public string MaterialLabel => Selected == null ? "" :
-            $"Material Required {Selected.MaterialRequired} Reserved {Selected.MaterialReserved} Allocated {Selected.MaterialAllocated} Consumed {Selected.MaterialConsumed} Available {Selected.MaterialAvailable} Shortage {Selected.MaterialShortage} {(Selected.HasMaterialShortage ? "Material Shortage" : "Material OK")} | Cutting Requirement → Reservation → Optimization → Allocation → Cutting Piece → Cutting Completion";
+            $"Stage PCS required {Selected.MaterialRequired} | Reserved {Selected.MaterialReserved} sheets | Allocated {Selected.MaterialAllocated} pieces | Consumed {Selected.MaterialConsumed} allocations | Available {Selected.MaterialAvailable} sheets | Shortage {Selected.MaterialShortage} {(Selected.HasMaterialShortage ? "Material Shortage" : "Material OK")} | Cutting Requirement → Reservation → Optimization → Allocation → Cutting Piece → Cutting Completion";
 
         public string QcLabel => Selected == null ? "" :
             $"QC {Selected.QcResult} Id {Selected.QcId} | Rework Seq {Selected.ReplacementSequence} | FOC {Selected.IsFoc} | Cancelled {Selected.IsCancelled}";

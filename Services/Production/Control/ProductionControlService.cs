@@ -61,8 +61,12 @@ namespace ProGlassAutomation.Services.Production.Control
             var assemblyComplete = assemblies.GroupBy(a => (a.SpecGroupNumber, a.SerialNumber)).ToDictionary(g => g.Key, g => g.Any(x => x.Status == (int)WorkItemStatus.Completed));
             var reservations = await db.Reservations.AsNoTracking().Where(r => r.JobRef == wi.JobRef).ToListAsync(ct).ConfigureAwait(false);
             var allocations = await db.Allocations.AsNoTracking().Where(a => a.JobRef == wi.JobRef).ToListAsync(ct).ConfigureAwait(false);
-            bool hasRes = reservations.Any(r => r.SpecGroupNumber == wi.SpecGroupNumber && r.SerialNumber == wi.SerialNumber);
-            bool hasAlloc = allocations.Any(a => a.SpecGroupNumber == wi.SpecGroupNumber && a.SerialNumber == wi.SerialNumber);
+            bool hasRes = wi.Stage == (int)ProductionStage.Cutting
+                ? reservations.Any()
+                : reservations.Any(r => r.SpecGroupNumber == wi.SpecGroupNumber && r.SerialNumber == wi.SerialNumber);
+            bool hasAlloc = wi.Stage == (int)ProductionStage.Cutting
+                ? allocations.Any()
+                : allocations.Any(a => a.SpecGroupNumber == wi.SpecGroupNumber && a.SerialNumber == wi.SerialNumber);
 
             var (readiness, blockReason) = ProductionReadinessEngine.Calculate(wi, allForJob, allForUnit, qcDict, pairingComplete, assemblyComplete, hasRes, hasAlloc, false, "");
 

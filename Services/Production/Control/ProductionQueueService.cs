@@ -150,8 +150,14 @@ namespace ProGlassAutomation.Services.Production.Control
                 bool isOnHold = hold != null;
                 string holdReason = hold?.HoldReason ?? "";
 
-                bool hasReservation = reservations.Any(r => r.JobRef == wi.JobRef && r.SpecGroupNumber == wi.SpecGroupNumber && r.SerialNumber == wi.SerialNumber);
-                bool hasAllocation = allocations.Any(a => a.JobRef == wi.JobRef && a.SpecGroupNumber == wi.SpecGroupNumber && a.SerialNumber == wi.SerialNumber);
+                // Cutting reservations are often serial 0 / job-level sheet holds.
+                // Matching spec+serial only treated allocated cutting as "no reservation".
+                bool hasReservation = wi.Stage == (int)ProductionStage.Cutting
+                    ? reservations.Any(r => r.JobRef == wi.JobRef)
+                    : reservations.Any(r => r.JobRef == wi.JobRef && r.SpecGroupNumber == wi.SpecGroupNumber && r.SerialNumber == wi.SerialNumber);
+                bool hasAllocation = wi.Stage == (int)ProductionStage.Cutting
+                    ? allocations.Any(a => a.JobRef == wi.JobRef)
+                    : allocations.Any(a => a.JobRef == wi.JobRef && a.SpecGroupNumber == wi.SpecGroupNumber && a.SerialNumber == wi.SerialNumber);
 
                 var (readiness, blockReason) = ProductionReadinessEngine.Calculate(
                     wi,
@@ -231,12 +237,14 @@ namespace ProGlassAutomation.Services.Production.Control
                     HoldReason = holdReason,
                     HeldBy = hold?.HeldBy ?? "",
                     HeldAt = hold?.HeldAt,
+                    // Stage Qty is PCS. Reservation.Quantity is sheets.
+                    // Allocated/Consumed are allocation row counts, not QtyDone.
                     MaterialRequired = wi.Qty,
-                    MaterialReserved = hasReservation ? wi.Qty : 0,
-                    MaterialAllocated = hasAllocation ? wi.Qty : 0,
-                    MaterialConsumed = wi.QtyDone,
-                    MaterialAvailable = hasReservation ? wi.Qty : 0,
-                    MaterialShortage = hasReservation ? 0 : wi.Qty,
+                    MaterialReserved = reservations.Where(r => r.JobRef == wi.JobRef).Sum(r => r.Quantity),
+                    MaterialAllocated = allocations.Count(a => a.JobRef == wi.JobRef && a.Status == (int)AllocationStatus.Allocated),
+                    MaterialConsumed = allocations.Count(a => a.JobRef == wi.JobRef && a.Status == (int)AllocationStatus.Consumed),
+                    MaterialAvailable = reservations.Where(r => r.JobRef == wi.JobRef).Sum(r => r.Quantity),
+                    MaterialShortage = hasReservation || wi.Stage != (int)ProductionStage.Cutting ? 0 : 1,
                     CreatedAt = wi.CreatedAt,
                     UpdatedAt = wi.UpdatedAt,
                     CompletedAt = wi.CompletedAt,

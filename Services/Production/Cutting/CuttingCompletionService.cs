@@ -69,34 +69,11 @@ namespace ProGlassAutomation.Services.Production.Cutting
                         // QtyDone piece-flow: increment by 1 for this piece
                         // Do NOT mark entire job complete when only one piece complete
                         int newDone = Math.Min(workItem.Qty, workItem.QtyDone + 1);
-                        workItem.QtyDone = newDone;
-                        workItem.Status = newDone == 0 ? (int)WorkItemStatus.Pending
-                            : newDone >= workItem.Qty ? (int)WorkItemStatus.Completed
-                            : (int)WorkItemStatus.InProgress;
-                        workItem.UpdatedAt = DateTime.Now;
-                        if (workItem.Status == (int)WorkItemStatus.Completed)
-                        {
-                            workItem.CompletedAt = DateTime.Now;
-                            workItem.CompletedBy = AuditService.CurrentUsername;
-                        }
-
-                        // Audit entry
-                        db.Entries.Add(new SavedProductionEntry
-                        {
-                            WorkItemId = workItem.Id,
-                            JobRef = workItem.JobRef,
-                            Stage = workItem.Stage,
-                            SpecGroupNumber = workItem.SpecGroupNumber,
-                            SerialNumber = workItem.SerialNumber,
-                            Position = workItem.Position,
-                            SpecName = workItem.SpecName,
-                            GlassRef = workItem.GlassRef,
-                            Qty = 1,
-                            DoneBy = AuditService.CurrentUsername,
-                            DoneAt = DateTime.Now,
-                            EntryType = (int)ProductionEntryType.Normal,
-                            Notes = $"Cutting completed piece {placed.PieceLabel} at {placed.X},{placed.Y} {(placed.IsRotated ? "90°" : "0°")}"
-                        });
+                        var apply = ProductionRepository.ApplyDoneQtyOnTrackedItem(
+                            db, workItem, newDone, inflow: workItem.Qty,
+                            notes: $"Cutting completed piece {placed.PieceLabel} at {placed.X},{placed.Y} {(placed.IsRotated ? "90°" : "0°")}");
+                        if (!apply.Ok)
+                            return (false, apply.Message);
                     }
                 }
 
