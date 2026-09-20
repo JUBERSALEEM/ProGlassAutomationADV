@@ -120,7 +120,18 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 var snap = TryDeserializePiSnapshot(pi.FullSnapshotJson);
                 var pl = snap?.ProfitLoss;
-                bool hasCost = pl != null && (pl.TotalGlassCost > 0 || pl.TotalProductionCost > 0);
+                // Same "costed" gate as Job Profitability: a Step 9 snapshot
+                // with rows, cost, or net. Do NOT VAT-divide the header when
+                // Step 9 was never opened — that invented revenue with
+                // profit 0 and diluted AvgMargin.
+                decimal glass = pl?.TotalGlassCost ?? 0m;
+                decimal production = pl?.TotalProductionCost ?? 0m;
+                bool costed = pl != null
+                    && ((pl.Rows != null && pl.Rows.Count > 0)
+                        || glass > 0m
+                        || production > 0m
+                        || pl.NetExVat > 0m);
+                bool hasCost = costed;
 
                 // PHASE 3: basis staleness — single classification home.
                 // A MOVED stamp is stale; an UNCONFIRMED (pre-versioning)
@@ -140,9 +151,11 @@ namespace ProGlassAutomation.Services.Reporting
                         ? "Cost basis not pinned (saved before price-versioning)"
                         : "";
 
-                decimal revenue = pl != null && pl.NetExVat > 0 ? pl.NetExVat : VatCalculator.Round(pi.GrandTotalVatInclusive / VatCalculator.VAT_MULTIPLIER);
-                decimal cost = hasCost ? pl!.TotalGlassCost + pl.TotalProductionCost : 0;
-                decimal profit = hasCost ? revenue - cost : 0;
+                // Persist Step 9 numbers. Do not recompute Profit = revenue − cost
+                // (charges/discount/rounding live in the snapshot Profit).
+                decimal revenue = costed ? pl!.NetExVat : 0m;
+                decimal cost = costed ? glass + production : 0m;
+                decimal profit = costed ? pl!.Profit : 0m;
                 decimal margin = revenue == 0 ? 0 : Math.Round(profit / revenue * 100, 1);
 
                 int qty = 0; decimal sqm = 0;
