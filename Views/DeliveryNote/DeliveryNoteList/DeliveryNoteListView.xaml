@@ -238,7 +238,8 @@
 
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Padding="14" Margin="4,0,4,10">
+                    Style="{StaticResource ModuleErrorBannerStyle}"
+                    Margin="4,0,4,10">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
                            FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"/>

@@ -1293,4 +1293,17 @@
     <Style x:Key="PiDatePickerStyle" TargetType="DatePicker" BasedOn="{StaticResource Input.DatePicker}"/>
     <Style x:Key="PiComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
 
+    <!-- List/report chrome last-win: density inputs, industrial table headers. -->
+    <Style x:Key="ModuleListFilterInputStyle" TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+    <Style x:Key="ModuleListFilterComboStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
+    <Style x:Key="ModuleListFilterDatePickerStyle" TargetType="DatePicker" BasedOn="{StaticResource Input.DatePicker}"/>
+    <Style x:Key="ReportFilterCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Padding" Value="16,12"/>
+    </Style>
+    <Style x:Key="ReportTableHeaderStyle" TargetType="Border" BasedOn="{StaticResource ModuleListTableHeaderStyle}"/>
+    <Style x:Key="ReportHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource ModuleListHeaderTextStyle}"/>
+    <Style x:Key="ModuleListKpiLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Label}"/>
+    <Style x:Key="ModuleListKpiValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
+    <Style x:Key="ModuleListKpiHintStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Caption}"/>
+
 </ResourceDictionary>

@@ -31,9 +31,9 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="{DynamicResource Dashboard.JobOrders}"
-                              />
+                               Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock Text="{DynamicResource JobOrder.TrackProductionApprovedInvoicesShopFloor}"
-                              />
+                               Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
                 <Button Grid.Column="1"
                         Style="{StaticResource PrimaryPillButton}"
@@ -90,11 +90,11 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Total}"/>
+                                <TextBlock Text="{DynamicResource Common.Total}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding TotalCount}"
-                                          />
+                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{DynamicResource JobOrder.JobOrders}"
-                                          />
+                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -108,11 +108,11 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Dashboard.Production}"/>
+                                <TextBlock Text="{DynamicResource Dashboard.Production}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding InProductionCount}"
-                                          />
+                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{DynamicResource JobOrder.ShopFloor}"
-                                          />
+                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -126,11 +126,11 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource JobOrder.Completed}"/>
+                                <TextBlock Text="{DynamicResource JobOrder.Completed}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding CompletedCount}"
-                                          />
+                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{DynamicResource JobOrder.FinishedJobs}"
-                                          />
+                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -144,7 +144,7 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Overdue}"/>
+                                <TextBlock Text="{DynamicResource Common.Overdue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding OverdueCount}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleListKpiValueStyle}">
