@@ -760,7 +760,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Bought area" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="0" Text="Bought area" Style="{StaticResource Field.Label}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding BuySheetAreaDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
@@ -769,7 +769,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Used area" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="0" Text="Used area" Style="{StaticResource Field.Label}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding UsedAreaDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
@@ -778,7 +778,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Wastage area" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="0" Text="Wastage area" Style="{StaticResource Field.Label}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding WastageAreaDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                             <Grid>
@@ -787,7 +787,7 @@
                                     <ColumnDefinition Width="200"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="Usage efficiency" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Grid.Column="0" Text="Usage efficiency" Style="{StaticResource Field.Label}"/>
                                 <TextBlock Grid.Column="1" Text="{Binding UsageEfficiencyDisplay}" Style="{StaticResource Typography.Body}"/>
                             </Grid>
                         </StackPanel>

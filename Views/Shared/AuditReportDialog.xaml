@@ -128,7 +128,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- WHO -->
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="WHO" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="WHO" Style="{StaticResource Field.Label}"/>
                         <StackPanel Grid.Row="0" Grid.Column="1">
                             <TextBlock Text="{Binding ActorDisplay}"
                                        FontSize="{DynamicResource FontSize.Title}"
@@ -142,7 +142,7 @@
                         </StackPanel>
 
                         <!-- WHEN -->
-                        <TextBlock Grid.Row="1" Grid.Column="0" Text="WHEN" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="WHEN" Style="{StaticResource Field.Label}"/>
                         <StackPanel Grid.Row="1" Grid.Column="1">
                             <TextBlock Text="{Binding TimeDisplay}"
                                        FontSize="{DynamicResource FontSize.Title}"
@@ -153,7 +153,7 @@
                         </StackPanel>
 
                         <!-- WHAT -->
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="WHAT" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="WHAT" Style="{StaticResource Field.Label}"/>
                         <StackPanel Grid.Row="2" Grid.Column="1">
                             <TextBlock Text="{Binding Action}"
                                        FontSize="{DynamicResource FontSize.Title}"
@@ -165,19 +165,19 @@
                         </StackPanel>
 
                         <!-- WHY -->
-                        <TextBlock Grid.Row="3" Grid.Column="0" Text="WHY" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="WHY" Style="{StaticResource Field.Label}"/>
                         <TextBlock Grid.Row="3" Grid.Column="1"
                                    Text="{Binding WhySummary}"
                                    Style="{StaticResource Typography.Body}"/>
 
                         <!-- WHERE / CONTEXT -->
-                        <TextBlock Grid.Row="4" Grid.Column="0" Text="WHERE" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="WHERE" Style="{StaticResource Field.Label}"/>
                         <TextBlock Grid.Row="4" Grid.Column="1"
                                    Text="{Binding TechnicalLine}"
                                    Style="{StaticResource Typography.Body}"/>
 
                         <!-- CHANGE COUNT -->
-                        <TextBlock Grid.Row="5" Grid.Column="0" Text="CHANGES" Style="{StaticResource Typography.Label}"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="CHANGES" Style="{StaticResource Field.Label}"/>
                         <TextBlock Grid.Row="5" Grid.Column="1"
                                    Text="{Binding ChangeSummary}"
                                    Style="{StaticResource Typography.Body}"

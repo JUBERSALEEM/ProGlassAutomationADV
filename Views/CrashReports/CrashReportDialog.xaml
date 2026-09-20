@@ -57,19 +57,19 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource CrashReports.ErrorID}"
-                           Style="{StaticResource Typography.Label}"/>
+                           Style="{StaticResource Field.Label}"/>
                 <TextBlock Grid.Row="0" Grid.Column="1"
                            Text="{Binding ErrorId}"
                            Style="{StaticResource Typography.Body}"/>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Common.Type}"
-                           Style="{StaticResource Typography.Label}"/>
+                           Style="{StaticResource Field.Label}"/>
                 <TextBlock Grid.Row="1" Grid.Column="1"
                            Text="{Binding ExceptionType}"
                            Style="{StaticResource Typography.Body}"/>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource CrashReports.Message}"
-                           Style="{StaticResource Typography.Label}"/>
+                           Style="{StaticResource Field.Label}"/>
                 <TextBlock Grid.Row="2" Grid.Column="1"
                            Text="{Binding ExceptionMessage}"
                            TextWrapping="Wrap"
@@ -77,7 +77,7 @@
             </Grid>
 
             <TextBlock Text="{DynamicResource CrashReports.CrashReportSaved}"
-                       Style="{StaticResource Typography.Label}"
+                       Style="{StaticResource Field.Label}"
                        Margin="0,4,0,4"/>
             <TextBlock Text="{Binding ReportPath}"
                        FontFamily="{DynamicResource FontFamily.Code}"
