@@ -966,13 +966,104 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             OperationGuard.Demand(
                 AppPermissions.DeliveryNoteEdit, "create a delivery note");
 
-            using var ctx = new DeliveryNotesDbContext();
-            entity.CreatedAt = DateTime.Now;
-            entity.UpdatedAt = DateTime.Now;
-            ctx.DeliveryNotes.Add(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
-            DocumentLifecycle.Raise();
-            return entity;
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            // Master / Dummy tracker ids (MDN-…) are not sequence-bumped.
+            if (entity.IsMasterDn)
+            {
+                using var masterCtx = new DeliveryNotesDbContext();
+                entity.CreatedAt = DateTime.Now;
+                entity.UpdatedAt = DateTime.Now;
+                masterCtx.DeliveryNotes.Add(entity);
+                await SqliteResilience.SaveWithRetryAsync(_ => masterCtx.SaveChangesAsync());
+                DocumentLifecycle.Raise();
+                return entity;
+            }
+
+            bool idReallocated = false;
+            for (int attempt = 0; attempt < 5; attempt++)
+            {
+                await using var ctx = new DeliveryNotesDbContext();
+
+                bool exists = await ctx.DeliveryNotes
+                    .AnyAsync(x => x.DeliveryNoteId == entity.DeliveryNoteId)
+                    .ConfigureAwait(false);
+                if (exists)
+                {
+                    ReallocateDeliveryNoteId(entity);
+                    idReallocated = true;
+                    continue;
+                }
+
+                if (idReallocated)
+                    SyncSnapshotDeliveryNoteId(entity);
+
+                entity.CreatedAt = DateTime.Now;
+                entity.UpdatedAt = DateTime.Now;
+                ctx.DeliveryNotes.Add(entity);
+                try
+                {
+                    await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+                }
+                catch (DbUpdateException ex)
+                    when (SqliteErrorClassifier.IsUnique(ex) && attempt < 4)
+                {
+                    ctx.Entry(entity).State = EntityState.Detached;
+                    if (entity.Items != null)
+                    {
+                        foreach (var item in entity.Items)
+                            ctx.Entry(item).State = EntityState.Detached;
+                    }
+                    ReallocateDeliveryNoteId(entity);
+                    entity.Id = 0;
+                    idReallocated = true;
+                    continue;
+                }
+
+                DocumentLifecycle.Raise();
+                return entity;
+            }
+
+            throw new InvalidOperationException(
+                "Could not allocate a free DeliveryNoteId after 5 retries " +
+                $"starting from '{entity.DeliveryNoteId}'.");
+        }
+
+        /// <summary>
+        /// Bump SequenceNumber and rebuild DN-{{core}}-{{nn}}. Does not rewrite
+        /// an existing stored number; only the in-memory insert that collided.
+        /// </summary>
+        private static void ReallocateDeliveryNoteId(SavedDeliveryNote entity)
+        {
+            entity.SequenceNumber = Math.Max(1, entity.SequenceNumber) + 1;
+            string jo = entity.JobOrderId ?? "";
+            string core = jo.StartsWith("JOB-", StringComparison.OrdinalIgnoreCase)
+                ? jo.Substring(4)
+                : jo;
+            string next = $"DN-{core}-{entity.SequenceNumber:D2}";
+            entity.DeliveryNoteId = next;
+            if (entity.Items == null) return;
+            foreach (var item in entity.Items)
+            {
+                item.DeliveryNoteId = next;
+                item.Id = 0;
+            }
+        }
+
+        private static void SyncSnapshotDeliveryNoteId(SavedDeliveryNote entity)
+        {
+            try
+            {
+                var snap = Mapper.DeliveryNoteMapper.DeserializeSnapshot(entity);
+                Mapper.DeliveryNoteMapper.RefreshSnapshot(entity, snap?.JobOrderRef);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not sync DN snapshot DeliveryNoteId after reallocation: " +
+                    ex.Message);
+            }
         }
 
         public async Task UpdateAsync(SavedDeliveryNote entity)
