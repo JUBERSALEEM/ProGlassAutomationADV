@@ -38,6 +38,7 @@ using ProGlassAutomation.Services.Statement.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
@@ -227,17 +228,103 @@ namespace ProGlassAutomation.Services.Statement.Repository
             OperationGuard.Demand(
                 AppPermissions.StatementGenerate, "create a statement");
 
-            await using var ctx = new StatementDbContext();
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
 
-            // Set timestamps explicitly (BUG-11 pattern)
-            entity.CreatedAt = DateTime.UtcNow;
-            entity.UpdatedAt = DateTime.UtcNow;
+            bool idReallocated = false;
+            for (int attempt = 0; attempt < 5; attempt++)
+            {
+                await using var ctx = new StatementDbContext();
 
-            // EF cascade-inserts LineItems automatically
-            // because entity.LineItems is populated before Add()
-            ctx.Statements.Add(entity);
-            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
-            return entity;
+                bool exists = await ctx.Statements
+                    .AnyAsync(s => s.StatementNumber == entity.StatementNumber)
+                    .ConfigureAwait(false);
+                if (exists)
+                {
+                    ReallocateStatementNumber(entity);
+                    idReallocated = true;
+                    continue;
+                }
+
+                if (idReallocated)
+                    SyncSnapshotStatementNumber(entity);
+
+                entity.CreatedAt = DateTime.UtcNow;
+                entity.UpdatedAt = DateTime.UtcNow;
+
+                ctx.Statements.Add(entity);
+                try
+                {
+                    await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
+                }
+                catch (DbUpdateException ex)
+                    when (SqliteErrorClassifier.IsUnique(ex) && attempt < 4)
+                {
+                    ctx.Entry(entity).State = EntityState.Detached;
+                    if (entity.LineItems != null)
+                    {
+                        foreach (var line in entity.LineItems)
+                            ctx.Entry(line).State = EntityState.Detached;
+                    }
+                    ReallocateStatementNumber(entity);
+                    entity.Id = 0;
+                    if (entity.LineItems != null)
+                    {
+                        foreach (var line in entity.LineItems)
+                            line.Id = 0;
+                    }
+                    idReallocated = true;
+                    continue;
+                }
+
+                return entity;
+            }
+
+            throw new InvalidOperationException(
+                "Could not allocate a free StatementNumber after 5 retries " +
+                $"starting from '{entity.StatementNumber}'.");
+        }
+
+        /// <summary>
+        /// Collision suffix on the in-memory insert only. Does not rewrite
+        /// a persisted statement number. SOA-… and STMT-… both get -2, -3…
+        /// </summary>
+        private static void ReallocateStatementNumber(SavedStatement entity)
+        {
+            string current = entity.StatementNumber ?? "SOA";
+            int dash = current.LastIndexOf('-');
+            if (dash > 0
+                && int.TryParse(current.Substring(dash + 1), out int n)
+                && n >= 2 && n < 99)
+            {
+                entity.StatementNumber = current.Substring(0, dash + 1) + (n + 1).ToString();
+                return;
+            }
+            entity.StatementNumber = current + "-2";
+        }
+
+        private static void SyncSnapshotStatementNumber(SavedStatement entity)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(entity.FullSnapshotJson)
+                    || entity.FullSnapshotJson == "{}")
+                    return;
+                var snap = JsonSerializer.Deserialize<StatementSnapshot>(
+                    entity.FullSnapshotJson);
+                if (snap?.Header == null) return;
+                if (string.Equals(snap.Header.StatementNumber, entity.StatementNumber,
+                        StringComparison.Ordinal))
+                    return;
+                snap.Header.StatementNumber = entity.StatementNumber;
+                entity.FullSnapshotJson = JsonSerializer.Serialize(snap);
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "Could not sync statement snapshot number after reallocation: " +
+                    ex.Message);
+            }
         }
 
         public async Task UpdateAsync(SavedStatement entity)

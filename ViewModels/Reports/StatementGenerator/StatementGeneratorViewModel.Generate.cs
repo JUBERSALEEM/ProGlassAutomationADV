@@ -325,9 +325,12 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                                 if (retryCount >= maxRetries) throw;
 
-                                string newNumber = BuildStatementNumber(filter);
+                                string newNumber = BuildStatementNumber(filter)
+                                    + "-" + (retryCount + 1).ToString();
                                 entity.StatementNumber = newNumber;
                                 wfResult.Snapshot.Header.StatementNumber = newNumber;
+                                entity.FullSnapshotJson = JsonSerializer.Serialize(
+                                    wfResult.Snapshot);
                             }
                         }
                     }

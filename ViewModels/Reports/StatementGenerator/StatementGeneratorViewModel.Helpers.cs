@@ -65,7 +65,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         /// Builds the statement number as "SOA-CustomerName-dd-MM-yy-hh-mm-tt"
         /// (12-hour clock). Falls back to company, then "All" when no customer
         /// is selected. The name is filename-safe and time-stamped so it is
-        /// unique per minute.
+        /// unique per second. Collision retry appends -2, -3…
         /// </summary>
         private static string BuildStatementNumber(StatementFilter filter)
         {
@@ -86,7 +86,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             var now = DateTime.Now;
             string date = now.ToString("dd-MM-yy");
-            string time = now.ToString("hh-mm-tt");
+            string time = now.ToString("hh-mm-ss-tt");
             return $"SOA-{safe}-{date}-{time}";
         }
 
