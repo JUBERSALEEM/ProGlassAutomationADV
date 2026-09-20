@@ -138,17 +138,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         }
 
         /// <summary>
-        /// BUG-36: Status options — kept in sync with
-        /// SavedInvoicesListViewModel StatusFilterOptions.
+        /// Document-status picker. Single source:
+        /// <see cref="ProformaInvoiceStatus.All"/>. The saved-list filter
+        /// (<c>StatusFilterOptions</c>) is a different vocabulary (lifecycle
+        /// display: "PI created", "PI confirmed", …) and must not be copied
+        /// here. Cancelled is a real PI status (void target / transitions).
         /// </summary>
-        public List<string> StatusOptions { get; } = new List<string>
-        {
-            "Draft",
-            "Sent",
-            "Approved",
-            "Rejected",
-            "Expired"
-        };
+        public IReadOnlyList<string> StatusOptions => ProformaInvoiceStatus.All;
 
         // ═══════════════════════════════════════════════════════════════
         //  TRN VALIDATION (BUG-35)

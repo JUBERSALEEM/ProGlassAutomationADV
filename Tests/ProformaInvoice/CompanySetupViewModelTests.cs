@@ -47,6 +47,18 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
             Assert.Equal(DateTime.Now.Date.AddDays(30), vm.ValidUntil.Date);
         }
 
+        [Fact]
+        public void StatusOptions_is_the_canonical_ProformaInvoiceStatus_All_including_Cancelled()
+        {
+            var vm = new CompanySetupViewModel();
+
+            Assert.Equal(ProformaInvoiceStatus.All, vm.StatusOptions);
+            Assert.Contains(ProformaInvoiceStatus.Cancelled, vm.StatusOptions);
+            Assert.Contains(ProformaInvoiceStatus.Rejected, vm.StatusOptions);
+            Assert.DoesNotContain("Void", vm.StatusOptions,
+                StringComparer.OrdinalIgnoreCase);
+        }
+
         // ── Required-field messages ────────────────────────────────
 
         [Fact]
