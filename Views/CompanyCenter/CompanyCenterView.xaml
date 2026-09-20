@@ -360,12 +360,12 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardEdgeThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                Padding="16" Style="{StaticResource SurfacePrimaryStyle}">
+                                Padding="16">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <Border Width="4" CornerRadius="{DynamicResource Radius.XSmall}"
                                             Background="{DynamicResource AccentBrush}"
-                                            Margin="0,3,10,3" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                            Margin="0,3,10,3"/>
                                     <StackPanel>
                                         <TextBlock Text="LOGO &amp; LETTERHEAD"
                                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
@@ -391,7 +391,7 @@
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource Radius.Small}"
-                                            VerticalAlignment="Top" Style="{StaticResource SurfacePrimaryStyle}">
+                                            VerticalAlignment="Top">
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="10" ShadowDepth="2"
                                                               Direction="270" Opacity="0.12" Color="{DynamicResource LiquidShadowColor}"/>

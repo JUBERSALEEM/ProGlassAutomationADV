@@ -45,7 +45,7 @@
         <Border Grid.Row="0" Margin="16,16,16,0" Padding="16"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
             <StackPanel>
                 <TextBlock Text="Service Profitability — All Confirmed Jobs"
                            FontSize="{DynamicResource FontSize.H2}"
@@ -74,7 +74,7 @@
 
             <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="JOBS ANALYZED" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -284,7 +284,7 @@
                 <Border Background="{DynamicResource SurfacePrimaryBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}"
-                        Padding="28,16" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="28,16">
                     <StackPanel Orientation="Horizontal">
                         <ProgressBar IsIndeterminate="True" Width="20" Height="20"
                                      VerticalAlignment="Center" Margin="0,0,12,0"/>

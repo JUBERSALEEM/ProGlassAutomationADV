@@ -40,7 +40,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Border Width="38" Height="38" CornerRadius="{DynamicResource Radius.Medium}"
-                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                        VerticalAlignment="Center">
                     <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -67,7 +67,7 @@
                 </Border.Background>
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
                     <Border Width="62" Height="62" CornerRadius="{DynamicResource Radius.Large}"
-                            Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                            Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center">
                         <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
                                    Foreground="{DynamicResource DangerBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -85,7 +85,7 @@
             <Border x:Name="UnsupportedPanel" Background="Transparent" Visibility="Collapsed">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
                     <Border Width="62" Height="62" CornerRadius="{DynamicResource Radius.Large}"
-                            Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                            Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center">
                         <TextBlock Text="&#xE7C3;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
                                    Foreground="{DynamicResource TextSecondaryBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>

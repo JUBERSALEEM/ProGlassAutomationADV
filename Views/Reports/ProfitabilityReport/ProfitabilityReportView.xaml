@@ -190,7 +190,7 @@
 
                     <Border Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
                             Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20" VerticalAlignment="Top" Style="{StaticResource SurfacePrimaryStyle}">
+                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20" VerticalAlignment="Top">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="&#xE783;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                             <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" Margin="0,8,0,0" HorizontalAlignment="Center"/>
@@ -269,13 +269,13 @@
 
                                             <StackPanel Grid.Column="6" VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding HasCostData, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource TintGreenBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding HasCostData, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource TintGreenBrush}">
                                                         <TextBlock Text="COSTED" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                                                     </Border>
-                                                    <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding HasCostData, Converter={StaticResource InverseBoolToVisibilityConverter}}" Background="{DynamicResource TintAmberBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Visibility="{Binding HasCostData, Converter={StaticResource InverseBoolToVisibilityConverter}}" Background="{DynamicResource TintAmberBrush}">
                                                         <TextBlock Text="NOT COSTED" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                                                     </Border>
-                                                    <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Background="{DynamicResource TintAmberBrush}" Visibility="{Binding IsStaleCost, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="5,1" Margin="4,0,0,0" Background="{DynamicResource TintAmberBrush}" Visibility="{Binding IsStaleCost, Converter={StaticResource BoolToVisibilityConverter}}">
                                                         <TextBlock Text="STALE" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                                                     </Border>
                                                 </StackPanel>

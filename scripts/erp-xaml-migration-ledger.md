@@ -25,9 +25,10 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 2 dialect pass | SecondaryForeground→TextSecondary; Segoe→Icon; production filter/detail | `d6ce242` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10 | Competing SurfacePrimaryStyle on 10 report/sheet/P&L views | working-tree | n/a | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10b | VAT/login/cutting/preview/audit/use/2D competing SurfacePrimaryStyle | `84bfff9` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 surface strip 10c | FirstRun/PCC/CompanyReport/WizardStyles/History/Jobs/templates/process/charges/print | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10c | FirstRun/PCC/CompanyReport/WizardStyles/History/Jobs/templates/process/charges/print | `c2323ff` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10d | Customer/Profitability/Project reports; activity/storage; AiChat; CompanyCenter; rename; inquiry preview; portfolio service | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Batch 10c — 45 competing SurfacePrimaryStyle attrs stripped; sole FirstRun card chrome kept; nested production templates still without ErpPageRoot.
+**Done:** Batch 10d — 35 competing SurfacePrimaryStyle attrs stripped; AiChat White and BasedOn SurfacePrimaryStyle kept; nested rename dialog without ErpPageRoot.
 
 **Next:** remaining competing SurfacePrimaryStyle / Height 40. Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
 

@@ -39,7 +39,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="{DynamicResource Radius.Left.Medium}" Style="{StaticResource SurfacePrimaryStyle}">
+                                CornerRadius="{DynamicResource Radius.Left.Medium}">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="{TemplateBinding Padding}"
                                           VerticalAlignment="Center"/>
@@ -82,7 +82,7 @@
                     BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
                     CornerRadius="{DynamicResource Radius.Right.Medium}"
                     Padding="16,10"
-                    VerticalAlignment="Stretch" Style="{StaticResource SurfacePrimaryStyle}">
+                    VerticalAlignment="Stretch">
                 <TextBlock Text="{Binding Extension}"
                            FontSize="{DynamicResource FontSize.H3}"
                            FontWeight="{DynamicResource Weight.Bold}"
@@ -102,7 +102,7 @@
                 CornerRadius="{DynamicResource ControlCornerRadius}"
                 Background="{DynamicResource TintRedBrush}"
                 VerticalAlignment="Top"
-                Visibility="{Binding ValidationVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
+                Visibility="{Binding ValidationVisibility}">
             <TextBlock Text="{Binding ValidationMessage}"
                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                        TextWrapping="Wrap"

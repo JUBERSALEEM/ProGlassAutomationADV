@@ -165,7 +165,7 @@
                         SnapsToDevicePixels="True"
                         behaviors:CanvasDragBehavior.Panel="{Binding ElementName=ChatPanel}"
                         behaviors:CanvasDragBehavior.Canvas="{Binding ElementName=ChatCanvas}"
-                        behaviors:CanvasDragBehavior.ShadowResourceKey="PanelShadow" Style="{StaticResource SurfacePrimaryStyle}">
+                        behaviors:CanvasDragBehavior.ShadowResourceKey="PanelShadow">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -179,7 +179,7 @@
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource SurfaceSecondaryBrush}"
                                 VerticalAlignment="Center"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE99A;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H1}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -841,7 +841,7 @@
                                 VerticalAlignment="Center"
                                 Margin="0,0,8,0"
                                 SnapsToDevicePixels="True"
-                                UseLayoutRounding="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                UseLayoutRounding="True">
                             <TextBox x:Name="InputBox"
                                      Text="{Binding CurrentInput,
                                          UpdateSourceTrigger=PropertyChanged}"
