@@ -19,7 +19,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
-using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.JobOrder.Database;
@@ -27,7 +26,6 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.Production
@@ -50,8 +48,6 @@ namespace ProGlassAutomation.Services.Production
 
     public static class ProductionReleaseService
     {
-        private static readonly JsonSerializerOptions JsonOptions = new();
-
         /// <summary>
         /// Job Orders the factory can pull work from: non-void, status
         /// Released or In Production (the only states where floor work is
@@ -122,12 +118,19 @@ namespace ProGlassAutomation.Services.Production
 
             try
             {
-                var snapshot = await LoadSnapshotAsync(source).ConfigureAwait(false);
-                if (snapshot == null)
-                {
+                var json = await LoadJobOrderJsonAsync(source).ConfigureAwait(false);
+                var kind = ProductionSnapshotIntegrity.ReadJobOrderJson(
+                    json, out var snapshot, out string snapMsg);
+
+                if (kind == ProductionSnapshotKind.Corrupt)
+                    return (false,
+                        $"Cannot release {source.Reference}: {snapMsg}.", null);
+                if (kind == ProductionSnapshotKind.Missing || snapshot == null)
                     return (false,
                         $"Could not read the invoice snapshot behind {source.Reference}.", null);
-                }
+                if (kind == ProductionSnapshotKind.ValidEmpty)
+                    return (false,
+                        $"Nothing to distribute for {source.Reference} — {snapMsg} (empty is not corrupt).", null);
 
                 var plan = ProductionDistributionEngine.Distribute(source.Reference, snapshot);
                 if (plan.ItemCount == 0)

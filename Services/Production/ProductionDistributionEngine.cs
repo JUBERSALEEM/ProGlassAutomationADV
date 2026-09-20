@@ -310,6 +310,9 @@ namespace ProGlassAutomation.Services.Production
                         continue;
                     }
 
+                    // Legacy JSON default: Qty is int, so a missing property
+                    // deserializes as 0. New imports skip invalid qty; this
+                    // 0→1 path is ONLY persisted snapshot compatibility.
                     if (row.Qty <= 0)
                     {
                         plan.Warnings.Add(
