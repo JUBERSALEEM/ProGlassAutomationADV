@@ -420,11 +420,11 @@
                                             <ColumnDefinition Width="150"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Border Grid.Column="0"
-                                                Width="38" Height="38"
-                                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                        <Border Style="{StaticResource ModuleListKpiIconStyle}" Grid.Column="0"
+                                               
+                                               
                                                 Background="{DynamicResource TintIndigoBrush}"
-                                                VerticalAlignment="Center">
+                                               >
                                             <TextBlock Text="&#xE77B;"
                                                        FontFamily="Segoe MDL2 Assets"
                                                        FontSize="{DynamicResource FontSize.H2}"

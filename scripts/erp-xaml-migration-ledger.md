@@ -20,10 +20,11 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 1 report registers | Statement + Order Report lists = Archetype 1 | `95c3d6e` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 document shells | JO/DN/TI detail workspace; JO glass header=row | `c76195f` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 detail sections | DN attachments/history; TI attachments/family | `18819d8` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 type scale | Static Text* FontSize → FontSize.* (12 views) | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 type scale | Static Text* FontSize → FontSize.* (12 views) | `d4eabc1` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 list density | ListPageStyles GDS type; report KPI 38→KpiIconStyle | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Phase 1 lists + Phase 2 JO/DN/TI details + remaining View FontSize Static Text* (Settings/Ios26/print skipped).
+**Done:** Shared list chrome type scale + report KPI tiles on ModuleListKpiIconStyle.
 
-**Next:** remaining form density; no generator KPI Typography.Label BasedOn; Settings/Ios26/print after tests.
+**Next:** remaining form spacer columns / production density; no generator KPI Typography.Label BasedOn; Settings/Ios26/print after tests.
 
 **Do not:** ErpPageRoot on nested Controls/Sections; Settings Ios26*; PrintableInvoiceView; force-push.

@@ -191,7 +191,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="{DynamicResource Radius.Medium}" Background="{DynamicResource TintIndigoBrush}">
+                        <Border Style="{StaticResource ModuleListKpiIconStyle}" Grid.Column="0" Background="{DynamicResource TintIndigoBrush}">
                             <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
