@@ -18,7 +18,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Border Width="56" Height="56" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource TintPurpleBrush}" VerticalAlignment="Center" Margin="0,0,14,0" Style="{StaticResource SurfacePrimaryStyle}">
+                    Background="{DynamicResource TintPurpleBrush}" VerticalAlignment="Center" Margin="0,0,14,0">
                 <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
                            Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
@@ -26,7 +26,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ModuleName}" Style="{StaticResource ModulePageTitleStyle}"/>
                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
-                            Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="{Binding StageOrdinalLabel}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </Border>

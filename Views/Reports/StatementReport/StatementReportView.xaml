@@ -215,7 +215,7 @@
 
                     <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
                             Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20" Style="{StaticResource SurfacePrimaryStyle}">
+                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                             <TextBlock Text="&#xE783;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Reports.DeliveryReport.UnableLoadRecords}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
@@ -263,7 +263,7 @@
                                                 <TextBlock Text="{DynamicResource Reports.StatementReport.LedgerEntry}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Expander.Header>
-                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
                                             <StackPanel>
                                                 <Button Content="{DynamicResource Inquiry.OpenTaxInvoice}"
                                                         Command="{Binding DataContext.OpenTaxInvoiceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"

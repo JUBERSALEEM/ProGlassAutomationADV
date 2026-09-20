@@ -116,7 +116,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="12" Margin="0,0,0,14" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="12" Margin="0,0,0,14">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -125,7 +125,7 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="48" Height="54" Background="{DynamicResource Surface.Primary.BackgroundBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center">
                             <Grid>
                                 <TextBlock Text="LOGO" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextTertiaryBrush}"
