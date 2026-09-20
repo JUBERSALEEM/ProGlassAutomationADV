@@ -18,7 +18,7 @@
                 Background="{DynamicResource ShellLiquidBrush}"
                 BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
+                ClipToBounds="True">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -31,7 +31,7 @@
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
                     CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    Padding="18,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    Padding="18,12">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Login.SwitchUser}"
                                FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
@@ -89,7 +89,7 @@
                     CornerRadius="{DynamicResource Radius.Bottom.Medium}"
                     Background="{DynamicResource SurfaceTertiaryBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="{DynamicResource Border.TopHairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                    BorderThickness="{DynamicResource Border.TopHairlineThickness}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

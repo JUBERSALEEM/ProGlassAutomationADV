@@ -40,7 +40,7 @@
                                 Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="14,0"
                                           VerticalAlignment="Center"/>
@@ -146,7 +146,7 @@
             <TextBlock Grid.Row="0" Text="{Binding LpoLabelText}"
                        Style="{StaticResource DialogFieldLabelStyle}"/>
             <TextBox x:Name="LpoBox" Grid.Row="1"
-                     Height="40"
+                     MinHeight="{DynamicResource DensityInputHeight}"
                      Style="{StaticResource ApprovalTextBox}"
                      Text="{Binding LpoNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
         </Grid>
@@ -162,7 +162,7 @@
                 BorderBrush="{DynamicResource DangerBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                 VerticalAlignment="Top"
-                Visibility="{Binding ValidationVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
+                Visibility="{Binding ValidationVisibility}">
             <TextBlock Text="{Binding ValidationMessage}"
                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                        TextWrapping="Wrap"

@@ -27,7 +27,7 @@
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                         Padding="14,12"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <ContentPresenter/>
                 </Border>
                 <ControlTemplate.Triggers>
@@ -66,11 +66,11 @@
             </Grid>
             <Border Height="6"
                     Background="{DynamicResource BorderBrush}"
-                    CornerRadius="{DynamicResource Radius.XSmall}" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.XSmall}">
                 <Border Width="180"
                         HorizontalAlignment="Left"
                         CornerRadius="{DynamicResource Radius.XSmall}"
-                        Background="{DynamicResource StorageBarGradient}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                        Background="{DynamicResource StorageBarGradient}"/>
             </Border>
             <TextBlock Text="{Binding StorageSubtitle, FallbackValue='Storage unavailable'}"
                        FontSize="{DynamicResource FontSize.BodySmall}"

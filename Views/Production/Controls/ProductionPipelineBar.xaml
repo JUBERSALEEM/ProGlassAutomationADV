@@ -18,7 +18,7 @@
     <Border CornerRadius="{DynamicResource CardCornerRadius}"
             Background="{DynamicResource DashAmbientBrush}"
             Padding="12,10"
-            Margin="4,0,4,10" Style="{StaticResource SurfacePrimaryStyle}">
+            Margin="4,0,4,10">
         <StackPanel>
             <Grid>
                 <StackPanel Orientation="Horizontal">
@@ -63,7 +63,7 @@
                                             Background="{DynamicResource SurfacePrimaryBrush}"
                                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                                             BorderThickness="1"
-                                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                            SnapsToDevicePixels="True">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Ordinal}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"

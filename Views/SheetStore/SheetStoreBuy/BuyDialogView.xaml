@@ -32,7 +32,7 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14" Margin="0,0,0,16"
-                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    SnapsToDevicePixels="True">
                 <StackPanel>
                     <TextBlock Text="{Binding Sheet.Category}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource AccentBrush}"/>
@@ -78,7 +78,7 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
-                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    SnapsToDevicePixels="True">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource SheetStore.QuantitySheets}"
                                Style="{StaticResource DialogFieldLabelStyle}"
@@ -146,7 +146,7 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
-                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    SnapsToDevicePixels="True">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource SheetStore.PurchasePreview}"
                                Style="{StaticResource DialogFieldLabelStyle}"
