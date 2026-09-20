@@ -672,6 +672,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             {
                 result.Invoices = await db.ProformaInvoices
                     .AsNoTracking()
+                    .Where(i => !i.IsVoid)
                     // An explicit sentinel rather than `default`: EF has to
                     // translate this into SQL, and a captured local is
                     // parameterised cleanly where `default` may not be.
@@ -694,6 +695,7 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             {
                 result.Jobs = await db.JobOrders
                     .AsNoTracking()
+                    .Where(j => !j.IsVoid)
                     .OrderByDescending(j => j.UpdatedAt)
                     .Take(limit)
                     .Select(j => new RecentJobRow

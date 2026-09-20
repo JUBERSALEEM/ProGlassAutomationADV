@@ -594,8 +594,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             {
                 bool isOverdue = j.DeliveryDate.HasValue
                               && j.DeliveryDate.Value.Date < today
-                              && j.Status != JobStatusCompleted
-                              && j.Status != JobStatusDelivered;
+                              && !ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus.JobOrderStatusValues.IsFinished(j.Status);
 
                 string statusLabel = isOverdue ? "OVERDUE" : (j.Status ?? "Draft").ToUpperInvariant();
                 string priorityIcon = j.Priority switch
@@ -789,6 +788,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         // ═════════════════════════════════════════════════════════════════
         //  THEME SWAP
         // ═════════════════════════════════════════════════════════════════
+
+        protected override void DisposeCore()
+        {
+            _docChangeCts?.Cancel();
+            _docChangeCts?.Dispose();
+            _docChangeCts = null;
+            _database?.UnsubscribeDocumentsChanged(OnDocumentChangedAsync);
+        }
 
         protected override void OnThemeChanged()
         {
