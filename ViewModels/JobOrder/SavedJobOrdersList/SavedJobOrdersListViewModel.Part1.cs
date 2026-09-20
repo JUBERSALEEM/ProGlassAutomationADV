@@ -407,15 +407,16 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         private void RecalculateKpis()
         {
             TotalCount = _allJobs.Count;
-            InProductionCount = _allJobs.Count(j => Eq(j.StatusRaw, "InProduction"));
-            CompletedCount = _allJobs.Count(j => Eq(j.StatusRaw, "Completed"));
+            InProductionCount = _allJobs.Count(j =>
+                JobOrderStatusValues.IsInProduction(j.StatusRaw));
+            CompletedCount = _allJobs.Count(j =>
+                JobOrderStatusValues.IsCompleted(j.StatusRaw));
 
             var today = DateTime.Today;
             OverdueCount = _allJobs.Count(j =>
                 j.DeliveryDate.HasValue &&
                 j.DeliveryDate.Value.Date < today &&
-                !Eq(j.StatusRaw, "Completed") &&
-                !Eq(j.StatusRaw, "Delivered"));
+                !JobOrderStatusValues.IsFinished(j.StatusRaw));
         }
 
         private void ApplyFilters()
@@ -799,11 +800,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 var snapshot = JobOrderMapper
                     .BuildFromProformaInvoice(saved);
 
-                // The mapper derives JOB-YYYY-NNN from the PI number, which
-                // collides as soon as a quote is converted twice. Ask the
-                // repository for the next free id in that series.
-                snapshot.JobOrderId = await _jobs
-                    .SuggestNextIdAsync(snapshot.JobOrderId);
+                // Derive JOB-YYYY-NNN from the PI. SuggestNextIdAsync always
+                // increments, so only call it when the derived id is taken
+                // (same rule as PI-approval ConvertToJobOrderAsync).
+                if (await _jobs.ExistsByJobOrderIdAsync(snapshot.JobOrderId))
+                {
+                    snapshot.JobOrderId = await _jobs
+                        .SuggestNextIdAsync(snapshot.JobOrderId);
+                }
 
                 var entity = JobOrderMapper.BuildEntityFromSnapshot(
                     snapshot, saved.GrandTotalVatInclusive);
@@ -816,9 +820,18 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                         .MasterDeliveryNoteService
                         .EnsureForJobOrderAsync(inserted);
                 }
-                catch {
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("if suppressed");
-            }
+                catch (Exception masterEx)
+                {
+                    AppLogService.Error(
+                        "Job Order saved but Master DN was not created.",
+                        masterEx,
+                        new LogContext
+                        {
+                            Module = "DeliveryNote",
+                            Class = nameof(SavedJobOrdersListViewModel),
+                            Operation = "EnsureMasterDn"
+                        });
+                }
 
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order created",
