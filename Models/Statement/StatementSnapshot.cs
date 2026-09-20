@@ -140,8 +140,11 @@ namespace ProGlassAutomation.Models.Statement
         public string DueDateDisplay =>
             DueDate == default ? "—" : DueDate.ToString("dd MMM yyyy");
         public bool IsOverdue =>
-            DueDate != default && DueDate < DateTime.Today &&
-            Status != "Paid" && Status != "Cancelled" && Status != "Void";
+            DueDate != default && DueDate.Date < DateTime.Today &&
+            !ProGlassAutomation.Models.TaxInvoice.Common.TaxInvoiceStatus
+                .TaxInvoiceStatusValues.IsPaid(Status) &&
+            !ProGlassAutomation.Models.TaxInvoice.Common.TaxInvoiceStatus
+                .TaxInvoiceStatusValues.IsCancelled(Status);
 
         // ── Order Reconciliation (Chat 22 v3) ─────────────────────────────
 

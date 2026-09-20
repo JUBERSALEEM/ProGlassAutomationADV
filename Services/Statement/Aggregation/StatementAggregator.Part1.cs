@@ -4,6 +4,7 @@
 
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Reconciliation;
+using ProGlassAutomation.Models.TaxInvoice.Common.TaxInvoiceStatus;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Statement.Reconciliation;
@@ -243,16 +244,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
         // ═════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Statuses that count as "issued" for a statement. A tax invoice can
-        /// only become Paid / PartiallyPaid / Overdue after it has been
-        /// issued, so those are included; Draft / Cancelled / Void are not.
-        /// </summary>
-        private static readonly string[] IssuedStatuses =
-        {
-            "Issued", "Paid", "PartiallyPaid", "Partially Paid", "Overdue"
-        };
-
-        /// <summary>
         /// Drops invoices that are not issued, and invoices that do not
         /// reference at least one real (non-master) delivery note. Master
         /// ("Dummy") delivery notes are already excluded by
@@ -291,9 +282,9 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
 
             var valid = items.Where(i =>
             {
-                // 1. Issued status only.
-                string status = i.Status?.Trim() ?? "";
-                if (!IssuedStatuses.Contains(status, StringComparer.OrdinalIgnoreCase))
+                // 1. Issued (including paid / partial / overdue) only.
+                // Draft / Cancelled / Void never become receivables.
+                if (!TaxInvoiceStatusValues.HasBeenIssued(i.Status))
                     return false;
 
                 // 2. Must reference at least one real delivery note. If the
@@ -368,7 +359,9 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 }
             }
 
-            return q.OrderBy(i => i.IssueDate).ToList();
+            return q.OrderBy(i => i.IssueDate)
+                .ThenBy(i => i.InvoiceNumber, StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         private static bool SafeContains(string? haystack, string? needle)
@@ -704,9 +697,8 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 string status = item.Status ?? "";
 
                 bool isPaidOrClosed =
-                    status == "Paid" ||
-                    status == "Cancelled" ||
-                    status == "Void";
+                    TaxInvoiceStatusValues.IsPaid(status) ||
+                    TaxInvoiceStatusValues.IsCancelled(status);
 
                 int daysOverdue = 0;
                 if (!isPaidOrClosed &&
@@ -716,8 +708,11 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     daysOverdue = (today - item.DueDate.Date).Days;
                 }
 
+                // There is no payment ledger. PaidAmount is all-or-nothing
+                // from TI status: Paid → full GrandTotal, otherwise 0
+                // (including PartiallyPaid — no stored paid split exists).
                 decimal paidAmount =
-                    status == "Paid" ? item.GrandTotal : 0m;
+                    TaxInvoiceStatusValues.IsPaid(status) ? item.GrandTotal : 0m;
 
                 string invNum = item.InvoiceNumber ?? "";
                 attachmentCounts.TryGetValue(invNum, out int attCount);
