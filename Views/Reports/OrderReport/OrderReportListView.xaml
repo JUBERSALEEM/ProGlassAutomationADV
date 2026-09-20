@@ -1,548 +1,461 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Reports/OrderReport/OrderReportListView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Report Generator — saved reports list (2026-09-06)
-
-     Lists saved Order Reports (orderreports.db) with search, KPI cards
-     and open/PDF/delete actions. Mirrors StatementListView but uses
-     literal text — no Statement localization keys.
-     Bound to OrderReportListViewModel.
-═══════════════════════════════════════════════════════════════════ -->
+<!-- Order Report list — Archetype 1 (saved reports register).
+     Bindings, commands, IsEmpty / IsListVisible / HasSearchText,
+     design-time xmlns, ListView selection: unchanged.
+     Literal English kept (no Statement localization keys). -->
 <UserControl Style="{StaticResource ErpPageRootStyle}"
-    x:Class="ProGlassAutomation.Views.Reports.OrderReport.OrderReportListView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.OrderReport"
-    mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance Type=vm:OrderReportListViewModel, IsDesignTimeCreatable=False}"
-    FontFamily="{DynamicResource AppFontFamily}"
-    TextOptions.TextFormattingMode="Ideal"
-    TextOptions.TextRenderingMode="ClearType"
-    UseLayoutRounding="True"
-    SnapsToDevicePixels="True">
+             x:Class="ProGlassAutomation.Views.Reports.OrderReport.OrderReportListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.OrderReport"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             mc:Ignorable="d"
+             d:DataContext="{d:DesignInstance Type=vm:OrderReportListViewModel, IsDesignTimeCreatable=False}"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══ ROW 0 — HEADER ══ -->
-        <Border Grid.Row="0" Style="{StaticResource DocumentHeaderBandStyle}" Margin="24,16,24,0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                    <TextBlock Text="Report Generator" Style="{StaticResource ModulePageSubtitleStyle}"/>
-                    <TextBlock Text="Overall Order Reports" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,4,0,0"/>
-                </StackPanel>
-                <Button Grid.Column="1" Command="{Binding NewReportCommand}"
-                        Style="{StaticResource PrimaryPillButton}"
-                        Tag="&#xE710;"
-                        Content="New Report"
-                        VerticalAlignment="Center"/>
-            </Grid>
-        </Border>
-
-        <!-- ══ ROW 1 — KPI CARDS ══ -->
-        <Grid Grid.Row="1" Margin="24,14,24,0">
+        <Grid Grid.Row="0" Margin="16,16,16,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="10"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-
-            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}"
-                    Background="{DynamicResource TintBlueBrush}"
-                    BorderBrush="{DynamicResource AccentBrush}" Padding="16,14">
-                <StackPanel>
-                    <TextBlock Text="Reports" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                    <TextBlock Text="{Binding TotalReportsDisplay}" Style="{StaticResource ModuleListKpiValueStyle}"
-                               Foreground="{DynamicResource AccentBrush}"/>
-                    <TextBlock Text="Total saved" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                </StackPanel>
-            </Border>
-
-            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}"
-                    Background="{DynamicResource TintGreenBrush}"
-                    BorderBrush="{DynamicResource SuccessBrush}" Padding="16,14">
-                <StackPanel>
-                    <TextBlock Text="Invoiced Value" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                    <TextBlock Text="{Binding TotalInvoicedValueDisplay}" Style="{StaticResource ModuleListKpiValueStyle}"
-                               Foreground="{DynamicResource SuccessBrush}"/>
-                    <TextBlock Text="Across all reports" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                </StackPanel>
-            </Border>
-
-            <Border Grid.Column="4" CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-                        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-                        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                                <Setter Property="BorderBrush" Value="Transparent"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <StackPanel>
-                    <TextBlock Text="Missing Documents">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
-                                <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock Text="{Binding TotalMissingDocumentsDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                               Margin="0,6,0,2">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock Text="Delivery notes without attachments" FontSize="{DynamicResource FontSize.Body}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                        <Setter Property="Opacity" Value="0.85"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Overall Order Reports" Style="{StaticResource ModulePageTitleStyle}"/>
+                <TextBlock Text="Report Generator" Style="{StaticResource ModulePageSubtitleStyle}"/>
+                <TextBlock Text="{Binding StatusMessage}"
+                           Style="{StaticResource ModulePageSubtitleStyle}"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+            <Button Grid.Column="1"
+                    Command="{Binding NewReportCommand}"
+                    Style="{StaticResource PrimaryPillButton}"
+                    Tag="&#xE710;"
+                    Content="New Report"
+                    MinWidth="192"
+                    VerticalAlignment="Center"/>
         </Grid>
 
-        <!-- ══ ROW 2 — SEARCH BAR ══ -->
-        <Border Grid.Row="2" Margin="24,14,24,0"
-                Background="{DynamicResource SurfacePrimaryBrush}"
-                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,16">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="8"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                <Border Grid.Column="0" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                        CornerRadius="{DynamicResource ControlCornerRadius}" Height="38" Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.Left.Medium}" Style="{StaticResource SurfacePrimaryStyle}">
-                            <TextBlock Text="⌕" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <Grid Grid.Column="1" Margin="10,0,0,0">
-                            <TextBlock Text="Search report number, customer, project or company…"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       VerticalAlignment="Center" IsHitTestVisible="False"
-                                       Visibility="{Binding HasSearchText, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="{DynamicResource FontSize.Title}" Background="Transparent"
-                                     BorderThickness="{DynamicResource Border.NoneThickness}" Foreground="{DynamicResource TextPrimaryBrush}"
-                                     VerticalContentAlignment="Center" CaretBrush="{DynamicResource AccentBrush}" Style="{StaticResource TextBoxStyle}"/>
-                        </Grid>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintBlueBrush}">
+                                <TextBlock Text="&#xE9F9;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Reports" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalReportsDisplay}"
+                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="Total saved" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintGreenBrush}">
+                                <TextBlock Text="&#xE8A3;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
+                                           Foreground="{DynamicResource SuccessBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Invoiced Value" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalInvoicedValueDisplay}"
+                                           Style="{StaticResource ModuleListKpiValueStyle}"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Text="Across all reports" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintRedBrush}">
+                                <TextBlock Text="&#xE7BA;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
+                                           Foreground="{DynamicResource DangerBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Missing Documents" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalMissingDocumentsDisplay}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleListKpiValueStyle}">
+                                            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="Delivery notes without attachments"
+                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
                     </Grid>
                 </Border>
 
-                <Button Grid.Column="2" Command="{Binding ClearSearchCommand}"
-                        Visibility="{Binding HasSearchText, Converter={StaticResource BoolToVisibilityConverter}}"
-                        Height="38" Width="38" FontSize="{DynamicResource FontSize.Body}" Cursor="Hand"
-                        BorderThickness="{DynamicResource Border.NoneThickness}" ToolTip="Clear search" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{DynamicResource SurfacePrimaryBrush}"
-                                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
-                                <TextBlock Text="✕" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
-                                    <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="160"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid Grid.Column="0" Margin="0,0,8,0">
+                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                     Style="{StaticResource ModuleListFilterInputStyle}"/>
+                            <TextBlock Text="Search report number, customer, project or company…"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="12,0,0,0"
+                                       IsHitTestVisible="False"
+                                       Visibility="{Binding HasSearchText,
+                                          Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                        </Grid>
+                        <ScrollViewer Grid.Column="1"
+                                      VerticalScrollBarVisibility="Disabled"
+                                      HorizontalScrollBarVisibility="Auto">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Command="{Binding ClearSearchCommand}"
+                                        Visibility="{Binding HasSearchText,
+                                            Converter={StaticResource BoolToVisibilityConverter}}"
+                                        Style="{StaticResource RowDangerButton}"
+                                        Tag="&#xE711;"
+                                        ToolTip="Clear search"
+                                        Width="32"
+                                        Height="32"
+                                        MinWidth="32"
+                                        Padding="0"
+                                        Margin="0,0,8,0"/>
+                                <Button Command="{Binding RefreshCommand}"
+                                        Style="{StaticResource PrimaryPillButton}"
+                                        Tag="&#xE72C;"
+                                        Content="Refresh"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
 
-                <Button Grid.Column="2" Command="{Binding RefreshCommand}"
-                        Visibility="{Binding HasSearchText, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                        Height="38" Padding="16,0" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                        Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="↻" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                               VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                    <TextBlock Text="Refresh" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                <Border Grid.Row="2"
+                        Style="{StaticResource ModuleListTableHeaderStyle}"
+                        Visibility="{Binding IsListVisible,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3"/>
+                            <ColumnDefinition Width="1.5*" MinWidth="140"/>
+                            <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                            <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                            <ColumnDefinition Width="0.8*" MinWidth="85"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="1"
+                                   Text="Report"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="12,0"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="Quantities"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="8,0"/>
+                        <TextBlock Grid.Column="3"
+                                   Text="Invoiced Value"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="4"
+                                   Text="Missing Docs"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="5"
+                                   Text="Actions"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="3">
+                    <Border Panel.ZIndex="2"
+                            Visibility="{Binding IsLoading,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="0,48,0,48">
+                            <TextBlock Text="&#xE72C;"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Kpi}"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Loading order reports…"
+                                       FontSize="{DynamicResource FontSize.H3}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,16,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Panel.ZIndex="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding IsEmpty,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    MaxWidth="420"
+                                    Margin="0,48,0,48">
+                            <TextBlock Text="No reports yet"
+                                       FontSize="{DynamicResource FontSize.H2}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,8"/>
+                            <TextBlock Text="Generate an Overall Report to track a proforma invoice through job order, delivery and invoicing."
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,0,0,20"/>
+                            <Button Content="+ New Report"
+                                    Command="{Binding NewReportCommand}"
+                                    Style="{StaticResource PrimaryPillButton}"
+                                    Tag="&#xE710;"
+                                    HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <ListView Panel.ZIndex="0"
+                              ItemsSource="{Binding Rows}"
+                              SelectedItem="{Binding SelectedRow}"
+                              Background="Transparent"
+                              BorderThickness="{DynamicResource Border.NoneThickness}"
+                              HorizontalContentAlignment="Stretch"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              ScrollViewer.VerticalScrollBarVisibility="Auto"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              VirtualizingPanel.ScrollUnit="Pixel"
+                              VirtualizingPanel.CacheLength="400,800"
+                              VirtualizingPanel.CacheLengthUnit="Pixel"
+                              ScrollViewer.CanContentScroll="False"
+                              ScrollViewer.IsDeferredScrollingEnabled="False"
+                              ScrollViewer.PanningMode="None"
+                              behaviors:SmoothScrollBehavior.IsEnabled="True"
+                              Visibility="{Binding IsListVisible,
+                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ModuleListRowStyle}"
+                                        MinHeight="56"
+                                        ClipToBounds="True">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3"/>
+                                            <ColumnDefinition Width="1.5*" MinWidth="140"/>
+                                            <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                                            <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                                            <ColumnDefinition Width="0.8*" MinWidth="85"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <Border Grid.Column="0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="1" Margin="12,8,8,8" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                <TextBlock Text="{Binding ReportNumber, Mode=OneWay}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                                <TextBlock Text="  /  "
+                                                           FontSize="{DynamicResource FontSize.Title}"
+                                                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                <TextBlock Text="{Binding Title, Mode=OneWay}"
+                                                           FontSize="{DynamicResource FontSize.Title}"
+                                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Background="{DynamicResource TintIndigoBrush}"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                        Padding="8,4"
+                                                        Margin="0,0,8,0">
+                                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                                               FontWeight="{DynamicResource Weight.Bold}"
+                                                               Foreground="{DynamicResource AccentBrush}">
+                                                        <Run Text="{Binding PiCount, Mode=OneWay}"/>
+                                                        <Run Text=" PI(s)"/>
+                                                    </TextBlock>
+                                                </Border>
+                                                <TextBlock Text="{Binding CreatedAtDisplay, Mode=OneWay}"
+                                                           FontSize="{DynamicResource FontSize.Body}"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding QuantitiesDisplay, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0"
+                                                   TextWrapping="Wrap"/>
+
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding TotalInvoicedValueDisplay, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,12,0"/>
+
+                                        <Border Grid.Column="4"
+                                                VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Padding="8,4">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="Complete"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
+                                                                <Setter Property="Text" Value="{Binding MissingDocuments}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="5"
+                                                    Orientation="Horizontal"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="4,0,8,0">
+                                            <Button Style="{StaticResource RowPrimaryButton}"
+                                                    Command="{Binding DataContext.OpenPdfCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding HasPdf}"
+                                                    Content="PDF"
+                                                    ToolTip="PDF"
+                                                    Margin="0,0,8,0"/>
+                                            <Button Style="{StaticResource RowSuccessButton}"
+                                                    Command="{Binding DataContext.ShareReportCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    CommandParameter="{Binding}"
+                                                    IsEnabled="{Binding HasPdf}"
+                                                    ToolTip="{DynamicResource Sharing.Share}"
+                                                    Tag="&#xE72D;"
+                                                    Margin="0,0,8,0"/>
+                                            <Button Style="{StaticResource RowOutlinedButton}"
+                                                    Command="{Binding DataContext.OpenReportCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="Open"
+                                                    Tag="&#xE8E5;"
+                                                    Margin="0,0,8,0"/>
+                                            <Button Style="{StaticResource RowDangerButton}"
+                                                    Command="{Binding DataContext.DeleteReportCommand,
+                                                        RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                    CommandParameter="{Binding}"
+                                                    Tag="&#xE74D;"
+                                                    Width="34"
+                                                    Height="34"
+                                                    MinWidth="34"
+                                                    Padding="0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
             </Grid>
         </Border>
-
-        <!-- ══ ROW 3 — COLUMN HEADERS ══ -->
-        <Border Grid.Row="3" Margin="24,10,24,0"
-                Background="{DynamicResource SurfacePrimaryBrush}"
-                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="16,8"
-                Visibility="{Binding IsListVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="6"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="240"/>
-                    <ColumnDefinition Width="130"/>
-                    <ColumnDefinition Width="120"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="1" Text="Report" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="14,0,0,0"/>
-                <TextBlock Grid.Column="2" Text="Quantities" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                <TextBlock Grid.Column="3" Text="Invoiced Value" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                <TextBlock Grid.Column="4" Text="Missing Docs" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                <TextBlock Grid.Column="5" Text="Actions" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
-            </Grid>
-        </Border>
-
-        <!-- ══ ROW 4 — CONTENT ══ -->
-        <Grid Grid.Row="4" Margin="12,4,12,8">
-
-            <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,48,0,48">
-                    <TextBlock Text="↻" FontSize="{DynamicResource FontSize.Kpi}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Text="Loading order reports…" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"
-                               Margin="0,18,0,0"/>
-                </StackPanel>
-            </Border>
-
-            <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="420" Margin="0,48,0,48">
-                    <TextBlock Text="No reports yet" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Center"
-                               Margin="0,0,0,8"/>
-                    <TextBlock Text="Generate an Overall Report to track a proforma invoice through job order, delivery and invoicing."
-                               FontSize="{DynamicResource FontSize.Title}" TextWrapping="Wrap" TextAlignment="Center"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,24"/>
-                    <Button Content="+ New Report" Command="{Binding NewReportCommand}"
-                            Height="40" Padding="28,0" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
-                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" HorizontalAlignment="Center"
-                            Background="{DynamicResource AccentBrush}" Foreground="{DynamicResource OnAccentForegroundBrush}" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}" Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                </StackPanel>
-            </Border>
-
-            <ListView ItemsSource="{Binding Rows}"
-                      SelectedItem="{Binding SelectedRow}"
-                      Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}"
-                      HorizontalContentAlignment="Stretch"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                      VirtualizingPanel.IsVirtualizing="True"
-                      VirtualizingPanel.VirtualizationMode="Recycling"
-                      VirtualizingPanel.ScrollUnit="Pixel"
-                      VirtualizingPanel.CacheLength="400,800"
-                      VirtualizingPanel.CacheLengthUnit="Pixel"
-                      ScrollViewer.CanContentScroll="False"
-                      Visibility="{Binding IsListVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="Background" Value="Transparent"/>
-                        <Setter Property="BorderThickness" Value="0"/>
-                        <Setter Property="Padding" Value="0"/>
-                        <Setter Property="Margin" Value="0,0,0,8"/>
-                        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListViewItem">
-                                    <ContentPresenter/>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </ListView.ItemContainerStyle>
-
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="6"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="240"/>
-                                    <ColumnDefinition Width="130"/>
-                                    <ColumnDefinition Width="120"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Left.Medium}">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                </Border>
-
-                                <!-- Report info -->
-                                <Border Grid.Column="1" Padding="16,14,12,14">
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
-                                            <TextBlock Text="{Binding ReportNumber, Mode=OneWay}" FontSize="{DynamicResource FontSize.Title}"
-                                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
-                                            <TextBlock Text="  /  " FontSize="{DynamicResource FontSize.Title}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Title, Mode=OneWay}" FontSize="{DynamicResource FontSize.Title}"
-                                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <Border Style="{StaticResource ModuleListRowStyle}" Background="{DynamicResource TintIndigoBrush}"
-                                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
-                                                    Margin="0,0,8,0">
-                                                <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                                           Foreground="{DynamicResource AccentBrush}">
-                                                    <Run Text="{Binding PiCount, Mode=OneWay}"/>
-                                                    <Run Text=" PI(s)"/>
-                                                </TextBlock>
-                                            </Border>
-                                            <TextBlock Text="{Binding CreatedAtDisplay, Mode=OneWay}" FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- Quantities -->
-                                <Border Style="{StaticResource ModuleListRowStyle}" Grid.Column="2" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                                        Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
-                                    <TextBlock Text="{Binding QuantitiesDisplay, Mode=OneWay}" FontSize="{DynamicResource FontSize.Body}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"
-                                               VerticalAlignment="Center" TextWrapping="Wrap"/>
-                                </Border>
-
-                                <!-- Invoiced value -->
-                                <Border Style="{StaticResource ModuleListRowStyle}" Grid.Column="3" Background="{DynamicResource SuccessBrush}"
-                                        Margin="0,10,8,10" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10">
-                                    <TextBlock Text="{Binding TotalInvoicedValueDisplay, Mode=OneWay}"
-                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"/>
-                                </Border>
-
-                                <!-- Missing docs -->
-                                <Border Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,6">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="Complete"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                                        <Setter Property="Text" Value="{Binding MissingDocuments}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Border>
-
-                                <!-- Actions -->
-                                <Border Grid.Column="5" Padding="8,0,16,0">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Button Command="{Binding DataContext.OpenPdfCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding}"
-                                                IsEnabled="{Binding HasPdf}"
-                                                Padding="12,0" Margin="0,0,6,0"
-                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd" Background="{DynamicResource AccentBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="PDF" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.84"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsEnabled" Value="False">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-
-                                        <Button Command="{Binding DataContext.ShareReportCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding}"
-                                                IsEnabled="{Binding HasPdf}"
-                                                ToolTip="{DynamicResource Sharing.Share}"
-                                                Padding="12,0" Margin="0,0,6,0"
-                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd" Background="{DynamicResource SuccessBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="&#xE72D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.84"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsEnabled" Value="False">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-
-                                        <Button Command="{Binding DataContext.OpenReportCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding}"
-                                                Padding="12,0" Margin="0,0,6,0"
-                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd" Background="{DynamicResource WarningBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="Open" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-
-                                        <Button Command="{Binding DataContext.DeleteReportCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding}"
-                                                Width="34" Height="34" FontSize="{DynamicResource FontSize.Title}"
-                                                Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="bd" Background="{DynamicResource DangerBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
-                                                        <TextBlock Text="✕" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="bd" Property="Opacity" Value="0.84"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </Grid>
     </Grid>
 </UserControl>

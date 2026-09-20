@@ -16,10 +16,11 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 1 list overflow | Star-ratio columns; CanContentScroll=False; PI empty overlay; JO token dialect | `9781485` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 1 list follow-through | Inquiry header cols; KPI N0; generator White; pixel-scroll; inquiry editor tokens | `39e5e35` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 1 archetype rewrite | PI list = Archetype 1; JO list = Archetype 2 | `ec3b9e8` / `71108ac` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 1 tabbed/rail lists | TI + DN full Archetype 2; Inquiry list+rail chrome | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 1 tabbed/rail lists | TI + DN full Archetype 2; Inquiry list+rail chrome | `04afcd5` / `9277363` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 1 report registers | Statement + Order Report lists = Archetype 1 | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Canonical register lists PI/JO/TI/DN/Inquiry rewritten to master archetypes (star columns, Z-layers, filter scroller, 4px gutters). DN dropped 1851px envelope. Inquiry rail `x:Name`/menus preserved.
+**Done:** Canonical register lists PI/JO/TI/DN/Inquiry/Statement/OrderReport rewritten to master archetypes.
 
-**Next:** Statement/OrderReport lists; then Phase 2 details. No generator KPI Typography.Label BasedOn; Settings/Ios26/print after tests.
+**Next:** Phase 2 details (DN/JO/TI detail, remaining Static Text*). No generator KPI Typography.Label BasedOn; Settings/Ios26/print after tests.
 
 **Do not:** ErpPageRoot on nested Controls/Sections; Settings Ios26*; PrintableInvoiceView; force-push.
