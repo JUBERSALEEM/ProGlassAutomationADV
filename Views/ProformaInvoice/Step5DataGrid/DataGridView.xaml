@@ -244,7 +244,7 @@
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="10,4"
                                 MinWidth="36"
-                                Margin="0,0,10,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                Margin="0,0,10,0">
                             <TextBlock Text="{Binding TotalSpecGroups}"
                                        FontSize="{DynamicResource FontSize.Title}"
                                        FontWeight="{DynamicResource Weight.Bold}"
@@ -269,7 +269,7 @@
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="12,10"
                                 Margin="0,0,0,10"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <Border.InputBindings>
                                 <KeyBinding Modifiers="Control" Key="N" Command="{Binding AddRowCommand}"/>
                             </Border.InputBindings>
@@ -293,7 +293,7 @@
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Background="{DynamicResource AccentBrush}"
                                             VerticalAlignment="Bottom"
-                                            Margin="0,0,0,1" Style="{StaticResource SurfacePrimaryStyle}">
+                                            Margin="0,0,0,1">
                                         <TextBlock Text="{Binding GroupNumber}"
                                                    FontSize="{DynamicResource FontSize.Title}"
                                                    FontWeight="{DynamicResource Weight.Bold}"

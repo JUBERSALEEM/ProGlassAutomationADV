@@ -129,7 +129,7 @@
                                     Background="{DynamicResource WarningSurfaceBrush}"
                                     BorderBrush="{DynamicResource WarningOnLiquid}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Visibility="{Binding DefaultCredWarningVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Visibility="{Binding DefaultCredWarningVisibility}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BA;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
@@ -197,7 +197,7 @@
                                     CornerRadius="{DynamicResource Radius.Large}"
                                     Background="{DynamicResource SurfacePrimaryBrush}"
                                     BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                    BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                                    BorderThickness="{DynamicResource Border.HairlineThickness}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -234,7 +234,7 @@
                                     Background="{DynamicResource DangerSurfaceBrush}"
                                     BorderBrush="{DynamicResource DangerOnLiquid}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Visibility="{Binding ErrorVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Visibility="{Binding ErrorVisibility}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xEA39;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"

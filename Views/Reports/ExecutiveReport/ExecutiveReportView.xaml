@@ -167,7 +167,7 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Margin="0,0,8,0">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                                             <TextBlock Text="{Binding Value}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{Binding BrushKey, Converter={StaticResource BrushKeyConverter}}" Margin="0,6,0,0"/>
@@ -186,7 +186,7 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Style="{StaticResource SurfacePrimaryStyle}">
+                            <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14">
                                 <StackPanel>
                                     <TextBlock Text="TOP SPECIFICATIONS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                                     <ItemsControl ItemsSource="{Binding TopSpecifications}">
@@ -208,7 +208,7 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="2" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Style="{StaticResource SurfacePrimaryStyle}">
+                            <Border Grid.Column="2" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14">
                                 <StackPanel>
                                     <TextBlock Text="TOP CUSTOMERS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
                                     <ItemsControl ItemsSource="{Binding TopCustomers}">

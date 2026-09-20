@@ -26,9 +26,10 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 2 surface strip 10 | Competing SurfacePrimaryStyle on 10 report/sheet/P&L views | working-tree | n/a | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10b | VAT/login/cutting/preview/audit/use/2D competing SurfacePrimaryStyle | `84bfff9` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10c | FirstRun/PCC/CompanyReport/WizardStyles/History/Jobs/templates/process/charges/print | `c2323ff` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 surface strip 10d | Customer/Profitability/Project reports; activity/storage; AiChat; CompanyCenter; rename; inquiry preview; portfolio service | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10d | Customer/Profitability/Project reports; activity/storage; AiChat; CompanyCenter; rename; inquiry preview; portfolio service | `2b8eb4b` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10e | AuthSurface/LoginPanel; DataGrid/Wastages; Executive/JO/PI/Salesman/TI reports; ChangesDialog | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Batch 10d — 35 competing SurfacePrimaryStyle attrs stripped; AiChat White and BasedOn SurfacePrimaryStyle kept; nested rename dialog without ErpPageRoot.
+**Done:** Batch 10e — 30 competing SurfacePrimaryStyle attrs stripped; Login White and sole LoginPanel/ChangesDialog card chrome kept; Wastages nested without ErpPageRoot.
 
 **Next:** remaining competing SurfacePrimaryStyle / Height 40. Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
 

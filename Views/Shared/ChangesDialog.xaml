@@ -48,7 +48,7 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="6,1"
                                         VerticalAlignment="Center"
-                                        Background="{DynamicResource TintBlueBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Background="{DynamicResource TintBlueBrush}">
                                     <TextBlock Text="{Binding Kind}"
                                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource InfoBrush}"/>
@@ -61,7 +61,7 @@
                                     Margin="0,6,0,0"
                                     Background="{DynamicResource TintRedBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="10,6" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Padding="10,6">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BA;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
@@ -82,7 +82,7 @@
                                     Margin="0,4,0,0"
                                     Background="{DynamicResource TintGreenBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="10,6" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Padding="10,6">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE73E;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"

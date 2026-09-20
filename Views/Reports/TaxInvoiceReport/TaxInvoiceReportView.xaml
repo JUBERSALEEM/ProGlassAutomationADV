@@ -140,7 +140,7 @@
                 <!-- ══════════════════════════════════════════════════════════
                      2. PENDING BANNER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="1" Visibility="{Binding HasPending, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="14,10" Margin="14,10,14,0" Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Grid.Row="1" Visibility="{Binding HasPending, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="14,10" Margin="14,10,14,0">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Reports.TaxInvoiceReport.ActionRequiredConfirmedQuotesAwaitingTax}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                         <ItemsControl ItemsSource="{Binding PendingRows}" Margin="0,6,0,0">
@@ -387,7 +387,7 @@
                                                     HorizontalAlignment="Left"
                                                     ToolTip="{DynamicResource Reports.StatementReport.OpenOriginalTaxInvoice}"/>
 
-                                            <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                            <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="108"/>
@@ -450,7 +450,7 @@
                                                 </Grid>
                                             </Border>
 
-                                            <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                            <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Padding="12,10" Margin="0,8,0,0">
                                                 <StackPanel>
                                                     <TextBlock Text="{DynamicResource Reports.TaxInvoiceReport.QuantityAREA}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,6"/>
                                                     <TextBlock FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}">

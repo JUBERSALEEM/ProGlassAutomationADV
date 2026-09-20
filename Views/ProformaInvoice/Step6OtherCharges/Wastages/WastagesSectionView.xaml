@@ -34,7 +34,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
+                                Padding="{TemplateBinding Padding}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -204,7 +204,7 @@
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="12"
                                                 MaxHeight="320"
-                                                Width="380" Style="{StaticResource SurfacePrimaryStyle}">
+                                                Width="380">
                                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                                 <StackPanel>
                                                     <TextBlock Text="{DynamicResource ProformaInvoice.ChooseSQMSources}"
@@ -345,7 +345,7 @@
                                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="14"
                                                 Width="520"
-                                                MaxHeight="420" Style="{StaticResource SurfacePrimaryStyle}">
+                                                MaxHeight="420">
                                             <ScrollViewer VerticalScrollBarVisibility="Auto"
                                                           HorizontalScrollBarVisibility="Disabled">
                                                 <StackPanel>

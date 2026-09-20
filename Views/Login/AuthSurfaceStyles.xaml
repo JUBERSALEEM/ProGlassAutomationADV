@@ -75,7 +75,7 @@
                             Background="{DynamicResource SurfacePrimaryBrush}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -128,7 +128,7 @@
                             Background="{DynamicResource SurfacePrimaryBrush}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -185,7 +185,7 @@
                                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 VerticalAlignment="Center"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <TextBlock x:Name="Glyph"
                                        Text="&#xE73E;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
