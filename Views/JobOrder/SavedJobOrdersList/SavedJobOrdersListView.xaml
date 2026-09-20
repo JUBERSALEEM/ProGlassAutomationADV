@@ -174,18 +174,6 @@
                     </Grid>
                 </Border>
 
-                <Border Grid.Row="0"
-                        Style="{StaticResource ModuleErrorBannerStyle}"
-                        Margin="16,8,16,0"
-                        VerticalAlignment="Top"
-                        Visibility="{Binding HasError,
-                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{Binding ErrorMessage}"
-                               Foreground="{DynamicResource DangerBrush}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               TextWrapping="Wrap"/>
-                </Border>
-
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
