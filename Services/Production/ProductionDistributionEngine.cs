@@ -572,19 +572,22 @@ namespace ProGlassAutomation.Services.Production
                     {
                         foreach (var occ in occurrences)
                         {
-                            int w = occ.Slot == PaneSlot.Pane1 ? row.W1 : row.W2;
-                            int h = occ.Slot == PaneSlot.Pane1 ? row.H1 : row.H2;
-
-                            // Same Step 4/5 rule as cutting: blank W2/H2 on
-                            // a multi-pane build means the pane cuts to
-                            // W1×H1 (equal-size unit).
-                            if ((w <= 0 || h <= 0) && occ.Slot == PaneSlot.Pane2
-                                && row.W1 > 0 && row.H1 > 0)
+                            int w;
+                            int h;
+                            if (occ.Slot == PaneSlot.Pane1)
                             {
                                 w = row.W1;
                                 h = row.H1;
                             }
-                            if (w <= 0 || h <= 0) continue; // same skip rule as cutting
+                            else if (!DguDimensionSemantics.TryResolveInnerSize(
+                                         row.W1, row.H1, row.W2, row.H2, out w, out h, out _))
+                            {
+                                // Incomplete W2/H2 (0×500): cutting already
+                                // skipped this pane. Do not invent W1×H1 for
+                                // holes/polish/mitring.
+                                continue;
+                            }
+                            if (w <= 0 || h <= 0) continue;
 
                             int qty = row.Qty <= 0 ? 1 : row.Qty;
                             decimal unitSqm = SqmCalculator.CalculatePanel(w, h);

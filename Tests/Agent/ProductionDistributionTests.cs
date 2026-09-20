@@ -503,6 +503,47 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Incomplete_w2_h2_does_not_invent_charge_sizes()
+        {
+            var snap = Snapshot(
+                Group(1, "6mm Clear FT Glass + 12mm ASP + 6mm Clear Annealed Glass",
+                    Row(1, "D-01", 3210, 2250, 17, w2: 0, h2: 1800)));
+            snap.OtherCharges.PredefinedCharges.Add(Charge("FAN_HOLES", 17m, 1));
+
+            var plan = ProductionDistributionEngine.Distribute("JOB-INC-CHG", snap);
+            var cutting = Stage(plan.Items, ProductionStage.Cutting).ToList();
+            var holes = Stage(plan.Items, ProductionStage.HolesCutouts).ToList();
+
+            Assert.Single(cutting);
+            Assert.Equal("Outer", cutting[0].Position);
+            Assert.Equal(3210, cutting[0].WidthMm);
+            Assert.Equal(2250, cutting[0].HeightMm);
+            Assert.Equal(17, cutting[0].Qty);
+
+            Assert.Single(holes);
+            Assert.Equal("Outer", holes[0].Position);
+            Assert.Equal(3210, holes[0].WidthMm);
+            Assert.Equal(2250, holes[0].HeightMm);
+            Assert.DoesNotContain(holes, h => h.Position == "Inner");
+        }
+
+        [Fact]
+        public void Asymmetric_dgu_preserves_w1_h1_w2_h2_and_qty()
+        {
+            var items = Distribute(Snapshot(
+                Group(1, "6mm Clear FT Glass + 12mm ASP + 6mm Clear Annealed Glass",
+                    Row(1, "D-17", 3210, 2250, 17, w2: 3000, h2: 1800))));
+
+            var cutting = Stage(items, ProductionStage.Cutting).ToList();
+            Assert.Contains(cutting, c => c.Position == "Outer"
+                && c.WidthMm == 3210 && c.HeightMm == 2250 && c.Qty == 17);
+            Assert.Contains(cutting, c => c.Position == "Inner"
+                && c.WidthMm == 3000 && c.HeightMm == 1800 && c.Qty == 17);
+            Assert.DoesNotContain(cutting, c => c.WidthMm == 2250 && c.HeightMm == 3210);
+            Assert.DoesNotContain(cutting, c => c.WidthMm == 1800 && c.HeightMm == 3000);
+        }
+
+        [Fact]
         public void Charges_fan_out_to_inherited_pane_sizes_too()
         {
             var snap = Snapshot(

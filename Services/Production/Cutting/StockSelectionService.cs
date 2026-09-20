@@ -77,7 +77,10 @@ namespace ProGlassAutomation.Services.Production.Cutting
                     allocatedMap.TryGetValue(sheet.Id, out int allocated);
 
                     int available = sheet.Balance;
-                    int effective = Math.Max(0, available - reserved - allocated);
+                    // Sheet units only. AllocatedQty is placed pieces — do
+                    // not subtract it from Balance (same contract as
+                    // EffectiveAvailable).
+                    int effective = Math.Max(0, available - reserved);
 
                     // Only include if effective available >0 or unlimited fallback
                     if (effective <= 0 && sheet.Balance > 0) continue; // No effective stock
