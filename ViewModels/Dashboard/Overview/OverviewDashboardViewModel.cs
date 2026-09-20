@@ -130,10 +130,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public override string TabSubtitle => "Business at a glance";
         public override string TabIcon => "\uE80F";
 
-        private const string JobStatusInProduction = "InProduction";
-        private const string JobStatusCompleted = "Completed";
-        private const string JobStatusDelivered = "Delivered";
-
         // ── navigation callbacks ──────────────────────────────────────────
         public Action<string>? NavigateTo { get; set; }
         public Action? TriggerNewInvoice { get; set; }
