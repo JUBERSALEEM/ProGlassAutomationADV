@@ -272,6 +272,32 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                             "WHERE RootProformaId IS NULL OR RootProformaId = '';";
                         cmd.ExecuteNonQuery();
                     }
+                }),
+
+                // Unique ProformaId is in OnModelCreating (fresh EnsureCreated).
+                // Existing field DBs never received it via additive migration.
+                // Do NOT rewrite colliding numbers (JO/TI/attachments key off
+                // the string). If duplicates exist, log and leave the app-level
+                // insert retry as the safety net.
+                new(1006, "Proforma Invoice: unique ProformaId index", connection =>
+                {
+                    try
+                    {
+                        SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                            "CREATE UNIQUE INDEX IF NOT EXISTS IX_ProformaInvoices_ProformaId ON ProformaInvoices(ProformaId);");
+                    }
+                    catch (SqliteException ex)
+                    {
+                        AppLogService.Warning(
+                            "[ProformaInvoices] unique ProformaId index not applied: " +
+                            ex.Message,
+                            new LogContext
+                            {
+                                Module = "Database",
+                                Class = "SchemaMigrations",
+                                Operation = "ProformaIdUniqueIndex"
+                            });
+                    }
                 })
             };
 
