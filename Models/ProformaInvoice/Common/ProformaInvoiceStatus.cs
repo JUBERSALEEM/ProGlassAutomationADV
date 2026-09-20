@@ -24,6 +24,20 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Common
             [Draft, Sent, Approved, Rejected, Expired, Cancelled];
 
         /// <summary>
+        /// Wizard placeholder <c>PI-{year}-000</c> (and blank) is not a
+        /// persistable number. Insert reallocates before write. Custom /
+        /// import IDs such as <c>PI-2026-001</c> or <c>INV-42</c> return false.
+        /// </summary>
+        public static bool IsUnallocatedSeed(string? proformaId)
+        {
+            if (string.IsNullOrWhiteSpace(proformaId)) return true;
+            return System.Text.RegularExpressions.Regex.IsMatch(
+                proformaId.Trim(),
+                @"^PI-\d{4}-000$",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        }
+
+        /// <summary>
         /// PHASE 5 — single normalize home. Canonicalizes any case/spacing
         /// variant of a KNOWN status; an UNRECOGNIZED value passes through
         /// as-typed (never silently re-mapped to Draft — an unexpected

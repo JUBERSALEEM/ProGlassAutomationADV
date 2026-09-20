@@ -200,6 +200,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             if (invoice == null)
                 throw new ArgumentNullException(nameof(invoice));
 
+            if (ProformaInvoiceStatus.IsUnallocatedSeed(invoice.ProformaId))
+            {
+                invoice.ProformaId = await SuggestNextIdAsync(
+                    $"PI-{DateTime.Now.Year}-000").ConfigureAwait(false);
+            }
+
             // Senior audit fix (Aug 2026): concurrent SuggestNextIdAsync
             // callers could both see "PI-2026-042" as free, both call
             // InsertAsync, and the second one would surface a raw
@@ -276,9 +282,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// <summary>
         /// Updates an existing invoice or creates a new one if missing.
         ///
-        /// BUG-10: Previously opened a SECOND DbContext by calling
-        /// InsertAsync() from inside — SQLite locking risk. Fixed by
-        /// doing insert inline within the current context.
+        /// BUG-10: do not insert on the same open SQLite context as the
+        /// lookup. Missing-row path disposes then calls InsertAsync so
+        /// unique-id retry is shared with create.
         /// </summary>
         public async Task UpdateAsync(SavedProformaInvoice invoice)
             => await UpdateAsync(invoice, expectedRowVersion: null).ConfigureAwait(false);
@@ -322,19 +328,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             if (existing == null)
             {
-                // BUG-10: Insert inline instead of calling InsertAsync()
-                // (which would open a second context and cause SQLite lock)
-                invoice.CreatedAt = DateTime.Now;
-                invoice.UpdatedAt = DateTime.Now;
-
-                db.ProformaInvoices.Add(invoice);
-                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
-                RaiseChanged();
-
-                // Senior audit fix — write the PI back-link so the
-                // Inquiry list picks up the association immediately.
-                await InquiryLinkSync.AfterInsertAsync(invoice)
-                    .ConfigureAwait(false);
+                // Missing-row update is a create: reuse InsertAsync so
+                // unique-id retry applies. Dispose this read context first
+                // (BUG-10: two live SQLite writers lock).
+                db.Dispose();
+                await InsertAsync(invoice).ConfigureAwait(false);
                 return;
             }
 
