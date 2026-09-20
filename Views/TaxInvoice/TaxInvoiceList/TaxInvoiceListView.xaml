@@ -1,5 +1,8 @@
-<!-- Tax Invoice list — industrial table chrome. Tab names, click handlers, family commands unchanged. -->
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList.TaxInvoiceListView"
+<!-- Tax Invoice list — Archetype 2 (tabbed family register).
+     Bindings, tab names, OnFamilyRowLeftClick / OnFamilyRowRightClick,
+     family commands, ProgressTrack, PercentToWidthConverter: unchanged. -->
+<UserControl Style="{StaticResource ErpPageRootStyle}"
+             x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList.TaxInvoiceListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
@@ -13,11 +16,6 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-
-        
-
-        
-
         <DataTemplate x:Key="FamilyRowTemplate">
             <Border Cursor="Hand"
                     MinHeight="56"
@@ -37,16 +35,16 @@
                 </Border.Style>
                 <Grid>
                     <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="3"/>
-    <ColumnDefinition Width="1.3*" MinWidth="120"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.2*" MinWidth="100"/>
-    <ColumnDefinition Width="0.8*" MinWidth="85"/>
-    <ColumnDefinition Width="0.9*" MinWidth="95"/>
-    <ColumnDefinition Width="0.7*" MinWidth="85"/>
-    <ColumnDefinition Width="Auto"/>
-</Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="3"/>
+                        <ColumnDefinition Width="1.3*" MinWidth="120"/>
+                        <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                        <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                        <ColumnDefinition Width="1.2*" MinWidth="100"/>
+                        <ColumnDefinition Width="0.8*" MinWidth="85"/>
+                        <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                        <ColumnDefinition Width="0.7*" MinWidth="85"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0">
                         <Border.Style>
@@ -69,11 +67,14 @@
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,8,8,8">
                         <TextBlock Text="{Binding ProformaId}"
-                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                   FontSize="{DynamicResource FontSize.Title}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,3,0,0"
+                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Margin="0,4,0,0"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
-                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding LatestInvoiceNumber, Mode=OneWay}">
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding LatestInvoiceNumber, Mode=OneWay}">
                             <Run Text="{DynamicResource DeliveryNote.Latest}"/><Run Text="{Binding LatestIssueDateDisplay, Mode=OneWay}"/>
                             <Run Text="  ·  "/><Run Text="{Binding LatestInvoiceNumber, Mode=OneWay}"/>
                             <Run Text="  "/><Run Text="{Binding LatestInvoiceStatus, Mode=OneWay}"/>
@@ -82,13 +83,17 @@
 
                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0">
                         <TextBlock Text="{Binding CustomerName}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
-                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding CustomerName, Mode=OneWay}"/>
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding CustomerName, Mode=OneWay}"/>
                         <TextBlock Text="{Binding ProjectName}"
-                                   FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectName, Mode=OneWay}"/>
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   Margin="0,4,0,0"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding ProjectName, Mode=OneWay}"/>
                     </StackPanel>
 
                     <Border Grid.Column="3"
@@ -96,10 +101,11 @@
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="8,3"
+                            Padding="8,4"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Center">
-                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                        <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}">
                             <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
                             <Run Text="{DynamicResource Reports.Inv}"/>
@@ -107,14 +113,16 @@
                     </Border>
 
                     <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="8,0">
-                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,0,0,4">
                             <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"/>
                             <Run Text="%"/>
                         </TextBlock>
                         <Border x:Name="ProgressTrack"
-                                CornerRadius="{DynamicResource Radius.XSmall}" Height="6"
+                                CornerRadius="{DynamicResource Radius.XSmall}"
+                                Height="4"
                                 Background="{DynamicResource BorderBrush}">
                             <Border CornerRadius="{DynamicResource Radius.XSmall}" HorizontalAlignment="Left">
                                 <Border.Style>
@@ -142,7 +150,8 @@
 
                     <TextBlock Grid.Column="5"
                                Text="{Binding InvoicedTotalDisplay}"
-                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource SuccessBrush}"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
@@ -150,28 +159,34 @@
 
                     <TextBlock Grid.Column="6"
                                Text="{Binding BalanceTotalDisplay}"
-                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource WarningBrush}"
                                VerticalAlignment="Center"
                                HorizontalAlignment="Right"
                                Margin="0,0,12,0"/>
 
                     <StackPanel Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
+                        <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="8,4"
                                 Background="{Binding FamilyStatusBrushKey,
                                              Converter={StaticResource BrushKeyConverter}}">
                             <TextBlock Text="{Binding FamilyStatus}"
-                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"/>
                         </Border>
                         <Border Background="{DynamicResource TintRedBrush}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="6,2" Margin="0,4,0,0"
+                                Padding="8,4"
+                                Margin="0,4,0,0"
                                 HorizontalAlignment="Center"
                                 Visibility="{Binding AnyOverdue,
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                            <TextBlock Text="{DynamicResource Common.Overdue}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </Border>
                     </StackPanel>
@@ -180,16 +195,18 @@
                                 Orientation="Horizontal"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Margin="6,0,10,0">
+                                Margin="4,0,8,0">
                         <Button Style="{StaticResource RowPrimaryButton}"
-                                Tag="&#xE8B7;" Content="{DynamicResource Action.Open}"
+                                Tag="&#xE8B7;"
+                                Content="{DynamicResource Action.Open}"
                                 ToolTip="{DynamicResource TaxInvoice.OpenInvoiceFamily}"
                                 Command="{Binding DataContext.OpenFamilyCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>
                         <Button Style="{StaticResource RowDangerButton}"
-                                Tag="&#xE74D;" Content="{DynamicResource TaxInvoice.DEL}"
-                                Margin="6,0,0,0"
+                                Tag="&#xE74D;"
+                                Content="{DynamicResource TaxInvoice.DEL}"
+                                Margin="8,0,0,0"
                                 ToolTip="{DynamicResource TaxInvoice.DeleteInvoiceFamilyAsksConfirmation}"
                                 Command="{Binding DataContext.DeleteFamilyCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -198,52 +215,48 @@
                 </Grid>
             </Border>
         </DataTemplate>
-
     </UserControl.Resources>
 
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="4,4,4,12">
-            <Grid Margin="4,0,4,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="{DynamicResource Dashboard.TaxInvoices}" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="{DynamicResource TaxInvoice.OneFamilyProformaOpenSeePartialInvoice}"
-                               Style="{StaticResource ModulePageSubtitleStyle}"/>
-                </StackPanel>
-                <Button Grid.Column="1"
-                        Style="{StaticResource PrimaryPillButton}"
-                        Tag="&#xE710;"
-                        Content="{DynamicResource Dashboard.NewInvoice}"
-                        Command="{Binding CreateInvoiceCommand}"
-                        VerticalAlignment="Center"
-                        ToolTip="{DynamicResource TaxInvoice.CreateNewTaxInvoice}"/>
-            </Grid>
+        <Grid Grid.Row="0" Margin="16,16,16,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="{DynamicResource Dashboard.TaxInvoices}"
+                           Style="{StaticResource ModulePageTitleStyle}"/>
+                <TextBlock Text="{DynamicResource TaxInvoice.OneFamilyProformaOpenSeePartialInvoice}"
+                           Style="{StaticResource ModulePageSubtitleStyle}"/>
+            </StackPanel>
+            <Button Grid.Column="1"
+                    Style="{StaticResource PrimaryPillButton}"
+                    Tag="&#xE710;"
+                    Content="{DynamicResource Dashboard.NewInvoice}"
+                    Command="{Binding CreateInvoiceCommand}"
+                    MinWidth="192"
+                    VerticalAlignment="Center"
+                    ToolTip="{DynamicResource TaxInvoice.CreateNewTaxInvoice}"/>
+        </Grid>
 
-            <loading:LoadingStateControl
-                    Visibility="{Binding IsLoading,
-                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                    Message="Loading invoice families…"
-                    Margin="4,0,4,12"/>
+        <Border Grid.Row="1"
+                Margin="16,0,16,8"
+                Style="{StaticResource ModuleErrorBannerStyle}"
+                Visibility="{Binding HasError,
+                             Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBlock Text="{Binding ErrorMessage}"
+                       Foreground="{DynamicResource DangerBrush}"
+                       FontSize="{DynamicResource FontSize.Body}"
+                       TextWrapping="Wrap"/>
+        </Border>
 
-            <Border Visibility="{Binding HasError,
-                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                    Style="{StaticResource ModuleErrorBannerStyle}"
-                    Padding="16" Margin="4,0,4,12">
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Body}"
-                           TextWrapping="Wrap"/>
-            </Border>
-        </StackPanel>
-
-        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
+        <Border Grid.Row="2" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,16">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -269,9 +282,12 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}">
-                                <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
+                                <TextBlock Text="&#xE8A5;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard1Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -281,9 +297,12 @@
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGrayBrush}">
-                                <TextBlock Text="&#xE70F;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="&#xE70F;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard2Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -293,9 +312,12 @@
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintIndigoBrush}">
-                                <TextBlock Text="&#xE724;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
+                                <TextBlock Text="&#xE724;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard3Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -305,9 +327,12 @@
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGreenBrush}">
-                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
+                                <TextBlock Text="&#xE73E;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource SuccessBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard4Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -317,9 +342,12 @@
                         <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintRedBrush}">
-                                <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
+                                <TextBlock Text="&#xE7BA;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource DangerBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard5Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
@@ -343,18 +371,24 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                   VerticalAlignment="Center" Margin="0,0,10,0"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                    Text="{DynamicResource TaxInvoice.Selected}"/>
                         <TextBlock Grid.Column="1"
                                    Text="{Binding SelectedFamilyMetaLine}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
                                    VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedFamilyMetaLine}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding SelectedFamilyMetaLine}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
-                                Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
+                        <Button Grid.Column="2"
+                                Style="{StaticResource RowOutlinedButton}"
+                                Tag="&#xE711;"
+                                Content="{DynamicResource Action.Clear}"
                                 ToolTip="{DynamicResource TaxInvoice.ClearSelection}"
                                 Command="{Binding ClearSelectionCommand}"/>
                     </Grid>
@@ -363,9 +397,8 @@
                 <Border Grid.Row="2" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="2*" MinWidth="160"/>
+                            <ColumnDefinition Width="*" MinWidth="120"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
@@ -377,16 +410,25 @@
                                   ItemsSource="{Binding StatusFilterOptions}"
                                   SelectedItem="{Binding SelectedStatusFilter}"
                                   Style="{StaticResource ModuleListFilterComboStyle}"
+                                  MinWidth="120"
                                   Margin="0,0,8,0"/>
-                        <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                                Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
-                                Margin="0,0,8,0"
-                                ToolTip="{DynamicResource TaxInvoice.ClearSearchFilters}"
-                                Command="{Binding ClearFiltersCommand}"/>
-                        <Button Grid.Column="3" Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
-                                ToolTip="{DynamicResource JobOrder.RefreshList}"
-                                Command="{Binding RefreshCommand}"/>
+                        <ScrollViewer Grid.Column="2"
+                                      VerticalScrollBarVisibility="Disabled"
+                                      HorizontalScrollBarVisibility="Auto">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Tag="&#xE711;"
+                                        Content="{DynamicResource Action.Clear}"
+                                        Margin="0,0,8,0"
+                                        ToolTip="{DynamicResource TaxInvoice.ClearSearchFilters}"
+                                        Command="{Binding ClearFiltersCommand}"/>
+                                <Button Style="{StaticResource PrimaryPillButton}"
+                                        Tag="&#xE72C;"
+                                        Content="{DynamicResource Action.Refresh}"
+                                        ToolTip="{DynamicResource JobOrder.RefreshList}"
+                                        Command="{Binding RefreshCommand}"/>
+                            </StackPanel>
+                        </ScrollViewer>
                     </Grid>
                 </Border>
 
@@ -418,18 +460,16 @@
                 <Border Grid.Row="4" Style="{StaticResource ModuleListTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="3"/>
-    <ColumnDefinition Width="1.3*" MinWidth="120"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.2*" MinWidth="100"/>
-    <ColumnDefinition Width="0.8*" MinWidth="85"/>
-    <ColumnDefinition Width="0.9*" MinWidth="95"/>
-    <ColumnDefinition Width="0.7*" MinWidth="85"/>
-    <ColumnDefinition Width="Auto"/>
-</Grid.ColumnDefinitions>
-                        <!-- 2026-09-14: header gutters match the row cells
-                             (14 / 8 / 8) — was flush-left, offset 8-14px. -->
+                            <ColumnDefinition Width="3"/>
+                            <ColumnDefinition Width="1.3*" MinWidth="120"/>
+                            <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                            <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                            <ColumnDefinition Width="1.2*" MinWidth="100"/>
+                            <ColumnDefinition Width="0.8*" MinWidth="85"/>
+                            <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                            <ColumnDefinition Width="0.7*" MinWidth="85"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="1" Text="{DynamicResource TaxInvoice.InvoiceFamilyPI}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="12,0"/>
                         <TextBlock Grid.Column="2" Text="{DynamicResource JobProfitability.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"
@@ -448,7 +488,13 @@
                 </Border>
 
                 <Grid Grid.Row="5">
-                    <Grid>
+                    <loading:LoadingStateControl
+                            Panel.ZIndex="2"
+                            Visibility="{Binding IsLoading,
+                                         Converter={StaticResource BoolToVisibilityConverter}}"
+                            Message="Loading invoice families…"/>
+
+                    <Grid Panel.ZIndex="0">
                         <Grid.Style>
                             <Style TargetType="Grid">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -459,9 +505,11 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
-                        <ListBox ItemsSource="{Binding AllFamilies}"
+                        <ListBox Panel.ZIndex="0"
+                                 ItemsSource="{Binding AllFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -480,10 +528,12 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    IsHitTestVisible="False">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
+                        <Border Panel.ZIndex="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False">
+                            <Border.Style>
+                                <Style TargetType="Border">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <MultiDataTrigger>
@@ -495,15 +545,15 @@
                                         </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </StackPanel.Style>
+                            </Border.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE8A5;"
                                 Title="{DynamicResource TaxInvoice.NoInvoiceFamiliesYet}"
                                 Message="A family groups every tax invoice belonging to one proforma invoice. Create a tax invoice ('New Invoice' above) and its family appears here with totals, balance and status."/>
-                        </StackPanel>
+                        </Border>
                     </Grid>
 
-                    <Grid>
+                    <Grid Panel.ZIndex="0">
                         <Grid.Style>
                             <Style TargetType="Grid">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -514,9 +564,11 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
-                        <ListBox ItemsSource="{Binding DraftFamilies}"
+                        <ListBox Panel.ZIndex="0"
+                                 ItemsSource="{Binding DraftFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -535,10 +587,12 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    IsHitTestVisible="False">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
+                        <Border Panel.ZIndex="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False">
+                            <Border.Style>
+                                <Style TargetType="Border">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding DraftFamilies.Count}" Value="0">
@@ -546,15 +600,15 @@
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </StackPanel.Style>
+                            </Border.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE70F;"
                                 Title="{DynamicResource TaxInvoice.NoFamiliesDraftInvoices}"
                                 Message="Families appear here while any of their invoices is still a draft — not yet issued to the customer."/>
-                        </StackPanel>
+                        </Border>
                     </Grid>
 
-                    <Grid>
+                    <Grid Panel.ZIndex="0">
                         <Grid.Style>
                             <Style TargetType="Grid">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -565,9 +619,11 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
-                        <ListBox ItemsSource="{Binding IssuedFamilies}"
+                        <ListBox Panel.ZIndex="0"
+                                 ItemsSource="{Binding IssuedFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -586,10 +642,12 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    IsHitTestVisible="False">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
+                        <Border Panel.ZIndex="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False">
+                            <Border.Style>
+                                <Style TargetType="Border">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IssuedFamilies.Count}" Value="0">
@@ -597,15 +655,15 @@
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </StackPanel.Style>
+                            </Border.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE72D;"
                                 Title="{DynamicResource TaxInvoice.NoFamiliesIssuedInvoices}"
                                 Message="Once an invoice is issued to the customer, its family moves into this tab."/>
-                        </StackPanel>
+                        </Border>
                     </Grid>
 
-                    <Grid>
+                    <Grid Panel.ZIndex="0">
                         <Grid.Style>
                             <Style TargetType="Grid">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -616,9 +674,11 @@
                                 </Style.Triggers>
                             </Style>
                         </Grid.Style>
-                        <ListBox ItemsSource="{Binding PaidFamilies}"
+                        <ListBox Panel.ZIndex="0"
+                                 ItemsSource="{Binding PaidFamilies}"
                                  ItemTemplate="{StaticResource FamilyRowTemplate}"
-                                 BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Background="Transparent"
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
@@ -637,10 +697,12 @@
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
                         </ListBox>
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                                    IsHitTestVisible="False">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
+                        <Border Panel.ZIndex="1"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False">
+                            <Border.Style>
+                                <Style TargetType="Border">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding PaidFamilies.Count}" Value="0">
@@ -648,12 +710,12 @@
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </StackPanel.Style>
+                            </Border.Style>
                             <emptyState:EmptyStateControl
                                 Icon="&#xE73E;"
                                 Title="{DynamicResource TaxInvoice.NoFullyPaidFamiliesYet}"
                                 Message="Families appear here when every invoice in the family has been fully paid."/>
-                        </StackPanel>
+                        </Border>
                     </Grid>
                 </Grid>
             </Grid>
