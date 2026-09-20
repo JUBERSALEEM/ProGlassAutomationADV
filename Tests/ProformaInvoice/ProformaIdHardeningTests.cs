@@ -68,6 +68,43 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         }
 
         [Fact]
+        public void InsertAsync_rewrites_snapshot_ProformaId_when_id_is_reallocated()
+        {
+            string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
+                "Services", "ProformaInvoice", "ProformaInvoiceRepository",
+                "ProformaInvoiceRepository.cs"));
+
+            Assert.Contains("bool idReallocated = false;", src);
+            Assert.Contains("if (idReallocated)", src);
+            Assert.Contains("SyncSnapshotProformaId(invoice)", src);
+            Assert.Contains("snap.Company.ProformaId = invoice.ProformaId;", src);
+        }
+
+        [Fact]
+        public void Wizard_adopts_reallocated_ProformaId_after_save()
+        {
+            string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
+                "ViewModels", "ProformaInvoice", "Step7PrintPreview",
+                "PrintableInvoice", "PrintableInvoiceViewModel.Part1.cs"));
+
+            Assert.Contains("AdoptAllocatedProformaId(entity);", src);
+            Assert.Contains("Company.ProformaId = entity.ProformaId;", src);
+        }
+
+        [Fact]
+        public void Existing_databases_get_unique_ProformaId_index_via_migration_1006()
+        {
+            string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
+                "Services", "Database", "SchemaMigrations",
+                "AppSchemaMigrations.cs"));
+
+            Assert.Contains("new(1006, \"Proforma Invoice: unique ProformaId index\"", src);
+            Assert.Contains(
+                "CREATE UNIQUE INDEX IF NOT EXISTS IX_ProformaInvoices_ProformaId ON ProformaInvoices(ProformaId);",
+                src);
+        }
+
+        [Fact]
         public void Step1_status_picker_uses_ProformaInvoiceStatus_All()
         {
             string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
