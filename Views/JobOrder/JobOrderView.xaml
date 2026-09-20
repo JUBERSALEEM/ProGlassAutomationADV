@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/JobOrder/JobOrderView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Job Order shell
@@ -55,7 +55,7 @@
 
         <!-- ══ TAB STRIP ══════════════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Margin="20,14,20,0">
+                Style="{StaticResource DocumentWorkspaceTabBandStyle}">
             <StackPanel Orientation="Horizontal">
 
                 <!-- TAB WORKSPACE — STEP D two-button visibility pattern -->

@@ -17,9 +17,7 @@
              TextBox style that does not exist anywhere in the app, so loading this
              view threw when the PI wizard opened step 2. Base on the app's
              canonical TextBox style instead. -->
-        <Style TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}">
-            <Setter Property="Height" Value="34"/>
-        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
     </UserControl.Resources>
 
     <Grid>
@@ -33,21 +31,20 @@
             <StackPanel>
                 <Border Style="{StaticResource PiStationIdentityStyle}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="02"/>
-                        <TextBlock Text="{DynamicResource JobOrder.Client}"/>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.BillPartyTRNSalesContact}"
-                                  />
+                        <TextBlock Style="{StaticResource PiStationCodeStyle}" Text="02"/>
+                        <TextBlock Style="{StaticResource PiStationTitleStyle}" Text="{DynamicResource JobOrder.Client}"/>
+                        <TextBlock Style="{StaticResource PiStationHintStyle}" Text="{DynamicResource ProformaInvoice.BillPartyTRNSalesContact}"/>
                     </StackPanel>
                 </Border>
-                <TextBlock Text="{DynamicResource ProformaInvoice.BILL}"/>
+                <TextBlock Style="{StaticResource SectionTitleStyle}" Text="{DynamicResource ProformaInvoice.BILL}" Margin="0,0,0,12"/>
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.3*"/><ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock>
+                    <StackPanel Style="{StaticResource Field.Panel}">
+                        <TextBlock Style="{StaticResource Field.Label}">
                             <Run Text="{DynamicResource ProformaInvoice.CustomerNAME}"/><Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
                         </TextBlock>
                         <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
@@ -55,7 +52,7 @@
                                  AutomationProperties.Name="Customer name" Style="{StaticResource TextBoxStyle}"/>
                         <TextBlock Text="{Binding CustomerNameValidationMessage}">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Field.Error}">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding HasCustomerNameError}" Value="True">
@@ -66,17 +63,17 @@
                             </TextBlock.Style>
                         </TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Column="2"
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2"
                                 Visibility="{Binding Path=ShowCustomerTrn,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.CustomerTRN}"/>
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.CustomerTRN}"/>
                         <TextBox Text="{Binding CustomerTrn, UpdateSourceTrigger=PropertyChanged}" MaxLength="15"
                                  AutomationProperties.AutomationId="ProformaInvoice.CustomerTrn"
                                  AutomationProperties.Name="Customer TRN" Style="{StaticResource TextBoxStyle}"/>
                         <TextBlock Text="{Binding CustomerTrnValidationMessage}">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource Field.Error}">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsCustomerTrnValid}" Value="False">
@@ -87,11 +84,11 @@
                             </TextBlock.Style>
                         </TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Column="4"
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="4"
                                 Visibility="{Binding Path=ShowCustomerReferenceCode,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.ReferenceCODE}"/>
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.ReferenceCODE}"/>
                         <TextBox Text="{Binding CustomerReferenceCode, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.CustomerReferenceCode"
                                  AutomationProperties.Name="Customer reference code" Style="{StaticResource TextBoxStyle}"/>
@@ -104,10 +101,10 @@
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Visibility="{Binding Path=ShowSalesRepresentative,
+                    <StackPanel Style="{StaticResource Field.Panel}" Visibility="{Binding Path=ShowSalesRepresentative,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.SalesRepresentative}"/>
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.SalesRepresentative}"/>
                         <Grid>
                             <ComboBox Style="{StaticResource PiEditableComboBoxStyle}"
                                       ItemsSource="{Binding SalesmanOptions}"
@@ -129,20 +126,20 @@
                             </TextBlock>
                         </Grid>
                     </StackPanel>
-                    <StackPanel Grid.Column="2"
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2"
                                 Visibility="{Binding Path=ShowDocumentPreparedBy,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource Inquiry.Prepared2}"/>
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Inquiry.Prepared2}"/>
                         <TextBox Text="{Binding DocumentPreparedBy, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.DocumentPreparedBy"
                                  AutomationProperties.Name="Prepared by" Style="{StaticResource TextBoxStyle}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="4"
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="4"
                                 Visibility="{Binding Path=ShowAttentionExecutive,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.Attention}"/>
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.Attention}"/>
                         <TextBox Text="{Binding AttentionExecutiveName, UpdateSourceTrigger=PropertyChanged}"
                                  AutomationProperties.AutomationId="ProformaInvoice.AttentionExecutive"
                                  AutomationProperties.Name="Attention (Kind Attn.)" Style="{StaticResource TextBoxStyle}"/>
@@ -156,8 +153,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="2*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Phone.Label}"
+                    <StackPanel Style="{StaticResource Field.Panel}">
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Phone.Label}"
                                    TextOptions.TextFormattingMode="Display"/>
                         <shared:CountryPhoneControl
                                  PhoneText="{Binding ClientContactPhone, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -166,10 +163,10 @@
                     </StackPanel>
                 </Grid>
 
-                <StackPanel Visibility="{Binding Path=ShowBillingAddress,
+                <StackPanel Style="{StaticResource Field.Panel}" Visibility="{Binding Path=ShowBillingAddress,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.BillingAddress}"/>
+                    <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.BillingAddress}"/>
                     <TextBox Text="{Binding BillingAddress, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True" TextWrapping="Wrap" Height="120" VerticalContentAlignment="Top"
                              AutomationProperties.AutomationId="ProformaInvoice.BillingAddress"
@@ -196,7 +193,7 @@
 
         <DockPanel Grid.Column="2">
             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                <TextBlock Text="{DynamicResource ProformaInvoice.Saved}" Margin="0" VerticalAlignment="Center"/>
+                <TextBlock Style="{StaticResource SectionTitleStyle}" Text="{DynamicResource ProformaInvoice.Saved}" Margin="0" VerticalAlignment="Center"/>
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
                         ToolTip="{DynamicResource ProformaInvoice.RefreshSavedClientsDatabase}">
                     <TextBlock Text="&#xE72C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"

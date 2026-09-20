@@ -17,9 +17,7 @@
              TextBox style that does not exist anywhere in the app, so loading this
              view threw when the PI wizard opened step 3. Base on the app's
              canonical TextBox style instead. -->
-        <Style TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}">
-            <Setter Property="Height" Value="34"/>
-        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
     </UserControl.Resources>
 
     <Grid>
@@ -33,60 +31,59 @@
             <StackPanel>
                 <Border Style="{StaticResource PiStationIdentityStyle}">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="03"/>
-                        <TextBlock Text="{DynamicResource Common.Project}"/>
-                        <TextBlock Text="{DynamicResource ProformaInvoice.ProjectNameProjectReferenceStaySeparate}"
-                                  />
+                        <TextBlock Style="{StaticResource PiStationCodeStyle}" Text="03"/>
+                        <TextBlock Style="{StaticResource PiStationTitleStyle}" Text="{DynamicResource Common.Project}"/>
+                        <TextBlock Style="{StaticResource PiStationHintStyle}" Text="{DynamicResource ProformaInvoice.ProjectNameProjectReferenceStaySeparate}"/>
                     </StackPanel>
                 </Border>
-                <TextBlock Text="{DynamicResource ProformaInvoice.SITE}"/>
+                <TextBlock Style="{StaticResource SectionTitleStyle}" Text="{DynamicResource ProformaInvoice.SITE}" Margin="0,0,0,12"/>
 
-                <StackPanel Visibility="{Binding Path=ShowProjectName,
+                <StackPanel Style="{StaticResource Field.Panel}" Visibility="{Binding Path=ShowProjectName,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.ProjectNAME}"
+                    <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.ProjectNAME}"
                                ToolTip="{DynamicResource ProformaInvoice.ProjectNameAppearsListsInvoices}"/>
                     <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="{DynamicResource ProformaInvoice.EGIMADHabib}" Margin="0,0,0,12"
+                             ToolTip="{DynamicResource ProformaInvoice.EGIMADHabib}"
                              AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
                              AutomationProperties.Name="Project name" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
-                <StackPanel Visibility="{Binding Path=ShowProjectReference,
+                <StackPanel Style="{StaticResource Field.Panel}" Visibility="{Binding Path=ShowProjectReference,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.ProjectReference}"
+                    <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.ProjectReference}"
                                ToolTip="{DynamicResource ProformaInvoice.FullDescriptiveProjectReference}"/>
                     <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="{DynamicResource ProformaInvoice.EGHouseIMADHabib}" Margin="0,0,0,12"
+                             ToolTip="{DynamicResource ProformaInvoice.EGHouseIMADHabib}"
                              AutomationProperties.AutomationId="ProformaInvoice.ProjectReference"
                              AutomationProperties.Name="Project reference" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
-                <StackPanel Visibility="{Binding Path=ShowContractNo,
+                <StackPanel Style="{StaticResource Field.Panel}" Visibility="{Binding Path=ShowContractNo,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.ContractNO}"/>
+                    <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.ContractNO}"/>
                     <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="{DynamicResource ProformaInvoice.EG428IMADHabib}" Margin="0,0,0,12"
+                             ToolTip="{DynamicResource ProformaInvoice.EG428IMADHabib}"
                              AutomationProperties.AutomationId="ProformaInvoice.ContractNo"
                              AutomationProperties.Name="Contract number" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
-                <StackPanel Visibility="{Binding Path=ShowLpoNumber,
+                <StackPanel Style="{StaticResource Field.Panel}" Visibility="{Binding Path=ShowLpoNumber,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.LPOPONumber}"/>
+                    <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.LPOPONumber}"/>
                     <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="{DynamicResource ProformaInvoice.EG2680}" Margin="0,0,0,12"
+                             ToolTip="{DynamicResource ProformaInvoice.EG2680}"
                              AutomationProperties.AutomationId="ProformaInvoice.LpoNumber"
                              AutomationProperties.Name="LPO / PO number" Style="{StaticResource TextBoxStyle}"/>
                 </StackPanel>
 
-                <StackPanel Visibility="{Binding Path=ShowSiteDeliveryLocation,
+                <StackPanel Style="{StaticResource Field.Panel}" Visibility="{Binding Path=ShowSiteDeliveryLocation,
                                 Source={x:Static features:ProformaFieldVisibility.Instance},
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{DynamicResource ProformaInvoice.SITEDeliveryLocation}"/>
+                    <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.SITEDeliveryLocation}"/>
                     <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="{DynamicResource ProformaInvoice.EGAjman}" Margin="0,0,0,12"
                              AutomationProperties.AutomationId="ProformaInvoice.SiteDeliveryLocation"
@@ -133,8 +130,8 @@
         <DockPanel Grid.Column="2">
             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                 <StackPanel>
-                    <TextBlock Text="{DynamicResource ProformaInvoice.Saved}" Margin="0"/>
-                    <TextBlock Text="{DynamicResource ProformaInvoice.FilteredSelectedClient}"/>
+                    <TextBlock Style="{StaticResource SectionTitleStyle}" Text="{DynamicResource ProformaInvoice.Saved}" Margin="0"/>
+                    <TextBlock Style="{StaticResource Typography.Caption}" Text="{DynamicResource ProformaInvoice.FilteredSelectedClient}"/>
                 </StackPanel>
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
                         ToolTip="{DynamicResource ProformaInvoice.RefreshSavedProjectsDatabase}">

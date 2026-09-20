@@ -1272,5 +1272,16 @@
         <Setter Property="Padding" Value="20,8"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
+    <Style x:Key="DocumentWorkspaceTabBandStyle" TargetType="Border" BasedOn="{StaticResource DocumentHeaderBandStyle}">
+        <Setter Property="Margin" Value="20,12,20,0"/>
+        <Setter Property="Padding" Value="12,8"/>
+    </Style>
+
+    <!-- Last-win aliases: module kits keep their keys; GDS owns the look. -->
+    <Style x:Key="ModuleFieldLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Field.Label}"/>
+    <Style x:Key="ModuleInlineWarningStyle" TargetType="TextBlock" BasedOn="{StaticResource Field.Error}"/>
+    <Style x:Key="PiFieldLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Field.Label}"/>
+    <Style x:Key="PiDatePickerStyle" TargetType="DatePicker" BasedOn="{StaticResource Input.DatePicker}"/>
+    <Style x:Key="PiComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource Input.ComboBox}"/>
 
 </ResourceDictionary>
