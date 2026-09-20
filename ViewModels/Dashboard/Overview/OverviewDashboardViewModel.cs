@@ -717,9 +717,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             });
 
             // ── 3 · DELIVERY ─────────────────────────────────────────────
-            // "In flight" = preparing + dispatched, i.e. everything that
-            // has left the floor but has not been received yet.
-            var dnInFlight = exec.Delivery.Preparing + exec.Delivery.Dispatched;
+            // Live handoff = still preparing + currently Dispatched.
+            // Do not add HasLeftTheBuilding (Delivered/Signed/Received) —
+            // that is a lifetime sent-out count, not work in this stage.
+            var dnInFlight = exec.Delivery.Preparing + exec.Delivery.CurrentlyDispatched;
             _workflowStages.Add(new WorkflowStageModel
             {
                 Glyph = "\uE806",

@@ -137,6 +137,14 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         public int Preparing { get; set; }
         public int Dispatched { get; set; }
 
+        /// <summary>
+        /// Notes currently in Dispatched status only — not Delivered /
+        /// Signed / Received. Pipeline "in flight" uses this plus
+        /// Preparing. <see cref="Dispatched"/> remains the lifetime
+        /// left-the-building count the Delivery tiles already show.
+        /// </summary>
+        public int CurrentlyDispatched { get; set; }
+
         /// <summary>Pieces (not notes) delivered today.</summary>
         public int PiecesDeliveredToday { get; set; }
 

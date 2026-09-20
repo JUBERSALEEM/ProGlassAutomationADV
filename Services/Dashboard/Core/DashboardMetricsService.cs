@@ -419,6 +419,8 @@ namespace ProGlassAutomation.Services.Dashboard.Core
                 // longer equalled TotalNotes.
                 m.Preparing   = rows.Count(r => DeliveryNoteStatusValues.IsPreparing(r.Status));
                 m.Dispatched  = rows.Count(IsSentOut);
+                m.CurrentlyDispatched = rows.Count(r =>
+                    DeliveryNoteStatusValues.IsDispatched(r.Status));
 
                 m.PiecesDeliveredToday = rows
                     .Where(r => r.DeliveryDate.Date == today && IsSentOut(r))
