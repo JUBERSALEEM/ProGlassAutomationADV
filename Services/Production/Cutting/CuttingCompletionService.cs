@@ -14,6 +14,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,13 @@ namespace ProGlassAutomation.Services.Production.Cutting
             try
             {
                 using var db = new ProductionDbContext();
+                // Same SQLite BEGIN IMMEDIATE as reservation/allocation writes.
+                // Without it, Complete can overwrite a concurrent Release/Cancel
+                // (Released → Consumed) because this path used to SaveChanges
+                // outside a hold lock.
+                await db.Database.OpenConnectionAsync(ct).ConfigureAwait(false);
+                using var tx = await db.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable, ct).ConfigureAwait(false);
 
                 var placed = await db.CuttingPlacedPieces
                     .FirstOrDefaultAsync(p => p.PlacedPieceId == placedPieceId, ct).ConfigureAwait(false);
@@ -92,16 +100,25 @@ namespace ProGlassAutomation.Services.Production.Cutting
                     }
                 }
 
-                // Update allocation status to Consumed when cutting consumes material
+                // Planning consume only — does NOT call UseStockAsync.
+                // Consumed here means the production hold is finished, not
+                // that a sheet left Sheet Store.
                 if (!string.IsNullOrWhiteSpace(placed.AllocationId))
                 {
                     var allocation = await db.Allocations
                         .FirstOrDefaultAsync(a => a.AllocationId == placed.AllocationId, ct).ConfigureAwait(false);
-                    if (allocation != null && allocation.Status != (int)AllocationStatus.Consumed)
+                    if (allocation != null)
                     {
-                        allocation.Status = (int)AllocationStatus.Consumed;
-                        allocation.ConsumedAt = DateTime.Now;
-                        allocation.Notes = $"Consumed via cutting completion {placedPieceId}";
+                        if (allocation.Status == (int)AllocationStatus.Cancelled ||
+                            allocation.Status == (int)AllocationStatus.Released)
+                            return (false, $"Cannot consume {((AllocationStatus)allocation.Status)} allocation.");
+
+                        if (allocation.Status != (int)AllocationStatus.Consumed)
+                        {
+                            allocation.Status = (int)AllocationStatus.Consumed;
+                            allocation.ConsumedAt = DateTime.Now;
+                            allocation.Notes = $"Consumed via cutting completion {placedPieceId}";
+                        }
 
                         // If all allocations for reservation consumed, mark reservation consumed
                         var reservationId = allocation.ReservationId;
@@ -109,12 +126,18 @@ namespace ProGlassAutomation.Services.Production.Cutting
                             .Where(a => a.ReservationId == reservationId)
                             .ToListAsync(ct).ConfigureAwait(false);
 
-                        bool allConsumed = allAllocs.All(a => a.AllocationId == placed.AllocationId || a.Status == (int)AllocationStatus.Consumed);
+                        bool allConsumed = allAllocs.All(a =>
+                            a.AllocationId == placed.AllocationId
+                            || a.Status == (int)AllocationStatus.Consumed);
                         if (allConsumed)
                         {
                             var reservation = await db.Reservations
                                 .FirstOrDefaultAsync(r => r.ReservationId == reservationId, ct).ConfigureAwait(false);
-                            if (reservation != null && reservation.Status != (int)ReservationStatus.Consumed)
+                            // Match ConsumeAsync: never overwrite Released/Cancelled.
+                            if (reservation != null
+                                && reservation.Status != (int)ReservationStatus.Consumed
+                                && reservation.Status != (int)ReservationStatus.Released
+                                && reservation.Status != (int)ReservationStatus.Cancelled)
                             {
                                 reservation.Status = (int)ReservationStatus.Consumed;
                             }
@@ -123,6 +146,7 @@ namespace ProGlassAutomation.Services.Production.Cutting
                 }
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await tx.CommitAsync(ct).ConfigureAwait(false);
 
                 AppLogService.Info($"[CuttingCompletion] Completed piece {placedPieceId} {placed.PieceLabel}",
                     new LogContext { Module = "Production", Class = nameof(CuttingCompletionService), Operation = nameof(CompletePieceAsync) });

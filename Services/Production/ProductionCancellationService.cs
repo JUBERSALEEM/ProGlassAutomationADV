@@ -14,6 +14,7 @@ using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using System;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,6 +34,9 @@ namespace ProGlassAutomation.Services.Production
             try
             {
                 using var db = new ProductionDbContext();
+                await db.Database.OpenConnectionAsync(ct).ConfigureAwait(false);
+                using var tx = await db.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable, ct).ConfigureAwait(false);
                 var wi = await db.WorkItems.FindAsync(new object[] { workItemId }, ct).ConfigureAwait(false);
                 if (wi == null) return (false, "Work item not found.");
 
