@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.ProformaInvoice;
+using ProGlassAutomation.Services.JobOrder.Mapper;
 
 using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 namespace ProGlassAutomation.Services.JobOrder.Repository
@@ -89,13 +90,76 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             OperationGuard.Demand(
                 AppPermissions.JobOrderEdit, "create a job order");
 
-            using var db = new JobOrdersDbContext();
-            jobOrder.CreatedAt = DateTime.Now;
-            jobOrder.UpdatedAt = DateTime.Now;
-            db.JobOrders.Add(jobOrder);
-            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
-            DocumentLifecycle.Raise();
-            return jobOrder;
+            if (jobOrder == null)
+                throw new ArgumentNullException(nameof(jobOrder));
+
+            bool idReallocated = false;
+            for (int attempt = 0; attempt < 5; attempt++)
+            {
+                await using var db = new JobOrdersDbContext();
+
+                bool exists = await db.JobOrders
+                    .AnyAsync(j => j.JobOrderId == jobOrder.JobOrderId)
+                    .ConfigureAwait(false);
+                if (exists)
+                {
+                    jobOrder.JobOrderId = await SuggestNextIdAsync(
+                        jobOrder.JobOrderId).ConfigureAwait(false);
+                    idReallocated = true;
+                    continue;
+                }
+
+                if (idReallocated)
+                    SyncSnapshotJobOrderId(jobOrder);
+
+                jobOrder.CreatedAt = DateTime.Now;
+                jobOrder.UpdatedAt = DateTime.Now;
+                db.JobOrders.Add(jobOrder);
+                try
+                {
+                    await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync())
+                        .ConfigureAwait(false);
+                }
+                catch (DbUpdateException ex)
+                    when (SqliteErrorClassifier.IsUnique(ex) && attempt < 4)
+                {
+                    db.Entry(jobOrder).State = EntityState.Detached;
+                    jobOrder.JobOrderId = await SuggestNextIdAsync(
+                        jobOrder.JobOrderId).ConfigureAwait(false);
+                    jobOrder.Id = 0;
+                    idReallocated = true;
+                    continue;
+                }
+
+                DocumentLifecycle.Raise();
+                return jobOrder;
+            }
+
+            throw new InvalidOperationException(
+                $"Could not allocate a free JobOrderId after 5 retries " +
+                $"starting from '{jobOrder.JobOrderId}'.");
+        }
+
+        private static void SyncSnapshotJobOrderId(SavedJobOrder jobOrder)
+        {
+            if (jobOrder == null || string.IsNullOrWhiteSpace(jobOrder.JobOrderId))
+                return;
+            try
+            {
+                var snap = JobOrderMapper.DeserializeSnapshot(jobOrder);
+                if (snap == null) return;
+                if (string.Equals(snap.JobOrderId, jobOrder.JobOrderId,
+                        StringComparison.Ordinal))
+                    return;
+                snap.JobOrderId = jobOrder.JobOrderId;
+                jobOrder.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snap);
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "Could not sync JO snapshot JobOrderId after reallocation: " +
+                    ex.Message);
+            }
         }
 
         public async Task UpdateAsync(SavedJobOrder jobOrder)
