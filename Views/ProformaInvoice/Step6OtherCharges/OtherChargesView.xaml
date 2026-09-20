@@ -42,7 +42,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                                CornerRadius="{DynamicResource ControlCornerRadius}">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Focusable="False"
                                           HorizontalScrollBarVisibility="Hidden"
@@ -87,7 +87,7 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
+                                Padding="{TemplateBinding Padding}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -397,7 +397,7 @@
                                                             Padding="14"
                                                             MinWidth="480"
                                                             MaxWidth="720"
-                                                            MaxHeight="480" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            MaxHeight="480">
                                                         <ScrollViewer VerticalScrollBarVisibility="Auto"
                                                                       HorizontalScrollBarVisibility="Disabled">
                                                             <StackPanel DataContext="{Binding TargetSelection}">
@@ -451,7 +451,7 @@
                                                                                         <Border x:Name="ItemBd"
                                                                                                 Background="Transparent"
                                                                                                 Padding="{TemplateBinding Padding}"
-                                                                                                CornerRadius="{DynamicResource Radius.XSmall}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                                                                CornerRadius="{DynamicResource Radius.XSmall}">
                                                                                             <ContentPresenter/>
                                                                                         </Border>
                                                                                         <ControlTemplate.Triggers>

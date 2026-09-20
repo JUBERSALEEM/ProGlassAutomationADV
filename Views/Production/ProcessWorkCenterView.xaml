@@ -199,7 +199,7 @@
 
             <!-- KPI strip: six equal chips -->
             <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
                     Margin="0,0,0,12">
                 <StackPanel>
                     <TextBlock Text="{Binding KpiSummary}" FontSize="{DynamicResource FontSize.BodySmall}"
@@ -279,7 +279,7 @@
 
             <!-- Executions: the one work table -->
             <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
                     Margin="0,0,0,12">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -326,7 +326,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Border Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,6,0"
-                        Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                        Background="{DynamicResource SurfacePrimaryBrush}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -347,7 +347,7 @@
                     </Grid>
                 </Border>
                 <Border Grid.Column="1" Padding="12" CornerRadius="{DynamicResource CardCornerRadius}" Margin="6,0,0,0"
-                        Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                        Background="{DynamicResource SurfacePrimaryBrush}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>

@@ -108,7 +108,7 @@
                             Background="{DynamicResource PrimaryGradient}"
                             Effect="{StaticResource PrimaryButtonShadow}"
                             Padding="{TemplateBinding Padding}"
-                            CacheMode="BitmapCache" Style="{StaticResource SurfacePrimaryStyle}">
+                            CacheMode="BitmapCache">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -147,7 +147,7 @@
                             Background="{DynamicResource SuccessGradient}"
                             Effect="{StaticResource SuccessButtonShadow}"
                             Padding="{TemplateBinding Padding}"
-                            CacheMode="BitmapCache" Style="{StaticResource SurfacePrimaryStyle}">
+                            CacheMode="BitmapCache">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -186,7 +186,7 @@
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
                                           TextElement.Foreground="{DynamicResource TextPrimaryBrush}"
@@ -226,7 +226,7 @@
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <ContentPresenter x:Name="cp"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -288,7 +288,7 @@
                             Padding="12,8"
                             MaxWidth="320"
                             SnapsToDevicePixels="True"
-                            Effect="{StaticResource ToolTipShadow}" Style="{StaticResource SurfacePrimaryStyle}">
+                            Effect="{StaticResource ToolTipShadow}">
                         <!-- Use ContentPresenter so BOTH plain-string
                              tooltips AND complex-content tooltips work.
                              The default TextBlock style scoped inside

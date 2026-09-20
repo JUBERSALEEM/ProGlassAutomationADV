@@ -71,15 +71,15 @@
                                                                Foreground="{DynamicResource TextSecondaryBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="0,1,0,8"/>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3">
                                                             <TextBlock Text="{Binding PiecesLabel}" FontSize="{DynamicResource FontSize.Caption}"
                                                                        FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}"/>
                                                         </Border>
-                                                        <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0">
                                                             <TextBlock Text="{Binding AreaLabel}" FontSize="{DynamicResource FontSize.Caption}"
                                                                        FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
                                                         </Border>
-                                                        <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0">
                                                             <TextBlock Text="{Binding SpecCountLabel}" FontSize="{DynamicResource FontSize.Caption}"
                                                                        FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
                                                         </Border>
@@ -88,7 +88,6 @@
                                                              exactly what Step 5 says until these are read. -->
                                                         <Border Visibility="{Binding WarningVisibility}"
                                                                 Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0"
-                                                                Style="{StaticResource SurfacePrimaryStyle}"
                                                                 ToolTip="{Binding WarningSummary, Mode=OneWay}">
                                                             <TextBlock Text="{Binding WarningLabel}" FontSize="{DynamicResource FontSize.Caption}"
                                                                        FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>

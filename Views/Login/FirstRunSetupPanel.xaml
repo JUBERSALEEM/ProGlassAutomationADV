@@ -140,10 +140,10 @@
 
                             <!-- ── STRENGTH METER ─────────────────────── -->
                             <StackPanel x:Name="PasswordMeter" Orientation="Horizontal" Margin="2,6,0,0">
-                                <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,8,0" Background="{DynamicResource BorderDefaultBrush}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}"/>
+                                <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}"/>
+                                <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}"/>
+                                <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,8,0" Background="{DynamicResource BorderDefaultBrush}"/>
                                 <TextBlock x:Name="PasswordMeterLabel"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                            VerticalAlignment="Center"/>
@@ -178,7 +178,7 @@
                                     Background="{DynamicResource DangerSurfaceBrush}"
                                     BorderBrush="{DynamicResource DangerOnLiquid}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Visibility="Collapsed" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Visibility="Collapsed">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xEA39;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
