@@ -22,6 +22,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Workflow;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ProGlassAutomation.Services.DeliveryNote
@@ -50,7 +51,24 @@ namespace ProGlassAutomation.Services.DeliveryNote
             return Result.Ok(corrId);
         }
 
-        public static Result ValidateQuantities(System.Collections.Generic.IEnumerable<DnItemRowViewModel> rows, string? correlationId = null)
+        /// <summary>
+        /// Delivered this DN cannot be negative and cannot exceed
+        /// Ordered − confirmed previously delivered. Optional
+        /// <paramref name="confirmedPreviouslyDelivered"/> is a live
+        /// spec|serial map (from GetPreviouslyDeliveredMapAsync) so
+        /// dispatch re-checks remaining against the database, not a
+        /// stale row snapshot. When omitted, row.PreviouslyDeliveredQty
+        /// is used.
+        ///
+        /// The previous outer guard
+        /// <c>DeliveredQty &gt; BalanceQty + DeliveredQty</c> reduced to
+        /// <c>BalanceQty &lt; 0</c> and skipped the remaining check for
+        /// every normal (non-negative balance) row.
+        /// </summary>
+        public static Result ValidateQuantities(
+            IEnumerable<DnItemRowViewModel> rows,
+            string? correlationId = null,
+            IReadOnlyDictionary<string, int>? confirmedPreviouslyDelivered = null)
         {
             var corrId = correlationId ?? CorrelationContext.CurrentId ?? CorrelationContext.NewId();
 
@@ -59,16 +77,21 @@ namespace ProGlassAutomation.Services.DeliveryNote
                 if (row.DeliveredQty < 0)
                     return Result.Fail($"Delivered qty cannot be negative for {row.GlassRef} (Sr {row.SerialNumber})", corrId);
 
-                if (row.DeliveredQty > row.BalanceQty + row.DeliveredQty)
+                int previously = row.PreviouslyDeliveredQty;
+                if (confirmedPreviouslyDelivered != null)
                 {
-                    // Actually BalanceQty is already Ordered - Prev - Delivered, so check against Ordered
-                    // Simplified: delivered + prev cannot exceed ordered
-                    int maxAllowed = row.OrderedQty - row.PreviouslyDeliveredQty;
-                    if (row.DeliveredQty > maxAllowed)
-                        return Result.Fail(
-                            $"Delivered qty {row.DeliveredQty} exceeds remaining {maxAllowed} for {row.GlassRef} Sr {row.SerialNumber}",
-                            corrId);
+                    string key = DeliveryNoteWorkflow.LineKey(
+                        row.SpecGroupNumber, row.SerialNumber);
+                    previously = confirmedPreviouslyDelivered.TryGetValue(key, out var livePrev)
+                        ? livePrev
+                        : 0;
                 }
+
+                int maxAllowed = Math.Max(0, row.OrderedQty - previously);
+                if (row.DeliveredQty > maxAllowed)
+                    return Result.Fail(
+                        $"Delivered qty {row.DeliveredQty} exceeds remaining {maxAllowed} for {row.GlassRef} Sr {row.SerialNumber}",
+                        corrId);
             }
 
             return Result.Ok(corrId);

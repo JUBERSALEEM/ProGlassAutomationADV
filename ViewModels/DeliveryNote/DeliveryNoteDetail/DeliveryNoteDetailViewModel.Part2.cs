@@ -861,7 +861,24 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             // (2) at least one delivered pc, (3) the Dispatching→Dispatched
             // transition is legal. These previously lived only as ad-hoc
             // inline checks; route them through the shared validation service.
-            var qtyCheck = DeliveryNoteValidationService.ValidateQuantities(ItemRows);
+            // Live remaining: confirmed sibling DNs, not the Prev snapshot
+            // loaded when this draft opened (two Dispatching notes can both
+            // have Prev=0 until the first one is dispatched).
+            Dictionary<string, int>? livePrev = null;
+            try
+            {
+                livePrev = await _deliveryNotes.GetPreviouslyDeliveredMapAsync(
+                    _entity.JobOrderId, _entity.DeliveryNoteId);
+            }
+            catch (Exception prevEx)
+            {
+                AppLogService.Warning(
+                    "[DN] live remaining lookup failed; using row Prev: " +
+                    prevEx.Message);
+            }
+
+            var qtyCheck = DeliveryNoteValidationService.ValidateQuantities(
+                ItemRows, confirmedPreviouslyDelivered: livePrev);
             if (qtyCheck.IsFailure)
             {
                 _dialogs.Show(
