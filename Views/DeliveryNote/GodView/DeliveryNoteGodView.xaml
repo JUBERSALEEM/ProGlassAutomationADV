@@ -74,7 +74,7 @@
                     Background="{DynamicResource SurfaceTertiaryBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="14,0"
-                    Height="38"
+                    MinHeight="{DynamicResource DensityInputHeight}"
                     HorizontalAlignment="Stretch"
                     VerticalAlignment="Center">
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"

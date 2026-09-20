@@ -179,10 +179,10 @@
                                      (cramped vs the 8px header) and column
                                      text sat at different vertical
                                      positions. Now: 10,8 cell padding,
-                                     38px min row height, everything
+                                     36px min row height, everything
                                      vertically centered, one TableCell
                                      font contract across all columns. -->
-                                <Border Padding="10,8" MinHeight="38"
+                                <Border Padding="10,8" MinHeight="36"
                                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>

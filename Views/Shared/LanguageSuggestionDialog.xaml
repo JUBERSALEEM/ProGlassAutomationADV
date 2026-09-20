@@ -70,7 +70,7 @@
             <Button x:Name="KeepEnglishButton"
                     Grid.Column="0"
                     Content="Keep English"
-                    Height="38"
+                    MinHeight="{DynamicResource DensityInputHeight}"
                     Cursor="Hand"
                     IsCancel="True"
                     Click="KeepEnglish_Click"
@@ -81,7 +81,7 @@
 
             <Button x:Name="SwitchButton"
                     Grid.Column="2"
-                    Height="38"
+                    MinHeight="{DynamicResource DensityInputHeight}"
                     Cursor="Hand"
                     IsDefault="True"
                     Click="Switch_Click"

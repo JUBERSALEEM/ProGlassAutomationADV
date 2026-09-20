@@ -257,7 +257,7 @@
                     <!-- View warnings button -->
                     <Button Grid.Column="0"
                             Command="{Binding ViewWarningsCommand}"
-                            Height="38" Padding="16,0"
+                            MinHeight="{DynamicResource DensityInputHeight}" Padding="16,0"
                             Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                             Visibility="{Binding HasWarnings,
                                 Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SecondaryButtonStyle}">
@@ -310,7 +310,7 @@
                     <!-- Close button -->
                     <Button Grid.Column="2"
                             Command="{Binding CloseCommand}"
-                            Height="38" Padding="24,0"
+                            MinHeight="{DynamicResource DensityInputHeight}" Padding="24,0"
                             Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                             IsDefault="True" Style="{StaticResource SecondaryButtonStyle}">
                         <Button.Template>

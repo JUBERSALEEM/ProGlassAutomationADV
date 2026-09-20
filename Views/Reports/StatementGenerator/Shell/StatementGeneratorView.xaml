@@ -116,9 +116,9 @@
                 BorderBrush="{DynamicResource BorderDefaultBrush}">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="38"/>
+                    <ColumnDefinition Width="36"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="38"/>
+                    <ColumnDefinition Width="36"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Centered stepper -->
@@ -455,7 +455,7 @@
                 <!-- Close ✕ button (top-right corner) -->
                 <Button Grid.Column="2"
                         Command="{Binding CancelCommand}"
-                        Width="38" Height="38"
+                        Width="36" Height="36"
                         Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                         Background="Transparent"
                         VerticalAlignment="Center"

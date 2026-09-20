@@ -32,10 +32,11 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 2 surface strip 10g | Holes/mitre/pair/polish/temper; CompanySetup; GlassSpec; Order preview; Statement shell/report | `0c4aa96` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10h | Activity/QuickSettings/ScreenRecord/Screenshot/Share; Crash; DN/JO GodView; JO picker; opt report | `067cfe8` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10i | Summary/ReleaseBar; PI dialogs/pricing/summary; order generator/execute; ComingSoon; VoidReason | `dd1d9bf` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 surface strip tail | AddEditSheet; TI GodView; IssueDrafts; UserCenter; Terms MinHeight 40 | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip tail | AddEditSheet; TI GodView; IssueDrafts; UserCenter; Terms MinHeight 40 | `ee9a499` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 Height 38 | GodView/picker search; workflow/language buttons → density; KPI/close 38→36 | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Competing SurfacePrimaryStyle strip closed on in-scope Views (sole card chrome kept). Terms clause TextBox MinHeight → DensityInputHeight.
+**Done:** In-scope competing SurfacePrimaryStyle closed. Height 38 filters/buttons densified; KPI column and close hits snapped to 36. AiChat 38×38 avatar and inquiry 38×38 header glyph left.
 
-**Next:** leftover Height 38/form density if any; Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
+**Next:** Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
 
 **Do not:** ErpPageRoot on nested Controls/Sections; Settings Ios26*; PrintableInvoiceView; force-push.

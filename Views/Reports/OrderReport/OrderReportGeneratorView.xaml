@@ -470,7 +470,7 @@
 
                 <!-- Close ✕ button -->
                 <Button Grid.Column="2" Command="{Binding CancelCommand}"
-                        Width="38" Height="38" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
+                        Width="36" Height="36" Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}"
                         Background="Transparent" VerticalAlignment="Center" HorizontalAlignment="Center"
                         FocusVisualStyle="{x:Null}" ToolTip="Back to saved reports">
                     <Button.Template>
