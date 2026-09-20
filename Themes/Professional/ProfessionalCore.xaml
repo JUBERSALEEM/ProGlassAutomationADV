@@ -759,6 +759,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border x:Name="Chip"
+                                Grid.Column="0"
                                 Width="38" Height="38"
                                 CornerRadius="{DynamicResource PgIconRadius}"
                                 VerticalAlignment="Center"
@@ -774,10 +775,14 @@
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource PgText2Brush}"/>
                         </Border>
-                        <TextBlock Text="{Binding Name}"
+                        <!-- Name must occupy column 1. Default column 0 sat
+                             on the 38px glyph (pipeline icon/text overlap). -->
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Name}"
                                    Style="{StaticResource PgStageNameStyle}"
                                    VerticalAlignment="Center"
                                    TextAlignment="Left"
+                                   MinWidth="0"
                                    Margin="9,0,0,0"/>
                     </Grid>
 
