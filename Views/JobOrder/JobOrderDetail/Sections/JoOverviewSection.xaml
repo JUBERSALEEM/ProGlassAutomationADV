@@ -64,7 +64,7 @@
 
                     <!-- ══════════ 2. IDENTITY STRIP ══════════ -->
                     <TextBlock Text="{DynamicResource JobOrder.SourceInvoice}"
-                               Style="{StaticResource Typography.Label}"
+                               Style="{StaticResource Field.Label}"
                                Margin="0,0,0,8"/>
                     <Border Style="{StaticResource ModuleListKpiStripStyle}"
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
@@ -83,7 +83,7 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Field.Label}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyName, FallbackValue=—}"
                                            FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
@@ -98,7 +98,7 @@
                             <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource JobOrder.Client}" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Text="{DynamicResource JobOrder.Client}" Style="{StaticResource Field.Label}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerName, FallbackValue=—}"
                                            FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
@@ -113,7 +113,7 @@
                             <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource Field.Label}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName, FallbackValue=—}"
                                            FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource TextPrimaryBrush}"
@@ -127,7 +127,7 @@
                             <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
                             <StackPanel Grid.Column="6" VerticalAlignment="Center" MinWidth="120">
-                                <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}" Style="{StaticResource Typography.Label}"/>
+                                <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}" Style="{StaticResource Field.Label}"/>
                                 <TextBlock Text="{Binding GrandTotalDisplay}"
                                            FontSize="{DynamicResource FontSize.Kpi}"
                                            FontWeight="{DynamicResource Weight.Bold}"
@@ -138,7 +138,7 @@
 
                     <!-- ══════════ 3. GLASS PANELS TABLE ══════════ -->
                     <TextBlock Text="{DynamicResource JobOrder.GlassPanels}"
-                               Style="{StaticResource Typography.Label}"
+                               Style="{StaticResource Field.Label}"
                                Margin="0,0,0,4"/>
                     <TextBlock Text="{DynamicResource JobOrder.ProductionTicketSizesQtySQMTotalSQM}"
                                FontSize="{DynamicResource FontSize.BodySmall}"

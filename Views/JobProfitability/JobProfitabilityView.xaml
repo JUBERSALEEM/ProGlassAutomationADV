@@ -103,22 +103,22 @@
 <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0">
+                        <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
                             <TextBlock Text="{DynamicResource JobProfitability.SearchProformaCustomerProject}"
-                                       Style="{StaticResource Typography.Label}"/>
+                                       Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                      Style="{StaticResource JpInputStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Typography.Label}"/>
+                        <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
+                            <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Field.Label}"/>
                             <ComboBox ItemsSource="{Binding CompanyFilterOptions}"
                                       SelectedItem="{Binding CompanyFilter}"
                                       Style="{StaticResource JpComboStyle}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource Typography.Label}"/>
+                        <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="4">
+                            <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource Field.Label}"/>
                             <ComboBox ItemsSource="{Binding CustomerFilterOptions}"
                                       SelectedItem="{Binding CustomerFilter}"
                                       Style="{StaticResource JpComboStyle}"/>
@@ -403,7 +403,7 @@
                                 </Border>
                                 <Border Style="{StaticResource JpChipStyle}" Margin="4,0,0,0">
                                     <StackPanel>
-                                        <TextBlock Text="VALID · INCOMPLETE · STALE" Style="{StaticResource Typography.Label}" TextWrapping="Wrap"/>
+                                        <TextBlock Text="VALID · INCOMPLETE · STALE" Style="{StaticResource Field.Label}" TextWrapping="Wrap"/>
                                         <TextBlock FontSize="{StaticResource TextSubhead}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}">
                                             <Run Text="{Binding ValidTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
                                             <Run Text="{Binding IncompleteTargetJobCountDisplay, Mode=OneWay}"/><Run Text=" · "/>
@@ -435,8 +435,8 @@
                                     </TextBlock>
                                 </StackPanel>
 
-                                <StackPanel Grid.Column="1" Width="150" VerticalAlignment="Bottom">
-                                    <TextBlock Style="{StaticResource Typography.Label}">
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="1" Width="150" VerticalAlignment="Bottom">
+                                    <TextBlock Style="{StaticResource Field.Label}">
                                         <Run Text="Margin vs "/><Run Text="{Binding BaseExpectedMarginDisplay, Mode=OneWay}"/><Run Text=" base"/>
                                     </TextBlock>
                                     <ComboBox ItemsSource="{Binding MarginBandFilterOptions}"
@@ -444,8 +444,8 @@
                                               Style="{StaticResource JpComboStyle}"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Column="3" Width="160" VerticalAlignment="Bottom">
-                                    <TextBlock Text="Sort by" Style="{StaticResource Typography.Label}"/>
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="3" Width="160" VerticalAlignment="Bottom">
+                                    <TextBlock Text="Sort by" Style="{StaticResource Field.Label}"/>
                                     <ComboBox ItemsSource="{Binding SortByOptions}"
                                               SelectedItem="{Binding SortBy}"
                                               Style="{StaticResource JpComboStyle}"/>

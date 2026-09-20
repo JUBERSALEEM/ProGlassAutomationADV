@@ -880,7 +880,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BF;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource SheetStore.PurchaseValue}" Style="{StaticResource Typography.Label}" Foreground="{DynamicResource DangerBrush}"/>
+                                        <TextBlock Text="{DynamicResource SheetStore.PurchaseValue}" Style="{StaticResource Field.Label}" Foreground="{DynamicResource DangerBrush}"/>
                                         <TextBlock Text="{Binding DisplayBuyingValue, StringFormat={}{0:N0} AED}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -894,7 +894,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BF;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource SheetStore.SellingValue}" Style="{StaticResource Typography.Label}" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="{DynamicResource SheetStore.SellingValue}" Style="{StaticResource Field.Label}" Foreground="{DynamicResource SuccessBrush}"/>
                                         <TextBlock Text="{Binding DisplaySellingValue, StringFormat={}{0:N0} AED}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -908,7 +908,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE9F9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}" Style="{StaticResource Typography.Label}" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}" Style="{StaticResource Field.Label}" Foreground="{DynamicResource AccentBrush}"/>
                                         <TextBlock Text="{Binding DisplayProfit, StringFormat={}{0:N0} AED}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
@@ -1060,57 +1060,57 @@
                         DataContext="{Binding ItemEditor}" Style="{StaticResource SurfacePrimaryStyle}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-                        <StackPanel>
+                        <StackPanel Style="{StaticResource Field.Panel}">
                             <TextBlock Text="{Binding Title}"
                                        FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        Margin="0,0,0,16"/>
-                            <TextBlock Text="NAME" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="NAME" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding NameError}" Style="{StaticResource Typography.Caption}"
                                        Visibility="{Binding HasNameError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            <TextBlock Text="CATEGORY" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="CATEGORY" Style="{StaticResource Field.Label}"/>
                             <ComboBox ItemsSource="{Binding Categories}"
                                       Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
                                       IsTextSearchEnabled="True"
                                       Style="{StaticResource ModernEditableComboBoxStyle}"
                                       Margin="0,0,0,12" Height="40" MinHeight="40"/>
-                            <TextBlock Text="UNIT OF MEASURE" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="UNIT OF MEASURE" Style="{StaticResource Field.Label}"/>
                             <ComboBox ItemsSource="{Binding Uoms}"
                                       Text="{Binding Uom, UpdateSourceTrigger=PropertyChanged}"
                                       IsTextSearchEnabled="True"
                                       Style="{StaticResource ModernEditableComboBoxStyle}"
                                       Margin="0,0,0,12" Height="40" MinHeight="40"/>
-                            <TextBlock Text="SPECIFICATION" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="SPECIFICATION" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding Specification, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource Input.TextBox}"/>
-                            <TextBlock Text="PART NUMBER" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="PART NUMBER" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding PartNumber, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource Input.TextBox}"/>
-                            <TextBlock Text="SUPPLIER" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="SUPPLIER" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource Input.TextBox}"/>
-                            <TextBlock Text="OPENING STOCK" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="OPENING STOCK" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"
                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      IsEnabled="{Binding CanEditStock}"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding StockError}" Style="{StaticResource Typography.Caption}"
                                        Visibility="{Binding HasStockError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            <TextBlock Text="REORDER LEVEL" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="REORDER LEVEL" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding ReorderText, UpdateSourceTrigger=PropertyChanged}"
                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding ReorderError}" Style="{StaticResource Typography.Caption}"
                                        Visibility="{Binding HasReorderError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            <TextBlock Text="PURCHASE PRICE / UNIT" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="PURCHASE PRICE / UNIT" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding PurchaseText, UpdateSourceTrigger=PropertyChanged}"
                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding PurchaseError}" Style="{StaticResource Typography.Caption}"
                                        Visibility="{Binding HasPurchaseError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                            <TextBlock Text="SELL PRICE / UNIT" Style="{StaticResource Typography.Label}"/>
+                            <TextBlock Text="SELL PRICE / UNIT" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding SellText, UpdateSourceTrigger=PropertyChanged}"
                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      Style="{StaticResource Input.TextBox}"/>

@@ -92,9 +92,9 @@
                       FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel>
+            <StackPanel Style="{StaticResource Field.Panel}">
 
-                <TextBlock Text="{DynamicResource SheetStore.Category}" Style="{StaticResource Typography.Label}"/>
+                <TextBlock Text="{DynamicResource SheetStore.Category}" Style="{StaticResource Field.Label}"/>
                 <ComboBox Style="{StaticResource Input.ComboBox}"
                           ItemsSource="{Binding CategoryOptions}"
                           Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
@@ -109,8 +109,8 @@
                         <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}" Style="{StaticResource Typography.Label}"/>
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
+                        <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}" Style="{StaticResource Field.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding ThicknessOptions}"
                                   Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
@@ -118,8 +118,8 @@
                                   IsTextSearchEnabled="True"
                                   behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Typography.Label}"/>
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
+                        <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Field.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding ColorOptions}"
                                   Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
@@ -135,8 +135,8 @@
                         <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.WidthMm}" Style="{StaticResource Typography.Label}"/>
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
+                        <TextBlock Text="{DynamicResource SheetStore.WidthMm}" Style="{StaticResource Field.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding WidthOptions}"
                                   Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
@@ -144,8 +144,8 @@
                                   IsTextSearchEnabled="True"
                                   behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource Typography.Label}"/>
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
+                        <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource Field.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
                                   ItemsSource="{Binding HeightOptions}"
                                   Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
@@ -155,7 +155,7 @@
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource Typography.Label}"/>
+                <TextBlock Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource Field.Label}"/>
                 <ComboBox Style="{StaticResource Input.ComboBox}"
                           ItemsSource="{Binding SupplierOptions}"
                           Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
@@ -169,21 +169,21 @@
                         <ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}" Style="{StaticResource Typography.Label}"/>
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
+                        <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}" Style="{StaticResource Field.Label}"/>
                         <TextBox Style="{StaticResource Input.TextBox}"
                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}" Style="{StaticResource Typography.Label}"/>
+                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
+                        <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}" Style="{StaticResource Field.Label}"/>
                         <TextBox Style="{StaticResource Input.TextBox}"
                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                  Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
                 </Grid>
 
-                <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource Typography.Label}"/>
+                <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource Field.Label}"/>
                 <TextBox Style="{StaticResource Input.TextBox}"
                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                          Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"/>

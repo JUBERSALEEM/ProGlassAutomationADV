@@ -370,17 +370,17 @@
                                                         <RowDefinition Height="Auto"/>
                                                     </Grid.RowDefinitions>
 
-                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Given price (Step 5 Base Price)" Style="{StaticResource Typography.Label}"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Given price (Step 5 Base Price)" Style="{StaticResource Field.Label}"/>
                                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GivenPricePerSqmDisplay}"
                                                                Style="{StaticResource Typography.Body}" Margin="8,0,0,0"/>
 
-                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Specification target ×1.15" Style="{StaticResource Typography.Label}" Margin="0,2,0,0"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Specification target ×1.15" Style="{StaticResource Field.Label}" Margin="0,2,0,0"/>
                                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SpecificationTargetPerSqmDisplay}"
                                                                FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                HorizontalAlignment="Right" Margin="8,2,0,0"/>
 
-                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert rate" Style="{StaticResource Typography.Label}" Margin="0,2,0,0"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert rate" Style="{StaticResource Field.Label}" Margin="0,2,0,0"/>
                                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
                                                                FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -599,7 +599,7 @@
                             <Border Style="{StaticResource DetailDivider}"/>
 
                             <!-- ── P&L LINE ITEMS ── -->
-                            <TextBlock Style="{StaticResource Typography.Label}">
+                            <TextBlock Style="{StaticResource Field.Label}">
                                 <Run Text="P&amp;L LINE ITEMS ("/><Run Text="{Binding LineItemCount, Mode=OneWay}"/><Run Text=")"/>
                             </TextBlock>
 

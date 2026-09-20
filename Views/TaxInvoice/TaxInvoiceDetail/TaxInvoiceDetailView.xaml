@@ -87,7 +87,7 @@
         Row 3: Main content + Family sidebar (* fills)
     -->
     <Grid Margin="{DynamicResource DensityPageMargin}"
-          Background="{DynamicResource SurfacePrimaryBrush}">
+          Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -97,7 +97,7 @@
 
         <!-- ══ ROW 0 — ACTION BAR ════════════════════════════════════ -->
         <Border Grid.Row="0"
-               >
+                Style="{StaticResource ModuleDetailActionBarStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -255,12 +255,8 @@
             </Border>
 
             <!-- ERP hardening (Phase 2): posted-document body-edit lock banner. -->
-            <Border BorderBrush="{DynamicResource WarningBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    Background="{DynamicResource TintAmberBrush}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10"
-                    Margin="0,0,0,10"
-                    Visibility="{Binding BodyLockBannerVisibility}" Style="{StaticResource SurfacePrimaryStyle}">
+            <Border Style="{StaticResource ModuleWarningBannerStyle}"
+                    Visibility="{Binding BodyLockBannerVisibility}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE72E;" FontFamily="{DynamicResource FontFamily.Icon}"
                                FontSize="{DynamicResource FontSize.Title}"

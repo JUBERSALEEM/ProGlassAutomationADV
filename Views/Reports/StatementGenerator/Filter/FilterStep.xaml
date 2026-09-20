@@ -670,44 +670,44 @@
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Row="2" Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Typography.Label}"/>
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="2" Grid.Column="0">
+                                    <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource Field.Label}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Companies}"
                                               Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="{DynamicResource Reports.StatementGenerator.SelectSupplierFactoryCompany}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Row="2" Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource Typography.Label}"/>
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="2" Grid.Column="2">
+                                    <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource Field.Label}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Salesmen}"
                                               Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="{DynamicResource Reports.DeliveryReport.FilterSalesRepresentative}"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Row="4" Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource Typography.Label}"/>
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="4" Grid.Column="0">
+                                    <TextBlock Text="{DynamicResource Common.Customer}" Style="{StaticResource Field.Label}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Customers}"
                                               Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="{DynamicResource Reports.StatementGenerator.SelectBillingCustomer}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Row="4" Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource Typography.Label}"/>
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="4" Grid.Column="2">
+                                    <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource Field.Label}"/>
                                     <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Projects}"
                                               Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="{DynamicResource Reports.StatementGenerator.FilterProjectReference}"/>
                                 </StackPanel>
 
-                                <StackPanel Grid.Row="6" Grid.Column="0">
-                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date2}" Style="{StaticResource Typography.Label}"/>
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="6" Grid.Column="0">
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date2}" Style="{StaticResource Field.Label}"/>
                                     <DatePicker Style="{StaticResource LiquidDatePickerStyle}"
                                                 SelectedDate="{Binding DateFrom}"
                                                 ToolTip="{DynamicResource Reports.StatementGenerator.InvoicesIssuedAfterDate}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Row="6" Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date}" Style="{StaticResource Typography.Label}"/>
+                                <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="6" Grid.Column="2">
+                                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.Date}" Style="{StaticResource Field.Label}"/>
                                     <DatePicker Style="{StaticResource LiquidDatePickerStyle}"
                                                 SelectedDate="{Binding DateTo}"
                                                 ToolTip="{DynamicResource Reports.StatementGenerator.InvoicesIssuedBeforeDate}"/>

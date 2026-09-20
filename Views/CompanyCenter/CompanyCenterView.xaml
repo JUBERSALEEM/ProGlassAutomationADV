@@ -297,30 +297,30 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
-                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyNAME}" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="0" Grid.ColumnSpan="3">
+                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyNAME}" Style="{StaticResource Field.Label}"/>
                                 <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="2" Grid.Column="0">
-                                <TextBlock Text="TRN" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="2" Grid.Column="0">
+                                <TextBlock Text="TRN" Style="{StaticResource Field.Label}"/>
                                 <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
-                            <StackPanel Grid.Row="2" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource CompanyCenter.Location}" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="{DynamicResource CompanyCenter.Location}" Style="{StaticResource Field.Label}"/>
                                 <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="4" Grid.Column="0">
-                                <TextBlock Text="{DynamicResource CompanyCenter.Representative}" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="4" Grid.Column="0">
+                                <TextBlock Text="{DynamicResource CompanyCenter.Representative}" Style="{StaticResource Field.Label}"/>
                                 <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
-                            <StackPanel Grid.Row="4" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource Phone.Label}" Style="{StaticResource Typography.Label}"
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="4" Grid.Column="2">
+                                <TextBlock Text="{DynamicResource Phone.Label}" Style="{StaticResource Field.Label}"
                                            TextOptions.TextFormattingMode="Display"/>
                                 <shared:CountryPhoneControl
                                          PhoneText="{Binding RepresentativeMobile, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -328,19 +328,19 @@
                                          AutomationProperties.Name="Representative mobile"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="6" Grid.Column="0">
-                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyEMAIL}" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="6" Grid.Column="0">
+                                <TextBlock Text="{DynamicResource CompanyCenter.CompanyEMAIL}" Style="{StaticResource Field.Label}"/>
                                 <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
-                            <StackPanel Grid.Row="6" Grid.Column="2">
-                                <TextBlock Text="{DynamicResource CompanyCenter.BANKNAME}" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="6" Grid.Column="2">
+                                <TextBlock Text="{DynamicResource CompanyCenter.BANKNAME}" Style="{StaticResource Field.Label}"/>
                                 <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="8" Grid.ColumnSpan="3">
-                                <TextBlock Text="{DynamicResource CompanyCenter.AccountNumberIBAN}" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="8" Grid.ColumnSpan="3">
+                                <TextBlock Text="{DynamicResource CompanyCenter.AccountNumberIBAN}" Style="{StaticResource Field.Label}"/>
                                 <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Input.TextBox}"/>
                             </StackPanel>
@@ -433,7 +433,7 @@
 
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="{DynamicResource CompanyCenter.ChooseLOGO}"
-                                                   Style="{StaticResource Typography.Label}" Margin="0,0,0,4"/>
+                                                   Style="{StaticResource Field.Label}" Margin="0,0,0,4"/>
                                         <StackPanel Orientation="Horizontal">
                                             <Button Style="{StaticResource PrimaryPillButton}"
                                                     Tag="&#xE8B9;" Content="{DynamicResource CompanyCenter.ChooseLOGO}"
@@ -455,17 +455,17 @@
                                                 <ColumnDefinition Width="8"/>
                                                 <ColumnDefinition Width="72"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Text="WIDTH (MM)" Style="{StaticResource Typography.Label}"
+                                            <TextBlock Text="WIDTH (MM)" Style="{StaticResource Field.Label}"
                                                        VerticalAlignment="Center" Margin="0"/>
                                             <TextBox Grid.Column="2"
                                                      Text="{Binding LogoWidthMm, Converter={StaticResource DoubleTypingConverter}, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource Input.TextBox}" Height="34"
+                                                     Style="{StaticResource Input.TextBox}"
                                                      TextAlignment="Center"/>
-                                            <TextBlock Grid.Column="4" Text="HEIGHT (MM)" Style="{StaticResource Typography.Label}"
+                                            <TextBlock Grid.Column="4" Text="HEIGHT (MM)" Style="{StaticResource Field.Label}"
                                                        VerticalAlignment="Center" Margin="0"/>
                                             <TextBox Grid.Column="6"
                                                      Text="{Binding LogoHeightMm, Converter={StaticResource DoubleTypingConverter}, UpdateSourceTrigger=PropertyChanged}"
-                                                     Style="{StaticResource Input.TextBox}" Height="34"
+                                                     Style="{StaticResource Input.TextBox}"
                                                      TextAlignment="Center"/>
                                         </Grid>
                                         <TextBlock Margin="0,4,0,0"
@@ -480,7 +480,7 @@
 
                                         <!-- Layout selector — both industrial logo layouts -->
                                         <TextBlock Text="LETTERHEAD LAYOUT"
-                                                   Style="{StaticResource Typography.Label}" Margin="0,14,0,4"/>
+                                                   Style="{StaticResource Field.Label}" Margin="0,14,0,4"/>
                                         <StackPanel Orientation="Horizontal">
                                             <RadioButton Content="Text only"
                                                          GroupName="CompanyLogoLayout"
@@ -513,9 +513,9 @@
                         </Border>
 
                         <!-- PHASE D — WHY note recorded with the audit entry -->
-                        <StackPanel Margin="0,16,0,0">
+                        <StackPanel Style="{StaticResource Field.Panel}" Margin="0,16,0,0">
                             <TextBlock Text="{DynamicResource CompanyCenter.WHYNOTEOptionalRecordedAuditTrail}"
-                                       Style="{StaticResource Typography.Label}"/>
+                                       Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding ReasonNote, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource Input.TextBox}"
                                      ToolTip="{DynamicResource CompanyCenter.ReasonChangeEGTRNCorrectedAfterTradeLicence}"/>

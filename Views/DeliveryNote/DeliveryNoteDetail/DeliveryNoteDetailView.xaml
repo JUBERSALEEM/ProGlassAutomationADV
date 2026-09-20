@@ -33,7 +33,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
     <Grid Margin="{DynamicResource DensityPageMargin}"
-          Background="{DynamicResource SurfacePrimaryBrush}">
+          Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -198,11 +198,7 @@
 
             <!-- ERP hardening (Phase 2): once a delivery note is Dispatched
                  (goods have left) its body is locked. -->
-            <Border BorderBrush="{DynamicResource WarningBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    Background="{DynamicResource TintAmberBrush}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10"
-                    Margin="0,0,0,10"
+            <Border Style="{StaticResource ModuleWarningBannerStyle}"
                     Visibility="{Binding BodyLockBannerVisibility}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets"

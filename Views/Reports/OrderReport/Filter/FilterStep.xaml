@@ -199,8 +199,8 @@
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="COMPANY" Style="{StaticResource Typography.Label}" Margin="0"/>
+                                    <StackPanel Style="{StaticResource Field.Panel}" Margin="10,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="COMPANY" Style="{StaticResource Field.Label}" Margin="0"/>
                                         <TextBlock Text="OUR COMPANY" FontSize="{DynamicResource FontSize.Caption}"
                                                    FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                                     </StackPanel>
@@ -229,7 +229,7 @@
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="SALESMAN" Style="{StaticResource Typography.Label}"
+                                    <TextBlock Text="SALESMAN" Style="{StaticResource Field.Label}"
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -256,7 +256,7 @@
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="CUSTOMER" Style="{StaticResource Typography.Label}"
+                                    <TextBlock Text="CUSTOMER" Style="{StaticResource Field.Label}"
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -283,7 +283,7 @@
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="PROJECT" Style="{StaticResource Typography.Label}"
+                                    <TextBlock Text="PROJECT" Style="{StaticResource Field.Label}"
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
@@ -331,13 +331,13 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="DATE FROM" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
+                                <TextBlock Text="DATE FROM" Style="{StaticResource Field.Label}"/>
                                 <DatePicker SelectedDate="{Binding DateFrom}"
                                             Height="40" FontSize="{DynamicResource FontSize.Title}"/>
                             </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="DATE TO" Style="{StaticResource Typography.Label}"/>
+                            <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
+                                <TextBlock Text="DATE TO" Style="{StaticResource Field.Label}"/>
                                 <DatePicker SelectedDate="{Binding DateTo}"
                                             Height="40" FontSize="{DynamicResource FontSize.Title}"/>
                             </StackPanel>

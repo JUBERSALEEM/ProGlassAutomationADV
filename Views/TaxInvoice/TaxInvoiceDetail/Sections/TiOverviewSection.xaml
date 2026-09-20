@@ -75,33 +75,33 @@
                      ► Tax Invoice COLLAPSE and the rest re-flow. Issue Date
                      always shows (it anchors the invoice). -->
                 <WrapPanel Margin="0,0,0,14">
-                    <StackPanel MinWidth="180" MaxWidth="260" Margin="0,0,12,12">
-                        <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource ProformaInvoice.IssueDATE}"/>
+                    <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260" Margin="0,0,12,12">
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.IssueDATE}"/>
                         <DatePicker SelectedDate="{Binding IssueDate}"
                                     FontSize="{DynamicResource FontSize.Body}" Height="{DynamicResource DensityInputHeight}"/>
                     </StackPanel>
-                    <StackPanel MinWidth="180" MaxWidth="260" Margin="0,0,12,12"
+                    <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260" Margin="0,0,12,12"
                                 Visibility="{Binding Path=ShowDueDate,
                                     Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}"/>
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}"/>
                         <DatePicker SelectedDate="{Binding DueDate}"
                                     FontSize="{DynamicResource FontSize.Body}" Height="{DynamicResource DensityInputHeight}"/>
                     </StackPanel>
-                    <StackPanel MinWidth="180" MaxWidth="260" Margin="0,0,12,12"
+                    <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260" Margin="0,0,12,12"
                                 Visibility="{Binding Path=ShowPaymentTerms,
                                     Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.PaymentTerms}"/>
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Settings.PaymentTerms}"/>
                         <ComboBox ItemsSource="{Binding PaymentTermsOptions}"
                                   SelectedItem="{Binding PaymentTerms}"
                                   FontSize="{DynamicResource FontSize.Body}" Height="{DynamicResource DensityInputHeight}" Style="{StaticResource ComboBoxStyle}"/>
                     </StackPanel>
-                    <StackPanel MinWidth="160" MaxWidth="220" Margin="0,0,12,12"
+                    <StackPanel Style="{StaticResource Field.Panel}" MinWidth="160" MaxWidth="220" Margin="0,0,12,12"
                                 Visibility="{Binding Path=ShowDiscountPercent,
                                     Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.Discount}"/>
+                        <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Settings.Discount}"/>
                         <TextBox Text="{Binding DiscountPercent,
                                        UpdateSourceTrigger=PropertyChanged,
                                        StringFormat={}{0:0.##}}"
@@ -121,7 +121,7 @@
                     <Border Grid.Column="0" Style="{StaticResource CompactStatTileStyle}"
                             MinHeight="0" Padding="14,12">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource Typography.Label}"
+                            <TextBlock Style="{StaticResource Field.Label}"
                                        Text="{DynamicResource TaxInvoice.Supplier}"/>
                             <TextBlock Text="{Binding CompanyName}"
                                        Style="{StaticResource Typography.Body}"/>
@@ -141,7 +141,7 @@
                     <Border Grid.Column="2" Style="{StaticResource CompactStatTileStyle}"
                             MinHeight="0" Padding="14,12">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource Typography.Label}"
+                            <TextBlock Style="{StaticResource Field.Label}"
                                        Text="{DynamicResource TaxInvoice.BILLCustomer}"/>
                             <TextBlock Text="{Binding CustomerName}"
                                        Style="{StaticResource Typography.Body}"/>
@@ -232,32 +232,32 @@
                          turned OFF in Settings ► Features ► Tax Invoice. -->
                     <WrapPanel>
                         <StackPanel MinWidth="180" MaxWidth="280" Margin="0,0,12,12">
-                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource ProformaInvoice.BANK}"/>
+                            <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource ProformaInvoice.BANK}"/>
                             <TextBlock Text="{Binding BankName}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                         <StackPanel MinWidth="180" MaxWidth="280" Margin="0,0,12,12">
-                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource TaxInvoice.AccountNO}"/>
+                            <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource TaxInvoice.AccountNO}"/>
                             <TextBlock Text="{Binding BankAccountNumber}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
-                        <StackPanel MinWidth="180" MaxWidth="280" Margin="0,0,12,12"
+                        <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="280" Margin="0,0,12,12"
                                     Visibility="{Binding Path=ShowIban,
                                         Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                         Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.IBAN}"/>
+                            <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Settings.IBAN}"/>
                             <TextBox Text="{Binding Iban, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
                         </StackPanel>
-                        <StackPanel MinWidth="170" MaxWidth="260" Margin="0,0,12,12"
+                        <StackPanel Style="{StaticResource Field.Panel}" MinWidth="170" MaxWidth="260" Margin="0,0,12,12"
                                     Visibility="{Binding Path=ShowSwiftCode,
                                         Source={x:Static features:TaxInvoiceFieldVisibility.Instance},
                                         Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Style="{StaticResource Typography.Label}" Text="{DynamicResource Settings.Swift}"/>
+                            <TextBlock Style="{StaticResource Field.Label}" Text="{DynamicResource Settings.Swift}"/>
                             <TextBox Text="{Binding SwiftCode, UpdateSourceTrigger=PropertyChanged}"
                                      FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
                         </StackPanel>

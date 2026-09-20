@@ -254,65 +254,65 @@
                              and the remaining fields re-flow to fill the row,
                              so there is no blank spacer. Status always shows. -->
                         <WrapPanel>
-                            <StackPanel MinWidth="180" MaxWidth="260"
+                            <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260"
                                         Margin="0,0,12,12">
-                                <TextBlock Style="{StaticResource Typography.Label}"
+                                <TextBlock Style="{StaticResource Field.Label}"
                                            Text="{DynamicResource Common.Status}"/>
                                 <ComboBox ItemsSource="{Binding StatusOptions}"
                                           SelectedItem="{Binding Status}" Style="{StaticResource ComboBoxStyle}"/>
                             </StackPanel>
 
-                            <StackPanel MinWidth="180" MaxWidth="260"
+                            <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260"
                                         Margin="0,0,12,12"
                                         Visibility="{Binding Path=ShowDriverName,
                                             Source={x:Static features:DeliveryNoteFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Style="{StaticResource Typography.Label}"
+                                <TextBlock Style="{StaticResource Field.Label}"
                                            Text="{DynamicResource DeliveryNote.DriverNAME}"/>
                                 <TextBox Text="{Binding DriverName,
                                                 UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
                             </StackPanel>
 
-                            <StackPanel MinWidth="180" MaxWidth="260"
+                            <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="260"
                                         Margin="0,0,12,12"
                                         Visibility="{Binding Path=ShowVehicleNumber,
                                             Source={x:Static features:DeliveryNoteFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Style="{StaticResource Typography.Label}"
+                                <TextBlock Style="{StaticResource Field.Label}"
                                            Text="{DynamicResource DeliveryNote.VehicleNumber}"/>
                                 <TextBox Text="{Binding VehicleNumber,
                                                 UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
                             </StackPanel>
 
-                            <StackPanel MinWidth="150" MaxWidth="220"
+                            <StackPanel Style="{StaticResource Field.Panel}" MinWidth="150" MaxWidth="220"
                                         Margin="0,0,12,12"
                                         VerticalAlignment="Bottom"
                                         Visibility="{Binding Path=ShowIsFoc,
                                             Source={x:Static features:DeliveryNoteFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Style="{StaticResource Typography.Label}"
+                                <TextBlock Style="{StaticResource Field.Label}"
                                            Text="{DynamicResource DeliveryNote.FOC}"/>
                                 <CheckBox IsChecked="{Binding IsFoc}"
                                           Content="{DynamicResource DeliveryNote.Free}"/>
                             </StackPanel>
 
-                            <StackPanel MinWidth="180" MaxWidth="300"
+                            <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="300"
                                         Margin="0,0,12,12"
                                         Visibility="{Binding Path=ShowReceiverName,
                                             Source={x:Static features:DeliveryNoteFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Style="{StaticResource Typography.Label}"
+                                <TextBlock Style="{StaticResource Field.Label}"
                                            Text="{DynamicResource DeliveryNote.ReceiverNAME}"/>
                                 <TextBox Text="{Binding ReceiverName,
                                                 UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
                             </StackPanel>
 
-                            <StackPanel MinWidth="180" MaxWidth="300"
+                            <StackPanel Style="{StaticResource Field.Panel}" MinWidth="180" MaxWidth="300"
                                         Margin="0,0,12,12"
                                         Visibility="{Binding Path=ShowNotes,
                                             Source={x:Static features:DeliveryNoteFieldVisibility.Instance},
                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Style="{StaticResource Typography.Label}"
+                                <TextBlock Style="{StaticResource Field.Label}"
                                            Text="{DynamicResource Common.Notes}"/>
                                 <TextBox Text="{Binding Notes,
                                                 UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
