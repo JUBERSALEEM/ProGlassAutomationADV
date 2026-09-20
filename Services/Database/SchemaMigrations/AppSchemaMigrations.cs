@@ -164,7 +164,31 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
             // ERP hardening (Phase 5): optimistic-concurrency counter.
             new(1002, "Delivery Note: RowVersion concurrency counter", connection =>
-                AddRowVersionColumn(connection, "DeliveryNotes"))
+                AddRowVersionColumn(connection, "DeliveryNotes")),
+
+            // Unique DeliveryNoteId is in OnModelCreating (fresh EnsureCreated).
+            // Existing field DBs never received it via additive migration.
+            // Do NOT rewrite colliding numbers (TI keys the string).
+            new(1003, "Delivery Note: unique DeliveryNoteId index", connection =>
+            {
+                try
+                {
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE UNIQUE INDEX IF NOT EXISTS IX_DeliveryNotes_DeliveryNoteId ON DeliveryNotes(DeliveryNoteId);");
+                }
+                catch (SqliteException ex)
+                {
+                    AppLogService.Warning(
+                        "[DeliveryNotes] unique DeliveryNoteId index not applied: " +
+                        ex.Message,
+                        new LogContext
+                        {
+                            Module = "Database",
+                            Class = "SchemaMigrations",
+                            Operation = "DeliveryNoteIdUniqueIndex"
+                        });
+                }
+            })
         };
 
         // taxinvoices.db
