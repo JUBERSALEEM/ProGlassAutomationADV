@@ -196,16 +196,16 @@
                 <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3"/>
-                            <ColumnDefinition Width="231"/>
-                            <ColumnDefinition Width="231"/>
-                            <ColumnDefinition Width="231"/>
-                            <ColumnDefinition Width="231"/>
-                            <ColumnDefinition Width="231"/>
-                            <ColumnDefinition Width="231"/>
-                            <ColumnDefinition Width="231"/>
-                            <ColumnDefinition Width="231"/>
-                            </Grid.ColumnDefinitions>
+    <ColumnDefinition Width="3"/>
+    <ColumnDefinition Width="1.3*" MinWidth="120"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.2*" MinWidth="100"/>
+    <ColumnDefinition Width="0.8*" MinWidth="85"/>
+    <ColumnDefinition Width="0.9*" MinWidth="95"/>
+    <ColumnDefinition Width="0.7*" MinWidth="85"/>
+    <ColumnDefinition Width="Auto"/>
+</Grid.ColumnDefinitions>
                         <!-- 2026-09-14: row cells carry Padding 14,12 — the
                              header labels carry the matching left margins
                              so every column label sits exactly over its
@@ -235,15 +235,26 @@
                                          Converter={StaticResource BoolToVisibilityConverter}}"
                             Message="Loading invoices…"/>
 
-                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"
-        Style="{StaticResource SurfacePrimaryStyle}">
-            <StackPanel>
+                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding FilteredItems.Count}" Value="0"/>
+                                            <Condition Binding="{Binding IsLoading}" Value="False"/>
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <emptyState:EmptyStateControl
                             Icon="&#xE7C3;"
                             Title="{DynamicResource ProformaInvoice.NoSavedInvoicesFound}"
                             Message="Add your first invoice from the toolbar above."/>
-                    </StackPanel>
-    </Border>
+                    </Border>
 
                     <ListBox Panel.ZIndex="0"
                              ItemsSource="{Binding FilteredItems}"
@@ -253,7 +264,7 @@
                              Focusable="False"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             ScrollViewer.CanContentScroll="True"
+                             ScrollViewer.CanContentScroll="False"
                              ScrollViewer.IsDeferredScrollingEnabled="False"
                              ScrollViewer.PanningMode="None"
                              VirtualizingStackPanel.IsVirtualizing="True"
@@ -274,47 +285,20 @@
                                         MinHeight="48">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="3"/>
-                                            <ColumnDefinition Width="231"/>
-                                            <ColumnDefinition Width="231"/>
-                                            <ColumnDefinition Width="231"/>
-                                            <ColumnDefinition Width="231"/>
-                                            <ColumnDefinition Width="231"/>
-                                            <ColumnDefinition Width="231"/>
-                                            <ColumnDefinition Width="231"/>
-                                            <ColumnDefinition Width="231"/>
-                                            </Grid.ColumnDefinitions>
+    <ColumnDefinition Width="3"/>
+    <ColumnDefinition Width="1.3*" MinWidth="120"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.2*" MinWidth="100"/>
+    <ColumnDefinition Width="0.8*" MinWidth="85"/>
+    <ColumnDefinition Width="0.9*" MinWidth="95"/>
+    <ColumnDefinition Width="0.7*" MinWidth="85"/>
+    <ColumnDefinition Width="Auto"/>
+</Grid.ColumnDefinitions>
 
-                                        <Border Grid.Column="0">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background"
-                                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Status}" Value="Draft">
-                                                            <Setter Property="Background"
-                                                                    Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Status}" Value="Sent">
-                                                            <Setter Property="Background"
-                                                                    Value="{DynamicResource AccentDarkBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Status}" Value="Approved">
-                                                            <Setter Property="Background"
-                                                                    Value="{DynamicResource SuccessBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Status}" Value="Rejected">
-                                                            <Setter Property="Background"
-                                                                    Value="{DynamicResource DangerBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding Status}" Value="Expired">
-                                                            <Setter Property="Background"
-                                                                    Value="{DynamicResource WarningBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
+                                        <Border Grid.Column="0"
+                                                Background="{Binding DisplayStatusBrushKey,
+                                                             Converter={StaticResource BrushKeyConverter}}"/>
 
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding ProformaId}"
@@ -358,7 +342,7 @@
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Background="{Binding DisplayStatusBrushKey,
-                                                                     Converter={StaticResource BrushKeyConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                                     Converter={StaticResource BrushKeyConverter}}">
                                             <TextBlock Text="{Binding DisplayStatus}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
                                                        FontWeight="{DynamicResource Weight.Bold}"

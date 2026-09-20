@@ -448,15 +448,15 @@
                 <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}" Padding="0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="3"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            </Grid.ColumnDefinitions>
+    <ColumnDefinition Width="3"/>
+    <ColumnDefinition Width="1.3*" MinWidth="120"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.2*" MinWidth="100"/>
+    <ColumnDefinition Width="0.8*" MinWidth="85"/>
+    <ColumnDefinition Width="0.9*" MinWidth="95"/>
+    <ColumnDefinition Width="Auto"/>
+</Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="INQ#"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <!-- 2026-09-14: header gutters/alignment match the
@@ -505,7 +505,7 @@
                              VirtualizingStackPanel.ScrollUnit="Pixel"
                              VirtualizingStackPanel.CacheLength="400,800"
                              VirtualizingStackPanel.CacheLengthUnit="Pixel"
-                             ScrollViewer.CanContentScroll="True"
+                             ScrollViewer.CanContentScroll="False"
                              MouseDoubleClick="OnRowDoubleClick" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
@@ -623,15 +623,15 @@
                                     </Border.ContextMenu>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="3"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            <ColumnDefinition Width="264"/>
-                                            </Grid.ColumnDefinitions>
+    <ColumnDefinition Width="3"/>
+    <ColumnDefinition Width="1.3*" MinWidth="120"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.2*" MinWidth="100"/>
+    <ColumnDefinition Width="0.8*" MinWidth="85"/>
+    <ColumnDefinition Width="0.9*" MinWidth="95"/>
+    <ColumnDefinition Width="Auto"/>
+</Grid.ColumnDefinitions>
                                         <Border Grid.Column="0" Style="{StaticResource SurfaceDetailStyle}"/>
                                         <TextBlock Grid.Column="1" Margin="12,0,0,0"
                                                    Text="{Binding InquiryNumber}"

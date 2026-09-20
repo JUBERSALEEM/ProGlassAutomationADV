@@ -107,7 +107,7 @@
                                 <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -120,7 +120,7 @@
                                 <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -132,7 +132,7 @@
                                 <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                         <Setter Property="Opacity" Value="0.85"/>
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -319,7 +319,7 @@
                       VirtualizingPanel.ScrollUnit="Pixel"
                       VirtualizingPanel.CacheLength="400,800"
                       VirtualizingPanel.CacheLengthUnit="Pixel"
-                      ScrollViewer.CanContentScroll="True"
+                      ScrollViewer.CanContentScroll="False"
                       Visibility="{Binding IsListVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">

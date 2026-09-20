@@ -25,15 +25,15 @@
                     MouseRightButtonUp="OnGroupRowRightClick">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="3"/>
-                        <ColumnDefinition Width="264"/>
-                        <ColumnDefinition Width="264"/>
-                        <ColumnDefinition Width="264"/>
-                        <ColumnDefinition Width="264"/>
-                        <ColumnDefinition Width="264"/>
-                        <ColumnDefinition Width="264"/>
-                        <ColumnDefinition Width="264"/>
-                        </Grid.ColumnDefinitions>
+    <ColumnDefinition Width="3"/>
+    <ColumnDefinition Width="1.3*" MinWidth="120"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.2*" MinWidth="100"/>
+    <ColumnDefinition Width="0.8*" MinWidth="85"/>
+    <ColumnDefinition Width="0.9*" MinWidth="95"/>
+    <ColumnDefinition Width="Auto"/>
+</Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0">
                         <Border.Style>
@@ -478,15 +478,15 @@
                             </Border.Style>
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="3"/>
-                                    <ColumnDefinition Width="264"/>
-                                    <ColumnDefinition Width="264"/>
-                                    <ColumnDefinition Width="264"/>
-                                    <ColumnDefinition Width="264"/>
-                                    <ColumnDefinition Width="264"/>
-                                    <ColumnDefinition Width="264"/>
-                                    <ColumnDefinition Width="264"/>
-                                </Grid.ColumnDefinitions>
+    <ColumnDefinition Width="3"/>
+    <ColumnDefinition Width="1.3*" MinWidth="120"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.5*" MinWidth="130"/>
+    <ColumnDefinition Width="1.2*" MinWidth="100"/>
+    <ColumnDefinition Width="0.8*" MinWidth="85"/>
+    <ColumnDefinition Width="0.9*" MinWidth="95"/>
+    <ColumnDefinition Width="Auto"/>
+</Grid.ColumnDefinitions>
                                 <!-- 2026-09-14: header labels carry the same gutters +
                                      alignment as their row cells (text left, numbers
                                      right, status center) so every label sits exactly
@@ -526,7 +526,7 @@
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.CanContentScroll="False"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                  VirtualizingStackPanel.ScrollUnit="Pixel"
@@ -580,7 +580,7 @@
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.CanContentScroll="False"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                  VirtualizingStackPanel.CacheLength="200,400"
@@ -630,7 +630,7 @@
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.CanContentScroll="False"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                  VirtualizingStackPanel.CacheLength="200,400"
@@ -679,7 +679,7 @@
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.CanContentScroll="False"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                  VirtualizingStackPanel.CacheLength="200,400"
@@ -781,7 +781,7 @@
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.CanContentScroll="False"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                  VirtualizingStackPanel.CacheLength="200,400"
@@ -831,7 +831,7 @@
                                  Focusable="False"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.CanContentScroll="False"
                                  VirtualizingStackPanel.IsVirtualizing="True"
                                  VirtualizingStackPanel.VirtualizationMode="Recycling"
                                  VirtualizingStackPanel.CacheLength="200,400"
