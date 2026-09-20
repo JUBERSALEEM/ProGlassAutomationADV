@@ -128,7 +128,7 @@
             <TextBlock Grid.Column="3"
                        Text="{Binding DiscountUnitLabel}"
                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        VerticalAlignment="Center"
                        Margin="6,0,12,0"/>
             <TextBlock Grid.Column="4"
@@ -151,7 +151,7 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="AED"
                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
                 <TextBox Text="{Binding RoundToGrandTotal, Mode=TwoWay, UpdateSourceTrigger=LostFocus, StringFormat={}{0:0.00}}"
@@ -170,7 +170,7 @@
             <TextBlock Grid.Column="2"
                        Text="{Binding RoundToHint}"
                        FontSize="{DynamicResource FontSize.BodySmall}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        VerticalAlignment="Center"
                        TextWrapping="Wrap"
                        MaxWidth="220"
@@ -216,7 +216,7 @@
             <TextBlock Grid.Column="4"
                        Text="%"
                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        VerticalAlignment="Center"
                        Margin="6,0,12,0"/>
             <TextBlock Grid.Column="5"

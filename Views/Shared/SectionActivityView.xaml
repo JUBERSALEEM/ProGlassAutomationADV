@@ -117,7 +117,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="User actions in this section will appear here instantly."
                                FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
 
                 <!-- Rows -->
@@ -173,7 +173,7 @@
                                                        TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding Username, StringFormat=login: {0}}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
                                             <TextBlock Text="{Binding OtherUserNotice}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
@@ -197,7 +197,7 @@
                                             <TextBlock Text="{Binding EntityLine}"
                                                        Margin="0,4,0,0"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
 

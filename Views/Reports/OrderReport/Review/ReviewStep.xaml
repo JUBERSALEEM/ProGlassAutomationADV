@@ -58,7 +58,7 @@
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="The report below covers every selected proforma invoice through delivery and invoicing. Download the PDF, or go back to adjust the selection."
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            TextWrapping="Wrap" Margin="0,6,0,0"/>
 
                 <!-- ═══ BUNDLE BANNER ═══ -->
@@ -152,7 +152,7 @@
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="{TemplateBinding Padding}">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE72D;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.H3}"
+                                            <TextBlock Text="&#xE72D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,8,0"/>
                                             <TextBlock Text="{DynamicResource Sharing.Share}" FontSize="{DynamicResource FontSize.Title}"
@@ -258,7 +258,7 @@
                                                 </Border>
                                             </StackPanel>
                                             <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0">
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0">
                                                 <Run Text="{Binding Header.CompanyName, Mode=OneWay}"/>
                                                 <Run Text="  ·  "/>
                                                 <Run Text="{Binding Header.CustomerName, Mode=OneWay}"/>
@@ -269,7 +269,7 @@
 
                                         <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                             <TextBlock Text="PI Date" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        HorizontalAlignment="Right"/>
                                             <TextBlock Text="{Binding Header.IssueDateDisplay}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -305,7 +305,7 @@
                                                 <TextBlock Text="{Binding Header.ReleaseDateDisplay}" Style="{StaticResource Td}"/>
                                                 <TextBlock Text="{Binding Header.ConvertedAtDisplay}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                                            Margin="0,2,0,0"/>
                                             </StackPanel>
                                         </Grid>
@@ -353,7 +353,7 @@
                                                         <StackPanel Grid.Column="2">
                                                             <TextBlock Text="{Binding SpecName}" Style="{StaticResource Td}"/>
                                                             <TextBlock Text="{Binding DimensionsDisplay}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                         </StackPanel>
                                                         <TextBlock Grid.Column="3" Text="{Binding Qty}" Style="{StaticResource Td}" HorizontalAlignment="Right"/>
                                                         <TextBlock Grid.Column="4" Text="{Binding DeliveredQty}" Style="{StaticResource Td}" HorizontalAlignment="Right"
@@ -391,23 +391,23 @@
                                                                        VerticalAlignment="Center"/>
                                                             <TextBlock Grid.Column="1" Text="{Binding DeliveredWhenDisplay}"
                                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                                        VerticalAlignment="Center" Margin="10,0,0,0"/>
                                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                                                 <TextBlock Text="Delivered:" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                                                            VerticalAlignment="Center" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding TotalDeliveredQty}" FontSize="{DynamicResource FontSize.Body}"
                                                                            FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"
                                                                            VerticalAlignment="Center" Margin="0,0,12,0"/>
                                                                 <TextBlock Text="Balance:" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                                                            VerticalAlignment="Center" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding TotalBalanceQty}" FontSize="{DynamicResource FontSize.Body}"
                                                                            FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"
                                                                            VerticalAlignment="Center" Margin="0,0,12,0"/>
                                                                 <TextBlock Text="Weight:" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                                                            VerticalAlignment="Center" Margin="0,0,4,0"/>
                                                                 <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                            Foreground="{DynamicResource TextPrimaryBrush}"
@@ -418,7 +418,7 @@
                                                             </StackPanel>
                                                         </Grid>
                                                         <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0">
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0">
                                                             <Run Text="{Binding DriverName, Mode=OneWay}"/>
                                                             <Run Text="  ·  "/>
                                                             <Run Text="{Binding VehicleNumber, Mode=OneWay}"/>
@@ -460,31 +460,31 @@
                                                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                                                             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
                                                                 <TextBlock Text="{Binding InvoiceType}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                                 <TextBlock Text="  ·  " FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                                 <TextBlock Text="{Binding IssueDateDisplay}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                                 <TextBlock Text="  ·  " FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                                 <TextBlock Text="{Binding DeliveryNoteReference}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                             </StackPanel>
                                                             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                                                 <TextBlock Text="Qty" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding TotalQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
                                                                 <TextBlock Text="Subtotal" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding Subtotal, StringFormat={}{0:N2}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
                                                                 <TextBlock Text="VAT" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding VatAmount, StringFormat={}{0:N2}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                            Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
                                                                 <TextBlock Text="Total" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,4,0"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,4,0"/>
                                                                 <TextBlock Text="{Binding GrandTotal, StringFormat=AED {0:N2}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                            Foreground="{DynamicResource AccentBrush}"/>
                                                             </StackPanel>
@@ -508,7 +508,7 @@
                                                        Foreground="{Binding Reconciliation.OverallColorHex, Converter={StaticResource ColorStringConverter}}"/>
                                             <TextBlock Text="{Binding Reconciliation.TotalsDisplay}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,3,0,0"/>
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,3,0,0"/>
                                             <ItemsControl ItemsSource="{Binding Reconciliation.Rows}" Margin="0,8,0,0">
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
@@ -612,7 +612,7 @@
                                         </Border>
                                     </Grid>
                                     <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,8,0,0">
+                                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,8,0,0">
                                         <Run Text="Delivery progress: "/>
                                         <Run Text="{Binding Totals.DeliveryPct, Mode=OneWay, StringFormat={}{0:N1}%}" FontWeight="{DynamicResource Weight.Bold}"/>
                                         <Run Text="   ·   Invoicing progress: "/>
@@ -662,7 +662,7 @@
                                         <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.Body}"
                                                    FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="{Binding Detail}" FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    TextWrapping="Wrap" Margin="0,2,0,0"/>
                                     </StackPanel>
                                     <Button Grid.Column="2" VerticalAlignment="Center"
@@ -702,7 +702,7 @@
                 </ItemsControl>
 
                 <TextBlock Text="{Binding StatusMessage}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,16,0,0" TextWrapping="Wrap"/>
             </StackPanel>
         </ScrollViewer>

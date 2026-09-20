@@ -78,7 +78,7 @@
                        Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock Text="{DynamicResource SheetStore.EnterGlassSheetInventoryDetails}"
                        FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextSecondaryBrush}"/>
         </StackPanel>
 
         <!-- Form (smooth scroll) -->

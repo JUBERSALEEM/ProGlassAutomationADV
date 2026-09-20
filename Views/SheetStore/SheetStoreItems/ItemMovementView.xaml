@@ -34,17 +34,17 @@
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <TextBlock Text="Stock " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Text="{Binding Item.Stock, StringFormat={}{0:N2}}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="  Used " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Text="{Binding Item.Used, StringFormat={}{0:N2}}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                             <TextBlock Text="  Balance " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Text="{Binding Item.BalanceDisplay}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource SuccessBrush}"/>
@@ -182,14 +182,14 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Balance after " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Text="{Binding BalanceAfterDisplay}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <TextBlock Text="Movement value " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Text="{Binding MovementValue, StringFormat={}{0:N2} AED}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource AccentBrush}"/>

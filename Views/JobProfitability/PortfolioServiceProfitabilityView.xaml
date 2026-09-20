@@ -53,7 +53,7 @@
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="Which services are making money? Breaks down revenue by service type across all confirmed PIs."
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
@@ -201,7 +201,7 @@
 
                                         <TextBlock Grid.Column="3" Text="{Binding TotalCostDisplay}"
                                                    HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
 
                                         <TextBlock Grid.Column="4" Text="{Binding TotalProfitDisplay}"
                                                    HorizontalAlignment="Right">
@@ -253,7 +253,7 @@
                                    HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
                         <TextBlock Text="No service data available"
                                    FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="Service profitability appears after confirming PIs with service charges."
                                    FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
                                    Margin="0,4,0,0" Foreground="{DynamicResource TextTertiaryBrush}"/>

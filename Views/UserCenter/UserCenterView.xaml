@@ -53,7 +53,7 @@
                         <TextBlock Text="{DynamicResource UserCenter.SeededAdminAccountStillUsesDefaultPassword}"
                                    FontSize="{DynamicResource FontSize.Body}" Margin="0,3,0,0"
                                    TextWrapping="Wrap"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -65,7 +65,7 @@
                                FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}">
+                               Foreground="{DynamicResource TextSecondaryBrush}">
                         <Run Text="{DynamicResource Shell.UserHint}"/>
                         <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
                         <Run Text="{DynamicResource UserCenter.ActiveUserSignsAuditEntriesFillsDocument}"/>

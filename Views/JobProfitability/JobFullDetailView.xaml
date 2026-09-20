@@ -277,13 +277,13 @@
                                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Spec target ×1.15"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SpecificationTargetPerSqmDisplay}"
                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            HorizontalAlignment="Right" Margin="10,3,0,3"/>
 
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert (target)"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            HorizontalAlignment="Right" Margin="10,3,0,3"/>
 
                                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Required target"/>
@@ -364,7 +364,7 @@
                                                                FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
-                                                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsAboveTarget}" Value="True">
                                                                         <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -447,7 +447,7 @@
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Less: VAT (5%)"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding VatAmountDisplay}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                       />
 
                             <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1"
@@ -625,7 +625,7 @@
 
                                         <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,8,0">
                                             <TextBlock Text="{Binding KindIcon}"
-                                                       FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Title}"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"/>
                                             <StackPanel Margin="6,0,0,0">

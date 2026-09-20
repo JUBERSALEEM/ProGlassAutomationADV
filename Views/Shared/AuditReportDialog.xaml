@@ -222,7 +222,7 @@
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Visibility="{Binding HasChanges, Converter={StaticResource InverseBoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
                             <TextBlock TextWrapping="Wrap"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        FontSize="{DynamicResource FontSize.Body}">
                                 No field-level before/after details were attached to this audit row.
                                 Older and simple flows record only a summary line; structured save

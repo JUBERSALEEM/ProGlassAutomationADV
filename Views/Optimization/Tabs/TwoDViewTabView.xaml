@@ -63,7 +63,7 @@
                                             <TextBlock Text="  ·  " FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                                             <TextBlock Text="{Binding PreviewStockLabel}" FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                                         </StackPanel>
                                         <TextBlock Text="{Binding PreviewGroupLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"
@@ -207,7 +207,7 @@
                                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfacePrimaryBrush}" Padding="10,3"
                                             Margin="0,0,6,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                         <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </Border>
                                     <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34"
                                             Command="{Binding PreviewZoomInCommand}" Margin="0,0,6,0" ToolTip="Zoom in"/>

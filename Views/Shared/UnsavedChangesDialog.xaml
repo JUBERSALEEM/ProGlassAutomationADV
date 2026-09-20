@@ -25,7 +25,7 @@
                    FontSize="{DynamicResource FontSize.Title}"
                    LineHeight="20"
                    TextWrapping="Wrap"
-                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                   Foreground="{DynamicResource TextSecondaryBrush}"/>
     </StackPanel>
 
     <dialogs:ThemedDialogWindow.FooterContent>

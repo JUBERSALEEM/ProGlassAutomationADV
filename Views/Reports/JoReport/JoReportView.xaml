@@ -322,13 +322,13 @@
                                                 <TextBlock Text="{Binding JobOrderId}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
                                             <TextBlock Grid.Column="1" Text="{Binding SourceProformaId}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding CompanyName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding CompanyName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
                                             <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,6,0">
                                                 <TextBlock Text="{Binding CustomerName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock Text="{Binding ProjectName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
                                             </StackPanel>
-                                            <TextBlock Grid.Column="4" Text="{Binding Salesman}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
-                                            <TextBlock Grid.Column="5" Text="{Binding PreparedBy}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding Salesman}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding PreparedBy}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
                                             <Border Grid.Column="6" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <Border.Style>
@@ -363,7 +363,7 @@
                                                                     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding Status}" Value="Draft">
-                                                                    <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                    <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -372,7 +372,7 @@
                                             </Border>
 
                                             <TextBlock Grid.Column="7" Text="{Binding GrandTotal, StringFormat={}AED {0:N0}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                            <TextBlock Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,14,0">
+                                            <TextBlock Grid.Column="8" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,14,0">
                                                 <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N1}}"/>
                                             </TextBlock>
                                             <TextBlock Grid.Column="9" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="{DynamicResource FontSize.Body}">
@@ -386,7 +386,7 @@
                                         <Expander.Header>
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                                                <TextBlock Text="{DynamicResource Reports.JoReport.JobOrderDetails}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{DynamicResource Reports.JoReport.JobOrderDetails}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Expander.Header>
                                         <StackPanel Margin="0,8,0,0">
@@ -486,9 +486,9 @@
                                                             <RowDefinition Height="Auto"/>
                                                         </Grid.RowDefinitions>
                                                         <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Reports.JoReport.Created}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CreatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy  HH:mm}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CreatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy  HH:mm}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2"/>
                                                         <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Reports.JoReport.LastUpdated}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2"/>
-                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding UpdatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy  HH:mm}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2"/>
+                                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding UpdatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy  HH:mm}}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2"/>
                                                     </Grid>
                                                 </StackPanel>
                                             </Border>

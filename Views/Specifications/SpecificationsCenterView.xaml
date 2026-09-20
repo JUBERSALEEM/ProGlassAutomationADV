@@ -394,7 +394,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                   Foreground="{DynamicResource TextSecondaryBrush}">
                                             <Run Text="{Binding UsageCount, Mode=OneWay}"/>
                                             <Run Text="×"/>
                                         </TextBlock>
@@ -412,7 +412,7 @@
                                                 Command="{Binding DataContext.DeleteSpecCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                 CommandParameter="{Binding}"
                                                 Content="&#xE74D;"
-                                                FontFamily="Segoe MDL2 Assets"
+                                                FontFamily="{DynamicResource FontFamily.Icon}"
                                                 Width="28" Height="28"
                                                 Cursor="Hand"
                                                 VerticalAlignment="Center"
@@ -440,7 +440,7 @@
                             </Style>
                         </StackPanel.Style>
                         <TextBlock Text="&#xE8F1;"
-                                   FontFamily="Segoe MDL2 Assets"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.Display}"
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -485,7 +485,7 @@
                         <Button Grid.Column="1"
                                 Command="{Binding CloseDetailCommand}"
                                 Content="&#xE711;"
-                                FontFamily="Segoe MDL2 Assets"
+                                FontFamily="{DynamicResource FontFamily.Icon}"
                                 Width="28" Height="28" Cursor="Hand"
                                 VerticalAlignment="Top"
                                 Background="Transparent"
@@ -538,7 +538,7 @@
                                                            Text="{Binding ThicknessDisplay}"
                                                            FontSize="{DynamicResource FontSize.Body}"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </Grid>
 
                                             <Grid Margin="0,8,0,0">
@@ -662,7 +662,7 @@
                                                            FontSize="{DynamicResource FontSize.Body}"
                                                            TextTrimming="CharacterEllipsis"
                                                            VerticalAlignment="Center"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

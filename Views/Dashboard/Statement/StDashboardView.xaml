@@ -93,7 +93,7 @@
                                     Visibility="{Binding HasAttachments,
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="&#xE723;"
-                                           FontFamily="Segoe MDL2 Assets"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
                                            FontSize="{DynamicResource PgFontBodySm}"
                                            Foreground="{DynamicResource PgAccentBrush}"/>
                             </Border>
@@ -161,7 +161,7 @@
                                 CommandParameter="{Binding}"
                                 IsEnabled="{Binding HasPdf}"/>
                         <Button Content="&#xE72D;"
-                                FontFamily="Segoe MDL2 Assets"
+                                FontFamily="{DynamicResource FontFamily.Icon}"
                                 Margin="8,0,0,0"
                                 VerticalAlignment="Center"
                                 Style="{StaticResource PgBtnGhostStyle}"

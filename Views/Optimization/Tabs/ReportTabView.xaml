@@ -211,13 +211,13 @@
                                                                             <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}"
                                                                                        Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                                             <TextBlock Grid.Column="1" Text="{Binding W1}" FontSize="{DynamicResource FontSize.Body}"
-                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
+                                                                                       Foreground="{DynamicResource TextSecondaryBrush}" TextAlignment="Right"/>
                                                                             <TextBlock Grid.Column="2" Text="{Binding H1}" FontSize="{DynamicResource FontSize.Body}"
-                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
+                                                                                       Foreground="{DynamicResource TextSecondaryBrush}" TextAlignment="Right"/>
                                                                             <TextBlock Grid.Column="3" Text="{Binding W2}" FontSize="{DynamicResource FontSize.Body}"
-                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
+                                                                                       Foreground="{DynamicResource TextSecondaryBrush}" TextAlignment="Right"/>
                                                                             <TextBlock Grid.Column="4" Text="{Binding H2}" FontSize="{DynamicResource FontSize.Body}"
-                                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"/>
+                                                                                       Foreground="{DynamicResource TextSecondaryBrush}" TextAlignment="Right"/>
                                                                             <TextBlock Grid.Column="5" Text="{Binding Qty}" FontSize="{DynamicResource FontSize.Body}"
                                                                                        Foreground="{DynamicResource TextPrimaryBrush}" TextAlignment="Right"/>
                                                                             <TextBlock Grid.Column="6" Text="{Binding TotalSqm}" FontSize="{DynamicResource FontSize.Body}"
@@ -286,7 +286,7 @@
                                                             <TextBlock Grid.Column="0" Text="{Binding SheetNo}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                             <TextBlock Grid.Column="1" Text="{Binding Composition}" FontSize="{DynamicResource FontSize.Body}"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                                        TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                             <TextBlock Grid.Column="2" Text="{Binding StockLabel}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -316,7 +316,7 @@
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                         <TextBlock Text="{Binding SheetRowsOverflowLabel}" FontSize="{DynamicResource FontSize.Body}" FontStyle="Italic"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,6,0,0"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,6,0,0"
                                                    Visibility="{Binding HasSheetRowsOverflow, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </Grid>
@@ -432,7 +432,7 @@
                                                                 <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding HeightText, Mode=OneWay}"/>
                                                             </TextBlock>
                                                             <TextBlock Grid.Column="1" Text="{Binding CompositionLabel}" FontSize="{DynamicResource FontSize.Body}"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                                        TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                             <TextBlock Grid.Column="2" Text="{Binding AvailableText}" FontSize="{DynamicResource FontSize.Body}"
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -535,27 +535,27 @@
                                                                            Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis"/>
                                                             </StackPanel>
                                                             <TextBlock Grid.Column="1" Text="{Binding SheetSize}"
-                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}"
                                                                        Margin="0,0,8,0"/>
                                                             <TextBlock Grid.Column="2" Text="{Binding SheetQty}" TextAlignment="Right"
                                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                             <TextBlock Grid.Column="3" Text="{Binding PieceQty}" TextAlignment="Right"
-                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                             <TextBlock Grid.Column="4" Text="{Binding Utilization}" TextAlignment="Right"
                                                                        FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}"/>
                                                             <TextBlock Grid.Column="5" Text="{Binding GlassArea}" TextAlignment="Right"
-                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                             <TextBlock Grid.Column="6" Text="{Binding StockArea}" TextAlignment="Right"
-                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                             <TextBlock Grid.Column="7" Text="{Binding WasteArea}" TextAlignment="Right"
-                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                             <TextBlock Grid.Column="8" Text="{Binding RateLabel}" TextAlignment="Right" Margin="8,0,0,0"
-                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                             <TextBlock Grid.Column="9" Text="{Binding GlassCostLabel}" TextAlignment="Right"
                                                                        FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                             <TextBlock Grid.Column="10" Text="{Binding WasteCostLabel}" TextAlignment="Right"
-                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                             <TextBlock Grid.Column="11" Text="{Binding TotalCostLabel}" TextAlignment="Right"
                                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -627,7 +627,7 @@
                                                                        FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <TextBlock Text="{Binding Detail}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
                                                             <TextBlock Text="{Binding CreatedLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                                        Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,1,0,0"/>
                                                         </StackPanel>

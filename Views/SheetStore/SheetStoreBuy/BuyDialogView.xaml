@@ -42,30 +42,30 @@
                         <TextBlock Text="{Binding Sheet.Color}" FontSize="{DynamicResource FontSize.Body}"
                                    Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
                         <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                         <TextBlock Text="{DynamicResource SheetStore.TotalStock}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding Sheet.Stock}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text="{DynamicResource SheetStore.Used}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding Sheet.Used}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Text="{DynamicResource SheetStore.Balance}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding Sheet.Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                         <TextBlock Text="{DynamicResource Common.Price}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding Sheet.PurchasePricePerSqm, StringFormat={}{0:0.##}}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text="{DynamicResource SheetStore.AEDSQMSQMSheet}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding Sheet.SqmPerSheet, StringFormat={}{0:N4}}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -153,7 +153,7 @@
                                Margin="0,0,0,10"/>
                     <DockPanel Margin="0,0,0,6">
                         <TextBlock Text="{DynamicResource DeliveryNote.TotalSQM}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <!-- AREA FIX: TotalSqm is an area, not a price — the currency
                              converter rendered "AED 45.70" under a "TOTAL SQM"
                              label. ConverterParameter=area supplies the unit. -->
@@ -164,7 +164,7 @@
                     </DockPanel>
                     <DockPanel Margin="0,0,0,6">
                         <TextBlock Text="{DynamicResource SheetStore.NewTotalStock}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding NewStockAfterBuy}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"
@@ -172,7 +172,7 @@
                     </DockPanel>
                     <DockPanel Margin="0,0,0,6">
                         <TextBlock Text="{DynamicResource SheetStore.NewBalanceAvailable}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="{Binding NewBalanceAfterBuy}"
                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource SuccessBrush}"

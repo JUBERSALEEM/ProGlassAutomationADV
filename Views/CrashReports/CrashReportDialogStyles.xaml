@@ -40,7 +40,7 @@
 
     <Style x:Key="CrashOutlinedButton" TargetType="Button">
         <Setter Property="Background"     Value="White"/>
-        <Setter Property="Foreground"     Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"     Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding"        Value="14,8"/>

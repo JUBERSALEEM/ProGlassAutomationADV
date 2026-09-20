@@ -41,7 +41,7 @@
                        Foreground="{DynamicResource AccentBrush}" Margin="0,6,0,0"/>
             <TextBlock Text="{Binding PreviewVM.SelectedValueDisplay}"
                        FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,2,0,0"/>
         </StackPanel>
 
         <!-- Rows -->
@@ -103,7 +103,7 @@
                                             </Border>
                                         </StackPanel>
                                         <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    Margin="0,3,0,0">
                                             <Run Text="{Binding CompanyName, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>
@@ -120,7 +120,7 @@
                                                    HorizontalAlignment="Right"/>
                                         <TextBlock Text="{Binding CreatedAtDisplay}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    HorizontalAlignment="Right" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Grid>
@@ -131,7 +131,7 @@
 
                 <!-- Empty state -->
                 <TextBlock Text="No proforma invoices match the filters yet. Go back and adjust them, then click Preview."
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            TextWrapping="Wrap" TextAlignment="Center" Margin="24">
                     <TextBlock.Style>
@@ -159,7 +159,7 @@
                         Style="{StaticResource NavButtonSecondaryStyle}"
                         Margin="10,0,0,0"/>
                 <TextBlock Text="{Binding StatusMessage}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            VerticalAlignment="Center" Margin="16,0,0,0"
                            TextTrimming="CharacterEllipsis"/>
             </StackPanel>

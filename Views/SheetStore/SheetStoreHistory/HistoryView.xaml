@@ -190,7 +190,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource SheetStore.ActionsSheetStoreAppearHere}"
                                FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
 
                 <!-- Virtualized log list -->
@@ -251,7 +251,7 @@
                                             <TextBlock Text="&#xE77B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding UserName}"
                                                        FontSize="{DynamicResource FontSize.Body}" Margin="4,0,0,0"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
 
                                             <!-- 2026-09-06 REVERSED badge. The original row is
                                                  never deleted on undo (immutable audit record),
@@ -280,7 +280,7 @@
                                         <TextBlock Text="{Binding DayDisplay}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                                    HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                                         <TextBlock Text="{Binding TimeDisplay}"
                                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    HorizontalAlignment="Right" Margin="0,4,0,0"

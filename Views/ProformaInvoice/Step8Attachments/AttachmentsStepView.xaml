@@ -50,7 +50,7 @@
                             <TextBlock Text="&#xE72C;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Title}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </Button>
                     </StackPanel>
                 </Grid>
@@ -65,7 +65,7 @@
             <TextBlock DockPanel.Dock="Top"
                        Text="{DynamicResource ProformaInvoice.NoAttachmentsAddSitePhotosDrawingsSigned}"
                        FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        Margin="16,12,16,8"
                        TextWrapping="Wrap">
                 <TextBlock.Style>
@@ -138,12 +138,12 @@
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding FileSizeDisplay}"
                                                    FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding UploadedAtDisplay}"
                                                    FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    VerticalAlignment="Center"/>
                                         <StackPanel Grid.Column="4"
                                                     Orientation="Horizontal"

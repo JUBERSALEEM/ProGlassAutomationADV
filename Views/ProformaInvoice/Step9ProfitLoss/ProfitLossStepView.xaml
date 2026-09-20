@@ -29,7 +29,7 @@
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
+                    <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
                     <TextBlock Text="1 · OVERVIEW" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -129,7 +129,7 @@
                                      ToolTip="{DynamicResource ProformaInvoice.CuttingAllowanceAddedRequiredAreaBefore}"/>
                             <TextBlock Text="%"
                                        FontSize="{DynamicResource FontSize.Title}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"
                                        Margin="6,0,0,0"/>
                         </StackPanel>
@@ -454,7 +454,7 @@
                                     <TextBlock Grid.Column="0" Text="Base balance" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding BaseBalancePerSqmDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
@@ -464,7 +464,7 @@
                                     <TextBlock Grid.Column="0" Text="Base balance value" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding BaseBalanceValueDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
@@ -474,7 +474,7 @@
                                     <TextBlock Grid.Column="0" Text="Required target price (base + margin %)" Style="{StaticResource TgtKvLabelStyle}"/>
                                     <TextBlock Grid.Column="1" Text="{Binding RequiredTargetPriceDisplay}"
                                                Style="{StaticResource TgtKvValueStyle}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                 </Grid>
                                 <Grid Margin="0,6,0,0">
                                     <Grid.ColumnDefinitions>
@@ -711,7 +711,7 @@
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,12,0"/>
                                                     <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                     <TextBlock Grid.Column="3" Text="{Binding QuantityDisplay}"
                                                               />
                                                     <TextBlock Grid.Column="4" Text="{Binding PriceDisplay}"
@@ -762,7 +762,7 @@
                                                         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding HasQuotedRate}" Value="False">
-                                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -777,7 +777,7 @@
 
                 <TextBlock Text="{DynamicResource ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5}"
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,12,0,0"
                            Visibility="{Binding HasSpecGroups, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                 </StackPanel>
@@ -790,7 +790,7 @@
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
+                    <TextBlock Text="&#xE71D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
                     <TextBlock Text="2 · SERVICES" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -814,7 +814,7 @@
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
+                    <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
                     <TextBlock Text="3 · SHEETS" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -838,7 +838,7 @@
         <TabItem Style="{StaticResource PillTabItemStyle}">
             <TabItem.Header>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
+                    <TextBlock Text="&#xE8FD;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                VerticalAlignment="Center" Margin="0,0,7,0"/>
                     <TextBlock Text="4 · SPECS" VerticalAlignment="Center"/>
                 </StackPanel>
@@ -994,7 +994,7 @@
                                                         <TextBlock Text="{Binding FormulaSummaryLine}"
                                                                    FontFamily="Consolas"
                                                                    FontSize="{DynamicResource FontSize.Caption}"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                                    TextWrapping="Wrap"
                                                                    Margin="0,2,0,0"/>
                                                     </StackPanel>
@@ -1007,7 +1007,7 @@
                                                                Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"/>
                                                     <TextBlock Grid.Column="5" Text="{Binding UInsertTreatmentLabel}"
                                                                Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                     <TextBlock Grid.Column="6" Text="{Binding FinalRequiredTargetDisplay}"
                                                                Style="{StaticResource PlCellStyle}" HorizontalAlignment="Right"
                                                                FontWeight="{DynamicResource Weight.SemiBold}"/>
@@ -1057,7 +1057,7 @@
 
                         <TextBlock Text="No specifications with measured area yet — add glass rows in Step 5 and the target figures below update automatically."
                                    FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    Margin="0,6,0,0"
                                    Visibility="{Binding HasTargetSpecs, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
@@ -1158,7 +1158,7 @@
                                         </Grid>
                                         <TextBlock Text="{Binding DimensionsSummary}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                         <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
@@ -1321,7 +1321,7 @@
                                         </Grid>
                                         <TextBlock Text="{Binding UInsertTreatmentDetail}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    TextWrapping="Wrap" Margin="0,6,0,0"/>
 
                                         <!-- 5 · RESULT -->

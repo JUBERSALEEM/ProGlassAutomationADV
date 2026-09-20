@@ -257,11 +257,11 @@
                                             </StackPanel>
 
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding SpecDisplay}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SpecDisplay}"/>
+                                                <TextBlock Text="{Binding SpecDisplay}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SpecDisplay}"/>
                                                 <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis"><Run Text="{Binding ProformaId, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding ProjectName, Mode=OneWay}"/></TextBlock>
                                             </StackPanel>
 
-                                            <TextBlock Grid.Column="2" Text="{Binding CustomerName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding CustomerName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 
                                             <TextBlock Grid.Column="3" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"><Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/></TextBlock>
                                             <TextBlock Grid.Column="4" Text="{Binding Qty}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -289,7 +289,7 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock Text="JO" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <TextBlock Text="JO" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                 </Border>
                                                 <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding DeliveryNoteId}">
                                                     <Border.Style>
@@ -302,7 +302,7 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock Text="DN" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <TextBlock Text="DN" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                 </Border>
                                                 <Border CornerRadius="{DynamicResource Radius.XSmall}" Padding="4,1" Margin="1,0" ToolTip="{Binding TaxInvoiceNumber}">
                                                     <Border.Style>
@@ -315,7 +315,7 @@
                                                             </Style.Triggers>
                                                         </Style>
                                                     </Border.Style>
-                                                    <TextBlock Text="TI" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <TextBlock Text="TI" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                 </Border>
                                             </StackPanel>
                                         </Grid>

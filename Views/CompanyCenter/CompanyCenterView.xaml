@@ -37,7 +37,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource CompanyCenter.CompaniesIdentityTRNBankingLogoDefault}"
                                FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right"
@@ -246,7 +246,7 @@
                                                TextTrimming="CharacterEllipsis"/>
                                     <TextBlock Margin="0,3,0,0"
                                                FontSize="{DynamicResource FontSize.Body}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                TextTrimming="CharacterEllipsis">
                                         <Run Text="{Binding CompanyTrn}"/>
                                         <Run Text="  ·  "/>
@@ -503,7 +503,7 @@
 
                                         <TextBlock Text="{Binding LogoPath}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,10,0,0"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    TextTrimming="CharacterEllipsis"
                                                    MaxWidth="360"
                                                    ToolTip="{Binding LogoPath}"/>

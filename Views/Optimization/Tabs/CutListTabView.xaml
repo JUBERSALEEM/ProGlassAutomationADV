@@ -89,7 +89,7 @@
                                 VerticalAlignment="Center" Margin="14,0,0,0">
                         <TextBlock Text="{Binding PieceSummary}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding CutListCompositionDisplay}"
@@ -161,7 +161,7 @@
                             <StackPanel Margin="0,2,0,4">
                                 <TextBlock Text="What every piece on this list is cut from. The grid's two COLOUR columns and the composition the engine groups by are both read from here — nothing on this pane has to be repeated per row."
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextWrapping="Wrap" Margin="0,0,0,12"/>
 
                                 <Grid>
@@ -553,7 +553,7 @@
                                 <!-- nothing run yet -->
                                 <TextBlock Text="No run yet. Send this list to the engine, add racks on STOCKS, then run QUICK or OPTIMIZE — the result lands here and in the grid's QTY USED and OPT % columns."
                                            FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextWrapping="Wrap" Margin="0,4,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">

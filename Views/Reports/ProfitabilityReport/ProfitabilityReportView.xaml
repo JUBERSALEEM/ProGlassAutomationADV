@@ -222,7 +222,7 @@
                                                  they were crammed into a tiny chip inside PROFORMA,
                                                  which also crowded the P&L numbers next to it. -->
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Qty, StringFormat={}{0:N0} pcs}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding Qty, StringFormat={}{0:N0} pcs}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                                                 <TextBlock Text="{Binding Sqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Center"/>
                                             </StackPanel>
 
@@ -231,7 +231,7 @@
                                             <TextBlock Grid.Column="3" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,16,0" Text="{Binding Cost, StringFormat={}{0:N0}}">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding HasCostData}" Value="False">
                                                                 <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
@@ -257,7 +257,7 @@
                                             <TextBlock Grid.Column="5" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,16,0" Text="{Binding Margin, StringFormat={}{0:0.#}%}">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding HasCostData}" Value="False">
                                                                 <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>

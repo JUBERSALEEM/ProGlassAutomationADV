@@ -237,7 +237,7 @@
                         <TextBlock Text="{DynamicResource Dg.Specs}"
                                    FontSize="{DynamicResource FontSize.Body}"
                                    FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"/>
                         <Border Background="{DynamicResource AccentBrush}"
@@ -352,7 +352,7 @@
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     <TextBlock Text="{Binding SheetSelectionSummary}"
                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                TextWrapping="Wrap"
                                                Margin="0,4,0,0">
                                         <TextBlock.Style>

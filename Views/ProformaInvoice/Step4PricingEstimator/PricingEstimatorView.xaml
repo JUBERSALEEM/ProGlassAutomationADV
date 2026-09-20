@@ -100,7 +100,7 @@
                             <TextBlock Text="{DynamicResource ProformaInvoice.Sections}"
                                        FontSize="{DynamicResource FontSize.Body}"
                                        FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0"/>
                             <Border Background="{DynamicResource TintBlueBrush}"
@@ -242,7 +242,7 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0">
                     <TextBlock Text="{DynamicResource ProformaInvoice.EstimatedRATE}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Bottom" Margin="0,0,10,6"/>
                     <TextBlock Text="AED"
                                FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
@@ -253,7 +253,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.Sqm}"
                                FontSize="{DynamicResource FontSize.Title}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Bottom" Margin="4,0,0,6"/>
                 </StackPanel>
 
@@ -295,7 +295,7 @@
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock x:Name="TitleText" Text="{Binding Title}"
                                                        FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        Margin="8,0,0,0"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>

@@ -650,7 +650,7 @@
                              Visibility="{Binding IsStatusError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <TextBlock Text="{Binding StatusText}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="9,0,0,0"
                                TextWrapping="Wrap" MaxWidth="640"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="{DynamicResource Inquiry.Discard}" Command="{Binding CancelCommand}"

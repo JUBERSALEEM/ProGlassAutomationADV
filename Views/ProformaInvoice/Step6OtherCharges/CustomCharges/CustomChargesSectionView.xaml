@@ -80,7 +80,7 @@
                                        FontSize="{DynamicResource FontSize.Body}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                             <TextBlock Grid.Column="4"
                                        Text="{Binding Rate, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                        FontSize="{DynamicResource FontSize.Body}"

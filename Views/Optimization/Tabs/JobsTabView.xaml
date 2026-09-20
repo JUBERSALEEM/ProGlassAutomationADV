@@ -68,7 +68,7 @@
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                                Foreground="{DynamicResource AccentBrush}" Margin="0,1,0,0"/>
                                                     <TextBlock Text="{Binding CustomerName}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="0,1,0,8"/>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Style="{StaticResource SurfacePrimaryStyle}">
@@ -181,7 +181,7 @@
                                                                    FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"
                                                                    VerticalAlignment="Center" Margin="0,0,8,0"/>
                                                         <TextBlock Grid.Column="2" Text="{Binding SpecLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                                    VerticalAlignment="Center" Margin="0,0,8,0"/>
                                                         <TextBlock Grid.Column="3" Text="{Binding Title}" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}"
@@ -316,7 +316,7 @@
                                                                        Foreground="{DynamicResource AccentBrush}"/>
                                                         </StackPanel>
                                                         <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
                                                         <TextBlock Grid.Column="2" FontSize="{DynamicResource FontSize.Body}"
                                                                    Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center">

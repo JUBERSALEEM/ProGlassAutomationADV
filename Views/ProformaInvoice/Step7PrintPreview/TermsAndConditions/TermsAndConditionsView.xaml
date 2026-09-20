@@ -66,14 +66,14 @@
                                             Style="{StaticResource PiIconButtonStyle}"
                                             ToolTip="{DynamicResource ProformaInvoice.Move2}">
                                         <TextBlock Text="&#xE70E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </Button>
                                     <Button Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiIconButtonStyle}"
                                             ToolTip="{DynamicResource ProformaInvoice.Move}">
                                         <TextBlock Text="&#xE70D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </Button>
                                     <Button Command="{Binding DataContext.RemoveClauseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
@@ -169,7 +169,7 @@
 
         <TextBlock Text="{DynamicResource ProformaInvoice.NoTermsConfiguredAddClauseResetDefaults}"
                    FontSize="{DynamicResource FontSize.Body}"
-                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
                    Margin="0,8,0,0">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">

@@ -64,7 +64,7 @@
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="{DynamicResource God.DnSubtitle}"
                            FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                           Foreground="{DynamicResource TextSecondaryBrush}"/>
             </StackPanel>
 
             <!-- Search -->

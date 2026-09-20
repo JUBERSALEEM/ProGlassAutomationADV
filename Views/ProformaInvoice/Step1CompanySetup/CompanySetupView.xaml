@@ -161,7 +161,7 @@
                                 <Run Text="{Binding LogoLayoutLabel, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
                             </TextBlock>
                             <TextBlock Text="{Binding LogoPath}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding LogoPath}"
                                        Margin="0,4,0,0"/>
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
@@ -317,11 +317,11 @@
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
                         ToolTip="{DynamicResource ProformaInvoice.RefreshSavedCompaniesDatabase}">
                     <TextBlock Text="&#xE72C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </Button>
             </Grid>
             <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Common.Loading}" FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8">
+                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -347,7 +347,7 @@
                 </TextBlock.Style>
             </TextBlock>
             <TextBlock DockPanel.Dock="Top" Text="{DynamicResource ProformaInvoice.NoSavedCompaniesYet}"
-                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -406,7 +406,7 @@
                                         <TextBlock Text="{Binding CompanyName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                         <TextBlock Text="{Binding TrnMasked}" FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>

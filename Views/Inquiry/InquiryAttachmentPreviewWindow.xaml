@@ -77,7 +77,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock x:Name="MissingDetail" FontSize="{DynamicResource FontSize.Body}" Margin="0,8,0,0" HorizontalAlignment="Center"
                                TextAlignment="Center" TextWrapping="Wrap"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                Text="{DynamicResource Inquiry.AttachmentMetadataExistsStoredFileCannot}"/>
                 </StackPanel>
             </Border>
@@ -87,14 +87,14 @@
                     <Border Width="62" Height="62" CornerRadius="{DynamicResource Radius.Large}"
                             Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                         <TextBlock Text="&#xE7C3;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="{DynamicResource Inquiry.AppPreviewAvailableFileType}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Margin="0,16,0,0" HorizontalAlignment="Center" TextAlignment="Center"
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
-                               TextWrapping="Wrap" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}"
                                Text="{DynamicResource Inquiry.DrawingsSpreadsheetsOpenSystemApplication}"/>
                 </StackPanel>
             </Border>

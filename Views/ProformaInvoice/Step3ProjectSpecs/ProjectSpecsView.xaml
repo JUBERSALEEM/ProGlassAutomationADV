@@ -102,7 +102,7 @@
                         </Style>
                     </StackPanel.Style>
                     <TextBlock Text="{Binding FilterBannerText}" FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                     <Button Margin="12,0,0,0" Command="{Binding ClearClientFilterCommand}"
                            >
                         <TextBlock Text="{DynamicResource ProformaInvoice.ClearFilter}" TextDecorations="Underline"/>
@@ -136,11 +136,11 @@
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
                         ToolTip="{DynamicResource ProformaInvoice.RefreshSavedProjectsDatabase}">
                     <TextBlock Text="&#xE72C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </Button>
             </Grid>
             <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Common.Loading}" FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8">
+                       Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -166,7 +166,7 @@
                 </TextBlock.Style>
             </TextBlock>
             <TextBlock DockPanel.Dock="Top" Text="{DynamicResource ProformaInvoice.NoSavedProjectsYet}"
-                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                       FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -224,7 +224,7 @@
                                     <StackPanel>
                                         <TextBlock Text="{Binding DisplayProjectName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
+                                        <TextBlock FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" TextTrimming="CharacterEllipsis">
                                             <Run Text="{Binding ReferencePreview, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>
                                             <Run Text="{Binding ProjectContractNo, Mode=OneWay}"/>

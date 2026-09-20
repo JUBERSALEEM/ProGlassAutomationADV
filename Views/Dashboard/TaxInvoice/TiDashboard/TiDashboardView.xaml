@@ -377,7 +377,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
                                        Text="&#xE7BA;"
-                                       FontFamily="Segoe MDL2 Assets"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource PgFontGlyph}"
                                        Foreground="{DynamicResource PgDangerBrush}"
                                        VerticalAlignment="Center"

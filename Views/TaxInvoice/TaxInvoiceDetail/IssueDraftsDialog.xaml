@@ -64,7 +64,7 @@
                                         </Border>
                                     </StackPanel>
                                     <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                Margin="0,2,0,0">
                                         <Run Text="{Binding TypeLabel, Mode=OneWay}"/>
                                         <Run Text="  ·  "/>

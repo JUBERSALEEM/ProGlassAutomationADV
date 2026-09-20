@@ -56,7 +56,7 @@
                        FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
                        Margin="0,0,12,0"
                        TextWrapping="Wrap"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextSecondaryBrush}"/>
 
             <Button Grid.Column="1" Style="{StaticResource OutlinedPillButton}"
                     Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"

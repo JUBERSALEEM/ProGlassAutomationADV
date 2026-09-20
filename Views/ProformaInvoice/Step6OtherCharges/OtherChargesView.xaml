@@ -96,7 +96,7 @@
                                 <ContentPresenter Grid.Column="0" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="&#xE70D;"
                                            FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Caption}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
                             </Grid>
                         </Border>
@@ -150,7 +150,7 @@
                     <TextBlock Grid.Column="1"
                                Text="{Binding AutomationModeLabel}"
                                FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                TextWrapping="Wrap"
                                VerticalAlignment="Center"
                                Margin="18,0,0,0"/>
@@ -207,7 +207,7 @@
                                                    TextWrapping="Wrap"/>
                                         <TextBlock Text="{Binding GlassType}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Padding="6,0"
                                                Text="{Binding Lm1, StringFormat={}{0:0.##}}"
@@ -241,7 +241,7 @@
                                                FontSize="{DynamicResource FontSize.Body}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     <TextBlock Grid.Column="7" Padding="6,0,0,0"
                                                Text="{Binding MatchHint}"
                                                FontSize="{DynamicResource FontSize.BodySmall}"
@@ -314,7 +314,7 @@
                                                     <Style TargetType="TextBlock">
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                                 <Setter Property="TextDecorations" Value="Strikethrough"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
@@ -323,14 +323,14 @@
                                             </TextBlock>
                                             <TextBlock Text="{Binding Description}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        TextWrapping="Wrap"/>
                                         </StackPanel>
 
                                         <Grid Grid.Column="2" Margin="0,0,8,0">
                                             <TextBlock Text="{DynamicResource ProformaInvoice.1TRIPRate}"
                                                        FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        VerticalAlignment="Center">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
@@ -509,7 +509,7 @@
                                                     <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                             <Setter Property="FontWeight" Value="{DynamicResource Weight.Regular}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>

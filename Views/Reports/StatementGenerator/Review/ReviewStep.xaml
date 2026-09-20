@@ -193,7 +193,7 @@
                                     <Setter Property="Opacity" Value="0.85"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding HasWarnings}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                             <Setter Property="Opacity" Value="1"/>
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -449,7 +449,7 @@
                                                 <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="0,0,6,0">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding ShowIncludedReconciliation}" Value="True">
                                                                     <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -461,7 +461,7 @@
                                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.IncludedStatement}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" VerticalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding ShowIncludedReconciliation}" Value="True">
                                                                     <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -495,7 +495,7 @@
                                                 <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="0,0,6,0">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding ShowDueReconciliation}" Value="True">
                                                                     <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -507,7 +507,7 @@
                                                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.DueBalance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" VerticalAlignment="Center">
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding ShowDueReconciliation}" Value="True">
                                                                     <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -575,8 +575,8 @@
                                                                     <ColumnDefinition Width="120"/>
                                                                 </Grid.ColumnDefinitions>
                                                                 <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                                                                <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
-                                                                <TextBlock Grid.Column="2" Text="{Binding RawDimsDisplay}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding RawDimsDisplay}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                                                 <TextBlock Grid.Column="3" Text="{Binding OrderedQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                                                 <TextBlock Grid.Column="4" Text="{Binding DeliveredQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                                                 <TextBlock Grid.Column="5" Text="{Binding InvoicedQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
@@ -656,8 +656,8 @@
                                                                     <ColumnDefinition Width="120"/>
                                                                 </Grid.ColumnDefinitions>
                                                                 <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                                                                <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
-                                                                <TextBlock Grid.Column="2" Text="{Binding RawDimsDisplay}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding RawDimsDisplay}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                                                 <TextBlock Grid.Column="3" Text="{Binding OrderedQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                                                 <TextBlock Grid.Column="4" Text="{Binding DeliveredQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                                                 <TextBlock Grid.Column="5" Text="{Binding BalanceQty}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
@@ -1004,7 +1004,7 @@
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Foreground"
-                                                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                        Value="{DynamicResource TextSecondaryBrush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
                                                                         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -1080,7 +1080,7 @@
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Foreground"
-                                                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                        Value="{DynamicResource TextSecondaryBrush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
                                                                         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -1154,7 +1154,7 @@
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Foreground"
-                                                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                        Value="{DynamicResource TextSecondaryBrush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
                                                                         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -1408,7 +1408,7 @@
                         <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                    Margin="0,0,10,0" VerticalAlignment="Center"/>
                         <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    VerticalAlignment="Center">
                             <Run Text="{DynamicResource Reports.StatementGenerator.ReportIncludes}"/>
                             <Run Text="{Binding MergedSectionCount, Mode=OneWay}"

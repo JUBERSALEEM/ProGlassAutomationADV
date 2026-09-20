@@ -49,7 +49,7 @@
                      probe proves the encoder initializes. -->
                 <TextBlock Text="{DynamicResource Settings.Encoder}"
                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,0,0,4"/>
                 <ComboBox ItemsSource="{Binding EncoderOptions}"
                           SelectedItem="{Binding SelectedEncoder, Mode=TwoWay}"
@@ -65,7 +65,7 @@
                      near-lossless setting the recorder shipped with. -->
                 <TextBlock Text="{DynamicResource Settings.Quality}"
                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,12,0,4"/>
                 <ComboBox ItemsSource="{Binding QualityTiers}"
                           SelectedItem="{Binding SelectedQualityTier, Mode=TwoWay}"
@@ -77,7 +77,7 @@
 
                 <TextBlock Text="{DynamicResource Settings.Resolution}"
                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,12,0,4"/>
                 <ComboBox ItemsSource="{Binding Qualities}"
                           SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
@@ -89,7 +89,7 @@
 
                 <TextBlock Text="{DynamicResource Settings.FrameRate}"
                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,12,0,4"/>
                 <ComboBox ItemsSource="{Binding FpsChoices}"
                           SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
@@ -122,7 +122,7 @@
 
                 <TextBlock Text="{Binding Hint}"
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            TextWrapping="Wrap"
                            Margin="0,12,0,0"/>
 
@@ -173,7 +173,7 @@
 
                 <TextBlock Text="{Binding Status}"
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            TextWrapping="Wrap"
                            Margin="0,4,0,0"/>
                 <TextBlock Text="{Binding LastMp4Text}"

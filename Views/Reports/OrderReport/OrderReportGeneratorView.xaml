@@ -101,7 +101,7 @@
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="Proforma → Job Order → Delivery → Invoice"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </StackPanel>
 
@@ -146,7 +146,7 @@
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="1"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
@@ -218,7 +218,7 @@
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="2"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
@@ -290,7 +290,7 @@
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="3"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
@@ -362,7 +362,7 @@
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="4"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
@@ -434,7 +434,7 @@
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Text" Value="5"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep5Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
@@ -480,7 +480,7 @@
                                     Width="32" Height="32" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
                                 <TextBlock x:Name="ic" Text="✕"
                                            FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <ControlTemplate.Triggers>
@@ -584,7 +584,7 @@
                         Content="Cancel" VerticalAlignment="Center"/>
 
                 <TextBlock Grid.Column="1" Text="{Binding StatusMessage}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
                            TextTrimming="CharacterEllipsis" Margin="12,0"/>
 

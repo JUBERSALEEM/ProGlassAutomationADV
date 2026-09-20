@@ -161,21 +161,21 @@
                                                         <TextBlock x:Name="Num"
                                                                    Text="{Binding StationCode}"
                                                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
                                                     </Border>
                                                     <TextBlock x:Name="Lbl"
                                                                Text="{Binding RailLabel}"
                                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                                VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding IsCompleted}" Value="True">
                                                     <Setter TargetName="Num" Property="Text" Value="&#xE73E;"/>
-                                                    <Setter TargetName="Num" Property="FontFamily" Value="Segoe MDL2 Assets"/>
+                                                    <Setter TargetName="Num" Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
                                                     <Setter TargetName="Num" Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                                     <Setter TargetName="Dot" Property="Background" Value="{DynamicResource TintGreenBrush}"/>
                                                     <Setter TargetName="Lbl" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
@@ -201,7 +201,7 @@
                     <TextBlock Grid.Column="4"
                                Text="{Binding StepProgressText}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center"/>
                 </Grid>
             </Border>

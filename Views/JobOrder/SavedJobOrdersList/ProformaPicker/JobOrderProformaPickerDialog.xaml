@@ -57,7 +57,7 @@
                       VerticalAlignment="Center"
                       Content="{DynamicResource JobOrder.ShowStatuses}"
                       FontSize="{DynamicResource FontSize.Body}"
-                      Foreground="{DynamicResource SecondaryForegroundBrush}"
+                      Foreground="{DynamicResource TextSecondaryBrush}"
                       IsChecked="{Binding ShowAll, Mode=TwoWay}"
                       ToolTip="{DynamicResource JobOrder.IncludeDraftSentRejectedExpiredQuotes}"/>
         </Grid>
@@ -113,7 +113,7 @@
                        VerticalAlignment="Center"
                        Margin="0,0,12,0"
                        TextWrapping="Wrap"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextSecondaryBrush}"/>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <Button Style="{StaticResource OutlinedPillButton}"

@@ -230,7 +230,7 @@
                         <ContentPresenter x:Name="cp"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
-                                          TextElement.Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                          TextElement.Foreground="{DynamicResource TextSecondaryBrush}"
                                           TextElement.FontWeight="{DynamicResource Weight.SemiBold}"/>
                     </Border>
                     <ControlTemplate.Triggers>

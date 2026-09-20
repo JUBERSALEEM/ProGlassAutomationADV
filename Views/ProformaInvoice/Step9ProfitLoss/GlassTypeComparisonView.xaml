@@ -277,12 +277,12 @@
                         <TextBlock Text="No glass types found"
                                    FontSize="{DynamicResource FontSize.H3}"
                                    FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,8"/>
                         <TextBlock Text="Add specifications in Step 5 and press REFRESH to compare glass type profitability."
                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"/>
@@ -360,7 +360,7 @@
         <Border Grid.Row="4" Margin="0,8,0,0">
             <TextBlock Text="{Binding StatusMessage}"
                        FontSize="{DynamicResource FontSize.Caption}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        TextWrapping="Wrap"/>
         </Border>
 

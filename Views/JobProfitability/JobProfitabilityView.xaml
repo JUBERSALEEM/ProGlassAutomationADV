@@ -68,7 +68,7 @@
                                 VerticalAlignment="Center"
                                 Margin="0,0,8,0">
                             <TextBlock Text="&#xE9D9;"
-                                       FontFamily="Segoe MDL2 Assets"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Title}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Center"
@@ -155,7 +155,7 @@
                 <TabItem Style="{StaticResource PillTabItemStyle}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
+                            <TextBlock Text="&#xE9D9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="JOB PROFITABILITY" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -582,7 +582,7 @@
                                                                 <TextBlock Grid.Column="2"
                                                                            Text="{Binding IssueDateDisplay}"
                                                                           
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
 
                                                                 <TextBlock Grid.Column="3"
                                                                            Text="{Binding NetDisplay}"
@@ -672,7 +672,7 @@
                                             Visibility="{Binding HasRows, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
                                             <TextBlock Text="&#xE9D9;"
-                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                                        FontSize="{DynamicResource FontSize.Kpi}"
                                                        HorizontalAlignment="Center"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"
@@ -681,7 +681,7 @@
                                                        FontSize="{DynamicResource FontSize.H3}"
                                                        FontWeight="{DynamicResource Weight.SemiBold}"
                                                        HorizontalAlignment="Center"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             <TextBlock Text="{DynamicResource JobProfitability.NoSavedProformaMarkedPIConfirmedYetConfirm}"
                                                        FontSize="{DynamicResource FontSize.Body}"
                                                        HorizontalAlignment="Center"
@@ -700,7 +700,7 @@
                          DataContext="{Binding PortfolioServiceProfitability}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
+                            <TextBlock Text="&#xE71D;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="SERVICE DETAIL" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -713,7 +713,7 @@
                          DataContext="{Binding PortfolioWastageAnalysis}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
+                            <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="SHEET / WASTAGE DETAIL" VerticalAlignment="Center"/>
                         </StackPanel>
@@ -726,7 +726,7 @@
                          DataContext="{Binding PortfolioGlassTypeComparison}">
                     <TabItem.Header>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="{DynamicResource FontSize.Body}"
+                            <TextBlock Text="&#xE8FD;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                        VerticalAlignment="Center" Margin="0,0,7,0"/>
                             <TextBlock Text="GLASS / SPEC COMPARISON" VerticalAlignment="Center"/>
                         </StackPanel>

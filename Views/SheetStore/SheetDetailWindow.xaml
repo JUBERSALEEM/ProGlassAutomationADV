@@ -746,7 +746,7 @@
 
                     <TextBlock TextWrapping="Wrap" Margin="2,0,0,16"
                                FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                Text="Every field is editable straight away — there is no edit mode to enter. Save stays disabled until all entries are valid."/>
 
                     <!-- Grouped into three labelled cards. One flat run of
@@ -931,7 +931,7 @@
                 <TextBlock Text="Loading movements…"
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}">
+                           Foreground="{DynamicResource TextSecondaryBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -947,7 +947,7 @@
                 <TextBlock Text="No movements recorded for this sheet yet."
                            HorizontalAlignment="Center" VerticalAlignment="Center"
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}">
+                           Foreground="{DynamicResource TextSecondaryBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -1057,7 +1057,7 @@
                                         <TextBlock Grid.Column="0" VerticalAlignment="Center"
                                                    Text="{Binding Timestamp, StringFormat={}{0:dd MMM yyyy  HH:mm}}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
 
                                         <!-- Action colour comes from the model's
                                              own ActionColor so Bought / Used /
@@ -1097,7 +1097,7 @@
                                                    TextTrimming="CharacterEllipsis"
                                                    ToolTip="{Binding Details}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
 
                                         <TextBlock Grid.Column="6" VerticalAlignment="Center"
                                                    Text="{Binding UserName}"
@@ -1167,7 +1167,7 @@
                                  is known, and 0% would read as a real loss. -->
                             <TextBlock TextWrapping="Wrap" Margin="0,8,0,0"
                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        Text="Margin on the remaining balance, measured against its purchase cost.">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
@@ -1191,7 +1191,7 @@
                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock Text="{Binding UsedValueAtCost, StringFormat=Used stock at cost: {0:N2} AED}"
                                        FontSize="{DynamicResource FontSize.Body}" Margin="0,8,0,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

@@ -45,7 +45,7 @@
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding SenderContactLine, Mode=OneWay}"
                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
                     </Border>
 
@@ -245,7 +245,7 @@
                                        TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding LastOutcome.FollowUp}"
                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        TextWrapping="Wrap"
                                        Margin="0,4,0,0"/>
                         </StackPanel>

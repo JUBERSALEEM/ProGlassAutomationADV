@@ -43,7 +43,7 @@
                                 <ContentPresenter Grid.Column="0" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="&#xE70D;"
                                            FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
                             </Grid>
                         </Border>
@@ -67,7 +67,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="{DynamicResource ProformaInvoice.AutoUseInventory}"
                            FontSize="{DynamicResource FontSize.BodySmall}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <ToggleButton Style="{StaticResource PiToggleSwitch}"
                               IsChecked="{Binding AutoUseFromInventory}"
@@ -161,7 +161,7 @@
                                                   ToolTip="{DynamicResource ProformaInvoice.SelectDetectedColour}"/>
                                         <TextBlock Text="{DynamicResource ProformaInvoice.SelectDetectedColour}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    VerticalAlignment="Center"
                                                    Margin="8,0,28,0"
                                                    IsHitTestVisible="False">
@@ -275,7 +275,7 @@
                                                                                 </Grid>
                                                                                 <TextBlock Text="{Binding SpecName}"
                                                                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                                                                            TextTrimming="CharacterEllipsis"/>
                                                                                 <TextBlock Text="{DynamicResource ProformaInvoice.ColourNotDetected}"
                                                                                            FontSize="{DynamicResource FontSize.BodySmall}"
@@ -286,7 +286,7 @@
                                                                             <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                                                                                 <TextBlock Text="{Binding SideLabel}"
                                                                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                                                                            HorizontalAlignment="Right"/>
                                                                                 <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
                                                                                            FontSize="{DynamicResource FontSize.Body}"
@@ -354,7 +354,7 @@
                                                                Margin="0,0,0,10"/>
                                                     <TextBlock Text="{Binding SourceSummaryText}"
                                                                FontSize="{DynamicResource FontSize.Body}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,0,10"/>
 
@@ -483,7 +483,7 @@
 
                                                     <TextBlock Text="{Binding OptimizationSummaryText}"
                                                                FontSize="{DynamicResource FontSize.Body}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                                TextWrapping="Wrap"
                                                                Margin="0,10,0,0"/>
 
@@ -539,7 +539,7 @@
 
         <TextBlock Text="{DynamicResource ProformaInvoice.NoWastageRowsAddColourSideScrapChargeIf}"
                    FontSize="{DynamicResource FontSize.Body}"
-                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                   Foreground="{DynamicResource TextSecondaryBrush}"
                    Margin="0,8,0,0">
             <TextBlock.Style>
                 <Style TargetType="TextBlock">

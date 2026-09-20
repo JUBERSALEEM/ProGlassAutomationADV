@@ -87,7 +87,7 @@
         <Style x:Key="ItemsSectionSubtitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
             <Setter Property="Foreground"
-                    Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    Value="{DynamicResource TextSecondaryBrush}"/>
             <Setter Property="Margin" Value="0,2,0,0"/>
             <Setter Property="Text"
                     Value="Enter qty in THIS DN then Save. Prev auto-updates."/>

@@ -48,7 +48,7 @@
                              Background="{DynamicResource BorderDefaultBrush}"/>
                 <TextBlock Text="Building report — reading proforma invoices, job orders, delivery notes and tax invoices…"
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            TextWrapping="Wrap" TextAlignment="Center" Margin="0,14,0,0"/>
             </StackPanel>
 
@@ -79,13 +79,13 @@
                 </TextBlock>
                 <TextBlock Text="Advancing to Review…"
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center" Margin="0,6,0,0"/>
             </StackPanel>
 
             <TextBlock Text="{Binding StatusMessage}"
                        FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        HorizontalAlignment="Center" TextWrapping="Wrap"
                        TextAlignment="Center" Margin="0,20,0,0"/>
         </StackPanel>

@@ -42,7 +42,7 @@
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                 <TextBlock Text="Actual wastage charges from Step 6, grouped by glass color. Clear glass offcuts are optional (reusable); colored/tinted/coated glass offcuts are always charged."
                            FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
@@ -225,7 +225,7 @@
                                    HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
                         <TextBlock Text="No wastage data available"
                                    FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
                         <TextBlock Text="Wastage analysis appears after confirming PIs with wastage charges in Step 6."
                                    FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
                                    Margin="0,4,0,0" Foreground="{DynamicResource TextTertiaryBrush}"/>

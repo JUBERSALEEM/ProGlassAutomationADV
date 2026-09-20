@@ -597,7 +597,7 @@
                                                 <ColumnDefinition Width="64"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Padding="0,0,6,0" Text="{Binding Id}" FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                             <TextBlock Grid.Column="1" Padding="6,0" Text="{Binding Category}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Category}"/>
@@ -611,7 +611,7 @@
                                                        Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding SizeDisplay}"/>
                                             <TextBlock Grid.Column="5" Padding="6,0" Text="{Binding Supplier}" FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Supplier}"/>
                                             <TextBlock Grid.Column="6" Padding="6,0" Text="{Binding TotalPurchaseValue, StringFormat={}{0:N0}}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"
@@ -748,7 +748,7 @@
                                                                Foreground="{DynamicResource AccentBrush}"/>
                                                     <TextBlock Text="{Binding Supplier, StringFormat={}  ·  {0}}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                 </StackPanel>
                                             </StackPanel>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">

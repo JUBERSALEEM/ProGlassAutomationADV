@@ -148,7 +148,7 @@
         <Style x:Key="TermsBody" TargetType="TextBlock">
             <Setter Property="FontSize" Value="13.5"/>
             <Setter Property="LineHeight" Value="24"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Margin" Value="0,6,0,0"/>
         </Style>
@@ -313,7 +313,7 @@
                 <TextBlock Text="{DynamicResource Splash.TermsTitle}" FontSize="34" FontWeight="{DynamicResource Weight.Bold}" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}">
                     <TextBlock.Effect><DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="18" ShadowDepth="0" Opacity="0.35"/></TextBlock.Effect>
                 </TextBlock>
-                <TextBlock Text="{DynamicResource Splash.UaeIntro}" FontSize="{DynamicResource FontSize.Title}" HorizontalAlignment="Center" Margin="0,8,0,0" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                <TextBlock Text="{DynamicResource Splash.UaeIntro}" FontSize="{DynamicResource FontSize.Title}" HorizontalAlignment="Center" Margin="0,8,0,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
                 <Rectangle Height="2" Width="48" Margin="0,18,0,0" RadiusX="1" RadiusY="1" HorizontalAlignment="Center" Fill="{DynamicResource AccentBrush}"/>
             </StackPanel>
             <Border Grid.Row="1" MaxWidth="860" Margin="48,26,48,16" Padding="40,32" CornerRadius="16" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Background="#CCFFFFFF">
@@ -337,7 +337,7 @@
                         <Button x:Name="DeclineButton" Content="{DynamicResource Splash.DeclineExit}" MinWidth="150" Height="44" Margin="0,0,12,0" Style="{StaticResource Button.Secondary}" Command="{Binding DeclineCommand}"/>
                         <Button x:Name="ContinueButton" Content="{DynamicResource Splash.AcceptContinue}" MinWidth="190" Height="44" IsEnabled="{Binding IsContinueEnabled}" Style="{StaticResource Button.Primary}" Command="{Binding ContinueCommand}"/>
                     </StackPanel>
-                    <CheckBox x:Name="AcceptTermsCheck" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}" FontSize="{DynamicResource FontSize.Title}" Cursor="Hand" Margin="0,8,0,0" IsChecked="{Binding AcceptTerms, Mode=TwoWay}">
+                    <CheckBox x:Name="AcceptTermsCheck" VerticalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="{DynamicResource FontSize.Title}" Cursor="Hand" Margin="0,8,0,0" IsChecked="{Binding AcceptTerms, Mode=TwoWay}">
                         <TextBlock Text="{DynamicResource Splash.AcceptText}" TextWrapping="Wrap"/>
                     </CheckBox>
                 </DockPanel>

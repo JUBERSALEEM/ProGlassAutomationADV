@@ -48,7 +48,7 @@
         <Style x:Key="IndustrialStatusChip" TargetType="CheckBox">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="0,0,10,10"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -126,7 +126,7 @@
                                    Margin="0,4,0,0"/>
                         <TextBlock Text="Define which proforma invoices feed this report. Each stage narrows the scope to related records only."
                                    FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    TextWrapping="Wrap" Margin="0,6,0,0" MaxWidth="640"/>
                     </StackPanel>
 
@@ -409,7 +409,7 @@
                 </Grid>
 
                 <TextBlock Text="{Binding StatusMessage}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,14,0,0" TextWrapping="Wrap"/>
             </StackPanel>
         </ScrollViewer>

@@ -82,7 +82,7 @@
             <TextBlock Text="{Binding ReportPath}"
                        FontFamily="{DynamicResource FontFamily.Code}"
                        FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        TextWrapping="Wrap"/>
         </StackPanel>
     </Border>

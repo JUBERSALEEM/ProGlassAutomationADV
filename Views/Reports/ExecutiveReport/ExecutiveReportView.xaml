@@ -60,7 +60,7 @@
                         <!-- PERIOD -->
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <TextBlock Text="&#xE787;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
-                            <TextBlock Text="{Binding PeriodDescription}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                            <TextBlock Text="{Binding PeriodDescription}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" Margin="8,0,0,0"/>
                         </StackPanel>
 
                         <!-- COST-GAP BANNER -->
@@ -134,7 +134,7 @@
                                                     </Grid>
                                                 </Border>
 
-                                                <TextBlock Grid.Column="2" Text="{Binding SharePctDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="8,0,0,0"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding SharePctDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="8,0,0,0"/>
 
                                                 <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right">
                                                     <TextBlock Text="{Binding StepConversionDisplay}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" HorizontalAlignment="Right">

@@ -54,7 +54,7 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
                                        Text="&#xE9D9;"
-                                       FontFamily="Segoe MDL2 Assets"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.H2}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        VerticalAlignment="Center"
@@ -78,7 +78,7 @@
                                     Padding="8,4"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="&#xE711;"
-                                           FontFamily="Segoe MDL2 Assets"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
                                            FontSize="{DynamicResource FontSize.H3}"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             </Button>
@@ -202,7 +202,7 @@
                                         <TextBlock Grid.Column="0" Text="Specification target ×1.15"/>
                                         <TextBlock Grid.Column="1" Text="{Binding SpecificationTargetPerSqmDisplay}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    HorizontalAlignment="Right"/>
                                     </Grid>
                                     <Grid Margin="0,4">
@@ -213,7 +213,7 @@
                                         <TextBlock Grid.Column="0" Text="U-insert applied to target"/>
                                         <TextBlock Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    HorizontalAlignment="Right"/>
                                     </Grid>
                                     <Grid Margin="0,4">
@@ -232,7 +232,7 @@
                                         <TextBlock Grid.Column="0" Text="U-insert treatment"/>
                                         <TextBlock Grid.Column="1" Text="{Binding UInsertTreatmentSummary}"
                                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    HorizontalAlignment="Right"
                                                    TextTrimming="CharacterEllipsis"
                                                    MaxWidth="180"/>
@@ -245,7 +245,7 @@
                                         <TextBlock Grid.Column="0" Text="Difference"/>
                                         <TextBlock Grid.Column="1" Text="{Binding DifferencePerSqmDisplay}"
                                                    FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    HorizontalAlignment="Right"/>
                                     </Grid>
                                     <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,6,0,8"/>
@@ -377,13 +377,13 @@
                                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Specification target ×1.15" Style="{StaticResource Field.Label}" Margin="0,2,0,0"/>
                                                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SpecificationTargetPerSqmDisplay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                                HorizontalAlignment="Right" Margin="8,2,0,0"/>
 
                                                     <TextBlock Grid.Row="2" Grid.Column="0" Text="U-insert rate" Style="{StaticResource Field.Label}" Margin="0,2,0,0"/>
                                                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding AppliedUInsertPerSqmDisplay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                                HorizontalAlignment="Right" Margin="8,2,0,0"/>
 
                                                     <TextBlock Grid.Row="3" Grid.Column="0" Text="FINAL REQUIRED TARGET"
@@ -398,7 +398,7 @@
                                                 <StackPanel Orientation="Horizontal" Margin="8,4,0,0">
                                                     <TextBlock Text="{Binding DifferencePerSqmDisplay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                     <TextBlock Text=" · " FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="2,0"/>
                                                     <TextBlock Text="{Binding MarginDisplay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -438,7 +438,7 @@
                                     <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding GrossRevenueDisplay}"/>
 
                                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Less: VAT (5%)" Margin="0,4,0,0"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding VatAmountDisplay}" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding VatAmountDisplay}" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
 
                                     <Border Grid.Row="2" Grid.ColumnSpan="2" Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,8"/>
 
@@ -520,7 +520,7 @@
                                                VerticalAlignment="Center">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsLoss}" Value="True">
                                                         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
@@ -621,7 +621,7 @@
                                                     <!-- Icon -->
                                                     <TextBlock Grid.Column="0"
                                                                Text="{Binding KindIcon}"
-                                                               FontFamily="Segoe MDL2 Assets"
+                                                               FontFamily="{DynamicResource FontFamily.Icon}"
                                                                FontSize="{DynamicResource FontSize.Title}"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                VerticalAlignment="Center"
@@ -657,21 +657,21 @@
                                                 <StackPanel Orientation="Horizontal" Margin="30,3,0,0">
                                                     <TextBlock Text="{Binding QuantityDisplay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                     <TextBlock Text=" · "
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                                Foreground="{DynamicResource TextTertiaryBrush}"
                                                                Margin="2,0"/>
                                                     <TextBlock Text="{Binding TotalAreaDisplay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                     <TextBlock Text=" · "
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                                Foreground="{DynamicResource TextTertiaryBrush}"
                                                                Margin="2,0"/>
                                                     <TextBlock Text="{Binding UnitPriceDisplay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                 </StackPanel>
                                             </StackPanel>
                                         </Border>

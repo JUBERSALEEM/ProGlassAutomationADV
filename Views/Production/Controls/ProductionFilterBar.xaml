@@ -2,34 +2,21 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="{DynamicResource AppFontFamily}"
-             UseLayoutRounding="True" SnapsToDevicePixels="True">
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
     <StackPanel>
         <Border Style="{StaticResource ModuleListFilterBarStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="170"/>
+                    <ColumnDefinition Width="*" MinWidth="160"/>
+                    <ColumnDefinition Width="*" MinWidth="120"/>
+                    <ColumnDefinition Width="*" MinWidth="120"/>
                 </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" Margin="0,0,8,0"
-                        Background="{DynamicResource SurfaceTertiaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Padding="12,0" MinHeight="40" Style="{StaticResource SurfacePrimaryStyle}">
-                    <DockPanel>
-                        <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.H3}"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                 BorderThickness="0" Background="Transparent"
-                                 FontSize="{DynamicResource FontSize.Title}"
-                                 Foreground="{DynamicResource TextPrimaryBrush}"
-                                 MinHeight="40" VerticalContentAlignment="Center"
-                                 ToolTip="Search job, customer, glass, spec" Style="{StaticResource TextBoxStyle}"/>
-                    </DockPanel>
-                </Border>
+                <TextBox Grid.Column="0"
+                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                         Style="{StaticResource ModuleListFilterInputStyle}"
+                         Margin="0,0,8,0"
+                         ToolTip="Search job, customer, glass, spec"/>
                 <ComboBox Grid.Column="1"
                           ItemsSource="{Binding JobFilters}"
                           SelectedItem="{Binding SelectedJobFilter}"
@@ -44,14 +31,18 @@
 
         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                 Background="{DynamicResource TintIndigoBrush}"
-                Padding="10,6" Margin="12,4,12,0"
-                Visibility="{Binding HasWaitingUpstream, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                Padding="12,8"
+                Margin="12,4,12,0"
+                Visibility="{Binding HasWaitingUpstream, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE823;" FontFamily="{DynamicResource FontFamily.Icon}"
+                <TextBlock Text="&#xE823;"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
                            FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource AccentBrush}"
-                           VerticalAlignment="Center" Margin="0,0,8,0"/>
-                <TextBlock Text="{Binding WaitingUpstreamLabel}" TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <TextBlock Text="{Binding WaitingUpstreamLabel}"
+                           TextWrapping="Wrap"
                            FontSize="{DynamicResource FontSize.Body}"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
             </StackPanel>

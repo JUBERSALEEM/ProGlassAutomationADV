@@ -261,14 +261,14 @@
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
                                    MaxWidth="300"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    IsHitTestVisible="False"/>
 
                         <TextBlock Text="{DynamicResource AI.TRYAsking}"
                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    HorizontalAlignment="Center"
                                    Margin="0,20,0,8"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    Opacity="0.7"
                                    IsHitTestVisible="False"/>
 
@@ -353,7 +353,7 @@
                                                 <StackPanel Orientation="Horizontal"
                                                             Margin="0,6,0,0">
                                                     <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                                IsHitTestVisible="False">
                                                         <Run Text="{Binding ProviderIcon, Mode=OneWay}"/>
                                                         <Run Text="{DynamicResource AI.Via}"/>
@@ -466,7 +466,7 @@
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center">
                             <Ellipse Width="6" Height="6"
-                                     Fill="{DynamicResource SecondaryForegroundBrush}"
+                                     Fill="{DynamicResource TextSecondaryBrush}"
                                      Margin="2,0"
                                      RenderTransformOrigin="0.5,0.5">
                                 <Ellipse.RenderTransform>
@@ -486,7 +486,7 @@
                                 </Ellipse.Style>
                             </Ellipse>
                             <Ellipse Width="6" Height="6"
-                                     Fill="{DynamicResource SecondaryForegroundBrush}"
+                                     Fill="{DynamicResource TextSecondaryBrush}"
                                      Margin="2,0" Opacity="0.75"
                                      RenderTransformOrigin="0.5,0.5">
                                 <Ellipse.RenderTransform>
@@ -506,7 +506,7 @@
                                 </Ellipse.Style>
                             </Ellipse>
                             <Ellipse Width="6" Height="6"
-                                     Fill="{DynamicResource SecondaryForegroundBrush}"
+                                     Fill="{DynamicResource TextSecondaryBrush}"
                                      Margin="2,0" Opacity="0.5"
                                      RenderTransformOrigin="0.5,0.5">
                                 <Ellipse.RenderTransform>
@@ -666,7 +666,7 @@
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Text" Value="&#xE74F;"/>
                                                     <Setter Property="Foreground"
-                                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            Value="{DynamicResource TextSecondaryBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsSpeakerOn}"
                                                                      Value="True">

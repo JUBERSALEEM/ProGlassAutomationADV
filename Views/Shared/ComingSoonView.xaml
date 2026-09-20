@@ -108,7 +108,7 @@
                        LineHeight="20"
                        MaxWidth="460"
                        Margin="0,10,0,0"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                       Foreground="{DynamicResource TextSecondaryBrush}"/>
 
             <!-- ══ Roadmap hint ═══════════════════════════════════════ -->
             <TextBlock Text="{DynamicResource Shared.ModuleDevelopmentAvailableUpcomingRelease}"

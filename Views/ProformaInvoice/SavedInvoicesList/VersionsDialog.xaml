@@ -78,7 +78,7 @@
                                     </TextBlock>
                                     <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
                                                TextWrapping="Wrap"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                               Foreground="{DynamicResource TextSecondaryBrush}">
                                         <Run Text="{Binding TimestampLocal, Mode=OneWay}"/>
                                         <Run Text="{DynamicResource ProformaInvoice.By}"/>
                                         <Run Text="{Binding Username, Mode=OneWay}"/>

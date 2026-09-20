@@ -61,7 +61,7 @@
                     <TextBlock x:Name="PasswordLabel"
                                Text="{DynamicResource Shared.PasswordSelectedUser}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <PasswordBox x:Name="PasswordBox"
                                  Height="34"
                                  Margin="0,6,0,0"

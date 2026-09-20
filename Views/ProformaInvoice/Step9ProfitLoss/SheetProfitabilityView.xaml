@@ -85,7 +85,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="Simple order: alerts first, sheet totals second, detailed pane/sheet rows after. Buy sheet = used sheet + wastage."
                                FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                TextWrapping="Wrap" Margin="0,2,0,0"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0,0,0">
@@ -129,7 +129,7 @@
                                   AutomationProperties.Name="Read sheet quantity and utilization from the optimization run"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.ReadFromOptimizationRun}" VerticalAlignment="Center" Margin="8,0,0,0"
                                FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                 </StackPanel>
                 <TextBlock Grid.Column="1" Text="{Binding OptimizationSheetSourceLabel}"
                            VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap"
@@ -309,7 +309,7 @@
                     </Grid>
                     <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,12,0,10"/>
                     <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                TextWrapping="Wrap">
                         <Run Text="BUY − USED − WASTAGE = "/>
                         <Run Text="{Binding ReconciliationBalanceDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -317,7 +317,7 @@
                         <Run Text=" (should be 0.00 — a negative balance means bought sheets are short)"/>
                     </TextBlock>
                     <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                TextWrapping="Wrap" Margin="0,4,0,0">
                         <Run Text="WASTAGE − STEP 6 RECOVERY = "/>
                         <Run Text="{Binding TotalNetWastageLossDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -325,7 +325,7 @@
                         <Run Text=" (net wastage absorbed after billing recovery)"/>
                     </TextBlock>
                     <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                TextWrapping="Wrap" Margin="0,6,0,0">
                         <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
                         <Run Text=" · wastage value "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
@@ -333,7 +333,7 @@
                         <Run Text=" of the total sheet price."/>
                     </TextBlock>
                         <TextBlock Text="{Binding LandedRateSummaryDisplay}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap" IsHitTestVisible="False"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap" IsHitTestVisible="False"/>
 
                         <!-- ═══ 5-SECTION SHEET PRICE RECONCILIATION (2026-09-11):
                              BUY = USED + WASTAGE CHARGED + WASTAGE NOT CHARGED,
@@ -367,7 +367,7 @@
                                 </TextBlock>
                                 <TextBlock Text="{Binding EfficiencyBasisNote}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextWrapping="Wrap" Margin="0,3,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -558,18 +558,18 @@
                         Visibility="{Binding SheetBreakdown.Count, Converter={StaticResource CountToVisibilityConverter}}">
                 <TextBlock Text="No sheet data found"
                            FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center" Margin="0,0,0,8"/>
                 <TextBlock Text="Add specifications in Step 5 and press REFRESH to analyze sheet profitability."
                            FontSize="{DynamicResource FontSize.BodySmall}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
             </StackPanel>
 
             <!-- Status -->
             <TextBlock Text="{Binding StatusMessage}"
                        FontSize="{DynamicResource FontSize.BodySmall}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        TextWrapping="Wrap" Margin="0,8,0,0"/>
         </StackPanel>
 
@@ -832,7 +832,7 @@
                                 <StackPanel>
                                     <TextBlock Text="COMPARISON" Margin="0,0,0,6"/>
                                     <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                TextWrapping="Wrap">
                                         <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
                                         <Run Text=" · wastage "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
@@ -969,7 +969,7 @@
                             </TextBlock>
                             <TextBlock Text="{Binding DiagnosticMessage}"
                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        TextWrapping="Wrap" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
@@ -1036,7 +1036,7 @@
                     </Grid>
 
                     <TextBlock FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                TextWrapping="Wrap" Margin="0,10,0,0">
                         <Run Text="Used "/><Run Text="{Binding UsedPriceShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
                         <Run Text=" · wastage "/><Run Text="{Binding WastageValueShareDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>

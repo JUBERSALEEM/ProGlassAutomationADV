@@ -111,7 +111,7 @@
                                    Margin="0,4,0,0"/>
                         <TextBlock Text="Every proforma invoice broken into its specification groups — glass reference, dimensions, quantity, area, rate and amount — with column-aligned totals."
                                    FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    TextWrapping="Wrap" Margin="0,6,0,0" MaxWidth="640"/>
                     </StackPanel>
 
@@ -135,7 +135,7 @@
                         Padding="24,20">
                     <TextBlock Text="Generate the report first — the specification breakdown appears here."
                                FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{DynamicResource TextSecondaryBrush}"/>
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
@@ -183,7 +183,7 @@
                                                 </Border>
                                             </StackPanel>
                                             <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                                        Margin="0,4,0,0">
                                                 <Run Text="{Binding CustomerName, Mode=OneWay}"/>
                                                 <Run Text="  ·  "/>
@@ -201,7 +201,7 @@
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="12,6" Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="QTY" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="QTY" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,6,0"/>
                                                     <TextBlock Text="{Binding TotalQtyDisplay}" FontWeight="{DynamicResource Weight.Bold}"/>
                                                 </StackPanel>
                                             </Border>
@@ -211,7 +211,7 @@
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="12,6" Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="SQM" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,6,0"/>
+                                                    <TextBlock Text="SQM" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,6,0"/>
                                                     <TextBlock Text="{Binding TotalSqmDisplay}" FontWeight="{DynamicResource Weight.Bold}"/>
                                                 </StackPanel>
                                             </Border>
@@ -247,7 +247,7 @@
                                                         </Border>
                                                         <TextBlock Text="{Binding GlassType}"
                                                                    FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                                    VerticalAlignment="Center" Margin="10,0,0,0"/>
                                                     </StackPanel>
 
@@ -297,11 +297,11 @@
                                                                             <ColumnDefinition Width="0.95*"/>
                                                                         </Grid.ColumnDefinitions>
                                                                         <TextBlock Grid.Column="0" Text="{Binding SerialNumber}"
-                                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                                                                   Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center"/>
                                                                         <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                                                         <TextBlock Grid.Column="2" Text="{Binding SpecName}"/>
                                                                         <TextBlock Grid.Column="3" Text="{Binding DimensionsDisplay}"
-                                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                                                                         <TextBlock Grid.Column="4" Text="{Binding Qty}" HorizontalAlignment="Right"/>
                                                                         <TextBlock Grid.Column="5" Text="{Binding TotalSqm, StringFormat={}{0:N3}}" HorizontalAlignment="Right"/>
                                                                         <TextBlock Grid.Column="6" Text="{Binding Rate, StringFormat={}{0:N2}}" HorizontalAlignment="Right"/>
@@ -337,7 +337,7 @@
                                                             <TextBlock Grid.Column="5" Text="{Binding TotalSqmDisplay}"
                                                                        FontWeight="{DynamicResource Weight.Bold}" HorizontalAlignment="Right"/>
                                                             <TextBlock Grid.Column="6" Text="—"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
+                                                                       Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Right"/>
                                                             <TextBlock Grid.Column="7" Text="{Binding TotalValueDisplay}"
                                                                        FontWeight="{DynamicResource Weight.Bold}"
                                                                        Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right"/>
@@ -354,7 +354,7 @@
                 </ItemsControl>
 
                 <TextBlock Text="{Binding StatusMessage}"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{DynamicResource TextSecondaryBrush}"
                            Margin="0,14,0,0" TextWrapping="Wrap"/>
             </StackPanel>
         </ScrollViewer>

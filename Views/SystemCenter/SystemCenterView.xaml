@@ -54,7 +54,7 @@
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
         <StackPanel Grid.Row="0" Margin="0,0,0,8">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets"
+                <TextBlock Text="&#xE90F;" FontFamily="{DynamicResource FontFamily.Icon}"
                            FontSize="{DynamicResource FontSize.H2}" VerticalAlignment="Center"
                            Margin="0,0,10,0"
                            Foreground="{DynamicResource AccentBrush}"/>
@@ -63,7 +63,7 @@
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
             </StackPanel>
             <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,3,0,0"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}">
+                       Foreground="{DynamicResource TextSecondaryBrush}">
                 <Run Text="{DynamicResource SystemCenter.UserManagementAuditTrailSigned}"/>
                 <Run Text="{Binding CurrentUserDisplay, Mode=OneWay}"
                      FontWeight="{DynamicResource Weight.Bold}"/>
@@ -178,7 +178,7 @@
                     <StackPanel>
 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <TextBlock Text="&#xE710;"
-                                       FontFamily="Segoe MDL2 Assets"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.H2}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
@@ -239,7 +239,7 @@
                     <StackPanel>
 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="&#xE895;"
-                                       FontFamily="Segoe MDL2 Assets"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.H2}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
@@ -251,7 +251,7 @@
                         </StackPanel>
                         <TextBlock Text="{DynamicResource SystemCenter.FutureActionsRecordedActiveUser}"
                                    FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    Margin="0,0,0,8"/>
 
                         <TextBlock Text="{DynamicResource Login.Username}"/>
@@ -293,7 +293,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="&#xE839;"
-                                       FontFamily="Segoe MDL2 Assets"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.H3}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
@@ -305,7 +305,7 @@
                         </StackPanel>
                         <TextBlock Text="{DynamicResource SystemCenter.ColleaguesRunningProglassLANAppearHere}"
                                    FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                    Margin="0,0,0,10"/>
 
                         <!-- Empty state -->
@@ -346,7 +346,7 @@
                                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,1,0,0"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                           Foreground="{DynamicResource TextSecondaryBrush}">
                                                     <Run Text="{Binding Username, Mode=OneWay}"/>
                                                     <Run Text="  •  "/>
                                                     <Run Text="{Binding MachineName, Mode=OneWay}"/>
@@ -426,7 +426,7 @@
                                                 Background="{DynamicResource TintIndigoBrush}"
                                                >
                                             <TextBlock Text="&#xE77B;"
-                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
                                                        FontSize="{DynamicResource FontSize.H2}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        HorizontalAlignment="Center"
@@ -461,7 +461,7 @@
                                                 </Border>
                                             </StackPanel>
                                             <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                       Foreground="{DynamicResource TextSecondaryBrush}">
                                                 <Run Text="{Binding Username, Mode=OneWay}"/>
                                                 <Run Text="  •  "/>
                                                 <Run Text="{Binding RoleBadge, Mode=OneWay}"/>
@@ -706,7 +706,7 @@
                     <!-- Important-actions-only -->
                     <TextBlock Text="{DynamicResource SystemCenter.ImportantActionsOnly}"
                                FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
                                VerticalAlignment="Center" Margin="6,0,8,0"/>
                     <ToggleButton Style="{StaticResource PiToggleSwitch}"
                                   IsChecked="{Binding ImportantOnly}"
@@ -777,7 +777,7 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
+                        <TextBlock Text="&#xE81C;" FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.Display}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center"
@@ -789,7 +789,7 @@
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text="{DynamicResource SystemCenter.ActionSectionRecordedHereAutomatically}"
                                    FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
 
                     <!-- Virtualized activity feed -->
@@ -851,7 +851,7 @@
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding Details}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
