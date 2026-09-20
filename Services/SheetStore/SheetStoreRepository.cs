@@ -71,14 +71,16 @@ namespace ProGlassAutomation.Services.SheetStore
                     g.Supplier.ToLower().Contains(s));
             }
 
+            // TotalPurchaseValue / Balance are [NotMapped] computed
+            // properties — EF cannot translate them. Value sorts stay
+            // in the caller (SheetStoreViewModel.ApplySort) after the
+            // page is materialised. Asking SQL to OrderBy them throws.
             query = (sortKey ?? "").ToLowerInvariant() switch
             {
                 "newest" => query.OrderByDescending(g => g.CreatedAt),
                 "oldest" => query.OrderBy(g => g.CreatedAt),
                 "stockasc" => query.OrderBy(g => g.Stock),
                 "stockdesc" => query.OrderByDescending(g => g.Stock),
-                "valueasc" => query.OrderBy(g => g.TotalPurchaseValue),
-                "valuedesc" => query.OrderByDescending(g => g.TotalPurchaseValue),
                 _ => query.OrderBy(g => g.Category)
                           .ThenBy(g => g.Color)
                           .ThenBy(g => g.ThicknessMm)
