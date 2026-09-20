@@ -1,38 +1,8 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/JobOrder/JobOrderDetail/JobOrderDetailView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Job Order — DETAIL (unified layout Aug 2026)
-
-     UNIFIED LAYOUT
-       Was: two tabs (Overview / Production). The production form lived
-       in its own tab with a big action row (Create DN / PDF / Excel /
-       CSV / Save / Back) at the bottom, and the glass-panels table on
-       the Overview tab did its own internal scroll.
-
-       Now: ONE continuous page —
-         • Header action bar carries ALL actions (BACK, CREATE DN,
-           MASTER DN, PDF, EXCEL, CSV, SAVE) plus the invoice value.
-         • The content is a single vertical scroll that shows the
-           compact production form first, then the source-invoice
-           identity strip, then the GLASS PANELS grid.
-
-       Why the tabs were removed:
-         • The user asked to move the action buttons up to the top and
-           to lift the production form above the data grid, so a single
-           scrolling overview reads like one production sheet.
-         • A page-level scroll (instead of the glass table scrolling
-           internally) is what stops the line items being clipped on a
-           1366×768 screen — the original reason the page was made
-           Grid-first. Keeping the whole sheet scrollable here is safe
-           because the production form is now compact.
-
-     NOTES
-       • IsOverviewTab / IsProductionTab / SwitchDetailTabCommand stay on
-         the ViewModel (the Demo Hub still calls SwitchDetailTabCommand);
-         the tab strip is simply no longer rendered. No code-behind of
-         this view was changed.
-═══════════════════════════════════════════════════════════════════════ -->
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.JobOrder.JobOrderDetail.JobOrderDetailView"
+<!-- Job Order detail — document workspace shell.
+     Bindings, commands, JoOverviewSection, MergedDictionaries unchanged.
+     Tab strip stays unrendered (IsOverviewTab / SwitchDetailTabCommand remain on the VM). -->
+<UserControl Style="{StaticResource ErpPageRootStyle}"
+             x:Class="ProGlassAutomation.Views.JobOrder.JobOrderDetail.JobOrderDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections"
@@ -40,6 +10,7 @@
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
@@ -51,17 +22,16 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="{DynamicResource DensityPageMargin}"
-          Background="Transparent">
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══════════ HEADER ACTION BAR (all actions live here) ══════════ -->
         <Border Grid.Row="0"
-                Style="{StaticResource ModuleDetailActionBarStyle}">
+                Style="{StaticResource ModuleDetailActionBarStyle}"
+                Margin="16,16,16,8">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -69,7 +39,6 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Back — always first -->
                 <Button Grid.Column="0"
                         Content="{DynamicResource Action.Back}"
                         Tag="&#xE72B;"
@@ -78,14 +47,13 @@
                         Margin="0,0,12,0"
                         ToolTip="{DynamicResource JobOrder.ReturnSavedJobOrdersList}"/>
 
-                <!-- Title / source / converted -->
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding JobOrderId}"
                                Style="{StaticResource ModuleDetailTitleStyle}"/>
                     <TextBlock VerticalAlignment="Center"
-                               Margin="10,0,0,0"
+                               Margin="12,0,0,0"
                                Style="{StaticResource ModulePageSubtitleStyle}">
                         <Run Text="{DynamicResource Common.From}"/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
                     </TextBlock>
@@ -96,76 +64,82 @@
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
                 </StackPanel>
 
-                <!-- All document actions + invoice value -->
-                <WrapPanel Grid.Column="2"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Right">
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE7F4;" Content="{DynamicResource JobOrder.CreateDN}"
-                            ToolTip="{DynamicResource JobOrder.OpenDispatchingDNRemainingBalanceDispatched}"
-                            Command="{Binding CreateDeliveryNoteCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Content="{DynamicResource JobOrder.MasterDN}"
-                            Tag="&#xE718;"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Command="{Binding OpenMasterDnCommand}"
-                            Margin="0,0,8,0"
-                            ToolTip="{DynamicResource JobOrder.OpenMasterDNCreatedJobOrder}"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE8A5;" Content="PDF"
-                            ToolTip="{DynamicResource DeliveryNote.ExportPDF}"
-                            Command="{Binding ExportPdfCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE9F9;" Content="{DynamicResource JobOrder.Excel}"
-                            ToolTip="{DynamicResource DeliveryNote.ExportExcel}"
-                            Command="{Binding ExportExcelCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE72D;" Content="CSV"
-                            ToolTip="{DynamicResource DeliveryNote.ExportCSV}"
-                            Command="{Binding ExportCsvCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
-                            ToolTip="{DynamicResource Sharing.Share}"
-                            Command="{Binding ShareCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE74E;" Content="{DynamicResource Action.Save}"
-                            ToolTip="{DynamicResource JobOrder.SaveJobOrder}"
-                            Command="{Binding SaveCommand}"
-                            Margin="0,0,12,0"/>
-                    <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}"
-                               Style="{StaticResource ModuleListKpiLabelStyle}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
-                    <TextBlock Text="{Binding GrandTotalDisplay}"
-                               Style="{StaticResource ModuleListKpiValueStyle}"
-                               VerticalAlignment="Center"/>
-                </WrapPanel>
+                <ScrollViewer Grid.Column="2"
+                              VerticalScrollBarVisibility="Disabled"
+                              HorizontalScrollBarVisibility="Auto">
+                    <StackPanel Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Right">
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE7F4;"
+                                Content="{DynamicResource JobOrder.CreateDN}"
+                                ToolTip="{DynamicResource JobOrder.OpenDispatchingDNRemainingBalanceDispatched}"
+                                Command="{Binding CreateDeliveryNoteCommand}"
+                                Margin="0,0,8,0"/>
+                        <Button Content="{DynamicResource JobOrder.MasterDN}"
+                                Tag="&#xE718;"
+                                Style="{StaticResource OutlinedPillButton}"
+                                Command="{Binding OpenMasterDnCommand}"
+                                Margin="0,0,8,0"
+                                ToolTip="{DynamicResource JobOrder.OpenMasterDNCreatedJobOrder}"/>
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE8A5;"
+                                Content="PDF"
+                                ToolTip="{DynamicResource DeliveryNote.ExportPDF}"
+                                Command="{Binding ExportPdfCommand}"
+                                Margin="0,0,8,0"/>
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE9F9;"
+                                Content="{DynamicResource JobOrder.Excel}"
+                                ToolTip="{DynamicResource DeliveryNote.ExportExcel}"
+                                Command="{Binding ExportExcelCommand}"
+                                Margin="0,0,8,0"/>
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE72D;"
+                                Content="CSV"
+                                ToolTip="{DynamicResource DeliveryNote.ExportCSV}"
+                                Command="{Binding ExportCsvCommand}"
+                                Margin="0,0,8,0"/>
+                        <Button Style="{StaticResource OutlinedPillButton}"
+                                Tag="&#xE72D;"
+                                Content="{DynamicResource Sharing.Share}"
+                                ToolTip="{DynamicResource Sharing.Share}"
+                                Command="{Binding ShareCommand}"
+                                Margin="0,0,8,0"/>
+                        <Button Style="{StaticResource PrimaryPillButton}"
+                                Tag="&#xE74E;"
+                                Content="{DynamicResource Action.Save}"
+                                ToolTip="{DynamicResource JobOrder.SaveJobOrder}"
+                                Command="{Binding SaveCommand}"
+                                Margin="0,0,12,0"/>
+                        <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}"
+                                   Style="{StaticResource ModuleListKpiLabelStyle}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding GrandTotalDisplay}"
+                                   Style="{StaticResource ModuleListKpiValueStyle}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </ScrollViewer>
             </Grid>
         </Border>
 
-        <!-- ══════════ LOADING + ERROR ══════════ -->
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1" Margin="16,0,16,8">
             <loading:LoadingStateControl
                     Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Message="Loading job order…"
-                    Margin="0,0,0,8"/>
-
+                    Message="Loading job order…"/>
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Style="{StaticResource ModuleErrorBannerStyle}">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
-                           FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"/>
+                           FontSize="{DynamicResource FontSize.Body}"
+                           TextWrapping="Wrap"/>
             </Border>
         </StackPanel>
 
-        <!-- ══════════ UNIFIED CONTENT (production → identity → glass) ═══ -->
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Margin="16,0,16,16">
             <sections:JoOverviewSection/>
         </Grid>
     </Grid>

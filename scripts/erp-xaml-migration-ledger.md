@@ -17,10 +17,11 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 1 list follow-through | Inquiry header cols; KPI N0; generator White; pixel-scroll; inquiry editor tokens | `39e5e35` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 1 archetype rewrite | PI list = Archetype 1; JO list = Archetype 2 | `ec3b9e8` / `71108ac` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 1 tabbed/rail lists | TI + DN full Archetype 2; Inquiry list+rail chrome | `04afcd5` / `9277363` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 1 report registers | Statement + Order Report lists = Archetype 1 | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 1 report registers | Statement + Order Report lists = Archetype 1 | `95c3d6e` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 document shells | JO/DN/TI detail workspace; JO glass header=row | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Canonical register lists PI/JO/TI/DN/Inquiry/Statement/OrderReport rewritten to master archetypes.
+**Done:** Phase 1 registers + Phase 2 JO/DN/TI detail shells (action scroller, Tab.InactiveControl, lock banners). JO glass-panel header columns match rows.
 
-**Next:** Phase 2 details (DN/JO/TI detail, remaining Static Text*). No generator KPI Typography.Label BasedOn; Settings/Ios26/print after tests.
+**Next:** remaining detail sections chrome; no generator KPI Typography.Label BasedOn; Settings/Ios26/print after tests.
 
 **Do not:** ErpPageRoot on nested Controls/Sections; Settings Ios26*; PrintableInvoiceView; force-push.

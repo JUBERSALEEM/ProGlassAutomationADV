@@ -57,7 +57,7 @@
             <!-- ══════════ 1. PRODUCTION FORM (compact tiles) ══════════ -->
             <sections:JoProductionSection/>
 
-            <Border Style="{StaticResource SurfacePrimaryStyle}"
+            <Border
                     Margin="0,4,0,14"
                     Padding="0,0,0,0">
                 <StackPanel>
@@ -89,7 +89,7 @@
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextTrimming="CharacterEllipsis">
                                     <Run Text="TRN "/><Run Text="{Binding InvoiceSnapshot.Company.CompanyTrn, Mode=OneWay, FallbackValue=—}"/>
                                 </TextBlock>
@@ -104,7 +104,7 @@
                                            Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextTrimming="CharacterEllipsis">
                                     <Run Text="TRN "/><Run Text="{Binding InvoiceSnapshot.Client.CustomerTrn, Mode=OneWay, FallbackValue=—}"/>
                                 </TextBlock>
@@ -120,7 +120,7 @@
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectReference, FallbackValue=—}"
                                            FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
 
@@ -159,7 +159,7 @@
                                                 <Border Width="22" Height="22"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Background="{DynamicResource AccentBrush}"
-                                                        Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        Margin="0,0,8,0">
                                                     <TextBlock Text="{Binding GroupNumber}"
                                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -184,6 +184,8 @@
                                                     <ColumnDefinition Width="64"/>
                                                     <ColumnDefinition Width="64"/>
                                                     <ColumnDefinition Width="56"/>
+                                                    <ColumnDefinition Width="72"/>
+                                                    <ColumnDefinition Width="88"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="#"
                                                            Style="{StaticResource LineItemsHeaderTextStyle}"/>
@@ -199,6 +201,10 @@
                                                 <TextBlock Grid.Column="5" Text="H2"
                                                            Style="{StaticResource LineItemsHeaderTextStyle}"/>
                                                 <TextBlock Grid.Column="6" Text="QTY"
+                                                           Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                                <TextBlock Grid.Column="7" Text="{DynamicResource God.Sqm}"
+                                                           Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                                <TextBlock Grid.Column="8" Text="{DynamicResource God.Sqm}"
                                                            Style="{StaticResource LineItemsHeaderTextStyle}"/>
                                             </Grid>
                                         </Border>
@@ -257,7 +263,7 @@
 
                                         <Border Style="{StaticResource LineItemsFooterStyle}">
                                             <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                       Foreground="{DynamicResource TextSecondaryBrush}">
                                                 <Run Text="{DynamicResource JobOrder.GlassType}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                                 <Run Text="{Binding SelectedGlassType, FallbackValue=SGU, Mode=OneWay}"
                                                      FontWeight="{DynamicResource Weight.Bold}"

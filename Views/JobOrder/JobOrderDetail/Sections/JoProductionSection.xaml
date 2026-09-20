@@ -56,7 +56,7 @@
                        Margin="0,0,10,0"/>
             <TextBlock Text="{DynamicResource JobOrder.StatusPriorityDeliveryShopFloorInstructions}"
                        FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"/>
         </StackPanel>
