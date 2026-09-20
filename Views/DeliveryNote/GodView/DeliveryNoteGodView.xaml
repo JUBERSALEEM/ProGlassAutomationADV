@@ -123,7 +123,7 @@
                       VirtualizingPanel.ScrollUnit="Pixel"
                       VirtualizingPanel.CacheLength="400,800"
                       VirtualizingPanel.CacheLengthUnit="Pixel"
-                      ScrollViewer.CanContentScroll="True">
+                      ScrollViewer.CanContentScroll="False">
                 <DataGrid.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick"
                                   Command="{Binding OpenCommand}"

@@ -1033,7 +1033,7 @@
                                   HorizontalContentAlignment="Stretch"
                                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                   ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                  ScrollViewer.CanContentScroll="True"
+                                  ScrollViewer.CanContentScroll="False"
                                   VirtualizingStackPanel.IsVirtualizing="True"
                                   VirtualizingStackPanel.VirtualizationMode="Recycling"
                                   VirtualizingStackPanel.ScrollUnit="Pixel"

@@ -99,7 +99,7 @@
         <Setter Property="BorderThickness"  Value="0"/>
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
         <Setter Property="FontWeight"       Value="{DynamicResource Weight.Bold}"/>
-        <Setter Property="Foreground"       Value="White"/>
+        <Setter Property="Foreground"       Value="{DynamicResource OnAccentForegroundBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -138,7 +138,7 @@
         <Setter Property="BorderThickness"  Value="0"/>
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
         <Setter Property="FontWeight"       Value="{DynamicResource Weight.Bold}"/>
-        <Setter Property="Foreground"       Value="White"/>
+        <Setter Property="Foreground"       Value="{DynamicResource OnAccentForegroundBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">

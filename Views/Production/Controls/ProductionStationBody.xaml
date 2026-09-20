@@ -59,7 +59,7 @@
                               VirtualizingPanel.IsVirtualizing="True"
                               VirtualizingPanel.VirtualizationMode="Recycling"
                               VirtualizingPanel.ScrollUnit="Pixel"
-                              ScrollViewer.CanContentScroll="True"
+                              ScrollViewer.CanContentScroll="False"
                               ScrollViewer.ScrollChanged="MasterGrid_ScrollChanged">
                         <DataGrid.InputBindings>
                             <MouseBinding MouseAction="LeftDoubleClick"

@@ -150,11 +150,11 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsStep1Active}" Value="True">
                                                     <Setter Property="Text" Value="1"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -222,11 +222,11 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsStep2Active}" Value="True">
                                                     <Setter Property="Text" Value="2"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -294,11 +294,11 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsStep3Active}" Value="True">
                                                     <Setter Property="Text" Value="3"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -366,11 +366,11 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsStep4Active}" Value="True">
                                                     <Setter Property="Text" Value="4"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -438,11 +438,11 @@
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsStep5Complete}" Value="True">
                                                     <Setter Property="Text" Value="✓"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsStep5Active}" Value="True">
                                                     <Setter Property="Text" Value="5"/>
-                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>

@@ -52,29 +52,29 @@
                 <StackPanel Orientation="Horizontal">
                     <Border Width="40" Height="40" CornerRadius="{DynamicResource Radius.Medium}"
                             Background="{DynamicResource AccentBrush}">
-                        <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
+                        <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding HeaderTitle}" FontSize="{StaticResource TextTitle}" FontWeight="{DynamicResource Weight.Bold}"
+                            <TextBlock Text="{Binding HeaderTitle}" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
-                            <TextBlock Text="●" FontSize="{StaticResource TextBody}" Margin="8,0,0,0" VerticalAlignment="Center"
+                            <TextBlock Text="●" FontSize="{DynamicResource FontSize.Body}" Margin="8,0,0,0" VerticalAlignment="Center"
                                        Foreground="{DynamicResource WarningBrush}"
                                        ToolTip="{DynamicResource Inquiry.UnsavedChanges}"
                                        Visibility="{Binding IsDirty, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="{DynamicResource Radius.Large}"
                                     Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Status}" FontSize="{StaticResource TextCaption}" FontWeight="{DynamicResource Weight.Bold}"
+                                <TextBlock Text="{Binding Status}" FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
                         </StackPanel>
-                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="{StaticResource TextCaption}" Margin="0,3,0,0"
+                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="{DynamicResource FontSize.Caption}" Margin="0,3,0,0"
                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Grid.Column="1" Text="{DynamicResource Inquiry.CtrlSSaveEscClose}" FontSize="{StaticResource TextCaption}" VerticalAlignment="Center"
+                <TextBlock Grid.Column="1" Text="{DynamicResource Inquiry.CtrlSSaveEscClose}" FontSize="{DynamicResource FontSize.Caption}" VerticalAlignment="Center"
                            Foreground="{DynamicResource TextTertiaryBrush}"/>
             </Grid>
         </Border>
@@ -96,7 +96,7 @@
                     <StackPanel Orientation="Horizontal">
                         <Border Background="{DynamicResource AccentBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}">
-                            <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}"
+                            <TextBlock Text="&#xE823;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -393,7 +393,7 @@
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                                 <TextBlock Text="converted into the PI data grid — nothing re-typed"
-                                           Margin="9,0,0,0" FontSize="{StaticResource TextXSmall}"
+                                           Margin="9,0,0,0" FontSize="{DynamicResource FontSize.Caption}"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
@@ -496,7 +496,7 @@
                                                         CommandParameter="{Binding}"
                                                         Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}"
                                                         Foreground="{DynamicResource DangerBrush}"
-                                                        FontSize="{StaticResource TextCaption}" Padding="4,2"/>
+                                                        FontSize="{DynamicResource FontSize.Caption}" Padding="4,2"/>
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -507,12 +507,12 @@
                                 <Button Command="{Binding AddLineItemCommand}" Padding="12,6"
                                         Style="{StaticResource ModuleToolbarSecondaryButtonStyle}">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="＋" FontSize="{StaticResource TextBody}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="＋" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"/>
                                         <TextBlock Text="Add BOQ line" Margin="6,0,0,0" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
                                 <TextBlock Text="Rows with a spec name, W × H and quantity convert into the PI grid — others stay as inquiry notes."
-                                           FontSize="{StaticResource TextXSmall}" VerticalAlignment="Center" Margin="12,0,0,0"
+                                           FontSize="{DynamicResource FontSize.Caption}" VerticalAlignment="Center" Margin="12,0,0,0"
                                            TextWrapping="Wrap" MaxWidth="520"
                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
@@ -527,7 +527,7 @@
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                                 <TextBlock Text="{DynamicResource Inquiry.ManifestBackedWorksDatabase}" Margin="9,0,0,0"
-                                           FontSize="{StaticResource TextXSmall}" VerticalAlignment="Center"
+                                           FontSize="{DynamicResource FontSize.Caption}" VerticalAlignment="Center"
                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
 
@@ -553,11 +553,11 @@
                                                 <Border Width="40" Height="40" CornerRadius="{DynamicResource Radius.Medium}"
                                                         Background="{DynamicResource SurfaceSecondaryBrush}"
                                                         HorizontalAlignment="Center">
-                                                    <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}"
+                                                    <TextBlock Text="&#xE896;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="{DynamicResource Inquiry.DropFilesHereClickBrowse}" FontSize="{StaticResource TextBodyLarge}"
+                                                <TextBlock Text="{DynamicResource Inquiry.DropFilesHereClickBrowse}" FontSize="{DynamicResource FontSize.Title}"
                                                            FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,9,0,0" HorizontalAlignment="Center"
                                                            Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="{DynamicResource Inquiry.NewInquirySavedAutomaticallyBeforeFirstFile}"
@@ -585,22 +585,22 @@
                                                 <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}"
                                                         Background="{DynamicResource TintBlueBrush}"
                                                         VerticalAlignment="Center">
-                                                    <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
+                                                    <TextBlock Text="&#xE7C3;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
-                                                    <TextBlock Text="{Binding FileName}" FontSize="{StaticResource TextBody}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                    <TextBlock Text="{Binding FileName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                                TextTrimming="CharacterEllipsis"/>
                                                     <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Extension, Mode=OneWay}" FontSize="{StaticResource TextXSmall}"
+                                                        <TextBlock Text="{Binding Extension, Mode=OneWay}" FontSize="{DynamicResource FontSize.Caption}"
                                                                    FontWeight="{DynamicResource Weight.Bold}"
                                                                    Foreground="{DynamicResource AccentBrush}"/>
-                                                        <TextBlock Text=" · " FontSize="{StaticResource TextXSmall}"
+                                                        <TextBlock Text=" · " FontSize="{DynamicResource FontSize.Caption}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                         <TextBlock Text="{Binding FileSize, Mode=OneWay, StringFormat={}{0:N0} bytes}"
-                                                                   FontSize="{StaticResource TextXSmall}"
+                                                                   FontSize="{DynamicResource FontSize.Caption}"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                     </StackPanel>
                                                 </StackPanel>
@@ -648,7 +648,7 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Ellipse Width="8" Height="8" Fill="{DynamicResource DangerBrush}" VerticalAlignment="Center"
                              Visibility="{Binding IsStatusError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <TextBlock Text="{Binding StatusText}" FontSize="{StaticResource TextBody}" VerticalAlignment="Center" Margin="9,0,0,0"
+                    <TextBlock Text="{Binding StatusText}" FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="9,0,0,0"
                                TextWrapping="Wrap" MaxWidth="640"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>

@@ -457,27 +457,25 @@
     <ColumnDefinition Width="0.9*" MinWidth="95"/>
     <ColumnDefinition Width="Auto"/>
 </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="INQ#"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <!-- 2026-09-14: header gutters/alignment match the
-                             row cells (status center, text 8px gutters,
-                             value right). -->
-                        <TextBlock Grid.Column="1" Text="STATUS"
+                        <TextBlock Grid.Column="1" Text="INQ#"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   Margin="12,0"/>
+                        <TextBlock Grid.Column="2" Text="STATUS"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="2" Text="CUSTOMER"
+                        <TextBlock Grid.Column="3" Text="CUSTOMER"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="8,0"/>
-                        <TextBlock Grid.Column="3" Text="PROJECT"
+                        <TextBlock Grid.Column="4" Text="PROJECT"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="8,0"/>
-                        <TextBlock Grid.Column="4" Text="VALUE" Margin="0,0,8,0"
+                        <TextBlock Grid.Column="5" Text="VALUE" Margin="0,0,8,0"
                                    HorizontalAlignment="Right"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="5" Text="RECEIVED"
+                        <TextBlock Grid.Column="6" Text="RECEIVED"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="8,0"/>
-                        <TextBlock Grid.Column="6" Text="OWNER"
+                        <TextBlock Grid.Column="7" Text="OWNER"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="8,0"/>
                     </Grid>

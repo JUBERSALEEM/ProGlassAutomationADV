@@ -56,7 +56,7 @@
                          Background="Transparent"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
+                         ScrollViewer.CanContentScroll="False"
                          VirtualizingPanel.IsVirtualizing="True"
                          VirtualizingPanel.VirtualizationMode="Recycling"
                          VirtualizingPanel.ScrollUnit="Pixel"

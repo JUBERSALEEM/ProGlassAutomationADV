@@ -332,7 +332,7 @@
                               VirtualizingPanel.IsVirtualizing="True"
                               VirtualizingPanel.VirtualizationMode="Recycling"
                               VirtualizingPanel.ScrollUnit="Pixel"
-                              ScrollViewer.CanContentScroll="True"
+                              ScrollViewer.CanContentScroll="False"
                               behaviors:SmoothScrollBehavior.IsEnabled="True">
 
                         <ListView.ItemContainerStyle>

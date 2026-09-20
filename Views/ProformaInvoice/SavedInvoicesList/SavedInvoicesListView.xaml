@@ -59,7 +59,7 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Common.Total}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalCount}"
+                                <TextBlock Text="{Binding TotalCount, StringFormat=N0}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SavedPis}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
@@ -80,7 +80,7 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.Showing}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding FilteredCount}"
+                                <TextBlock Text="{Binding FilteredCount, StringFormat=N0}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.AfterFilters}"
                                            Style="{StaticResource ModuleListKpiHintStyle}"/>
@@ -211,19 +211,19 @@
                              so every column label sits exactly over its
                              data (was flush-left, offset 14px). -->
                         <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.REF}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="14,0"/>
+                                   Margin="12,0"/>
                         <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="14,0"/>
+                                   Margin="12,0"/>
                         <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="14,0"/>
+                                   Margin="12,0"/>
                         <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="14,0"/>
+                                   Margin="12,0"/>
                         <TextBlock Grid.Column="5" Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
                         <TextBlock Grid.Column="6" Text="{DynamicResource ProformaInvoice.GrandTotal}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Right" Margin="0,0,12,0"/>
                         <TextBlock Grid.Column="7" Text="{DynamicResource Common.Date}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="14,0"/>
+                                   Margin="12,0"/>
                         <TextBlock Grid.Column="8" Text="" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                     </Grid>
                 </Border>
@@ -305,7 +305,7 @@
                                                    FontSize="{DynamicResource FontSize.Title}"
                                                    FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource AccentBrush}"
-                                                   Padding="14,12"
+                                                   Padding="12,12"
                                                    VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="2"
@@ -313,7 +313,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   Padding="14,12"
+                                                   Padding="12,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding CompanyName}"/>
 
@@ -322,7 +322,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   Padding="14,12"
+                                                   Padding="12,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding CustomerName}"/>
 
@@ -331,7 +331,7 @@
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Padding="14,12"
+                                                   Padding="12,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding ProjectName}"/>
 
@@ -357,7 +357,7 @@
                                                    FontSize="{DynamicResource FontSize.Title}"
                                                    FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   Padding="14,12"
+                                                   Padding="12,12"
                                                    HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"/>
 
@@ -365,7 +365,7 @@
                                                    Text="{Binding CreatedAt, StringFormat=dd MMM yyyy}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Padding="14,12"
+                                                   Padding="12,12"
                                                    VerticalAlignment="Center"/>
 
                                         <StackPanel Grid.Column="8"
