@@ -479,7 +479,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 {
                     // Phase 2: scoped query, not a whole-table load.
                     var dnsForProforma = await _deliveryNotes.GetByProformaIdAsync(proformaId);
-                    hasDeliveries = dnsForProforma.Any(d => d.TotalDeliveredQty > 0);
+                    hasDeliveries = dnsForProforma.Any(d =>
+                        d.TotalDeliveredQty > 0
+                        && ProGlassAutomation.Models.DeliveryNote.Common
+                            .DeliveryNoteStatus.DeliveryNoteStatusValues
+                            .HasLeftTheBuilding(d.Status)
+                        && !d.HasTaxInvoice);
                 }
 
                 if (hasDeliveries)

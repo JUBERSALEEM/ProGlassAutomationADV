@@ -71,6 +71,19 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     return;
                 }
 
+                if (!TaxInvoiceLineService.CanInvoiceDeliveryNote(
+                        dnEntity.IsMasterDn,
+                        dnEntity.Status,
+                        dnEntity.HasTaxInvoice,
+                        dnEntity.TaxInvoiceId))
+                {
+                    StatusMessage =
+                        dnEntity.HasTaxInvoice
+                            ? $"⚠️ DN '{deliveryNoteId}' is already invoiced as {dnEntity.TaxInvoiceId}."
+                            : $"⚠️ DN '{deliveryNoteId}' is not a confirmed delivery (status {dnEntity.Status}).";
+                    return;
+                }
+
                 if (string.IsNullOrWhiteSpace(dnEntity.ProformaId))
                 {
                     StatusMessage =
@@ -154,6 +167,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     var dn = await _deliveryNotes
                         .GetByDeliveryNoteIdAsync(dnId);
                     if (dn == null) continue;
+                    if (!TaxInvoiceLineService.CanInvoiceDeliveryNote(
+                            dn.IsMasterDn,
+                            dn.Status,
+                            dn.HasTaxInvoice,
+                            dn.TaxInvoiceId))
+                        continue;
 
                     bool hasAnyDelivered = false;
                     foreach (var item in dn.Items.Where(i => i.DeliveredQty > 0))

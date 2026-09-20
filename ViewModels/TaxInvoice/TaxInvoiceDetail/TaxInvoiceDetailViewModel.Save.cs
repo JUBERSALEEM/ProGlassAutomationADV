@@ -67,6 +67,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     return;
                 }
 
+                if (!await EnsureReferencedDnsInvoiceableAsync(
+                    IsNewInvoice ? null : _editingInvoiceNumber))
+                    return;
+
                 var state = BuildWizardState();
                 string savedInvoiceNumber;
                 string savedSnapshotJson = "";   // v2 §24 version capture
@@ -238,6 +242,44 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             {
                 IsSaving = false;
             }
+        }
+
+        /// <summary>
+        /// Confirmed, not-already-billed DNs only. Draft/Dispatching/Master
+        /// and a DN already marked to a different TI cannot be saved.
+        /// </summary>
+        private async Task<bool> EnsureReferencedDnsInvoiceableAsync(
+            string? thisInvoiceNumber)
+        {
+            if (_deliveryNotes == null) return true;
+            if (string.IsNullOrWhiteSpace(DeliveryNoteReference)) return true;
+
+            var dnIds = TaxInvoiceDnReconciler.ParseDnRefs(DeliveryNoteReference);
+            foreach (var id in dnIds)
+            {
+                var dn = await _deliveryNotes.GetByDeliveryNoteIdAsync(id);
+                if (dn == null) continue;
+                if (TaxInvoiceLineService.CanInvoiceDeliveryNote(
+                        dn.IsMasterDn,
+                        dn.Status,
+                        dn.HasTaxInvoice,
+                        dn.TaxInvoiceId,
+                        thisInvoiceNumber))
+                    continue;
+
+                string msg = dn.HasTaxInvoice
+                    ? $"Delivery note '{id}' is already invoiced as {dn.TaxInvoiceId}."
+                    : $"Delivery note '{id}' is not a confirmed delivery (status {dn.Status}).";
+                StatusMessage = msg;
+                _dialogs.Show(
+                    msg,
+                    LocalizationService.Instance.T("Msg.CapSaveFailed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>

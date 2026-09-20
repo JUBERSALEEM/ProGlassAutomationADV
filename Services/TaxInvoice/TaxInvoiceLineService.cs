@@ -14,6 +14,8 @@
 //
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
+using ProGlassAutomation.Models.TaxInvoice.Common.TaxInvoiceStatus;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Logging;
@@ -50,14 +52,36 @@ namespace ProGlassAutomation.Services.TaxInvoice
             return (subtotal, vat, grandTotal);
         }
 
+        /// <summary>
+        /// A DN may seed a tax invoice only when it has left the building
+        /// (confirmed delivery) and is not already billed to a different TI.
+        /// Master trackers are never invoiceable.
+        /// </summary>
+        public static bool CanInvoiceDeliveryNote(
+            bool isMasterDn,
+            string? status,
+            bool hasTaxInvoice,
+            string? existingTaxInvoiceId,
+            string? thisInvoiceNumber = null)
+        {
+            if (isMasterDn) return false;
+            if (!DeliveryNoteStatusValues.HasLeftTheBuilding(status))
+                return false;
+            if (!hasTaxInvoice) return true;
+            if (string.IsNullOrWhiteSpace(thisInvoiceNumber))
+                return false;
+            return string.Equals(
+                existingTaxInvoiceId, thisInvoiceNumber,
+                StringComparison.OrdinalIgnoreCase);
+        }
+
         public static (int InvoiceCount, decimal TotalInvoiced, decimal Balance) CalculateFamily(
             IEnumerable<SavedTaxInvoice> members,
             decimal proformaTotal,
             string? currentInvoiceNumber = null)
         {
-            var issuedStatuses = new[] { "Issued", "Paid", "PartiallyPaid", "Partially Paid" };
             var issued = members.Where(m =>
-                issuedStatuses.Contains(m.Status, StringComparer.OrdinalIgnoreCase) &&
+                TaxInvoiceStatusValues.HasBeenIssued(m.Status) &&
                 !string.Equals(m.InvoiceNumber, currentInvoiceNumber, StringComparison.OrdinalIgnoreCase)).ToList();
 
             decimal totalInvoiced = issued.Sum(m => m.GrandTotal);

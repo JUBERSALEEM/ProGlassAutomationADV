@@ -1,4 +1,5 @@
-﻿using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+﻿using ProGlassAutomation.Models.TaxInvoice.Common.TaxInvoiceStatus;
+using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -152,12 +153,13 @@ namespace ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily
                     .OrderBy(l => l)
                     .ToList();
 
-                if (letters.Count == 0) return "A";
-
-                char last = letters.Last()[0];
-                return last < 'Z'
-                    ? ((char)(last + 1)).ToString()
-                    : "A"; // safety fallback — 26 partials is extreme
+                var used = new HashSet<string>(letters, StringComparer.OrdinalIgnoreCase);
+                for (char c = 'A'; c <= 'Z'; c++)
+                {
+                    string letter = c.ToString();
+                    if (!used.Contains(letter)) return letter;
+                }
+                return "";
             }
         }
 
@@ -194,12 +196,11 @@ namespace ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily
             string proformaId,
             List<TaxInvoiceListItem> members)
         {
-            // Only issued/paid/partiallyPaid invoices count toward InvoicedTotal
+            // Issued / paid / partial / overdue consume invoiceable money.
+            // Draft / Cancelled / Void do not. Overdue was previously omitted
+            // so a past-due invoice looked unbilled.
             static bool IsIssued(string status) =>
-                string.Equals(status, "Issued", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(status, "Paid", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(status, "PartiallyPaid",
-                    StringComparison.OrdinalIgnoreCase);
+                TaxInvoiceStatusValues.HasBeenIssued(status);
 
             var issuedMembers = members.Where(m => IsIssued(m.Status)).ToList();
 
