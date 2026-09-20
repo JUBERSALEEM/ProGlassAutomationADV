@@ -41,7 +41,7 @@
                 Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource ControlCornerRadius}" Style="{StaticResource SurfacePrimaryStyle}">
+                CornerRadius="{DynamicResource ControlCornerRadius}">
             <TextBox x:Name="ReasonTextBox"
                      MinHeight="120"
                      Background="Transparent"

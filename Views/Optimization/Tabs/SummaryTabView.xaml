@@ -246,7 +246,7 @@
 
                                     <!-- Unplaced pieces -->
                                     <StackPanel Margin="0,10,0,0" Visibility="{Binding HasUnplaced, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" Padding="12,8" Margin="0,0,0,6" Style="{StaticResource SurfacePrimaryStyle}">
+                                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" Padding="12,8" Margin="0,0,0,6">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Body}"
                                                            Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>

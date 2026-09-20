@@ -57,7 +57,7 @@
                                         Width="40" Height="40"
                                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                         Background="{DynamicResource TintIndigoBrush}"
-                                        VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                        VerticalAlignment="Center">
                                     <TextBlock Text="{Binding VersionNo}"
                                                FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"

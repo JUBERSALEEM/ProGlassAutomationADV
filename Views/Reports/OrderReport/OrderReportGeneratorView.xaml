@@ -477,7 +477,7 @@
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd" Background="Transparent"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Width="32" Height="32" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Width="32" Height="32" SnapsToDevicePixels="True">
                                 <TextBlock x:Name="ic" Text="✕"
                                            FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextSecondaryBrush}"

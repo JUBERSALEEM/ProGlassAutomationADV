@@ -76,7 +76,7 @@
                 Background="{DynamicResource TintAmberBrush}"
                 Padding="12,8"
                 Visibility="{Binding HasActionWarning,
-                             Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                             Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;"
                            FontFamily="{DynamicResource FontFamily.Icon}"

@@ -30,9 +30,10 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 2 surface strip 10e | AuthSurface/LoginPanel; DataGrid/Wastages; Executive/JO/PI/Salesman/TI reports; ChangesDialog | `b5b408e` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10f | StorageSidebar/UserSwitch/BuyDialog/Approval; Crash styles; wastage; pipeline; cutting/lam/edge | `d58fb45` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10g | Holes/mitre/pair/polish/temper; CompanySetup; GlassSpec; Order preview; Statement shell/report | `0c4aa96` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 surface strip 10h | Activity/QuickSettings/ScreenRecord/Screenshot/Share; Crash; DN/JO GodView; JO picker; opt report | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10h | Activity/QuickSettings/ScreenRecord/Screenshot/Share; Crash; DN/JO GodView; JO picker; opt report | `067cfe8` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10i | Summary/ReleaseBar; PI dialogs/pricing/summary; order generator/execute; ComingSoon; VoidReason | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Batch 10h — 15 competing SurfacePrimaryStyle attrs stripped; sole GodView card chrome kept; White untouched.
+**Done:** Batch 10i — 10 competing SurfacePrimaryStyle attrs stripped; VersionsDialog sole chrome and 40×40 glyph kept; generator Typography.Label kept; nested ReleaseBar without ErpPageRoot.
 
 **Next:** remaining competing SurfacePrimaryStyle / Height 40. Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
 

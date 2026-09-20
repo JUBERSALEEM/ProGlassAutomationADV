@@ -35,7 +35,7 @@
                                 BorderThickness="1"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="10,4"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>

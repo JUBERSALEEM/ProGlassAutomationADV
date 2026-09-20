@@ -34,7 +34,7 @@
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderThickness="{DynamicResource Border.TopHairlineThickness}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                Padding="20,12" Style="{StaticResource SurfacePrimaryStyle}">
+                Padding="20,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

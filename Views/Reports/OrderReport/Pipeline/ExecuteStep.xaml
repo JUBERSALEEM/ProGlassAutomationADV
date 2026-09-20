@@ -66,7 +66,7 @@
                 </StackPanel.Style>
 
                 <Border Width="64" Height="64" CornerRadius="{DynamicResource Radius.Hero}"
-                        Background="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                        Background="{DynamicResource SuccessBrush}" HorizontalAlignment="Center">
                     <TextBlock Text="✓" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>

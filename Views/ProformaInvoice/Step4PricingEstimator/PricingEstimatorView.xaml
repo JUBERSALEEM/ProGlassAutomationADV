@@ -288,7 +288,7 @@
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             Padding="12,8"
-                                            Height="40" Style="{StaticResource SurfacePrimaryStyle}">
+                                            Height="40">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBlock x:Name="CodeText" Text="{Binding Code}"
                                                        FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
