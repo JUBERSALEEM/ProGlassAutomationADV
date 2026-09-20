@@ -246,7 +246,7 @@
             </Border>
         </StackPanel>
 
-        <Border Grid.Row="1" Margin="4,0,4,4">
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

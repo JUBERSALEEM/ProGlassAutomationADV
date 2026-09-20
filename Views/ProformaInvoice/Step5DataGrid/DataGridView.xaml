@@ -306,8 +306,7 @@
                                         <ComboBox ItemsSource="{Binding DataContext.GlassTypeOptions,
                                                       RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                   SelectedItem="{Binding SelectedGlassType}"
-                                                  Style="{StaticResource PiComboBoxStyle}"
-                                                  Height="34"/>
+                                                  Style="{StaticResource PiComboBoxStyle}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="4">
                                         <TextBlock Text="{DynamicResource Dg.Specification}" Margin="0,0,0,2"/>

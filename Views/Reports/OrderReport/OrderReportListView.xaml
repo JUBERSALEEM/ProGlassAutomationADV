@@ -33,65 +33,23 @@
         </Grid.RowDefinitions>
 
         <!-- ══ ROW 0 — HEADER ══ -->
-        <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}" Margin="24,16,24,0"
-                CornerRadius="{DynamicResource CardCornerRadius}" ClipToBounds="True">
-            <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}" Padding="24,20">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Width="56" Height="56"
-                            Background="{DynamicResource SurfacePrimaryBrush}"
-                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="0,0,18,0">
-                        <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="≡" FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="Report Generator" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,0,0,4"/>
-                        <TextBlock Text="Overall Order Reports" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Text="{Binding StatusMessage}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.9" Margin="0,4,0,0"/>
-                    </StackPanel>
-
-                    <Button Grid.Column="2" Command="{Binding NewReportCommand}"
-                            VerticalAlignment="Center" Height="40" Padding="20,0"
-                            FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
-                            Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" Background="{DynamicResource SurfacePrimaryBrush}"
-                                        BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="{TemplateBinding Padding}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="+" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
-                                                   Margin="0,0,8,0"/>
-                                        <TextBlock Text="New Report" FontSize="{DynamicResource FontSize.Title}"
-                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}"
-                                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                </Grid>
-            </Border>
+        <Border Grid.Row="0" Style="{StaticResource DocumentHeaderBandStyle}" Margin="24,16,24,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="Report Generator" Style="{StaticResource ModulePageSubtitleStyle}"/>
+                    <TextBlock Text="Overall Order Reports" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="{Binding StatusMessage}" Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="1" Command="{Binding NewReportCommand}"
+                        Style="{StaticResource PrimaryPillButton}"
+                        Tag="&#xE710;"
+                        Content="New Report"
+                        VerticalAlignment="Center"/>
+            </Grid>
         </Border>
 
         <!-- ══ ROW 1 — KPI CARDS ══ -->
@@ -104,23 +62,25 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Background="{DynamicResource AccentBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
+            <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}"
+                    Background="{DynamicResource TintBlueBrush}"
+                    BorderBrush="{DynamicResource AccentBrush}" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="Reports" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalReportsDisplay}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,2"/>
-                    <TextBlock Text="Total saved" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
+                    <TextBlock Text="Reports" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalReportsDisplay}" Style="{StaticResource ModuleListKpiValueStyle}"
+                               Foreground="{DynamicResource AccentBrush}"/>
+                    <TextBlock Text="Total saved" Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="2" Background="{DynamicResource SuccessBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
+            <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}"
+                    Background="{DynamicResource TintGreenBrush}"
+                    BorderBrush="{DynamicResource SuccessBrush}" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="Invoiced Value" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalInvoicedValueDisplay}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,2"/>
-                    <TextBlock Text="Across all reports" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
+                    <TextBlock Text="Invoiced Value" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                    <TextBlock Text="{Binding TotalInvoicedValueDisplay}" Style="{StaticResource ModuleListKpiValueStyle}"
+                               Foreground="{DynamicResource SuccessBrush}"/>
+                    <TextBlock Text="Across all reports" Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </Border>
 
@@ -485,7 +445,7 @@
                                         <Button Command="{Binding DataContext.OpenPdfCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"
                                                 IsEnabled="{Binding HasPdf}"
-                                                Height="34" Padding="12,0" Margin="0,0,6,0"
+                                                Padding="12,0" Margin="0,0,6,0"
                                                 FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                 Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
                                             <Button.Template>
@@ -512,7 +472,7 @@
                                                 CommandParameter="{Binding}"
                                                 IsEnabled="{Binding HasPdf}"
                                                 ToolTip="{DynamicResource Sharing.Share}"
-                                                Height="34" Padding="12,0" Margin="0,0,6,0"
+                                                Padding="12,0" Margin="0,0,6,0"
                                                 FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                 Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
                                             <Button.Template>
@@ -537,7 +497,7 @@
 
                                         <Button Command="{Binding DataContext.OpenReportCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"
-                                                Height="34" Padding="12,0" Margin="0,0,6,0"
+                                                Padding="12,0" Margin="0,0,6,0"
                                                 FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                 Cursor="Hand" BorderThickness="{DynamicResource Border.NoneThickness}" Style="{StaticResource SecondaryButtonStyle}">
                                             <Button.Template>

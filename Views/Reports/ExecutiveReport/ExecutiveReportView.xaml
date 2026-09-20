@@ -26,20 +26,22 @@
                 <TextBlock Text="The order-to-cash funnel — Proforma → Job Order → Delivery → Tax Invoice → Paid — with the conversion rates that localise where work gets stuck." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
-                <StackPanel Margin="0,0,8,0">
-                    <TextBlock Text="From" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                    <DatePicker Width="130" SelectedDate="{Binding DateFrom, Mode=TwoWay}"/>
+                <StackPanel Style="{StaticResource Field.Panel}" Margin="0,0,8,0">
+                    <TextBlock Text="From" Style="{StaticResource Field.Label}"/>
+                    <DatePicker Width="130" SelectedDate="{Binding DateFrom, Mode=TwoWay}"
+                                Style="{StaticResource Input.DatePicker}"/>
                 </StackPanel>
-                <StackPanel Margin="0,0,8,0">
-                    <TextBlock Text="To" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                    <DatePicker Width="130" SelectedDate="{Binding DateTo, Mode=TwoWay}"/>
+                <StackPanel Style="{StaticResource Field.Panel}" Margin="0,0,8,0">
+                    <TextBlock Text="To" Style="{StaticResource Field.Label}"/>
+                    <DatePicker Width="130" SelectedDate="{Binding DateTo, Mode=TwoWay}"
+                                Style="{StaticResource Input.DatePicker}"/>
                 </StackPanel>
                 <Button Content="{DynamicResource Action.Clear}" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" VerticalAlignment="Bottom" ToolTip="All time"/>
                 <Button Content="&#xE72C;" FontFamily="{DynamicResource FontFamily.Icon}" Command="{Binding RefreshCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" VerticalAlignment="Bottom" ToolTip="Refresh"/>
             </StackPanel>
         </Grid>
 
-        <Border Grid.Row="1" Margin="16,0,16,14">
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,14">
             <Grid>
                 <loading:LoadingStateControl Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Building the executive view…"/>
                 <emptyState:EmptyStateControl Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No activity in this period" Message="The funnel is built from proformas, job orders, deliveries and tax invoices. Adjust the date range or create documents to populate it." Icon="&#xE9D2;"/>

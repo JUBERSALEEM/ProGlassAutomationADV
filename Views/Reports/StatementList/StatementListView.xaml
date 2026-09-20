@@ -115,17 +115,12 @@
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="{DynamicResource Nav.StatementGenerator}"
-                               FontSize="{DynamicResource FontSize.BodySmall}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextTertiaryBrush}"/>
+                               Style="{StaticResource ModulePageSubtitleStyle}"/>
                     <TextBlock Text="{DynamicResource Reports.AccountStatements}"
-                               FontSize="{DynamicResource FontSize.H1}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               Style="{StaticResource ModulePageTitleStyle}"
                                Margin="0,2,0,0"/>
                     <TextBlock Text="{Binding StatusMessage}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Style="{StaticResource ModulePageSubtitleStyle}"
                                Margin="0,4,0,0"/>
                 </StackPanel>
 
