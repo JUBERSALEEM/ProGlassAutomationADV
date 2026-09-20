@@ -56,9 +56,12 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreCsv
                 if (record == null) continue;
                 if (record.ThicknessMm <= 0 || record.WidthMm <= 0 || record.HeightMm <= 0)
                     continue;
-                if (record.Stock < 0) record.Stock = 0;
-                if (record.Used < 0) record.Used = 0;
-                if (record.Used > record.Stock) record.Used = record.Stock;
+                // Do not silently rewrite inventory numbers. A negative
+                // quantity or Used > Stock is a bad row, not "zero" or
+                // "fully consumed". Skip it the same way invalid sizes
+                // are skipped so an import cannot hide a discrepancy.
+                if (record.Stock < 0 || record.Used < 0 || record.Used > record.Stock)
+                    continue;
                 if (string.IsNullOrWhiteSpace(record.Color)) record.Color = "Clear";
                 if (string.IsNullOrWhiteSpace(record.Category)) record.Category = "Clear";
                 list.Add(record);
