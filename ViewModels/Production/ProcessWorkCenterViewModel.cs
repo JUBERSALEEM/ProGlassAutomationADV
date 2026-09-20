@@ -130,9 +130,10 @@ namespace ProGlassAutomation.ViewModels.Production
             BalancePendingPcs = balance >= 0 ? balance : 0;
             StageCompletionPct = TotalScheduledPcs > 0 ? Math.Round((double)CompletedDonePcs * 100.0 / TotalScheduledPcs, 1) : 0.0;
 
-            TotalScheduledSqm = Math.Round((double)TotalScheduledPcs * 1.575, 1);
-            CompletedDoneSqm = Math.Round((double)CompletedDonePcs * 1.575, 1);
-            BalancePendingSqm = Math.Round((double)BalancePendingPcs * 1.575, 1);
+            // Executions have no W×H here — do not invent 1.575 m² / pc.
+            TotalScheduledSqm = 0;
+            CompletedDoneSqm = 0;
+            BalancePendingSqm = 0;
         }
 
         // ── Filters ──────────────────────────────────────────────────────

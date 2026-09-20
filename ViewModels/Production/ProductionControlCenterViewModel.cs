@@ -111,19 +111,20 @@ namespace ProGlassAutomation.ViewModels.Production
                 : items.Where(i => string.Equals(i.StageLabel, targetStage, StringComparison.OrdinalIgnoreCase) ||
                                    string.Equals(i.Stage.ToString(), targetStage, StringComparison.OrdinalIgnoreCase)).ToList();
 
-            long total = filtered.Count;
-            long done = filtered.Count(i => i.Readiness == Models.Production.Control.ProductionReadiness.Completed);
-            long balance = total - done;
+            // Work-item rows are not PCS. Use persisted Qty / QtyDone.
+            // Area from W×H×qty (mm→m²), never a invented 1.575 m² average.
+            long total = filtered.Sum(i => (long)Math.Max(0, i.Qty));
+            long done = filtered.Sum(i => (long)Math.Min(Math.Max(0, i.QtyDone), Math.Max(0, i.Qty)));
+            long balance = filtered.Sum(i => (long)i.Remaining);
 
-            TotalScheduledPcs = total > 0 ? total : items.Count;
+            TotalScheduledPcs = total;
             CompletedDonePcs = done;
             BalancePendingPcs = balance >= 0 ? balance : 0;
             StageCompletionPct = TotalScheduledPcs > 0 ? Math.Round((double)CompletedDonePcs * 100.0 / TotalScheduledPcs, 1) : 0.0;
 
-            // Approximate production glass area: 1.57 m² average per architectural unit
-            TotalScheduledSqm = Math.Round(TotalScheduledPcs * 1.575, 1);
-            CompletedDoneSqm = Math.Round(CompletedDonePcs * 1.575, 1);
-            BalancePendingSqm = Math.Round(BalancePendingPcs * 1.575, 1);
+            TotalScheduledSqm = Math.Round(filtered.Sum(PaneSqm), 1);
+            CompletedDoneSqm = Math.Round(filtered.Sum(DonePaneSqm), 1);
+            BalancePendingSqm = Math.Round(Math.Max(0, TotalScheduledSqm - CompletedDoneSqm), 1);
         }
 
         // ── Filters ──────────────────────────────────────────────────────
@@ -534,6 +535,19 @@ namespace ProGlassAutomation.ViewModels.Production
             }
             catch (Exception ex) { ProgressLabel = $"Priority failed: {ex.Message}"; }
             finally { IsRunning = false; }
+        }
+
+        private static double PaneSqm(ProductionQueueItem i)
+        {
+            if (i.WidthMm <= 0 || i.HeightMm <= 0 || i.Qty <= 0) return 0;
+            return (double)i.WidthMm * i.HeightMm * i.Qty / 1_000_000.0;
+        }
+
+        private static double DonePaneSqm(ProductionQueueItem i)
+        {
+            int done = Math.Min(Math.Max(0, i.QtyDone), Math.Max(0, i.Qty));
+            if (i.WidthMm <= 0 || i.HeightMm <= 0 || done <= 0) return 0;
+            return (double)i.WidthMm * i.HeightMm * done / 1_000_000.0;
         }
     }
 }

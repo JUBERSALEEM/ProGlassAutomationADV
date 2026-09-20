@@ -20,7 +20,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.Production;
-using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.Logging;
 using System;
@@ -172,7 +171,7 @@ namespace ProGlassAutomation.Services.Production
             }
         }
 
-        private static async Task<ProformaInvoiceSnapshot?> LoadSnapshotAsync(
+        private static async Task<string?> LoadJobOrderJsonAsync(
             ProductionReleaseSource source)
         {
             using var db = new JobOrdersDbContext();
@@ -181,11 +180,7 @@ namespace ProGlassAutomation.Services.Production
                 .FirstOrDefaultAsync(j => j.JobOrderId == source.Reference)
                 .ConfigureAwait(false);
 
-            if (job == null || string.IsNullOrWhiteSpace(job.FullSnapshotJson)) return null;
-
-            var joSnapshot = JsonSerializer.Deserialize<JobOrderSnapshot>(
-                job.FullSnapshotJson, JsonOptions);
-            return joSnapshot?.EmbeddedInvoice;
+            return job?.FullSnapshotJson;
         }
     }
 }

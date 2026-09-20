@@ -276,19 +276,27 @@ namespace ProGlassAutomation.Services.Production
                 string? notes = null,
                 CancellationToken ct = default)
         {
-            // FOC is Free Of Charge — commercially traceable, selling value zero
-            return await RecordReworkAsync(workItemId, focQty, reason, parentEntryId, isFoc: true, notes: notes, ct: ct)
-                .ContinueWith(t =>
-                {
-                    if (!t.Result.Ok) return (false, (SavedProductionEntry?)null, t.Result.Message);
-                    var entry = t.Result.ReworkEntry;
-                    if (entry != null)
-                    {
-                        entry.EntryType = (int)ProductionEntryType.Foc;
-                        entry.IsFoc = true;
-                    }
-                    return (t.Result.Ok, entry, t.Result.Message.Replace("Rework", "FOC"));
-                }, ct).ConfigureAwait(false);
+            // FOC is Free Of Charge — persist EntryType.Foc, not an in-memory
+            // rewrite of a Rework row after SaveChanges.
+            var (ok, reworkEntry, message) = await RecordReworkAsync(
+                workItemId, focQty, reason, parentEntryId, isFoc: true, notes: notes, ct: ct)
+                .ConfigureAwait(false);
+            if (!ok || reworkEntry == null)
+                return (false, null, message);
+
+            using var db = new ProductionDbContext();
+            var row = await db.Entries.FirstOrDefaultAsync(e => e.Id == reworkEntry.Id, ct)
+                .ConfigureAwait(false);
+            if (row != null)
+            {
+                row.EntryType = (int)ProductionEntryType.Foc;
+                row.IsFoc = true;
+                await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                reworkEntry.EntryType = row.EntryType;
+                reworkEntry.IsFoc = true;
+            }
+
+            return (true, reworkEntry, message.Replace("Rework", "FOC"));
         }
     }
 }

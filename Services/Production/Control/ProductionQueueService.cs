@@ -118,8 +118,13 @@ namespace ProGlassAutomation.Services.Production.Control
 
             var workstations = await db.Workstations.AsNoTracking().ToListAsync(ct).ConfigureAwait(false);
 
+            // Active planning holds are Reserved + Allocated (same as
+            // MaterialReservationService). Status==Reserved only treated
+            // allocated cutting as "no reservation" / shortage.
             var reservations = await db.Reservations.AsNoTracking()
-                .Where(r => jobRefs.Contains(r.JobRef) && r.Status == 1)
+                .Where(r => jobRefs.Contains(r.JobRef)
+                         && (r.Status == (int)ReservationStatus.Reserved
+                          || r.Status == (int)ReservationStatus.Allocated))
                 .ToListAsync(ct).ConfigureAwait(false);
 
             var allocations = await db.Allocations.AsNoTracking()
