@@ -137,7 +137,7 @@
                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Padding="{TemplateBinding Padding}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="✕ " FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
@@ -180,7 +180,7 @@
                         BorderBrush="{DynamicResource TintIndigoBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
-                        MinHeight="76" Style="{StaticResource SurfacePrimaryStyle}">
+                        MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Invoiced}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -195,7 +195,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
-                        MinHeight="76" Style="{StaticResource SurfacePrimaryStyle}">
+                        MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="VAT" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentDarkBrush}"/>
@@ -210,7 +210,7 @@
                         BorderBrush="{DynamicResource SuccessBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
-                        MinHeight="76" Style="{StaticResource SurfacePrimaryStyle}">
+                        MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="PAID" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource SuccessBrush}"/>
@@ -431,7 +431,7 @@
                                                 VerticalAlignment="Center"
                                                 MinWidth="70"
                                                 Background="{Binding StatusColor,
-                                                    Converter={StaticResource ColorStringConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    Converter={StaticResource ColorStringConverter}}">
                                             <TextBlock Text="{Binding Status, Mode=OneWay}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -827,7 +827,7 @@
                                                 Background="{DynamicResource TintGrayBrush}"
                                                 BorderThickness="0,1,0,0"
                                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                                Padding="16,10,16,14" Style="{StaticResource SurfacePrimaryStyle}">
+                                                Padding="16,10,16,14">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto"/>

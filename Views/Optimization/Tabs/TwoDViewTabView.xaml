@@ -205,7 +205,7 @@
                                     <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34"
                                             Command="{Binding PreviewZoomOutCommand}" Margin="0,0,6,0" ToolTip="Zoom out"/>
                                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfacePrimaryBrush}" Padding="10,3"
-                                            Margin="0,0,6,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                            Margin="0,0,6,0" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                    FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                     </Border>
@@ -221,17 +221,17 @@
 
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Border Width="14" Height="14" Background="Transparent" BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="1.5" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                            BorderThickness="1.5" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"/>
                                     <TextBlock Text="LM/RM/TM/BM margin" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
                                     <Border Width="14" Height="14" Background="Transparent" BorderBrush="{DynamicResource WarningBrush}"
-                                            BorderThickness="1" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                            BorderThickness="1" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"/>
                                     <TextBlock Text="min breakout" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                    <Border Width="14" Height="14" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                    <Border Width="14" Height="14" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"/>
                                     <TextBlock Text="original" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                    <Border Width="14" Height="14" Background="{DynamicResource InfoBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                    <Border Width="14" Height="14" Background="{DynamicResource InfoBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"/>
                                     <TextBlock Text="rotated 90°" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>

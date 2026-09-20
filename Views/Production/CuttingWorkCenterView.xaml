@@ -25,8 +25,7 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <Border Width="56" Height="56" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center" Margin="0,0,14,0"
-                    Style="{StaticResource SurfacePrimaryStyle}">
+                    Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center" Margin="0,0,14,0">
                 <TextBlock Text="&#xE8C6;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
                            Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
@@ -34,7 +33,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding Title}" Style="{StaticResource ModulePageTitleStyle}"/>
                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
-                            Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="Stage 1 of 8 — Cutting + 2D Nesting" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                     </Border>
@@ -49,7 +48,7 @@
 
         <!-- KPI: Pending, In Progress, Completed, Rework, QC Pending, Ready -->
         <Border Grid.Row="1" Margin="24,0,24,8" Padding="12" CornerRadius="{DynamicResource CardCornerRadius}"
-                Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                Background="{DynamicResource SurfacePrimaryBrush}">
             <StackPanel>
                 <TextBlock Text="{Binding KpiSummary}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
@@ -130,7 +129,7 @@
 
             <!-- Left: Cutting Sessions -->
             <Border Grid.Column="0" Margin="0,0,8,0" Padding="8" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                    Background="{DynamicResource SurfacePrimaryBrush}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -162,7 +161,7 @@
 
                 <!-- Sheets -->
                 <Border Grid.Row="0" Margin="0,0,0,8" Padding="8" CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                        Background="{DynamicResource SurfacePrimaryBrush}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -187,7 +186,7 @@
 
                 <!-- Placed Pieces — Job Spec Piece Size Material Sheet Rotation Status Progress -->
                 <Border Grid.Row="1" Padding="8" CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource SurfacePrimaryBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                        Background="{DynamicResource SurfacePrimaryBrush}">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>

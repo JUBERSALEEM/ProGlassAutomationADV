@@ -75,7 +75,7 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,14">
                 <Border Background="{DynamicResource TintIndigoBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Padding="10,4" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="10,4">
                     <TextBlock Text="{Binding OperationId}"
                                MaxWidth="220"
                                TextWrapping="Wrap"
@@ -97,7 +97,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18,16" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="18,16">
                     <Grid>
                         <Grid.Resources>
                             <Style TargetType="TextBlock">
@@ -206,7 +206,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18,16" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="18,16">
                     <StackPanel>
                         <TextBlock Text="BEFORE / AFTER FIELD CHANGES"
                                    FontSize="{DynamicResource FontSize.H3}"
@@ -220,7 +220,7 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Visibility="{Binding HasChanges, Converter={StaticResource InverseBoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                Visibility="{Binding HasChanges, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                             <TextBlock TextWrapping="Wrap"
                                        Foreground="{DynamicResource TextSecondaryBrush}"
                                        FontSize="{DynamicResource FontSize.Body}">
@@ -241,7 +241,7 @@
                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             Margin="0,0,0,10"
-                                            Padding="0" Style="{StaticResource SurfacePrimaryStyle}">
+                                            Padding="0">
                                         <StackPanel>
                                             <!-- Field name — its own header band -->
                                             <Border Padding="12,9"
@@ -323,7 +323,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="18,16" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="18,16">
                     <StackPanel>
                         <TextBlock Text="AUDIT NARRATIVE"
                                    FontSize="{DynamicResource FontSize.H3}"

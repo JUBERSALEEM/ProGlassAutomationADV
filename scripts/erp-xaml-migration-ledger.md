@@ -23,9 +23,10 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 2 type scale | Static Text* FontSize → FontSize.* (12 views) | `d4eabc1` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 list density | ListPageStyles GDS type; report KPI 38→KpiIconStyle | `7f1ebdc` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 dialect pass | SecondaryForeground→TextSecondary; Segoe→Icon; production filter/detail | `d6ce242` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 surface strip 10 | Competing SurfacePrimaryStyle on 10 report/sheet/P&L views | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10 | Competing SurfacePrimaryStyle on 10 report/sheet/P&L views | working-tree | n/a | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10b | VAT/login/cutting/preview/audit/use/2D competing SurfacePrimaryStyle | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Competing SurfacePrimaryStyle stripped on 10 views (147 attrs); sole card chrome kept; input/button Height 40 → DensityInputHeight; 40×40 glyphs left.
+**Done:** Batch 10b — 61 competing SurfacePrimaryStyle attrs stripped; UseDialog TextBox Height 40 → DensityInputHeight; VAT tabs / 2D pager / 40×40 login glyphs left; sole card chrome kept.
 
 **Next:** remaining competing SurfacePrimaryStyle / Height 40. Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
 

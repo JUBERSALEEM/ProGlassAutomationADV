@@ -18,7 +18,7 @@
         <!-- ══ STATEMENT INFO STRIP (kept from the old header band) ══ -->
         <Border Background="{DynamicResource TintIndigoBrush}"
                 CornerRadius="{DynamicResource Radius.Medium}"
-                Padding="16,10" Style="{StaticResource SurfacePrimaryStyle}">
+                Padding="16,10">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding StatementNumber}"
                            FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
@@ -42,11 +42,11 @@
                         Height="10"
                         CornerRadius="{DynamicResource Radius.Small}"
                         Background="{DynamicResource SurfaceTertiaryBrush}"
-                        ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        ClipToBounds="True">
                     <Border Height="10"
                             HorizontalAlignment="Left"
                             CornerRadius="{DynamicResource Radius.Small}"
-                            Background="{DynamicResource AccentBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                            Background="{DynamicResource AccentBrush}">
                         <Border.Width>
                             <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                 <Binding Path="OverallProgress"/>
@@ -81,7 +81,7 @@
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     Background="{DynamicResource SideMenuBackgroundBrush}"
-                                    BorderBrush="{DynamicResource BorderDefaultBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40"/>
@@ -98,7 +98,7 @@
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Background="{DynamicResource SurfacePrimaryBrush}"
                                             HorizontalAlignment="Center"
-                                            VerticalAlignment="Top" Style="{StaticResource SurfacePrimaryStyle}">
+                                            VerticalAlignment="Top">
                                         <TextBlock Text="{Binding Icon}"
                                                    FontSize="{DynamicResource FontSize.H2}"
                                                    HorizontalAlignment="Center"
@@ -266,7 +266,7 @@
                                 <Border x:Name="bd"
                                         Background="{DynamicResource WarningBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Padding="{TemplateBinding Padding}">
                                     <StackPanel Orientation="Horizontal"
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
@@ -318,7 +318,7 @@
                                 <Border x:Name="bd"
                                         Background="{DynamicResource AccentBrush}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Padding="{TemplateBinding Padding}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Padding="{TemplateBinding Padding}">
                                     <TextBlock Text="{DynamicResource Action.Close}"
                                                FontSize="{DynamicResource FontSize.Body}"
                                                FontWeight="{DynamicResource Weight.Bold}"

@@ -217,7 +217,7 @@
                                             <Grid>
                                                 <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.DetailView}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
-                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -246,7 +246,7 @@
                                             <Grid>
                                                 <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Salesman}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
-                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -275,7 +275,7 @@
                                             <Grid>
                                                 <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Company}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
-                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -304,7 +304,7 @@
                                             <Grid>
                                                 <TextBlock x:Name="TabText" Text="{DynamicResource Reports.VatSubmission.Project}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                            Foreground="{DynamicResource TextSecondaryBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,6"/>
-                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                                <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom" Background="Transparent" CornerRadius="{DynamicResource Radius.XSmall}"/>
                                             </Grid>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -515,7 +515,7 @@
                                                 <TextBlock Text="{Binding Salesman}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
-                                            <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                            <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding InvoiceCount}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                                             </Border>
 
@@ -577,7 +577,7 @@
                                                 <TextBlock Text="{Binding CompanyName}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis"/>
                                             </StackPanel>
 
-                                            <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                            <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding InvoiceCount}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                                             </Border>
 
@@ -644,7 +644,7 @@
 
                                             <TextBlock Grid.Column="1" Text="{Binding CompanyName}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
-                                            <Border Grid.Column="2" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                            <Border Grid.Column="2" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding InvoiceCount}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center"/>
                                             </Border>
 
