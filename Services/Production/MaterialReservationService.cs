@@ -11,12 +11,14 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,6 +75,10 @@ namespace ProGlassAutomation.Services.Production
             try
             {
                 using var db = new ProductionDbContext();
+                // Serializable → BEGIN IMMEDIATE on SQLite: second writer waits
+                // on this file, then re-reads holds. UNIQUE ReservationId does
+                // not serialize two jobs (different keys).
+                using var tx = await BeginHoldWriteAsync(db, ct).ConfigureAwait(false);
 
                 // Idempotency: return existing if already reserved
                 var existing = await db.Reservations
@@ -95,6 +101,7 @@ namespace ProGlassAutomation.Services.Production
                         existing.Quantity = quantity;
                         existing.Notes = notes ?? existing.Notes;
                         await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                        await tx.CommitAsync(ct).ConfigureAwait(false);
                     }
                     return (true, existing, "Reservation already exists (idempotent).");
                 }
@@ -128,6 +135,7 @@ namespace ProGlassAutomation.Services.Production
 
                 db.Reservations.Add(reservation);
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await tx.CommitAsync(ct).ConfigureAwait(false);
 
                 AppLogService.Info($"[MaterialReservation] Reserved {quantity} x {stockSizeLabel} for {jobRef} Spec {specGroupNumber} Serial {serialNumber}",
                     new LogContext { Module = "Production", Class = nameof(MaterialReservationService), Operation = nameof(ReserveAsync) });
@@ -175,6 +183,7 @@ namespace ProGlassAutomation.Services.Production
             try
             {
                 using var db = new ProductionDbContext();
+                using var tx = await BeginHoldWriteAsync(db, ct).ConfigureAwait(false);
                 var res = await db.Reservations
                     .FirstOrDefaultAsync(r => r.ReservationId == reservationId, ct)
                     .ConfigureAwait(false);
@@ -193,6 +202,7 @@ namespace ProGlassAutomation.Services.Production
                 res.ReleaseReason = releaseReason ?? string.Empty;
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await tx.CommitAsync(ct).ConfigureAwait(false);
                 return (true, "Released.");
             }
             catch (Exception ex)
@@ -212,6 +222,7 @@ namespace ProGlassAutomation.Services.Production
             try
             {
                 using var db = new ProductionDbContext();
+                using var tx = await BeginHoldWriteAsync(db, ct).ConfigureAwait(false);
                 var res = await db.Reservations
                     .FirstOrDefaultAsync(r => r.ReservationId == reservationId, ct)
                     .ConfigureAwait(false);
@@ -242,6 +253,7 @@ namespace ProGlassAutomation.Services.Production
                 }
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await tx.CommitAsync(ct).ConfigureAwait(false);
                 return (true, $"Cancelled + {allocs.Count} allocations.");
             }
             catch (Exception ex)
@@ -311,6 +323,19 @@ namespace ProGlassAutomation.Services.Production
                 return (false, $"Not enough stock. Available: {available}, Requested: {quantity}");
 
             return (true, string.Empty);
+        }
+
+        /// <summary>
+        /// SQLite: IsolationLevel.Serializable maps to BEGIN IMMEDIATE.
+        /// A second process writing production.db waits (busy_timeout) then
+        /// re-reads holds. Does not lock proglass.db.
+        /// </summary>
+        private static async Task<IDbContextTransaction> BeginHoldWriteAsync(
+            ProductionDbContext db, CancellationToken ct)
+        {
+            await db.Database.OpenConnectionAsync(ct).ConfigureAwait(false);
+            return await db.Database.BeginTransactionAsync(
+                IsolationLevel.Serializable, ct).ConfigureAwait(false);
         }
 
         public static async Task<List<SavedMaterialReservation>> GetByJobAsync(string jobRef, CancellationToken ct = default)

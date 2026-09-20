@@ -98,6 +98,58 @@ namespace ProGlassAutomation.Tests.Production
                 Read("Services/Production/ProductionDbContext.cs"));
         }
 
+        [Fact]
+        public void Hold_writes_use_serializable_sqlite_immediate_not_an_app_mutex()
+        {
+            string src = Read("Services/Production/MaterialReservationService.cs");
+
+            Assert.Contains("IsolationLevel.Serializable", src);
+            Assert.Contains("BeginHoldWriteAsync", src);
+            Assert.Contains("BEGIN IMMEDIATE", src);
+            Assert.DoesNotContain("SemaphoreSlim", src);
+            Assert.DoesNotContain("Mutex", src);
+
+            string alloc = Read("Services/Production/MaterialAllocationService.cs");
+            Assert.Contains("IsolationLevel.Serializable", alloc);
+        }
+
+        [Fact]
+        public void Consumed_cannot_release_or_cancel_or_allocate()
+        {
+            string res = Read("Services/Production/MaterialReservationService.cs");
+            Assert.Contains("Cannot release consumed material.", res);
+            Assert.Contains("Cannot cancel consumed material.", res);
+
+            string alloc = Read("Services/Production/MaterialAllocationService.cs");
+            Assert.Contains(
+                "reservation.Status == (int)ReservationStatus.Consumed", alloc);
+            Assert.Contains("cannot allocate.", alloc);
+        }
+
+        [Fact]
+        public void Physical_used_is_usestock_not_production_consumed()
+        {
+            string link = Read("Services/ProformaInvoice/SheetStockLinkService.cs");
+            Assert.Contains("await _repo.UseStockAsync(sheet.Id, quantity)", link);
+
+            string use = Read("Services/SheetStore/SheetStoreRepository.cs");
+            Assert.Contains("g.Id == sheetId && g.Stock - g.Used >= quantity", use);
+
+            string consume = Read("Services/Production/MaterialAllocationService.cs");
+            Assert.DoesNotContain("UseStockAsync", consume);
+            Assert.Contains(
+                "reservation.Status != (int)ReservationStatus.Released", consume);
+        }
+
+        [Fact]
+        public void No_reservation_reconciler_or_ttl()
+        {
+            string src = Read("Services/Production/MaterialReservationService.cs");
+            Assert.DoesNotContain("Reconcile", src);
+            Assert.DoesNotContain("ExpiresAt", src);
+            Assert.DoesNotContain("TimeToLive", src);
+        }
+
         private static string Read(string relative)
         {
             return File.ReadAllText(Path.Combine(LocateProjectRoot(),

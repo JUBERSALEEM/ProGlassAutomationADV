@@ -14,6 +14,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -56,6 +57,9 @@ namespace ProGlassAutomation.Services.Production
             try
             {
                 using var db = new ProductionDbContext();
+                await db.Database.OpenConnectionAsync(ct).ConfigureAwait(false);
+                using var tx = await db.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable, ct).ConfigureAwait(false);
 
                 var existing = await db.Allocations
                     .FirstOrDefaultAsync(a => a.AllocationId == allocationId, ct)
@@ -73,7 +77,8 @@ namespace ProGlassAutomation.Services.Production
                     return (false, null, $"Reservation {reservationId} not found.");
 
                 if (reservation.Status == (int)ReservationStatus.Cancelled ||
-                    reservation.Status == (int)ReservationStatus.Released)
+                    reservation.Status == (int)ReservationStatus.Released ||
+                    reservation.Status == (int)ReservationStatus.Consumed)
                     return (false, null, $"Reservation {reservationId} is {((ReservationStatus)reservation.Status)} — cannot allocate.");
 
                 var allocation = new SavedMaterialAllocation
@@ -105,6 +110,7 @@ namespace ProGlassAutomation.Services.Production
                     reservation.Status = (int)ReservationStatus.Allocated;
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await tx.CommitAsync(ct).ConfigureAwait(false);
                 return (true, allocation, "Allocated.");
             }
             catch (DbUpdateException ex) when (ex.InnerException?.Message?.Contains("UNIQUE") == true || ex.Message.Contains("UNIQUE"))
@@ -138,6 +144,10 @@ namespace ProGlassAutomation.Services.Production
             try
             {
                 using var db = new ProductionDbContext();
+                await db.Database.OpenConnectionAsync(ct).ConfigureAwait(false);
+                using var tx = await db.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable, ct).ConfigureAwait(false);
+
                 var alloc = await db.Allocations.FirstOrDefaultAsync(a => a.AllocationId == allocationId, ct).ConfigureAwait(false);
                 if (alloc == null) return (false, "Allocation not found.");
 
@@ -161,13 +171,18 @@ namespace ProGlassAutomation.Services.Production
                 if (allConsumed)
                 {
                     var reservation = await db.Reservations.FirstOrDefaultAsync(r => r.ReservationId == reservationId, ct).ConfigureAwait(false);
-                    if (reservation != null && reservation.Status != (int)ReservationStatus.Consumed)
+                    // Do not overwrite Released/Cancelled with Consumed.
+                    if (reservation != null
+                        && reservation.Status != (int)ReservationStatus.Consumed
+                        && reservation.Status != (int)ReservationStatus.Released
+                        && reservation.Status != (int)ReservationStatus.Cancelled)
                     {
                         reservation.Status = (int)ReservationStatus.Consumed;
                     }
                 }
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await tx.CommitAsync(ct).ConfigureAwait(false);
                 return (true, "Consumed.");
             }
             catch (Exception ex)
