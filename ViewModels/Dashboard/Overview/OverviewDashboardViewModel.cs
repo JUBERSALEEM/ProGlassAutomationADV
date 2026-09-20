@@ -355,8 +355,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // only the columns each figure needs, and it owns the
             // double-count-safe pending-pieces rule that used to live in
             // this method.
+            // Tiles labelled "This Month" / "Completed MTD" must use the
+            // calendar month. CurrentRange defaults to AllTime, which made
+            // those tiles equal the lifetime totals sitting next to them.
             var exec = await _dashboardMetrics.GetExecutiveMetricsAsync(
-                _dashboardFilter.CurrentRange);
+                DashboardDateRange.ThisMonth(DateTime.Now));
 
             // ── Map aggregates onto the existing local names ───────────
             //    (kept verbatim so the tile-building code below is
