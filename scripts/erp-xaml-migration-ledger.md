@@ -21,10 +21,12 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 2 document shells | JO/DN/TI detail workspace; JO glass header=row | `c76195f` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 detail sections | DN attachments/history; TI attachments/family | `18819d8` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 type scale | Static Text* FontSize → FontSize.* (12 views) | `d4eabc1` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 list density | ListPageStyles GDS type; report KPI 38→KpiIconStyle | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 list density | ListPageStyles GDS type; report KPI 38→KpiIconStyle | `7f1ebdc` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 dialect pass | SecondaryForeground→TextSecondary; Segoe→Icon; production filter/detail | `d6ce242` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10 | Competing SurfacePrimaryStyle on 10 report/sheet/P&L views | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Shared list chrome type scale + report KPI tiles on ModuleListKpiIconStyle.
+**Done:** Competing SurfacePrimaryStyle stripped on 10 views (147 attrs); sole card chrome kept; input/button Height 40 → DensityInputHeight; 40×40 glyphs left.
 
-**Next:** remaining form spacer columns / production density; no generator KPI Typography.Label BasedOn; Settings/Ios26/print after tests.
+**Next:** remaining competing SurfacePrimaryStyle / Height 40. Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
 
 **Do not:** ErpPageRoot on nested Controls/Sections; Settings Ios26*; PrintableInvoiceView; force-push.

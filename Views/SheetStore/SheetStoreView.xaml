@@ -43,7 +43,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg" Background="Transparent"
                                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,9"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
                                            FontFamily="{DynamicResource FontFamily.Icon}"
@@ -118,7 +118,7 @@
                         <Border Background="{DynamicResource AccentBrush}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="10,4"
-                                VerticalAlignment="Center" Margin="14,6,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                VerticalAlignment="Center" Margin="14,6,0,0">
                             <TextBlock Text="{DynamicResource Nav.GroupInventory}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </Border>
                     </StackPanel>
@@ -180,7 +180,7 @@
                         <Border Background="{DynamicResource DangerBrush}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="9,3" VerticalAlignment="Center" Margin="0,0,4,0"
-                                Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="{Binding LowStockCount, StringFormat={}{0} LOW}"
                                        FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -221,7 +221,7 @@
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="6"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="20" ShadowDepth="4"
                                                   Direction="270" Opacity="0.25"
@@ -272,7 +272,7 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
-                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    SnapsToDevicePixels="True">
                 <StackPanel>
                     <Grid Visibility="{Binding IsGlassView, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Grid.ColumnDefinitions>
@@ -343,7 +343,7 @@
                     <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                             Background="{DynamicResource SurfaceTertiaryBrush}"
                             CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,7" Margin="0,10,0,0"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <DockPanel>
                             <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
@@ -351,7 +351,7 @@
                                      behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                      BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent"
                                      FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource TextPrimaryBrush}"
-                                     MinHeight="40" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+                                     MinHeight="{DynamicResource DensityInputHeight}" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
                         </DockPanel>
                     </Border>
                 </StackPanel>
@@ -369,7 +369,7 @@
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="16,14" Margin="0,0,0,16"
-                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                    SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -820,7 +820,7 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="22" ShadowDepth="5"
                                           Direction="270" Opacity="0.18"
@@ -839,7 +839,7 @@
                                 </Grid.ColumnDefinitions>
                                 <Border Width="40" Height="40" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                         Grid.Column="0"
-                                        Background="{DynamicResource AccentBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Background="{DynamicResource AccentBrush}">
                                     <TextBlock Text="&#xE7B8;" FontFamily="{DynamicResource FontFamily.Icon}"
                                                FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -876,7 +876,7 @@
                                     Background="{DynamicResource TintRedBrush}"
                                     BorderBrush="{DynamicResource DangerBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    SnapsToDevicePixels="True">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BF;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
@@ -890,7 +890,7 @@
                                     Background="{DynamicResource TintGreenBrush}"
                                     BorderBrush="{DynamicResource SuccessBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    SnapsToDevicePixels="True">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BF;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
@@ -904,7 +904,7 @@
                                     Background="{DynamicResource TintBlueBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    SnapsToDevicePixels="True">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE9F9;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
@@ -929,7 +929,7 @@
                                         Margin="0,0,3,10"
                                         Background="{DynamicResource TintGreenBrush}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
-                                        BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource SheetStore.Stock}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                                         <TextBlock Text="{Binding DisplayStock}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
@@ -939,7 +939,7 @@
                                         Margin="3,0,3,10"
                                         Background="{DynamicResource TintRedBrush}"
                                         BorderBrush="{DynamicResource DangerBrush}"
-                                        BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource SheetStore.USED}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
                                         <TextBlock Text="{Binding DisplayUsed}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
@@ -949,7 +949,7 @@
                                         Margin="3,0,0,10"
                                         Background="{DynamicResource TintAmberBrush}"
                                         BorderBrush="{DynamicResource WarningBrush}"
-                                        BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Common.Balance}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                                         <TextBlock Text="{Binding DisplayBalance}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}" Margin="0,2,0,0"/>
@@ -976,7 +976,7 @@
                                             Margin="0,0,3,0"
                                             Background="{DynamicResource TintBlueBrush}"
                                             BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}">
                                         <StackPanel>
                                             <TextBlock Text="SQM/SHEET" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text="{Binding DisplaySqmPerSheet, StringFormat={}{0:0.####}}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
@@ -986,7 +986,7 @@
                                             Margin="3,0,0,0"
                                             Background="{DynamicResource TintRedBrush}"
                                             BorderBrush="{DynamicResource DangerBrush}"
-                                            BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}">
                                         <StackPanel>
                                             <TextBlock Text="{DynamicResource SheetStore.BUYSQM}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
                                             <TextBlock Text="{Binding DisplayBuyPricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
@@ -997,7 +997,7 @@
                                         Margin="0,6,0,0"
                                         Background="{DynamicResource TintGreenBrush}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
-                                        BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource SheetStore.SELLSQM}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
                                         <TextBlock Text="{Binding DisplaySellPricePerSqm, StringFormat={}{0:0.##} AED}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
@@ -1057,7 +1057,7 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20"
-                        DataContext="{Binding ItemEditor}" Style="{StaticResource SurfacePrimaryStyle}">
+                        DataContext="{Binding ItemEditor}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <StackPanel Style="{StaticResource Field.Panel}">
@@ -1120,7 +1120,7 @@
                                     BorderBrush="{DynamicResource WarningBrush}"
                                     BorderThickness="1" Padding="10,8" Margin="0,4,0,0"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Visibility="{Binding HasMarginWarning, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Visibility="{Binding HasMarginWarning, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="{Binding MarginWarning}" TextWrapping="Wrap"
                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                                            Foreground="{DynamicResource WarningBrush}"/>

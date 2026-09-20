@@ -36,7 +36,7 @@
         <Border Grid.Row="0" Margin="16,16,16,0" Padding="16"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
             <StackPanel>
                 <TextBlock Text="Glass Type Comparison — All Confirmed Jobs"
                            FontSize="{DynamicResource FontSize.H2}"
@@ -65,7 +65,7 @@
 
             <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="JOBS ANALYZED" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -78,7 +78,7 @@
 
             <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL REVENUE" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -91,7 +91,7 @@
 
             <Border Grid.Column="4" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL PROFIT" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -104,7 +104,7 @@
 
             <Border Grid.Column="6" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="OVERALL MARGIN" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -117,7 +117,7 @@
 
             <Border Grid.Column="8" Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="BEST PERFORMER" FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
@@ -134,7 +134,7 @@
         <Border Grid.Row="2" Margin="16,12,16,0"
                 Background="{DynamicResource SurfacePrimaryBrush}"
                 BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}" Style="{StaticResource SurfacePrimaryStyle}">
+                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -143,7 +143,7 @@
 
                 <!-- Table Header -->
                 <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10" Style="{StaticResource SurfacePrimaryStyle}">
+                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.5*"/>
@@ -278,7 +278,7 @@
                 <Border Background="{DynamicResource SurfacePrimaryBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}"
-                        Padding="28,16" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="28,16">
                     <StackPanel Orientation="Horizontal">
                         <ProgressBar IsIndeterminate="True" Width="20" Height="20"
                                      VerticalAlignment="Center" Margin="0,0,12,0"/>

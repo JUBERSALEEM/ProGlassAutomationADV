@@ -17,7 +17,7 @@
         <!-- ══ AMBER HEADLINE STRIP (kept from the old header band) ══ -->
         <Border Background="{DynamicResource WarningBrush}"
                 CornerRadius="{DynamicResource Radius.Medium}"
-                Padding="18,12" Style="{StaticResource SurfacePrimaryStyle}">
+                Padding="18,12">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
                            FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
@@ -43,7 +43,7 @@
                 <Border Grid.Column="0"
                         Background="{DynamicResource SuccessBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Delivered}"
                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -61,7 +61,7 @@
                 <Border Grid.Column="2"
                         Background="{DynamicResource AccentBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Invoiced}"
                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -79,7 +79,7 @@
                 <Border Grid.Column="4"
                         Background="{DynamicResource DangerBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                        Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Reports.Missing}"
                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -100,7 +100,7 @@
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                    BorderBrush="{DynamicResource BorderDefaultBrush}">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Reports.UninvoicedDeliveryNotes}"
                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -119,7 +119,7 @@
                                             BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,10"
-                                            Margin="0,0,0,6" Style="{StaticResource SurfacePrimaryStyle}">
+                                            Margin="0,0,0,6">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
@@ -158,7 +158,7 @@
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="10,4"
                                                     Margin="8,0,0,0"
-                                                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    VerticalAlignment="Center">
                                                 <TextBlock FontSize="{DynamicResource FontSize.Body}"
                                                            FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}">
@@ -206,7 +206,7 @@
                                 <Border x:Name="bd"
                                         Background="{DynamicResource AccentBrush}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Padding="12,10">
                                     <StackPanel>
                                         <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -241,7 +241,7 @@
                                 <Border x:Name="bd"
                                         Background="{DynamicResource WarningBrush}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Padding="12,10">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource Reports.SKIPContinue}"
                                                    FontSize="{DynamicResource FontSize.Body}"
@@ -276,7 +276,7 @@
                                 <Border x:Name="bd"
                                         Background="{DynamicResource DangerBrush}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="12,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                        Padding="12,10">
                                     <StackPanel>
                                         <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"

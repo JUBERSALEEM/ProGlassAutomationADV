@@ -112,7 +112,7 @@
                                 Background="{DynamicResource IndigoPrimary}"
                                 CornerRadius="{DynamicResource Radius.XSmall}"
                                 VerticalAlignment="Center"
-                                Margin="0,0,12,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                Margin="0,0,12,0"/>
                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.STEP34}"
                                    FontSize="{DynamicResource FontSize.Body}"
                                    FontWeight="{DynamicResource Weight.Bold}"
@@ -140,7 +140,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20,16"
                         Effect="{StaticResource ProgressCardShadow}"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                        SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -161,7 +161,7 @@
                                     Background="{DynamicResource GreenLed}"
                                     Effect="{StaticResource GreenLedGlow}"
                                     VerticalAlignment="Center"
-                                    Margin="0,0,12,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                    Margin="0,0,12,0"/>
                             <TextBlock Text="{Binding LastWorkflowStatusText}"
                                        FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextPrimary}"
@@ -178,10 +178,10 @@
                                 Height="8" CornerRadius="{DynamicResource Radius.XSmall}"
                                 Background="{DynamicResource ProgressTrack}"
                                 ClipToBounds="True"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <Border HorizontalAlignment="Left"
                                     CornerRadius="{DynamicResource Radius.XSmall}"
-                                    Background="{DynamicResource ProgressGradient}" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Background="{DynamicResource ProgressGradient}">
                                 <Border.Width>
                                     <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                         <Binding Path="LastWorkflowProgressPercent"/>
@@ -284,7 +284,7 @@
                                     CornerRadius="{DynamicResource Radius.XSmall}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"
-                                    Background="{DynamicResource IndigoPrimary}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                    Background="{DynamicResource IndigoPrimary}"/>
                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.PipelineSteps}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource IndigoPrimary}"
@@ -340,7 +340,7 @@
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="18,14"
-                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                            SnapsToDevicePixels="True">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -411,7 +411,7 @@
                                     CornerRadius="{DynamicResource Radius.XSmall}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"
-                                    Background="{DynamicResource AmberAccent}" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                    Background="{DynamicResource AmberAccent}"/>
                             <TextBlock Grid.Column="1"
                                        Text="{DynamicResource Reports.StatementGenerator.WarningsAlerts}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
@@ -421,7 +421,7 @@
                                     Background="{DynamicResource WarnBadgeBg}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,3"
-                                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                                    VerticalAlignment="Center">
                                 <TextBlock Text="{Binding WarningSummaryDisplay}"
                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -439,7 +439,7 @@
                                                 Converter={StaticResource BrushKeyConverter}}"
                                             Background="{Binding BackgroundBrushKey,
                                                 Converter={StaticResource BrushKeyConverter}}"
-                                            SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                            SnapsToDevicePixels="True">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
@@ -479,7 +479,7 @@
                                                                 Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <Border Background="{DynamicResource TintIndigoBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="8,3" Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            Padding="8,3" Margin="0,0,8,0">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{DynamicResource Common.Ordered}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                                        Foreground="{DynamicResource TextMuted}"/>
@@ -489,7 +489,7 @@
                                                     </Border>
                                                     <Border Background="{DynamicResource TintGreenBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="8,3" Margin="0,0,8,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            Padding="8,3" Margin="0,0,8,0">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{DynamicResource Common.Delivered}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                                        Foreground="{DynamicResource TextMuted}"/>
@@ -499,7 +499,7 @@
                                                     </Border>
                                                     <Border Background="{DynamicResource TintRedBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="8,3" Style="{StaticResource SurfacePrimaryStyle}">
+                                                            Padding="8,3">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{DynamicResource Reports.StatementGenerator.Diff}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                                        Foreground="{DynamicResource TextMuted}"/>
@@ -534,7 +534,7 @@
                                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                                         BorderBrush="{Binding ActionBrushKey,
                                                                             Converter={StaticResource BrushKeyConverter}}"
-                                                                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                                                        SnapsToDevicePixels="True">
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="&#xE76B;"
                                                                                    FontFamily="{DynamicResource FontFamily.Icon}"

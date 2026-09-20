@@ -83,7 +83,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                                 BorderBrush="Transparent"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -126,7 +126,7 @@
                         <Border x:Name="Bg"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE700;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.H3}"
@@ -174,7 +174,7 @@
                 Background="{DynamicResource SurfaceSecondaryBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                SnapsToDevicePixels="True">
 
             <Grid Margin="10,12,10,12">
                 <Grid.RowDefinitions>
@@ -276,7 +276,7 @@
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Border Grid.Column="0" Width="28" Height="28" CornerRadius="{DynamicResource Radius.Small}"
-                                                        Background="{DynamicResource SurfaceTertiaryBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                        Background="{DynamicResource SurfaceTertiaryBrush}">
                                                     <TextBlock Text="{Binding Icon}"
                                                                FontFamily="{DynamicResource FontFamily.Icon}"
                                                                FontSize="{DynamicResource FontSize.Body}"
@@ -344,10 +344,10 @@
                 </ScrollViewer>
 
                 <!-- Footer: Centralized Layer Status -->
-                <Border Grid.Row="2" Margin="4,6,4,2" CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Padding="10,8" Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Grid.Row="2" Margin="4,6,4,2" CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" Padding="10,8">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Border Width="8" Height="8" CornerRadius="{DynamicResource Radius.XSmall}" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}"/>
+                            <Border Width="8" Height="8" CornerRadius="{DynamicResource Radius.XSmall}" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Reports.CentralDataLayer}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="{DynamicResource Reports.LiveTotalsPIJODeliveryTaxInvoiceStatement}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
@@ -404,11 +404,11 @@
                             VerticalAlignment="Center"
                             Background="{DynamicResource TintGreenBrush}"
                             BorderBrush="{DynamicResource SuccessBrush}"
-                            BorderThickness="{DynamicResource Border.HairlineThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                            BorderThickness="{DynamicResource Border.HairlineThickness}">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="7" Height="7" CornerRadius="{DynamicResource Radius.XSmall}"
                                     Background="{DynamicResource SuccessBrush}"
-                                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                    VerticalAlignment="Center"/>
                             <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="{DynamicResource Reports.LIVEDATA}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource SuccessBrush}"
@@ -481,10 +481,10 @@
                         <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Pi" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenProformaInvoiceReport}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintBlueBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintBlueBrush}">
                                                     <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource JobProfitability.Proforma}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -509,10 +509,10 @@
                         <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Jo" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenJobOrderReport}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintAmberBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintAmberBrush}">
                                                     <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Common.JobOrder}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -537,10 +537,10 @@
                         <Button Grid.Column="4" Command="{Binding NavigateReportCommand}" CommandParameter="Delivery" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenDeliveryReport}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintGreenBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintGreenBrush}">
                                                     <TextBlock Text="&#xE814;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Nav.Delivery}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -565,10 +565,10 @@
                         <Button Grid.Column="6" Command="{Binding NavigateReportCommand}" CommandParameter="TaxInvoice" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenTaxInvoiceReport}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}">
                                                     <TextBlock Text="&#xE8C7;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Module.TaxInvoice}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -593,10 +593,10 @@
                         <Button Grid.Column="8" Command="{Binding NavigateReportCommand}" CommandParameter="Statement" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.OpenStatementReport}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintGrayBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintGrayBrush}">
                                                     <TextBlock Text="&#xE9F7;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource NeutralBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Module.Statement}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -637,10 +637,10 @@
                         <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Customer" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.CustomersSub}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintBlueBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintBlueBrush}">
                                                     <TextBlock Text="&#xE716;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Reports.Nav.Customers}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -664,10 +664,10 @@
                         <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Salesman" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.SalesmenSub}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}">
                                                     <TextBlock Text="&#xE77B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Reports.Nav.Salesmen}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -691,10 +691,10 @@
                         <Button Grid.Column="4" Command="{Binding NavigateReportCommand}" CommandParameter="Customer" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Common.Outstanding}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintAmberBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintAmberBrush}">
                                                     <TextBlock Text="&#xE825;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Common.Outstanding}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -733,10 +733,10 @@
                         <Button Grid.Column="0" Command="{Binding NavigateReportCommand}" CommandParameter="Company" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.CompaniesSub}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintGreenBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintGreenBrush}">
                                                     <TextBlock Text="&#xE821;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Reports.Nav.Companies}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -760,10 +760,10 @@
                         <Button Grid.Column="2" Command="{Binding NavigateReportCommand}" CommandParameter="Project" Background="Transparent" BorderThickness="{DynamicResource Border.NoneThickness}" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="{DynamicResource Reports.Nav.ProjectsSub}" Style="{StaticResource SecondaryButtonStyle}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border x:Name="Card" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" SnapsToDevicePixels="True">
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
-                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                <Border Width="32" Height="32" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}">
                                                     <TextBlock Text="&#xE8A5;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{DynamicResource Reports.Nav.Projects}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
@@ -785,7 +785,7 @@
                     </Grid>
 
                     <!-- Workflow hint -->
-                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Reports.TraceGlassRowEndEndPIJobOrderDeliveryTax}"

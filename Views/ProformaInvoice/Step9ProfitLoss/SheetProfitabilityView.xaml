@@ -141,7 +141,7 @@
             <Border Background="{DynamicResource TintRedBrush}"
                     BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                     CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10" Margin="0,0,0,10"
-                    Visibility="{Binding HasShortfalls, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                    Visibility="{Binding HasShortfalls, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="⚠ STEP 6 SHORTFALL — BOUGHT SHEETS ARE LESS THAN THE SHEETS NEEDED"
                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -162,7 +162,7 @@
             <Border Background="{DynamicResource TintAmberBrush}"
                     BorderBrush="{DynamicResource WarningBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                     CornerRadius="{DynamicResource Radius.Medium}" Padding="14,10" Margin="0,0,0,10"
-                    Visibility="{Binding HasReviewItems, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                    Visibility="{Binding HasReviewItems, Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="⚠ REVIEW AGAINST THE STEP 6 WASTAGE SETUP"
                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
@@ -611,7 +611,7 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14" Style="{StaticResource SurfacePrimaryStyle}">
+                            CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14">
                         <StackPanel DataContext="{Binding SelectedRow}">
                             <TextBlock Text="{Binding GlassTypeLabel}"
                                        FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"

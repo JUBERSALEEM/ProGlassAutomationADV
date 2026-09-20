@@ -58,11 +58,11 @@
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="14,8" Style="{StaticResource SurfacePrimaryStyle}">
+                                Padding="14,8">
                             <StackPanel Orientation="Horizontal">
                                 <Border x:Name="Led" Width="8" Height="8" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource TintGrayBrush}"
-                                        VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
                                            FontSize="{DynamicResource FontSize.Body}"
                                            Foreground="{TemplateBinding Foreground}"
@@ -137,11 +137,11 @@
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="16,12" Margin="24,0,0,0" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="16,12" Margin="24,0,0,0">
                         <StackPanel Orientation="Horizontal">
                             <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}"
                                     Background="{DynamicResource SuccessBrush}"
-                                    VerticalAlignment="Center" Margin="0,0,10,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBlock Text="{Binding MatchCountDisplay}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
@@ -158,7 +158,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Padding="22,20" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="22,20">
 
                     <StackPanel>
                         <!-- Section header -->
@@ -170,7 +170,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
-                                        VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
                                 <TextBlock Text="SOURCE SEQUENCE"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -302,7 +302,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Padding="22,20" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="22,20">
                     <StackPanel>
                         <Grid Margin="0,0,0,18">
                             <Grid.ColumnDefinitions>
@@ -312,7 +312,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
-                                        VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
                                 <TextBlock Text="DATE WINDOW"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -352,7 +352,7 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Padding="22,20" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="22,20">
                     <StackPanel>
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
@@ -362,7 +362,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="4" Height="14" CornerRadius="{DynamicResource Radius.XSmall}"
                                         Background="{DynamicResource AccentBrush}"
-                                        VerticalAlignment="Center" Margin="0,0,9,0" Style="{StaticResource SurfacePrimaryStyle}"/>
+                                        VerticalAlignment="Center" Margin="0,0,9,0"/>
                                 <TextBlock Text="STATUS GATE"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
