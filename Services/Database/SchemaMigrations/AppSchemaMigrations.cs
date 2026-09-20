@@ -123,7 +123,31 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
                 // ERP hardening (Phase 5): optimistic-concurrency counter.
                 new(1002, "Job Order: RowVersion concurrency counter", connection =>
-                    AddRowVersionColumn(connection, "JobOrders"))
+                    AddRowVersionColumn(connection, "JobOrders")),
+
+                // Unique JobOrderId is in OnModelCreating (fresh EnsureCreated).
+                // Existing field DBs never received it via additive migration.
+                // Do NOT rewrite colliding numbers (DN/TI key the string).
+                new(1003, "Job Order: unique JobOrderId index", connection =>
+                {
+                    try
+                    {
+                        SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                            "CREATE UNIQUE INDEX IF NOT EXISTS IX_JobOrder_JobOrderId_Unique ON JobOrders(JobOrderId);");
+                    }
+                    catch (SqliteException ex)
+                    {
+                        AppLogService.Warning(
+                            "[JobOrders] unique JobOrderId index not applied: " +
+                            ex.Message,
+                            new LogContext
+                            {
+                                Module = "Database",
+                                Class = "SchemaMigrations",
+                                Operation = "JobOrderIdUniqueIndex"
+                            });
+                    }
+                })
             };
 
         // deliverynotes.db
