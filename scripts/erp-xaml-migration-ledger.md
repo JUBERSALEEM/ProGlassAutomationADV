@@ -33,7 +33,7 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 2 surface strip 10h | Activity/QuickSettings/ScreenRecord/Screenshot/Share; Crash; DN/JO GodView; JO picker; opt report | `067cfe8` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10i | Summary/ReleaseBar; PI dialogs/pricing/summary; order generator/execute; ComingSoon; VoidReason | `dd1d9bf` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip tail | AddEditSheet; TI GodView; IssueDrafts; UserCenter; Terms MinHeight 40 | `ee9a499` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 Height 38 | GodView/picker search; workflow/language buttons → density; KPI/close 38→36 | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 Height 38 | GodView/picker search; workflow/language buttons → density; KPI/close 38→36 | `2a5e104` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
 **Done:** In-scope competing SurfacePrimaryStyle closed. Height 38 filters/buttons densified; KPI column and close hits snapped to 36. AiChat 38×38 avatar and inquiry 38×38 header glyph left.
 
