@@ -118,13 +118,15 @@ namespace ProGlassAutomation.Services.Production
             CancellationToken ct = default)
         {
             var stocks = new List<StockSize>();
+            bool storeReadFailed = false;
 
             // 1) From Sheet Store (proglass.db) — actual inventory
             try
             {
                 using var appDb = new AppDbContext();
+                // Balance is [NotMapped]; SQL uses Stock − Used (same as UseStockAsync).
                 var glassSheets = await appDb.GlassSheets.AsNoTracking()
-                    .Where(g => g.Balance > 0)
+                    .Where(g => g.Stock - g.Used > 0)
                     .OrderBy(g => g.Category)
                     .Take(100)
                     .ToListAsync(ct).ConfigureAwait(false);
@@ -145,12 +147,14 @@ namespace ProGlassAutomation.Services.Production
             }
             catch (Exception ex)
             {
+                storeReadFailed = true;
                 AppLogService.Warning($"[OptBridge] SheetStore stock read failed: {ex.Message}",
                     new LogContext { Module = "Production", Class = nameof(ProductionOptimizationBridge), Operation = nameof(GetStockAvailabilityAsync) });
             }
 
-            // 2) Fallback to Step4 calibrated benchmark if no stock (ensures 17-sheet benchmark preserved)
-            if (stocks.Count == 0)
+            // 2) Empty-but-successful store: keep the 3210×2250 regression
+            //    rack. A FAILED read must not look like unlimited glass.
+            if (stocks.Count == 0 && !storeReadFailed)
             {
                 stocks.Add(new StockSize
                 {
@@ -294,7 +298,7 @@ namespace ProGlassAutomation.Services.Production
                         var matchingSheet = await appDb.GlassSheets.AsNoTracking()
                             .FirstOrDefaultAsync(g => g.WidthMm == sheet.Stock.WidthMm &&
                                                      g.HeightMm == sheet.Stock.HeightMm &&
-                                                     g.Balance > 0, ct).ConfigureAwait(false);
+                                                     g.Stock - g.Used > 0, ct).ConfigureAwait(false);
                         if (matchingSheet != null) glassSheetId = matchingSheet.Id;
                     }
                     catch

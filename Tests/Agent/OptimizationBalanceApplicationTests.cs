@@ -307,8 +307,10 @@ namespace ProGlassAutomation.Tests.Agent
             // The cross-check that found Phase 10. Two of three consumers did
             // this and the Optimization module did not; pinning all three is
             // what stops one of them silently dropping the filter later.
-            Assert.Contains(".Where(g => g.Balance > 0)", Read(ProductionBridge));
-            Assert.Contains(".Where(g => g.Balance > 0)", Read(StockSelection));
+            // Balance is [NotMapped] Stock − Used. The IQueryable filter must
+            // use the arithmetic EF can translate — same as UseStockAsync.
+            Assert.Contains(".Where(g => g.Stock - g.Used > 0)", Read(ProductionBridge));
+            Assert.Contains(".Where(g => g.Stock - g.Used > 0)", Read(StockSelection));
             Assert.Contains("MaxSheets = gs.Balance", Read(ProductionBridge));
 
             // The balance-aware rack resolve filters too — exact colour +

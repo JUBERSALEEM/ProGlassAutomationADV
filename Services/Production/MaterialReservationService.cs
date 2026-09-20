@@ -13,6 +13,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
@@ -60,8 +61,8 @@ namespace ProGlassAutomation.Services.Production
         {
             if (string.IsNullOrWhiteSpace(jobRef)) return (false, null, "JobRef required.");
             if (quantity <= 0) return (false, null, "Quantity must be > 0.");
-            if (glassSheetId <= 0 && string.IsNullOrWhiteSpace(stockSizeLabel))
-                return (false, null, "GlassSheetId or StockSizeLabel required.");
+            if (glassSheetId <= 0)
+                return (false, null, "GlassSheetId required to reserve against Sheet Store stock.");
 
             ProductionRepository.EnsureInitialized();
 
@@ -84,6 +85,10 @@ namespace ProGlassAutomation.Services.Production
                     if (existing.Status == (int)ReservationStatus.Cancelled ||
                         existing.Status == (int)ReservationStatus.Released)
                     {
+                        var (okAvail, availMsg) = await TryEnsureStockAvailableAsync(
+                            db, glassSheetId, quantity, reservationId, ct).ConfigureAwait(false);
+                        if (!okAvail) return (false, null, availMsg);
+
                         existing.Status = (int)ReservationStatus.Reserved;
                         existing.ReleasedAt = null;
                         existing.ReleaseReason = string.Empty;
@@ -93,6 +98,10 @@ namespace ProGlassAutomation.Services.Production
                     }
                     return (true, existing, "Reservation already exists (idempotent).");
                 }
+
+                var (okNew, newMsg) = await TryEnsureStockAvailableAsync(
+                    db, glassSheetId, quantity, reservationId, ct).ConfigureAwait(false);
+                if (!okNew) return (false, null, newMsg);
 
                 var reservation = new SavedMaterialReservation
                 {
@@ -241,6 +250,67 @@ namespace ProGlassAutomation.Services.Production
                     ex, new LogContext { Module = "Production", Class = nameof(MaterialReservationService), Operation = nameof(CancelAsync) });
                 return (false, $"Cancel failed: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Sheet Store Balance (Stock − Used) minus other active Production
+        /// holds on the same GlassSheetId. Does not write GlassSheet. Does
+        /// not invent a Reserved column. Cross-DB: a failed store read is
+        /// "could not check", not "not available".
+        /// </summary>
+        private static async Task<(bool Ok, string Message)> TryEnsureStockAvailableAsync(
+            ProductionDbContext productionDb,
+            int glassSheetId,
+            int quantity,
+            string reservationId,
+            CancellationToken ct)
+        {
+            int balance;
+            try
+            {
+                using var appDb = new AppDbContext();
+                int? found = await appDb.GlassSheets.AsNoTracking()
+                    .Where(g => g.Id == glassSheetId)
+                    .Select(g => (int?)(g.Stock - g.Used))
+                    .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+
+                if (found == null)
+                    return (false, $"Glass sheet {glassSheetId} not found.");
+
+                balance = found.Value;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"[MaterialReservation] Could not check Sheet Store for sheet {glassSheetId}: {ex.Message}",
+                    new LogContext { Module = "Production", Class = nameof(MaterialReservationService), Operation = nameof(TryEnsureStockAvailableAsync) });
+                return (false, "Could not check availability.");
+            }
+
+            int reserved = 0;
+            try
+            {
+                reserved = await productionDb.Reservations.AsNoTracking()
+                    .Where(r => r.GlassSheetId == glassSheetId
+                             && r.ReservationId != reservationId
+                             && (r.Status == (int)ReservationStatus.Reserved
+                              || r.Status == (int)ReservationStatus.Allocated))
+                    .SumAsync(r => (int?)r.Quantity, ct)
+                    .ConfigureAwait(false) ?? 0;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"[MaterialReservation] Could not sum holds for sheet {glassSheetId}: {ex.Message}",
+                    new LogContext { Module = "Production", Class = nameof(MaterialReservationService), Operation = nameof(TryEnsureStockAvailableAsync) });
+                return (false, "Could not check availability.");
+            }
+
+            int available = balance - reserved;
+            if (quantity > available)
+                return (false, $"Not enough stock. Available: {available}, Requested: {quantity}");
+
+            return (true, string.Empty);
         }
 
         public static async Task<List<SavedMaterialReservation>> GetByJobAsync(string jobRef, CancellationToken ct = default)

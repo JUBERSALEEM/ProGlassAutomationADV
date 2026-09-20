@@ -31,7 +31,10 @@ namespace ProGlassAutomation.Services.Production.Cutting
         public int AvailableBalance { get; set; }
         public int ReservedQty { get; set; }
         public int AllocatedQty { get; set; }
-        public int EffectiveAvailable => Math.Max(0, AvailableBalance - ReservedQty - AllocatedQty);
+        // ReservedQty already sums reservation Quantity for Reserved+Allocated
+        // (stock sheets). AllocatedQty is placed-piece counts — a different
+        // unit. Subtracting both treated 15 pieces as 15 sheets.
+        public int EffectiveAvailable => Math.Max(0, AvailableBalance - ReservedQty);
         public decimal WasteScore { get; set; } // Lower is better
     }
 
@@ -53,9 +56,10 @@ namespace ProGlassAutomation.Services.Production.Cutting
             {
                 using var appDb = new AppDbContext();
 
-                // Read all sheets with Balance>0
+                // Balance is [NotMapped] Stock − Used. EF cannot translate
+                // g.Balance; the arithmetic is the same SQL as UseStockAsync.
                 var allSheets = await appDb.GlassSheets.AsNoTracking()
-                    .Where(g => g.Balance > 0)
+                    .Where(g => g.Stock - g.Used > 0)
                     .ToListAsync(ct).ConfigureAwait(false);
 
                 // Filter by material compatibility
@@ -131,44 +135,8 @@ namespace ProGlassAutomation.Services.Production.Cutting
                 AppLogService.Warning($"[StockSelection] Failed for group {group?.GroupId}: {ex.Message}",
                     new LogContext { Module = "Production", Class = nameof(StockSelectionService), Operation = nameof(GetCompatibleSheetsAsync) });
 
-                // Fallback to benchmark 3210×2250 if no stock (regression benchmark only)
-                var fallbackSheet = new GlassSheet
-                {
-                    Id = 0,
-                    Category = group?.GlassFamily ?? "Clear",
-                    Color = group?.Color ?? "Clear",
-                    ThicknessMm = group?.ThicknessMm ?? 6,
-                    WidthMm = 3210,
-                    HeightMm = 2250,
-                    Stock = 100,
-                    Used = 0,
-                    Supplier = "Fallback Benchmark",
-                    PurchasePricePerSqm = 0,
-                    SellPricePerSqm = 0
-                };
-
-                var fallbackStock = new StockSize
-                {
-                    WidthMm = 3210,
-                    HeightMm = 2250,
-                    ThicknessMm = group?.ThicknessMm ?? 6,
-                    Color = group?.Color ?? "Clear",
-                    Label = "3210 × 2250 (fallback benchmark)",
-                    MaxSheets = 0 // unlimited
-                };
-
-                return new List<StockSelectionResult>
-                {
-                    new StockSelectionResult
-                    {
-                        Sheet = fallbackSheet,
-                        StockSize = fallbackStock,
-                        AvailableBalance = 100,
-                        ReservedQty = 0,
-                        AllocatedQty = 0,
-                        WasteScore = 0
-                    }
-                };
+                // A failed load is not a healthy rack of 100 sheets.
+                return new List<StockSelectionResult>();
             }
         }
 
