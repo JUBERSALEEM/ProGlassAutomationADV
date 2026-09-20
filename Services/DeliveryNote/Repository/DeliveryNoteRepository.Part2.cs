@@ -36,6 +36,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             if (entity == null) return;
 
             string? proformaId = entity.ProformaId;
+            string jobOrderId = entity.JobOrderId;
+            string deliveryNoteId = entity.DeliveryNoteId;
             bool isMaster = entity.IsMasterDn;
 
             ctx.DeliveryNotes.Remove(entity);
@@ -48,6 +50,18 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // the final (cancelled) status the first time.
             if (!isMaster)
             {
+                try
+                {
+                    await UpdateMasterDnAsync(jobOrderId, deliveryNoteId)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception masterEx)
+                {
+                    AppLogService.Warning(
+                        "[DN] Master remaining refresh after delete skipped: " +
+                        masterEx.Message);
+                }
+
                 await ProGlassAutomation.Services.ProformaInvoice
                     .ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
             }
@@ -74,6 +88,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             if (entity.IsVoid) return;   // idempotent
 
             string? proformaId = entity.ProformaId;
+            string jobOrderId = entity.JobOrderId;
+            string deliveryNoteId = entity.DeliveryNoteId;
             bool isMaster = entity.IsMasterDn;
 
             entity.IsVoid = true;
@@ -88,6 +104,18 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             if (!isMaster)
             {
+                try
+                {
+                    await UpdateMasterDnAsync(jobOrderId, deliveryNoteId)
+                        .ConfigureAwait(false);
+                }
+                catch (Exception masterEx)
+                {
+                    AppLogService.Warning(
+                        "[DN] Master remaining refresh after void skipped: " +
+                        masterEx.Message);
+                }
+
                 await ProGlassAutomation.Services.ProformaInvoice
                     .ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
             }

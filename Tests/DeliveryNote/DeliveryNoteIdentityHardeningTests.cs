@@ -59,6 +59,17 @@ namespace ProGlassAutomation.Tests.DeliveryNote
             Assert.Contains("confirmedPreviouslyDelivered: livePrev", src);
         }
 
+        [Fact]
+        public void Delete_and_void_refresh_master_remaining()
+        {
+            string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
+                "Services", "DeliveryNote", "Repository",
+                "DeliveryNoteRepository.Part2.cs"));
+
+            Assert.Contains("Master remaining refresh after delete skipped", src);
+            Assert.Contains("Master remaining refresh after void skipped", src);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
