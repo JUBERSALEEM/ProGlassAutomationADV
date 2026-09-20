@@ -344,15 +344,12 @@ namespace ProGlassAutomation.Services.Theme
                     }
                     else
                     {
-                        // Normal and Monet let the theme dictionary own
-                        // their ink, so the app-level foregrounds are
-                        // removed and the theme value wins. Normal
-                        // (Industrial) paints its OWN navy ink in
-                        // ApplyIndustrial — removing it here would wipe
-                        // the family's professional slate text back to the
-                        // warm cream ink (the 2026-09-07 "industrial text
-                        // isn't navy" finding). Keep it.
-                        if (Current != NormalIndustrial)
+                        // Cream Normal (persisted as Normal Industrial)
+                        // and Monet let the theme dictionary own their
+                        // ink. ApplyIndustrial already published the
+                        // August-25 warm stone; removing the keys here
+                        // would drop back to the same cream values from
+                        // LightTheme, so Auto font colour stays cream.
                         {
                             resources.Remove("PrimaryForegroundBrush");
                             resources.Remove("SecondaryForegroundBrush");

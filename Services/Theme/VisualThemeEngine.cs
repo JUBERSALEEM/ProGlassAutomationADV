@@ -9,13 +9,13 @@
 // Industrial trio; 2026-09-07 restores the pre-cream industrial "Normal"
 // as its own family, "Normal (Industrial)"):
 //
-//   Normal            — clean, practical cream SaaS DEFAULT (no surface
-//                       overrides).
-//   Normal (Industrial) — the PRE-CREAM "Normal" (August-26 look) restored
-//                       as a standalone family: full white + blue tone,
-//                       professional industrial layout, and a defined
-//                       slate card edge/corner border line. See
-//                       design-system/proglass-industrial/MASTER.md.
+//   Normal            — cream SaaS identity (persisted as
+//                       "Normal (Industrial)"): the 25 August look —
+//                       warm canvas, paper cards, stone ink. Display
+//                       name is "Normal".
+//   Normal (Industrial) — same family (persisted key). ApplyIndustrial
+//                       now paints the August-25 cream SaaS Normal, not
+//                       the later slate industrial reform.
 //   Monet          — colour-adaptive artistic look (Material-You style):
 //                    the palette is DERIVED from the user's accent colour
 //                    — hue-tinted frosted surfaces, tinted fallback

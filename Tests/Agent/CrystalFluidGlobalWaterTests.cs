@@ -1,5 +1,7 @@
-// Crystal / liquid live water retired. Pins that auto-attach is off
-// and the painter never publishes CrystalWaterDefaultEnabled = true.
+// Live water auto-attach stays retired (no class-handler spray).
+// The Crystal Fluid painter MUST publish CrystalWaterDefaultEnabled
+// = true — that gate is what makes iPhone 17 Pro Max distinct from
+// iOS 26. Non-crystal families still seed FALSE in Part1.
 
 using System;
 using System.IO;
@@ -40,13 +42,21 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Painter_never_enables_live_water()
+        public void Painter_enables_live_water_for_crystal_only()
         {
-            string engine = Read("Services/Theme/VisualThemeEngine.Part3.cs");
-            Assert.Contains("CrystalWaterDefaultEnabled", engine, StringComparison.Ordinal);
-            Assert.DoesNotContain(
+            string part3 = Read("Services/Theme/VisualThemeEngine.Part3.cs");
+            Assert.Contains(
                 "CrystalWaterDefaultEnabled\"] = true",
-                engine, StringComparison.Ordinal);
+                part3, StringComparison.Ordinal);
+
+            string part1 = Read("Services/Theme/VisualThemeEngine.Part1.cs");
+            Assert.Contains(
+                "CrystalWaterDefaultEnabled\"] = false",
+                part1, StringComparison.Ordinal);
+
+            string hub = Read("Services/Theme/Engine/ProGlassThemeEngine.cs");
+            Assert.Contains("Family == ProGlassThemeFamily.Crystal",
+                hub, StringComparison.Ordinal);
         }
     }
 }

@@ -108,9 +108,16 @@ namespace ProGlassAutomation.Services.Theme.Engine
                 else
                     resources["MotionSpeedRatio"] = 1.0;
 
-                resources["CrystalWaterDefaultEnabled"] = false;
-                resources["CrystalAmbientHostVisibility"] = Visibility.Collapsed;
-                resources["CrystalPreviewHostVisibility"] = Visibility.Collapsed;
+                // Last write after VisualThemeEngine: keep Crystal water
+                // ON only for iPhone 17 Pro Max. A blanket FALSE here used
+                // to erase ApplyCrystalFluid's gate, so Crystal and iOS 26
+                // both rendered as still glass.
+                bool crystal = Family == ProGlassThemeFamily.Crystal;
+                resources["CrystalWaterDefaultEnabled"] = crystal;
+                resources["CrystalAmbientHostVisibility"] = crystal
+                    ? Visibility.Visible : Visibility.Collapsed;
+                resources["CrystalPreviewHostVisibility"] = crystal
+                    ? Visibility.Visible : Visibility.Collapsed;
             }
             catch (System.Exception ex)
             {

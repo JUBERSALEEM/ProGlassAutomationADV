@@ -207,19 +207,15 @@ namespace ProGlassAutomation.Services.Theme
             resources["LiquidOverlayBrush"] = FrozenSolid(dark
                 ? Color.FromArgb(0x99, 0x03, 0x10, 0x1F)
                 : Color.FromArgb(0x47, 0x10, 0x29, 0x38));
-            // §12: soft cyan/blue-gray shadow ink, low opacity.
-            // Crystal Fluid = the water family: card/KPI surfaces that
-            // bind CrystalWaterDefaultEnabled render CrystalWater.
-            resources["CrystalWaterDefaultEnabled"] = false;
-            // Ios-17pm P4a: the SHELL ambient host in MainWindow (the
-            // authored drifting-light layer) is family-gated through
-            // this resource — Visible under Crystal Fluid, REMOVED at
-            // every family switch (Part1 ×2, beside the water gate) so
-            // no crystal clocks tick under another family.
-            resources["CrystalAmbientHostVisibility"] = Visibility.Collapsed;
-            // Ios-17pm P4e: the settings preview's authored file-20
-            // composition rides the same switch-removal contract.
-            resources["CrystalPreviewHostVisibility"] = Visibility.Collapsed;
+            // Crystal Fluid = the water family: KPI / StatCard hosts
+            // bind CrystalWaterDefaultEnabled. Part1 publishes FALSE
+            // before every family switch so water cannot leak; this
+            // painter is the only place that turns it back on — which
+            // is what makes iPhone 17 Pro Max distinct from iOS 26
+            // (frosted grouped-grey, no water).
+            resources["CrystalWaterDefaultEnabled"] = true;
+            resources["CrystalAmbientHostVisibility"] = Visibility.Visible;
+            resources["CrystalPreviewHostVisibility"] = Visibility.Visible;
 
             // Token baselines (root-level): a family repaint ALWAYS
             // restores the crystal water tokens. 2026-09-06 theme
@@ -241,73 +237,56 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
-        /// NORMAL (INDUSTRIAL) (2026-09-07) — the pre-cream "Normal"
-        /// restored as its own family beside the cream SaaS Normal.
-        /// <para>
-        /// Spec = design-system/proglass-industrial/MASTER.md:
-        ///   · background #F8FAFC, card #FFFFFF, border #E2E8F0
-        ///   · primary ink #0F172A (professional navy), blue CTA #0369A1
-        ///   · secondary #334155, muted #475569
-        ///   · dense dashboard layout (density 9/10), tight radii
-        /// </para>
-        /// The family signature is the DEFINED CARD EDGE — a slate
-        /// hairline on every card corner/edge — which the cream families
-        /// deliberately soften away. Surfaces are SOLID and opaque and
-        /// the stage is FLAT (constant colour, no gradient): white cards
-        /// on a white-blue stage, for a denser, unmistakably industrial
-        /// read. Nothing here touches the base theme dictionaries, so
-        /// the cream Normal stays byte-identical.
+        /// NORMAL (persisted as "Normal (Industrial)") — the 25 August
+        /// cream SaaS look, restored in full. Warm canvas #F6F1E6,
+        /// paper cards #FEFCF8/#FEFDFA, warm stone ink #1C1917 /
+        /// #57534E / #78716C, hairline #D8D0C2, SaaS radii 12/16/10.
+        /// Solid opaque surfaces, never frosted glass, never industrial
+        /// slate. Identity string stays "Normal (Industrial)" because it
+        /// is a persisted key.
         /// </summary>
         private static void ApplyIndustrial(ResourceDictionary resources)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
 
-            // ── 1) WINDOW — constant (flat) industrial stage. The
-            // industrial design system's background is a single solid
-            // colour, never a gradient: #F8FAFC light / #0A1326 dark.
-            // Flat reads denser, sharper and more industrial than a soft
-            // sweep, and keeps every surface "constant". ──────────────
+            // ── 1) WINDOW — cream studio stage (August-25 LightTheme).
             resources["WindowBackgroundBrush"] = FrozenSolid(dark
-                ? Color.FromRgb(0x0A, 0x13, 0x26)
-                : Color.FromRgb(0xF8, 0xFA, 0xFC));
+                ? Color.FromRgb(0x0A, 0x12, 0x26)
+                : Color.FromRgb(0xF6, 0xF1, 0xE6));
 
-            // ── 2) SURFACES — solid, opaque, industrial. ──────────────
             Color surface = dark
-                ? Color.FromRgb(0x0F, 0x1D, 0x33) : Colors.White;
+                ? Color.FromRgb(0x10, 0x1A, 0x2E)
+                : Color.FromRgb(0xFE, 0xFC, 0xF8);
             Color card = dark
-                ? Color.FromRgb(0x16, 0x23, 0x3E) : Colors.White;
+                ? Color.FromRgb(0x16, 0x22, 0x38)
+                : Color.FromRgb(0xFE, 0xFD, 0xFA);
             Color elevated = dark
-                ? Color.FromRgb(0x1E, 0x29, 0x3B) : Colors.White;
+                ? Color.FromRgb(0x16, 0x22, 0x38)
+                : Color.FromRgb(0xFE, 0xFD, 0xFA);
             Color side = dark
-                ? Color.FromRgb(0x0B, 0x17, 0x2A) : Color.FromRgb(0xF8, 0xFA, 0xFC);
+                ? Color.FromRgb(0x10, 0x1A, 0x2E)
+                : Color.FromRgb(0xFB, 0xF8, 0xF1);
             Color hover = dark
-                ? Color.FromRgb(0x1E, 0x29, 0x3B) : Color.FromRgb(0xF1, 0xF5, 0xF9);
+                ? Color.FromRgb(0x16, 0x22, 0x38)
+                : Color.FromRgb(0xF2, 0xED, 0xE3);
 
             resources["ModuleBackgroundBrush"] = FrozenSolid(surface);
             resources["ElevatedSurfaceBrush"] = FrozenSolid(elevated);
             resources["SideMenuBackgroundBrush"] = FrozenSolid(side);
             resources["MenuHoverBrush"] = FrozenSolid(hover);
 
-            // ── 3) CARD EDGE / CORNER BORDER LINE — the industrial
-            // hairline the owner asked for. Every card style (Base /
-            // Task / Stat / KPI…) binds these border tokens, so the
-            // slate edge reaches every card corner without touching
-            // CardStyles.xaml. Slate-300 (#CBD5E1) on white reads as a
-            // DEFINED line (≈2:1) — clearly visible, still a hairline,
-            // never a heavy box. ──────────────────────────────────────
+            // ── 2) CARD EDGE — warm cream hairline, never cool slate.
             Color edge = dark
-                ? Color.FromRgb(0x47, 0x55, 0x69) : Color.FromRgb(0xCB, 0xD5, 0xE1);
+                ? Color.FromRgb(0x5C, 0x57, 0x4C)
+                : Color.FromRgb(0xD8, 0xD0, 0xC2);
             Color edgeStrong = dark
-                ? Color.FromRgb(0x64, 0x74, 0x8B) : Color.FromRgb(0x94, 0xA3, 0xB8);
+                ? Color.FromRgb(0x7C, 0x76, 0x68)
+                : Color.FromRgb(0xC4, 0xB8, 0xA6);
             resources["GlassBorderGradientCrystal"] = FrozenSolid(edge);
             resources["GlassBorderSoft"] = FrozenSolid(edge);
             resources["GlassBorderPrimary"] = FrozenSolid(edgeStrong);
             resources["GlassBorderBright"] = FrozenSolid(edgeStrong);
 
-            // ── 4) CARD GLASS SURFACES — solid industrial fills.
-            // (Industrial edition of the shared section-glass set — NOT
-            // PublishSectionGlass, which paints translucent white-crystal
-            // edges and would defeat the slate border above.) ──────────
             resources["GlassUltraClearBrush"] = FrozenSolid(card);
             resources["GlassSurfaceBrush"] = FrozenSolid(card);
             resources["GlassCrystalBrush"] = FrozenSolid(card);
@@ -315,52 +294,50 @@ namespace ProGlassAutomation.Services.Theme
             resources["GlassSurfaceStandard"] = FrozenSolid(hover);
             resources["GlassSurfaceUltra"] = FrozenSolid(side);
             resources["GlassSurfaceElevated"] = FrozenSolid(elevated);
-            // No water line inside industrial cards.
             resources["GlassWaterBrush"] = FrozenArgb(0x00, 0x00, 0x00, 0x00);
 
-            // ── 5) SHELL / SIDEBAR / DASH AMBIENCE — solid industrial. ──
             resources["ShellLiquidBrush"] = FrozenSolid(side);
             resources["SidebarCardBrush"] = FrozenSolid(hover);
             resources["DashLiquidSurfaceBrush"] = FrozenSolid(card);
-            resources["DashAmbientBrush"] = FrozenArgb(0x14, 0x03, 0x69, 0xA1);
-            resources["DashAmbientBlob1Brush"] = FrozenArgb(0x10, 0x0E, 0x1E, 0x3C);
-            resources["DashAmbientBlob2Brush"] = FrozenArgb(0x0C, 0x1E, 0x40, 0x77);
+            resources["DashAmbientBrush"] = FrozenArgb(dark ? (byte)0x18 : (byte)0x14,
+                0x2A, 0x21, 0x18);
+            resources["DashAmbientBlob1Brush"] = FrozenArgb(0x10, 0x2A, 0x21, 0x18);
+            resources["DashAmbientBlob2Brush"] = FrozenArgb(0x0C, 0x57, 0x53, 0x4E);
 
-            // ── 6) TYPOGRAPHY — professional navy ink (spec) ──────────
+            // ── 3) TYPOGRAPHY — warm ink of the August-25 cream canvas.
             resources["PrimaryForegroundBrush"] = FrozenSolid(dark
-                ? Color.FromRgb(0xF8, 0xFA, 0xFC)
-                : Color.FromRgb(0x0F, 0x17, 0x2A));
+                ? Color.FromRgb(0xF5, 0xF5, 0xF7)
+                : Color.FromRgb(0x1C, 0x19, 0x17));
             resources["SecondaryForegroundBrush"] = FrozenSolid(dark
-                ? Color.FromRgb(0x94, 0xA3, 0xB8)
-                : Color.FromRgb(0x47, 0x55, 0x69));
+                ? Color.FromRgb(0xA9, 0xB8, 0xCC)
+                : Color.FromRgb(0x57, 0x53, 0x4E));
             resources["MutedForegroundBrush"] = FrozenSolid(dark
-                ? Color.FromRgb(0x64, 0x74, 0x8B)
-                : Color.FromRgb(0x64, 0x74, 0x8B));
-            // App-scope text keys (the cool-slate leak fixed 2026-09-01):
-            // the industrial family re-pins them to its navy ink so the
-            // whole caption hierarchy stays cool, never warm-cream.
+                ? Color.FromRgb(0x7C, 0x8C, 0xA3)
+                : Color.FromRgb(0x78, 0x71, 0x6C));
             resources["TextPrimaryBrush"] = FrozenSolid(dark
-                ? Color.FromRgb(0xF8, 0xFA, 0xFC)
-                : Color.FromRgb(0x0F, 0x17, 0x2A));
+                ? Color.FromRgb(0xF5, 0xF5, 0xF7)
+                : Color.FromRgb(0x1C, 0x19, 0x17));
             resources["TextSecondaryBrush"] = FrozenSolid(dark
-                ? Color.FromArgb(0x99, 0x47, 0x55, 0x69)
-                : Color.FromArgb(0x99, 0x47, 0x55, 0x69));
+                ? Color.FromArgb(0xB4, 0xE2, 0xEA, 0xF4)
+                : Color.FromArgb(0x99, 0x57, 0x53, 0x4E));
 
-            // ── 7) SHAPE — dense industrial radii (density 9/10) ──────
-            resources["CardCornerRadius"] = new CornerRadius(8);
-            resources["CardCornerRadiusLarge"] = new CornerRadius(12);
-            resources["ControlCornerRadius"] = new CornerRadius(6);
+            // ── 4) SHAPE — SaaS radii (Appearance default 12), not the
+            // dense industrial 8/12/6 set.
+            resources["CardCornerRadius"] = new CornerRadius(12);
+            resources["CardCornerRadiusLarge"] = new CornerRadius(16);
+            resources["ControlCornerRadius"] = new CornerRadius(10);
 
-            // ── 8) STATUS TINTS — cool slate/blue chips ───────────────
+            // ── 5) STATUS TINTS — warm neutrals (Normal must never read
+            // industrial blue).
             resources["TintBlueBrush"] = FrozenSolid(dark
-                ? Color.FromRgb(0x16, 0x32, 0x4C)
-                : Color.FromRgb(0xEF, 0xF6, 0xFF));
+                ? Color.FromRgb(0x23, 0x2B, 0x34)
+                : Color.FromRgb(0xF2, 0xED, 0xE3));
             resources["TintIndigoBrush"] = FrozenSolid(dark
-                ? Color.FromRgb(0x1E, 0x29, 0x3B)
-                : Color.FromRgb(0xEE, 0xF2, 0xFF));
+                ? Color.FromRgb(0x27, 0x2F, 0x3A)
+                : Color.FromRgb(0xED, 0xE7, 0xDA));
             resources["TintGreenBrush"] = FrozenSolid(dark
                 ? Color.FromRgb(0x14, 0x30, 0x1F)
-                : Color.FromRgb(0xEC, 0xFD, 0xF5));
+                : Color.FromRgb(0xE8, 0xF6, 0xEC));
             resources["TintRedBrush"] = FrozenSolid(dark
                 ? Color.FromRgb(0x3B, 0x1F, 0x22)
                 : Color.FromRgb(0xFE, 0xF2, 0xF2));
@@ -372,19 +349,19 @@ namespace ProGlassAutomation.Services.Theme
                 : Color.FromRgb(0xF5, 0xF3, 0xFF));
             resources["TintGrayBrush"] = FrozenSolid(dark
                 ? Color.FromRgb(0x24, 0x2B, 0x3A)
-                : Color.FromRgb(0xF8, 0xFA, 0xFC));
+                : Color.FromRgb(0xF6, 0xF3, 0xEE));
 
-            // ── 9) SHADOWS — crisp navy-tinted (no warm cream cast) ───
+            // ── 6) SHADOWS — warm cream cast (#2A2118), never navy.
             resources["ShadowSoft"] = IndustrialShadow(dark
                 ? Color.FromRgb(0x00, 0x04, 0x10)
-                : Color.FromRgb(0x0F, 0x17, 0x2A), dark ? 0.32 : 0.10, 24, 6);
+                : Color.FromRgb(0x2A, 0x21, 0x18), dark ? 0.28 : 0.10, 20, 4);
             resources["ShadowElevated"] = IndustrialShadow(dark
                 ? Color.FromRgb(0x00, 0x04, 0x10)
-                : Color.FromRgb(0x0F, 0x17, 0x2A), dark ? 0.40 : 0.16, 40, 12);
+                : Color.FromRgb(0x2A, 0x21, 0x18), dark ? 0.36 : 0.14, 32, 8);
 
             var softShadow = IndustrialShadow(dark
                 ? Color.FromRgb(0x00, 0x04, 0x10)
-                : Color.FromRgb(0x33, 0x41, 0x55), dark ? 0.10 : 0.05, 8, 2);
+                : Color.FromRgb(0x2A, 0x21, 0x18), dark ? 0.10 : 0.05, 8, 2);
             resources["GlassShadowSoft"] = softShadow;
             resources["GlassShadowSoftBorder"] = softShadow;
             resources["GlassShadowSoftButton"] = softShadow;
@@ -392,17 +369,13 @@ namespace ProGlassAutomation.Services.Theme
             resources["GlassShadowSoftTextBox"] = softShadow;
             resources["GlassShadowSoftToggle"] = softShadow;
 
-            // ── 10) LIQUID SURFACE TRIO — the AI chat panel consumes
-            // these; industrial renders them solid, never translucent
-            // cream. ────────────────────────────────────────────────────
             resources["LiquidGlassBrush"] = FrozenSolid(card);
             resources["LiquidGlassSubtleBrush"] = FrozenSolid(hover);
             resources["LiquidGlassStrongBrush"] = FrozenSolid(elevated);
         }
 
-        /// <summary>Frozen navy-tinted drop shadow for the industrial
-        /// family — crisp, cool and dense (matches the spec's shadow
-        /// depth ramp; never the warm cream tint of the SaaS Normal).</summary>
+        /// <summary>Frozen drop-shadow helper used by the cream Normal
+        /// painter (warm #2A2118 light / near-black dark).</summary>
         private static System.Windows.Media.Effects.DropShadowEffect
             IndustrialShadow(Color color, double opacity, double blur, double depth)
         {

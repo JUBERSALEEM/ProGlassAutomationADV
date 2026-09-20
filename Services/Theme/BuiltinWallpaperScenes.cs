@@ -26,10 +26,10 @@
 //
 // SCENE SIGNATURES (family → mood) — families shipped (2026-09-06;
 //  2026-09-07 adds Normal (Industrial) to the Studio scene):
-//   Normal           → Studio      — quiet sweep following the base theme
-//   Normal (Industrial) → Studio   — same quiet sweep on the white/blue stage
-//   Monet            → Golden Hour — dusk derived from the accent hue
-//   Crystal Fluid    → Crystal Fluid — pale luminous water atmosphere (§22)
+//   Normal (Industrial) → Studio         — cream SaaS sweep (25 August)
+//   Monet               → Golden Hour    — dusk derived from the accent hue
+//   Crystal Fluid       → Luminous Water — cyan water atmosphere
+//   iOS 26              → Grouped Glass  — Apple grouped-grey liquid glass
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -48,25 +48,15 @@ namespace ProGlassAutomation.Services.Theme
         /// picker never reads "X — X".</summary>
         public static readonly (string Key, string Label)[] All =
         {
-            // The strict industrial default renders the calm Studio sweep
-            // over its flat slate stage.
+            // August-25 cream Normal: quiet studio sweep on warm paper.
             (VisualThemeEngine.NormalIndustrial, "Studio"),
             (VisualThemeEngine.Monet,            "Golden Hour"),
-            // 2026-09-16 — the theme dropdown read "— Studio" for two of its
-            // four rows. SettingsViewModel.VisualThemeOptions offers four
-            // families, this catalogue listed two, and VisualThemeOptionRow
-            // seeds `string scene = "Studio"` before the lookup — so the miss
-            // was silent: Crystal Fluid and iOS 26 both advertised the
-            // Industrial scene while For() actually paints CrystalFluidScene
-            // for them. The row is the only place the owner can see which
-            // wallpaper a family ships, so a wrong label is worse than none.
-            // Labels obey the rule documented above — never the family display
-            // name ("iPhone 17 Pro Max", "iOS 26") — so no row can read
-            // "X — X". Both families carry ONE label because For() returns the
-            // very same brush for both: one scene, two families, stated
-            // honestly instead of inventing a second name for identical stops.
+            // iPhone 17 Pro Max (Crystal Fluid) — cyan water atmosphere.
             (VisualThemeEngine.CrystalFluid,     "Luminous Water"),
-            (VisualThemeEngine.Ios26,            "Luminous Water"),
+            // iOS 26 — Apple grouped-grey liquid glass. MUST NOT share
+            // Crystal's scene: that was why iOS 26 and iPhone 17 Pro Max
+            // painted identically under ThemeLinked wallpaper.
+            (VisualThemeEngine.Ios26,            "Grouped Glass"),
         };
 
         /// <summary>Draws the scene for a family. Unknown/empty family →
@@ -84,9 +74,10 @@ namespace ProGlassAutomation.Services.Theme
                     ? VisualThemeEngine.NormalIndustrial
                     : family!;
 
-                if (f == VisualThemeEngine.CrystalFluid
-                    || f == VisualThemeEngine.Ios26)
+                if (f == VisualThemeEngine.CrystalFluid)
                     return CrystalFluidScene(dark);
+                if (f == VisualThemeEngine.Ios26)
+                    return Ios26Scene(dark);
                 if (f == VisualThemeEngine.Monet)            return GoldenHour(h, s, dark);
                 return Studio(dark);
             }
@@ -154,7 +145,27 @@ namespace ProGlassAutomation.Services.Theme
                 (ColorMath.FromHsl(h + 44, s * 0.75, dark ? 0.07 : 0.68), 1.00));
         }
 
-        /// <summary>Normal — quiet studio sweep on the base stage.</summary>
+        /// <summary>iOS 26 — Apple grouped-grey liquid glass stage
+        /// (#F2F2F7 → #E5E5EA with a quiet system-blue kiss). Distinct
+        /// from Crystal's cyan water and from Normal's warm cream.</summary>
+        private static LinearGradientBrush Ios26Scene(bool dark)
+        {
+            return dark
+                ? Diagonal(
+                    (Parse("#17181D"), 0.00),
+                    (Parse("#101116"), 0.35),
+                    (Parse("#1B1C22"), 0.62),
+                    (Parse("#232429"), 0.82),
+                    (Parse("#0A1A33"), 1.00))
+                : Diagonal(
+                    (Parse("#F2F2F7"), 0.00),
+                    (Parse("#EDEDF2"), 0.28),
+                    (Parse("#E5E5EA"), 0.55),
+                    (Parse("#DCDCE3"), 0.78),
+                    (Parse("#C5D8F5"), 1.00));
+        }
+
+        /// <summary>Normal — quiet studio sweep on the cream stage.</summary>
         private static LinearGradientBrush Studio(bool dark)
         {
             return dark

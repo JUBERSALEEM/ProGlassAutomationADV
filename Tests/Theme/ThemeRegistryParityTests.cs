@@ -253,6 +253,16 @@ namespace ProGlassAutomation.Tests.Theme
             }
         }
 
+        [Fact]
+        public void SceneLabels_AreUniquePerFamily()
+        {
+            // Sharing "Luminous Water" between Crystal Fluid and iOS 26
+            // made two picker rows — and two ThemeLinked stages — identical.
+            var labels = BuiltinWallpaperScenes.All.Select(r => r.Label).ToList();
+            Assert.Equal(labels.Count,
+                labels.Distinct(StringComparer.Ordinal).Count());
+        }
+
         private static string ConstValue(string name)
         {
             var field = typeof(VisualThemeEngine).GetField(

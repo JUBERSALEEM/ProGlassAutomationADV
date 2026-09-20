@@ -69,8 +69,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public List<VisualThemeOptionRow> VisualThemeOptions { get; } = new()
         {
-            // Industrial (strict default): flat slate stage, white cards,
-            // navy ink, defined card edges, dense radii.
+            // Normal — August-25 cream SaaS (persisted as Normal Industrial).
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.NormalIndustrial),
             new(ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet),
             // Surfaced as "iPhone 17 Pro Max" (FamilyDisplayName).

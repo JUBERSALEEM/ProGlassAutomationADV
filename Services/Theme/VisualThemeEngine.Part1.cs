@@ -46,13 +46,10 @@ namespace ProGlassAutomation.Services.Theme
                 return false;
             }
         }
-        /// <summary>NORMAL (INDUSTRIAL) (2026-09-07) — the pre-cream
-        /// "Normal" restored as its own family beside the cream SaaS
-        /// Normal. Full white + blue tone, professional industrial
-        /// layout, and a defined slate card edge/corner border line.
-        /// Spec: design-system/proglass-industrial/MASTER.md (background
-        /// #F8FAFC, white #FFFFFF cards, border #E2E8F0, navy #0F172A
-        /// ink, blue #0369A1 CTA). Solid surfaces — never frosted glass.</summary>
+        /// <summary>NORMAL (persisted as "Normal (Industrial)") — the
+        /// 25 August cream SaaS look. Warm canvas #F6F1E6, paper cards,
+        /// stone ink. Display name is "Normal". Solid surfaces — never
+        /// frosted glass, never industrial slate.</summary>
         public const string NormalIndustrial = "Normal (Industrial)";
         public const string Monet = "Monet";
         /// <summary>CRYSTAL FLUID (2026-09-05) — iOS water-glass design
@@ -66,10 +63,10 @@ namespace ProGlassAutomation.Services.Theme
         /// are PERSISTED keys — configs, profiles and window state store
         /// them verbatim, so they can never be renamed in place. Display
         /// names are a pure view concern and live only here.
-        /// The strict industrial family is surfaced as "Industrial"; the
-        /// Crystal Fluid family as "iPhone 17 Pro Max".</summary>
+        /// Normal (Industrial) is the August-25 cream SaaS "Normal";
+        /// Crystal Fluid is surfaced as "iPhone 17 Pro Max".</summary>
         public static string FamilyDisplayName(string family) =>
-            family == NormalIndustrial ? "Industrial"
+            family == NormalIndustrial ? "Normal"
             : family == CrystalFluid ? "iPhone 17 Pro Max"
             : family;
 
