@@ -21,10 +21,12 @@
 //      today, ValidUntil +30 days, ProformaStatus = "Draft").
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.ProformaInvoice.Common;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.ProformaInvoice
