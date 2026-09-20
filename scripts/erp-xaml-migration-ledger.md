@@ -14,10 +14,11 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | List/inquiry chrome | Order report header/KPI; inquiry Field.*; executive dates | `fb97e84` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Report filter density | Drop Height=40 on report/sheet filters; inquiry table header; reports hub band | `177f9cb` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 1 list overflow | Star-ratio columns; CanContentScroll=False; PI empty overlay; JO token dialect | `9781485` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 1 list follow-through | Inquiry header cols; KPI N0; generator White; pixel-scroll; inquiry editor tokens | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 1 list follow-through | Inquiry header cols; KPI N0; generator White; pixel-scroll; inquiry editor tokens | `39e5e35` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 1 archetype rewrite | PI list = Archetype 1 full file; JO list = Archetype 2 full file; TI list bug pass | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Phase 1 core lists overflow/scroll/empty; inquiry header vs row columns; stepper OnAccent; pixel lists beyond registers.
+**Done:** PI/JO register lists rewritten to master archetypes (star columns, Z-layers, filter scroller, BrushKeyConverter stripe, 4px gutters). Bindings/x:Name/handlers preserved.
 
-**Next:** Phase 2 detail/forms (DN/JO/TI detail, remaining Static Text*). Do not swap generator KPI Typography.Label; Settings / Ios26 / print only after tests.
+**Next:** DN/Inquiry/Statement/TI full archetype files; then Phase 2 details. No generator KPI Typography.Label BasedOn; Settings/Ios26/print after tests.
 
 **Do not:** ErpPageRoot on nested Controls/Sections; Settings Ios26*; PrintableInvoiceView; force-push.

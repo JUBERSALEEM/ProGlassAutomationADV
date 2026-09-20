@@ -1,4 +1,5 @@
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.SavedInvoicesListView"
+<UserControl Style="{StaticResource ErpPageRootStyle}"
+             x:Class="ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.SavedInvoicesListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -16,16 +17,9 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <UserControl.Resources>
-
-        
-
-        
-
-        
-
-    </UserControl.Resources>
-
+    <!-- Archetype 1 — simple data list.
+         Bindings, converters, Delay, commands, OnRowRightClick, dossier
+         ContextMenu Tag wiring: unchanged. -->
     <Grid Background="Transparent">
         <Border Style="{StaticResource ModuleListShellStyle}" Margin="0,0,0,4">
             <Grid>
@@ -36,7 +30,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- KPI strip — same three numbers, compact industrial chrome -->
+                <!-- Row 0 — KPI strip -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -58,7 +52,8 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Common.Total}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Common.Total}"
+                                           Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding TotalCount, StringFormat=N0}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SavedPis}"
@@ -79,7 +74,8 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource ProformaInvoice.Showing}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.Showing}"
+                                           Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding FilteredCount, StringFormat=N0}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.AfterFilters}"
@@ -100,7 +96,8 @@
                                            VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Inquiry.Value}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{DynamicResource Inquiry.Value}"
+                                           Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding TotalValueSum, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"
                                            FontSize="{DynamicResource FontSize.H1}"/>
@@ -111,123 +108,140 @@
                     </Grid>
                 </Border>
 
-                <!-- One filter row — no fat search card, no hint banner -->
+                <!-- Row 1 — filter bar (no spacer columns; actions in a horizontal scroller) -->
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="2*" MinWidth="160"/>
+                            <ColumnDefinition Width="*" MinWidth="120"/>
+                            <ColumnDefinition Width="Auto" MinWidth="120"/>
+                            <ColumnDefinition Width="Auto" MinWidth="120"/>
+                            <ColumnDefinition Width="*" MinWidth="120"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <TextBox Grid.Column="0"
+                                 Margin="0,0,8,0"
                                  Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                  Style="{StaticResource ModuleListFilterInputStyle}"
                                  ToolTip="{DynamicResource ProformaInvoice.SearchRefCompanyCustomerProject}"/>
 
-                        <ComboBox Grid.Column="2"
+                        <ComboBox Grid.Column="1"
+                                  Margin="0,0,8,0"
+                                  MinWidth="120"
                                   ItemsSource="{Binding StatusFilterOptions}"
                                   SelectedItem="{Binding SelectedStatusFilter}"
                                   Style="{StaticResource ModuleListFilterComboStyle}"/>
 
-                        <DatePicker Grid.Column="4"
+                        <DatePicker Grid.Column="2"
+                                    Margin="0,0,8,0"
+                                    MinWidth="120"
                                     SelectedDate="{Binding FromDate}"
-                                    Width="128"
                                     Style="{StaticResource ModuleListFilterDatePickerStyle}"
                                     ToolTip="{DynamicResource Common.FromDate}"/>
 
-                        <DatePicker Grid.Column="6"
+                        <DatePicker Grid.Column="3"
+                                    Margin="0,0,8,0"
+                                    MinWidth="120"
                                     SelectedDate="{Binding ToDate}"
-                                    Width="128"
                                     Style="{StaticResource ModuleListFilterDatePickerStyle}"
                                     ToolTip="{DynamicResource Common.ToDate}"/>
 
-                        <ComboBox Grid.Column="8"
+                        <ComboBox Grid.Column="4"
+                                  Margin="0,0,8,0"
+                                  MinWidth="120"
                                   ItemsSource="{Binding SortPresetOptions}"
                                   SelectedItem="{Binding SelectedSortPreset}"
                                   Style="{StaticResource ModuleListFilterComboStyle}"/>
 
-                        <StackPanel Grid.Column="10" Orientation="Horizontal">
-                            <CheckBox VerticalAlignment="Center"
-                                      Margin="0,0,12,0"
-                                      IsChecked="{Binding ShowVoided}"
-                                      Content="{DynamicResource Void.ShowVoided}"
-                                      ToolTip="{DynamicResource Void.ShowVoidedTip}"/>
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Command="{Binding ClearFiltersCommand}"
-                                    Margin="0,0,8,0"
-                                    MinWidth="92"
-                                    Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
-                                    ToolTip="{DynamicResource ProformaInvoice.ClearSearchFilters}"/>
-                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Command="{Binding RefreshCommand}"
-                                    Margin="0,0,8,0"
-                                    MinWidth="108"
-                                    Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
-                                    ToolTip="{DynamicResource ProformaInvoice.ReloadInvoiceList}"/>
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Command="{Binding SetTodayFilterCommand}"
-                                    Margin="0,0,8,0"
-                                    MinWidth="92"
-                                    Tag="&#xE787;" Content="{DynamicResource Shell.Today}"
-                                    ToolTip="{DynamicResource ProformaInvoice.FilterInvoicesPreparedToday}"/>
-                            <Button Style="{StaticResource SuccessPillButton}"
-                                    Command="{Binding ExportFilteredExcelCommand}"
-                                    MinWidth="130"
-                                    Tag="&#xE72D;" Content="{DynamicResource ProformaInvoice.ShareExcel}"
-                                    ToolTip="{DynamicResource ProformaInvoice.ExportFilteredInvoicesOneExcelTable}"/>
-                        </StackPanel>
+                        <ScrollViewer Grid.Column="5"
+                                      VerticalScrollBarVisibility="Disabled"
+                                      HorizontalScrollBarVisibility="Auto">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <CheckBox VerticalAlignment="Center"
+                                          Margin="0,0,12,0"
+                                          IsChecked="{Binding ShowVoided}"
+                                          Content="{DynamicResource Void.ShowVoided}"
+                                          ToolTip="{DynamicResource Void.ShowVoidedTip}"/>
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding ClearFiltersCommand}"
+                                        Margin="0,0,8,0"
+                                        MinWidth="92"
+                                        Tag="&#xE711;"
+                                        Content="{DynamicResource Action.Clear}"
+                                        ToolTip="{DynamicResource ProformaInvoice.ClearSearchFilters}"/>
+                                <Button Style="{StaticResource PrimaryPillButton}"
+                                        Command="{Binding RefreshCommand}"
+                                        Margin="0,0,8,0"
+                                        MinWidth="108"
+                                        Tag="&#xE72C;"
+                                        Content="{DynamicResource Action.Refresh}"
+                                        ToolTip="{DynamicResource ProformaInvoice.ReloadInvoiceList}"/>
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding SetTodayFilterCommand}"
+                                        Margin="0,0,8,0"
+                                        MinWidth="92"
+                                        Tag="&#xE787;"
+                                        Content="{DynamicResource Shell.Today}"
+                                        ToolTip="{DynamicResource ProformaInvoice.FilterInvoicesPreparedToday}"/>
+                                <Button Style="{StaticResource SuccessPillButton}"
+                                        Command="{Binding ExportFilteredExcelCommand}"
+                                        MinWidth="130"
+                                        Tag="&#xE72D;"
+                                        Content="{DynamicResource ProformaInvoice.ShareExcel}"
+                                        ToolTip="{DynamicResource ProformaInvoice.ExportFilteredInvoicesOneExcelTable}"/>
+                            </StackPanel>
+                        </ScrollViewer>
                     </Grid>
                 </Border>
 
-                <!-- Table header — full-colour panel.
-                     2026-09-14: was a BARE border (no background) while the
-                     Tax Invoice / Delivery Note lists use
-                     ModuleListTableHeaderStyle (SurfaceTertiary full colour
-                     + divider). Now the same module-list standard. -->
+                <!-- Row 2 — table header (SAME column defs as the row template) -->
                 <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="3"/>
-    <ColumnDefinition Width="1.3*" MinWidth="120"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.2*" MinWidth="100"/>
-    <ColumnDefinition Width="0.8*" MinWidth="85"/>
-    <ColumnDefinition Width="0.9*" MinWidth="95"/>
-    <ColumnDefinition Width="0.7*" MinWidth="85"/>
-    <ColumnDefinition Width="Auto"/>
-</Grid.ColumnDefinitions>
-                        <!-- 2026-09-14: row cells carry Padding 14,12 — the
-                             header labels carry the matching left margins
-                             so every column label sits exactly over its
-                             data (was flush-left, offset 14px). -->
-                        <TextBlock Grid.Column="1" Text="{DynamicResource ProformaInvoice.REF}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                            <ColumnDefinition Width="3"/>
+                            <ColumnDefinition Width="1.3*" MinWidth="120"/>
+                            <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                            <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                            <ColumnDefinition Width="1.2*" MinWidth="100"/>
+                            <ColumnDefinition Width="0.8*" MinWidth="85"/>
+                            <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                            <ColumnDefinition Width="0.7*" MinWidth="85"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="1"
+                                   Text="{DynamicResource ProformaInvoice.REF}"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="12,0"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="2"
+                                   Text="{DynamicResource Common.Company}"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="12,0"/>
-                        <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="3"
+                                   Text="{DynamicResource Common.Customer}"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="12,0"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="4"
+                                   Text="{DynamicResource Common.Project}"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="12,0"/>
-                        <TextBlock Grid.Column="5" Text="{DynamicResource Common.Status}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="5"
+                                   Text="{DynamicResource Common.Status}"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="6" Text="{DynamicResource ProformaInvoice.GrandTotal}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   HorizontalAlignment="Right" Margin="0,0,12,0"/>
-                        <TextBlock Grid.Column="7" Text="{DynamicResource Common.Date}" Style="{StaticResource ModuleListHeaderTextStyle}"
+                        <TextBlock Grid.Column="6"
+                                   Text="{DynamicResource ProformaInvoice.GrandTotal}"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="7"
+                                   Text="{DynamicResource Common.Date}"
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="12,0"/>
-                        <TextBlock Grid.Column="8" Text="" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                     </Grid>
                 </Border>
 
+                <!-- Row 3 — data area: Loading Z=2, Empty Z=1, List Z=0 -->
                 <Grid Grid.Row="3">
                     <loading:LoadingStateControl
                             Panel.ZIndex="2"
@@ -235,7 +249,10 @@
                                          Converter={StaticResource BoolToVisibilityConverter}}"
                             Message="Loading invoices…"/>
 
-                    <Border Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                    <Border Panel.ZIndex="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            IsHitTestVisible="False">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -280,21 +297,20 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border
-                                        MouseRightButtonUp="OnRowRightClick"
+                                <Border MouseRightButtonUp="OnRowRightClick"
                                         MinHeight="48">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="3"/>
-    <ColumnDefinition Width="1.3*" MinWidth="120"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.2*" MinWidth="100"/>
-    <ColumnDefinition Width="0.8*" MinWidth="85"/>
-    <ColumnDefinition Width="0.9*" MinWidth="95"/>
-    <ColumnDefinition Width="0.7*" MinWidth="85"/>
-    <ColumnDefinition Width="Auto"/>
-</Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="3"/>
+                                            <ColumnDefinition Width="1.3*" MinWidth="120"/>
+                                            <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                                            <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                                            <ColumnDefinition Width="1.2*" MinWidth="100"/>
+                                            <ColumnDefinition Width="0.8*" MinWidth="85"/>
+                                            <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                                            <ColumnDefinition Width="0.7*" MinWidth="85"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
                                         <Border Grid.Column="0"
                                                 Background="{Binding DisplayStatusBrushKey,
@@ -306,7 +322,9 @@
                                                    FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    Padding="12,12"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding ProformaId}"/>
 
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding CompanyName}"
@@ -330,14 +348,14 @@
                                                    Text="{Binding ProjectName}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    Padding="12,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding ProjectName}"/>
 
                                         <Border Grid.Column="5"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="10,4"
+                                                Padding="8,4"
                                                 MinWidth="88"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
@@ -362,16 +380,18 @@
                                                    VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="7"
-                                                   Text="{Binding CreatedAt, StringFormat=dd MMM yyyy}"
+                                                   Text="{Binding CreatedAt, StringFormat={}{0:d}}"
                                                    FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"
                                                    Padding="12,12"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center"
+                                                   ToolTip="{Binding CreatedAt, StringFormat={}{0:G}}"/>
 
                                         <StackPanel Grid.Column="8"
                                                     Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center">
+                                                    VerticalAlignment="Center"
+                                                    Margin="4,0,8,0">
                                             <Button Style="{StaticResource RowPrimaryButton}"
                                                     Command="{Binding DataContext.LoadInvoiceCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -381,7 +401,8 @@
                                                     VerticalAlignment="Center"
                                                     Margin="4,0,0,0"
                                                     MinWidth="72"
-                                                    Tag="&#xE8E5;" Content="{DynamicResource Action.Open}"/>
+                                                    Tag="&#xE8E5;"
+                                                    Content="{DynamicResource Action.Open}"/>
                                             <Button Style="{StaticResource RowOutlinedButton}"
                                                     Command="{Binding DataContext.ShowVersionsCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -390,17 +411,11 @@
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     Margin="4,0,4,0"
-                                                    MinWidth="36"
+                                                    Width="32"
+                                                    Height="32"
+                                                    MinWidth="32"
                                                     Tag="&#xE81C;"/>
 
-                                            <!--
-                                                FULL DOSSIER — every section in
-                                                one workbook. Customer-safe: it
-                                                does NOT contain profit & loss.
-                                                The internal variant lives in
-                                                the context menu, deliberately
-                                                one step further away.
-                                            -->
                                             <Button Style="{StaticResource RowOutlinedButton}"
                                                     Command="{Binding DataContext.ExportDossierCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -408,22 +423,12 @@
                                                     ToolTip="{DynamicResource ProformaInvoice.ExportDossierTip}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    MinWidth="36"
+                                                    Width="32"
+                                                    Height="32"
+                                                    MinWidth="32"
                                                     Content="&#xE9F9;"
                                                     FontFamily="{DynamicResource FontFamily.Icon}"
                                                     Margin="4,0,0,0">
-                                                <!--
-                                                    A ContextMenu is its own
-                                                    visual tree, so it cannot
-                                                    reach the UserControl via
-                                                    RelativeSource. The button
-                                                    carries the parent view
-                                                    model in Tag, and the menu
-                                                    reads commands from there
-                                                    while CommandParameter
-                                                    takes the row from
-                                                    PlacementTarget.DataContext.
-                                                -->
                                                 <Button.Tag>
                                                     <Binding Path="DataContext"
                                                              RelativeSource="{RelativeSource AncestorType=UserControl}"/>
@@ -454,7 +459,6 @@
                                                     </ContextMenu>
                                                 </Button.ContextMenu>
                                             </Button>
-                                            <!-- Sharing Center. -->
                                             <Button Style="{StaticResource RowOutlinedButton}"
                                                     Command="{Binding DataContext.ShareFromListCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -462,8 +466,10 @@
                                                     ToolTip="{DynamicResource Sharing.Share}"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    Margin="0,0,8,0"
-                                                    MinWidth="36"
+                                                    Margin="4,0,8,0"
+                                                    Width="32"
+                                                    Height="32"
+                                                    MinWidth="32"
                                                     Content="&#xE72D;"
                                                     FontFamily="{DynamicResource FontFamily.Icon}"/>
                                         </StackPanel>

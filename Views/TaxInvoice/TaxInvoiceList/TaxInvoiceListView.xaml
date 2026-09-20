@@ -67,7 +67,7 @@
                         </Border.Style>
                     </Border>
 
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,8,8,8">
                         <TextBlock Text="{Binding ProformaId}"
                                    FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -170,7 +170,7 @@
                                 Padding="6,2" Margin="0,4,0,0"
                                 HorizontalAlignment="Center"
                                 Visibility="{Binding AnyOverdue,
-                                    Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </Border>
@@ -231,12 +231,12 @@
                     Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Message="Loading invoice families…"
-                    Margin="4,0,4,10"/>
+                    Margin="4,0,4,12"/>
 
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Style="{StaticResource ModuleErrorBannerStyle}"
-                    Padding="14" Margin="4,0,4,10">
+                    Padding="16" Margin="4,0,4,12">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Body}"
                            TextWrapping="Wrap"/>
@@ -273,7 +273,7 @@
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard1Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding HeroCard1Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                             </StackPanel>
@@ -285,7 +285,7 @@
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard2Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding HeroCard2Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                             </StackPanel>
@@ -297,7 +297,7 @@
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard3Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding HeroCard3Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                             </StackPanel>
@@ -309,7 +309,7 @@
                                            Foreground="{DynamicResource SuccessBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard4Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding HeroCard4Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                             </StackPanel>
@@ -321,7 +321,7 @@
                                            Foreground="{DynamicResource DangerBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding HeroCard5Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding HeroCard5Value}"
                                            Style="{StaticResource ModuleListKpiValueStyle}"
@@ -431,7 +431,7 @@
                         <!-- 2026-09-14: header gutters match the row cells
                              (14 / 8 / 8) — was flush-left, offset 8-14px. -->
                         <TextBlock Grid.Column="1" Text="{DynamicResource TaxInvoice.InvoiceFamilyPI}" Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="14,0"/>
+                                   Margin="12,0"/>
                         <TextBlock Grid.Column="2" Text="{DynamicResource JobProfitability.CustomerProject}" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    Margin="8,0"/>
                         <TextBlock Grid.Column="3" Text="{DynamicResource Common.Invoices}" Style="{StaticResource ModuleListHeaderTextStyle}"
