@@ -200,10 +200,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             if (invoice == null)
                 throw new ArgumentNullException(nameof(invoice));
 
+            bool idReallocated = false;
             if (ProformaInvoiceStatus.IsUnallocatedSeed(invoice.ProformaId))
             {
                 invoice.ProformaId = await SuggestNextIdAsync(
                     $"PI-{DateTime.Now.Year}-000").ConfigureAwait(false);
+                idReallocated = true;
             }
 
             // Senior audit fix (Aug 2026): concurrent SuggestNextIdAsync
@@ -225,11 +227,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     // Bump to the next free id and retry.
                     invoice.ProformaId = await SuggestNextIdAsync(
                         invoice.ProformaId).ConfigureAwait(false);
+                    idReallocated = true;
                     continue;
                 }
 
                 invoice.CreatedAt = DateTime.Now;
                 invoice.UpdatedAt = DateTime.Now;
+
+                // Seed / unique-retry may have changed the column id after
+                // the wizard snapshot was serialized. Keep JSON identity
+                // aligned so restore / JO / attachments see one ProformaId.
+                if (idReallocated)
+                    SyncSnapshotProformaId(invoice);
 
                 db.ProformaInvoices.Add(invoice);
                 try
@@ -245,6 +254,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     invoice.ProformaId = await SuggestNextIdAsync(
                         invoice.ProformaId).ConfigureAwait(false);
                     invoice.Id = 0;
+                    idReallocated = true;
                     continue;
                 }
 
@@ -278,6 +288,35 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// </summary>
         private static bool IsUniqueViolation(DbUpdateException ex) =>
             ProGlassAutomation.Services.Database.SqliteErrorClassifier.IsUnique(ex);
+
+        /// <summary>
+        /// When InsertAsync reallocates ProformaId, rewrite Company.ProformaId
+        /// inside FullSnapshotJson so load/restore matches the column.
+        /// Never throws — a snapshot miss must not fail the insert.
+        /// </summary>
+        private static void SyncSnapshotProformaId(SavedProformaInvoice invoice)
+        {
+            if (invoice == null || string.IsNullOrWhiteSpace(invoice.ProformaId))
+                return;
+            if (string.IsNullOrWhiteSpace(invoice.FullSnapshotJson))
+                return;
+            try
+            {
+                var snap = ProformaInvoiceMapper.DeserializeSnapshot(invoice);
+                if (snap?.Company == null) return;
+                if (string.Equals(snap.Company.ProformaId, invoice.ProformaId,
+                        StringComparison.Ordinal))
+                    return;
+                snap.Company.ProformaId = invoice.ProformaId;
+                invoice.FullSnapshotJson = ProformaInvoiceMapper.SerializeSnapshot(snap);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not sync snapshot ProformaId after reallocation: " +
+                    ex.Message);
+            }
+        }
 
         /// <summary>
         /// Updates an existing invoice or creates a new one if missing.

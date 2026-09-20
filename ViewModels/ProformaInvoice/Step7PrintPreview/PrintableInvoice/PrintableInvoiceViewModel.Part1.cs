@@ -365,6 +365,7 @@ public PrintableInvoiceViewModel(
                 else
                     await _invoices.InsertAsync(entity);
 
+                AdoptAllocatedProformaId(entity);
                 return true;
             }
             catch
@@ -670,6 +671,7 @@ public PrintableInvoiceViewModel(
                         return;
 
                     await _invoices.UpdateAsync(entity);
+                    AdoptAllocatedProformaId(entity);
                     await StampSaveArtifactsAsync(entity, isUpdate: true);
                     ShowSaveSuccess(entity.ProformaId, isUpdate: true);
                     return;
@@ -681,14 +683,32 @@ public PrintableInvoiceViewModel(
                 Company.ProformaStatus = entity.Status;
                 OnPropertyChanged(nameof(PreparedByStatus));
                 await _invoices.InsertAsync(entity);
+                AdoptAllocatedProformaId(entity);
                 await StampSaveArtifactsAsync(entity, isUpdate: false);
                 ShowSaveSuccess(entity.ProformaId, isUpdate: false);
                 return;
             }
 
             await _invoices.InsertAsync(entity);
+            AdoptAllocatedProformaId(entity);
             await StampSaveArtifactsAsync(entity, isUpdate: false);
             ShowSaveSuccess(entity.ProformaId, isUpdate: false);
+        }
+
+        /// <summary>
+        /// InsertAsync may reallocate a seed / colliding id. Keep Step 1
+        /// bound to the persisted ProformaId so a later save does not
+        /// create a second row.
+        /// </summary>
+        private void AdoptAllocatedProformaId(SavedProformaInvoice entity)
+        {
+            if (entity == null || string.IsNullOrWhiteSpace(entity.ProformaId))
+                return;
+            if (Company == null) return;
+            if (string.Equals(Company.ProformaId, entity.ProformaId,
+                    StringComparison.Ordinal))
+                return;
+            Company.ProformaId = entity.ProformaId;
         }
 
         private string NormalizeSaveOnlyStatus(string? currentStoredStatus)
