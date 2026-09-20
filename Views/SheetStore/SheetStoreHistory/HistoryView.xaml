@@ -157,7 +157,7 @@
                             <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="118"/>
                             <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="88"/>
+                            <ColumnDefinition Width="100"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{DynamicResource Shared.Action}"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"/>
