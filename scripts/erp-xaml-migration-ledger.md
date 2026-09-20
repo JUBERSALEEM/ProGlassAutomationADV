@@ -31,10 +31,11 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Phase 2 surface strip 10f | StorageSidebar/UserSwitch/BuyDialog/Approval; Crash styles; wastage; pipeline; cutting/lam/edge | `d58fb45` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10g | Holes/mitre/pair/polish/temper; CompanySetup; GlassSpec; Order preview; Statement shell/report | `0c4aa96` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Phase 2 surface strip 10h | Activity/QuickSettings/ScreenRecord/Screenshot/Share; Crash; DN/JO GodView; JO picker; opt report | `067cfe8` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Phase 2 surface strip 10i | Summary/ReleaseBar; PI dialogs/pricing/summary; order generator/execute; ComingSoon; VoidReason | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip 10i | Summary/ReleaseBar; PI dialogs/pricing/summary; order generator/execute; ComingSoon; VoidReason | `dd1d9bf` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Phase 2 surface strip tail | AddEditSheet; TI GodView; IssueDrafts; UserCenter; Terms MinHeight 40 | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** Batch 10i — 10 competing SurfacePrimaryStyle attrs stripped; VersionsDialog sole chrome and 40×40 glyph kept; generator Typography.Label kept; nested ReleaseBar without ErpPageRoot.
+**Done:** Competing SurfacePrimaryStyle strip closed on in-scope Views (sole card chrome kept). Terms clause TextBox MinHeight → DensityInputHeight.
 
-**Next:** remaining competing SurfacePrimaryStyle / Height 40. Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
+**Next:** leftover Height 38/form density if any; Settings/Ios26/print deferred. No generator KPI Typography.Label BasedOn.
 
 **Do not:** ErpPageRoot on nested Controls/Sections; Settings Ios26*; PrintableInvoiceView; force-push.

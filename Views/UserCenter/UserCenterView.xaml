@@ -194,7 +194,7 @@
                         Background="{DynamicResource SurfacePrimaryBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="24,20" Style="{StaticResource SurfacePrimaryStyle}">
+                        Padding="24,20">
                     <StackPanel>
 
                         <TextBlock Text="{DynamicResource SystemCenter.CreateUSER}"

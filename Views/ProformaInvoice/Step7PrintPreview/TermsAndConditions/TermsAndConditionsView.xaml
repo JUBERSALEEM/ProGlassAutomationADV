@@ -88,7 +88,7 @@
                                      Style="{StaticResource Input.TextBox}"
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
-                                     MinHeight="40"
+                                     MinHeight="{DynamicResource DensityInputHeight}"
                                      Margin="64,6,0,0"
                                      VerticalContentAlignment="Top"/>
 

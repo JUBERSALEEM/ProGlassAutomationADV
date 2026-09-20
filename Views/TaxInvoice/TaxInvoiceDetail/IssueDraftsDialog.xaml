@@ -57,7 +57,7 @@
                                                 Padding="6,1" Margin="8,0,0,0"
                                                 Background="{DynamicResource TintAmberBrush}"
                                                 VerticalAlignment="Center"
-                                                Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                                                Visibility="{Binding IsCurrent, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <TextBlock Text="{DynamicResource TaxInvoice.Invoice}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>

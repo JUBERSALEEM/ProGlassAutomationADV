@@ -200,7 +200,7 @@
                 Padding="14,12"
                 Margin="0,16,0,0"
                 SnapsToDevicePixels="True"
-                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" Style="{StaticResource SurfacePrimaryStyle}">
+                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
                            FontSize="{DynamicResource FontSize.H3}"
