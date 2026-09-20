@@ -242,6 +242,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             // notes, which double-counts the same outstanding pieces once per
             // note.
             int pendingBalance = m.PendingPieces;
+            bool pendingKnown = m.PendingPiecesAvailable;
 
             int reworkReturned = m.ReworkReturned;
 

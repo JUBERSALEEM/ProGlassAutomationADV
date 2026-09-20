@@ -533,13 +533,17 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             {
                 var pending = await new DeliveryNoteRepository().GetPendingQtyJobsAsync();
                 m.PendingPieces = pending.Sum(p => p.TotalBalance);
+                m.PendingPiecesAvailable = true;
             }
-            catch
+            catch (Exception ex)
             {
-                // A failure here must not lose the note metrics already
-                // computed above. PendingPieces stays 0 and the caller
-                // surfaces its own error state if it needs to.
+                // Keep the note metrics already computed, but do not
+                // present the failure as "0 pieces pending".
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "Dashboard pending-pieces query failed: "
+                    + ProGlassAutomation.Utilities.ExceptionMessages.Deep(ex));
                 m.PendingPieces = 0;
+                m.PendingPiecesAvailable = false;
             }
 
             return m;

@@ -379,6 +379,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             int dnDeliveredTodayPcs  = exec.Delivery.PiecesDeliveredToday;
             int dnTotalDeliveredPcs  = exec.Delivery.PiecesDeliveredTotal;
             int dnPendingPcs         = exec.Delivery.PendingPieces;
+            bool dnPendingKnown      = exec.Delivery.PendingPiecesAvailable;
 
             decimal inventoryValue = exec.Inventory.StockValueAtSellPrice;
             int lowStock           = exec.Inventory.LowStockCount;
@@ -441,7 +442,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             _deliveryTiles.Add(new KpiTileModel { Icon = "\uE806", Label = "Dispatched", DisplayValue = dnDispatched.ToString("N0"), Accent = "Amber" });
             _deliveryTiles.Add(new KpiTileModel { Icon = "\uE787", Label = "Delivered Today (pcs)", DisplayValue = dnDeliveredTodayPcs.ToString("N0"), Accent = "Green" });
             _deliveryTiles.Add(new KpiTileModel { Icon = "\uE73E", Label = "Total Delivered (pcs)", DisplayValue = dnTotalDeliveredPcs.ToString("N0"), Accent = "Green" });
-            _deliveryTiles.Add(new KpiTileModel { Icon = dnPendingPcs > 0 ? "\uE9D5" : "\uE73E", Label = "Pending Balance (pcs)", DisplayValue = dnPendingPcs.ToString("N0"), Accent = dnPendingPcs > 0 ? "Red" : "Amber", IsAlert = dnPendingPcs > 0 });
+            _deliveryTiles.Add(new KpiTileModel { Icon = !dnPendingKnown || dnPendingPcs > 0 ? "\uE9D5" : "\uE73E", Label = "Pending Balance (pcs)", DisplayValue = dnPendingKnown ? dnPendingPcs.ToString("N0") : "\u2014", Accent = !dnPendingKnown || dnPendingPcs > 0 ? "Red" : "Amber", IsAlert = !dnPendingKnown || dnPendingPcs > 0 });
             OnPropertyChanged(nameof(DeliveryTiles));
 
             // ═════════════════════════════════════════════════════════════
@@ -512,14 +513,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             InProductionDisplay = jobInProduction.ToString("N0");
             OverdueDisplay = jobOverdue.ToString("N0");
             HasOverdueJobs = jobOverdue > 0;
-            PendingPcsDisplay = dnPendingPcs.ToString("N0");
+            PendingPcsDisplay = dnPendingKnown ? dnPendingPcs.ToString("N0") : "\u2014";
 
             // Phase 1 C-4: update existing collection
             _deliveryMixSlices.Clear();
             _deliveryMixSlices.Add(new ChartSliceModel { Label = "Preparing", RawValue = dnDraft, ValueDisplay = $"{dnDraft:N0} notes", Accent = "Amber" });
             _deliveryMixSlices.Add(new ChartSliceModel { Label = "Dispatched", RawValue = dnDispatched, ValueDisplay = $"{dnDispatched:N0} notes", Accent = "Blue" });
             _deliveryMixSlices.Add(new ChartSliceModel { Label = "Delivered pcs", RawValue = dnTotalDeliveredPcs, ValueDisplay = $"{dnTotalDeliveredPcs:N0} pcs", Accent = "Green" });
-            _deliveryMixSlices.Add(new ChartSliceModel { Label = "Pending pcs", RawValue = dnPendingPcs, ValueDisplay = $"{dnPendingPcs:N0} pcs", Accent = dnPendingPcs > 0 ? "Red" : "Amber" });
+            _deliveryMixSlices.Add(new ChartSliceModel { Label = "Pending pcs", RawValue = dnPendingKnown ? dnPendingPcs : 0, ValueDisplay = dnPendingKnown ? $"{dnPendingPcs:N0} pcs" : "\u2014", Accent = dnPendingPcs > 0 ? "Red" : "Amber" });
             OnPropertyChanged(nameof(DeliveryMixSlices));
 
             // ═════════════════════════════════════════════════════════════
@@ -726,11 +727,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 Glyph = "\uE806",
                 Name = "Delivery",
                 ValueDisplay = dnInFlight.ToString("N0"),
-                Foot = exec.Delivery.PendingPieces > 0
-                    ? $"{exec.Delivery.PendingPieces:N0} pcs pending"
-                    : "fully dispatched",
-                AccentKey = exec.Delivery.PendingPieces > 0 ? "WarningBrush" : "SuccessBrush",
-                IsActive = exec.Delivery.PendingPieces > 0,
+                Foot = !exec.Delivery.PendingPiecesAvailable
+                    ? "pending qty unavailable"
+                    : exec.Delivery.PendingPieces > 0
+                        ? $"{exec.Delivery.PendingPieces:N0} pcs pending"
+                        : "fully dispatched",
+                AccentKey = !exec.Delivery.PendingPiecesAvailable || exec.Delivery.PendingPieces > 0
+                    ? "WarningBrush" : "SuccessBrush",
+                IsActive = !exec.Delivery.PendingPiecesAvailable || exec.Delivery.PendingPieces > 0,
                 ModuleKey = "DeliveryNote",
             });
 

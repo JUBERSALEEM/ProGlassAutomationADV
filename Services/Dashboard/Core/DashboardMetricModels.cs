@@ -170,6 +170,12 @@ namespace ProGlassAutomation.Services.Dashboard.Core
         public int PendingPieces { get; set; }
 
         /// <summary>
+        /// False when the per-job remaining query failed. Zero is then
+        /// unknown, not "nothing pending".
+        /// </summary>
+        public bool PendingPiecesAvailable { get; set; } = true;
+
+        /// <summary>
         /// COUNT of notes delivered today — not to be confused with
         /// <see cref="PiecesDeliveredToday"/>, which counts pieces.
         ///
