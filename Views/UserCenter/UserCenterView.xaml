@@ -239,7 +239,7 @@
                                 <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource Field.Label}"/>
                                 <ComboBox ItemsSource="{Binding RoleOptions}"
                                           SelectedItem="{Binding SelectedRole}"
-                                          Height="38" FontSize="{DynamicResource FontSize.Title}"
+                                          FontSize="{DynamicResource FontSize.Title}"
                                           VerticalContentAlignment="Center" Style="{StaticResource ComboBoxStyle}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="2" Grid.Column="2">

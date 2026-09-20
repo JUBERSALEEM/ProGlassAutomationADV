@@ -110,7 +110,7 @@
                         <ComboBox SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
                                   SelectedValuePath="Tag"
                                   Style="{StaticResource ModernComboBoxStyle}"
-                                  Height="40" MinHeight="40" MinWidth="160">
+                                  MinWidth="160">
                             <ComboBoxItem Content="{DynamicResource Common.All}" Tag="All"/>
                             <ComboBoxItem Content="{DynamicResource ProformaInvoice.Added}" Tag="Added"/>
                             <ComboBoxItem Content="{DynamicResource SheetStore.Edited}" Tag="Edited"/>
@@ -125,14 +125,14 @@
                         <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource DialogFieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding FromDate, Mode=TwoWay}"
                                     Style="{StaticResource PiDatePickerStyle}"
-                                    Height="40"/>
+                                   />
                     </StackPanel>
 
                     <StackPanel Grid.Column="4">
                         <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource DialogFieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding ToDate, Mode=TwoWay}"
                                     Style="{StaticResource PiDatePickerStyle}"
-                                    Height="40"/>
+                                   />
                     </StackPanel>
 
                     <StackPanel Grid.Column="6" VerticalAlignment="Bottom">

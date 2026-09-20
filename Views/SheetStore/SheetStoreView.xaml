@@ -295,7 +295,7 @@
                             <ComboBox ItemsSource="{Binding CategoryOptions}"
                                       SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="40" MinHeight="40" MinWidth="110"/>
+                                      MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource ProformaInvoice.Thickness}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -303,7 +303,7 @@
                             <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                       SelectedItem="{Binding SelectedThickness, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="40" MinHeight="40" MinWidth="110"/>
+                                      MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="4">
                             <TextBlock Text="{DynamicResource ProformaInvoice.Color}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -311,7 +311,7 @@
                             <ComboBox ItemsSource="{Binding ColorOptions}"
                                       SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="40" MinHeight="40" MinWidth="110"/>
+                                      MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="6">
                             <TextBlock Text="{DynamicResource SheetStore.Supplier}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -319,7 +319,7 @@
                             <ComboBox ItemsSource="{Binding SupplierOptions}"
                                       SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="40" MinHeight="40" MinWidth="110"/>
+                                      MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="8">
                             <TextBlock Text="{DynamicResource SheetStore.SORT}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -327,7 +327,7 @@
                             <ComboBox ItemsSource="{Binding SortOptions}"
                                       SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
                                       Style="{StaticResource ModernComboBoxStyle}"
-                                      Height="40" MinHeight="40" MinWidth="110"/>
+                                      MinWidth="110"/>
                         </StackPanel>
                         <StackPanel Grid.Column="10" VerticalAlignment="Bottom">
                             <TextBlock Text=" " FontSize="{DynamicResource FontSize.Body}" Margin="0,0,0,4"/>
@@ -1075,13 +1075,13 @@
                                       Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
                                       IsTextSearchEnabled="True"
                                       Style="{StaticResource ModernEditableComboBoxStyle}"
-                                      Margin="0,0,0,12" Height="40" MinHeight="40"/>
+                                      Margin="0,0,0,12"/>
                             <TextBlock Text="UNIT OF MEASURE" Style="{StaticResource Field.Label}"/>
                             <ComboBox ItemsSource="{Binding Uoms}"
                                       Text="{Binding Uom, UpdateSourceTrigger=PropertyChanged}"
                                       IsTextSearchEnabled="True"
                                       Style="{StaticResource ModernEditableComboBoxStyle}"
-                                      Margin="0,0,0,12" Height="40" MinHeight="40"/>
+                                      Margin="0,0,0,12"/>
                             <TextBlock Text="SPECIFICATION" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding Specification, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource Input.TextBox}"/>

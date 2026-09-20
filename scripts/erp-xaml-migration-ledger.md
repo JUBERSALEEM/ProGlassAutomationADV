@@ -10,10 +10,12 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | Document forms | JO/DN/TI/Company/User/Sheet Field.* | `3853699` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Remaining captions | P&L / CSV / audit / crash Field.Label | `7c1dc0b` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | List/report chrome | Filter Input.* last-win; JO titles/KPI; DN shell | `13b112e` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| Production density | Drop local Height=34 on PCC/process/specs/opt tabs | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Production density | Drop local Height=34 on PCC/process/specs/opt tabs | `f263c5e` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| List/inquiry chrome | Order report header/KPI; inquiry Field.*; executive dates | `fb97e84` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Report filter density | Drop Height=40 on report/sheet filters; inquiry table header; reports hub band | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
-**Done:** page root on module pages; Field.* on main forms; document tab/header/footer bands; list filter keys last-win to Input.*.
+**Done:** page root on module pages; Field.* on main forms; document tab/header/footer bands; list filter keys last-win to Input.*; report ComboBox/DatePicker local Height=40 removed.
 
-**Next:** production station chrome, optimization tabs, dashboard Pg* already industrial, leftover generator `BasedOn Typography.Label`, Settings only after tests.
+**Next:** leftover generator `BasedOn Typography.Label` (do not swap to Field.Label); Settings / Ios26 / print only after tests.
 
 **Do not:** ErpPageRoot on nested Controls/Sections; Settings Ios26*; PrintableInvoiceView; force-push.

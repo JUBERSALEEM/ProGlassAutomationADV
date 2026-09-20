@@ -184,20 +184,20 @@
                 </Grid.RowDefinitions>
 
                 <!-- Brand Header -->
-                <Border Grid.Row="0" Margin="4,2,4,10" CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}" Padding="12,12" Style="{StaticResource SurfacePrimaryStyle}">
+                <Border Grid.Row="0" Margin="4,2,4,10" Style="{StaticResource DocumentHeaderBandStyle}" Padding="12,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="{DynamicResource Radius.Medium}" Background="{DynamicResource SurfaceElevatedBrush}" Style="{StaticResource SurfacePrimaryStyle}">
+                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="{DynamicResource Radius.Medium}" Background="{DynamicResource TintIndigoBrush}">
                             <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Reports.ReportsHUB}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95"/>
-                            <TextBlock Text="{DynamicResource Reports.IntelligenceCenter}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,1,0,0"/>
-                            <TextBlock Text="{DynamicResource Reports.RowLevelTraceability}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                            <TextBlock Text="{DynamicResource Reports.ReportsHUB}" Style="{StaticResource ModulePageSubtitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Reports.IntelligenceCenter}" Style="{StaticResource ModulePageTitleStyle}" Margin="0,1,0,0"/>
+                            <TextBlock Text="{DynamicResource Reports.RowLevelTraceability}" Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,2,0,0"/>
                         </StackPanel>
                         <!-- Collapse rail button (hamburger style) -->
                         <Button Grid.Column="2"
@@ -208,7 +208,7 @@
                                 Cursor="Hand"
                                 ToolTip="{DynamicResource Reports.CollapseNavigationRail}"
                                 Command="{Binding ToggleRailCommand}">
-                            <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
                     </Grid>
                 </Border>
@@ -437,24 +437,24 @@
                 <StackPanel HorizontalAlignment="Stretch">
 
                     <!-- Overview Header Banner -->
-                    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}" Background="{DynamicResource AccentBrush}" Padding="20,18" Margin="0,0,0,14" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Style="{StaticResource DocumentHeaderBandStyle}" Padding="20,18" Margin="0,0,0,14">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="{DynamicResource Reports.ReportsOverview}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                <TextBlock Text="{DynamicResource Reports.DocumentsFulfillment}" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
-                                <TextBlock Text="{DynamicResource Reports.LiveTotalsProformaInvoicesJobOrdersDelivery}" FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
+                                <TextBlock Text="{DynamicResource Reports.ReportsOverview}" Style="{StaticResource ModulePageSubtitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Reports.DocumentsFulfillment}" Style="{StaticResource ModulePageTitleStyle}" Margin="0,6,0,0"/>
+                                <TextBlock Text="{DynamicResource Reports.LiveTotalsProformaInvoicesJobOrdersDelivery}" Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95">
+                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}">
                                         <Run Text="PI"/><Run Text="  →  "/><Run Text="JO"/><Run Text="  →  "/><Run Text="{DynamicResource Nav.Delivery}"/><Run Text="  →  "/><Run Text="{DynamicResource Module.TaxInvoice}"/><Run Text="  →  "/><Run Text="{DynamicResource Module.Statement}"/>
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="120" Height="120" CornerRadius="{DynamicResource Radius.Large}" Background="{DynamicResource SurfacePrimaryBrush}" Opacity="1" VerticalAlignment="Center" Margin="16,0,0,0" Style="{StaticResource SurfacePrimaryStyle}">
-                                <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border Grid.Column="1" Width="72" Height="72" CornerRadius="{DynamicResource Radius.Large}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center" Margin="16,0,0,0">
+                                <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </Grid>
                     </Border>

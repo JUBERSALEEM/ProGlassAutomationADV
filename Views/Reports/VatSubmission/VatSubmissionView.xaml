@@ -144,31 +144,31 @@
                             <!-- Date From -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.FromDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" Height="40" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.PiReport.FilterStartDate}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="{DynamicResource Reports.PiReport.FilterStartDate}"/>
                             </StackPanel>
 
                             <!-- Date To -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.ToDate}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" Height="40" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.PiReport.FilterEndDate}"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="{DynamicResource Reports.PiReport.FilterEndDate}"/>
                             </StackPanel>
 
                             <!-- Company -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Company}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding CompanyFilter}" ToolTip="{DynamicResource Reports.PiReport.FilterCompany}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding CompanyFilter}" ToolTip="{DynamicResource Reports.PiReport.FilterCompany}"/>
                             </StackPanel>
 
                             <!-- Salesman -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding SalesmanOptions}" SelectedItem="{Binding SalesmanFilter}" ToolTip="{DynamicResource Reports.VatSubmission.FilterSalesman}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding SalesmanOptions}" SelectedItem="{Binding SalesmanFilter}" ToolTip="{DynamicResource Reports.VatSubmission.FilterSalesman}"/>
                             </StackPanel>
 
                             <!-- Project -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="{DynamicResource Common.Project}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="150" Style="{StaticResource ModernComboBoxStyle}" Height="40" MinHeight="40" ItemsSource="{Binding ProjectOptions}" SelectedItem="{Binding ProjectFilter}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterProject}"/>
+                                <ComboBox Width="150" Style="{StaticResource ModernComboBoxStyle}" ItemsSource="{Binding ProjectOptions}" SelectedItem="{Binding ProjectFilter}" ToolTip="{DynamicResource Reports.DeliveryReport.FilterProject}"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->

@@ -206,7 +206,6 @@
                                     </StackPanel>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
-                                          Height="40"
                                           ItemsSource="{Binding Companies}"
                                           Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
@@ -233,7 +232,6 @@
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
-                                          Height="40"
                                           ItemsSource="{Binding Salesmen}"
                                           Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
@@ -260,7 +258,6 @@
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
-                                          Height="40"
                                           ItemsSource="{Binding Customers}"
                                           Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
@@ -287,7 +284,6 @@
                                                VerticalAlignment="Center" Margin="10,0,0,0"/>
                                 </StackPanel>
                                 <ComboBox Style="{StaticResource ModernEditableComboBoxStyle}"
-                                          Height="40"
                                           ItemsSource="{Binding Projects}"
                                           Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
                                           IsTextSearchEnabled="True"/>
@@ -334,12 +330,12 @@
                             <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
                                 <TextBlock Text="DATE FROM" Style="{StaticResource Field.Label}"/>
                                 <DatePicker SelectedDate="{Binding DateFrom}"
-                                            Height="40" FontSize="{DynamicResource FontSize.Title}"/>
+                                            Style="{StaticResource Input.DatePicker}"/>
                             </StackPanel>
                             <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
                                 <TextBlock Text="DATE TO" Style="{StaticResource Field.Label}"/>
                                 <DatePicker SelectedDate="{Binding DateTo}"
-                                            Height="40" FontSize="{DynamicResource FontSize.Title}"/>
+                                            Style="{StaticResource Input.DatePicker}"/>
                             </StackPanel>
                         </Grid>
 

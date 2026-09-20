@@ -444,13 +444,8 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Sticky column header (accent) -->
-                <Border Grid.Row="0"
-                        Background="{DynamicResource AccentBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="0,10"
-                        SnapsToDevicePixels="True" Style="{StaticResource SurfacePrimaryStyle}">
+                <!-- Sticky column header (module table band) -->
+                <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}" Padding="0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="3"/>
@@ -463,35 +458,28 @@
                                             <ColumnDefinition Width="264"/>
                                             </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="INQ#"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <!-- 2026-09-14: header gutters/alignment match the
                              row cells (status center, text 8px gutters,
                              value right). -->
                         <TextBlock Grid.Column="1" Text="STATUS"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                   HorizontalAlignment="Center"/>
                         <TextBlock Grid.Column="2" Text="CUSTOMER"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                   Margin="8,0"/>
                         <TextBlock Grid.Column="3" Text="PROJECT"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                   Margin="8,0"/>
                         <TextBlock Grid.Column="4" Text="VALUE" Margin="0,0,8,0"
                                    HorizontalAlignment="Right"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                   Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <TextBlock Grid.Column="5" Text="RECEIVED"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                   Margin="8,0"/>
                         <TextBlock Grid.Column="6" Text="OWNER"
                                    Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                   Margin="8,0"/>
                     </Grid>
                 </Border>
 
