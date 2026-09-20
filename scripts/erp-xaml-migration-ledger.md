@@ -9,7 +9,8 @@ Inventory: **337** XAML (guard). Settings / About / Ios26 / GlassBlush / print i
 | PI 1–3 fields | Field.* + JO/DN/TI tab band | `b72643d` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Document forms | JO/DN/TI/Company/User/Sheet Field.* | `3853699` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 | Remaining captions | P&L / CSV / audit / crash Field.Label | `7c1dc0b` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
-| List/report chrome | Filter Input.* last-win; JO titles/KPI; DN shell | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| List/report chrome | Filter Input.* last-win; JO titles/KPI; DN shell | `13b112e` | yes | OK | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
+| Production density | Drop local Height=34 on PCC/process/specs/opt tabs | *(this commit)* | pending | pending | NOT EXECUTED | NOT EXECUTED | NOT EXECUTED |
 
 **Done:** page root on module pages; Field.* on main forms; document tab/header/footer bands; list filter keys last-win to Input.*.
 

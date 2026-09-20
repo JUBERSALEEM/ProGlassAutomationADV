@@ -202,14 +202,14 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34" Height="34"
+                                    <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34"
                                             Command="{Binding PreviewZoomOutCommand}" Margin="0,0,6,0" ToolTip="Zoom out"/>
                                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfacePrimaryBrush}" Padding="10,3"
                                             Margin="0,0,6,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                         <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                    FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </Border>
-                                    <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34" Height="34"
+                                    <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34"
                                             Command="{Binding PreviewZoomInCommand}" Margin="0,0,6,0" ToolTip="Zoom in"/>
                                     <Button Content="100%" Style="{StaticResource OutlinedPillButton}"
                                             Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%"/>

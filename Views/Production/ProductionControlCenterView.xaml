@@ -221,19 +221,19 @@
 
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                             <TextBlock Text="SEARCH (Job / PO / Customer)" Style="{StaticResource OptHeader}"/>
-                            <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Height="34" Margin="0,4,0,0"/>
+                            <TextBox Text="{Binding Search, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Margin="0,4,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="0,0,10,0">
                             <TextBlock Text="READINESS STATUS" Style="{StaticResource OptHeader}"/>
-                            <ComboBox ItemsSource="{Binding ReadinessOptions}" SelectedItem="{Binding ReadinessFilter}" Style="{StaticResource SurfaceComboBox}" Height="34" Margin="0,4,0,0"/>
+                            <ComboBox ItemsSource="{Binding ReadinessOptions}" SelectedItem="{Binding ReadinessFilter}" Style="{StaticResource SurfaceComboBox}" Margin="0,4,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="0,0,10,0">
                             <TextBlock Text="PRIORITY" Style="{StaticResource OptHeader}"/>
-                            <ComboBox ItemsSource="{Binding PriorityOptions}" SelectedItem="{Binding PriorityFilter}" Style="{StaticResource SurfaceComboBox}" Height="34" Margin="0,4,0,0"/>
+                            <ComboBox ItemsSource="{Binding PriorityOptions}" SelectedItem="{Binding PriorityFilter}" Style="{StaticResource SurfaceComboBox}" Margin="0,4,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="3">
                             <TextBlock Text="DUE RISK" Style="{StaticResource OptHeader}"/>
-                            <ComboBox ItemsSource="{Binding DueRiskOptions}" SelectedItem="{Binding DueRiskFilter}" Style="{StaticResource SurfaceComboBox}" Height="34" Margin="0,4,0,0"/>
+                            <ComboBox ItemsSource="{Binding DueRiskOptions}" SelectedItem="{Binding DueRiskFilter}" Style="{StaticResource SurfaceComboBox}" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Grid>
 
@@ -246,18 +246,18 @@
 
                         <!-- Primary Stage Work Actions -->
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Content="Start Stage" Command="{Binding StartCommand}" Style="{StaticResource PrimaryPillButton}" Height="34" Padding="16,0" Margin="0,0,8,0"/>
-                            <Button Content="Complete Stage" Command="{Binding CompleteCommand}" Style="{StaticResource PrimaryPillButton}" Height="34" Padding="16,0" Margin="0,0,8,0"/>
-                            <Button Content="Pause" Command="{Binding PauseCommand}" Style="{StaticResource OutlinedPillButton}" Height="34" Padding="14,0" Margin="0,0,8,0"/>
-                            <Button Content="Resume" Command="{Binding ResumeCommand}" Style="{StaticResource OutlinedPillButton}" Height="34" Padding="14,0" Margin="0,0,8,0"/>
-                            <Button Content="Hold" Command="{Binding HoldCommand}" Style="{StaticResource OutlinedPillButton}" Height="34" Padding="14,0"/>
+                            <Button Content="Start Stage" Command="{Binding StartCommand}" Style="{StaticResource PrimaryPillButton}" Padding="16,0" Margin="0,0,8,0"/>
+                            <Button Content="Complete Stage" Command="{Binding CompleteCommand}" Style="{StaticResource PrimaryPillButton}" Padding="16,0" Margin="0,0,8,0"/>
+                            <Button Content="Pause" Command="{Binding PauseCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0" Margin="0,0,8,0"/>
+                            <Button Content="Resume" Command="{Binding ResumeCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0" Margin="0,0,8,0"/>
+                            <Button Content="Hold" Command="{Binding HoldCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0"/>
                         </StackPanel>
 
                         <!-- Operational Routing Actions -->
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Content="Release Hold" Command="{Binding ReleaseHoldCommand}" Style="{StaticResource OutlinedPillButton}" Height="34" Padding="12,0" Margin="0,0,8,0"/>
-                            <Button Content="Assign Workstation" Command="{Binding AssignCommand}" Style="{StaticResource OutlinedPillButton}" Height="34" Padding="14,0" Margin="0,0,8,0"/>
-                            <Button Content="Set Priority" Command="{Binding SetPriorityCommand}" Style="{StaticResource OutlinedPillButton}" Height="34" Padding="12,0"/>
+                            <Button Content="Release Hold" Command="{Binding ReleaseHoldCommand}" Style="{StaticResource OutlinedPillButton}" Padding="12,0" Margin="0,0,8,0"/>
+                            <Button Content="Assign Workstation" Command="{Binding AssignCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0" Margin="0,0,8,0"/>
+                            <Button Content="Set Priority" Command="{Binding SetPriorityCommand}" Style="{StaticResource OutlinedPillButton}" Padding="12,0"/>
                         </StackPanel>
                     </Grid>
                 </Grid>

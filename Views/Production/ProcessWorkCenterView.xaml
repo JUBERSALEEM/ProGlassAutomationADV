@@ -247,19 +247,19 @@
 
                         <StackPanel Grid.Column="0" Margin="0,0,10,0">
                             <TextBlock Text="JOB FILTER" Style="{StaticResource OptHeader}"/>
-                            <TextBox Text="{Binding JobFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Height="34" Margin="0,4,0,0"/>
+                            <TextBox Text="{Binding JobFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Margin="0,4,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="0,0,10,0">
                             <TextBlock Text="SPECIFICATION" Style="{StaticResource OptHeader}"/>
-                            <TextBox Text="{Binding SpecFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Height="34" Margin="0,4,0,0"/>
+                            <TextBox Text="{Binding SpecFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Margin="0,4,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="0,0,10,0">
                             <TextBlock Text="MATERIAL" Style="{StaticResource OptHeader}"/>
-                            <TextBox Text="{Binding MaterialFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Height="34" Margin="0,4,0,0"/>
+                            <TextBox Text="{Binding MaterialFilter, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource SurfaceTextBox}" Margin="0,4,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="3">
                             <TextBlock Text="STATUS" Style="{StaticResource OptHeader}"/>
-                            <ComboBox SelectedItem="{Binding StatusFilter}" ItemsSource="{Binding StatusOptions}" Style="{StaticResource SurfaceComboBox}" Height="34" Margin="0,4,0,0"/>
+                            <ComboBox SelectedItem="{Binding StatusFilter}" ItemsSource="{Binding StatusOptions}" Style="{StaticResource SurfaceComboBox}" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Grid>
 
@@ -270,8 +270,8 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="STAGE EXECUTION WORKBENCH" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Content="Pair DGU A/B" Command="{Binding PairCommand}" Style="{StaticResource OutlinedPillButton}" Height="34" Padding="14,0" Margin="0,0,8,0"/>
-                            <Button Content="Assemble Unit" Command="{Binding AssembleCommand}" Style="{StaticResource PrimaryPillButton}" Height="34" Padding="16,0"/>
+                            <Button Content="Pair DGU A/B" Command="{Binding PairCommand}" Style="{StaticResource OutlinedPillButton}" Padding="14,0" Margin="0,0,8,0"/>
+                            <Button Content="Assemble Unit" Command="{Binding AssembleCommand}" Style="{StaticResource PrimaryPillButton}" Padding="16,0"/>
                         </StackPanel>
                     </Grid>
                 </Grid>

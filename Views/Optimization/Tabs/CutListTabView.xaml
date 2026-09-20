@@ -340,7 +340,7 @@
                                     Command="{Binding SendCutListToEngineCommand}"
                                     Content="SEND TO ENGINE"
                                     Style="{StaticResource PrimaryPillButton}"
-                                    Height="34" MinWidth="170"
+                                    MinWidth="170"
                                     VerticalAlignment="Center"
                                     ToolTip="Rebuilds the engine's piece list from this cut list — W1×H1 as the outer pane, W2×H2 as the inner. Replaces whatever the JOBS import put there, so sending twice cannot double the pieces. Racks on STOCKS are left as you set them."/>
                         </Grid>
