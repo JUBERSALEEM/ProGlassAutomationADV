@@ -84,7 +84,7 @@
                 Visibility="{Binding WarningVisibility}"
                 Background="{DynamicResource TintAmberBrush}"
                 BorderBrush="{DynamicResource WarningBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}" Style="{StaticResource SurfacePrimaryStyle}">
+                BorderThickness="{DynamicResource CardBorderThickness}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;"
                            FontFamily="{DynamicResource FontFamily.Icon}"

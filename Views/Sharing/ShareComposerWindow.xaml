@@ -36,7 +36,7 @@
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="14,10">
                         <StackPanel>
                             <TextBlock Text="{Binding SenderLine, Mode=OneWay}"
                                        FontSize="{DynamicResource FontSize.Body}"
@@ -59,7 +59,7 @@
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="14,10">
                         <StackPanel>
                             <ComboBox ItemsSource="{Binding RecipientOptions}"
                                       SelectedItem="{Binding SelectedRecipient, Mode=TwoWay}"

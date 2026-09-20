@@ -76,7 +76,7 @@
                     Padding="14,0"
                     Height="38"
                     HorizontalAlignment="Stretch"
-                    VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
+                    VerticalAlignment="Center">
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                          BorderThickness="{DynamicResource Border.NoneThickness}"
                          Background="Transparent"

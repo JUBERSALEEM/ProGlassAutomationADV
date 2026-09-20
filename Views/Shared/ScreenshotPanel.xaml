@@ -18,7 +18,7 @@
                 Background="{DynamicResource ShellLiquidBrush}"
                 BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                ClipToBounds="True" Style="{StaticResource SurfacePrimaryStyle}">
+                ClipToBounds="True">
 
         <Grid>
             <Grid.RowDefinitions>
@@ -29,7 +29,7 @@
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
                     CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    Padding="16,12" Style="{StaticResource SurfacePrimaryStyle}">
+                    Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource ToolTip.Screenshot}"
                                FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"

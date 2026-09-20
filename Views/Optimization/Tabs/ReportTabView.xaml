@@ -51,7 +51,7 @@
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                             <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" Padding="12,7"
-                                                    VerticalAlignment="Center" Margin="0,0,16,0" Style="{StaticResource SurfacePrimaryStyle}">
+                                                    VerticalAlignment="Center" Margin="0,0,16,0">
                                                 <TextBlock Text="{Binding ResultOracle}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                            FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource AccentBrush}"/>
                                             </Border>
