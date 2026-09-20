@@ -118,6 +118,37 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
+        public void Sgu_qty_17_is_seventeen_w1_h1_cuts_not_sheets()
+        {
+            var items = Distribute(Snapshot(
+                Group(1, "6mm Clear Annealed Glass",
+                    Row(1, "G-17", 3210, 2250, 17))));
+
+            var cutting = Stage(items, ProductionStage.Cutting).Single();
+            Assert.Equal(3210, cutting.WidthMm);
+            Assert.Equal(2250, cutting.HeightMm);
+            Assert.Equal(17, cutting.Qty);
+            Assert.Empty(Stage(items, ProductionStage.Pairing));
+        }
+
+        [Fact]
+        public void DguLam_qty_17_is_three_pane_cuts_of_seventeen()
+        {
+            var items = Distribute(Snapshot(
+                Group(1,
+                    "8mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Clear FT Glass",
+                    Row(1, "H-17", 3210, 2250, 17, w2: 3000, h2: 1800))));
+
+            var cutting = Stage(items, ProductionStage.Cutting).ToList();
+            Assert.Equal(3, cutting.Count);
+            Assert.All(cutting, c => Assert.Equal(17, c.Qty));
+            Assert.Contains(cutting, c => c.Position == "Outer" && c.WidthMm == 3210 && c.HeightMm == 2250);
+            Assert.Equal(2, cutting.Count(c => c.WidthMm == 3000 && c.HeightMm == 1800));
+            Assert.Single(Stage(items, ProductionStage.Pairing));
+            Assert.Equal(17, Stage(items, ProductionStage.Pairing).Single().Qty);
+        }
+
+        [Fact]
         public void Sgu_annealed_gets_cutting_only_then_dispatch()
         {
             var items = Distribute(Snapshot(

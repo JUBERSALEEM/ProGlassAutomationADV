@@ -7,6 +7,7 @@
 //  touch WPF or any domain type — safe to call from any layer.
 // ═══════════════════════════════════════════════════════════════════════
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -26,6 +27,46 @@ namespace ProGlassAutomation.Utilities
         {
             var cleaned = s?.Trim().Replace(",", "").Replace(" ", "");
             return string.IsNullOrEmpty(cleaned) ? "0" : cleaned;
+        }
+
+        /// <summary>
+        /// Piece-count parse for import/paste. Invariant culture: comma is
+        /// thousands, dot is decimal. Whole numbers only. Optional trailing
+        /// pcs/pc/pieces/nos/qty. Blank is not valid here — callers treat
+        /// blank as missing (default 1) separately from invalid.
+        /// </summary>
+        public static bool TryParsePieceQty(string? raw, out int qty)
+        {
+            qty = 0;
+            if (string.IsNullOrWhiteSpace(raw)) return false;
+
+            string s = raw.Trim().Trim('"');
+            s = s.Replace(" ", "").Replace(",", "");
+            s = RegexReplaceUnitSuffix(s);
+
+            if (s.Length == 0) return false;
+            if (!decimal.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal d))
+                return false;
+            if (d <= 0m || d != decimal.Truncate(d) || d > int.MaxValue)
+                return false;
+
+            qty = (int)d;
+            return true;
+        }
+
+        private static string RegexReplaceUnitSuffix(string s)
+        {
+            if (s.Length < 2) return s;
+            string lower = s.ToLowerInvariant();
+            foreach (var suffix in new[] { "pieces", "piece", "pcs", "pc", "nos", "qty" })
+            {
+                if (lower.EndsWith(suffix, StringComparison.Ordinal)
+                    && lower.Length > suffix.Length)
+                {
+                    return s.Substring(0, s.Length - suffix.Length);
+                }
+            }
+            return s;
         }
 
         /// <summary>

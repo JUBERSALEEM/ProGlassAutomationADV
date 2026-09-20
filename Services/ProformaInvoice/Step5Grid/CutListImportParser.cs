@@ -146,8 +146,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                     int h1 = ReadInt(el, "h1", "height", "h");
                     int w2 = ReadInt(el, "w2");
                     int h2 = ReadInt(el, "h2");
-                    int qty = ReadInt(el, "qty", "quantity", "pcs");
-                    if (qty <= 0) qty = 1;
+                    var qtyKind = ReadPieceQty(el, out int qty);
+                    if (qtyKind == PieceQtyKind.Invalid)
+                    {
+                        result.Skipped++;
+                        continue;
+                    }
+                    if (qtyKind == PieceQtyKind.Missing)
+                        qty = 1;
 
                     if (w1 <= 0 || h1 <= 0)
                     {
@@ -265,7 +271,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 "h1" or "h" or "height" or "height1" or "heightmm" => "h1",
                 "w2" or "width2" => "w2",
                 "h2" or "height2" => "h2",
-                "qty" or "quantity" or "pcs" or "qty." or "nos" or "no" or "count" => "qty",
+                // "No" is a row-number column in Excel cut lists — not PCS.
+                "qty" or "quantity" or "pcs" or "qty." or "nos" or "count" => "qty",
                 "spec" or "specname" or "specification" or "glassspec" => "spec",
                 "type" or "glasstype" or "glass" or "paneltype" => "glasstype",
                 "size" or "dim" or "dimension" or "wxh" or "sizewh" => "dim",
@@ -283,7 +290,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             int h1 = ParseMm(Cell(cells, map, "h1"));
             int w2 = ParseMm(Cell(cells, map, "w2"));
             int h2 = ParseMm(Cell(cells, map, "h2"));
-            int qty = ParseMm(Cell(cells, map, "qty"));
+            var qtyKind = ClassifyPieceQty(Cell(cells, map, "qty"), out int qty);
 
             if (map.TryGetValue("dim", out int dimIdx))
             {
@@ -301,7 +308,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 }
             }
 
-            if (qty <= 0) qty = 1;
+            if (qtyKind == PieceQtyKind.Invalid)
+                return null;
+            if (qtyKind == PieceQtyKind.Missing)
+                qty = 1;
             return new CutListImportRow
             {
                 GlassRef = glassRef,
@@ -378,6 +388,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 qty = nums[0];
             }
 
+            string lastRaw = values[^1];
+            var lastKind = ClassifyPieceQty(lastRaw, out int lastQty);
+            bool lastIsDim = ParseDimension(lastRaw).w > 0;
+            bool lastIsInnerPair = nums.Count == 2 && nums[0] >= 100 && nums[1] >= 100;
+            if (lastKind == PieceQtyKind.Invalid && !lastIsDim && !lastIsInnerPair)
+                return null;
+            if (lastKind == PieceQtyKind.Valid && !lastIsDim && !lastIsInnerPair)
+                qty = lastQty;
             if (qty <= 0) qty = 1;
             return new CutListImportRow
             {
@@ -388,6 +406,45 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 H2 = h2,
                 Qty = qty
             };
+        }
+
+
+        private enum PieceQtyKind { Missing, Valid, Invalid }
+
+        private static PieceQtyKind ClassifyPieceQty(string? raw, out int qty)
+        {
+            qty = 0;
+            if (string.IsNullOrWhiteSpace(raw))
+                return PieceQtyKind.Missing;
+            return TextParsing.TryParsePieceQty(raw, out qty)
+                ? PieceQtyKind.Valid
+                : PieceQtyKind.Invalid;
+        }
+
+        private static PieceQtyKind ReadPieceQty(JsonElement el, out int qty)
+        {
+            qty = 0;
+            bool present = false;
+            foreach (var name in new[] { "qty", "quantity", "pcs" })
+            {
+                if (!el.TryGetProperty(name, out var p)) continue;
+                present = true;
+                if (p.ValueKind == JsonValueKind.Number)
+                {
+                    if (p.TryGetInt32(out int n) && n > 0)
+                    {
+                        qty = n;
+                        return PieceQtyKind.Valid;
+                    }
+                    if (p.ValueKind == JsonValueKind.Number && p.TryGetDecimal(out decimal d))
+                        return ClassifyPieceQty(d.ToString(CultureInfo.InvariantCulture), out qty);
+                    return PieceQtyKind.Invalid;
+                }
+                if (p.ValueKind == JsonValueKind.String)
+                    return ClassifyPieceQty(p.GetString(), out qty);
+                return ClassifyPieceQty(p.ToString(), out qty);
+            }
+            return present ? PieceQtyKind.Invalid : PieceQtyKind.Missing;
         }
 
         private static (int w, int h) ParseDimension(string? raw)

@@ -182,7 +182,7 @@ namespace ProGlassAutomation.Services.Production.Cutting
                             Quantity = 1,
                             GlassFamily = family,
                             Color = color,
-                            ThicknessMm = item.WidthMm > 0 ? 6 : 6, // Infer from spec if needed
+                            ThicknessMm = InferThicknessFromSpec(item.SpecName),
                             Coating = coating,
                             Treatment = item.Treatment ?? string.Empty,
                             RequiresTempering = !string.IsNullOrWhiteSpace(item.Treatment),
@@ -261,19 +261,34 @@ namespace ProGlassAutomation.Services.Production.Cutting
             return (family, color, coating);
         }
 
-        private static int InferThickness(SavedProductionWorkItem wi)
+        private static int InferThickness(SavedProductionWorkItem wi) =>
+            InferThicknessFromSpec(wi?.SpecName);
+
+        /// <summary>
+        /// Pane thicknesses from the spec grammar only. Mixed panes
+        /// (8mm outer + 6mm inner) are unresolved — 0 — so stock match
+        /// cannot silently pick an 8mm rack from Contains("8mm").
+        /// Unparsed names are also 0, never a guessed 6mm.
+        /// </summary>
+        private static int InferThicknessFromSpec(string? specName)
         {
-            // Try to infer from SpecName or GlassRef, fallback 6mm
-            // Real implementation would parse PnLPane ThicknessMm
-            if (wi == null) return 6;
-            string spec = (wi.SpecName ?? "").ToLowerInvariant();
-            if (spec.Contains("10mm")) return 10;
-            if (spec.Contains("8mm")) return 8;
-            if (spec.Contains("6mm")) return 6;
-            if (spec.Contains("5mm")) return 5;
-            if (spec.Contains("4mm")) return 4;
-            if (spec.Contains("12mm")) return 12;
-            return 6;
+            if (string.IsNullOrWhiteSpace(specName)) return 0;
+            try
+            {
+                var panes = ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
+                    .PnLSpecParser.ResolveAllPanes(specName);
+                var mm = panes
+                    .Where(p => p != null && p.ThicknessMm > 0)
+                    .Select(p => p.ThicknessMm)
+                    .Distinct()
+                    .ToList();
+                if (mm.Count == 1) return mm[0];
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[CuttingReq] thickness parse failed: " + ex.Message);
+            }
+            return 0;
         }
     }
 }

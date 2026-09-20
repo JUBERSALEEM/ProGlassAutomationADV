@@ -98,6 +98,64 @@ namespace ProGlassAutomation.Tests.Production
         }
 
         [Fact]
+        public void Piece_qty_parser_strips_pcs_and_rejects_fractional()
+        {
+            string util = Read("Utilities/TextParsing.cs");
+            Assert.Contains("TryParsePieceQty", util);
+            Assert.Contains("d != decimal.Truncate(d)", util);
+
+            string parser = Read("Services/ProformaInvoice/Step5Grid/CutListImportParser.cs");
+            Assert.Contains("ClassifyPieceQty", parser);
+            Assert.Contains("PieceQtyKind.Invalid", parser);
+            Assert.DoesNotContain("or \"no\" or \"count\"", parser);
+            Assert.Contains("\"No\" is a row-number column", parser);
+
+            string row = Read("ViewModels/ProformaInvoice/Step5DataGrid/GlassItemRow.cs");
+            Assert.Contains("TextParsing.TryParsePieceQty(kv.Value, out int qty)", row);
+        }
+
+        [Fact]
+        public void Duplicate_import_appends_without_clearing_existing_rows()
+        {
+            string src = Read("ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.Part2.cs");
+            Assert.Contains("public int ApplyImportedRows(", src);
+            Assert.DoesNotContain("ItemRows.Clear()", src);
+        }
+
+        [Fact]
+        public void Pi_corrupt_json_returns_empty_snapshot_jo_release_refuses_zero_items()
+        {
+            string mapper = Read("Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.Part1.cs");
+            Assert.Contains("return new ProformaInvoiceSnapshot();", mapper);
+
+            string release = Read("Services/Production/ProductionReleaseService.cs");
+            Assert.Contains("if (plan.ItemCount == 0)", release);
+            Assert.Contains("return (false, $\"Nothing to distribute for {source.Reference}", release);
+
+            string jo = Read("Services/JobOrder/Mapper/JobOrderMapper.cs");
+            Assert.Contains("return null;", jo);
+        }
+
+        [Fact]
+        public void Thickness_is_unresolved_zero_not_guessed_six()
+        {
+            string src = Read("Services/Production/Cutting/CuttingRequirementService.cs");
+            Assert.Contains("InferThicknessFromSpec", src);
+            Assert.Contains("if (mm.Count == 1) return mm[0];", src);
+            Assert.DoesNotContain("if (spec.Contains(\"8mm\")) return 8;", src);
+            Assert.Contains("ThicknessMm = InferThicknessFromSpec(item.SpecName)", src);
+        }
+
+        [Fact]
+        public void Jo_embeds_pi_snapshot_without_rewriting_w1_h2()
+        {
+            string jo = Read("Services/JobOrder/Mapper/JobOrderMapper.cs");
+            Assert.Contains("EmbeddedInvoice = clonedInvoice", jo);
+            Assert.Contains("ProformaInvoiceMapper.DeserializeSnapshot(savedInvoice)", jo);
+            Assert.DoesNotContain("W1 = row.H1", jo);
+        }
+
+        [Fact]
         public void Stock_selection_filter_does_not_subtract_placed_pieces()
         {
             string src = Read("Services/Production/Cutting/StockSelectionService.cs");

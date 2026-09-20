@@ -463,8 +463,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         break;
 
                     case GridColumnIndex.Qty:
-                        if (int.TryParse(TextParsing.CleanNum(kv.Value), out int qty)
-                            && qty > 0)
+                        if (TextParsing.TryParsePieceQty(kv.Value, out int qty))
                             _qty = qty;
                         break;
 
