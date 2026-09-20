@@ -5,7 +5,7 @@
      Pattern: Same visual quality as StorageDetailsPanel.
      Shows when user clicks a row in the P&L Summary table.
 ═══════════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.JobDetailPanel"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.JobProfitability.JobDetailPanel"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"

@@ -3,7 +3,7 @@
      MODULE: Optimization — Jobs tab (hosted by OptimizationView).
      DataContext = OptimizationViewModel (inherited from the shell).
 ═══════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.JobsTabView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Optimization.Tabs.JobsTabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"

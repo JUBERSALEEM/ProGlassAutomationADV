@@ -16,7 +16,7 @@
        RowPrimaryButton; hero/empty icon slots -> MDL2 glyphs
      Commands/bindings/code-behind preserved; no VM changes.
 ═══════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.JobOrder.GodView.JobOrderGodView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.JobOrder.GodView.JobOrderGodView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

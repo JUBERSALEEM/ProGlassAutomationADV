@@ -17,7 +17,7 @@
      The BACK button lives on the parent view (JobProfitabilityView) so it
      can bind the host's CloseFullDetailCommand directly.
 ═══════════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.JobFullDetailView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.JobProfitability.JobFullDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"

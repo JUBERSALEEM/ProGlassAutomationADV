@@ -13,7 +13,7 @@
        ✓ ALL other XAML preserved exactly.
 ═══════════════════════════════════════════════════════════════════════ -->
 
-<UserControl x:Class="ProGlassAutomation.Views.AI.AiChatView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.AI.AiChatView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

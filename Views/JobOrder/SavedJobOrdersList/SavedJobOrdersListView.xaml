@@ -1,5 +1,5 @@
 <!-- Job Order list — industrial table chrome. Bindings / commands / OnLoaded / OnRowRightClick unchanged. -->
-<UserControl x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.SavedJobOrdersListView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.SavedJobOrdersListView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

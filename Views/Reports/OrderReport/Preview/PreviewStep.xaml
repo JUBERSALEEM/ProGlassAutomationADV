@@ -9,7 +9,7 @@
      OrderReportGeneratorViewModel.PreviewVM + the generator's own
      SelectAll / DeselectAll / Generate commands.
 ═══════════════════════════════════════════════════════════════════ -->
-<UserControl
+<UserControl Style="{StaticResource ErpPageRootStyle}"
     x:Class="ProGlassAutomation.Views.Reports.OrderReport.Preview.PreviewStep"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

@@ -26,7 +26,7 @@
        / IconBadgeStyles. The previous module-local "InquiryTheme.xaml" is
        removed. No private vocabulary.
 ════════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.Inquiry.InquiryListView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Inquiry.InquiryListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:inq="clr-namespace:ProGlassAutomation.Models.Inquiry"

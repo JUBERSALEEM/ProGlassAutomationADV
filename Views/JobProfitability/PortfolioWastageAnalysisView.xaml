@@ -2,7 +2,7 @@
      FILE: Views/JobProfitability/PortfolioWastageAnalysisView.xaml
      MODULE: Portfolio Wastage Analysis (Job Profitability → Tab 3)
 ═══════════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.PortfolioWastageAnalysisView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.JobProfitability.PortfolioWastageAnalysisView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"

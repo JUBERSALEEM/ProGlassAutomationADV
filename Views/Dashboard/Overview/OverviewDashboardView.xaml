@@ -8,7 +8,7 @@
      from the LAYOUT-03 version; the chrome is the new Meridian design
      language (Pg* keys — see Themes/Professional/ProfessionalCore.xaml).
 ═══════════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

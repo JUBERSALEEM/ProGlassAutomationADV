@@ -9,7 +9,7 @@
      Activity tab: full audit trail with a live section filter.
 ═══════════════════════════════════════════════════════════════════════ -->
 
-<UserControl x:Class="ProGlassAutomation.Views.SystemCenter.SystemCenterView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.SystemCenter.SystemCenterView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

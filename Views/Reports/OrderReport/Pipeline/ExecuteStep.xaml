@@ -7,7 +7,7 @@
      user advances from Preview; this surface shows the build status and
      then a "ready" summary before auto-advancing to Review.
 ═══════════════════════════════════════════════════════════════════ -->
-<UserControl
+<UserControl Style="{StaticResource ErpPageRootStyle}"
     x:Class="ProGlassAutomation.Views.Reports.OrderReport.Pipeline.ExecuteStep"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

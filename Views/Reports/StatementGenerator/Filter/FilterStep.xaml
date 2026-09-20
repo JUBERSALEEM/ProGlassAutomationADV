@@ -15,7 +15,7 @@
      DESIGN PATTERN: Neo-crystal surfaces
        Reference: Linear.app + Vercel + Stripe design systems
 ═══════════════════════════════════════════════════════════════ -->
-<UserControl
+<UserControl Style="{StaticResource ErpPageRootStyle}"
     x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Filter.FilterStep"
              TextOptions.TextHintingMode="Fixed"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

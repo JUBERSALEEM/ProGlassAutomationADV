@@ -4,7 +4,7 @@
     · right paper-white A4.
     Paper stays #FFFFFF. Print ink unchanged.
 -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintPreviewView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintPreviewView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

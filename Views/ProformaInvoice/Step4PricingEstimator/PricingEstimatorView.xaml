@@ -1,4 +1,4 @@
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.PricingEstimatorView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.PricingEstimatorView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

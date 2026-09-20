@@ -9,7 +9,7 @@
     - Best and worst performers
     - Strategic recommendations
 -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.GlassTypeComparisonView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.GlassTypeComparisonView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"

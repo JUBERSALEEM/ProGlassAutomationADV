@@ -3,7 +3,7 @@
     one workbench, KPI strip, always-visible build-order layers, rate-check row.
     Bindings and calculations unchanged.
 -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.ProfitLossStepView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.ProfitLossStepView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

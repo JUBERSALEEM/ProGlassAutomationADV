@@ -39,114 +39,60 @@
     <!-- Shared layered glass pill template — crystal edge, specular highlight,
          reflection gradient, bottom refraction, spring press animation,
          icon-aware via Tag property. -->
+    <!-- 2026-09-20 industrial ERP: one flat control surface, Tag-as-icon
+         preserved. Glass glare / specular / press-scale removed so every
+         Primary/Outlined/Danger pill matches Button.Primary language. -->
     <ControlTemplate x:Key="GlassPillButtonTemplate" TargetType="Button">
-        <Grid x:Name="RootGrid">
-            <Grid.RenderTransform>
-                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
-            </Grid.RenderTransform>
-            <!-- L0: Shadow -->
-            <Border x:Name="ShadowHost"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Effect="{StaticResource ShadowSoft}"/>
-            <!-- L1+L2: Surface + crystal border -->
-            <Border x:Name="Bg"
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="{TemplateBinding Padding}"
-                    Height="{TemplateBinding Height}"
-                    SnapsToDevicePixels="True">
-                <Grid>
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <TextBlock x:Name="Icon"
-                                   Text="{TemplateBinding Tag}"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="{DynamicResource FontSize.Title}"
-                                   Foreground="{TemplateBinding Foreground}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Style.Triggers>
-                                        <Trigger Property="Text" Value="">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </Trigger>
-                                        <Trigger Property="Text" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <ContentPresenter VerticalAlignment="Center"
-                                          TextElement.FontSize="{DynamicResource FontSize.Body}"
-                                          TextElement.FontWeight="Bold"
-                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
-            <!-- L3: Specular highlight (top edge) -->
-            <Border x:Name="SpecularHighlight"
-                    Height="1"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    VerticalAlignment="Top"
-                    Background="{DynamicResource GlassSpecularHighlight}"
-                    Opacity="0.6"
-                    Margin="1,0,1,0"
-                    IsHitTestVisible="False"/>
-            <!-- Top glare (frosted glass catch-light) -->
-            <Border x:Name="Glare"
-                    Height="14"
-                    CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    VerticalAlignment="Top"
-                    Background="{DynamicResource GlassTopReflectionGradient}"
-                    Opacity="0.5"
-                    Margin="1,1,1,0"
-                    IsHitTestVisible="False"/>
-        </Grid>
+        <Border x:Name="Bg"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{DynamicResource Radius.Control}"
+                Padding="{TemplateBinding Padding}"
+                Height="{TemplateBinding Height}"
+                SnapsToDevicePixels="True">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock x:Name="Icon"
+                           Text="{TemplateBinding Tag}"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Title}"
+                           Foreground="{TemplateBinding Foreground}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,10,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ContentPresenter VerticalAlignment="Center"
+                                  TextElement.FontSize="{DynamicResource FontSize.Body}"
+                                  TextElement.FontWeight="SemiBold"
+                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
+            </StackPanel>
+        </Border>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
-                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
-                <Setter TargetName="Glare" Property="Opacity" Value="0.7"/>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.92"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.9"/>
-                <Trigger.EnterActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
-                            </DoubleAnimationUsingKeyFrames>
-                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
-                            </DoubleAnimationUsingKeyFrames>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.EnterActions>
-                <Trigger.ExitActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
-                            </DoubleAnimationUsingKeyFrames>
-                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
-                            </DoubleAnimationUsingKeyFrames>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.ExitActions>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.82"/>
             </Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource State.Focus}"/>
                 <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
-                <Setter TargetName="Glare" Property="Opacity" Value="0.2"/>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
@@ -254,104 +200,55 @@
          shadow (few dozen on screen at most) via GlassPillButtonTemplate.
     -->
     <ControlTemplate x:Key="RowButtonTemplate" TargetType="Button">
-        <Grid x:Name="RootGrid">
-            <Grid.RenderTransform>
-                <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
-            </Grid.RenderTransform>
-            <!-- L0: shadow-free elevation — subtle inner bottom edge keeps the
-                 pill readable on glass without a live pixel shader -->
-            <Border x:Name="ShadowHost"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    VerticalAlignment="Bottom"
-                    Height="1"
-                    Margin="8,0,8,0"
-                    Background="{DynamicResource DividerBrush}"
-                    Opacity="0.45"/>
-            <Border x:Name="Bg"
-                    Background="{TemplateBinding Background}"
-                    BorderBrush="{TemplateBinding BorderBrush}"
-                    BorderThickness="{TemplateBinding BorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="{TemplateBinding Padding}"
-                    Height="{TemplateBinding Height}"
-                    SnapsToDevicePixels="True">
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
-                    <TextBlock Text="{TemplateBinding Tag}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{DynamicResource FontSize.BodySmall}"
-                               Foreground="{TemplateBinding Foreground}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,6,0">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <Trigger Property="Text" Value="">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </Trigger>
-                                    <Trigger Property="Text" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <ContentPresenter VerticalAlignment="Center"
-                                      TextElement.FontSize="{DynamicResource FontSize.BodySmall}"
-                                      TextElement.FontWeight="Bold"
-                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
-                </StackPanel>
-            </Border>
-            <!-- Specular highlight -->
-            <Border Height="1" CornerRadius="{DynamicResource CardCornerRadius}"
-                    VerticalAlignment="Top"
-                    Background="{DynamicResource GlassSpecularHighlight}"
-                    Opacity="0.5" Margin="1,0,1,0" IsHitTestVisible="False"/>
-            <!-- Top glare -->
-            <Border x:Name="Glare" Height="8" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
-                    Background="{DynamicResource GlassTopReflectionGradient}"
-                    Opacity="0.45" Margin="1,1,1,0" IsHitTestVisible="False"/>
-        </Grid>
+        <Border x:Name="Bg"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{DynamicResource Radius.Control}"
+                Padding="{TemplateBinding Padding}"
+                Height="{TemplateBinding Height}"
+                SnapsToDevicePixels="True">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Text="{TemplateBinding Tag}"
+                           FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           Foreground="{TemplateBinding Foreground}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ContentPresenter VerticalAlignment="Center"
+                                  TextElement.FontSize="{DynamicResource FontSize.BodySmall}"
+                                  TextElement.FontWeight="SemiBold"
+                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
+            </StackPanel>
+        </Border>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
-                <Setter TargetName="Glare" Property="Opacity" Value="0.65"/>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.92"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
-                <Trigger.EnterActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
-                            </DoubleAnimationUsingKeyFrames>
-                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
-                            </DoubleAnimationUsingKeyFrames>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.EnterActions>
-                <Trigger.ExitActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
-                            </DoubleAnimationUsingKeyFrames>
-                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
-                                <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
-                            </DoubleAnimationUsingKeyFrames>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.ExitActions>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.82"/>
             </Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
-                <Setter TargetName="Bg" Property="BorderThickness" Value="1.5"/>
+                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource State.Focus}"/>
+                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
-                <Setter TargetName="Glare" Property="Opacity" Value="0.15"/>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>

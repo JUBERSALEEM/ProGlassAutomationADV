@@ -212,7 +212,10 @@
                      DETECTS and re-uses this pre-merged instance instead of
                      stacking a duplicate (see FindMergedBySource). ── -->
                                 <!-- ONE AUTHORITATIVE DESIGN SYSTEM — GlobalDesignSystem.xaml
-                     Must be merged AFTER all other dictionaries so it wins.
+                     Visual SSOT. Merged AFTER module kits (pills, tabs, Opt, Pi,
+                     MERIDIAN, Wizard) so unification aliases win. Language
+                     strings and About Ios26* keys follow; those keys are
+                     namespaced and do not collide with GDS Surface*/Button.*. -->
                      Defines canonical Surface hierarchy (Primary/Secondary/Detail/Elevated/Kpi/Glass),
                      Geometry (Radius.*), Typography (FontSize.* + Weight.* + FontFamily.*),
                      Spacing, Shadows, Buttons, Inputs, DataGrid, Tabs, Chips/Badges, Navigation,

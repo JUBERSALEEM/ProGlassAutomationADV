@@ -9,7 +9,7 @@
      Uses only app-wide resources (WizardStyles.xaml is merged globally
      in App.xaml) and literal text — no Statement localization keys.
 ═══════════════════════════════════════════════════════════════════ -->
-<UserControl
+<UserControl Style="{StaticResource ErpPageRootStyle}"
     x:Class="ProGlassAutomation.Views.Reports.OrderReport.OrderReportGeneratorView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

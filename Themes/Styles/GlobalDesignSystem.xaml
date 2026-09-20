@@ -258,13 +258,20 @@
     <!-- ═══════════════════════════════════════════════════════════════
          6. SPACING — ONE CANONICAL
     ═══════════════════════════════════════════════════════════════ -->
+    <!-- Canonical scale: 2 4 6 8 12 16 20 24 32 40 48. Prefer these over
+         invented page-local Thickness. ThemeManager density does not
+         rewrite this ladder (control density is Density.*). -->
+    <sys:Double x:Key="Space.2">2</sys:Double>
     <sys:Double x:Key="Space.Xs">4</sys:Double>
+    <sys:Double x:Key="Space.6">6</sys:Double>
     <sys:Double x:Key="Space.Sm">8</sys:Double>
     <sys:Double x:Key="Space.Md">12</sys:Double>
     <sys:Double x:Key="Space.Lg">16</sys:Double>
+    <sys:Double x:Key="Space.20">20</sys:Double>
     <sys:Double x:Key="Space.Xl">24</sys:Double>
     <sys:Double x:Key="Space.2Xl">32</sys:Double>
     <sys:Double x:Key="Space.3Xl">40</sys:Double>
+    <sys:Double x:Key="Space.48">48</sys:Double>
 
     <Thickness x:Key="Space.Page">12</Thickness>
     <Thickness x:Key="Space.Card">12,9</Thickness>
@@ -1193,5 +1200,77 @@
     <Style x:Key="FullKpiValue" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
     <Style x:Key="KpiValueStyle" TargetType="TextBlock" BasedOn="{StaticResource Typography.Kpi}"/>
     <Style x:Key="ModelOptionCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+
+
+    <Style x:Key="Button.Outline" TargetType="Button" BasedOn="{StaticResource Button.Secondary}"/>
+    <Style x:Key="Button.Danger" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+    </Style>
+    <Style x:Key="Button.Icon" TargetType="Button" BasedOn="{StaticResource Button.Ghost}">
+        <Setter Property="MinWidth" Value="36"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="8"/>
+    </Style>
+
+    <!-- 2026-09-20: leftover card kits resolve to the same Surface* language.
+         Pill button KEYS are NOT restyled here — GlassPillButtonTemplate owns
+         Tag-as-icon. That template is industrialized in Styles/ButtonStyles.xaml. -->
+    <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="OptPanelCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+    <Style x:Key="OptInnerCard" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <Style x:Key="PgCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
+
+    <Style x:Key="ModuleTabButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="16,8"/>
+    </Style>
+    <Style x:Key="LiquidGlassTabActive" TargetType="Button" BasedOn="{StaticResource Button.Primary}">
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="16,8"/>
+    </Style>
+    <Style x:Key="LiquidGlassTabInactive" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="16,8"/>
+    </Style>
+    <Style x:Key="ModuleTabStripStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+    <Style x:Key="LiquidGlassTabContainer" TargetType="Border" BasedOn="{StaticResource ModuleTabStripStyle}"/>
+
+    <Style x:Key="Field.Panel" TargetType="StackPanel">
+        <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+    <Style x:Key="Field.Label" TargetType="TextBlock" BasedOn="{StaticResource FieldLabelStyle}">
+        <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+    <Style x:Key="Field.Error" TargetType="TextBlock" BasedOn="{StaticResource FieldError}">
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="ErpPageRootStyle" TargetType="UserControl">
+        <Setter Property="Background" Value="{DynamicResource SurfaceWorkspaceBrush}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style x:Key="DocumentHeaderBandStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.BottomHairlineThickness}"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+    <Style x:Key="DocumentFooterBandStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource Border.TopHairlineThickness}"/>
+        <Setter Property="Padding" Value="20,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
 
 </ResourceDictionary>

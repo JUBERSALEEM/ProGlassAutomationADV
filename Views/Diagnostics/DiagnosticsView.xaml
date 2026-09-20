@@ -9,7 +9,7 @@
      SectionActivityViewModel (audit feed per section).
 ═══════════════════════════════════════════════════════════════════════ -->
 
-<UserControl x:Class="ProGlassAutomation.Views.Diagnostics.DiagnosticsView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Diagnostics.DiagnosticsView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

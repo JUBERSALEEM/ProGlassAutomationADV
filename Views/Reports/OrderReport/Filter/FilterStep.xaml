@@ -15,7 +15,7 @@
      • A DATE WINDOW and a STATUS GATE complete the scope; a live match
        counter reports how many PIs fall inside the current scope.
 ═══════════════════════════════════════════════════════════════════ -->
-<UserControl
+<UserControl Style="{StaticResource ErpPageRootStyle}"
     x:Class="ProGlassAutomation.Views.Reports.OrderReport.Filter.FilterStep"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

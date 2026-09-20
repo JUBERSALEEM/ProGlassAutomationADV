@@ -11,7 +11,7 @@
        Right pane: Active report ViewModel rendered via DataTemplates.
        Overview screen: Global KPI summary, workflow guidance, and quick actions.
 ═══════════════════════════════════════════════════════════════════════ -->
-<UserControl
+<UserControl Style="{StaticResource ErpPageRootStyle}"
     x:Class="ProGlassAutomation.Views.Reports.SalesReportView"
              TextOptions.TextHintingMode="Fixed"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

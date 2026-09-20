@@ -8,7 +8,7 @@
      The active user auto-fills "Document Prepared By" in PI Step 2
      and signs every audit entry.
 ═══════════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.UserCenter.UserCenterView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.UserCenter.UserCenterView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

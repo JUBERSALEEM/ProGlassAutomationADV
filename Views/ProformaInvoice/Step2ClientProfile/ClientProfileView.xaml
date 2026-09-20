@@ -1,7 +1,7 @@
 <!-- Step 2 — flat industrial form. No cards.
      Optional fields bind Visibility to Services.Features.ProformaFieldVisibility.
      Customer Name is DB-required and stays always visible. -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step2ClientProfile.ClientProfileView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step2ClientProfile.ClientProfileView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

@@ -9,7 +9,7 @@
      module in the Dispatch section.
 ═══════════════════════════════════════════════════════════════════ -->
 
-<UserControl x:Class="ProGlassAutomation.Views.Reports.StatementModule.StatementModuleView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Reports.StatementModule.StatementModuleView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vmList="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementList"

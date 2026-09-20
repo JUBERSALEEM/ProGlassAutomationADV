@@ -20,7 +20,7 @@
        • x:Name="TerminalLogScroller" + "TerminalLogItems" (code-behind auto-scroll)
        • All VM bindings (steps / log / warnings / metrics / progress).
 ═══════════════════════════════════════════════════════════════ -->
-<UserControl
+<UserControl Style="{StaticResource ErpPageRootStyle}"
     x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline.ExecuteStep"
              TextOptions.TextHintingMode="Fixed"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

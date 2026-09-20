@@ -8,7 +8,7 @@
      (JOBS / SIZES / STOCKS / SETTINGS / SUMMARY / 2D VIEW); shared
      styles live in Themes/Styles/OptimizationStyles.xaml.
 ═══════════════════════════════════════════════════════════════════ -->
-<UserControl x:Class="ProGlassAutomation.Views.Optimization.OptimizationView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Optimization.OptimizationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:tabs="clr-namespace:ProGlassAutomation.Views.Optimization.Tabs"

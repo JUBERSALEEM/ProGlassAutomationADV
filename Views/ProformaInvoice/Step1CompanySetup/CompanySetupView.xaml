@@ -3,7 +3,7 @@
      so a non-coder operator can hide any field from Settings → Features →
      Proforma Invoice without touching XAML. Company Name and Proforma ID
      are DB-required and stay always visible. -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step1CompanySetup.CompanySetupView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step1CompanySetup.CompanySetupView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

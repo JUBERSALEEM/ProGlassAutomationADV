@@ -3,7 +3,7 @@
     TYPE | NAME | SIZE | ADDED | ACTIONS. + single APPROVE INVOICE action
     (one picker for images AND PDFs — 2026-09-10 unification).
 -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step8Attachments.AttachmentsStepView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step8Attachments.AttachmentsStepView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

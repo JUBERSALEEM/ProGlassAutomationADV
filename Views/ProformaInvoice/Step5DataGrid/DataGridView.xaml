@@ -4,7 +4,7 @@
     that collapsed the grid to zero height and virtualized empty rows
     away when the user dragged them.
 -->
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid.DataGridView"
+<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid.DataGridView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

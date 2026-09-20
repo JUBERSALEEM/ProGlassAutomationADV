@@ -35,7 +35,7 @@
        SelectMergedTabCommand, SelectBalanceTabCommand, SelectAlertsTabCommand,
        WarningCount, ErrorCount, WarningSummaryDisplay
 ═══════════════════════════════════════════════════════════════ -->
-<UserControl
+<UserControl Style="{StaticResource ErpPageRootStyle}"
     x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Review.ReviewStep"
              TextOptions.TextHintingMode="Fixed"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
