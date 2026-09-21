@@ -164,6 +164,17 @@ namespace ProGlassAutomation.Tests.Production
             string picker = Read("Views/Optimization/Tabs/JobsTabView.xaml");
             Assert.Contains("SelectedItem=\"{Binding SelectedJob, Mode=TwoWay}\"", picker);
 
+            string listItem = Read("Themes/Styles/DataGridStyles.xaml");
+            Assert.Contains("x:Key=\"LineItemsListViewItemStyle\"", listItem);
+            Assert.Contains("OverridesDefaultStyle", listItem);
+            Assert.DoesNotContain("AncestorType={x:Type ItemsControl}", listItem);
+
+            string cutList = Read("Views/Optimization/Tabs/CutListTabView.xaml");
+            Assert.Contains("ItemContainerStyle=\"{StaticResource LineItemsListViewItemStyle}\"", cutList);
+
+            string step5 = Read("Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml");
+            Assert.Contains("BasedOn=\"{StaticResource LineItemsListViewItemStyle}\"", step5);
+
             string cut = Read("ViewModels/Optimization/OptimizationViewModel.CutList.cs");
             Assert.Contains("private void SyncCutListFromSelectedJobs()", cut);
             Assert.Contains("ApplyImportedRows(import)", cut);

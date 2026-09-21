@@ -385,6 +385,7 @@
                         <ListView Grid.Row="2"
                                   DataContext="{Binding ManualCutList}"
                                   ItemsSource="{Binding ItemRows}"
+                                  ItemContainerStyle="{StaticResource LineItemsListViewItemStyle}"
                                   Background="Transparent"
                                   BorderThickness="{DynamicResource Border.NoneThickness}"
                                   Padding="0"

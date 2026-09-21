@@ -129,6 +129,39 @@
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
     </Style>
 
+    <!-- WPF's theme ListViewItem binds Horizontal/VerticalContentAlignment
+         to AncestorType=ItemsControl. That binding runs when the container
+         is created, before it has a parent — Output floods with
+         System.Windows.Data Error: 4 and DataItem=null. OverridesDefaultStyle
+         drops the theme setters so the ancestor lookup never happens. -->
+    <Style x:Key="LineItemsListViewItemStyle" TargetType="ListViewItem">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="MinHeight" Value="40"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListViewItem">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            HorizontalAlignment="Stretch">
+                        <ContentPresenter HorizontalAlignment="Stretch"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 
     <!-- Enterprise ERP grid chrome — opt-in for legacy screens and the
          default target for new grids. Keeps virtualization on, row heights
