@@ -51,7 +51,7 @@
                         <RadioButton GroupName="OptTabs" Tag="&#xE8A7;" Content="SIZES"
                                      IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
                                      Style="{StaticResource OptRailTab}"/>
-                        <RadioButton GroupName="OptTabs" Tag="&#xE70F;" Content="CUT LIST"
+                        <RadioButton GroupName="OptTabs" Tag="&#xE70F;" Content="MANUAL CUT LIST"
                                      IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=7}"
                                      Style="{StaticResource OptRailTab}"/>
                         <RadioButton GroupName="OptTabs" Tag="&#xE7B8;" Content="STOCKS"

@@ -484,7 +484,6 @@ public ProformaInvoiceViewModel() : this(
             // latest-run row read DocumentKey when the run finishes.
             host.DocumentKey = CurrentDocumentKey;
 
-            Step5VM.ReportOptimizationProgress(true, 0, "RUNNING OPTIMIZATION");
             bool started = host.RunFromStep5(specGroups, stage, out string message);
             if (!started)
                 Step5VM.ReportOptimizationProgress(false, 0, message ?? string.Empty);

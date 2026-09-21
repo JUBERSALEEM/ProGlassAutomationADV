@@ -157,6 +157,8 @@ namespace ProGlassAutomation.Tests.Production
             Assert.Contains("value.IsSelected = true", jobs);
             Assert.Contains("DguDimensionSemantics.TryResolveInnerSize(", jobs);
             Assert.Contains("SyncCutListFromSelectedJobs();", jobs);
+            Assert.Contains("AddSyntheticSpecFromStep5Rows", jobs);
+            Assert.Contains("TryImportPiecesFromSelectedJobStep5Rows", jobs);
             Assert.Contains("if (options.Count == 0 && Pieces.Count == 0)", jobs);
 
             string picker = Read("Views/Optimization/Tabs/JobsTabView.xaml");
@@ -175,9 +177,20 @@ namespace ProGlassAutomation.Tests.Production
             string live = Read("ViewModels/Optimization/OptimizationViewModel.LiveRun.cs");
             Assert.Contains("hasCuttable", live);
             Assert.Contains("hasSheet", live);
+            Assert.Contains("bool engineStarted = Run(", live);
+            Assert.Contains("DguDimensionSemantics.TryResolveInnerSize(", live);
+
+            string run = Read("ViewModels/Optimization/OptimizationViewModel.Run.cs");
+            Assert.Contains("private bool Run(string stage)", run);
+            Assert.Contains("GuillotinePacker.PackOptimize", run);
+            Assert.Contains("GuillotinePacker.PackQuick", run);
+
+            string rail = Read("Views/Optimization/OptimizationView.xaml");
+            Assert.Contains("Content=\"MANUAL CUT LIST\"", rail);
 
             string pi = Read("ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs");
-            Assert.Contains("ReportOptimizationProgress(true, 0, \"RUNNING OPTIMIZATION\")", pi);
+            Assert.Contains("bool started = host.RunFromStep5(specGroups, stage, out string message);", pi);
+            Assert.DoesNotContain("ReportOptimizationProgress(true, 0, \"RUNNING OPTIMIZATION\")", pi);
 
             string spec = Read("ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.Part2.cs");
             Assert.Contains("Keeping glass type", spec);

@@ -304,11 +304,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// different glass never mixes on a sheet. Results are applied back
         /// on the dispatcher by <see cref="SafeFireAndForget"/>.
         /// </summary>
-        private void Run(string stage)
+        private bool Run(string stage)
         {
             // A run that never starts must not leave the "reopen to REPORT"
             // flag dangling — clear it on every early exit.
-            if (IsRunning) { _openToReportAfterRun = false; return; }
+            if (IsRunning) { _openToReportAfterRun = false; return false; }
             ClearInputWarnings();
 
             if (!IsHeadlessHost)
@@ -322,14 +322,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             ? "Step 4 material is unresolved or invalid — optimization cannot use this spec."
                             : blocked.MaterialInvalidReason)
                         + " Missing Sheet Store price or material identity is an invalid input state.";
-                    return;
+                    return false;
                 }
             }
 
             OptimizationResultFeed.Invalidate("optimization run started");
 
             if (!TryBuildInputs(out var pieces, out var stockPool, out var margins))
-            { _openToReportAfterRun = false; return; }
+            { _openToReportAfterRun = false; return false; }
 
             _lastInputFingerprint = OptimizationMaterialIdentity.Fingerprint(pieces);
             _lastRunId = Guid.NewGuid().ToString("N");
@@ -378,7 +378,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     _openToReportAfterRun = false;
                     RunMessage = "The selected cutting group has no valid pieces.";
-                    return;
+                    return false;
                 }
             }
 
@@ -410,6 +410,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             AsyncUtility.SafeFireAndForget(
                 () => RunCoreAsync(stage, groups, stockPool, margins, rotation, effort),
                 "Optimization run");
+            return true;
         }
 
         /// <summary>Groups the piece list by glass composition — one pack run

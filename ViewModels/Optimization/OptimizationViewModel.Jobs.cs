@@ -658,6 +658,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     opt.SpecCountLabel = specCount.ToString(CultureInfo.InvariantCulture)
                         + (specCount == 1 ? " spec" : " specs");
 
+                    if (opt.Specs.Count == 0)
+                        AddSyntheticSpecFromStep5Rows(opt);
+
                     opt.HasOptimizablePanes = opt.Specs.Count > 0
                         || opt.Step5Rows.Any(r => r != null && r.Qty > 0 && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)));
                     if (!opt.HasOptimizablePanes)
@@ -807,6 +810,79 @@ namespace ProGlassAutomation.ViewModels.Optimization
             foreach (var spec in job.Specs)
                 foreach (var layer in spec.Layers)
                     if (layer.IsPane) layer.IsSelected = true;
+        }
+
+        /// <summary>
+        /// When Distribute produced no pane layers but Step 5 still has
+        /// W1/H1/W2/H2 rows, surface those as Outer/Inner so selecting the
+        /// job auto-fills the breakdown and cutting list.
+        /// </summary>
+        private static void AddSyntheticSpecFromStep5Rows(JobOptionVm opt)
+        {
+            if (opt == null || opt.Specs.Count > 0) return;
+            var rows = (opt.Step5Rows ?? new List<GlassItemRowSnapshot>())
+                .Where(r => r != null && r.Qty > 0
+                    && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)))
+                .ToList();
+            if (rows.Count == 0) return;
+
+            var spec = new SpecOptionVm
+            {
+                JobOrderId = opt.JobOrderId,
+                SpecGroupNumber = 1,
+                SpecName = "Step 5",
+                BuildType = "Dgu"
+            };
+
+            var outer = new BuildUpLayerVm
+            {
+                Kind = "Pane",
+                Position = "Outer",
+                SpecLabel = "Spec 1",
+                Title = "Outer",
+                Sub = "OUTER",
+                IsSelected = true,
+                JobOrderId = opt.JobOrderId,
+                SpecGroupNumber = 1,
+                MaterialKey = "UNRESOLVED|" + (opt.JobOrderId ?? string.Empty) + "|1|Outer"
+            };
+            var inner = new BuildUpLayerVm
+            {
+                Kind = "Pane",
+                Position = "Inner",
+                SpecLabel = "Spec 1",
+                Title = "Inner",
+                Sub = "INNER",
+                IsSelected = true,
+                JobOrderId = opt.JobOrderId,
+                SpecGroupNumber = 1,
+                MaterialKey = "UNRESOLVED|" + (opt.JobOrderId ?? string.Empty) + "|1|Inner"
+            };
+
+            foreach (var r in rows)
+            {
+                int qty = r.Qty > 0 ? r.Qty : 1;
+                string label = string.IsNullOrWhiteSpace(r.GlassRef) ? "—" : r.GlassRef.Trim();
+                if (r.W1 > 0 && r.H1 > 0)
+                    outer.Pieces.Add(("Outer", label, r.W1, r.H1, qty));
+                if (r.W2 > 0 && r.H2 > 0)
+                    inner.Pieces.Add(("Inner", label, r.W2, r.H2, qty));
+            }
+
+            void Finish(BuildUpLayerVm layer)
+            {
+                if (layer.Pieces.Count == 0) return;
+                layer.TotalPcs = layer.Pieces.Sum(p => p.Qty);
+                double area = layer.Pieces.Sum(p => p.W / 1000.0 * p.H / 1000.0 * p.Qty);
+                layer.AreaLabel = area.ToString("0.00", CultureInfo.InvariantCulture) + " m²";
+                layer.CountLabel = layer.TotalPcs.ToString(CultureInfo.InvariantCulture) + " pcs";
+                spec.Layers.Add(layer);
+            }
+
+            Finish(outer);
+            Finish(inner);
+            if (spec.Layers.Count > 0)
+                opt.Specs.Add(spec);
         }
 
         /// <summary>
@@ -1052,6 +1128,69 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// silently retrying the same filter.
         /// </para>
         /// </summary>
+        /// <summary>
+        /// Last-resort import: ticked jobs have Step 5 W×H×Qty rows but no
+        /// exploded pane layers. Writes Outer (W1/H1) and Inner (W2/H2) into
+        /// Pieces so selecting the source-lock card still fills the cutting list.
+        /// </summary>
+        private bool TryImportPiecesFromSelectedJobStep5Rows()
+        {
+            var jobs = AvailableJobs.Where(j => j.IsSelected).ToList();
+            if (jobs.Count == 0) return false;
+
+            Pieces.Clear();
+            int added = 0;
+            foreach (var job in jobs)
+            {
+                if (job?.Step5Rows == null) continue;
+                foreach (var r in job.Step5Rows)
+                {
+                    if (r == null) continue;
+                    int qty = r.Qty > 0 ? r.Qty : 1;
+                    string label = string.IsNullOrWhiteSpace(r.GlassRef) ? "—" : r.GlassRef.Trim();
+                    if (r.W1 > 0 && r.H1 > 0)
+                    {
+                        var outer = NewPieceRow("Outer", label,
+                            r.W1.ToString(CultureInfo.InvariantCulture),
+                            r.H1.ToString(CultureInfo.InvariantCulture),
+                            qty.ToString(CultureInfo.InvariantCulture));
+                        outer.Position = "Outer";
+                        outer.JobOrderId = job.JobOrderId;
+                        outer.W1 = r.W1;
+                        outer.H1 = r.H1;
+                        outer.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|1|Outer";
+                        outer.EnsureMaterialKey();
+                        Pieces.Add(outer);
+                        added += qty;
+                    }
+                    if (r.W2 > 0 && r.H2 > 0)
+                    {
+                        var inner = NewPieceRow("Inner", label,
+                            r.W2.ToString(CultureInfo.InvariantCulture),
+                            r.H2.ToString(CultureInfo.InvariantCulture),
+                            qty.ToString(CultureInfo.InvariantCulture));
+                        inner.Position = "Inner";
+                        inner.JobOrderId = job.JobOrderId;
+                        inner.W2 = r.W2;
+                        inner.H2 = r.H2;
+                        inner.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|1|Inner";
+                        inner.EnsureMaterialKey();
+                        Pieces.Add(inner);
+                        added += qty;
+                    }
+                }
+            }
+
+            if (added == 0)
+                return false;
+
+            RefreshDerived();
+            RunMessage = string.Format(CultureInfo.InvariantCulture,
+                "Auto-imported Step 5 sizes from {0} job(s) → {1} piece(s).",
+                jobs.Count, added);
+            return true;
+        }
+
         private void AutoRebuildPiecesFromSelectedJobs()
         {
             // The headless host a proforma quote drives its Step 5 runs through
@@ -1082,12 +1221,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             if (selectedLayers.Count == 0)
             {
-                // Do not Pieces.Clear() here. Load reference job and SEND TO
-                // ENGINE own Pieces when no JO pane is ticked. Clearing on
-                // every LoadJobs rebuild / untick wiped those sizes.
-                RunMessage = SelectedJobs.Any()
-                    ? "No panes on the ticked job — Load reference job or enter sizes on CUT LIST."
-                    : "Tick a job to import Step 5 sizes, or use Load reference job / CUT LIST.";
+                if (TryImportPiecesFromSelectedJobStep5Rows())
+                    return;
+
+                if (SelectedJobs.Any())
+                {
+                    // Operator selected a confirmed JO that has no panes.
+                    if (Pieces.Count > 0)
+                    {
+                        Pieces.Clear();
+                        RefreshDerived();
+                    }
+                    RunMessage = "NO OPTIMIZABLE PANES — the selected job has no Step 5 cutting sizes.";
+                }
+                else
+                {
+                    // No JO ticked: leave Load-reference / SEND TO ENGINE pieces.
+                    RunMessage = "Tick a job to import Step 5 sizes, or use Load reference job / MANUAL CUT LIST.";
+                }
                 LogImportConservation(selectedLayers.Count, paneRows, paneQty, 0, 0, 0);
                 return;
             }

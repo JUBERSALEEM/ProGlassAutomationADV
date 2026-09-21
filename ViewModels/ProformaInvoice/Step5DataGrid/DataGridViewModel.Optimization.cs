@@ -200,6 +200,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             try
             {
+                try
+                {
+                    if (System.Windows.Input.Keyboard.FocusedElement is System.Windows.FrameworkElement fe)
+                        fe.GetBindingExpression(System.Windows.Controls.TextBox.TextProperty)?.UpdateSource();
+                }
+                catch { }
+
                 var groups = BuildSpecGroupSnapshotsForOptimization();
 
                 if (groups.Count == 0)

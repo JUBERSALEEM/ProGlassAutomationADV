@@ -111,6 +111,42 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Selecting_job_with_step5_rows_and_no_layers_imports_cutting_list()
+        {
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            var job = new OptimizationViewModel.JobOptionVm
+            {
+                JobOrderId = "JO-STEP5",
+                CustomerName = "Step 5 only",
+                CanOptimizeMaterial = false,
+                HasOptimizablePanes = true
+            };
+            job.Step5Rows.Add(new GlassItemRowSnapshot
+            {
+                GlassRef = "G-01",
+                W1 = 1100,
+                H1 = 900,
+                W2 = 1080,
+                H2 = 880,
+                Qty = 3
+            });
+            vm.AttachJobOption(job);
+            vm.AvailableJobs.Add(job);
+            job.IsSelected = true;
+
+            Assert.True(vm.HasPieces);
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1100" && p.HeightText == "900");
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1080" && p.HeightText == "880");
+            int qty = 0;
+            foreach (var p in vm.Pieces)
+            {
+                if (p.TryParse(out _, out _, out int q)) qty += q;
+            }
+            Assert.Equal(6, qty);
+            Assert.True(vm.ManualCutList.ItemRows.Count > 0);
+        }
+
+        [Fact]
         public void Zero_pane_job_is_listed_without_inventing_sizes()
         {
             var vm = new OptimizationViewModel { IsHeadlessHost = false };

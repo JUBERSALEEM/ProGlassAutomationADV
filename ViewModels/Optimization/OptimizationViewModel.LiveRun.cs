@@ -252,7 +252,36 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             && string.Equals(i.Position, occ.Position,
                                 StringComparison.OrdinalIgnoreCase))
                         .ToList();
-                    if (paneItems.Count == 0) continue;
+                    if (paneItems.Count == 0)
+                    {
+                        foreach (var row in group.ItemRows ?? Enumerable.Empty<GlassItemRowSnapshot>())
+                        {
+                            if (row == null) continue;
+                            int w, h;
+                            if (occ.Slot == PaneSlot.Pane1)
+                            {
+                                w = row.W1;
+                                h = row.H1;
+                            }
+                            else if (!DguDimensionSemantics.TryResolveInnerSize(
+                                         row.W1, row.H1, row.W2, row.H2, out w, out h, out _))
+                            {
+                                continue;
+                            }
+                            if (w <= 0 || h <= 0) continue;
+                            paneItems.Add(new ProductionWorkItem
+                            {
+                                WidthMm = w,
+                                HeightMm = h,
+                                Qty = row.Qty > 0 ? row.Qty : 1,
+                                GlassRef = row.GlassRef ?? string.Empty,
+                                SpecGroupNumber = group.GroupNumber,
+                                Position = occ.Position,
+                                Stage = ProductionStage.Cutting
+                            });
+                        }
+                        if (paneItems.Count == 0) continue;
+                    }
 
                     // Phase 2: canonical composition (same key as the Job
                     // Order import path) — a Step 5 run and a Job Order run
@@ -302,11 +331,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         row.Position = occ.Position;
                         row.ProformaId = DocumentKey ?? string.Empty;
                         row.SpecGroupNumber = group.GroupNumber;
-                        row.Color = occ.Pane?.Color ?? string.Empty;
-                        row.ThicknessMm = occ.ThicknessMm;
+                        string paneColor = occ.Pane?.Color;
+                        if (string.IsNullOrWhiteSpace(paneColor))
+                            paneColor = occ.Slot == PaneSlot.Pane2
+                                ? (group.InnerGlassColor ?? group.OuterGlassColor)
+                                : group.OuterGlassColor;
+                        int paneThk = occ.ThicknessMm > 0
+                            ? occ.ThicknessMm
+                            : ParseThicknessMm(composition);
+                        if (paneThk <= 0)
+                            paneThk = ParseThicknessMm(group.SelectedSpecName);
+                        row.Color = paneColor ?? string.Empty;
+                        row.ThicknessMm = paneThk;
                         row.Processing = occ.Treatment ?? string.Empty;
                         row.MaterialKey = OptimizationMaterialIdentity.BuildKey(
-                            string.Empty, occ.Pane?.Color, occ.ThicknessMm, occ.Treatment, string.Empty);
+                            group.SelectedGlassType, row.Color, paneThk, occ.Treatment, string.Empty);
+                        if (string.IsNullOrWhiteSpace(row.MaterialKey))
+                            row.MaterialKey = "UNRESOLVED|" + (DocumentKey ?? string.Empty) + "|"
+                                + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + "|"
+                                + (occ.Position ?? string.Empty);
                         if (occ.Slot == PaneSlot.Pane2)
                         {
                             row.W2 = sizeGroup.Key.WidthMm;
@@ -516,9 +559,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // Run() is the same entry point the OPTIMIZATION tab's buttons use,
             // so validation, grouping, packing, progress, costing, the live
             // publish and the persisted latest-run row all behave identically.
-            Run(string.Equals(stage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
+            bool engineStarted = Run(string.Equals(stage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
                 ? "OPTIMIZE"
                 : "QUICK");
+            if (!engineStarted)
+            {
+                message = string.IsNullOrWhiteSpace(RunMessage)
+                    ? "Optimization run did not start — the engine was not invoked."
+                    : RunMessage;
+                return false;
+            }
 
             message = string.Format(CultureInfo.InvariantCulture,
                 "{0} started from Step 5 · {1} piece(s) in {2} cutting group(s) against {3} rack(s).",
