@@ -31,6 +31,7 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
         {
             WriteIndented = false,
             PropertyNamingPolicy = null,
+            PropertyNameCaseInsensitive = true,
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never
         };
 

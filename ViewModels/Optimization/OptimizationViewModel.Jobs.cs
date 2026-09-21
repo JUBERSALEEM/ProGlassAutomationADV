@@ -495,6 +495,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                     foreach (var group in groups)
                     {
+                        opt.InvoiceSpecGroups.Add(group);
                         foreach (var row in group.ItemRows ?? Enumerable.Empty<GlassItemRowSnapshot>())
                         {
                             if (row == null) continue;
@@ -1202,7 +1203,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int added = 0;
             foreach (var job in jobs)
             {
-                var groups = (job.InvoiceSpecGroups != null && job.InvoiceSpecGroups.Count > 0)
+                bool GroupHasCuttableRows(SpecGroupSnapshot? g) =>
+                    g != null
+                    && g.ItemRows != null
+                    && g.ItemRows.Any(r => r != null
+                        && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)));
+
+                var groups = (job.InvoiceSpecGroups != null
+                        && job.InvoiceSpecGroups.Any(GroupHasCuttableRows))
                     ? job.InvoiceSpecGroups
                     : null;
                 if (groups == null)

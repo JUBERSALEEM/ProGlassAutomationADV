@@ -199,6 +199,92 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void LoadJobs_deserialized_camelCase_jo_json_fills_jobs_cutting_list()
+        {
+            var invoice = new ProformaInvoiceSnapshot();
+            invoice.SpecGroups.Add(new SpecGroupSnapshot
+            {
+                GroupNumber = 1,
+                SelectedGlassType = "DGU",
+                SelectedSpecName = "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                OuterGlassColor = "Clear",
+                InnerGlassColor = "Clear",
+                ItemRows =
+                {
+                    new GlassItemRowSnapshot
+                    {
+                        GlassRef = "G-1",
+                        W1 = 1400,
+                        H1 = 900,
+                        W2 = 1380,
+                        H2 = 880,
+                        Qty = 4
+                    }
+                }
+            });
+            var snap = new JobOrderSnapshot
+            {
+                JobOrderId = "JOB-CAMEL",
+                SourceProformaId = "PI-CAMEL",
+                EmbeddedInvoice = invoice
+            };
+            string json = JsonSerializer.Serialize(snap, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            });
+            Assert.Contains("\"w1\":", json, System.StringComparison.Ordinal);
+            Assert.Contains("\"itemRows\":", json, System.StringComparison.Ordinal);
+
+            var loaded = JobOrderMapper.DeserializeSnapshot(new SavedJobOrder
+            {
+                JobOrderId = "JOB-CAMEL",
+                SourceProformaId = "PI-CAMEL",
+                CustomerName = "Camel JO",
+                Status = "Released",
+                FullSnapshotJson = json
+            });
+            Assert.NotNull(loaded);
+            Assert.NotNull(loaded!.EmbeddedInvoice);
+            Assert.NotEmpty(loaded.EmbeddedInvoice.SpecGroups);
+            Assert.Equal(1400, loaded.EmbeddedInvoice.SpecGroups[0].ItemRows[0].W1);
+            Assert.Equal(900, loaded.EmbeddedInvoice.SpecGroups[0].ItemRows[0].H1);
+            Assert.Equal(4, loaded.EmbeddedInvoice.SpecGroups[0].ItemRows[0].Qty);
+
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            var job = new OptimizationViewModel.JobOptionVm
+            {
+                JobOrderId = loaded.JobOrderId,
+                SourceProformaId = loaded.SourceProformaId,
+                CustomerName = "Camel JO",
+                CanOptimizeMaterial = true,
+                HasOptimizablePanes = true
+            };
+            foreach (var group in loaded.EmbeddedInvoice.SpecGroups)
+            {
+                job.InvoiceSpecGroups.Add(group);
+                foreach (var row in group.ItemRows)
+                {
+                    if (row.W1 <= 0 && row.H1 <= 0 && row.W2 <= 0 && row.H2 <= 0) continue;
+                    job.Step5Rows.Add(row);
+                }
+                if (string.IsNullOrWhiteSpace(job.GlassType))
+                    job.GlassType = group.SelectedGlassType ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(job.SpecName))
+                    job.SpecName = group.SelectedSpecName ?? string.Empty;
+            }
+
+            vm.AttachJobOption(job);
+            vm.AvailableJobs.Add(job);
+            job.IsSelected = true;
+
+            Assert.True(vm.HasPieces);
+            Assert.Equal(8, SumQty(vm));
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1400" && p.HeightText == "900");
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1380" && p.HeightText == "880");
+            Assert.NotEqual(152, SumQty(vm));
+        }
+
+        [Fact]
         public void LoadJobs_shaped_invoice_spec_groups_fill_jobs_cutting_list()
         {
             var vm = new OptimizationViewModel { IsHeadlessHost = false };

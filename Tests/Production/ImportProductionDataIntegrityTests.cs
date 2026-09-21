@@ -215,6 +215,7 @@ namespace ProGlassAutomation.Tests.Production
             string jo = Read("Services/JobOrder/Mapper/JobOrderMapper.cs");
             Assert.Contains("EmbeddedInvoice = clonedInvoice", jo);
             Assert.Contains("ProformaInvoiceMapper.DeserializeSnapshot(savedInvoice)", jo);
+            Assert.Contains("PropertyNameCaseInsensitive = true", jo);
             Assert.DoesNotContain("W1 = row.H1", jo);
         }
 
