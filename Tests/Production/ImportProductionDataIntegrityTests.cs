@@ -173,6 +173,8 @@ namespace ProGlassAutomation.Tests.Production
             string parts = Read("ViewModels/Optimization/OptimizationViewModel.Parts.cs");
             Assert.Contains("grid.ApplyImportedRows(import)", parts);
             Assert.Contains("Reference job →", parts);
+            Assert.Contains("selected job's approved PI imported", parts);
+            Assert.DoesNotContain("if (job.IsSelected) job.IsSelected = false;", parts);
 
             string live = Read("ViewModels/Optimization/OptimizationViewModel.LiveRun.cs");
             Assert.Contains("hasCuttable", live);

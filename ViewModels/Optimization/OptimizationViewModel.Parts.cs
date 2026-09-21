@@ -193,6 +193,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private void LoadReferenceJob()
         {
+            // A ticked confirmed JO owns the studio. Re-import that job's
+            // approved PI (spec / type / sizes) — do not untick it and do
+            // not replace it with the 152-piece calibration dump.
+            if (!IsHeadlessHost && AvailableJobs.Any(j => j.IsSelected))
+            {
+                SelectedCuttingGroup = AllCuttingGroups;
+                RebuildSelectedJobBreakdown();
+                RunMessage = "Reference reload — selected job's approved PI imported (glass type, spec, sizes).";
+                return;
+            }
+
             const string lowE = "6mm climaguard hp neutral 70 low e ft glass";
             const string clear = "6mm clear ft glass";
             const string ramly = "6mm obscure clear ramly ft glass";
@@ -244,14 +255,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
             foreach (var (r, w, h) in spec2) Add(lowE, "Outer", r, w, h, 1);
             foreach (var (r, w, h, q) in spec1) Add(clear, "Inner", r, w, h, q);
             foreach (var (r, w, h) in spec2) Add(ramly, "Inner", r, w, h, 1);
-
-            // Untick JOs so Run() is not blocked by an unresolved-material job
-            // and AutoRebuild cannot replace these 152 pieces.
-            foreach (var job in AvailableJobs)
-            {
-                if (job.IsSelected) job.IsSelected = false;
-            }
-            SelectedJob = null;
 
             // Same W1/H1 (outer) + W2/H2 (inner) rows on CUT LIST.
             var import = new List<ProGlassAutomation.Services.ProformaInvoice.Step5Grid.CutListImportRow>();

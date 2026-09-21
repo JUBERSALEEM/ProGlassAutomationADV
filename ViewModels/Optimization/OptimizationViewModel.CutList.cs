@@ -815,31 +815,84 @@ namespace ProGlassAutomation.ViewModels.Optimization
             var import = new List<CutListImportRow>();
             foreach (var job in jobs)
             {
-                if (job?.Step5Rows == null) continue;
-                foreach (var row in job.Step5Rows)
+                if (job?.Step5Rows != null)
                 {
-                    if (row == null) continue;
-                    if (row.W1 <= 0 && row.H1 <= 0 && row.W2 <= 0 && row.H2 <= 0) continue;
-                    import.Add(new CutListImportRow
+                    foreach (var row in job.Step5Rows)
                     {
-                        GlassRef = row.GlassRef ?? string.Empty,
-                        W1 = row.W1,
-                        H1 = row.H1,
-                        W2 = row.W2,
-                        H2 = row.H2,
-                        Qty = row.Qty > 0 ? row.Qty : 1
-                    });
+                        if (row == null) continue;
+                        if (row.W1 <= 0 && row.H1 <= 0 && row.W2 <= 0 && row.H2 <= 0) continue;
+                        import.Add(new CutListImportRow
+                        {
+                            GlassRef = row.GlassRef ?? string.Empty,
+                            W1 = row.W1,
+                            H1 = row.H1,
+                            W2 = row.W2,
+                            H2 = row.H2,
+                            Qty = row.Qty > 0 ? row.Qty : 1
+                        });
+                    }
+                }
+
+                // If the embedded PI had no ItemRows, rebuild W1/H1/W2/H2
+                // from the exploded pane layers so the studio grid is not empty.
+                if (import.Count == 0 && job?.Specs != null)
+                {
+                    foreach (var spec in job.Specs)
+                    {
+                        foreach (var layer in spec.Layers.Where(l => l.IsPane))
+                        {
+                            bool inner = string.Equals(layer.Position, "Inner", StringComparison.OrdinalIgnoreCase)
+                                || (layer.Position ?? string.Empty).IndexOf("Lam", StringComparison.OrdinalIgnoreCase) >= 0;
+                            foreach (var piece in layer.Pieces)
+                            {
+                                if (piece.W <= 0 || piece.H <= 0) continue;
+                                int qty = piece.Qty > 0 ? piece.Qty : 1;
+                                import.Add(new CutListImportRow
+                                {
+                                    GlassRef = string.IsNullOrWhiteSpace(piece.Label) ? piece.Glass : piece.Label,
+                                    W1 = inner ? 0 : piece.W,
+                                    H1 = inner ? 0 : piece.H,
+                                    W2 = inner ? piece.W : 0,
+                                    H2 = inner ? piece.H : 0,
+                                    Qty = qty
+                                });
+                            }
+                        }
+                    }
                 }
             }
 
+            var grid = ManualCutList;
+            var primary = jobs[0];
+
+            // Type then spec then colours/sheets. SelectedSpecName calls
+            // AdoptSheetSelection which zeros sheets — write JO sheets after.
+            if (!string.IsNullOrWhiteSpace(primary.GlassType))
+                grid.SelectedGlassType = primary.GlassType;
+            if (!string.IsNullOrWhiteSpace(primary.SpecName))
+                grid.SelectedSpecName = primary.SpecName;
+            grid.OuterGlassColor = primary.OuterGlassColor ?? string.Empty;
+            grid.InnerGlassColor = primary.InnerGlassColor ?? string.Empty;
+            grid.ThirdGlassColor = primary.ThirdGlassColor ?? string.Empty;
+            grid.OuterSheetWidthMm = primary.OuterSheetWidthMm;
+            grid.OuterSheetHeightMm = primary.OuterSheetHeightMm;
+            grid.InnerSheetWidthMm = primary.InnerSheetWidthMm;
+            grid.InnerSheetHeightMm = primary.InnerSheetHeightMm;
+            grid.ThirdSheetWidthMm = primary.ThirdSheetWidthMm;
+            grid.ThirdSheetHeightMm = primary.ThirdSheetHeightMm;
+            grid.OuterSheetPricePerSqm = primary.OuterSheetPricePerSqm;
+            grid.InnerSheetPricePerSqm = primary.InnerSheetPricePerSqm;
+            OnPropertyChanged(nameof(CutListCompositionDisplay));
+
             if (import.Count == 0) return;
 
-            var grid = ManualCutList;
             grid.ItemRows.Clear();
             int added = grid.ApplyImportedRows(import);
             CutListStatus = string.Format(CultureInfo.InvariantCulture,
-                "Imported {0} Step 5 row(s) from {1} ticked job(s).",
-                added, jobs.Count);
+                "Imported {0} Step 5 row(s) from {1} ticked job(s) · {2} · {3}.",
+                added, jobs.Count,
+                string.IsNullOrWhiteSpace(primary.GlassType) ? "type unset" : primary.GlassType,
+                string.IsNullOrWhiteSpace(primary.SpecName) ? "spec unset" : primary.SpecName);
         }
     }
 }

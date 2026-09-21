@@ -116,6 +116,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string MaterialInvalidReason { get; set; } = "";
 
             /// <summary>
+            /// Step 4/5 identity of the first spec group on the embedded PI.
+            /// Selecting the job must push these onto the studio (glass type,
+            /// spec name, colours, sheet sizes) — not only exploded panes.
+            /// </summary>
+            public string GlassType { get; set; } = string.Empty;
+            public string SpecName { get; set; } = string.Empty;
+            public string OuterGlassColor { get; set; } = string.Empty;
+            public string InnerGlassColor { get; set; } = string.Empty;
+            public string ThirdGlassColor { get; set; } = string.Empty;
+            public int OuterSheetWidthMm { get; set; }
+            public int OuterSheetHeightMm { get; set; }
+            public int InnerSheetWidthMm { get; set; }
+            public int InnerSheetHeightMm { get; set; }
+            public int ThirdSheetWidthMm { get; set; }
+            public int ThirdSheetHeightMm { get; set; }
+            public decimal OuterSheetPricePerSqm { get; set; }
+            public decimal InnerSheetPricePerSqm { get; set; }
+
+            /// <summary>
             /// False when Distribute produced no selectable pane layers.
             /// The job still lists; Sizes/Cut List stay empty until panes exist.
             /// </summary>
@@ -213,12 +232,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
             get => _selectedJob;
             set
             {
-                if (_selectedJob == value) return;
+                bool same = ReferenceEquals(_selectedJob, value);
                 _selectedJob = value;
-                OnPropertyChanged();
-                // Clicking the card (not only the checkbox) is job selection.
-                if (value != null && !value.IsSelected)
+                if (!same) OnPropertyChanged();
+                if (value == null) return;
+                // Card click = job selection. Always tick AND rebuild so
+                // glass type / spec / sizes land even when the ListBox
+                // re-reports the already-highlighted row.
+                if (!value.IsSelected)
                     value.IsSelected = true;
+                else
+                    RebuildSelectedJobBreakdown();
             }
         }
 
@@ -527,6 +551,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 string.IsNullOrWhiteSpace(occ.Composition)
                                     ? group.SelectedSpecName ?? string.Empty
                                     : occ.Composition);
+                            if (string.IsNullOrWhiteSpace(composition))
+                                composition = (group.SelectedGlassType ?? string.Empty).Trim();
 
                             var layer = new BuildUpLayerVm
                             {
@@ -547,7 +573,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 JobOrderId = jo.JobOrderId,
                                 ProformaId = jo.SourceProformaId ?? string.Empty,
                                 SpecGroupNumber = group.GroupNumber,
-                                Color = occ.Pane?.Color ?? string.Empty,
+                                Color = !string.IsNullOrWhiteSpace(occ.Pane?.Color)
+                                    ? occ.Pane.Color
+                                    : (occ.Slot == PaneSlot.Pane2
+                                        ? (group.InnerGlassColor ?? group.OuterGlassColor)
+                                        : group.OuterGlassColor) ?? string.Empty,
                                 ThicknessMm = occ.ThicknessMm,
                                 Processing = occ.Treatment ?? string.Empty,
                                 MaterialKey = OptimizationMaterialIdentity.BuildKey(
@@ -657,6 +687,34 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     opt.AreaLabel = m2.ToString("0.0", CultureInfo.InvariantCulture) + " m²";
                     opt.SpecCountLabel = specCount.ToString(CultureInfo.InvariantCulture)
                         + (specCount == 1 ? " spec" : " specs");
+
+                    var identity = groups.FirstOrDefault(g => g != null
+                        && (!string.IsNullOrWhiteSpace(g.SelectedGlassType)
+                            || !string.IsNullOrWhiteSpace(g.SelectedSpecName)
+                            || (g.ItemRows != null && g.ItemRows.Count > 0)))
+                        ?? groups.FirstOrDefault();
+                    if (identity != null)
+                    {
+                        opt.GlassType = identity.SelectedGlassType ?? string.Empty;
+                        opt.SpecName = identity.SelectedSpecName ?? string.Empty;
+                        opt.OuterGlassColor = identity.OuterGlassColor ?? string.Empty;
+                        opt.InnerGlassColor = identity.InnerGlassColor ?? string.Empty;
+                        opt.ThirdGlassColor = identity.ThirdGlassColor ?? string.Empty;
+                        opt.OuterSheetWidthMm = identity.OuterSheetWidthMm;
+                        opt.OuterSheetHeightMm = identity.OuterSheetHeightMm;
+                        opt.InnerSheetWidthMm = identity.InnerSheetWidthMm;
+                        opt.InnerSheetHeightMm = identity.InnerSheetHeightMm;
+                        opt.ThirdSheetWidthMm = identity.ThirdSheetWidthMm;
+                        opt.ThirdSheetHeightMm = identity.ThirdSheetHeightMm;
+                        opt.OuterSheetPricePerSqm = identity.OuterSheetPricePerSqm;
+                        opt.InnerSheetPricePerSqm = identity.InnerSheetPricePerSqm;
+                    }
+                    if (string.IsNullOrWhiteSpace(opt.GlassType)
+                        && !string.IsNullOrWhiteSpace(invoice?.Step4Pricing?.SelectedGlassTypeCode))
+                        opt.GlassType = invoice.Step4Pricing.SelectedGlassTypeCode;
+                    if (string.IsNullOrWhiteSpace(opt.SpecName)
+                        && !string.IsNullOrWhiteSpace(invoice?.Step4Pricing?.GeneratedSpecName))
+                        opt.SpecName = invoice.Step4Pricing.GeneratedSpecName;
 
                     if (opt.Specs.Count == 0)
                         AddSyntheticSpecFromStep5Rows(opt);
@@ -1158,6 +1216,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         outer.JobOrderId = job.JobOrderId;
                         outer.W1 = r.W1;
                         outer.H1 = r.H1;
+                        outer.GlassType = job.GlassType ?? string.Empty;
                         outer.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|1|Outer";
                         outer.EnsureMaterialKey();
                         Pieces.Add(outer);
@@ -1173,6 +1232,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         inner.JobOrderId = job.JobOrderId;
                         inner.W2 = r.W2;
                         inner.H2 = r.H2;
+                        inner.GlassType = job.GlassType ?? string.Empty;
                         inner.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|1|Inner";
                         inner.EnsureMaterialKey();
                         Pieces.Add(inner);
@@ -1327,6 +1387,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 row.Color = v.color;
                 row.ThicknessMm = v.thk;
                 row.Processing = v.proc;
+                row.GlassType = AvailableJobs.FirstOrDefault(j =>
+                    string.Equals(j.JobOrderId, v.job, StringComparison.OrdinalIgnoreCase))
+                    ?.GlassType ?? string.Empty;
                 row.MaterialKey = v.matKey;
                 if (string.Equals(v.pos, "Inner", StringComparison.OrdinalIgnoreCase)
                     || v.pos.IndexOf("Lam", StringComparison.OrdinalIgnoreCase) >= 0)

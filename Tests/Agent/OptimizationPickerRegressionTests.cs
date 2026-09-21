@@ -119,7 +119,13 @@ namespace ProGlassAutomation.Tests.Agent
                 JobOrderId = "JO-STEP5",
                 CustomerName = "Step 5 only",
                 CanOptimizeMaterial = false,
-                HasOptimizablePanes = true
+                HasOptimizablePanes = true,
+                GlassType = "DGU",
+                SpecName = "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                OuterGlassColor = "Clear",
+                InnerGlassColor = "Clear",
+                OuterSheetWidthMm = 3210,
+                OuterSheetHeightMm = 2250
             };
             job.Step5Rows.Add(new GlassItemRowSnapshot
             {
@@ -144,6 +150,50 @@ namespace ProGlassAutomation.Tests.Agent
             }
             Assert.Equal(6, qty);
             Assert.True(vm.ManualCutList.ItemRows.Count > 0);
+            Assert.Equal("DGU", vm.ManualCutList.SelectedGlassType);
+            Assert.Equal("6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                vm.ManualCutList.SelectedSpecName);
+            Assert.Equal("Clear", vm.ManualCutList.OuterGlassColor);
+            Assert.Equal(3210, vm.ManualCutList.OuterSheetWidthMm);
+            Assert.Equal(2250, vm.ManualCutList.OuterSheetHeightMm);
+        }
+
+        [Fact]
+        public void Load_reference_keeps_selected_job_and_does_not_replace_with_calibration()
+        {
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            var job = new OptimizationViewModel.JobOptionVm
+            {
+                JobOrderId = "JO-KEEP",
+                CustomerName = "Keep me",
+                CanOptimizeMaterial = false,
+                HasOptimizablePanes = true,
+                GlassType = "SGU",
+                SpecName = "6mm Clear FT Glass"
+            };
+            job.Step5Rows.Add(new GlassItemRowSnapshot
+            {
+                GlassRef = "A1",
+                W1 = 900,
+                H1 = 1200,
+                Qty = 2
+            });
+            vm.AttachJobOption(job);
+            vm.AvailableJobs.Add(job);
+            job.IsSelected = true;
+
+            vm.LoadReferenceJobCommand.Execute(null);
+
+            Assert.True(job.IsSelected);
+            Assert.Same(job, vm.SelectedJob ?? job);
+            Assert.Contains(vm.Pieces, p => p.WidthText == "900" && p.HeightText == "1200");
+            int qty = 0;
+            foreach (var p in vm.Pieces)
+            {
+                if (p.TryParse(out _, out _, out int q)) qty += q;
+            }
+            Assert.Equal(2, qty);
+            Assert.Equal("SGU", vm.ManualCutList.SelectedGlassType);
         }
 
         [Fact]
