@@ -18,18 +18,7 @@
 
                 <!-- ── TAB 6 · REPORT ──────────────────────────────── -->
                 <Grid>
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="6">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+<ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel>
 
                             <!-- ── Report header ── -->

@@ -13,18 +13,7 @@
 
                 <!-- ── TAB 0 · JOBS ─────────────────────────────────── -->
                 <Grid>
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-
-                    <Grid.ColumnDefinitions>
+<Grid.ColumnDefinitions>
                         <ColumnDefinition Width="360"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>

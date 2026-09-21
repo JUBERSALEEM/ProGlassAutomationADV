@@ -13,18 +13,7 @@
 
                 <!-- ── TAB 3 · SETTINGS ─────────────────────────────── -->
                 <Grid>
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-
-                    <Border Style="{StaticResource OptPanelCard}">
+<Border Style="{StaticResource OptPanelCard}">
                         <StackPanel MaxWidth="760" HorizontalAlignment="Left">
                             <TextBlock Text="CUTTING SETTINGS" Style="{StaticResource OptPanelTitle}" Margin="0,0,0,14"/>
 

@@ -16,11 +16,65 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- Full-width module: hamburger owns the app menu; tabs sit in the header. -->
-    <Grid Background="Transparent">
-        <Grid Margin="12,8,12,12">
+    <!-- 2026-09-12 shell (31138eb): 224px LEFT rail + content.
+         Horizontal pills hid the job-picker sidebar and stacked tab
+         UserControls whose inner Grids started Collapsed. -->
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="224"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="{DynamicResource SideMenuBackgroundBrush}"
+                    BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="0,0,1,0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="18,22,18,24">
+                        <Border Width="34" Height="34" CornerRadius="9" Background="{DynamicResource AccentBrush}"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="PROGLASS" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="OPTIMIZATION" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel DockPanel.Dock="Top" Margin="12,0,12,12">
+                        <TextBlock Text="CUTTING" Style="{StaticResource OptHeader}" Margin="8,0,0,10"/>
+                        <RadioButton GroupName="OptTabs" Tag="&#xE821;" Content="JOBS"
+                                     IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+                                     Style="{StaticResource OptRailTab}"/>
+                        <RadioButton GroupName="OptTabs" Tag="&#xE8A7;" Content="SIZES"
+                                     IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
+                                     Style="{StaticResource OptRailTab}"/>
+                        <RadioButton GroupName="OptTabs" Tag="&#xE70F;" Content="CUT LIST"
+                                     IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=7}"
+                                     Style="{StaticResource OptRailTab}"/>
+                        <RadioButton GroupName="OptTabs" Tag="&#xE7B8;" Content="STOCKS"
+                                     IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
+                                     Style="{StaticResource OptRailTab}"/>
+                        <RadioButton GroupName="OptTabs" Tag="&#xE713;" Content="SETTINGS"
+                                     IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
+                                     Style="{StaticResource OptRailTab}"/>
+                        <RadioButton GroupName="OptTabs" Tag="&#xE9D9;" Content="SUMMARY"
+                                     IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
+                                     Style="{StaticResource OptRailTab}"/>
+                        <RadioButton GroupName="OptTabs" Tag="&#xE80A;" Content="2D VIEW"
+                                     IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
+                                     Style="{StaticResource OptRailTab}"/>
+                        <RadioButton GroupName="OptTabs" Tag="&#xE9F9;" Content="REPORT"
+                                     IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
+                                     Style="{StaticResource OptRailTab}"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Grid Grid.Column="1" Margin="22,20,22,22">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -104,42 +158,8 @@
                 </Grid>
             </Border>
 
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
-                <RadioButton GroupName="OptTabs" Tag="&#xE821;" Content="JOBS"
-                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
-                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
-                <RadioButton GroupName="OptTabs" Tag="&#xE8A7;" Content="SIZES"
-                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
-                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
-                <!-- CUT LIST — manual entry, so the engine can be driven with no
-                     proforma invoice behind it at all. Shown second on the rail,
-                     but its SelectedTabIndex is 7, the last value: inserting it
-                     at 2 would have renumbered five tabs across seven XAML
-                     triggers and three C# jump sites. Visual order comes from
-                     element order here, not from the index. See TabIndexCutList
-                     in OptimizationViewModel.CutList.cs. -->
-                <RadioButton GroupName="OptTabs" Tag="&#xE70F;" Content="CUT LIST"
-                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=7}"
-                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
-                <RadioButton GroupName="OptTabs" Tag="&#xE7B8;" Content="STOCKS"
-                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
-                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
-                <RadioButton GroupName="OptTabs" Tag="&#xE713;" Content="SETTINGS"
-                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
-                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
-                <RadioButton GroupName="OptTabs" Tag="&#xE9D9;" Content="SUMMARY"
-                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
-                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
-                <RadioButton GroupName="OptTabs" Tag="&#xE80A;" Content="2D VIEW"
-                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
-                             Style="{StaticResource OptRailTab}" Margin="0,0,8,0"/>
-                <RadioButton GroupName="OptTabs" Tag="&#xE9F9;" Content="REPORT"
-                             IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
-                             Style="{StaticResource OptRailTab}"/>
-            </StackPanel>
-
                         <!-- ── Compact Executive KPI Card Strip ── -->
-            <Grid Grid.Row="2" Margin="0,0,0,14">
+            <Grid Grid.Row="1" Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -224,16 +244,17 @@
                 </Border>
             </Grid>
 
-            <!-- ══ TAB CONTENT ══════════════════════════════════════════ -->
-            <Grid Grid.Row="3">
-                <tabs:JobsTabView/>
-                <tabs:SizesTabView/>
-                <tabs:CutListTabView/>
-                <tabs:StocksTabView/>
-                <tabs:SettingsTabView/>
-                <tabs:SummaryTabView/>
-                <tabs:TwoDViewTabView/>
-                <tabs:ReportTabView/>
+            <!-- JOBS = 360px job sidebar + spec breakdown + cutting sizes. -->
+            <Grid Grid.Row="2">
+                <tabs:JobsTabView Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"/>
+                <tabs:SizesTabView Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"/>
+                <tabs:CutListTabView Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=7}"/>
+                <tabs:StocksTabView Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"/>
+                <tabs:SettingsTabView Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"/>
+                <tabs:SummaryTabView Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"/>
+                <tabs:TwoDViewTabView Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"/>
+                <tabs:ReportTabView Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"/>
+            </Grid>
             </Grid>
         </Grid>
 

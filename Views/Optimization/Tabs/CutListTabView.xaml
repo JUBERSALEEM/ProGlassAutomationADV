@@ -55,18 +55,7 @@
              SnapsToDevicePixels="True">
 
     <Grid>
-        <Grid.Style>
-            <Style TargetType="Grid">
-                <Setter Property="Visibility" Value="Collapsed"/>
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="7">
-                        <Setter Property="Visibility" Value="Visible"/>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-        </Grid.Style>
-
-        <Border Style="{StaticResource OptPanelCard}">
+<Border Style="{StaticResource OptPanelCard}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

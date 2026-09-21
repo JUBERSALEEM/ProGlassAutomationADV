@@ -14,6 +14,9 @@
 // NOT EXECUTED here — .NET SDK is unavailable.
 // ═══════════════════════════════════════════════════════════════════════
 
+using System.Globalization;
+using System.Windows;
+using ProGlassAutomation.Converters;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.ViewModels.Optimization;
 using Xunit;
@@ -151,6 +154,21 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.True(vm.HasPieces);
             Assert.True(vm.HasStocks);
             Assert.False(vm.HasResult);
+        }
+
+        [Fact]
+        public void Tab_index_converter_shows_jobs_and_hides_other_tabs()
+        {
+            var c = new IndexEqualsConverter();
+            var inv = CultureInfo.InvariantCulture;
+            Assert.Equal(Visibility.Visible,
+                c.Convert(0, typeof(Visibility), "0", inv));
+            Assert.Equal(Visibility.Collapsed,
+                c.Convert(0, typeof(Visibility), "1", inv));
+            Assert.Equal(Visibility.Visible,
+                c.Convert(7, typeof(Visibility), "7", inv));
+            Assert.True((bool)c.Convert(0, typeof(bool), "0", inv)!);
+            Assert.False((bool)c.Convert(1, typeof(bool), "0", inv)!);
         }
     }
 }

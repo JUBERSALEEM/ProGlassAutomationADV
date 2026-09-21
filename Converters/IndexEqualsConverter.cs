@@ -10,6 +10,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 
 namespace ProGlassAutomation.Converters
@@ -18,8 +19,14 @@ namespace ProGlassAutomation.Converters
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            if (value == null || parameter == null) return false;
-            return System.Convert.ToInt32(value, culture) == System.Convert.ToInt32(parameter, culture);
+            bool match = value != null && parameter != null
+                && System.Convert.ToInt32(value, culture) == System.Convert.ToInt32(parameter, culture);
+            // RadioButton.IsChecked wants bool. Tab UserControl.Visibility
+            // wants Visibility — 11–12 Sep content was Collapsed forever when
+            // nested DataTriggers failed to match int vs string.
+            if (targetType == typeof(Visibility) || targetType == typeof(Visibility?))
+                return match ? Visibility.Visible : Visibility.Collapsed;
+            return match;
         }
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

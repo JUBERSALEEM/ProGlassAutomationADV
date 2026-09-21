@@ -68,38 +68,39 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
 
-        <!-- ══ Left rail tab ══════════════════════════════════════════ -->
+        <!-- ══ 2026-09-12 left VERTICAL rail tab (31138eb) ════════════ -->
         <Style x:Key="OptRailTab" TargetType="RadioButton">
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="Root" CornerRadius="8" Background="{DynamicResource SurfaceSecondaryBrush}"
-                                BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
-                                Padding="14,8" SnapsToDevicePixels="True">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="Icon" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="13"
-                                           Text="{TemplateBinding Tag}" Foreground="{TemplateBinding Foreground}"
-                                           VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <ContentPresenter x:Name="Label" VerticalAlignment="Center"
-                                                  Content="{TemplateBinding Content}"/>
-                            </StackPanel>
+                        <Border x:Name="Root" CornerRadius="10" Background="Transparent">
+                            <Grid>
+                                <Border x:Name="Bar" HorizontalAlignment="Left" Width="3" Margin="0,8"
+                                        CornerRadius="0,3,3,0" Background="Transparent"/>
+                                <StackPanel Orientation="Horizontal" Margin="14,11,12,11">
+                                    <TextBlock x:Name="Icon" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                               Text="{TemplateBinding Tag}" Foreground="{TemplateBinding Foreground}"
+                                               VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <ContentPresenter x:Name="Label" VerticalAlignment="Center"
+                                                      Content="{TemplateBinding Content}"/>
+                                </StackPanel>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Root" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
-                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Bar" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Label" Property="TextElement.Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="TextElement.Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
                                 <Setter TargetName="Label" Property="TextElement.FontWeight" Value="Bold"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
