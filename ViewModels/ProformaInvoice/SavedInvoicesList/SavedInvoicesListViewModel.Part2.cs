@@ -182,13 +182,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         job.Status = released;
                         job.UpdatedAt = DateTime.Now;
 
-                        var jobSnapshot = JobOrderMapper.DeserializeSnapshot(job);
-                        if (jobSnapshot?.Production != null)
+                        var existingJobSnapshot = JobOrderMapper.DeserializeSnapshot(job);
+                        if (existingJobSnapshot?.Production != null)
                         {
-                            jobSnapshot.Production.Status = released;
-                            jobSnapshot.Production.LastEditedAt = DateTime.Now;
-                            jobSnapshot.Production.LastEditedBy = Environment.UserName;
-                            job.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(jobSnapshot);
+                            existingJobSnapshot.Production.Status = released;
+                            existingJobSnapshot.Production.LastEditedAt = DateTime.Now;
+                            existingJobSnapshot.Production.LastEditedBy = Environment.UserName;
+                            job.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(existingJobSnapshot);
                         }
 
                         await _jobs.UpdateAsync(job);

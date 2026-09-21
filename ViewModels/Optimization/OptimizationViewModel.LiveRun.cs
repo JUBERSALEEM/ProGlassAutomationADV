@@ -38,6 +38,7 @@ using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Services.Production;
+using ProGlassAutomation.Services.ProformaInvoice;
 
 namespace ProGlassAutomation.ViewModels.Optimization
 {
@@ -57,6 +58,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// latest-run row read it when the run finishes.
         /// </remarks>
         public string DocumentKey { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Step 4 material must be valid before Distribute / Run / TryBuildInputs.
+        /// Unresolved or invalid identity is an invalid input state, not a leftover price.
+        /// </summary>
+        public bool TryAuthorizeJobInvoiceForOptimization(
+            ProformaInvoiceSnapshot? invoice, out string message)
+        {
+            var verdict = Step4MaterialIntegrity.EvaluateSpecGroups(invoice?.SpecGroups);
+            if (verdict.IsValid)
+            {
+                message = string.Empty;
+                return true;
+            }
+
+            message = "Cannot optimize: " + verdict.Reason;
+            return false;
+        }
 
         /// <summary>Effort the Step 5 QUICK button runs at.</summary>
         private const string Step5QuickEffort = "1";
