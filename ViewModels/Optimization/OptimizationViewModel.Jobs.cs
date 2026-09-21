@@ -1099,6 +1099,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
 
+            // SIZES filters by this dropdown. A leftover specific group from
+            // a previous list would hide the imported PI sizes.
+            _selectedCuttingGroup = AllCuttingGroups;
+
             foreach (var spec in JobSpecBreakdown)
                 foreach (var layer in spec.Layers)
                     layer.PropertyChanged -= OnLayerSelectionChanged;

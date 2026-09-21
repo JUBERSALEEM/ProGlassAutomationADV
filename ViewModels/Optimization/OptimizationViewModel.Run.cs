@@ -296,6 +296,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private string _lastInputFingerprint = string.Empty;
         private string _lastRunId = string.Empty;
 
+        /// <summary>
+        /// True while packing W1/H1/W2/H2 from MANUAL CUT LIST or Step 5.
+        /// Skips the confirmed-JO store-identity gate for that one Run().
+        /// </summary>
+        private bool _sizeOnlyPack;
+
         // ── run ────────────────────────────────────────────────────────
 
         /// <summary>
@@ -311,7 +317,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (IsRunning) { _openToReportAfterRun = false; return false; }
             ClearInputWarnings();
 
-            if (!IsHeadlessHost)
+            // Confirmed JO packing still refuses unresolved store identity.
+            // Size packing (Step 5 live grid, MANUAL CUT LIST SEND TO ENGINE)
+            // is W×H against a sheet — not specs or leftover prices.
+            if (!IsHeadlessHost && !_sizeOnlyPack)
             {
                 var blocked = SelectedJobs.FirstOrDefault(j => !j.CanOptimizeMaterial);
                 if (blocked != null)

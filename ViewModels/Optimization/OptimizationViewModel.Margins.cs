@@ -473,9 +473,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     continue;
                 }
                 p.EnsureMaterialKey();
-                bool sourced = !string.IsNullOrWhiteSpace(p.JobOrderId)
-                    || !string.IsNullOrWhiteSpace(p.ProformaId)
-                    || p.SpecGroupNumber > 0;
+                bool sourced = !_sizeOnlyPack
+                    && (!string.IsNullOrWhiteSpace(p.JobOrderId)
+                        || !string.IsNullOrWhiteSpace(p.ProformaId)
+                        || p.SpecGroupNumber > 0);
                 if (sourced && string.IsNullOrWhiteSpace(p.MaterialKey))
                 {
                     invalidRows.Add(string.Format(CultureInfo.InvariantCulture,

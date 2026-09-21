@@ -54,6 +54,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("SpecSheetRegistry.Clear()", pi);
             Assert.Contains("HasRestoredSnapshotState", pricing);
             Assert.Contains("RestoreFromSnapshot", pricing);
+            Assert.DoesNotContain("?? \"SGU\"", pricing);
         }
 
 

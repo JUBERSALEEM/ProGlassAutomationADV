@@ -304,13 +304,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
 
-            // Untick JOs so AutoRebuild cannot replace the sent sizes and so
-            // Run() is not blocked by an unresolved-material job still ticked.
-            foreach (var job in AvailableJobs)
-            {
-                if (job.IsSelected) job.IsSelected = false;
-            }
-            SelectedJob = null;
+            // Do not untick a confirmed JO. SEND packs W1/H1/W2/H2 as a
+            // size-only run; store identity / leftover prices are not inputs.
 
             // Phase 2: canonical composition — the cut list's composition is
             // free text (a typed spec name or the build type), and it is the
@@ -372,6 +367,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         h.ToString(CultureInfo.InvariantCulture),
                         qty.ToString(CultureInfo.InvariantCulture));
                     row.Position = position;
+                    if (string.Equals(position, InnerPaneLabel, StringComparison.OrdinalIgnoreCase))
+                    {
+                        row.W2 = w;
+                        row.H2 = h;
+                    }
+                    else
+                    {
+                        row.W1 = w;
+                        row.H1 = h;
+                    }
                     mergeIndex[key] = row;
                     Pieces.Add(row);
                 }
@@ -395,11 +400,28 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     AddOrMerge(InnerPaneLabel, label, r.W2, r.H2, r.Qty);
             }
 
+            _selectedCuttingGroup = AllCuttingGroups;
+            EnsureSizeOnlyStock();
             RefreshDerived();
+
+            _sizeOnlyPack = true;
+            bool started;
+            try
+            {
+                started = Run("QUICK");
+            }
+            finally
+            {
+                _sizeOnlyPack = false;
+            }
 
             CutListStatus = string.Format(CultureInfo.InvariantCulture,
                 "{0} row(s) → {1} piece(s) across {2} unit(s), cut from “{3}”. "
-                + "Check the racks on STOCKS, then press RUN QUICK or RUN OPTIMIZE.",
+                + (started
+                    ? "QUICK packing started from W1/H1/W2/H2."
+                    : (string.IsNullOrWhiteSpace(RunMessage)
+                        ? "Sizes are on the cutting list — add a rack on STOCKS if the run did not start."
+                        : RunMessage)),
                 rows.Count, pieces, units, composition);
 
             if (rowsBefore > 0)
@@ -799,6 +821,51 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// outer/inner vocabulary the rest of the chain uses.</summary>
         private const string OuterPaneLabel = "Outer";
         private const string InnerPaneLabel = "Inner";
+
+        /// <summary>
+        /// Size packing needs a sheet envelope. Uses the cut-list outer/inner
+        /// sheet when set; otherwise the 3210×2250 house rack. No price is
+        /// invented.
+        /// </summary>
+        private void EnsureSizeOnlyStock()
+        {
+            foreach (var s in Stocks)
+            {
+                if (s == null || !s.IsUsedInRun) continue;
+                if (TryParseWholeMm(s.WidthText, out int sw)
+                    && TryParseWholeMm(s.HeightText, out int sh)
+                    && sw > 0 && sh > 0)
+                    return;
+            }
+
+            int w = 0, h = 0;
+            if (_manualCutList != null)
+            {
+                if (_manualCutList.OuterSheetWidthMm > 0 && _manualCutList.OuterSheetHeightMm > 0)
+                {
+                    w = _manualCutList.OuterSheetWidthMm;
+                    h = _manualCutList.OuterSheetHeightMm;
+                }
+                else if (_manualCutList.InnerSheetWidthMm > 0 && _manualCutList.InnerSheetHeightMm > 0)
+                {
+                    w = _manualCutList.InnerSheetWidthMm;
+                    h = _manualCutList.InnerSheetHeightMm;
+                }
+            }
+            if (w <= 0 || h <= 0)
+            {
+                w = 3210;
+                h = 2250;
+            }
+
+            Stocks.Add(new StockEntryVm(
+                w.ToString(CultureInfo.InvariantCulture),
+                h.ToString(CultureInfo.InvariantCulture),
+                string.Empty,
+                "size-only rack")
+            { IsUsedInRun = true });
+            OnPropertyChanged(nameof(HasStocks));
+        }
 
         /// <summary>
         /// Fills the CUT LIST tab from ticked jobs' Step 5 rows (GlassRef,

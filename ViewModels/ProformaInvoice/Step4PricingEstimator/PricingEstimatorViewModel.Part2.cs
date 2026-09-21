@@ -60,8 +60,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 return;
             var card = GlassTypes.FirstOrDefault(c =>
                 string.Equals(c.Code, code, StringComparison.OrdinalIgnoreCase));
-            if (card != null)
-                SelectedGlassType = card;
+            if (card == null)
+                return;
+            // Never snap a live DGU/LAM/hybrid selection back to SGU unless
+            // the incoming code is actually SGU (new invoice / explicit restore).
+            SelectedGlassType = card;
         }
 
         // ==================== APPLY RATE (SAVE TO DATABASE) ====================

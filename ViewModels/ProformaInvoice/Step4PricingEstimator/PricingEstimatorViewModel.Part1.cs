@@ -975,8 +975,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
                     string selectedCode = specGroups?.Select(g => g.SelectedGlassType)
                         .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))
-                        ?? "SGU";
-                    SelectGlassTypeCard(selectedCode);
+                        ?? snapshot?.SelectedGlassTypeCode;
+                    if (!string.IsNullOrWhiteSpace(selectedCode))
+                        SelectGlassTypeCard(selectedCode);
                     UpdateCurrentCalculationSectionSnapshot();
                     HasRestoredSnapshotState = false;
                 }

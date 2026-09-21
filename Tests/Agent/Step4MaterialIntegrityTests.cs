@@ -120,6 +120,18 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void RestoreFromSnapshot_without_type_does_not_force_SGU_over_live_DGU()
+        {
+            var vm = new PricingEstimatorViewModel(new DialogService(), null);
+            var dgu = System.Linq.Enumerable.First(vm.GlassTypes, c => c.Code == "DGU");
+            vm.SelectGlassTypeCommand.Execute(dgu);
+            Assert.Equal("DGU", vm.SelectedGlassType?.Code);
+
+            vm.RestoreFromSnapshot(null, specGroups: System.Array.Empty<SpecGroupSnapshot>());
+            Assert.Equal("DGU", vm.SelectedGlassType?.Code);
+        }
+
+        [Fact]
         public void ApplyPricingSnapshot_null_resolution_stays_unresolved()
         {
             var vm = new PricingEstimatorViewModel(new DialogService(), null);
@@ -153,11 +165,9 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void RunFromStep5_with_invalid_material_does_not_enter_the_optimizer()
+        public void RunFromStep5_packs_W1H1_without_store_material_gate()
         {
             var vm = new OptimizationViewModel { IsHeadlessHost = true };
-            int piecesBefore = vm.Pieces.Count;
-            int stocksBefore = vm.Stocks.Count;
 
             var group = FilledSguGroup();
             group.MaterialIsValid = false;
@@ -168,11 +178,11 @@ namespace ProGlassAutomation.Tests.Agent
 
             bool started = vm.RunFromStep5(new List<SpecGroupSnapshot> { group }, "QUICK", out string message);
 
-            Assert.False(started);
-            Assert.False(vm.IsRunning);
-            Assert.Equal(piecesBefore, vm.Pieces.Count);
-            Assert.Equal(stocksBefore, vm.Stocks.Count);
-            Assert.StartsWith("Cannot optimize:", message);
+            Assert.DoesNotContain("Cannot optimize:", message ?? string.Empty);
+            Assert.True(vm.Pieces.Count > 0);
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1000" && p.HeightText == "800");
+            Assert.True(vm.Stocks.Count > 0);
+            Assert.True(started || vm.HasPieces);
         }
 
         [Fact]

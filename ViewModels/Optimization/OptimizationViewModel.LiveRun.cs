@@ -126,23 +126,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return false;
             }
 
-            if (!TryAuthorizeJobInvoiceForOptimization(
-                    new ProformaInvoiceSnapshot { SpecGroups = groups },
-                    out message))
+            // Step 5 QUICK/OPTIMIZE packs the live W1/H1/W2/H2 grid. It does
+            // not require a Job Order, store-resolved identity, or a price.
+            bool hasCuttable = groups.Any(g => g.ItemRows != null && g.ItemRows.Any(r =>
+                r != null && r.Qty > 0
+                && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0))));
+            if (!hasCuttable)
             {
-                // JO Run() still refuses unresolved material. Step 5 live run
-                // still starts when the grid has sizes and Step 4 left sheet
-                // W×H — MaterialIsValid is often null on restored drafts.
-                bool hasCuttable = groups.Any(g => g.ItemRows != null && g.ItemRows.Any(r =>
-                    r != null && r.Qty > 0
-                    && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0))));
-                bool hasSheet = groups.Any(g =>
-                    (g.OuterSheetWidthMm > 0 && g.OuterSheetHeightMm > 0)
-                    || (g.InnerSheetWidthMm > 0 && g.InnerSheetHeightMm > 0));
-                if (!hasCuttable || !hasSheet)
-                    return false;
-                message = string.Empty;
+                message = "Step 5 has no cutting sizes yet — enter W1×H1 or W2×H2 and a quantity.";
+                return false;
             }
+            message = string.Empty;
 
             // A minimal invoice snapshot: Distribute only needs SpecGroups, and
             // every other field it reads (Company / Client / Project /
@@ -529,16 +523,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             if (newStocks.Count == 0)
             {
-                message = "The Step 5 specs have no sheet sizes, so there is no rack to cut against — "
-                    + "set the outer/inner sheet size on Step 4 first. "
-                    + "The Sheet Store had no stocked size for these glass colours either.";
-                try
-                {
-                    Services.Logging.AppLogService.Warning(
-                        $"[OPT-STEP5] no stocks after build: groups={groups.Count} wantedByGroup={wantedByGroup.Count} rackedKeys={rackedKeys.Count} doc={DocumentKey}",
-                        new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
-                }
-                catch { }
+                // Size packing still needs a sheet envelope. No store price
+                // is invented — 3210×2250 is the house rack used by the
+                // calibration job, tagged as a manual (untagged) rack.
+                racksAdded += AddStep5Rack(rackSeen, newStocks,
+                    3210, 2250, string.Empty,
+                    "size-only house rack", 0m,
+                    0, string.Empty);
+            }
+
+            if (newStocks.Count == 0)
+            {
+                message = "Step 5 has cutting sizes but no rack could be added.";
                 return false;
             }
 
@@ -559,9 +555,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // Run() is the same entry point the OPTIMIZATION tab's buttons use,
             // so validation, grouping, packing, progress, costing, the live
             // publish and the persisted latest-run row all behave identically.
-            bool engineStarted = Run(string.Equals(stage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
-                ? "OPTIMIZE"
-                : "QUICK");
+            _sizeOnlyPack = true;
+            bool engineStarted;
+            try
+            {
+                engineStarted = Run(string.Equals(stage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
+                    ? "OPTIMIZE"
+                    : "QUICK");
+            }
+            finally
+            {
+                _sizeOnlyPack = false;
+            }
             if (!engineStarted)
             {
                 message = string.IsNullOrWhiteSpace(RunMessage)

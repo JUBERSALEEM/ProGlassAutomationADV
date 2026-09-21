@@ -88,6 +88,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Single(vm.AvailableJobs);
             Assert.True(vm.HasAvailableJobs);
             Assert.True(vm.HasPieces);
+            Assert.True(vm.SizeGroups.Count > 0);
             int qty = 0;
             foreach (var p in vm.Pieces)
             {
@@ -141,6 +142,7 @@ namespace ProGlassAutomation.Tests.Agent
             job.IsSelected = true;
 
             Assert.True(vm.HasPieces);
+            Assert.True(vm.SizeGroups.Count > 0);
             Assert.Contains(vm.Pieces, p => p.WidthText == "1100" && p.HeightText == "900");
             Assert.Contains(vm.Pieces, p => p.WidthText == "1080" && p.HeightText == "880");
             int qty = 0;
