@@ -102,6 +102,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// pane structurally instead of guessing from a colour name.</summary>
             public List<(int W, int H, string Composition, string Source, decimal PricePerSqm, int SpecNumber, string Side)> Step4Sheets { get; } = new();
 
+            /// <summary>Raw Step 5 grid rows (GlassRef, W1, H1, W2, H2, Qty)
+            /// copied from the JO's embedded invoice so CUT LIST can show the
+            /// same columns as Step 5 instead of only exploded panes.</summary>
+            public List<GlassItemRowSnapshot> Step5Rows { get; } = new();
+
             /// <summary>
             /// False when Step 4 material is unresolved or invalid.
             /// The job still appears in the picker and may import Step 5
@@ -211,6 +216,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (_selectedJob == value) return;
                 _selectedJob = value;
                 OnPropertyChanged();
+                // Clicking the card (not only the checkbox) is job selection.
+                if (value != null && !value.IsSelected)
+                    value.IsSelected = true;
             }
         }
 
@@ -296,6 +304,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand SelectAllPanesCommand { get; }
         public ICommand ClearPaneSelectionCommand { get; }
 
+        private bool _hasUserJobSelection;
+        private bool _jobListLifecycleHooked;
+        private Services.Database.IDatabaseServices? _jobListLifecycle;
+        private Func<Task>? _jobListReload;
+
         public void LoadJobs()
         {
             AsyncUtility.SafeFireAndForget(
@@ -371,6 +384,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     JobsStatusText = string.Empty;
                     return;
                 }
+
+                HookJobListLifecycle();
 
                 var options = new List<JobOptionVm>();
 
@@ -449,6 +464,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
                     foreach (var group in groups)
                     {
+                        foreach (var row in group.ItemRows ?? Enumerable.Empty<GlassItemRowSnapshot>())
+                        {
+                            if (row == null) continue;
+                            if (row.W1 <= 0 && row.H1 <= 0 && row.W2 <= 0 && row.H2 <= 0) continue;
+                            opt.Step5Rows.Add(row);
+                        }
+
                         string buildType = ProductionDistributionEngine.ResolveBuildType(group, invoice);
                         var occurrences = ProductionDistributionEngine.ResolvePaneOccurrences(buildType, group);
                         var spec = new SpecOptionVm
@@ -466,7 +488,36 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 .Where(i => i.SpecGroupNumber == group.GroupNumber
                                     && string.Equals(i.Position, occ.Position, StringComparison.OrdinalIgnoreCase))
                                 .ToList();
-                            if (paneItems.Count == 0) continue;
+                            if (paneItems.Count == 0)
+                            {
+                                foreach (var row in group.ItemRows ?? Enumerable.Empty<GlassItemRowSnapshot>())
+                                {
+                                    if (row == null) continue;
+                                    int w, h;
+                                    if (occ.Slot == PaneSlot.Pane1)
+                                    {
+                                        w = row.W1;
+                                        h = row.H1;
+                                    }
+                                    else if (!DguDimensionSemantics.TryResolveInnerSize(
+                                                 row.W1, row.H1, row.W2, row.H2, out w, out h, out _))
+                                    {
+                                        continue;
+                                    }
+                                    if (w <= 0 || h <= 0) continue;
+                                    paneItems.Add(new ProductionWorkItem
+                                    {
+                                        WidthMm = w,
+                                        HeightMm = h,
+                                        Qty = row.Qty > 0 ? row.Qty : 1,
+                                        GlassRef = row.GlassRef ?? string.Empty,
+                                        SpecGroupNumber = group.GroupNumber,
+                                        Position = occ.Position,
+                                        Stage = ProductionStage.Cutting
+                                    });
+                                }
+                                if (paneItems.Count == 0) continue;
+                            }
 
                             // Phase 2: canonical composition — the same glass
                             // spelled slightly differently across two jobs
@@ -607,7 +658,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     opt.SpecCountLabel = specCount.ToString(CultureInfo.InvariantCulture)
                         + (specCount == 1 ? " spec" : " specs");
 
-                    opt.HasOptimizablePanes = opt.Specs.Count > 0;
+                    opt.HasOptimizablePanes = opt.Specs.Count > 0
+                        || opt.Step5Rows.Any(r => r != null && r.Qty > 0 && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)));
                     if (!opt.HasOptimizablePanes)
                     {
                         const string noPanes = "NO OPTIMIZABLE PANES";
@@ -647,6 +699,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             AvailableJobs.Add(o);
                         }
                         SelectedJob = null;
+                        if (!_hasUserJobSelection && keepSelectedIds.Count == 0 && AvailableJobs.Count > 0)
+                            AvailableJobs[0].IsSelected = true;
+                        else
+                            SelectedJob = AvailableJobs.FirstOrDefault(j => j.IsSelected);
                         RefreshJobsFilter();
                         RebuildSelectedJobBreakdown();
                         RefreshKpis();
@@ -713,6 +769,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private void OnJobSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(JobOptionVm.IsSelected)) return;
+            _hasUserJobSelection = true;
 
             // RC-013 (2026-09-20) replaces RC-009's blanket force.
             //
@@ -949,6 +1006,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // Stocks all fill while Pieces stays empty, which is EXACTLY the
             // "specs populate but the cutting-size list is empty" report.
             AutoRebuildPiecesFromSelectedJobs();
+            SyncCutListFromSelectedJobs();
         }
 
         private void OnLayerSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -1268,15 +1326,36 @@ namespace ProGlassAutomation.ViewModels.Optimization
             AutoRebuildPiecesFromSelectedJobs();
         }
 
-        /// <summary>
-        /// Loads the owner's calibration DGU job — the benchmark the engine
-        /// is pinned against (Low-E 17 sheets @ 82.77%). Decomposed exactly
-        /// as Step 4/5 records it:
-        ///   • Spec 1 — "…low e (outer) + 12mm asp + 6mm clear (inner)": 64 units.
-        ///   • Spec 2 — "…low e (outer) + 12mm asp + 6mm obscure ramly (inner)": 12 units.
-        ///   • OUTER = 6mm Climaguard low-e on BOTH specs → 76 pieces.
-        ///   • INNER = 64 clear + 12 ramly obscure.
-        /// Total 152 pieces in three cutting groups.
-        /// </summary>
+        private void HookJobListLifecycle()
+        {
+            if (_jobListLifecycleHooked) return;
+            var db = App.ServiceProvider?.GetService(typeof(Services.Database.IDatabaseServices))
+                as Services.Database.IDatabaseServices;
+            if (db == null) return;
+            _jobListReload = OnDocumentsChangedReloadJobsAsync;
+            db.SubscribeDocumentsChanged(_jobListReload);
+            _jobListLifecycle = db;
+            _jobListLifecycleHooked = true;
+        }
+
+        private Task OnDocumentsChangedReloadJobsAsync()
+        {
+            LoadJobs();
+            return Task.CompletedTask;
+        }
+
+        private void UnhookJobListLifecycle()
+        {
+            if (!_jobListLifecycleHooked) return;
+            try
+            {
+                if (_jobListLifecycle != null && _jobListReload != null)
+                    _jobListLifecycle.UnsubscribeDocumentsChanged(_jobListReload);
+            }
+            catch { }
+            _jobListLifecycle = null;
+            _jobListReload = null;
+            _jobListLifecycleHooked = false;
+        }
     }
 }

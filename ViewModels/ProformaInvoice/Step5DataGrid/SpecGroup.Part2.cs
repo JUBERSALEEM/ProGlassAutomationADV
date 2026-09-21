@@ -738,6 +738,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     detected, _selectedGlassType,
                     StringComparison.OrdinalIgnoreCase))
             {
+                // Catalogue pick must not override an operator type, a Step 4
+                // handoff, or any type already on the group. Auto-switch only
+                // when the field is still empty (bootstrap).
+                if (HasManualStep5GlassTypeOverride
+                    || IsStep4OwnedSelection
+                    || !string.IsNullOrWhiteSpace(_selectedGlassType))
+                {
+                    string kept = string.IsNullOrWhiteSpace(_selectedGlassType)
+                        ? "(not set)"
+                        : _selectedGlassType;
+                    _ = ShowToastAsync(
+                        $"Keeping glass type {kept} (spec name suggests {detected}).");
+                    return;
+                }
+
                 _isAutoSwitchingGlassType = true;
                 try
                 {

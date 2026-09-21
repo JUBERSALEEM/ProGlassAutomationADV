@@ -36,6 +36,7 @@
                                      ToolTip="Filter by job id, customer or summary"/>
 
                             <ListBox Grid.Row="2" ItemsSource="{Binding FilteredJobs}"
+                                     SelectedItem="{Binding SelectedJob, Mode=TwoWay}"
                                      Style="{StaticResource OptListBox}"
                                      ItemContainerStyle="{StaticResource OptListBoxItem}">
                                 <ListBox.ItemTemplate>

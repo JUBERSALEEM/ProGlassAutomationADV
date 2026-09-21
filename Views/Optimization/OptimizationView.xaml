@@ -262,7 +262,7 @@
              High-visibility, spacious, modern industrial optimization cockpit.
              Displays real-time stage strategy, dual progress meters, live plate telemetry,
              scale profile, and stop controls. -->
-        <Grid Visibility="{Binding IsRunProgressVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+        <Grid Panel.ZIndex="20" Visibility="{Binding IsRunProgressVisible, Converter={StaticResource BoolToVisibilityConverter}}">
             <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}" Opacity="0.94"/>
 
             <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="820"

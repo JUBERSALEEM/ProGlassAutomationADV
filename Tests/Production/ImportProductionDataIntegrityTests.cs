@@ -147,6 +147,42 @@ namespace ProGlassAutomation.Tests.Production
         }
 
         [Fact]
+        public void Optimization_imports_step5_rows_from_confirmed_jo()
+        {
+            string jobs = Read("ViewModels/Optimization/OptimizationViewModel.Jobs.cs");
+            Assert.Contains("public List<GlassItemRowSnapshot> Step5Rows", jobs);
+            Assert.Contains("opt.Step5Rows.Add(row);", jobs);
+            Assert.Contains("SubscribeDocumentsChanged", jobs);
+            Assert.Contains("UnsubscribeDocumentsChanged", jobs);
+            Assert.Contains("value.IsSelected = true", jobs);
+            Assert.Contains("DguDimensionSemantics.TryResolveInnerSize(", jobs);
+            Assert.Contains("SyncCutListFromSelectedJobs();", jobs);
+            Assert.Contains("if (options.Count == 0 && Pieces.Count == 0)", jobs);
+
+            string picker = Read("Views/Optimization/Tabs/JobsTabView.xaml");
+            Assert.Contains("SelectedItem=\"{Binding SelectedJob, Mode=TwoWay}\"", picker);
+
+            string cut = Read("ViewModels/Optimization/OptimizationViewModel.CutList.cs");
+            Assert.Contains("private void SyncCutListFromSelectedJobs()", cut);
+            Assert.Contains("ApplyImportedRows(import)", cut);
+            Assert.Contains("if (jobs.Count == 0) return;", cut);
+
+            string spec = Read("ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.Part2.cs");
+            Assert.Contains("Keeping glass type", spec);
+            Assert.Contains("HasManualStep5GlassTypeOverride", spec);
+            Assert.Contains("IsStep4OwnedSelection", spec);
+
+            string step5 = Read("Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml");
+            Assert.Contains("RUNNING OPTIMIZATION", step5);
+            Assert.Contains("Panel.ZIndex=\"20\"", step5);
+            Assert.Contains("IsOptimizationRunning", step5);
+
+            string opt = Read("Views/Optimization/OptimizationView.xaml");
+            Assert.Contains("Panel.ZIndex=\"20\"", opt);
+            Assert.Contains("IsRunProgressVisible", opt);
+        }
+
+        [Fact]
         public void Jo_embeds_pi_snapshot_without_rewriting_w1_h2()
         {
             string jo = Read("Services/JobOrder/Mapper/JobOrderMapper.cs");

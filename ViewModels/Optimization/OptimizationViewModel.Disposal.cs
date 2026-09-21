@@ -113,6 +113,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             catch (Exception ex) { LogTeardown("job handlers", ex); }
 
+            try { UnhookJobListLifecycle(); }
+            catch (Exception ex) { LogTeardown("job list lifecycle", ex); }
+
             try
             {
                 foreach (var spec in JobSpecBreakdown)

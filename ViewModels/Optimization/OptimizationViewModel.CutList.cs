@@ -37,6 +37,7 @@ using System.Linq;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Optimization;
+using ProGlassAutomation.Services.ProformaInvoice.Step5Grid;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 
@@ -780,5 +781,47 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// outer/inner vocabulary the rest of the chain uses.</summary>
         private const string OuterPaneLabel = "Outer";
         private const string InnerPaneLabel = "Inner";
+
+        /// <summary>
+        /// Fills the CUT LIST tab from ticked jobs' Step 5 rows (GlassRef,
+        /// W1, H1, W2, H2, Qty). Does not touch the grid when no job is
+        /// ticked — operator-typed rows must survive an empty picker.
+        /// </summary>
+        private void SyncCutListFromSelectedJobs()
+        {
+            if (IsHeadlessHost) return;
+
+            var jobs = AvailableJobs.Where(j => j.IsSelected).ToList();
+            if (jobs.Count == 0) return;
+
+            var import = new List<CutListImportRow>();
+            foreach (var job in jobs)
+            {
+                if (job?.Step5Rows == null) continue;
+                foreach (var row in job.Step5Rows)
+                {
+                    if (row == null) continue;
+                    if (row.W1 <= 0 && row.H1 <= 0 && row.W2 <= 0 && row.H2 <= 0) continue;
+                    import.Add(new CutListImportRow
+                    {
+                        GlassRef = row.GlassRef ?? string.Empty,
+                        W1 = row.W1,
+                        H1 = row.H1,
+                        W2 = row.W2,
+                        H2 = row.H2,
+                        Qty = row.Qty > 0 ? row.Qty : 1
+                    });
+                }
+            }
+
+            if (import.Count == 0) return;
+
+            var grid = ManualCutList;
+            grid.ItemRows.Clear();
+            int added = grid.ApplyImportedRows(import);
+            CutListStatus = string.Format(CultureInfo.InvariantCulture,
+                "Imported {0} Step 5 row(s) from {1} ticked job(s).",
+                added, jobs.Count);
+        }
     }
 }
