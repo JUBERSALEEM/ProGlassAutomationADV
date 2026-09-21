@@ -199,6 +199,51 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void LoadJobs_shaped_invoice_spec_groups_fill_jobs_cutting_list()
+        {
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            var job = new OptimizationViewModel.JobOptionVm
+            {
+                JobOrderId = "JO-INV",
+                CustomerName = "Invoice shaped",
+                CanOptimizeMaterial = true,
+                HasOptimizablePanes = true,
+                GlassType = "DGU",
+                SpecName = "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass"
+            };
+            var group = new SpecGroupSnapshot
+            {
+                GroupNumber = 1,
+                SelectedGlassType = "DGU",
+                SelectedSpecName = "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                OuterGlassColor = "Clear",
+                InnerGlassColor = "Clear"
+            };
+            group.ItemRows.Add(new GlassItemRowSnapshot
+            {
+                GlassRef = "G-1",
+                W1 = 1200,
+                H1 = 800,
+                W2 = 1180,
+                H2 = 780,
+                Qty = 7
+            });
+            job.InvoiceSpecGroups.Add(group);
+            job.Step5Rows.Add(group.ItemRows[0]);
+
+            vm.AttachJobOption(job);
+            vm.AvailableJobs.Add(job);
+            job.IsSelected = true;
+
+            Assert.True(vm.HasPieces);
+            Assert.Equal(14, SumQty(vm));
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1200" && p.HeightText == "800");
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1180" && p.HeightText == "780");
+            Assert.Equal("14", vm.KpiPieces);
+            Assert.NotEqual(152, SumQty(vm));
+        }
+
+        [Fact]
         public void Empty_layers_with_saved_sgu_itemrows_populate_pieces()
         {
             var vm = new OptimizationViewModel { IsHeadlessHost = false };

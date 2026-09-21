@@ -108,6 +108,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public List<GlassItemRowSnapshot> Step5Rows { get; } = new();
 
             /// <summary>
+            /// The JO embedded PI spec groups (source of truth for W1/H1/W2/H2/Qty).
+            /// Kept so JOBS cutting list can rebuild Pieces from saved ItemRows
+            /// instead of only exploded pane layers.
+            /// </summary>
+            public List<SpecGroupSnapshot> InvoiceSpecGroups { get; } = new();
+
+            /// <summary>
             /// False when Step 4 material is unresolved or invalid.
             /// The job still appears in the picker and may import Step 5
             /// sizes; Run / TryBuildInputs must refuse packing.
@@ -1195,96 +1202,121 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int added = 0;
             foreach (var job in jobs)
             {
-                var rows = (job.Step5Rows ?? new List<GlassItemRowSnapshot>())
-                    .Where(r => r != null
-                        && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)))
-                    .ToList();
-                if (rows.Count == 0) continue;
-
-                var group = new SpecGroupSnapshot
+                var groups = (job.InvoiceSpecGroups != null && job.InvoiceSpecGroups.Count > 0)
+                    ? job.InvoiceSpecGroups
+                    : null;
+                if (groups == null)
                 {
-                    GroupNumber = 1,
-                    SelectedGlassType = job.GlassType ?? string.Empty,
-                    SelectedSpecName = job.SpecName ?? string.Empty,
-                    OuterGlassColor = job.OuterGlassColor ?? string.Empty,
-                    InnerGlassColor = job.InnerGlassColor ?? string.Empty,
-                    ThirdGlassColor = job.ThirdGlassColor ?? string.Empty
-                };
-                group.ItemRows.AddRange(rows);
-
-                string buildType = ProductionDistributionEngine.ResolveBuildType(group, null);
-                var occurrences = ProductionDistributionEngine.ResolvePaneOccurrences(buildType, group);
-
-                foreach (var occ in occurrences)
-                {
-                    string composition = CompositionKey.Normalize(
-                        string.IsNullOrWhiteSpace(occ.Composition)
-                            ? (string.IsNullOrWhiteSpace(job.SpecName)
-                                ? (job.GlassType ?? string.Empty)
-                                : job.SpecName)
-                            : occ.Composition);
-                    if (string.IsNullOrWhiteSpace(composition))
-                        composition = (occ.Position ?? "Pane").Trim();
-
-                    string paneColor = !string.IsNullOrWhiteSpace(occ.Pane?.Color)
-                        ? occ.Pane.Color
-                        : (occ.Slot == PaneSlot.Pane2
-                            ? (job.InnerGlassColor ?? job.OuterGlassColor)
-                            : job.OuterGlassColor) ?? string.Empty;
-                    int paneThk = occ.ThicknessMm > 0
-                        ? occ.ThicknessMm
-                        : ParseThicknessMm(composition);
-                    if (paneThk <= 0)
-                        paneThk = ParseThicknessMm(job.SpecName);
-
-                    foreach (var r in rows)
+                    var flat = (job.Step5Rows ?? new List<GlassItemRowSnapshot>())
+                        .Where(r => r != null
+                            && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)))
+                        .ToList();
+                    if (flat.Count == 0) continue;
+                    var synthetic = new SpecGroupSnapshot
                     {
-                        int w, h;
-                        if (occ.Slot == PaneSlot.Pane1)
-                        {
-                            w = r.W1;
-                            h = r.H1;
-                        }
-                        else if (!DguDimensionSemantics.TryResolveInnerSize(
-                                     r.W1, r.H1, r.W2, r.H2, out w, out h, out _))
-                        {
-                            continue;
-                        }
-                        if (w <= 0 || h <= 0) continue;
+                        GroupNumber = 1,
+                        SelectedGlassType = job.GlassType ?? string.Empty,
+                        SelectedSpecName = job.SpecName ?? string.Empty,
+                        OuterGlassColor = job.OuterGlassColor ?? string.Empty,
+                        InnerGlassColor = job.InnerGlassColor ?? string.Empty,
+                        ThirdGlassColor = job.ThirdGlassColor ?? string.Empty
+                    };
+                    synthetic.ItemRows.AddRange(flat);
+                    groups = new List<SpecGroupSnapshot> { synthetic };
+                }
 
-                        int qty = r.Qty > 0 ? r.Qty : 1;
-                        string label = string.IsNullOrWhiteSpace(r.GlassRef) ? "—" : r.GlassRef.Trim();
-                        var row = NewPieceRow(
-                            composition,
-                            label,
-                            w.ToString(CultureInfo.InvariantCulture),
-                            h.ToString(CultureInfo.InvariantCulture),
-                            qty.ToString(CultureInfo.InvariantCulture));
-                        row.Position = occ.Position ?? string.Empty;
-                        row.JobOrderId = job.JobOrderId;
-                        row.ProformaId = job.SourceProformaId ?? string.Empty;
-                        row.SpecGroupNumber = 1;
-                        row.Color = paneColor;
-                        row.ThicknessMm = paneThk;
-                        row.Processing = occ.Treatment ?? string.Empty;
-                        row.GlassType = job.GlassType ?? string.Empty;
-                        row.MaterialKey = OptimizationMaterialIdentity.BuildKey(
-                            job.GlassType, paneColor, paneThk, occ.Treatment, string.Empty);
-                        if (string.IsNullOrWhiteSpace(row.MaterialKey))
-                            row.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|1|" + (occ.Position ?? string.Empty);
-                        if (occ.Slot == PaneSlot.Pane2)
+                foreach (var group in groups)
+                {
+                    if (group == null) continue;
+                    var rows = (group.ItemRows ?? new List<GlassItemRowSnapshot>())
+                        .Where(r => r != null
+                            && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)))
+                        .ToList();
+                    if (rows.Count == 0) continue;
+
+                    string glassType = !string.IsNullOrWhiteSpace(group.SelectedGlassType)
+                        ? group.SelectedGlassType
+                        : (job.GlassType ?? string.Empty);
+                    string specName = !string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                        ? group.SelectedSpecName
+                        : (job.SpecName ?? string.Empty);
+
+                    string buildType = ProductionDistributionEngine.ResolveBuildType(group, null);
+                    var occurrences = ProductionDistributionEngine.ResolvePaneOccurrences(buildType, group);
+
+                    foreach (var occ in occurrences)
+                    {
+                        string composition = CompositionKey.Normalize(
+                            string.IsNullOrWhiteSpace(occ.Composition)
+                                ? specName
+                                : occ.Composition);
+                        if (string.IsNullOrWhiteSpace(composition))
+                            composition = string.IsNullOrWhiteSpace(glassType)
+                                ? (occ.Position ?? "Pane").Trim()
+                                : glassType.Trim();
+
+                        string paneColor = !string.IsNullOrWhiteSpace(occ.Pane?.Color)
+                            ? occ.Pane.Color
+                            : (occ.Slot == PaneSlot.Pane2
+                                ? (group.InnerGlassColor ?? group.OuterGlassColor ?? job.InnerGlassColor ?? job.OuterGlassColor)
+                                : (group.OuterGlassColor ?? job.OuterGlassColor)) ?? string.Empty;
+                        int paneThk = occ.ThicknessMm > 0
+                            ? occ.ThicknessMm
+                            : ParseThicknessMm(composition);
+                        if (paneThk <= 0)
+                            paneThk = ParseThicknessMm(specName);
+
+                        foreach (var r in rows)
                         {
-                            row.W2 = w;
-                            row.H2 = h;
+                            int w, h;
+                            if (occ.Slot == PaneSlot.Pane1)
+                            {
+                                w = r.W1;
+                                h = r.H1;
+                            }
+                            else if (!DguDimensionSemantics.TryResolveInnerSize(
+                                         r.W1, r.H1, r.W2, r.H2, out w, out h, out _))
+                            {
+                                continue;
+                            }
+                            if (w <= 0 || h <= 0) continue;
+
+                            int qty = r.Qty > 0 ? r.Qty : 1;
+                            string label = string.IsNullOrWhiteSpace(r.GlassRef) ? "—" : r.GlassRef.Trim();
+                            var row = NewPieceRow(
+                                composition,
+                                label,
+                                w.ToString(CultureInfo.InvariantCulture),
+                                h.ToString(CultureInfo.InvariantCulture),
+                                qty.ToString(CultureInfo.InvariantCulture));
+                            row.Position = occ.Position ?? string.Empty;
+                            row.JobOrderId = job.JobOrderId;
+                            row.ProformaId = job.SourceProformaId ?? string.Empty;
+                            row.SpecGroupNumber = group.GroupNumber > 0 ? group.GroupNumber : 1;
+                            row.Color = paneColor;
+                            row.ThicknessMm = paneThk;
+                            row.Processing = occ.Treatment ?? string.Empty;
+                            row.GlassType = glassType;
+                            row.MaterialKey = OptimizationMaterialIdentity.BuildKey(
+                                glassType, paneColor, paneThk, occ.Treatment, string.Empty);
+                            if (string.IsNullOrWhiteSpace(row.MaterialKey))
+                                row.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|"
+                                    + row.SpecGroupNumber.ToString(CultureInfo.InvariantCulture) + "|"
+                                    + (occ.Position ?? string.Empty);
+                            if (occ.Slot == PaneSlot.Pane2)
+                            {
+                                row.W2 = w;
+                                row.H2 = h;
+                            }
+                            else
+                            {
+                                row.W1 = w;
+                                row.H1 = h;
+                            }
+                            row.EnsureMaterialKey();
+                            derived.Add(row);
+                            added += qty;
                         }
-                        else
-                        {
-                            row.W1 = w;
-                            row.H1 = h;
-                        }
-                        row.EnsureMaterialKey();
-                        derived.Add(row);
-                        added += qty;
                     }
                 }
             }
@@ -1309,6 +1341,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // owns its Pieces exclusively (RunFromStep5). Job selection is not
             // its input — see RC-007.
             if (IsHeadlessHost) return;
+
+            // JOBS cutting list source of truth: saved JO Step 5 ItemRows.
+            // Do this first — exploded pane layers can exist (checklist PCS)
+            // while still leaving Pieces empty.
+            if (TryImportPiecesFromSelectedJobStep5Rows())
+                return;
 
             var selectedLayers = JobSpecBreakdown
                 .SelectMany(s => s.Layers)
