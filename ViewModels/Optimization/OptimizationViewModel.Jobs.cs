@@ -380,12 +380,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     var snapshot = JobOrderMapper.DeserializeSnapshot(jo);
                     var invoice = snapshot?.EmbeddedInvoice;
 
-                    if (!TryAuthorizeJobInvoiceForOptimization(invoice, out _))
-                    {
-                        // PHASE A.1: invalid / unresolved Step 4 material must
-                        // not reach Distribute, Run, or TryBuildInputs.
-                        continue;
-                    }
+                    // List the job even when Step 4 material is unresolved.
+                    // Run() still refuses packing. Do not `continue` here —
+                    // that emptied JOB/SIZES/CUT LIST/STOCK (CS0103 if the
+                    // stamp below is kept without these locals).
+                    bool authorized = TryAuthorizeJobInvoiceForOptimization(
+                        invoice, out string authMessage);
 
                     var plan = ProductionDistributionEngine.Distribute(jo.JobOrderId, invoice);
 

@@ -140,56 +140,13 @@ namespace ProGlassAutomation
         public static UserPresenceService Presence { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
-        //  ENTRY POINT — Velopack bootstrap BEFORE anything else
-        //  (audit fix for vpk warning: "VelopackApp.Run() was found
-        //  in method StartupCoreAsync.MoveNext(), which does not look
-        //  like your application's entry point. It is strongly
-        //  recommended that you move this to the very beginning of
-        //  your Main() method.")
-        //
-        //  Velopack's Run() must be the FIRST line of the process entry
-        //  point so that:
-        //    • During install / update / uninstall hooks, the
-        //      fast-exit arguments are handled before any WPF / DB
-        //      / DI startup cost is paid.
-        //    • During a normal launch, Run() returns immediately and
-        //      the rest of Main() runs as before.
-        //    • A pending update can re-launch the new version with
-        //      the correct working directory and command-line args
-        //      before the rest of the WPF process state is built.
-        //
-        //  WPF generates Main() from ApplicationDefinition unless
-        //  DISABLE_XAML_GENERATED_MAIN is set (ProGlassAutomation.csproj).
-        //  App.xaml stays ApplicationDefinition so InitializeComponent
-        //  is generated. Custom Main below runs Velopack first, then
-        //  InitializeComponent + Run. Startup still wires
-        //  Application_Startup → StartupCoreAsync.
-        //
-        //  CS0017: if this file is copied into a project that still emits
-        //  the WPF-generated Main, compiling BOTH Mains fails. Keep the
-        //  Velopack Main only when the csproj define is present.
+        //  CS0017 — one Main only.
+        //  App.xaml stays ApplicationDefinition so WPF emits Main and
+        //  InitializeComponent. Do not declare Main in this file (a
+        //  second Main is CS0017 when the generated one is also present).
+        //  Do not reclassify App.xaml as Page (CS1061 InitializeComponent).
+        //  Velopack runs at the start of Application_Startup.
         // ══════════════════════════════════════════════════════════════
-#if DISABLE_XAML_GENERATED_MAIN
-        [STAThread]
-        public static void Main(string[] args)
-        {
-            // 1) Velopack hook — must be first, before any other
-            //    startup work. In dev mode (running from
-            //    bin/Debug without an installed package) this is a
-            //    no-op; in a real install it handles pending
-            //    updates, first-run callbacks, and uninstall hooks.
-            Velopack.VelopackApp.Build().Run();
-
-            // 2) Hand off to the normal WPF Application bootstrap.
-            //    app.InitializeComponent() loads App.xaml (and
-            //    wires the Startup="Application_Startup" handler
-            //    that runs StartupCoreAsync); app.Run() starts
-            //    the dispatcher loop.
-            var app = new App();
-            app.InitializeComponent();
-            app.Run();
-        }
-#endif
 
         // ══════════════════════════════════════════════════════════════
         //  STARTUP — CRASH-GUARDED ENTRY POINT  (audit finding C-2)
@@ -220,6 +177,8 @@ namespace ProGlassAutomation
         {
             try
             {
+                // Dev bin/Debug: no-op. Installed package: install/update hooks.
+                Velopack.VelopackApp.Build().Run();
                 await StartupCoreAsync(sender, e);
             }
             catch (Exception ex)

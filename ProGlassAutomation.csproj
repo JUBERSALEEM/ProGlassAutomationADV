@@ -19,11 +19,10 @@
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<Deterministic>true</Deterministic>
-		<!-- Custom [STAThread] Main in App.xaml.cs (Velopack first). Keep
-		     App.xaml as ApplicationDefinition so InitializeComponent is
-		     generated; only suppress the SDK-generated Main. -->
-		<StartupObject>ProGlassAutomation.App</StartupObject>
-		<DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
+		<!-- One entry point: WPF-generated Main from ApplicationDefinition.
+		     Do not also declare Main in App.xaml.cs (CS0017). Velopack is
+		     invoked from Application_Startup. Do NOT reclassify App.xaml
+		     as Page: that yields CS1061 InitializeComponent. -->
 
 		<!-- ── ONE authoritative version source (OTA spec §5) ────────
 		     About / Settings / update checker / installer / releases all
@@ -62,11 +61,9 @@
 		<Using Include="System.Threading.Tasks" />
 	</ItemGroup>
 
-	<!-- VELOPACK MAIN — App.xaml stays ApplicationDefinition (so
-	     App.g.cs / InitializeComponent is generated). Custom Main is
-	     App.xaml.cs; DISABLE_XAML_GENERATED_MAIN + StartupObject above
-	     suppress the SDK Main. Do NOT reclassify App.xaml as Page:
-	     that yields CS1061 'App' has no InitializeComponent. -->
+	<!-- App.xaml stays ApplicationDefinition (App.g.cs Main +
+	     InitializeComponent). No custom Main in App.xaml.cs (CS0017).
+	     Do NOT reclassify App.xaml as Page (CS1061 InitializeComponent). -->
 
 	<!-- ══════════════════════════════════════════════════════════════
 	     PHASE P — keep the test project out of the app project.
