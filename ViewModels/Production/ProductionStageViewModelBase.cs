@@ -265,15 +265,52 @@ namespace ProGlassAutomation.ViewModels.Production
         public bool IsLoading
         {
             get => _isLoading;
-            private set { if (_isLoading == value) return; _isLoading = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_isLoading == value) return;
+                _isLoading = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowEmptyQueue));
+                OnPropertyChanged(nameof(ShowListTotals));
+            }
         }
 
         private bool _isListEmpty;
         public bool IsListEmpty
         {
             get => _isListEmpty;
-            private set { if (_isListEmpty == value) return; _isListEmpty = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_isListEmpty == value) return;
+                _isListEmpty = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowEmptyQueue));
+                OnPropertyChanged(nameof(ShowListTotals));
+            }
         }
+
+        private string _loadError = "";
+        /// <summary>Station queue failed to load — never pretend that is "no work".</summary>
+        public string LoadError
+        {
+            get => _loadError;
+            private set
+            {
+                if (_loadError == value) return;
+                _loadError = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasLoadError));
+                OnPropertyChanged(nameof(ShowEmptyQueue));
+                OnPropertyChanged(nameof(ShowListTotals));
+            }
+        }
+
+        public bool HasLoadError => !string.IsNullOrWhiteSpace(_loadError);
+
+        /// <summary>True only after a successful load that returned zero arrived jobs.</summary>
+        public bool ShowEmptyQueue => _isListEmpty && !_isLoading && !HasLoadError;
+
+        public bool ShowListTotals => !_isListEmpty && !_isLoading && !HasLoadError;
 
         private string _listFooterLabel = "";
         /// <summary>"Showing X of Y jobs — scroll for more".</summary>

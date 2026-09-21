@@ -164,7 +164,12 @@ namespace ProGlassAutomation
         //  is generated. Custom Main below runs Velopack first, then
         //  InitializeComponent + Run. Startup still wires
         //  Application_Startup → StartupCoreAsync.
+        //
+        //  CS0017: if this file is copied into a project that still emits
+        //  the WPF-generated Main, compiling BOTH Mains fails. Keep the
+        //  Velopack Main only when the csproj define is present.
         // ══════════════════════════════════════════════════════════════
+#if DISABLE_XAML_GENERATED_MAIN
         [STAThread]
         public static void Main(string[] args)
         {
@@ -184,6 +189,7 @@ namespace ProGlassAutomation
             app.InitializeComponent();
             app.Run();
         }
+#endif
 
         // ══════════════════════════════════════════════════════════════
         //  STARTUP — CRASH-GUARDED ENTRY POINT  (audit finding C-2)
