@@ -26,6 +26,20 @@
     "Services/Optimization/OptimizationModels.cs": {
       "sha256": "69ea1f3220e33e5b2766a897485f436b9b091ecf9846885eeb2453c9008f2509",
       "reason": "2026-09-21 owner request: thick-glass LM/RM/BM 50, TM 0; breakout 50 or 40. Only the house table and its comments changed; baseline hash above retained."
+    },
+    "Services/Optimization/GuillotinePacker.cs": {
+      "sha256": "22505d7eb9a3530a84381133e6884a08721735938d77b4ca622bd750f1bfd111",
+      "reason": "2026-09-21 explicit owner request to improve QUICK generically: retain legacy passes, add capacity-strip portfolio, valid-first candidate selection and comprehensive breakout/conservation/stock-cap validation. Not a source-engine port; baseline hash retained."
+    },
+    "Services/Optimization/GuillotinePacker.Partitioned.cs": {
+      "sha256": "0361bfa133e8cd4d1fc8b24a0676975f3ade4504913682dbced67b01fce79914",
+      "reason": "2026-09-21 explicit owner request: retain advanced partitioned search, include capacity strips in batch/global floors, validate candidates before selection, and enforce finite stock globally. Baseline hash retained."
+    }
+  },
+  "approved_additions": {
+    "Services/Optimization/GuillotinePacker.CapacityStrips.cs": {
+      "sha256": "7f94d451089d1cb55b20a1b6ff9bfc62eb5f1397999de2f0d3f9d8b3617ec6cb",
+      "reason": "2026-09-21 explicit owner authorization: generic bounded row/column capacity lookahead and capacity-family widening; no customer-specific dimensions or quantity cap."
     }
   }
 }

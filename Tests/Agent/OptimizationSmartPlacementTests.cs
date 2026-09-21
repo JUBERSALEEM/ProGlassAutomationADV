@@ -290,14 +290,13 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Quick_results_name_the_pass_that_produced_them()
         {
-            // QUICK is a single deterministic shelf pass — the label must say
-            // exactly that, not the generic grid tag a multi-start candidate
-            // carries. The operator reads this on the result screen, so the
-            // name and the algorithm must agree.
+            // QUICK now compares a fixed portfolio. Name the candidate that
+            // actually won; do not silently keep a shelf-only label.
             var quick = GuillotinePacker.PackQuick(
                 MixedJob(), new List<StockSize> { Rack() }, Margins(), RotationPolicy.Free90);
 
-            Assert.Equal("QUICK SHELF (Area / HorizontalFirst)", quick.Strategy);
+            Assert.Contains(quick.Strategy, new[] { "QUICK SHELF (Area / HorizontalFirst)",
+                "CAPACITY STRIPS (columns)", "CAPACITY STRIPS (rows)" });
         }
 
         [Fact]
@@ -313,7 +312,8 @@ namespace ProGlassAutomation.Tests.Agent
             // The piece that does fit is still cut — one impossible part must not
             // take the rest of the job with it.
             Assert.Equal(1, result.Sheets.Sum(s => s.Pieces.Count));
-            Assert.Equal(600, result.Sheets[0].Pieces[0].WidthMm);
+            Assert.Equal(600, result.Sheets[0].Pieces[0].Piece.WidthMm); // source identity; Free90 may rotate
+            Assert.Empty(GuillotinePacker.VerifyComprehensive(result, pieces, Margins()));
         }
 
         [Fact]
@@ -406,9 +406,9 @@ namespace ProGlassAutomation.Tests.Agent
             var level1 = GuillotinePacker.PackOptimize(pieces, stocks, margins, RotationPolicy.Free90, 1);
 
             Assert.Equal(quick.SheetsUsed, level1.SheetsUsed);
-            // Effort 1 must be the SAME single deterministic pass as QUICK —
+            // Effort 1 must be the SAME deterministic portfolio as QUICK —
             // the strongest proof that no smart candidate sneaked in is that
-            // both results carry the same single-pass label.
+            // both results carry the same winning-candidate label.
             Assert.Equal(quick.Strategy, level1.Strategy);
         }
 

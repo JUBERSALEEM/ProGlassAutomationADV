@@ -89,7 +89,9 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(count, placedCount + result.Unplaced.Count);
 
             // Oracle verification: kerf, margins, boundary, no overlaps
-            var problems = GuillotinePacker.Verify(result, Margins);
+            var problems = GuillotinePacker.VerifyComprehensive(result, pieces, Margins);
+            Assert.False(result.HasValidationFailure);
+            Assert.Empty(result.Unplaced);
             Assert.Empty(problems);
         }
 
@@ -106,7 +108,9 @@ namespace ProGlassAutomation.Tests.Agent
             int placedCount = result.Sheets.Sum(s => s.Pieces.Count);
             Assert.Equal(count, placedCount + result.Unplaced.Count);
 
-            var problems = GuillotinePacker.Verify(result, Margins);
+            var problems = GuillotinePacker.VerifyComprehensive(result, pieces, Margins);
+            Assert.False(result.HasValidationFailure);
+            Assert.Empty(result.Unplaced);
             Assert.Empty(problems);
         }
 
@@ -123,7 +127,9 @@ namespace ProGlassAutomation.Tests.Agent
             int placedCount = result.Sheets.Sum(s => s.Pieces.Count);
             Assert.Equal(count, placedCount + result.Unplaced.Count);
 
-            var problems = GuillotinePacker.Verify(result, Margins);
+            var problems = GuillotinePacker.VerifyComprehensive(result, pieces, Margins);
+            Assert.False(result.HasValidationFailure);
+            Assert.Empty(result.Unplaced);
             Assert.Empty(problems);
 
             Assert.NotEmpty(result.ScaleNotes);

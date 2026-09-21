@@ -39,6 +39,10 @@ namespace ProGlassAutomation.Services.Optimization
             if (pieces.Count == 0)
                 return new OptimizationResult { Rotation = rotation };
 
+            if (effortLevel <= 1)
+                return PackQuick(pieces, stocks, margins, rotation,
+                    cancellationToken: cancellationToken, progress: progress);
+
             config ??= SmartSearchConfiguration.Default;
 
             // Small/medium jobs directly leverage the standard global multi-start engine
@@ -46,6 +50,11 @@ namespace ProGlassAutomation.Services.Optimization
             {
                 return PackOptimize(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress);
             }
+
+            // A stock cap belongs to the complete job, not independently to
+            // each parallel batch. This matches the VM's finite-inventory route.
+            if (stocks.Any(s => s.MaxSheets > 0 && s.MaxSheets < StockSize.EffectivelyUnlimitedSheets))
+                return PackOptimize(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress);
 
             var sw = Stopwatch.StartNew();
             int totalParts = pieces.Count;
@@ -106,7 +115,7 @@ namespace ProGlassAutomation.Services.Optimization
                     Sort(pieces, OrderBy.MaxSide),
                     stocks, margins, rotation, SplitMode.LongerLeftover,
                     cancellationToken, consolidationSweeps: 2);
-                bestGlobal = Better(bestGlobal, globalMaxSide);
+                bestGlobal = Better(bestGlobal, CheckCandidate(globalMaxSide, pieces, margins, cancellationToken));
             }
 
             if (effortLevel >= 3)
@@ -116,7 +125,7 @@ namespace ProGlassAutomation.Services.Optimization
                     ShuffleDeterministic(Sort(pieces, OrderBy.Area), 1013),
                     stocks, margins, rotation, SplitMode.VerticalFirst,
                     cancellationToken, consolidationSweeps: 1);
-                bestGlobal = Better(bestGlobal, globalShuffle1);
+                bestGlobal = Better(bestGlobal, CheckCandidate(globalShuffle1, pieces, margins, cancellationToken));
             }
 
             if (effortLevel >= 4)
@@ -126,13 +135,13 @@ namespace ProGlassAutomation.Services.Optimization
                     ShuffleDeterministic(Sort(pieces, OrderBy.MaxSide), 2027),
                     stocks, margins, rotation, SplitMode.HorizontalFirst,
                     cancellationToken, consolidationSweeps: 1);
-                bestGlobal = Better(bestGlobal, globalShuffle2);
+                bestGlobal = Better(bestGlobal, CheckCandidate(globalShuffle2, pieces, margins, cancellationToken));
 
                 // Run global windowed SmartPlacement
                 var smartGlobal = PackSmart(pieces, stocks, margins, rotation,
                     SplitMode.HorizontalFirst, consolidationSweeps: 1, cancellationToken: cancellationToken,
                     candidateWindowSize: 300);
-                bestGlobal = Better(bestGlobal, smartGlobal);
+                bestGlobal = Better(bestGlobal, CheckCandidate(smartGlobal, pieces, margins, cancellationToken));
             }
 
             if (effortLevel >= 5)
@@ -142,13 +151,13 @@ namespace ProGlassAutomation.Services.Optimization
                     ShuffleDeterministic(Sort(pieces, OrderBy.Perimeter), 3041),
                     stocks, margins, rotation, SplitMode.LongerLeftover,
                     cancellationToken, consolidationSweeps: 1);
-                bestGlobal = Better(bestGlobal, globalShuffle3);
+                bestGlobal = Better(bestGlobal, CheckCandidate(globalShuffle3, pieces, margins, cancellationToken));
 
                 // Run global windowed BestSplit
                 var bestSplitGlobal = RunBestSplit(pieces, stocks, margins, rotation,
                     consolidationSweeps: 1, cancellationToken: cancellationToken,
                     candidateWindowSize: 300);
-                bestGlobal = Better(bestGlobal, bestSplitGlobal);
+                bestGlobal = Better(bestGlobal, CheckCandidate(bestSplitGlobal, pieces, margins, cancellationToken));
             }
 
             // 3. Assemble Consolidated Global Result
@@ -205,7 +214,7 @@ namespace ProGlassAutomation.Services.Optimization
             }
 
             // Select the absolute best between global multi-start and partitioned passes
-            var winningResult = Better(bestGlobal, combinedResult);
+            var winningResult = Better(bestGlobal, CheckCandidate(combinedResult, pieces, margins, cancellationToken));
 
             sw.Stop();
             batchTelemetry.ExecutionTimeSeconds = sw.Elapsed.TotalSeconds;
@@ -217,14 +226,14 @@ namespace ProGlassAutomation.Services.Optimization
             // Industrial safety net: validate before the plan can reach a cut
             // file. If the winner is invalid, try the other candidate, then a
             // fresh validated quick pass — never emit overlapping placements.
-            var problems = ValidateResult(winningResult, pieces);
+            var problems = VerifyComprehensive(winningResult, pieces, margins);
             if (problems.Count > 0)
             {
                 var other = (winningResult == bestGlobal) ? combinedResult : bestGlobal;
-                if (other != null && ValidateResult(other, pieces).Count == 0)
+                if (other != null && VerifyComprehensive(other, pieces, margins).Count == 0)
                 {
                     other.ScaleNotes.Add($"WARNING: consolidated plan failed layout validation " +
-                        $"({problems[0]}); replaced with the validated {(bestGlobal == other ? "batch-combined" : "global")} pass.");
+                        $"({problems[0]}); replaced with the validated {(bestGlobal == other ? "global" : "batch-combined")} pass.");
                     winningResult = other;
                 }
                 else
@@ -242,8 +251,8 @@ namespace ProGlassAutomation.Services.Optimization
             // fallback path; on the clean path the already-computed list is
             // reused.
             winningResult.RecordValidation(
-                problems.Count == 0 ? problems : ValidateResult(winningResult, pieces),
-                conservationChecked: true, geometryChecked: false);
+                problems.Count == 0 ? problems : VerifyComprehensive(winningResult, pieces, margins),
+                conservationChecked: true, geometryChecked: true);
 
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
                 $"{winningResult.Sheets.Count:N0} sheets cut · {winningResult.Unplaced.Count} unplaced"));
@@ -346,7 +355,10 @@ namespace ProGlassAutomation.Services.Optimization
             SmartSearchConfiguration config,
             CancellationToken cancellationToken)
         {
-            OptimizationResult best = null;
+            var best = CheckCandidate(RunCapacityStrips(batchPieces, stocks, margins, rotation,
+                false, cancellationToken), batchPieces, margins, cancellationToken);
+            best = Better(best, CheckCandidate(RunCapacityStrips(batchPieces, stocks, margins, rotation,
+                true, cancellationToken), batchPieces, margins, cancellationToken));
 
             // Within a stratified batch, the sheet window is set to int.MaxValue
             // so all anchors, mediums, and fillers within this batch can pack together
@@ -359,7 +371,7 @@ namespace ProGlassAutomation.Services.Optimization
                 stocks, margins, rotation, SplitMode.HorizontalFirst,
                 cancellationToken, consolidationSweeps: 2, progress: null,
                 openSheetWindow: batchWindow);
-            best = Better(best, areaPass);
+            best = Better(best, CheckCandidate(areaPass, batchPieces, margins, cancellationToken));
 
             // Strategy 2: MaxSide pass with LongerLeftover split
             if (effortLevel >= 2)
@@ -370,7 +382,7 @@ namespace ProGlassAutomation.Services.Optimization
                     stocks, margins, rotation, SplitMode.LongerLeftover,
                     cancellationToken, consolidationSweeps: 2, progress: null,
                     openSheetWindow: batchWindow);
-                best = Better(best, maxSidePass);
+                best = Better(best, CheckCandidate(maxSidePass, batchPieces, margins, cancellationToken));
             }
 
             // Strategy 3: Deterministic Shuffle Perturbation Passes (seeds: 1013, 2027)
@@ -382,7 +394,7 @@ namespace ProGlassAutomation.Services.Optimization
                     shuffled1, stocks, margins, rotation, SplitMode.VerticalFirst,
                     cancellationToken, consolidationSweeps: 1, progress: null,
                     openSheetWindow: batchWindow);
-                best = Better(best, shufflePass1);
+                best = Better(best, CheckCandidate(shufflePass1, batchPieces, margins, cancellationToken));
 
                 if (effortLevel >= 4)
                 {
@@ -392,7 +404,7 @@ namespace ProGlassAutomation.Services.Optimization
                         shuffled2, stocks, margins, rotation, SplitMode.HorizontalFirst,
                         cancellationToken, consolidationSweeps: 1, progress: null,
                         openSheetWindow: batchWindow);
-                    best = Better(best, shufflePass2);
+                    best = Better(best, CheckCandidate(shufflePass2, batchPieces, margins, cancellationToken));
                 }
             }
 
@@ -403,7 +415,7 @@ namespace ProGlassAutomation.Services.Optimization
                 var bestSplitPass = RunBestSplit(batchPieces, stocks, margins, rotation,
                     consolidationSweeps: 1, cancellationToken: cancellationToken,
                     candidateWindowSize: config.CandidateWindowSize);
-                best = Better(best, bestSplitPass);
+                best = Better(best, CheckCandidate(bestSplitPass, batchPieces, margins, cancellationToken));
             }
 
             // Strategy 5: Windowed Sheet-Fill on the batch
@@ -413,7 +425,7 @@ namespace ProGlassAutomation.Services.Optimization
                 var sheetFillPass = RunSheetFill(batchPieces, stocks, margins, rotation,
                     SplitMode.HorizontalFirst, consolidationSweeps: 1, cancellationToken: cancellationToken,
                     candidateWindowSize: config.CandidateWindowSize);
-                best = Better(best, sheetFillPass);
+                best = Better(best, CheckCandidate(sheetFillPass, batchPieces, margins, cancellationToken));
             }
 
             // Strategy 6: Targeted Wall-Seed on the batch
@@ -423,7 +435,7 @@ namespace ProGlassAutomation.Services.Optimization
                 var wallSeedPass = RunWallSeed(batchPieces, stocks, margins, rotation,
                     SplitMode.HorizontalFirst, consolidationSweeps: 1, cancellationToken: cancellationToken,
                     candidateWindowSize: config.CandidateWindowSize);
-                best = Better(best, wallSeedPass);
+                best = Better(best, CheckCandidate(wallSeedPass, batchPieces, margins, cancellationToken));
             }
 
             // Strategy 7: Smart Capacity-Preserving Placement
@@ -432,7 +444,7 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken.ThrowIfCancellationRequested();
                 var smartPass = PackSmart(batchPieces, stocks, margins, rotation,
                     SplitMode.HorizontalFirst, consolidationSweeps: 1, cancellationToken: cancellationToken);
-                best = Better(best, smartPass);
+                best = Better(best, CheckCandidate(smartPass, batchPieces, margins, cancellationToken));
             }
 
             return best ?? areaPass;

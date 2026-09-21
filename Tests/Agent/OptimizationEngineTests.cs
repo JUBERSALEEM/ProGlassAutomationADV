@@ -68,24 +68,27 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Kerf_forces_a_second_sheet_when_space_is_tight()
         {
+            // Isolate kerf from the evolving house defaults and breakout.
+            var margins = new MarginProfile { LeftMm = 25, RightMm = 25,
+                TopMm = 25, BottomMm = 25, KerfMm = 3, MinBreakoutMm = 0 };
             // Two 1000-wide pieces side by side need
             // 25 + 1000 + kerf(3) + 1000 + 25 = 2053mm of stock width.
             // At 2053 they share one sheet…
             var oneSheet = GuillotinePacker.PackQuick(
                 new[] { Piece(1000, 1000, "A", rotate: false), Piece(1000, 1000, "B", rotate: false) },
                 new[] { new StockSize { WidthMm = 2053, HeightMm = 1100 } },
-                Margins, RotationPolicy.Locked);
+                margins, RotationPolicy.Locked);
             Assert.Equal(1, oneSheet.SheetsUsed);
-            Assert.Empty(GuillotinePacker.Verify(oneSheet, Margins));
+            Assert.Empty(GuillotinePacker.Verify(oneSheet, margins));
 
             // …and one millimetre less breaks the row — the kerf pushes
             // piece B onto its own sheet.
             var twoSheets = GuillotinePacker.PackQuick(
                 new[] { Piece(1000, 1000, "A", rotate: false), Piece(1000, 1000, "B", rotate: false) },
                 new[] { new StockSize { WidthMm = 2052, HeightMm = 1100 } },
-                Margins, RotationPolicy.Locked);
+                margins, RotationPolicy.Locked);
             Assert.Equal(2, twoSheets.SheetsUsed);
-            Assert.Empty(GuillotinePacker.Verify(twoSheets, Margins));
+            Assert.Empty(GuillotinePacker.Verify(twoSheets, margins));
         }
 
         // ══════════════════════════════════════════════════════════════

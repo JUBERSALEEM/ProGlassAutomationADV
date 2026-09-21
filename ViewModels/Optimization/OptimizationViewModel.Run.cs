@@ -710,7 +710,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             ResultUnplaced = totalUnplaced.ToString(CultureInfo.InvariantCulture);
             OraclePassed = totalProblems == 0;
             ResultOracle = totalProblems == 0
-                ? "Verified — no overlaps, margins & kerf respected"
+                ? "Verified — conservation, margins, kerf & breakout checked"
                 : string.Format(CultureInfo.InvariantCulture, "{0} layout issue(s)", totalProblems);
 
             // Waste = consumed stock − placed glass (the offcut the saw leaves).

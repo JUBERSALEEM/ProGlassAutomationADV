@@ -1,0 +1,577 @@
+{
+  "runtime": "Linux .NET 10.0.11 / Roslyn 5.9, actual C#12 engine sources, not native WPF/.NET8 acceptance",
+  "stock": {
+    "widthMm": 3210,
+    "heightMm": 2250,
+    "trimsMm": 15,
+    "kerfMm": 3,
+    "minBreakoutMm": 15,
+    "rotation": "Free90"
+  },
+  "inputPieces": 46,
+  "exactInputAreaSqm": 49.220233,
+  "before": [
+    {
+      "level": 1,
+      "pieces": 46,
+      "sheets": 16,
+      "utilization": 42.59,
+      "glassArea": 49.22,
+      "stockArea": 115.56,
+      "unplaced": 0,
+      "strategy": "QUICK SHELF (Area / HorizontalFirst)",
+      "notes": [],
+      "verification": [],
+      "breakout": []
+    },
+    {
+      "level": 2,
+      "pieces": 46,
+      "sheets": 12,
+      "utilization": 56.79,
+      "glassArea": 49.2202,
+      "stockArea": 86.67,
+      "unplaced": 0,
+      "strategy": "SHEET-FILL",
+      "notes": [],
+      "verification": [],
+      "breakout": []
+    },
+    {
+      "level": 3,
+      "pieces": 46,
+      "sheets": 12,
+      "utilization": 56.79,
+      "glassArea": 49.2202,
+      "stockArea": 86.67,
+      "unplaced": 0,
+      "strategy": "GRID (MaxSide / VerticalFirst)",
+      "notes": [],
+      "verification": [],
+      "breakout": [
+        "Sheet 7: 46 leaves a 5 mm offcut against 32 \u2014 below the 15 mm minimum breakout."
+      ]
+    },
+    {
+      "level": 4,
+      "pieces": 46,
+      "sheets": 12,
+      "utilization": 56.79,
+      "glassArea": 49.2202,
+      "stockArea": 86.67,
+      "unplaced": 0,
+      "strategy": "GRID (MaxSide / VerticalFirst)",
+      "notes": [],
+      "verification": [],
+      "breakout": [
+        "Sheet 7: 46 leaves a 5 mm offcut against 32 \u2014 below the 15 mm minimum breakout."
+      ]
+    },
+    {
+      "level": 5,
+      "pieces": 46,
+      "sheets": 12,
+      "utilization": 56.79,
+      "glassArea": 49.2202,
+      "stockArea": 86.67,
+      "unplaced": 0,
+      "strategy": "GRID (MaxSide / VerticalFirst)",
+      "notes": [],
+      "verification": [],
+      "breakout": [
+        "Sheet 7: 46 leaves a 5 mm offcut against 32 \u2014 below the 15 mm minimum breakout."
+      ]
+    }
+  ],
+  "after": [
+    {
+      "level": 1,
+      "pieces": 46,
+      "sheets": 9,
+      "utilization": 75.72,
+      "glassArea": 49.2204,
+      "stockArea": 65.0025,
+      "unplaced": 0,
+      "strategy": "CAPACITY STRIPS (columns)",
+      "notes": [],
+      "verification": [],
+      "breakout": []
+    },
+    {
+      "level": 2,
+      "pieces": 46,
+      "sheets": 9,
+      "utilization": 75.72,
+      "glassArea": 49.2204,
+      "stockArea": 65.0025,
+      "unplaced": 0,
+      "strategy": "CAPACITY STRIPS (columns)",
+      "notes": [],
+      "verification": [],
+      "breakout": []
+    },
+    {
+      "level": 3,
+      "pieces": 46,
+      "sheets": 9,
+      "utilization": 75.72,
+      "glassArea": 49.2204,
+      "stockArea": 65.0025,
+      "unplaced": 0,
+      "strategy": "CAPACITY STRIPS (columns)",
+      "notes": [],
+      "verification": [],
+      "breakout": []
+    },
+    {
+      "level": 4,
+      "pieces": 46,
+      "sheets": 9,
+      "utilization": 75.72,
+      "glassArea": 49.2204,
+      "stockArea": 65.0025,
+      "unplaced": 0,
+      "strategy": "CAPACITY STRIPS (columns)",
+      "notes": [],
+      "verification": [],
+      "breakout": []
+    },
+    {
+      "level": 5,
+      "pieces": 46,
+      "sheets": 9,
+      "utilization": 75.72,
+      "glassArea": 49.2204,
+      "stockArea": 65.0025,
+      "unplaced": 0,
+      "strategy": "CAPACITY STRIPS (columns)",
+      "notes": [],
+      "verification": [],
+      "breakout": []
+    }
+  ],
+  "level1Layout": [
+    {
+      "number": 1,
+      "count": 5,
+      "utilization": 78.71,
+      "placements": [
+        {
+          "label": "1",
+          "x": 15,
+          "y": 15,
+          "w": 1198,
+          "h": 1073
+        },
+        {
+          "label": "7",
+          "x": 15,
+          "y": 1109,
+          "w": 1183,
+          "h": 1081
+        },
+        {
+          "label": "15",
+          "x": 1234,
+          "y": 15,
+          "w": 1178,
+          "h": 1083
+        },
+        {
+          "label": "12",
+          "x": 1234,
+          "y": 1119,
+          "w": 1188,
+          "h": 1073
+        },
+        {
+          "label": "32",
+          "x": 2443,
+          "y": 15,
+          "w": 488,
+          "h": 1168
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "count": 5,
+      "utilization": 78.11,
+      "placements": [
+        {
+          "label": "14",
+          "x": 15,
+          "y": 15,
+          "w": 1178,
+          "h": 1078
+        },
+        {
+          "label": "43",
+          "x": 15,
+          "y": 1114,
+          "w": 1178,
+          "h": 1078
+        },
+        {
+          "label": "6",
+          "x": 1224,
+          "y": 15,
+          "w": 1178,
+          "h": 1078
+        },
+        {
+          "label": "5",
+          "x": 1224,
+          "y": 1114,
+          "w": 1188,
+          "h": 1068
+        },
+        {
+          "label": "33",
+          "x": 2433,
+          "y": 15,
+          "w": 478,
+          "h": 1178
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "count": 5,
+      "utilization": 77.71,
+      "placements": [
+        {
+          "label": "46",
+          "x": 15,
+          "y": 15,
+          "w": 1173,
+          "h": 1078
+        },
+        {
+          "label": "16",
+          "x": 15,
+          "y": 1114,
+          "w": 1178,
+          "h": 1073
+        },
+        {
+          "label": "8",
+          "x": 1219,
+          "y": 15,
+          "w": 1183,
+          "h": 1068
+        },
+        {
+          "label": "13",
+          "x": 1219,
+          "y": 1104,
+          "w": 1173,
+          "h": 1073
+        },
+        {
+          "label": "11",
+          "x": 2423,
+          "y": 15,
+          "w": 473,
+          "h": 1188
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "count": 5,
+      "utilization": 77.18,
+      "placements": [
+        {
+          "label": "23",
+          "x": 15,
+          "y": 15,
+          "w": 1178,
+          "h": 1068
+        },
+        {
+          "label": "9",
+          "x": 15,
+          "y": 1104,
+          "w": 1178,
+          "h": 1068
+        },
+        {
+          "label": "20",
+          "x": 1214,
+          "y": 15,
+          "w": 1168,
+          "h": 1073
+        },
+        {
+          "label": "17",
+          "x": 1214,
+          "y": 1109,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "18",
+          "x": 2408,
+          "y": 15,
+          "w": 473,
+          "h": 1178
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "count": 5,
+      "utilization": 76.78,
+      "placements": [
+        {
+          "label": "22",
+          "x": 15,
+          "y": 15,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "26",
+          "x": 15,
+          "y": 1104,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "27",
+          "x": 1209,
+          "y": 15,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "28",
+          "x": 1209,
+          "y": 1104,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "19",
+          "x": 2403,
+          "y": 15,
+          "w": 468,
+          "h": 1188
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "count": 5,
+      "utilization": 76.74,
+      "placements": [
+        {
+          "label": "29",
+          "x": 15,
+          "y": 15,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "30",
+          "x": 15,
+          "y": 1104,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "31",
+          "x": 1209,
+          "y": 15,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "34",
+          "x": 1209,
+          "y": 1104,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "2",
+          "x": 2403,
+          "y": 15,
+          "w": 473,
+          "h": 1168
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "count": 5,
+      "utilization": 76.72,
+      "placements": [
+        {
+          "label": "35",
+          "x": 15,
+          "y": 15,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "36",
+          "x": 15,
+          "y": 1104,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "37",
+          "x": 1209,
+          "y": 15,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "38",
+          "x": 1209,
+          "y": 1104,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "41",
+          "x": 2403,
+          "y": 15,
+          "w": 468,
+          "h": 1178
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "count": 5,
+      "utilization": 76.42,
+      "placements": [
+        {
+          "label": "39",
+          "x": 15,
+          "y": 15,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "4",
+          "x": 15,
+          "y": 1104,
+          "w": 1168,
+          "h": 1068
+        },
+        {
+          "label": "21",
+          "x": 1209,
+          "y": 15,
+          "w": 1158,
+          "h": 1068
+        },
+        {
+          "label": "42",
+          "x": 1209,
+          "y": 1104,
+          "w": 1158,
+          "h": 1068
+        },
+        {
+          "label": "24",
+          "x": 2403,
+          "y": 15,
+          "w": 478,
+          "h": 1153
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "count": 6,
+      "utilization": 63.12,
+      "placements": [
+        {
+          "label": "44",
+          "x": 15,
+          "y": 15,
+          "w": 1173,
+          "h": 1038
+        },
+        {
+          "label": "45",
+          "x": 15,
+          "y": 1074,
+          "w": 1173,
+          "h": 983
+        },
+        {
+          "label": "25",
+          "x": 1209,
+          "y": 15,
+          "w": 1153,
+          "h": 478
+        },
+        {
+          "label": "10",
+          "x": 1209,
+          "y": 514,
+          "w": 1188,
+          "h": 463
+        },
+        {
+          "label": "3",
+          "x": 1209,
+          "y": 998,
+          "w": 1158,
+          "h": 473
+        },
+        {
+          "label": "40",
+          "x": 1209,
+          "y": 1492,
+          "w": 1178,
+          "h": 458
+        }
+      ]
+    }
+  ],
+  "testBodies": {
+    "passed": 97,
+    "failed": 0,
+    "failures": []
+  },
+  "capacityStripOnlyScaleProbe": [
+    {
+      "count": 10000,
+      "sheets": 692,
+      "placed": 10000,
+      "unplaced": 0,
+      "issues": [],
+      "generationSeconds": 0.2813149,
+      "withVerificationSeconds": 0.3611602,
+      "workingSetMiB": 252
+    },
+    {
+      "count": 100000,
+      "sheets": 6905,
+      "placed": 100000,
+      "unplaced": 0,
+      "issues": [],
+      "generationSeconds": 0.5709877,
+      "withVerificationSeconds": 0.6532298,
+      "workingSetMiB": 278
+    },
+    {
+      "count": 1000001,
+      "sheets": 69039,
+      "placed": 1000001,
+      "unplaced": 0,
+      "issues": [],
+      "generationSeconds": 4.5352979,
+      "withVerificationSeconds": 5.3397121,
+      "workingSetMiB": 666
+    }
+  ]
+}

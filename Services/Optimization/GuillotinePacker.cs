@@ -9,7 +9,7 @@
 // Clear 16 sheets @ 84.92%, Ramly 1 sheet on 2500×1875.
 //
 // Stages
-//   PackQuick    — one deterministic pass: area-first ordering,
+//   PackQuick    — deterministic portfolio: area-first shelf plus capacity strips,
 //                  horizontal-first guillotine splits, adaptive
 //                  rotation, consolidation.
 //   PackOptimize — multi-start effort levels (orderings × split modes,
@@ -163,7 +163,7 @@ namespace ProGlassAutomation.Services.Optimization
             }
         }
 
-        /// <summary>QUICK stage — one fast deterministic pass.</summary>
+        /// <summary>QUICK stage — a fixed shelf/column/row candidate portfolio.</summary>
         /// <param name="progress">Optional per-part progress. QUICK reported
         /// nothing at all until 2026-09-17, so the bar sat pinned at 0% for the
         /// whole run and then jumped to 100% — and because a Step 5 quote is
@@ -180,51 +180,42 @@ namespace ProGlassAutomation.Services.Optimization
             CancellationToken cancellationToken = default,
             IProgress<OptimizeProgress> progress = null)
         {
+            if (pieces == null) throw new ArgumentNullException(nameof(pieces));
+            if (stocks == null || stocks.Count == 0)
+                throw new ArgumentException("At least one stock size is required.", nameof(stocks));
+            if (margins == null) throw new ArgumentNullException(nameof(margins));
+            cancellationToken.ThrowIfCancellationRequested();
+
             // 2026-09-16: was OrderBy.MaxSide, which cost a whole sheet on the
             // owner's own benchmark. MaxSide packs the Low-E group into 18
             // sheets @ 78.18%; Area reaches 17 @ 82.77% — the reference figure
             // the file header claims and Benchmark_LowE_MatchesReference pins.
             // Area is also identical on Clear (17) and Ramly (1 sheet, smallest
             // stock), so it is a strict improvement for the QUICK stage.
-            // QUICK runs a single pass, but ConsolidateAll still restarts its
-            // donor sweep after every improvement, which is unbounded in the
-            // number of sheets. Applying the same size-based sweep cap keeps a
-            // very large group from hanging here too. Below LargeThreshold the
-            // cap is unlimited, so QUICK stays bit-identical.
+            // Keep the old shelf candidate and its scale limits. Add two
+            // bounded capacity-strip candidates below; QUICK remains a fixed
+            // portfolio rather than an effort-dependent multi-start search.
             var plan = OptimizationSearchGovernor.PlanForQuick(pieces.Count);
             int window = plan.OpenSheetWindow;
             var result = RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
-                cancellationToken, plan.MaxConsolidationSweeps, progress, window);
+                cancellationToken, plan.MaxConsolidationSweeps,
+                progress == null ? null : new QuickShelfProgress(progress), window);
             // Name the pass it actually was. The generic "GRID (...)" default
-            // from RunPass would read as a multi-start grid, but QUICK is a
-            // single deterministic shelf pass — the operator must be able to
-            // tell them apart on the result.
+            // from RunPass would obscure which QUICK candidate actually won.
             result.Strategy = $"QUICK SHELF (Area / {split})";
 
-            // PHASE 4 / finding 7 (2026-09-20): QUICK never validated
-            // conservation. ValidateResult — the oracle that catches a piece
-            // missing from the plan, placed twice, or an input/output count
-            // mismatch — was called only by PackOptimize and the partitioned
-            // path, while the run header labelled every group from Verify, which
-            // checks GEOMETRY only. A QUICK plan that had lost pieces therefore
-            // displayed "Verified".
-            //
-            // QUICK is also PackOptimize's own fallback when the optimized plan
-            // fails validation, so validating it here means the safety net has a
-            // net. There is nothing left to fall back to, so a failure is
-            // recorded on the result rather than replaced: the plan stays
-            // visible for inspection and is excluded from export and from the
-            // Step 6 feed by the callers that read HasValidationFailure.
-            var quickProblems = ValidateResult(result, pieces);
-            result.RecordValidation(quickProblems, conservationChecked: true, geometryChecked: false);
-            if (quickProblems.Count > 0)
+            result = CheckCandidate(result, pieces, margins, cancellationToken);
+            foreach (bool transpose in new[] { false, true })
             {
-                result.ScaleNotes.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
-                    "WARNING: the QUICK plan failed conservation validation ({0}; {1} issue(s)) — " +
-                    "shown for inspection, not exportable.",
-                    quickProblems[0], quickProblems.Count));
+                progress?.Report(OptimizeProgress.Of("capacity", transpose ? 80 : 60, 100,
+                    transpose ? "Capacity-aware row strips" : "Capacity-aware column strips"));
+                var strips = RunCapacityStrips(pieces, stocks, margins, rotation, transpose, cancellationToken);
+                result = Better(result, CheckCandidate(strips, pieces, margins, cancellationToken));
             }
-
+            if (result.HasValidationFailure)
+                result.ScaleNotes.Add("WARNING: no valid QUICK candidate — inspection only, not exportable.");
+            progress?.Report(OptimizeProgress.Of("done", 100, 100,
+                $"{result.Sheets.Count} sheet(s) cut · {result.Unplaced.Count} unplaced"));
             return result;
         }
 
@@ -247,6 +238,10 @@ namespace ProGlassAutomation.Services.Optimization
             if (stocks == null || stocks.Count == 0)
                 throw new ArgumentException("At least one stock size is required.", nameof(stocks));
             if (margins == null) throw new ArgumentNullException(nameof(margins));
+
+            if (effortLevel <= 1)
+                return PackQuick(pieces, stocks, margins, rotation,
+                    cancellationToken: cancellationToken, progress: progress);
 
             var plan = OptimizationSearchGovernor.PlanForOptimize(pieces.Count, effortLevel);
             var scale = ScaleProfile.For(pieces.Count, effortLevel);
@@ -319,7 +314,12 @@ namespace ProGlassAutomation.Services.Optimization
             // handing out the cached list is safe.
             var sortCache = new Dictionary<OrderBy, List<CutPiece>>();
 
-            OptimizationResult best = null;
+            // Every level includes the same validated QUICK portfolio. Deeper
+            // search can improve it but cannot replace it with an invalid plan.
+            OptimizationResult best = PackQuick(pieces, stocks, margins, rotation,
+                cancellationToken: cancellationToken);
+            void Consider(OptimizationResult candidate) =>
+                best = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken));
             for (int ci = 0; ci < comboList.Count; ci++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -370,7 +370,7 @@ namespace ProGlassAutomation.Services.Optimization
                     ? $"QUICK SHELF ({order} / {split})"
                     : $"GRID ({order} / {split}" +
                       (shuffle > 0 ? $" / shuffle {shuffle}" : "") + ")";
-                best = Better(best, candidate);
+                Consider(candidate);
             }
 
             // With windowed candidate scanning, advanced strategies (BestSplit, SheetFill,
@@ -382,9 +382,9 @@ namespace ProGlassAutomation.Services.Optimization
                 foreach (var split in splits)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    best = Better(best, RunSheetFill(pieces, stocks, margins, rotation, split,
+                    Consider(RunSheetFill(pieces, stocks, margins, rotation, split,
                         scale.ConsolidationSweeps, cancellationToken, windowSize));
-                    best = Better(best, RunWallSeed(pieces, stocks, margins, rotation, split,
+                    Consider(RunWallSeed(pieces, stocks, margins, rotation, split,
                         scale.ConsolidationSweeps, cancellationToken, windowSize));
                 }
                 cancellationToken.ThrowIfCancellationRequested();
@@ -392,7 +392,7 @@ namespace ProGlassAutomation.Services.Optimization
                 // Per-sheet split selection — see GuillotinePacker.BestSplit.cs.
                 // This is the candidate that takes the Clear group from 17
                 // sheets to the owner's reference 16.
-                best = Better(best, RunBestSplit(pieces, stocks, margins, rotation,
+                Consider(RunBestSplit(pieces, stocks, margins, rotation,
                     scale.ConsolidationSweeps, cancellationToken, windowSize));
 
                 // ── SMART PLACEMENT ──────────────────────────
@@ -404,7 +404,7 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken.ThrowIfCancellationRequested();
                 progress?.Report(OptimizeProgress.Of("smart", comboList.Count, smartTotal,
                     "Smart placement: capacity-preserving, breakout-aware"));
-                best = Better(best, PackSmart(pieces, stocks, margins, rotation,
+                Consider(PackSmart(pieces, stocks, margins, rotation,
                     SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
                     progress: null, candidateWindowSize: windowSize));
 
@@ -413,7 +413,7 @@ namespace ProGlassAutomation.Services.Optimization
                     cancellationToken.ThrowIfCancellationRequested();
                     progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
                         "Smart placement: vertical-split preference"));
-                    best = Better(best, PackSmart(pieces, stocks, margins, rotation,
+                    Consider(PackSmart(pieces, stocks, margins, rotation,
                         SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken,
                         progress: null, candidateWindowSize: windowSize));
                 }
@@ -427,7 +427,7 @@ namespace ProGlassAutomation.Services.Optimization
                              effortLevel >= 5 ? 6 : 3, scale.MaxRectsOrderings)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    best = Better(best, RunMaxRects(Sort(pieces, order), stocks, margins, rotation,
+                    Consider(RunMaxRects(Sort(pieces, order), stocks, margins, rotation,
                             cancellationToken));
                 }
 
@@ -445,11 +445,11 @@ namespace ProGlassAutomation.Services.Optimization
                 if (scale.AllowBeam)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 4, cancellationToken));
+                    Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 4, cancellationToken));
                     if (effortLevel >= 4)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
-                        best = Better(best, RunBestSplitBeam(pieces, stocks, margins, rotation, 8, cancellationToken));
+                        Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 8, cancellationToken));
                     }
                 }
             }
@@ -477,11 +477,11 @@ namespace ProGlassAutomation.Services.Optimization
             // reach a cut file. Fall back to the quick pass, which is an
             // independent single-pass engine; if even that fails (should be
             // impossible), keep the original and say so explicitly.
-            var problems = ValidateResult(final, pieces);
+            var problems = VerifyComprehensive(final, pieces, margins);
             if (problems.Count > 0)
             {
-                var quick = PackQuick(pieces, stocks, margins, rotation);
-                var quickProblems = ValidateResult(quick, pieces);
+                var quick = PackQuick(pieces, stocks, margins, rotation, cancellationToken: cancellationToken);
+                var quickProblems = VerifyComprehensive(quick, pieces, margins);
                 if (quickProblems.Count == 0)
                 {
                     // PHASE 4 / finding 24 (2026-09-20): this note used to be
@@ -506,7 +506,7 @@ namespace ProGlassAutomation.Services.Optimization
             // PHASE 4: the verdict travels with the plan, so the run header can
             // say what was actually checked and the export / Step 6 feed paths
             // can refuse a plan that failed conservation.
-            final.RecordValidation(problems, conservationChecked: true, geometryChecked: false);
+            final.RecordValidation(problems, conservationChecked: true, geometryChecked: true);
 
             progress?.Report(OptimizeProgress.Of("done", comboList.Count, comboList.Count,
                 $"{final.Sheets.Count} sheets"));
@@ -517,11 +517,19 @@ namespace ProGlassAutomation.Services.Optimization
         {
             if (b == null) return a;
             if (a == null) return b;
+            if (a.HasValidationFailure != b.HasValidationFailure)
+                return a.HasValidationFailure ? b : a;
             if (b.Unplaced.Count != a.Unplaced.Count)
                 return b.Unplaced.Count < a.Unplaced.Count ? b : a;
             if (b.SheetsUsed != a.SheetsUsed)
                 return b.SheetsUsed < a.SheetsUsed ? b : a;
-            return b.UtilizationPct > a.UtilizationPct ? b : a;
+            decimal Utilization(OptimizationResult r)
+            {
+                decimal stock = r.Sheets.Sum(sheet => (decimal)sheet.Stock.WidthMm * sheet.Stock.HeightMm);
+                decimal glass = r.Sheets.Sum(sheet => sheet.Pieces.Sum(p => (decimal)p.WidthMm * p.HeightMm));
+                return stock == 0 ? 0 : glass / stock;
+            }
+            return Utilization(b) > Utilization(a) ? b : a;
         }
 
         // ── one packing pass ─────────────────────────────────────────────
@@ -738,9 +746,9 @@ namespace ProGlassAutomation.Services.Optimization
 
 
         /// <summary>
-        /// Best fit for one piece on one sheet. ADAPTIVE rotation: the
-        /// original orientation is preferred (rank 0); rotated placements
-        /// are only chosen when nothing accepts the piece unrotated.
+        /// Local best fit for one piece: exact edges / short-side remainder
+        /// first, orientation only a tie-break. This does not measure future
+        /// row/column capacity; RunCapacityStrips supplies that alternative.
         /// </summary>
         private static PlacedPiece TryPlace(
             SheetState sheet, CutPiece piece, RotationPolicy rotation,
@@ -1333,6 +1341,8 @@ namespace ProGlassAutomation.Services.Optimization
             MarginProfile margins)
         {
             var problems = Verify(result, margins);
+            problems.AddRange(AuditBreakout(result, margins));
+            if (inputPieces != null) problems.AddRange(ValidateResult(result, inputPieces));
 
             // Quantity conservation: InputCount == PlacedCount + UnplacedCount
             int totalPlaced = result.Sheets.Sum(s => s.Pieces.Count);
@@ -1340,6 +1350,12 @@ namespace ProGlassAutomation.Services.Optimization
             if (inputPieces != null && totalPlaced + totalUnplaced != inputPieces.Count)
             {
                 problems.Add($"Quantity conservation violation: input {inputPieces.Count} != placed {totalPlaced} + unplaced {totalUnplaced}.");
+            }
+
+            foreach (var rack in result.Sheets.GroupBy(sheet => sheet.Stock))
+            {
+                if (rack.Key.MaxSheets > 0 && rack.Count() > rack.Key.MaxSheets)
+                    problems.Add($"Stock cap violated: {rack.Count()} sheets used; only {rack.Key.MaxSheets} allowed.");
             }
 
             // Material conservation: All pieces on each sheet must match the sheet's stock material / thickness

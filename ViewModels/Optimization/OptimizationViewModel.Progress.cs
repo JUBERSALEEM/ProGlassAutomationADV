@@ -128,13 +128,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private static string BuildRunArchitectureLabel(string stage, int maxGroupParts, int effort)
         {
-            if (!string.Equals(stage, "OPTIMIZE", StringComparison.Ordinal))
-                return "Single deterministic shelf pass — area-first ordering, horizontal-first splits, every plate open, consolidation sweep";
+            if (!string.Equals(stage, "OPTIMIZE", StringComparison.Ordinal) || effort <= 1)
+                return "Deterministic QUICK portfolio — area-first shelf plus capacity-aware row/column strips; best validated plan retained";
 
             if (maxGroupParts <= 2000)
-                return effort <= 1
-                    ? "Single deterministic pass — identical to the QUICK stage (area-first, horizontal-first splits)"
-                    : effort == 2
+                return effort == 2
                         ? "Multi-candidate search — 3 ordering candidates plus Best-Split, Sheet-Fill, Wall-Seed and Smart Placement"
                         : effort == 3
                             ? "Full multi-candidate search — 12 ordering/split candidates plus Best-Split, Sheet-Fill, Wall-Seed, Smart Placement, MaxRects and beam-corrected Best-Split"

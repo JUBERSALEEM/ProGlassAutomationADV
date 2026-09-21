@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Portable, real xUnit target: links the actual engine and regression
+       sources without the WPF app, EF, UI tests, or any engine translation. -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <Nullable>enable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../Services/Optimization/GuillotinePacker*.cs" Link="Engine/%(Filename)%(Extension)" />
+    <Compile Include="../../Services/Optimization/OptimizationModels.cs" Link="Engine/OptimizationModels.cs" />
+    <Compile Include="../../Services/Optimization/OptimizationSearchGovernor.cs" Link="Engine/OptimizationSearchGovernor.cs" />
+    <Compile Include="../../Services/Optimization/OptimizationPartitionModels.cs" Link="Engine/OptimizationPartitionModels.cs" />
+    <Compile Include="../../Services/Optimization/PieceCandidateIndex.cs" Link="Engine/PieceCandidateIndex.cs" />
+    <Compile Include="../../Services/Optimization/OptimizationProgress.cs" Link="Engine/OptimizationProgress.cs" />
+    <Compile Include="../../Tests/Optimization/CapacityStripRegressionTests.cs" Link="Tests/CapacityStripRegressionTests.cs" />
+    <Compile Include="../../Tests/Agent/OptimizationEngineTests.cs" Link="Tests/OptimizationEngineTests.cs" />
+    <Compile Include="../../Tests/Agent/OptimizationBenchmarkTests.cs" Link="Tests/OptimizationBenchmarkTests.cs" />
+    <Compile Include="../../Tests/Agent/OptimizationSmartPlacementTests.cs" Link="Tests/OptimizationSmartPlacementTests.cs" />
+    <Compile Include="../../Tests/Agent/OptimizationMarginHouseTableTests.cs" Link="Tests/OptimizationMarginHouseTableTests.cs" />
+    <Compile Include="../../Tests/Agent/OptimizationPartitionedTests.cs" Link="Tests/OptimizationPartitionedTests.cs" />
+  </ItemGroup>
+</Project>

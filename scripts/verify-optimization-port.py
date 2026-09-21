@@ -11,10 +11,17 @@ ROOT = Path(__file__).resolve().parents[1]
 def read(path): return (ROOT / path).read_text(encoding="utf-8-sig")
 
 class OptimizationPort(unittest.TestCase):
-    def test_engine_preserved_except_documented_house_table_correction(self):
+    def test_engine_preserved_except_explicitly_authorized_changes(self):
         manifest = json.loads(read("docs/optimization/protected-engine-manifest.json"))
         approved = manifest.get("approved_changes", {})
-        self.assertEqual({"Services/Optimization/OptimizationModels.cs"}, set(approved))
+        self.assertEqual({"Services/Optimization/OptimizationModels.cs",
+                          "Services/Optimization/GuillotinePacker.cs",
+                          "Services/Optimization/GuillotinePacker.Partitioned.cs"}, set(approved))
+        additions = manifest.get("approved_additions", {})
+        self.assertEqual({"Services/Optimization/GuillotinePacker.CapacityStrips.cs"}, set(additions))
+        for path, approval in additions.items():
+            self.assertTrue(approval["reason"])
+            self.assertEqual(approval["sha256"], hashlib.sha256((ROOT / path).read_bytes()).hexdigest())
         for path, expected in manifest["sha256"].items():
             if path in approved:
                 expected = approved[path]["sha256"]
