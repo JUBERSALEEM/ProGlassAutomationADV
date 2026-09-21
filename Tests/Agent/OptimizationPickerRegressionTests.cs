@@ -199,6 +199,134 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Empty_layers_with_saved_sgu_itemrows_populate_pieces()
+        {
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            var job = JobWithStep5Rows(
+                "JO-SGU", "SGU", "6mm Clear FT Glass",
+                new GlassItemRowSnapshot { GlassRef = "A1", W1 = 1200, H1 = 800, Qty = 10 },
+                new GlassItemRowSnapshot { GlassRef = "A2", W1 = 900, H1 = 600, Qty = 2 });
+            var emptyLayer = new OptimizationViewModel.BuildUpLayerVm
+            {
+                Kind = "Pane",
+                Position = "Glass",
+                IsSelected = true,
+                JobOrderId = "JO-SGU"
+            };
+            var spec = new OptimizationViewModel.SpecOptionVm
+            {
+                JobOrderId = "JO-SGU",
+                SpecGroupNumber = 1,
+                SpecName = "6mm Clear FT Glass",
+                BuildType = "Sgu"
+            };
+            spec.Layers.Add(emptyLayer);
+            job.Specs.Add(spec);
+
+            vm.AttachJobOption(job);
+            vm.AvailableJobs.Add(job);
+            job.IsSelected = true;
+
+            Assert.True(vm.HasPieces);
+            Assert.True(vm.SizeGroups.Count > 0);
+            Assert.Equal(12, SumQty(vm));
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1200" && p.HeightText == "800");
+            Assert.Contains(vm.Pieces, p => p.WidthText == "900" && p.HeightText == "600");
+            Assert.Equal("12", vm.KpiPieces);
+            Assert.DoesNotContain(vm.Pieces, p => p.WidthText == "1000" && p.HeightText == "1000");
+            Assert.NotEqual(152, SumQty(vm));
+        }
+
+        [Fact]
+        public void Saved_dgu_itemrows_expand_outer_and_inner_without_inventing_qty()
+        {
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            var job = JobWithStep5Rows(
+                "JO-DGU", "DGU", "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                new GlassItemRowSnapshot
+                {
+                    GlassRef = "D1",
+                    W1 = 1100, H1 = 900,
+                    W2 = 1080, H2 = 880,
+                    Qty = 17
+                });
+            vm.AttachJobOption(job);
+            vm.AvailableJobs.Add(job);
+            job.IsSelected = true;
+
+            Assert.True(vm.HasPieces);
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1100" && p.HeightText == "900");
+            Assert.Contains(vm.Pieces, p => p.WidthText == "1080" && p.HeightText == "880");
+            Assert.Equal(34, SumQty(vm));
+            Assert.Equal("34", vm.KpiPieces);
+            Assert.True(ParseArea(vm.KpiGlass) > 0);
+            Assert.NotEqual(152, SumQty(vm));
+        }
+
+        [Fact]
+        public void Saved_lam_itemrows_use_occurrence_positions()
+        {
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            var job = JobWithStep5Rows(
+                "JO-LAM", "LAM", "6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Clear FT Glass",
+                new GlassItemRowSnapshot
+                {
+                    GlassRef = "L1",
+                    W1 = 1500, H1 = 1000,
+                    W2 = 1500, H2 = 1000,
+                    Qty = 5
+                });
+            vm.AttachJobOption(job);
+            vm.AvailableJobs.Add(job);
+            job.IsSelected = true;
+
+            Assert.True(vm.HasPieces);
+            Assert.Equal(10, SumQty(vm));
+            Assert.Contains(vm.Pieces, p =>
+                (p.Position ?? string.Empty).IndexOf("Lam", System.StringComparison.OrdinalIgnoreCase) >= 0
+                || p.WidthText == "1500");
+            Assert.Contains(vm.Pieces, p => p.GlassType == "LAM");
+            Assert.NotEqual(152, SumQty(vm));
+        }
+
+        private static OptimizationViewModel.JobOptionVm JobWithStep5Rows(
+            string id, string glassType, string specName, params GlassItemRowSnapshot[] rows)
+        {
+            var job = new OptimizationViewModel.JobOptionVm
+            {
+                JobOrderId = id,
+                CustomerName = "Customer " + id,
+                CanOptimizeMaterial = true,
+                HasOptimizablePanes = true,
+                GlassType = glassType,
+                SpecName = specName,
+                OuterGlassColor = "Clear",
+                InnerGlassColor = "Clear"
+            };
+            foreach (var row in rows)
+                job.Step5Rows.Add(row);
+            return job;
+        }
+
+        private static int SumQty(OptimizationViewModel vm)
+        {
+            int qty = 0;
+            foreach (var p in vm.Pieces)
+            {
+                if (p.TryParse(out _, out _, out int q)) qty += q;
+            }
+            return qty;
+        }
+
+        private static double ParseArea(string kpiGlass)
+        {
+            var text = (kpiGlass ?? string.Empty).Replace("m²", string.Empty).Trim();
+            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double a)
+                ? a
+                : 0;
+        }
+
+        [Fact]
         public void Zero_pane_job_is_listed_without_inventing_sizes()
         {
             var vm = new OptimizationViewModel { IsHeadlessHost = false };

@@ -801,16 +801,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                         " {0} import warning(s) — see the job cards.", totalWarnings)
                                     : string.Empty,
                                 truncationNote);
-
-                        // 2026-09-12 (31138eb): when there is no confirmed JO,
-                        // load the owner calibration so JOBS/SIZES/STOCK are
-                        // not a blank studio. Only when the picker is empty —
-                        // never mixed into a real job's panes.
-                        if (options.Count == 0 && Pieces.Count == 0)
-                        {
-                            LoadReferenceJob();
-                            JobsStatusText = "No confirmed job orders — loaded the 11–12 Sep calibration job (152 pieces). Use Load reference job to reload.";
-                        }
                     });
                 }
             }
@@ -1191,62 +1181,120 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </para>
         /// </summary>
         /// <summary>
-        /// Last-resort import: ticked jobs have Step 5 W×H×Qty rows but no
-        /// exploded pane layers. Writes Outer (W1/H1) and Inner (W2/H2) into
-        /// Pieces so selecting the source-lock card still fills the cutting list.
+        /// Last-resort import: ticked jobs have saved Step 5 W×H×Qty rows but
+        /// exploded pane layers are missing or empty. Derives Pieces with the
+        /// same ResolvePaneOccurrences / DguDimensionSemantics rules as LoadJobs.
+        /// Does not Clear Pieces until at least one cuttable size is derived.
         /// </summary>
         private bool TryImportPiecesFromSelectedJobStep5Rows()
         {
             var jobs = AvailableJobs.Where(j => j.IsSelected).ToList();
             if (jobs.Count == 0) return false;
 
-            Pieces.Clear();
+            var derived = new List<PieceEntryVm>();
             int added = 0;
             foreach (var job in jobs)
             {
-                if (job?.Step5Rows == null) continue;
-                foreach (var r in job.Step5Rows)
+                var rows = (job.Step5Rows ?? new List<GlassItemRowSnapshot>())
+                    .Where(r => r != null
+                        && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)))
+                    .ToList();
+                if (rows.Count == 0) continue;
+
+                var group = new SpecGroupSnapshot
                 {
-                    if (r == null) continue;
-                    int qty = r.Qty > 0 ? r.Qty : 1;
-                    string label = string.IsNullOrWhiteSpace(r.GlassRef) ? "—" : r.GlassRef.Trim();
-                    if (r.W1 > 0 && r.H1 > 0)
+                    GroupNumber = 1,
+                    SelectedGlassType = job.GlassType ?? string.Empty,
+                    SelectedSpecName = job.SpecName ?? string.Empty,
+                    OuterGlassColor = job.OuterGlassColor ?? string.Empty,
+                    InnerGlassColor = job.InnerGlassColor ?? string.Empty,
+                    ThirdGlassColor = job.ThirdGlassColor ?? string.Empty
+                };
+                group.ItemRows.AddRange(rows);
+
+                string buildType = ProductionDistributionEngine.ResolveBuildType(group, null);
+                var occurrences = ProductionDistributionEngine.ResolvePaneOccurrences(buildType, group);
+
+                foreach (var occ in occurrences)
+                {
+                    string composition = CompositionKey.Normalize(
+                        string.IsNullOrWhiteSpace(occ.Composition)
+                            ? (string.IsNullOrWhiteSpace(job.SpecName)
+                                ? (job.GlassType ?? string.Empty)
+                                : job.SpecName)
+                            : occ.Composition);
+                    if (string.IsNullOrWhiteSpace(composition))
+                        composition = (occ.Position ?? "Pane").Trim();
+
+                    string paneColor = !string.IsNullOrWhiteSpace(occ.Pane?.Color)
+                        ? occ.Pane.Color
+                        : (occ.Slot == PaneSlot.Pane2
+                            ? (job.InnerGlassColor ?? job.OuterGlassColor)
+                            : job.OuterGlassColor) ?? string.Empty;
+                    int paneThk = occ.ThicknessMm > 0
+                        ? occ.ThicknessMm
+                        : ParseThicknessMm(composition);
+                    if (paneThk <= 0)
+                        paneThk = ParseThicknessMm(job.SpecName);
+
+                    foreach (var r in rows)
                     {
-                        var outer = NewPieceRow("Outer", label,
-                            r.W1.ToString(CultureInfo.InvariantCulture),
-                            r.H1.ToString(CultureInfo.InvariantCulture),
+                        int w, h;
+                        if (occ.Slot == PaneSlot.Pane1)
+                        {
+                            w = r.W1;
+                            h = r.H1;
+                        }
+                        else if (!DguDimensionSemantics.TryResolveInnerSize(
+                                     r.W1, r.H1, r.W2, r.H2, out w, out h, out _))
+                        {
+                            continue;
+                        }
+                        if (w <= 0 || h <= 0) continue;
+
+                        int qty = r.Qty > 0 ? r.Qty : 1;
+                        string label = string.IsNullOrWhiteSpace(r.GlassRef) ? "—" : r.GlassRef.Trim();
+                        var row = NewPieceRow(
+                            composition,
+                            label,
+                            w.ToString(CultureInfo.InvariantCulture),
+                            h.ToString(CultureInfo.InvariantCulture),
                             qty.ToString(CultureInfo.InvariantCulture));
-                        outer.Position = "Outer";
-                        outer.JobOrderId = job.JobOrderId;
-                        outer.W1 = r.W1;
-                        outer.H1 = r.H1;
-                        outer.GlassType = job.GlassType ?? string.Empty;
-                        outer.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|1|Outer";
-                        outer.EnsureMaterialKey();
-                        Pieces.Add(outer);
-                        added += qty;
-                    }
-                    if (r.W2 > 0 && r.H2 > 0)
-                    {
-                        var inner = NewPieceRow("Inner", label,
-                            r.W2.ToString(CultureInfo.InvariantCulture),
-                            r.H2.ToString(CultureInfo.InvariantCulture),
-                            qty.ToString(CultureInfo.InvariantCulture));
-                        inner.Position = "Inner";
-                        inner.JobOrderId = job.JobOrderId;
-                        inner.W2 = r.W2;
-                        inner.H2 = r.H2;
-                        inner.GlassType = job.GlassType ?? string.Empty;
-                        inner.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|1|Inner";
-                        inner.EnsureMaterialKey();
-                        Pieces.Add(inner);
+                        row.Position = occ.Position ?? string.Empty;
+                        row.JobOrderId = job.JobOrderId;
+                        row.ProformaId = job.SourceProformaId ?? string.Empty;
+                        row.SpecGroupNumber = 1;
+                        row.Color = paneColor;
+                        row.ThicknessMm = paneThk;
+                        row.Processing = occ.Treatment ?? string.Empty;
+                        row.GlassType = job.GlassType ?? string.Empty;
+                        row.MaterialKey = OptimizationMaterialIdentity.BuildKey(
+                            job.GlassType, paneColor, paneThk, occ.Treatment, string.Empty);
+                        if (string.IsNullOrWhiteSpace(row.MaterialKey))
+                            row.MaterialKey = "UNRESOLVED|" + job.JobOrderId + "|1|" + (occ.Position ?? string.Empty);
+                        if (occ.Slot == PaneSlot.Pane2)
+                        {
+                            row.W2 = w;
+                            row.H2 = h;
+                        }
+                        else
+                        {
+                            row.W1 = w;
+                            row.H1 = h;
+                        }
+                        row.EnsureMaterialKey();
+                        derived.Add(row);
                         added += qty;
                     }
                 }
             }
 
-            if (added == 0)
+            if (derived.Count == 0 || added == 0)
                 return false;
+
+            Pieces.Clear();
+            foreach (var p in derived)
+                Pieces.Add(p);
 
             RefreshDerived();
             RunMessage = string.Format(CultureInfo.InvariantCulture,
@@ -1276,32 +1324,53 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // has no cutting rows, not that this method lost them.
             int paneRows = 0;
             int paneQty = 0;
+            int cuttableQty = 0;
             foreach (var layer in selectedLayers)
             {
                 paneRows += layer.Pieces.Count;
-                foreach (var (_, _, _, _, qty) in layer.Pieces)
+                foreach (var (_, _, w, h, qty) in layer.Pieces)
+                {
                     if (qty > 0) paneQty += qty;
+                    if (w > 0 && h > 0 && qty > 0) cuttableQty += qty;
+                }
             }
 
-            if (selectedLayers.Count == 0)
+            // Pane layers can exist (checklist PCS) while carrying no cuttable
+            // W×H. Saved JO Step 5 ItemRows are then the source of truth —
+            // do not Clear Pieces merely because layers are empty.
+            if (selectedLayers.Count == 0 || cuttableQty == 0)
             {
                 if (TryImportPiecesFromSelectedJobStep5Rows())
                     return;
 
                 if (SelectedJobs.Any())
                 {
-                    // Operator selected a confirmed JO that has no panes.
+                    // Operator selected a confirmed JO that has no Step 5 sizes.
                     if (Pieces.Count > 0)
                     {
                         Pieces.Clear();
                         RefreshDerived();
                     }
-                    RunMessage = "NO OPTIMIZABLE PANES — the selected job has no Step 5 cutting sizes.";
+                    if (selectedLayers.Count > 0 && paneRows == 0)
+                    {
+                        RunMessage = string.Format(CultureInfo.InvariantCulture,
+                            "{0} pane(s) ticked but they carry no Step 5 cutting rows — the job's pane sizes never reached the picker.",
+                            selectedLayers.Count);
+                    }
+                    else if (paneRows > 0 && cuttableQty == 0)
+                    {
+                        RunMessage = string.Format(CultureInfo.InvariantCulture,
+                            "{0} pane(s) ticked but every Step 5 row was rejected (W≤0, H≤0 or Qty≤0) — nothing cuttable to import.",
+                            selectedLayers.Count);
+                    }
+                    else
+                    {
+                        RunMessage = "NO OPTIMIZABLE PANES — the selected job has no Step 5 cutting sizes.";
+                    }
                 }
                 else
                 {
-                    // No JO ticked: leave Load-reference / SEND TO ENGINE pieces.
-                    RunMessage = "Tick a job to import Step 5 sizes, or use Load reference job / MANUAL CUT LIST.";
+                    RunMessage = "Tick a job to import Step 5 sizes, or add sizes on MANUAL CUT LIST.";
                 }
                 LogImportConservation(selectedLayers.Count, paneRows, paneQty, 0, 0, 0);
                 return;
