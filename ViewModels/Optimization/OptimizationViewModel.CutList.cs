@@ -283,8 +283,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </remarks>
         private void SendCutListToEngine()
         {
+            // LostFocus cells do not commit until the cell loses focus. SEND
+            // without tabbing out used to send an empty list.
+            try
+            {
+                if (System.Windows.Input.Keyboard.FocusedElement is System.Windows.FrameworkElement fe)
+                    fe.GetBindingExpression(System.Windows.Controls.TextBox.TextProperty)?.UpdateSource();
+            }
+            catch { }
+
             var rows = ManualCutList.ItemRows
-                .Where(r => r != null && !r.IsEmpty && r.Qty > 0 && (r.W1 > 0 || r.W2 > 0))
+                .Where(r => r != null && r.Qty > 0
+                    && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)))
                 .ToList();
 
             if (rows.Count == 0)
@@ -293,6 +303,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     + "one size (W1×H1, or W2×H2 for a second pane).";
                 return;
             }
+
+            // Untick JOs so AutoRebuild cannot replace the sent sizes and so
+            // Run() is not blocked by an unresolved-material job still ticked.
+            foreach (var job in AvailableJobs)
+            {
+                if (job.IsSelected) job.IsSelected = false;
+            }
+            SelectedJob = null;
 
             // Phase 2: canonical composition — the cut list's composition is
             // free text (a typed spec name or the build type), and it is the

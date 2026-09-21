@@ -166,6 +166,18 @@ namespace ProGlassAutomation.Tests.Production
             Assert.Contains("private void SyncCutListFromSelectedJobs()", cut);
             Assert.Contains("ApplyImportedRows(import)", cut);
             Assert.Contains("if (jobs.Count == 0) return;", cut);
+            Assert.Contains("UpdateSource()", cut);
+
+            string parts = Read("ViewModels/Optimization/OptimizationViewModel.Parts.cs");
+            Assert.Contains("grid.ApplyImportedRows(import)", parts);
+            Assert.Contains("Reference job →", parts);
+
+            string live = Read("ViewModels/Optimization/OptimizationViewModel.LiveRun.cs");
+            Assert.Contains("hasCuttable", live);
+            Assert.Contains("hasSheet", live);
+
+            string pi = Read("ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs");
+            Assert.Contains("ReportOptimizationProgress(true, 0, \"RUNNING OPTIMIZATION\")", pi);
 
             string spec = Read("ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.Part2.cs");
             Assert.Contains("Keeping glass type", spec);

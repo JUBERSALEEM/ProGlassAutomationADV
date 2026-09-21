@@ -56,9 +56,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
         private void SelectGlassTypeCard(string? code)
         {
+            if (string.IsNullOrWhiteSpace(code))
+                return;
             var card = GlassTypes.FirstOrDefault(c =>
                 string.Equals(c.Code, code, StringComparison.OrdinalIgnoreCase));
-            SelectedGlassType = card ?? GlassTypes.FirstOrDefault();
+            if (card != null)
+                SelectedGlassType = card;
         }
 
         // ==================== APPLY RATE (SAVE TO DATABASE) ====================

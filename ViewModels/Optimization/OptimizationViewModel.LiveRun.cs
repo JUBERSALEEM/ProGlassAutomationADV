@@ -130,7 +130,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     new ProformaInvoiceSnapshot { SpecGroups = groups },
                     out message))
             {
-                return false;
+                // JO Run() still refuses unresolved material. Step 5 live run
+                // still starts when the grid has sizes and Step 4 left sheet
+                // W×H — MaterialIsValid is often null on restored drafts.
+                bool hasCuttable = groups.Any(g => g.ItemRows != null && g.ItemRows.Any(r =>
+                    r != null && r.Qty > 0
+                    && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0))));
+                bool hasSheet = groups.Any(g =>
+                    (g.OuterSheetWidthMm > 0 && g.OuterSheetHeightMm > 0)
+                    || (g.InnerSheetWidthMm > 0 && g.InnerSheetHeightMm > 0));
+                if (!hasCuttable || !hasSheet)
+                    return false;
+                message = string.Empty;
             }
 
             // A minimal invoice snapshot: Distribute only needs SpecGroups, and

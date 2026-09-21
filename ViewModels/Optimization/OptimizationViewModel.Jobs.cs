@@ -698,11 +698,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             AttachJobOption(o);
                             AvailableJobs.Add(o);
                         }
-                        SelectedJob = null;
-                        if (!_hasUserJobSelection && keepSelectedIds.Count == 0 && AvailableJobs.Count > 0)
-                            AvailableJobs[0].IsSelected = true;
-                        else
-                            SelectedJob = AvailableJobs.FirstOrDefault(j => j.IsSelected);
+                        SelectedJob = AvailableJobs.FirstOrDefault(j => j.IsSelected);
                         RefreshJobsFilter();
                         RebuildSelectedJobBreakdown();
                         RefreshKpis();
@@ -1086,17 +1082,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             if (selectedLayers.Count == 0)
             {
-                // No panes ticked → the cutting list mirrors the selection and
-                // is empty. Only touch Pieces when there is something to clear,
-                // so an unrelated refresh never re-derives the whole SIZES tab.
-                if (Pieces.Count > 0)
-                {
-                    Pieces.Clear();
-                    RefreshDerived();
-                }
+                // Do not Pieces.Clear() here. Load reference job and SEND TO
+                // ENGINE own Pieces when no JO pane is ticked. Clearing on
+                // every LoadJobs rebuild / untick wiped those sizes.
                 RunMessage = SelectedJobs.Any()
-                    ? "No panes selected — tick pane boxes to populate cutting list."
-                    : "No jobs selected — tick jobs on left to auto-import.";
+                    ? "No panes on the ticked job — Load reference job or enter sizes on CUT LIST."
+                    : "Tick a job to import Step 5 sizes, or use Load reference job / CUT LIST.";
                 LogImportConservation(selectedLayers.Count, paneRows, paneQty, 0, 0, 0);
                 return;
             }

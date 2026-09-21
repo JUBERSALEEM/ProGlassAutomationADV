@@ -245,6 +245,39 @@ namespace ProGlassAutomation.ViewModels.Optimization
             foreach (var (r, w, h, q) in spec1) Add(clear, "Inner", r, w, h, q);
             foreach (var (r, w, h) in spec2) Add(ramly, "Inner", r, w, h, 1);
 
+            // Untick JOs so Run() is not blocked by an unresolved-material job
+            // and AutoRebuild cannot replace these 152 pieces.
+            foreach (var job in AvailableJobs)
+            {
+                if (job.IsSelected) job.IsSelected = false;
+            }
+            SelectedJob = null;
+
+            // Same W1/H1 (outer) + W2/H2 (inner) rows on CUT LIST.
+            var import = new List<ProGlassAutomation.Services.ProformaInvoice.Step5Grid.CutListImportRow>();
+            foreach (var (r, w, h, q) in spec1)
+            {
+                import.Add(new ProGlassAutomation.Services.ProformaInvoice.Step5Grid.CutListImportRow
+                {
+                    GlassRef = r, W1 = w, H1 = h, W2 = w, H2 = h, Qty = q
+                });
+            }
+            foreach (var (r, w, h) in spec2)
+            {
+                import.Add(new ProGlassAutomation.Services.ProformaInvoice.Step5Grid.CutListImportRow
+                {
+                    GlassRef = r, W1 = w, H1 = h, W2 = w, H2 = h, Qty = 1
+                });
+            }
+            var grid = ManualCutList;
+            if (string.IsNullOrWhiteSpace(grid.SelectedGlassType))
+                grid.SelectedGlassType = "DGU";
+            grid.ItemRows.Clear();
+            int cutRows = grid.ApplyImportedRows(import);
+            CutListStatus = string.Format(CultureInfo.InvariantCulture,
+                "Reference job → {0} CUT LIST row(s) (W1/H1 outer · W2/H2 inner).",
+                cutRows);
+
             // 31138eb seeded these four house racks so STOCK / Run were not empty.
             if (Stocks.Count == 0)
             {

@@ -154,6 +154,9 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.True(vm.HasPieces);
             Assert.True(vm.HasStocks);
             Assert.False(vm.HasResult);
+            Assert.True(vm.ManualCutList.ItemRows.Count > 0);
+            Assert.Contains(vm.ManualCutList.ItemRows,
+                r => r.W1 == 1050 && r.H1 == 2127 && r.W2 == 1050 && r.H2 == 2127 && r.Qty == 2);
         }
 
         [Fact]
