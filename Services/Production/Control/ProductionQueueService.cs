@@ -98,10 +98,10 @@ namespace ProGlassAutomation.Services.Production.Control
 
             foreach (var grp in workItems.GroupBy(w => (w.SpecGroupNumber, w.SerialNumber)))
             {
-                var pair = pairings.FirstOrDefault(p => p.SpecGroupNumber == grp.Key.SpecGroupNumber && p.SerialNumber == grp.Key.SerialNumber);
-                pairingComplete[grp.Key] = pair != null && pair.Status == (int)WorkItemStatus.Completed;
-                var asm = assemblies.FirstOrDefault(a => a.SpecGroupNumber == grp.Key.SpecGroupNumber && a.SerialNumber == grp.Key.SerialNumber);
-                assemblyComplete[grp.Key] = asm != null && asm.Status == (int)WorkItemStatus.Completed;
+                var pairWi = grp.FirstOrDefault(w => w.Stage == (int)ProductionStage.Pairing && !w.IsCancelled);
+                pairingComplete[grp.Key] = pairWi != null && pairWi.QtyDone >= pairWi.Qty;
+                var asmWi = grp.FirstOrDefault(w => w.Stage == (int)ProductionStage.DoublingLamination && !w.IsCancelled);
+                assemblyComplete[grp.Key] = asmWi != null && asmWi.QtyDone >= asmWi.Qty;
             }
 
             var holds = await db.ControlHolds.AsNoTracking()

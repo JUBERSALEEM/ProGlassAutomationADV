@@ -20,6 +20,7 @@ using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using System;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,8 @@ namespace ProGlassAutomation.Services.Production.Control
             if (wi.Status == (int)WorkItemStatus.InProgress) return (true, "Already in progress — idempotent no-op");
             if (wi.Status == (int)WorkItemStatus.Completed) return (false, "WorkItem already completed");
             if (wi.Status == (int)WorkItemStatus.Paused) return (false, "WorkItem is paused — use Resume");
+            if (wi.Status == (int)WorkItemStatus.Rejected) return (false, "Rejected work cannot start");
+            if (wi.Status == (int)WorkItemStatus.QcFailed) return (false, "QC failed — cannot start");
 
             // Check hold
             var activeHold = await db.ControlHolds.FirstOrDefaultAsync(h => h.WorkItemId == workItemId && !h.IsReleased, ct).ConfigureAwait(false);
@@ -57,8 +60,14 @@ namespace ProGlassAutomation.Services.Production.Control
             var qcDict = qc.GroupBy(q => (q.SpecGroupNumber, q.SerialNumber, q.Position, q.Stage)).ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.QcSequence).First().Result);
             var pairings = await db.ProcessPairings.AsNoTracking().Where(p => p.JobRef == wi.JobRef).ToListAsync(ct).ConfigureAwait(false);
             var assemblies = await db.ProcessAssemblies.AsNoTracking().Where(a => a.JobRef == wi.JobRef).ToListAsync(ct).ConfigureAwait(false);
-            var pairingComplete = pairings.GroupBy(p => (p.SpecGroupNumber, p.SerialNumber)).ToDictionary(g => g.Key, g => g.Any(x => x.Status == (int)WorkItemStatus.Completed));
-            var assemblyComplete = assemblies.GroupBy(a => (a.SpecGroupNumber, a.SerialNumber)).ToDictionary(g => g.Key, g => g.Any(x => x.Status == (int)WorkItemStatus.Completed));
+            var pairingComplete = allForJob
+                .Where(w => w.Stage == (int)ProductionStage.Pairing && !w.IsCancelled)
+                .GroupBy(w => (w.SpecGroupNumber, w.SerialNumber))
+                .ToDictionary(g => g.Key, g => g.Any(x => x.QtyDone >= x.Qty));
+            var assemblyComplete = allForJob
+                .Where(w => w.Stage == (int)ProductionStage.DoublingLamination && !w.IsCancelled)
+                .GroupBy(w => (w.SpecGroupNumber, w.SerialNumber))
+                .ToDictionary(g => g.Key, g => g.Any(x => x.QtyDone >= x.Qty));
             var reservations = await db.Reservations.AsNoTracking().Where(r => r.JobRef == wi.JobRef).ToListAsync(ct).ConfigureAwait(false);
             var allocations = await db.Allocations.AsNoTracking().Where(a => a.JobRef == wi.JobRef).ToListAsync(ct).ConfigureAwait(false);
             bool hasRes = wi.Stage == (int)ProductionStage.Cutting
@@ -74,7 +83,8 @@ namespace ProGlassAutomation.Services.Production.Control
                 return (false, $"Not ready: {blockReason} — {readiness}");
 
             // Concurrency: use transaction, check again before update
-            using var tx = await db.Database.BeginTransactionAsync(ct).ConfigureAwait(false);
+            await db.Database.OpenConnectionAsync(ct).ConfigureAwait(false);
+            using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.Serializable, ct).ConfigureAwait(false);
             try
             {
                 // Re-fetch with lock

@@ -114,9 +114,9 @@ namespace ProGlassAutomation.ViewModels.Production
                 BalancePendingPcs = TotalScheduledPcs - CompletedDonePcs;
                 if (BalancePendingPcs < 0) BalancePendingPcs = 0;
                 StageCompletionPct = TotalScheduledPcs > 0 ? Math.Round((double)CompletedDonePcs * 100.0 / TotalScheduledPcs, 1) : 0.0;
-                TotalScheduledSqm = Math.Round(TotalScheduledPcs * 1.575, 1);
-                CompletedDoneSqm = Math.Round(CompletedDonePcs * 1.575, 1);
-                BalancePendingSqm = Math.Round(BalancePendingPcs * 1.575, 1);
+                TotalScheduledSqm = 0;
+                CompletedDoneSqm = 0;
+                BalancePendingSqm = 0;
                 return;
             }
 

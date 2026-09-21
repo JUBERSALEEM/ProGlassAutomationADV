@@ -228,6 +228,20 @@ namespace ProGlassAutomation.Services.Production.Process
                 if (exec.Status == (int)WorkItemStatus.Completed) return (true, "Already completed (idempotent).");
                 if (exec.Status == (int)WorkItemStatus.Cancelled) return (false, "Cancelled, cannot complete.");
 
+                if (exec.OutputWorkItemId > 0)
+                {
+                    var linked = await db.WorkItems.FindAsync(new object[] { exec.OutputWorkItemId }, ct).ConfigureAwait(false);
+                    if (linked != null)
+                    {
+                        if (linked.IsCancelled || linked.Status == (int)WorkItemStatus.Cancelled)
+                            return (false, "Linked work item cancelled — cannot complete execution.");
+                        if (linked.Status == (int)WorkItemStatus.Rejected)
+                            return (false, "Linked work item rejected — cannot complete execution.");
+                        if (linked.Status == (int)WorkItemStatus.QcFailed)
+                            return (false, "Linked work item QC failed — cannot complete execution.");
+                    }
+                }
+
                 // Piece-flow: QtyDone incremental, no destructive overwrite, clamp to QtyRequired
                 int newDone = Math.Min(exec.QtyRequired, exec.QtyDone + qtyDone);
                 exec.QtyDone = newDone;

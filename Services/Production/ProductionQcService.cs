@@ -50,6 +50,8 @@ namespace ProGlassAutomation.Services.Production
                 using var db = new ProductionDbContext();
                 var workItem = await db.WorkItems.FindAsync(new object[] { workItemId }, ct).ConfigureAwait(false);
                 if (workItem == null) return (false, null, "Work item not found.");
+                if (workItem.IsCancelled || workItem.Status == (int)WorkItemStatus.Cancelled)
+                    return (false, null, "Cancelled work cannot be QC'd.");
 
                 // Determine next sequence for this work item
                 var existing = await db.QcEntries

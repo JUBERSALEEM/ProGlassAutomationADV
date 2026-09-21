@@ -58,6 +58,8 @@ namespace ProGlassAutomation.Services.Production
                 using var db = new ProductionDbContext();
                 var workItem = await db.WorkItems.FindAsync(new object[] { workItemId }, ct).ConfigureAwait(false);
                 if (workItem == null) return (false, null, null, "Work item not found.");
+                if (workItem.IsCancelled || workItem.Status == (int)WorkItemStatus.Cancelled)
+                    return (false, null, null, "Cancelled work cannot record breakage.");
 
                 // Find last entry for this work item to link parent
                 var lastEntry = await db.Entries

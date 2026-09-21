@@ -19,6 +19,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,13 +47,27 @@ namespace ProGlassAutomation.Services.Production.Process
             try
             {
                 using var db = new ProductionDbContext();
+                await db.Database.OpenConnectionAsync(ct).ConfigureAwait(false);
+                using var tx = await db.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable, ct).ConfigureAwait(false);
 
-                // Get all work items for this unit — must have Outer and Inner (or Lam Outer/Lam Inner) completed
+                // Supporting records only — never writes WorkItem.QtyDone.
                 var workItems = await db.WorkItems.AsNoTracking()
                     .Where(w => w.JobRef == jobRef && w.SpecGroupNumber == specGroupNumber && w.SerialNumber == serialNumber && !w.IsCancelled)
                     .OrderBy(w => w.Position) // deterministic: Outer before Inner, but we will order explicitly
                     .ThenBy(w => w.Id)
                     .ToListAsync(ct).ConfigureAwait(false);
+
+                var pairingWi = workItems.FirstOrDefault(w => w.Stage == (int)ProductionStage.Pairing);
+                if (pairingWi != null)
+                {
+                    if (pairingWi.IsCancelled || pairingWi.Status == (int)WorkItemStatus.Cancelled)
+                        return (false, "Pairing work item cancelled.", new List<SavedProcessPairing>());
+                    if (pairingWi.Status == (int)WorkItemStatus.Rejected)
+                        return (false, "Rejected pairing work cannot be paired.", new List<SavedProcessPairing>());
+                    if (pairingWi.Status == (int)WorkItemStatus.QcFailed)
+                        return (false, "QC failed — cannot pair.", new List<SavedProcessPairing>());
+                }
 
                 // Gating: Pairing cannot begin when one component missing
                 var outerItems = workItems.Where(w => w.Position.Equals("Outer", StringComparison.OrdinalIgnoreCase) ||
@@ -166,7 +181,12 @@ namespace ProGlassAutomation.Services.Production.Process
                 }
 
                 if (pairings.Count > 0)
+                {
                     await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                    await tx.CommitAsync(ct).ConfigureAwait(false);
+                }
+                else
+                    await tx.CommitAsync(ct).ConfigureAwait(false);
 
                 // Include existing for return
                 var allPairings = await db.ProcessPairings.AsNoTracking()

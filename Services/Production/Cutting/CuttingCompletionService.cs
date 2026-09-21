@@ -77,7 +77,7 @@ namespace ProGlassAutomation.Services.Production.Cutting
                     }
                 }
 
-                // Planning consume only — does NOT call UseStockAsync.
+                // Planning consume only — does not call Sheet Store UseStock.
                 // Consumed here means the production hold is finished, not
                 // that a sheet left Sheet Store.
                 if (!string.IsNullOrWhiteSpace(placed.AllocationId))

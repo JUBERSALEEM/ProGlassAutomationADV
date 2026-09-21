@@ -113,6 +113,7 @@ namespace ProGlassAutomation.Services.Production
                 }
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await tx.CommitAsync(ct).ConfigureAwait(false);
 
                 AppLogService.Info($"[Cancellation] WorkItem {workItemId} cancelled, {releasedCount} reservations released, {allocs.Count} allocations cancelled",
                     new LogContext { Module = "Production", Class = nameof(ProductionCancellationService), Operation = nameof(CancelWorkItemAsync) });

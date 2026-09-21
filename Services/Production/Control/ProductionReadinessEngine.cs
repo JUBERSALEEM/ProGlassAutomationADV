@@ -96,19 +96,18 @@ namespace ProGlassAutomation.Services.Production.Control
                     // Unit (Pairing/Doubling) depends on pane readiness
                     if (predStage == ProductionStage.Pairing)
                     {
-                        // Doubling depends on Pairing
-                        if (pairingComplete != null && pairingComplete.TryGetValue((workItem.SpecGroupNumber, workItem.SerialNumber), out var pairDone))
-                        {
-                            if (!pairDone)
-                                return (ProductionReadiness.Blocked, ProductionBlockReasons.PairingIncomplete);
-                        }
-                        else
-                        {
-                            // check if pairing work item exists and is completed
-                            var pairItem = allWorkItemsForUnit.FirstOrDefault(w => w.Stage == (int)ProductionStage.Pairing && !w.IsCancelled);
-                            if (pairItem == null || pairItem.QtyDone < pairItem.Qty)
-                                return (ProductionReadiness.Blocked, ProductionBlockReasons.PairingIncomplete);
-                        }
+                        // Doubling depends on Pairing WorkItem PCS — not
+                        // ProcessPairing.Status. Supporting pairing rows may
+                        // already be "Completed" while QtyDone is still 0.
+                        var pairItem = allWorkItemsForUnit.FirstOrDefault(w =>
+                                w.Stage == (int)ProductionStage.Pairing && !w.IsCancelled)
+                            ?? allWorkItemsForJob.FirstOrDefault(w =>
+                                w.Stage == (int)ProductionStage.Pairing
+                                && w.SpecGroupNumber == workItem.SpecGroupNumber
+                                && w.SerialNumber == workItem.SerialNumber
+                                && !w.IsCancelled);
+                        if (pairItem == null || pairItem.QtyDone < pairItem.Qty)
+                            return (ProductionReadiness.Blocked, ProductionBlockReasons.PairingIncomplete);
                         continue;
                     }
 

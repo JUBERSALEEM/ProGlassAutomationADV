@@ -18,6 +18,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text.Json;
 using System.Threading;
@@ -50,12 +51,27 @@ namespace ProGlassAutomation.Services.Production.Process
             try
             {
                 using var db = new ProductionDbContext();
+                await db.Database.OpenConnectionAsync(ct).ConfigureAwait(false);
+                using var tx = await db.Database.BeginTransactionAsync(
+                    IsolationLevel.Serializable, ct).ConfigureAwait(false);
 
+                // Supporting records only — never writes WorkItem.QtyDone.
                 var workItems = await db.WorkItems.AsNoTracking()
                     .Where(w => w.JobRef == jobRef && w.SpecGroupNumber == specGroupNumber && w.SerialNumber == serialNumber && !w.IsCancelled)
                     .ToListAsync(ct).ConfigureAwait(false);
 
-                // Gating: Pairing must have passed
+                var doublingWi = workItems.FirstOrDefault(w => w.Stage == (int)ProductionStage.DoublingLamination);
+                if (doublingWi != null)
+                {
+                    if (doublingWi.IsCancelled || doublingWi.Status == (int)WorkItemStatus.Cancelled)
+                        return (false, "Doubling work item cancelled.", new List<SavedProcessAssembly>());
+                    if (doublingWi.Status == (int)WorkItemStatus.Rejected)
+                        return (false, "Rejected doubling work cannot assemble.", new List<SavedProcessAssembly>());
+                    if (doublingWi.Status == (int)WorkItemStatus.QcFailed)
+                        return (false, "QC failed — cannot assemble.", new List<SavedProcessAssembly>());
+                }
+
+                // Gating: Pairing WorkItem PCS must have passed (not ProcessPairing.Status)
                 var pairingWorkItem = workItems.FirstOrDefault(w => w.Stage == (int)ProductionStage.Pairing);
                 if (pairingWorkItem != null && pairingWorkItem.QtyDone < pairingWorkItem.Qty)
                     return (false, $"Doubling cannot begin when pairing has not passed — Pairing {pairingWorkItem.QtyDone}/{pairingWorkItem.Qty}", new List<SavedProcessAssembly>());
@@ -65,12 +81,9 @@ namespace ProGlassAutomation.Services.Production.Process
                     .OrderBy(p => p.PairId)
                     .ToListAsync(ct).ConfigureAwait(false);
 
-                // For DGU without explicit pairing records (legacy), we still allow assembly from work items
-                int qty = workItems.FirstOrDefault()?.Qty ?? 1;
+                // Finished-unit count = pairing/doubling WorkItem.Qty, never pane-cut sum.
+                int qty = pairingWorkItem?.Qty ?? doublingWi?.Qty ?? workItems.FirstOrDefault()?.Qty ?? 1;
                 if (qty <= 0) qty = 1;
-
-                // If pairings exist, qty = pairings count
-                if (pairings.Count > 0) qty = pairings.Count;
 
                 var existingAssemblies = await db.ProcessAssemblies.AsNoTracking()
                     .Where(a => a.JobRef == jobRef && a.SpecGroupNumber == specGroupNumber && a.SerialNumber == serialNumber)
@@ -196,6 +209,7 @@ namespace ProGlassAutomation.Services.Production.Process
 
                 if (newAssemblies.Count > 0)
                     await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await tx.CommitAsync(ct).ConfigureAwait(false);
 
                 var allAssemblies = await db.ProcessAssemblies.AsNoTracking()
                     .Where(a => a.JobRef == jobRef && a.SpecGroupNumber == specGroupNumber && a.SerialNumber == serialNumber)
