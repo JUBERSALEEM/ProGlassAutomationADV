@@ -200,7 +200,7 @@
                            MetricCardStyle
                          via {StaticResource ...} without duplication.
                     ═══════════════════════════════════════════════════════════════ -->
-                <ResourceDictionary Source="/Views/Reports/StatementGenerator/Styles/WizardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Reports/StatementGenerator/Styles/WizardStyles.xaml"/>
 
                 <!-- ── DEFAULT LANGUAGE (2026-09-05 — XDG-0001 cleanup).
                      Language keys (Splash.* / Shell.* / module captions) were
@@ -211,16 +211,8 @@
                      merged here once; LocalizationService.ApplyLanguage now
                      DETECTS and re-uses this pre-merged instance instead of
                      stacking a duplicate (see FindMergedBySource). ── -->
-                                <!-- ONE AUTHORITATIVE DESIGN SYSTEM — GlobalDesignSystem.xaml
-                     Visual SSOT. Merged AFTER module kits (pills, tabs, Opt, Pi,
-                     MERIDIAN, Wizard) so unification aliases win. Language
-                     strings and About Ios26* keys follow; those keys are
-                     namespaced and do not collide with GDS Surface*/Button.*. -->
-                     Defines canonical Surface hierarchy (Primary/Secondary/Detail/Elevated/Kpi/Glass),
-                     Geometry (Radius.*), Typography (FontSize.* + Weight.* + FontFamily.*),
-                     Spacing, Shadows, Buttons, Inputs, DataGrid, Tabs, Chips/Badges, Navigation,
-                     Focus/Hover/Pressed/Disabled, and special-case Paper/Splash/Chart/About/Wizard.
-                     Every view must consume DynamicResource from here. -->
+                <!-- ONE AUTHORITATIVE DESIGN SYSTEM — GlobalDesignSystem.xaml
+                     Visual SSOT. Merged AFTER module kits so unification aliases win. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/GlobalDesignSystem.xaml"/>
 
                 <ResourceDictionary Source="pack://application:,,,/Themes/Languages/en-US.xaml"/>
