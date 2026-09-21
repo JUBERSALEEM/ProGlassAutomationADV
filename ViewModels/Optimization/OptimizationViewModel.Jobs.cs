@@ -103,8 +103,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public List<(int W, int H, string Composition, string Source, decimal PricePerSqm, int SpecNumber, string Side)> Step4Sheets { get; } = new();
 
             /// <summary>
-            /// False when Step 4 material is unresolved or invalid. Optimization
-            /// must not Distribute / Run / TryBuildInputs from this job.
+            /// False when Step 4 material is unresolved or invalid.
+            /// The job still appears in the picker and may import Step 5
+            /// sizes; Run / TryBuildInputs must refuse packing.
             /// </summary>
             public bool CanOptimizeMaterial { get; set; } = true;
             public string MaterialInvalidReason { get; set; } = "";
@@ -404,7 +405,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     {
                         JobOrderId = jo.JobOrderId,
                         SourceProformaId = jo.SourceProformaId ?? string.Empty,
-                        CustomerName = jo.CustomerName
+                        CustomerName = jo.CustomerName,
+                        CanOptimizeMaterial = authorized,
+                        MaterialInvalidReason = authorized ? string.Empty : authMessage
                     };
 
                     // Surface the distribution engine's import warnings
@@ -413,6 +416,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // unparseable spec name loses treatment routing — each of
                     // these changes the cutting list silently.
                     opt.Warnings.AddRange(plan.Warnings);
+                    if (!authorized && !string.IsNullOrWhiteSpace(authMessage)
+                        && !opt.Warnings.Contains(authMessage))
+                        opt.Warnings.Add(authMessage);
 
                     // ── Step 4/5 spec build-up (outer → ASP → inner) ─────
                     // Each spec group becomes a strip of layer boxes using
@@ -628,6 +634,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         // explanation. They now count on this status line
                         // and on each job card.
                         int totalWarnings = options.Sum(o => o.Warnings.Count);
+                        int blockedMaterial = options.Count(o => !o.CanOptimizeMaterial);
                         // Phase 3: say how many of how many — a silent cap
                         // reads as missing jobs.
                         string truncationNote = totalEligible > jobListDisplayCap
@@ -638,8 +645,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         JobsStatusText = options.Count == 0
                             ? "No confirmed job orders with cutting pieces yet."
                             : string.Format(CultureInfo.InvariantCulture,
-                                "{0} confirmed job order(s) ready.{1}{2}",
+                                "{0} confirmed job order(s) with cutting pieces.{1}{2}{3}",
                                 options.Count,
+                                blockedMaterial > 0
+                                    ? string.Format(CultureInfo.InvariantCulture,
+                                        " {0} cannot RUN until Step 4 material is store-resolved — sizes still import.",
+                                        blockedMaterial)
+                                    : string.Empty,
                                 totalWarnings > 0
                                     ? string.Format(CultureInfo.InvariantCulture,
                                         " {0} import warning(s) — see the job cards.", totalWarnings)
