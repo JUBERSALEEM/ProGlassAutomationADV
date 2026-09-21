@@ -143,6 +143,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             public string Composition { get; set; } = string.Empty;
             public string Thickness { get; set; } = string.Empty;
+            /// <summary>Distinct stock dimensions used by this group, in mm; shared by live and restored results.</summary>
+            public string StockSize { get; set; } = string.Empty;
             public string PieceCount { get; set; } = string.Empty;
             public string Sheets { get; set; } = string.Empty;
             public string Utilization { get; set; } = string.Empty;
@@ -758,6 +760,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     Composition = r.Composition,
                     Thickness = r.Thickness,
+                    StockSize = string.Join(", ", r.Result.Sheets
+                        .Select(sheet => string.Format(CultureInfo.InvariantCulture,
+                            "{0}×{1}", sheet.Stock.WidthMm, sheet.Stock.HeightMm))
+                        .Distinct()),
                     PieceCount = r.PieceCount.ToString(CultureInfo.InvariantCulture),
                     Sheets = r.SheetsLabel,
                     Utilization = r.UtilizationPct.ToString("0.0", CultureInfo.InvariantCulture) + "%",

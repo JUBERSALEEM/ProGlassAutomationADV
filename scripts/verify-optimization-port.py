@@ -50,6 +50,27 @@ class OptimizationPort(unittest.TestCase):
                     "PricePerSqm = st.PricePerSqm", "SpecNumber = st.SpecNumber"):
             self.assertIn(key, session)
 
+    def test_live_and_restored_group_initializers_match_result_contract(self):
+        # Regression for CS0117: the source UI dropped StockSize while the
+        # retained session reader still initialized it. Check all assigned
+        # members in both projections, not just whether their syntax parses.
+        run = read("ViewModels/Optimization/OptimizationViewModel.Run.cs")
+        session = read("ViewModels/Optimization/OptimizationViewModel.Session.cs")
+        model = run.split("public sealed class CuttingGroupResultVm", 1)[1].split(
+            "public ObservableCollection<CuttingGroupResultVm>", 1)[0]
+        members = set(re.findall(r"public\s+\w+\s+(\w+)\s*(?:\{|=>)", model))
+        self.assertIn("StockSize", members)
+        for name, source in (("live", run), ("restored", session)):
+            with self.subTest(projection=name):
+                initializers = re.findall(
+                    r"new CuttingGroupResultVm\s*\{(.*?)\n\s*\}", source, re.S)
+                self.assertTrue(initializers, f"Missing {name} result projection")
+                for initializer in initializers:
+                    assigned = set(re.findall(r"^\s*(\w+)\s*=", initializer, re.M))
+                    self.assertTrue(assigned <= members,
+                                    f"Undeclared result members: {assigned - members}")
+                    self.assertIn("StockSize", assigned)
+
     def test_headless_host_and_rate_only_sync(self):
         composer = read("ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs")
         self.assertIn("OptimizationViewModel(isHeadlessHost: true)", composer)
