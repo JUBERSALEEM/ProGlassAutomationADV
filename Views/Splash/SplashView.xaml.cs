@@ -48,7 +48,9 @@ using ProGlassAutomation.Services.Updates;
 using ProGlassAutomation.Views.Login;
 using System;
 using ProGlassAutomation.Utilities;
+using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -70,9 +72,27 @@ namespace ProGlassAutomation.Views.Splash
         // ── Bouncy blob timers (for cleanup) ─────────────────────────────
         private readonly System.Collections.Generic.List<Storyboard> _bouncyBoards = new();
 
+        /// <summary>
+        /// VS XAML diagnostics (WpfTap) walking BlurEffect/DropShadow on
+        /// this Topmost splash has killed the process with native
+        /// 0xffffffff after Show(). Managed try/catch cannot catch that.
+        /// Debugger/TAP → strip GPU effects and skip infinite storyboards.
+        /// </summary>
+        private bool _diagnosticsSafe;
+
         public SplashView()
         {
             InitializeComponent();
+
+            AppDomain.CurrentDomain.AssemblyLoad += OnDiagnosticsAssemblyLoad;
+            Closed += (_, __) =>
+            {
+                try { AppDomain.CurrentDomain.AssemblyLoad -= OnDiagnosticsAssemblyLoad; }
+                catch { }
+            };
+
+            if (Debugger.IsAttached || IsXamlTapLoaded())
+                EnterDiagnosticsSafeMode("debugger or TAP already attached");
 
             TermsBar.DataContext = _termsVm;
             _termsVm.RequestContinue = () =>
@@ -95,11 +115,77 @@ namespace ProGlassAutomation.Views.Splash
         //  LOADED — start fluid entrance + bouncy loops
         // ══════════════════════════════════════════════════════════════
 
+        private void OnDiagnosticsAssemblyLoad(object? sender, AssemblyLoadEventArgs e)
+        {
+            try
+            {
+                string n = e.LoadedAssembly.GetName().Name ?? "";
+                if (n.IndexOf("WpfTap", StringComparison.OrdinalIgnoreCase) < 0
+                    && n.IndexOf("XamlDiagnostics", StringComparison.OrdinalIgnoreCase) < 0
+                    && n.IndexOf("DesignTools", StringComparison.OrdinalIgnoreCase) < 0)
+                    return;
+
+                Dispatcher.BeginInvoke(
+                    new Action(() => EnterDiagnosticsSafeMode("WpfTap/XAML diagnostics loaded")),
+                    DispatcherPriority.Send);
+            }
+            catch { }
+        }
+
+        private static bool IsXamlTapLoaded()
+        {
+            try
+            {
+                foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+                {
+                    string n = a.GetName().Name ?? "";
+                    if (n.IndexOf("WpfTap", StringComparison.OrdinalIgnoreCase) >= 0
+                        || n.IndexOf("XamlDiagnostics", StringComparison.OrdinalIgnoreCase) >= 0)
+                        return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        private void EnterDiagnosticsSafeMode(string reason)
+        {
+            if (_diagnosticsSafe) return;
+            _diagnosticsSafe = true;
+            try { StripGpuEffects(this); }
+            catch { }
+            try { StopProgressSweep(); }
+            catch { }
+            try
+            {
+                AppLogService.Warning(
+                    "[SplashView] GPU effects stripped (" + reason +
+                    ") — VS XAML TAP has killed this window with native 0xffffffff.",
+                    new LogContext { Module = "Startup", Class = nameof(SplashView), Operation = "DiagnosticsSafe" });
+            }
+            catch { }
+        }
+
+        private static void StripGpuEffects(DependencyObject root)
+        {
+            if (root is UIElement el && el.Effect != null)
+                el.Effect = null;
+
+            foreach (object child in LogicalTreeHelper.GetChildren(root))
+            {
+                if (child is DependencyObject d)
+                    StripGpuEffects(d);
+            }
+        }
+
         private void SplashView_Loaded(object sender, RoutedEventArgs e)
         {
             // Blur + TAP (VS XAML diagnostics) has killed this window
             // with a native 0xffffffff after Show(). Animation failures
             // must never take down startup — the poster still paints.
+            if (Debugger.IsAttached || IsXamlTapLoaded())
+                EnterDiagnosticsSafeMode("Loaded under debugger/TAP");
+
             try
             {
             // ─── 1) CAPTION — MADE IN INDIA quiet fade ─────────────────
@@ -225,6 +311,7 @@ namespace ProGlassAutomation.Views.Splash
 
         private void StartBouncyTranslate(TranslateTransform target, double ampX, double ampY, int durationMs, int beginMs, bool isFluid = false)
         {
+            if (_diagnosticsSafe) return;
             try
             {
                 var board = new Storyboard();
