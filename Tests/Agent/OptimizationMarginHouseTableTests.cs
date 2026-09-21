@@ -8,7 +8,7 @@
 //   "set fall back lm rm bm tm and minimum breakout.
 //    6mm  - lm rm bm tm and minimum breakout each 15,
 //    8mm  - lm rm bm tm and minimum breakout each 30,
-//    10mm and 12mm - lm 50, rm 50, bm 0, tm 50 and minimum breakout 50
+//    10mm and 12mm - lm 50, rm 50, bm 50, tm 0 and minimum breakout 50
 //                    or 40 ... by default minimum breakout 50 and keep
 //                    switchable to 40, auto select as per thickness trigger."
 //
@@ -56,16 +56,15 @@ namespace ProGlassAutomation.Tests.Agent
         [Theory]
         [InlineData(10)]
         [InlineData(12)]
-        public void House_ThickGlass_FiftyFiftyFiftyZero(int thickness)
+        public void House_ThickGlass_FiftyFiftyZeroFifty(int thickness)
         {
             var m = MarginProfile.DefaultFor(thickness);
 
             Assert.Equal(50, m.LeftMm);
             Assert.Equal(50, m.RightMm);
-            Assert.Equal(50, m.TopMm);
-            // The thick profile is deliberately ASYMMETRIC: the bottom edge is
-            // cut on the float line, so no trim is taken there.
-            Assert.Equal(0, m.BottomMm);
+            Assert.Equal(0, m.TopMm);
+            // Owner correction 2026-09-21: zero TOP trim, 50mm BOTTOM.
+            Assert.Equal(50, m.BottomMm);
             Assert.Equal(MarginProfile.BreakoutPrimaryMm, m.MinBreakoutMm);
             Assert.Equal(50, m.MinBreakoutMm);
             Assert.Equal(4, m.KerfMm);
@@ -143,8 +142,8 @@ namespace ProGlassAutomation.Tests.Agent
             // The switch changes ONLY the breakout — margins and kerf stay house.
             Assert.Equal(50, m.LeftMm);
             Assert.Equal(50, m.RightMm);
-            Assert.Equal(50, m.TopMm);
-            Assert.Equal(0, m.BottomMm);
+            Assert.Equal(0, m.TopMm);
+            Assert.Equal(50, m.BottomMm);
             Assert.Equal(4, m.KerfMm);
         }
 

@@ -224,6 +224,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             HasPieces = count > 0;
 
             RebuildCuttingGroups();
+            SyncThicknessFromInputs();
             RefreshSizeViews();
             RefreshKpis();
             RebuildIndustrialReport();

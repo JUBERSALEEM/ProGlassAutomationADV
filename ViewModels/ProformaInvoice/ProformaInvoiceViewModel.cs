@@ -654,13 +654,15 @@ public ProformaInvoiceViewModel() : this(
 
         private void OnStep4PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (CurrentStepNumber < 5)
+            if (CurrentStepNumber < 4 || Step4VM.IsRestoringPricingSnapshot)
                 return;
 
-            if (e.PropertyName is nameof(Step4PricingEstimator.PricingEstimatorViewModel.SelectedGlassType)
+            if (e.PropertyName is nameof(Step4PricingEstimator.PricingEstimatorViewModel.CurrentSpecFingerprint)
+                or nameof(Step4PricingEstimator.PricingEstimatorViewModel.CalculationSectionCount)
                 or null
                 or "")
             {
+                Step5VM.EnsureSpecGroupCount(Step4VM.CalculationSectionCount);
                 SyncStep5SelectionsFromStep4();
                 Step6VM.RefreshWorkspace();
             }
@@ -742,24 +744,7 @@ public ProformaInvoiceViewModel() : this(
                 if (!specIsStep4Owned || !glassTypeIsStep4Owned)
                     continue;
 
-                if (section.EstimatedRatePerSqm > 0m
-                    && !group.HasManualStep5BaseRateOverride)
-                {
-                    group.BaseRate = section.EstimatedRatePerSqm;
-                }
-
-                bool incomingSpecChangesSelection =
-                    !string.IsNullOrWhiteSpace(section.GeneratedSpecName)
-                    && !string.Equals(group.SelectedSpecName, section.GeneratedSpecName,
-                        StringComparison.OrdinalIgnoreCase);
-
-                if (section.EstimatedRatePerSqm > 0m
-                    && (incomingSpecChangesSelection || group.ImportedPrice <= 0m))
-                {
-                    group.ImportedPrice = section.EstimatedRatePerSqm;
-                }
-
-                group.LastSyncedStep4ContentHash = section.ComputeContentHash();
+                group.ApplyStep4RateSnapshot(section);
             }
         }
 
@@ -897,6 +882,7 @@ public ProformaInvoiceViewModel() : this(
 
             int previousStepNumber = CurrentStepNumber;
             bool crossesStep4Boundary = previousStepNumber <= 4 && stepNumber >= 5;
+            bool leavesStep4 = previousStepNumber == 4 && stepNumber != 4;
 
             CurrentStep = step;
             _furthestStepReached = Math.Max(_furthestStepReached, stepNumber);
@@ -948,10 +934,10 @@ public ProformaInvoiceViewModel() : this(
                     Step4VM.RefreshSheetStoreData();
             }
 
-            // Continue and a direct tab jump use the same boundary contract.
+            // Continue, Back, and direct tab jumps flush the same snapshot before saving.
             // This closes the historical hole where jumping from Step 4 to a
             // later station skipped the Step 5 synchronization altogether.
-            if (crossesStep4Boundary)
+            if (crossesStep4Boundary || leavesStep4)
                 PrepareStep5FromStep4();
 
             // A downstream jump still needs the refreshed Step 6 workspace;
@@ -1024,6 +1010,7 @@ public ProformaInvoiceViewModel() : this(
 
         private async Task ReturnToListAsync()
         {
+            if (CurrentStepNumber == 4) PrepareStep5FromStep4();
             // Sync the current wizard progress into the printable VM
             // before the silent draft save so the snapshot captures
             // the correct furthest-step-reached value.

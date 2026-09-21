@@ -330,6 +330,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RunScaleLabel = string.Format(CultureInfo.InvariantCulture,
                 "{0} cutting group(s) · {1} part(s) · SETTINGS level {2}",
                 groups.Count, totalParts, SelectedEffortLevel);
+            RunArchitectureLabel = BuildRunArchitectureLabel(stage, groups.Max(g => g.Pieces.Count), effort)
+                + (stage == "OPTIMIZE" && stockPool.Any(s => s.Stock.MaxSheets > 0 && s.Stock.MaxSheets < StockSize.EffectivelyUnlimitedSheets)
+                    ? " Finite inventory uses globally capped search instead of partitioning." : string.Empty);
             RunProgressPercent = 0;
             RunProgressDetail = stage == "OPTIMIZE"
                 ? "Preparing multi-start search…"
@@ -366,13 +369,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// thickness's house defaults and the note surfaces on the result.
         /// </summary>
         private static (MarginProfile Margins, string Note) ResolveGroupMargins(
-            string composition, MarginProfile userMargins)
+            string composition, MarginProfile userMargins, int paneThicknessMm = 0)
         {
             if (userMargins.IsCustomized) return (userMargins, "custom margins");
-            int thickness = ParseThicknessMm(composition);
+            int thickness = paneThicknessMm > 0 ? paneThicknessMm : ParseThicknessMm(composition);
             if (thickness <= 0 || thickness == userMargins.ThicknessMm)
                 return (userMargins, string.Empty);
-            return (MarginProfile.DefaultFor(thickness),
+            return (MarginProfile.DefaultFor(thickness, userMargins.MinBreakoutMm),
                 "cut with " + thickness.ToString(CultureInfo.InvariantCulture) + "mm house margins");
         }
 
@@ -511,7 +514,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     groupIndex++;
                     ct.ThrowIfCancellationRequested();
 
-                    var (groupMargins, marginNote) = ResolveGroupMargins(composition, margins);
+                    var (groupMargins, marginNote) = ResolveGroupMargins(composition, margins,
+                        groupPieces.FirstOrDefault()?.ThicknessMm ?? 0);
 
                     // Each cutting group packs against ITS OWN Step 4 rack
                     // (the sheet its pane was quoted on), falling back to

@@ -80,6 +80,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (_selectedCuttingGroup == next) return;
                 _selectedCuttingGroup = next;
                 OnPropertyChanged();
+                SyncThicknessFromInputs();
                 RefreshSizeViews();
             }
         }

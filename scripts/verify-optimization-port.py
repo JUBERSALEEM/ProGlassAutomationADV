@@ -11,9 +11,13 @@ ROOT = Path(__file__).resolve().parents[1]
 def read(path): return (ROOT / path).read_text(encoding="utf-8-sig")
 
 class OptimizationPort(unittest.TestCase):
-    def test_engine_is_byte_for_byte_preserved(self):
+    def test_engine_preserved_except_documented_house_table_correction(self):
         manifest = json.loads(read("docs/optimization/protected-engine-manifest.json"))
+        approved = manifest.get("approved_changes", {})
+        self.assertEqual({"Services/Optimization/OptimizationModels.cs"}, set(approved))
         for path, expected in manifest["sha256"].items():
+            if path in approved:
+                expected = approved[path]["sha256"]
             with self.subTest(path=path):
                 self.assertEqual(expected, hashlib.sha256((ROOT / path).read_bytes()).hexdigest())
 
@@ -120,6 +124,49 @@ class OptimizationPort(unittest.TestCase):
                 view = ET.fromstring(read(f"Views/Optimization/Tabs/{name}TabView.xaml"))
                 self.assertEqual("{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter="
                                  + str(index) + "}", view.get("Visibility"))
+
+    def test_full_spec_fingerprint_sync_and_programmatic_rate_guard(self):
+        shell = read("ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs")
+        handler = shell.split("private void OnStep4PropertyChanged", 1)[1].split("private void SyncStep5BaseRatesFromStep4", 1)[0]
+        self.assertIn("PricingEstimatorViewModel.CurrentSpecFingerprint", handler)
+        self.assertIn("Step4VM.IsRestoringPricingSnapshot", handler)
+        self.assertIn("SyncStep5SelectionsFromStep4();", handler)
+        self.assertIn("if (crossesStep4Boundary || leavesStep4)", shell)
+        self.assertIn("if (CurrentStepNumber == 4) PrepareStep5FromStep4();", shell)
+        group = read("ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.Part1.cs")
+        rate = group.split("public void ApplyStep4RateSnapshot", 1)[1].split("private decimal _step4EstimatedRatePerSqm", 1)[0]
+        self.assertLess(rate.index("_isSynchronizingFromStep4 = true"), rate.index("BaseRate ="))
+        self.assertIn("finally { _isSynchronizingFromStep4 = wasSynchronizing; }", rate)
+        self.assertIn("!HasManualStep5BaseRateOverride", rate)
+        self.assertNotIn("SelectedGlassType =", rate)
+
+    def test_five_stages_breakout_and_spec_thickness_controls_are_reachable(self):
+        settings = read("Views/Optimization/Tabs/SettingsTabView.xaml")
+        for binding in ("StageStrategies", "SelectedStageStrategy", "BreakoutOptions", "SelectedBreakoutOption", "MarginHint", "ThicknessSourceHint"):
+            self.assertIn("{Binding " + binding + "}", settings)
+        vm = read("ViewModels/Optimization/OptimizationViewModel.Margins.cs")
+        for stage in range(1, 6): self.assertIn(f'"Stage {stage}:', vm)
+        self.assertIn("SyncStageStrategyFromEffort(value)", vm)
+        self.assertIn("SyncEffortFromStageStrategy(value)", vm)
+        for name in ("Parts", "Sizes"):
+            self.assertIn("SyncThicknessFromInputs();", read(f"ViewModels/Optimization/OptimizationViewModel.{name}.cs"))
+        model = read("Services/Optimization/OptimizationModels.cs")
+        thick = model.split("case ThicknessBucket.Thick:", 1)[1].split("case ThicknessBucket.Medium:", 1)[0]
+        self.assertIn("left = right = bottom = 50;", thick)
+        self.assertIn("top = 0;", thick)
+
+    def test_sgu_extras_and_estimate_tooltip_roundtrip_wiring(self):
+        step4 = read("ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.Part1.cs")
+        for field in ("PanelExtra", "UseCustomPanelExtra", "CustomPanelExtra"):
+            self.assertIn(f"{field} = SguVM.{field}", step4)
+            self.assertIn(f"SguVM.{field} = snapshot.Sgu.{field}", step4)
+        mapper = read("Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.Part1.cs")
+        for field in ("PanelExtra", "UseCustomPanelExtra", "CustomPanelExtra"):
+            self.assertIn(f"{field} = step4.SguVM.{field}", mapper)
+        self.assertIn("Step4EstimatedRatePerSqm = group.Step4EstimatedRatePerSqm", mapper)
+        self.assertIn("Step4EstimatedRatePerSqm = gSnap.Step4EstimatedRatePerSqm", mapper)
+        view = read("Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml")
+        self.assertIn('Text="{Binding SheetSelectionSummary}" ToolTip="{Binding Step4RateTooltip}"', view)
 
     def test_headless_host_and_rate_only_sync(self):
         composer = read("ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs")

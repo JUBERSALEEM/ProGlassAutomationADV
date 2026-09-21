@@ -103,6 +103,17 @@
                             <ComboBox ItemsSource="{Binding PolishOptions}" SelectedItem="{Binding SelectedPolishOption}" Style="{StaticResource Step4ComboStyle}"/>
                         </StackPanel>
                     </Grid>
+                    <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="12" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource ProformaInvoice.PanelExtra}" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding PanelExtraOptions}" SelectedItem="{Binding PanelExtra, Mode=TwoWay}" Style="{StaticResource Step4ComboStyle}"/>
+                            <CheckBox Content="Combine panel extras" IsChecked="{Binding UseCustomPanelExtra, Mode=TwoWay}" Margin="0,8,0,4"/>
+                            <TextBox Text="{Binding CustomPanelExtra, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource Step4InputStyle}"
+                                     Visibility="{Binding UseCustomPanelExtra, Converter={StaticResource BoolToVisibilityConverter}}"
+                                     ToolTip="Example: With Fanhole and Cutout As Per DWG"/>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Border>
         </ScrollViewer>

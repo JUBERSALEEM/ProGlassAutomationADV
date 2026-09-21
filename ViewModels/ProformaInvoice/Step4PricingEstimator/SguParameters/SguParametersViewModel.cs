@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.SguParameters
@@ -141,9 +141,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
                     baseName += $" {SelectedPolishOption}";
                 }
 
+                if (!string.IsNullOrWhiteSpace(EffectivePanelExtra)
+                    && !string.Equals(EffectivePanelExtra, "None", System.StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(EffectivePanelExtra, SelectedPolishOption, System.StringComparison.OrdinalIgnoreCase))
+                    baseName += " " + EffectivePanelExtra;
+
                 return baseName;
             }
         }
+
+        // Fabrication notes are independent of edge polish, like DGU's panel extra.
+        private string _panelExtra = "None";
+        public string PanelExtra
+        {
+            get => _panelExtra;
+            set { if (_panelExtra == value) return; _panelExtra = value ?? "None"; NotifyPanelExtra(); }
+        }
+        private bool _useCustomPanelExtra;
+        public bool UseCustomPanelExtra
+        {
+            get => _useCustomPanelExtra;
+            set { if (_useCustomPanelExtra == value) return; _useCustomPanelExtra = value; NotifyPanelExtra(); }
+        }
+        private string _customPanelExtra = "";
+        public string CustomPanelExtra
+        {
+            get => _customPanelExtra;
+            set { if (_customPanelExtra == value) return; _customPanelExtra = value ?? ""; NotifyPanelExtra(); }
+        }
+        public string EffectivePanelExtra => (UseCustomPanelExtra ? CustomPanelExtra : PanelExtra).Trim();
+        private void NotifyPanelExtra()
+        {
+            OnPropertyChanged(nameof(PanelExtra));
+            OnPropertyChanged(nameof(UseCustomPanelExtra));
+            OnPropertyChanged(nameof(CustomPanelExtra));
+            OnPropertyChanged(nameof(EffectivePanelExtra));
+            OnPropertyChanged(nameof(GeneratedSpecName));
+        }
+        // No spacer/argon options: a single pane has no sealed cavity.
+        public List<string> PanelExtraOptions { get; } = new()
+        {
+            "None", "With Overlap", "With Overlap As Per DWG", "With Fanhole",
+            "With Fanhole As Per DWG", "With Cutout", "With Cutout As Per DWG",
+            "With Holes", "With Holes As Per DWG", "With Cutout And Holes",
+            "With Cutout And Holes As Per DWG", "With Shutter Bonding", "With Shutter Bonding As Per DWG"
+        };
 
         // === Dropdown Options ===
 

@@ -1,5 +1,7 @@
 # Jobs → pane import → Sizes repair (2.0.7)
 
+> **2.0.8 follow-up:** [Step 4/5 sync and advanced-controls repair](STEP4_SYNC_AND_ADVANCED_CONTROLS_2026-09-21.md) restores omitted controls and fixes spec notifications/rate ownership. Protected engine files remain unchanged except the explicitly requested thick-glass house-table correction (TM 0, BM 50); the original hashes and approved exception are recorded separately. Windows acceptance is still pending.
+
 This follow-up addresses the reported failure after port `7191a81` and result-contract fix `615885d`. It supersedes confidence in the earlier import-workflow review. The previous static checks did not establish a functioning data path.
 
 ## Actual data-path defect

@@ -241,6 +241,7 @@
                     <TextBlock Text="OPTIMIZATION IN PROGRESS" Style="{StaticResource OptPanelTitle}"
                                HorizontalAlignment="Center"/>
 
+                    <TextBlock Text="{Binding RunArchitectureLabel}" TextWrapping="Wrap" MaxWidth="720" HorizontalAlignment="Center" TextAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,8,0,8"/>
                     <TextBlock Text="{Binding RunStageLabel}" HorizontalAlignment="Center" TextAlignment="Center"
                                TextWrapping="Wrap" Margin="0,6,0,0"
                                FontSize="{DynamicResource FontSize.Body}"

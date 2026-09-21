@@ -1,5 +1,7 @@
 # Before vs source vs integrated port
 
+> **2.0.8 follow-up:** [Step 4/5 sync and advanced-controls repair](STEP4_SYNC_AND_ADVANCED_CONTROLS_2026-09-21.md) restores omitted controls and fixes spec notifications/rate ownership. Protected engine files remain unchanged except the explicitly requested thick-glass house-table correction (TM 0, BM 50); the original hashes and approved exception are recorded separately. Windows acceptance is still pending.
+
 > **2.0.7 follow-up:** the reported job/pane/Sizes failure exposed a retained integer-parser bug (successful parse with zero outputs), missing card/gesture wiring and stale group projections. See [the repair and revised assessment](IMPORT_WORKFLOW_REPAIR_2026-09-21.md). Earlier workflow ratings are not evidence of a working import. Current portable checks: **11/11**; Windows build and runtime acceptance remain pending.
 
 ## Versions compared

@@ -49,6 +49,17 @@
                                     <TextBox Text="{Binding MinBreakoutText, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
 
+                                    <StackPanel Visibility="{Binding HasBreakoutChoice, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                Margin="0,0,0,10">
+                                        <TextBlock Text="BREAKOUT CHOICE (9MM AND ABOVE)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                        <ComboBox ItemsSource="{Binding BreakoutOptions}"
+                                                  SelectedItem="{Binding SelectedBreakoutOption}"
+                                                  Style="{StaticResource OptComboStyle}" Width="140" HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{Binding BreakoutHint}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,6,0,0"/>
+                                    </StackPanel>
+
                                     <CheckBox IsChecked="{Binding RotationEnabled}" Margin="0,10,0,6"
                                               Foreground="{DynamicResource TextPrimaryBrush}">
                                         <TextBlock Text="Allow rotation (0° / 90° mix) — enabled by default for all pieces"
@@ -56,10 +67,10 @@
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     </CheckBox>
 
-                                    <TextBlock Text="OPTIMIZE EFFORT LEVEL" Style="{StaticResource OptHeader}" Margin="0,10,0,6"/>
-                                    <ComboBox ItemsSource="{Binding EffortLevels}"
-                                              SelectedItem="{Binding SelectedEffortLevel}"
-                                              Style="{StaticResource OptComboStyle}" Width="96" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="OPTIMIZE EFFORT / STRATEGY STAGE" Style="{StaticResource OptHeader}" Margin="0,10,0,6"/>
+                                    <ComboBox ItemsSource="{Binding StageStrategies}"
+                                              SelectedItem="{Binding SelectedStageStrategy}"
+                                              Style="{StaticResource OptComboStyle}" Width="420" HorizontalAlignment="Left"/>
                                 </StackPanel>
                             </Grid>
 
@@ -68,7 +79,8 @@
                                         Command="{Binding LoadHouseDefaultsCommand}"/>
                             </StackPanel>
 
-                            <TextBlock Text="House defaults (floor-confirmed): 6mm glass → LM/RM/TM/BM 15mm, minimum breakout 15mm, kerf 3mm (4mm from 10mm). Every value is editable per run."
+                            <TextBlock Text="{Binding ThicknessSourceHint}" TextWrapping="Wrap" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,12,0,0"/>
+                            <TextBlock Text="{Binding MarginHint}"
                                        FontSize="{DynamicResource FontSize.BodySmall}" TextWrapping="Wrap"
                                        Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,14,0,0"/>
                         </StackPanel>

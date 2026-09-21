@@ -243,6 +243,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged(nameof(OuterSheetDisplay));
                 OnPropertyChanged(nameof(HasOuterSheet));
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -260,6 +261,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged(nameof(OuterSheetDisplay));
                 OnPropertyChanged(nameof(HasOuterSheet));
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -277,6 +279,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged(nameof(InnerSheetDisplay));
                 OnPropertyChanged(nameof(HasInnerSheet));
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -294,6 +297,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged(nameof(InnerSheetDisplay));
                 OnPropertyChanged(nameof(HasInnerSheet));
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -308,6 +312,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 _outerSheetPricePerSqm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -322,6 +327,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 _innerSheetPricePerSqm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -337,6 +343,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasThirdSheet));
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -352,6 +359,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasThirdSheet));
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -366,6 +374,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 _thirdSheetPricePerSqm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
@@ -476,17 +485,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 var parts = new List<string>();
                 if (HasOuterSheet)
-                    parts.Add(OuterSheetPricePerSqm > 0m
-                        ? $"Outer sheet {OuterSheetDisplay} @ AED {OuterSheetPricePerSqm:N2}/SQM"
-                        : $"Outer sheet {OuterSheetDisplay}");
+                    parts.Add($"{(SelectedGlassType == "SGU" ? "Single pane" : "Outer")} sheet {OuterSheetDisplay}");
                 if (HasInnerSheet)
-                    parts.Add(InnerSheetPricePerSqm > 0m
-                        ? $"Inner sheet {InnerSheetDisplay} @ AED {InnerSheetPricePerSqm:N2}/SQM"
-                        : $"Inner sheet {InnerSheetDisplay}");
+                    parts.Add($"Inner sheet {InnerSheetDisplay}");
                 if (HasThirdSheet)
-                    parts.Add(ThirdSheetPricePerSqm > 0m
-                        ? $"Lam inner sheet {ThirdSheetWidthMm} × {ThirdSheetHeightMm} @ AED {ThirdSheetPricePerSqm:N2}/SQM"
-                        : $"Lam inner sheet {ThirdSheetWidthMm} × {ThirdSheetHeightMm}");
+                    parts.Add($"Lam inner sheet {ThirdSheetWidthMm} × {ThirdSheetHeightMm}");
                 return parts.Count == 0 ? "" : string.Join("  ·  ", parts);
             }
         }
@@ -508,6 +511,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 string previous = _selectedGlassType;
                 _selectedGlassType = next;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(Step4RateTooltip));
+                OnPropertyChanged(nameof(SheetSelectionSummary));
                 UpdatePerimeterFactors();
 
                 if (!_isAutoSwitchingGlassType && !_isSynchronizingFromStep4)
@@ -518,6 +523,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     // bootstrap handoff (DGU name + default SGU type).
                     LastSyncedStep4GlassType = "";
                     LastSyncedStep4SpecName = "";
+                    Step4EstimatedRatePerSqm = 0m;
                     if (!string.IsNullOrWhiteSpace(previous))
                     {
                         HasManualStep5GlassTypeOverride = true;
@@ -550,6 +556,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 if (!_isProgrammaticSpecChange && !_isSynchronizingFromStep4)
                 {
                     LastSyncedStep4SpecName = "";
+                    Step4EstimatedRatePerSqm = 0m;
                     HasManualStep5SpecOverride = true;
                 }
 
@@ -557,6 +564,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged(nameof(SpecDisplayName));
                 RefreshGlassColorsFromSpecName();
                 OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(Step4RateTooltip));
                 OnPropertyChanged(nameof(HasSheetSelectionSummary));
 
                 // PHASE G: adopt the stock sheet chosen for this spec in
@@ -615,6 +623,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         StringComparison.OrdinalIgnoreCase))
                 {
                     LastSyncedStep4SpecName = "";
+                    Step4EstimatedRatePerSqm = 0m;
                     HasManualStep5SpecOverride = true;
                 }
 
@@ -667,6 +676,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         StringComparison.OrdinalIgnoreCase))
                 {
                     LastSyncedStep4SpecName = "";
+                    Step4EstimatedRatePerSqm = 0m;
                     HasManualStep5SpecOverride = true;
                 }
 
@@ -898,6 +908,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         //  CONSTRUCTOR
         // ══════════════════════════════════════════════════════════════════
 
+        /// <summary>Refresh quote rates without turning an automatic update into a manual override.</summary>
+        public void ApplyStep4RateSnapshot(Step4PricingSnapshot snapshot)
+        {
+            bool wasSynchronizing = _isSynchronizingFromStep4;
+            _isSynchronizingFromStep4 = true;
+            try
+            {
+                Step4EstimatedRatePerSqm = snapshot.EstimatedRatePerSqm;
+                if (snapshot.EstimatedRatePerSqm > 0m && !HasManualStep5BaseRateOverride)
+                    BaseRate = snapshot.EstimatedRatePerSqm;
+                if (snapshot.EstimatedRatePerSqm > 0m && ImportedPrice <= 0m)
+                    ImportedPrice = snapshot.EstimatedRatePerSqm;
+            }
+            finally { _isSynchronizingFromStep4 = wasSynchronizing; }
+        }
+
+        private decimal _step4EstimatedRatePerSqm;
+        public decimal Step4EstimatedRatePerSqm
+        {
+            get => _step4EstimatedRatePerSqm;
+            set { _step4EstimatedRatePerSqm = value; OnPropertyChanged(); OnPropertyChanged(nameof(Step4RateTooltip)); }
+        }
+
+        public string Step4RateTooltip => string.Format(System.Globalization.CultureInfo.InvariantCulture,
+            "Step 4 estimated selling rate: {0}\nOuter / single-pane sheet rate: AED {1:0.00} /m²{2}{3}\nSheet rates are material inputs, not separate selling estimates. Base rate may be manually overridden.",
+            Step4EstimatedRatePerSqm > 0m
+                ? "AED " + Step4EstimatedRatePerSqm.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " /m²"
+                : "not available for this selection", OuterSheetPricePerSqm,
+            SelectedGlassType == "SGU" ? "" : $"\nInner sheet rate: AED {InnerSheetPricePerSqm:0.00} /m²",
+            SelectedGlassType == "DGU+LAM" ? $"\nLam inner sheet rate: AED {ThirdSheetPricePerSqm:0.00} /m²" : "");
+
         /// <summary>
         /// Applies the full, per-section Step 4 selection to an owned Step 5
         /// group. This is intentionally a direct snapshot handoff instead of
@@ -931,6 +972,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     SelectedSpecName = snapshot.GeneratedSpecName;
 
                 ApplyStep4PaneAndSheetMetadata(snapshot, glassType);
+                Step4EstimatedRatePerSqm = snapshot.EstimatedRatePerSqm;
                 MaterialIsValid = snapshot.MaterialIsValid;
                 MaterialInvalidReason = snapshot.MaterialInvalidReason ?? "";
 

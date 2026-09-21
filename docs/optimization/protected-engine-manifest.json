@@ -21,5 +21,11 @@
     "Services/Optimization/OptimizationSessionIdentity.cs": "df00513d1c934a5373cbc20f6d5001e9c464eda02290f4aba768070cc119404b",
     "Services/Optimization/OptimizationSessionRepository.cs": "641e484a03308c816c60cc2e41c59c4c0bd1852585bc9b594ad0384d7f7c22d1",
     "Services/Optimization/PieceCandidateIndex.cs": "af008dfd03aff2aa435e8c4f01fc5dd1626d99d8dcce4e5e64a765659f00145e"
+  },
+  "approved_changes": {
+    "Services/Optimization/OptimizationModels.cs": {
+      "sha256": "69ea1f3220e33e5b2766a897485f436b9b091ecf9846885eeb2453c9008f2509",
+      "reason": "2026-09-21 owner request: thick-glass LM/RM/BM 50, TM 0; breakout 50 or 40. Only the house table and its comments changed; baseline hash above retained."
+    }
   }
 }

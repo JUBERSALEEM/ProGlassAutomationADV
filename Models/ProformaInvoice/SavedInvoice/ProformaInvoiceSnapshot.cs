@@ -210,6 +210,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
             Put(sgu.SelectedThickness); Put(sgu.GlassColor); Put(sgu.SelectedTreatment);
             PutM(sgu.BasePricePerSqm); PutM(sgu.CuttingCostPerSqm); PutM(sgu.TemperingCostPerSqm);
             PutM(sgu.YieldFactor); PutM(sgu.TargetMarginPercent); Put(sgu.SelectedPolishOption);
+            Put(sgu.PanelExtra); Put(sgu.UseCustomPanelExtra ? "1" : "0"); Put(sgu.CustomPanelExtra);
             PutI(sgu.SheetWidthMm); PutI(sgu.SheetHeightMm);
             Put(sgu.PriceResolvedFromStore.HasValue ? (sgu.PriceResolvedFromStore.Value ? "1" : "0") : "");
 
@@ -276,6 +277,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public decimal YieldFactor { get; set; }
         public decimal TargetMarginPercent { get; set; }
         public string SelectedPolishOption { get; set; } = "";
+        public string PanelExtra { get; set; } = "None";
+        public bool UseCustomPanelExtra { get; set; }
+        public string CustomPanelExtra { get; set; } = "";
         public int SheetWidthMm { get; set; }
         public int SheetHeightMm { get; set; }
         /// <summary>Null on invoices saved before Phase A.</summary>
@@ -421,6 +425,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// from BaseRate because operators may subsequently edit BaseRate.
         /// </summary>
         public decimal ImportedPrice { get; set; }
+        public decimal Step4EstimatedRatePerSqm { get; set; }
         public decimal BaseRate { get; set; }
         public decimal SurchargePercent { get; set; }
 

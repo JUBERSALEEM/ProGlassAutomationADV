@@ -47,6 +47,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         public ObservableCollection<GlassTypeCard> GlassTypes { get; private set; }
 
         private GlassTypeCard? _selectedGlassType;
+        public bool IsRestoringPricingSnapshot => _isRestoringSnapshot;
+
         public GlassTypeCard? SelectedGlassType
         {
             get => _selectedGlassType;
@@ -542,6 +544,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     YieldFactor = SguVM.YieldFactor,
                     TargetMarginPercent = SguVM.TargetMarginPercent,
                     SelectedPolishOption = SguVM.SelectedPolishOption ?? "",
+                    PanelExtra = SguVM.PanelExtra,
+                    UseCustomPanelExtra = SguVM.UseCustomPanelExtra,
+                    CustomPanelExtra = SguVM.CustomPanelExtra,
                     SheetWidthMm = SguVM.SheetWidthMm,
                     SheetHeightMm = SguVM.SheetHeightMm,
                     PriceResolvedFromStore = SguVM.PanePriceResolvedFromStore
@@ -666,6 +671,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     SguVM.YieldFactor = snapshot.Sgu.YieldFactor;
                     SguVM.TargetMarginPercent = snapshot.Sgu.TargetMarginPercent;
                     SguVM.SelectedPolishOption = snapshot.Sgu.SelectedPolishOption;
+                    SguVM.PanelExtra = snapshot.Sgu.PanelExtra;
+                    SguVM.UseCustomPanelExtra = snapshot.Sgu.UseCustomPanelExtra;
+                    SguVM.CustomPanelExtra = snapshot.Sgu.CustomPanelExtra;
                     SguVM.SheetWidthMm = snapshot.Sgu.SheetWidthMm;
                     SguVM.SheetHeightMm = snapshot.Sgu.SheetHeightMm;
                 });
@@ -826,6 +834,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     SguVM.YieldFactor = 0.85m;
                     SguVM.TargetMarginPercent = ExpectedMarginSeedForNewInvoice;
                     SguVM.SelectedPolishOption = "None (Standard)";
+                    SguVM.PanelExtra = "None";
+                    SguVM.UseCustomPanelExtra = false;
+                    SguVM.CustomPanelExtra = "";
                     SguVM.SheetWidthMm = 0;
                     SguVM.SheetHeightMm = 0;
                 });

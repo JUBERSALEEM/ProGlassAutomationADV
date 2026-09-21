@@ -352,11 +352,11 @@
                                 </Grid>
 
                                 <StackPanel Margin="0,0,0,8">
-                                    <TextBlock Text="{Binding SpecDisplayName}"
+                                    <TextBlock Text="{Binding SpecDisplayName}" ToolTip="{Binding Step4RateTooltip}"
                                                FontSize="{DynamicResource FontSize.Title}"
                                                FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="{Binding SheetSelectionSummary}"
+                                    <TextBlock Text="{Binding SheetSelectionSummary}" ToolTip="{Binding Step4RateTooltip}"
                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                TextWrapping="Wrap"

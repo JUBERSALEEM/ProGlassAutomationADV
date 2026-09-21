@@ -52,8 +52,8 @@ namespace ProGlassAutomation.Services.Optimization
     /// PHASE 1 (2026-09-20, owner-specified): the old table interpolated
     /// 15 / 20 / 25mm by thickness with a breakout fixed at 15mm for every
     /// glass. The floor runs three real profiles, and the third is
-    /// deliberately ASYMMETRIC — thick glass takes no trim on the bottom
-    /// edge because that edge is cut on the float line.
+    /// deliberately ASYMMETRIC — per the 2026-09-21 correction, thick glass
+    /// takes no trim on the top edge, with 50mm on the other three edges.
     /// </summary>
     public enum ThicknessBucket
     {
@@ -61,7 +61,7 @@ namespace ProGlassAutomation.Services.Optimization
         Thin,
         /// <summary>7–8mm — 30mm on all four edges, breakout 30mm, kerf 3mm.</summary>
         Medium,
-        /// <summary>9mm and above — LM/RM/TM 50mm, BM 0mm, breakout 50mm (switchable to 40mm), kerf 4mm.</summary>
+        /// <summary>9mm and above — LM/RM/BM 50mm, TM 0mm, breakout 50mm (switchable to 40mm), kerf 4mm.</summary>
         Thick
     }
 
@@ -144,10 +144,9 @@ namespace ProGlassAutomation.Services.Optimization
             switch (bucket)
             {
                 case ThicknessBucket.Thick:
-                    // LM 50 · RM 50 · TM 50 · BM 0 — the bottom edge is cut on
-                    // the float line, so no trim is taken there.
-                    left = right = top = 50;
-                    bottom = 0;
+                    // Owner-confirmed 2026-09-21: LM 50 · RM 50 · TM 0 · BM 50.
+                    left = right = bottom = 50;
+                    top = 0;
                     breakout = minBreakoutMm == BreakoutAlternateMm
                         ? BreakoutAlternateMm
                         : BreakoutPrimaryMm;
