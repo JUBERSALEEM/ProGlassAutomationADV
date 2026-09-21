@@ -50,6 +50,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <DataGrid CanUserReorderColumns="False" CanUserResizeColumns="False" Grid.Row="0" x:Name="MasterGrid" RowHeight="48"
+                              Visibility="{Binding ShowListTotals, Converter={StaticResource BoolToVisibilityConverter}}"
                               ItemsSource="{Binding ListRows}"
                               SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
                               Style="{StaticResource GodViewGridStyle}"
@@ -215,7 +216,7 @@
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </Border>
                         <Border Style="{StaticResource LineItemsFooterStyle}" Padding="10,6"
-                                Visibility="{Binding IsListEmpty, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                Visibility="{Binding ShowListTotals, Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="TOTALS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="8,0,16,0"/>
@@ -229,7 +230,28 @@
                     </StackPanel>
 
                     <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                Visibility="{Binding IsListEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="Loading station queue…" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Live work items from released Job Orders — not a preview."
+                                   FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
+                                   TextAlignment="Center" MaxWidth="560" Margin="0,8,0,0"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding HasLoadError, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="Could not load this station" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="{Binding LoadError}" FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
+                                   TextAlignment="Center" MaxWidth="560" Margin="0,8,0,0"
+                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding ShowEmptyQueue, Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
                                    HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Opacity="0.6"/>
                         <TextBlock Text="{Binding EmptyQueueTitle}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"

@@ -8,6 +8,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.Production.SavedProduction;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Production;
 using ProGlassAutomation.Utilities;
 using System;
@@ -369,6 +370,7 @@ namespace ProGlassAutomation.ViewModels.Production
         private async Task LoadListAsync()
         {
             IsLoading = true;
+            LoadError = "";
             string? previousKey = _selectedRow?.RowKey;
             try
             {
@@ -416,6 +418,7 @@ namespace ProGlassAutomation.ViewModels.Production
                 AppendRows(firstPageSize);
 
                 IsListEmpty = _listCache.Count == 0;
+                LoadError = "";
 
                 int waiting = data.WaitingUnits;
                 WaitingUpstreamLabel = waiting > 0
@@ -434,6 +437,20 @@ namespace ProGlassAutomation.ViewModels.Production
                 {
                     ClearDetailPanel();
                 }
+            }
+            catch (Exception ex)
+            {
+                LoadError = "Could not load this station queue.";
+                IsListEmpty = ListRows.Count == 0;
+                AppLogService.Error(
+                    "[Production] Station queue load failed at " + ModuleName,
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Production",
+                        Class = nameof(ProductionStageViewModelBase),
+                        Operation = nameof(LoadListAsync)
+                    });
             }
             finally
             {
@@ -561,6 +578,8 @@ namespace ProGlassAutomation.ViewModels.Production
                     stageMetric.ToString("0.##", CultureInfo.InvariantCulture) + " LM",
                 ProductionStage.HolesCutouts =>
                     stageMetric.ToString("0", CultureInfo.InvariantCulture) + " pcs to drill/cut",
+                ProductionStage.Tempering =>
+                    area.ToString("0.##", CultureInfo.InvariantCulture) + " m² furnace load",
                 ProductionStage.Pairing =>
                     stageMetric.ToString("0", CultureInfo.InvariantCulture) + " units to pair",
                 ProductionStage.DoublingLamination =>
