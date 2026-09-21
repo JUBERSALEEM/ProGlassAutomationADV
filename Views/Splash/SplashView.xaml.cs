@@ -97,6 +97,11 @@ namespace ProGlassAutomation.Views.Splash
 
         private void SplashView_Loaded(object sender, RoutedEventArgs e)
         {
+            // Blur + TAP (VS XAML diagnostics) has killed this window
+            // with a native 0xffffffff after Show(). Animation failures
+            // must never take down startup — the poster still paints.
+            try
+            {
             // ─── 1) CAPTION — MADE IN INDIA quiet fade ─────────────────
             FadeIn(CaptionMadeIn, fromMs: 0, durationMs: 400);
             // Enterprise/Secure are collapsed in v4 but keep fade for compat
@@ -195,6 +200,14 @@ namespace ProGlassAutomation.Views.Splash
             catch (Exception ex)
             {
                 AppLogService.Debug("[SplashView] Droplet positioning failed: " + ExceptionMessages.Deep(ex));
+            }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "[SplashView] Loaded animation failed (splash stays static): "
+                    + ExceptionMessages.Deep(ex),
+                    new LogContext { Module = "Startup", Class = nameof(SplashView), Operation = "Loaded" });
             }
         }
 

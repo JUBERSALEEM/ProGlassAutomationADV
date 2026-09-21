@@ -102,9 +102,9 @@
             <GradientStop Color="#0284C7" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <DropShadowEffect x:Key="GlassShadow" Color="#0EA5E9" BlurRadius="28" ShadowDepth="0" Opacity="0.18"/>
-        <DropShadowEffect x:Key="FluidGlow" Color="#7DD3FC" BlurRadius="36" ShadowDepth="0" Opacity="0.38"/>
-        <DropShadowEffect x:Key="DropletShadow" Color="#0EA5E9" BlurRadius="14" ShadowDepth="0" Opacity="0.22"/>
+        <DropShadowEffect x:Key="GlassShadow" Color="#0EA5E9" BlurRadius="12" ShadowDepth="0" Opacity="0.16" RenderingBias="Performance"/>
+        <DropShadowEffect x:Key="FluidGlow" Color="#7DD3FC" BlurRadius="14" ShadowDepth="0" Opacity="0.28" RenderingBias="Performance"/>
+        <DropShadowEffect x:Key="DropletShadow" Color="#0EA5E9" BlurRadius="8" ShadowDepth="0" Opacity="0.18" RenderingBias="Performance"/>
 
         <RadialGradientBrush x:Key="DropletFill" GradientOrigin="0.32,0.28" Center="0.5,0.5" RadiusX="0.85" RadiusY="0.85">
             <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
@@ -160,19 +160,19 @@
         <!-- LARGE BLURRED BLOBS — measured from 12-fluid-crystal-blob.png -->
         <Canvas IsHitTestVisible="False">
             <Ellipse x:Name="BgBlob1" Width="580" Height="440" Fill="{StaticResource Blob1Grad}" Opacity="0.48" Canvas.Left="-160" Canvas.Top="-100">
-                <Ellipse.Effect><BlurEffect Radius="90"/></Ellipse.Effect>
+                <Ellipse.Effect><BlurEffect Radius="18" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob1Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
             <Ellipse x:Name="BgBlob2" Width="720" Height="560" Fill="{StaticResource Blob2Grad}" Opacity="0.58" Canvas.Left="-200" Canvas.Top="420">
-                <Ellipse.Effect><BlurEffect Radius="95"/></Ellipse.Effect>
+                <Ellipse.Effect><BlurEffect Radius="18" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob2Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
             <Ellipse x:Name="BgBlob3" Width="560" Height="420" Fill="{StaticResource Blob3Grad}" Opacity="0.42" Canvas.Left="880" Canvas.Top="520">
-                <Ellipse.Effect><BlurEffect Radius="75"/></Ellipse.Effect>
+                <Ellipse.Effect><BlurEffect Radius="16" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob3Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
             <Ellipse x:Name="BgBlob4" Width="260" Height="260" Fill="#FFBFDBFE" Opacity="0.38" Canvas.Left="1080" Canvas.Top="-50">
-                <Ellipse.Effect><BlurEffect Radius="55"/></Ellipse.Effect>
+                <Ellipse.Effect><BlurEffect Radius="14" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob4Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
         </Canvas>
@@ -224,7 +224,7 @@
                                 <TranslateTransform X="0" Y="0"/>
                             </TransformGroup>
                         </Path.RenderTransform>
-                        <Path.Effect><BlurEffect Radius="18"/></Path.Effect>
+                        <Path.Effect><BlurEffect Radius="8" KernelType="Box" RenderingBias="Performance"/></Path.Effect>
                     </Path>
                     <!-- Glossy edge highlight -->
                     <Path x:Name="FluidEdge" Opacity="0.85" Stroke="{StaticResource FluidEdgeGrad}" StrokeThickness="1.8" Fill="Transparent"
@@ -237,7 +237,7 @@
                                 <TranslateTransform X="0" Y="0"/>
                             </TransformGroup>
                         </Path.RenderTransform>
-                        <Path.Effect><BlurEffect Radius="1.2"/></Path.Effect>
+                        <Path.Effect><BlurEffect Radius="1" KernelType="Box" RenderingBias="Performance"/></Path.Effect>
                     </Path>
 
                     <!-- Frosted hexagon 300x300 40% opacity 24px radius — TRUE rounded hex clip -->

@@ -610,10 +610,11 @@ namespace ProGlassAutomation.Services
 
             var blur = new System.Windows.Media.Effects.BlurEffect
             {
-                Radius = intensity * 36.0,
-                KernelType = System.Windows.Media.Effects.KernelType.Gaussian,
-                RenderingBias = System.Windows.Media.Effects.RenderingBias.Quality
+                Radius = Math.Min(18.0, intensity * 24.0),
+                KernelType = System.Windows.Media.Effects.KernelType.Box,
+                RenderingBias = System.Windows.Media.Effects.RenderingBias.Performance
             };
+            if (blur.CanFreeze) blur.Freeze();
             resources["ModuleSkinBlurEffect"] = blur;
         }
 

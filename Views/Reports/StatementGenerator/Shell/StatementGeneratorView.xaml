@@ -144,7 +144,7 @@
                             IsEnabled="{Binding CanNavigateToStep1}"
                             ToolTip="{DynamicResource Reports.StatementGenerator.Step1ConfigureFilters}">
                         <StackPanel HorizontalAlignment="Center">
-                            <Border CacheMode="BitmapCache">
+                            <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource Badge.Primary}">
                                         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
@@ -226,7 +226,7 @@
                             IsEnabled="{Binding CanNavigateToStep2}"
                             ToolTip="{DynamicResource Reports.StatementGenerator.Step2PreviewInvoices}">
                         <StackPanel HorizontalAlignment="Center">
-                            <Border CacheMode="BitmapCache">
+                            <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource Badge.Primary}">
                                         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
@@ -308,7 +308,7 @@
                             IsEnabled="{Binding CanNavigateToStep3}"
                             ToolTip="{DynamicResource Reports.StatementGenerator.Step3ExecutePipeline}">
                         <StackPanel HorizontalAlignment="Center">
-                            <Border CacheMode="BitmapCache">
+                            <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource Badge.Primary}">
                                         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
@@ -390,7 +390,7 @@
                             IsEnabled="{Binding CanNavigateToStep4}"
                             ToolTip="{DynamicResource Reports.StatementGenerator.Step4ReviewResults}">
                         <StackPanel HorizontalAlignment="Center">
-                            <Border CacheMode="BitmapCache">
+                            <Border>
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource Badge.Primary}">
                                         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>

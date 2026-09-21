@@ -503,7 +503,7 @@
                             VerticalAlignment="Center"
                             MinWidth="240"
                             Effect="{StaticResource MatchCountShadow}"
-                            CacheMode="BitmapCache"
+                           
                             SnapsToDevicePixels="True">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
@@ -538,7 +538,7 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
-                        CacheMode="BitmapCache"
+                       
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -788,7 +788,7 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
-                        CacheMode="BitmapCache"
+                       
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.RowDefinitions>
