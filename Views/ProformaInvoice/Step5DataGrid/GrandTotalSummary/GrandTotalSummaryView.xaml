@@ -60,7 +60,7 @@
                             <TextBlock Grid.Column="0"
                                        Text="{Binding GroupNumber}"
                                        FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Grid.Column="1"
                                        Text="{Binding DisplayLabel}"
                                        FontSize="{DynamicResource FontSize.Body}"

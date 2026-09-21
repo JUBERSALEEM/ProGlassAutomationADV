@@ -8,7 +8,7 @@
      overlay — LM/RM/TM/BM margin zone (accent) and minimum-breakout
      band (amber) are never drawn in the same colour.
 ═══════════════════════════════════════════════════════════════════ -->
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Optimization.Tabs.TwoDViewTabView"
+<UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.TwoDViewTabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -18,7 +18,18 @@
 
                 <!-- ── TAB 5 · 2D VIEW ──────────────────────────────── -->
                 <Grid>
-<Border>
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="5">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+
+                    <Border>
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
@@ -52,7 +63,7 @@
                                             <TextBlock Text="  ·  " FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource TextTertiaryBrush}"/>
                                             <TextBlock Text="{Binding PreviewStockLabel}" FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         </StackPanel>
                                         <TextBlock Text="{Binding PreviewGroupLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"
@@ -191,14 +202,14 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34"
+                                    <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34" Height="34"
                                             Command="{Binding PreviewZoomOutCommand}" Margin="0,0,6,0" ToolTip="Zoom out"/>
                                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfacePrimaryBrush}" Padding="10,3"
-                                            Margin="0,0,6,0" VerticalAlignment="Center">
+                                            Margin="0,0,6,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
                                         <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </Border>
-                                    <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34"
+                                    <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34" Height="34"
                                             Command="{Binding PreviewZoomInCommand}" Margin="0,0,6,0" ToolTip="Zoom in"/>
                                     <Button Content="100%" Style="{StaticResource OutlinedPillButton}"
                                             Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%"/>
@@ -210,17 +221,17 @@
 
                                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                                     <Border Width="14" Height="14" Background="Transparent" BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="1.5" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"/>
+                                            BorderThickness="1.5" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <TextBlock Text="LM/RM/TM/BM margin" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
                                     <Border Width="14" Height="14" Background="Transparent" BorderBrush="{DynamicResource WarningBrush}"
-                                            BorderThickness="1" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"/>
+                                            BorderThickness="1" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <TextBlock Text="min breakout" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                    <Border Width="14" Height="14" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"/>
+                                    <Border Width="14" Height="14" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <TextBlock Text="original" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                    <Border Width="14" Height="14" Background="{DynamicResource InfoBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0"/>
+                                    <Border Width="14" Height="14" Background="{DynamicResource InfoBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
                                     <TextBlock Text="rotated 90°" FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>

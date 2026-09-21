@@ -4,9 +4,9 @@
 // MODULE: Optimization — module VM (design 2026-09-12)
 //
 // Tabs: JOBS → SIZES → STOCKS → SETTINGS → SUMMARY → 2D VIEW → REPORT.
-//   • JOBS     — piece list (ref / W×H / qty); a reference job loader
-//                ships with the owner's calibration DGU data. The smart
-//                Job-Order picker (source lock: confirmed JOs only).
+//   • JOBS     — piece list (ref / W×H / qty); approved-JO picker only
+//                (source lock: confirmed JOs from approved PIs). No
+//                hardcoded calibration job — data comes from Step 5 / Step 4.
 //   • SIZES    — merged thickness+color summary of the piece list.
 //   • STOCKS   — Step 4 stock pool: the sheet sizes the selected specs
 //                were quoted on (outer/inner per spec), tagged by pane
@@ -55,32 +55,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
             get => _selectedTabIndex;
             set { _selectedTabIndex = value; OnPropertyChanged(); }
         }
-
-        /// <summary>
-        /// True when this VM is the headless host ProformaInvoiceViewModel
-        /// creates for Step5 QUICK/OPTIMIZE runs. When true, job auto-import
-        /// must NOT clear Pieces/Stocks — otherwise LoadJobs finishing after
-        /// RunFromStep5 wipes the live cutlist (RC-007).
-        /// </summary>
-        public bool IsHeadlessHost { get; set; } = false;
-
         // ── ctor ───────────────────────────────────────────────────────
 
-        public OptimizationViewModel()
+        public OptimizationViewModel() : this(false) { }
+
+        public OptimizationViewModel(bool isHeadlessHost)
         {
+            IsHeadlessHost = isHeadlessHost;
+            InitializeInputLifetime();
             // Breadcrumb for uncatchable crashes (e.g. a StackOverflowException
             // kills the process before any exception handler can run, so the
             // LAST line in app-*.log is the only evidence of where it died).
             // Written synchronously to disk by AppLogService.
-            //
-            // RC-014: stamped with the build identity. This module's whole
-            // "specs populate but SIZES is empty" investigation turned on
-            // WHICH build was running, and nothing in the module's own log
-            // lines said so. Now the first line written by the Optimization
-            // module identifies the binary exactly.
             ProGlassAutomation.Services.Logging.AppLogService.Info(
-                "Optimization module opening — constructing view model — build " +
-                    Services.Updates.AppInfo.BuildStamp,
+                "Optimization module opening — constructing view model",
                 new ProGlassAutomation.Services.Logging.LogContext
                 {
                     Module = "Optimization",
@@ -91,11 +79,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RemovePieceCommand = new RelayCommand(p => RemovePiece(p as PieceEntryVm));
             ClearPiecesCommand = new RelayCommand(_ => { Pieces.Clear(); RefreshDerived(); });
             LoadReferenceJobCommand = new RelayCommand(_ => LoadReferenceJob());
-            RefreshJobsCommand = new RelayCommand(_ => LoadJobs());
+            RefreshJobsCommand = new RelayCommand(_ => LoadJobsAsync());
             AddSelectedPanesCommand = new RelayCommand(_ => AddSelectedPanes());
             SelectAllPanesCommand = new RelayCommand(_ => SetAllPanesSelected(true));
             ClearPaneSelectionCommand = new RelayCommand(_ => SetAllPanesSelected(false));
-            LoadJobs();
+            if (!IsHeadlessHost) LoadJobsAsync();
 
             AddStockCommand = new RelayCommand(_ => AddStock());
             RemoveStockCommand = new RelayCommand(p => RemoveStock(p as StockEntryVm));
@@ -118,7 +106,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             OpenSessionCommand = new RelayCommand(p => OpenSession(p as SessionRowVm));
             DeleteSessionCommand = new RelayCommand(p => DeleteSession(p as SessionRowVm));
             RefreshSessionsCommand = new RelayCommand(_ => LoadSavedSessionsAsync());
-            _ = LoadSavedSessionsAsync();
+            if (!IsHeadlessHost) _ = LoadSavedSessionsAsync();
 
             SelectPreviousSheetCommand = new RelayCommand(_ =>
             {

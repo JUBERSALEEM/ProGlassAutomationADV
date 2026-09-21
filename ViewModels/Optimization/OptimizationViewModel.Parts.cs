@@ -135,7 +135,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand AddPieceCommand { get; }
         public ICommand RemovePieceCommand { get; }
         public ICommand ClearPiecesCommand { get; }
-        /// <summary>2026-09-12 (31138eb) calibration DGU — 152 pieces.</summary>
         public ICommand LoadReferenceJobCommand { get; }
 
         private string _pieceSummary = "No pieces yet";
@@ -155,11 +154,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 HeightText = h,
                 QtyText = qty
             };
-            row.OnEdited = () =>
-            {
-                OptimizationResultFeed.Invalidate("optimization input changed");
-                RefreshDerived();
-            };
+            row.OnEdited = () => { InvalidateInputs(); RefreshDerived(); };
             return row;
         }
 
@@ -187,131 +182,28 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>
-        /// Owner calibration DGU from 2026-09-11/12 (f2780ff / 31138eb):
-        /// 76 low-e outer + 64 clear inner + 12 ramly inner = 152 pieces.
-        /// These are the measured benchmark sizes, not placeholders.
+        /// Formerly loaded a 152-piece hardcoded calibration DGU job.
+        /// REMOVED 2026-09-21 per owner request: optimization must no longer
+        /// invent cutting data. All pieces now come ONLY from an approved
+        /// Proforma Invoice via its confirmed Job Order (Step 5 W1/H1/W2/H2/Qty
+        /// and Step 4 sheet sizes). No fallback rack is injected either —
+        /// Stocks are populated from the selected JO's Step 4 sheets.
+        /// Never throws: any failure surfaces as a status line.
         /// </summary>
         private void LoadReferenceJob()
         {
-            // A ticked confirmed JO owns the studio. Re-import that job's
-            // approved PI (spec / type / sizes) — do not untick it and do
-            // not replace it with the 152-piece calibration dump.
-            if (!IsHeadlessHost && AvailableJobs.Any(j => j.IsSelected))
-            {
-                SelectedCuttingGroup = AllCuttingGroups;
-                RebuildSelectedJobBreakdown();
-                RunMessage = "Reference reload — selected job's approved PI imported (glass type, spec, sizes).";
-                return;
-            }
-
-            const string lowE = "6mm climaguard hp neutral 70 low e ft glass";
-            const string clear = "6mm clear ft glass";
-            const string ramly = "6mm obscure clear ramly ft glass";
-
-            (string Ref, int W, int H, int Qty)[] spec1 =
-            {
-                ("11",1050,2127,2),("9",1054,2130,2),("10",1055,2130,2),("12",800,1798,2),
-                ("1",905,2536,2),("2",1054,1986,2),("4",854,1981,2),("7",1003,1857,2),
-                ("3",856,1970,2),("8",844,1457,2),("13",650,1382,2),("14",650,1372,2),
-                ("2",605,1471,2),("5",553,1448,2),("SA",499,1430,2),("S",509,1421,2),
-                ("R17",1815,725,1),("R8",1515,530,1),("R10",2013,828,1),("R10",2513,535,1),
-                ("A2",1055,1985,2),("A11",1046,2130,2),("A9",1050,2130,2),("A10",1055,2130,2),
-                ("A7",968,1889,2),("A4",850,1970,2),("A3",837,1984,2),("A1",838,2532,2),
-                ("A14",657,1350,2),("A8",935,1418,2),("A13",652,1350,2),("A5",654,1479,2),
-                ("A6",655,1474,2),("A12",800,1805,2)
-            };
-
-            (string Ref, int W, int H)[] spec2 =
-            {
-                ("A7",525,380),("A11",725,430),("A13",720,430),("A14",720,430),
-                ("A18",725,430),("A19",725,430),("8",520,375),("12",725,430),
-                ("14",710,430),("15",730,430),("19",720,430),("20",720,430)
-            };
-
+            // Hardcoded calibration data (152 pcs: 76 low-e outer / 64 clear inner / 12 ramly)
+            // has been removed. Operator must select a confirmed Job Order
+            // derived from an approved PI to populate Pieces/Stocks.
             Pieces.Clear();
-            void Add(string composition, string position, string label, int w, int h, int qty)
-            {
-                var row = NewPieceRow(
-                    composition, label,
-                    w.ToString(CultureInfo.InvariantCulture),
-                    h.ToString(CultureInfo.InvariantCulture),
-                    qty.ToString(CultureInfo.InvariantCulture));
-                row.Position = position;
-                if (string.Equals(position, "Inner", StringComparison.OrdinalIgnoreCase))
-                {
-                    row.W2 = w;
-                    row.H2 = h;
-                }
-                else
-                {
-                    row.W1 = w;
-                    row.H1 = h;
-                }
-                row.EnsureMaterialKey();
-                Pieces.Add(row);
-            }
-
-            foreach (var (r, w, h, q) in spec1) Add(lowE, "Outer", r, w, h, q);
-            foreach (var (r, w, h) in spec2) Add(lowE, "Outer", r, w, h, 1);
-            foreach (var (r, w, h, q) in spec1) Add(clear, "Inner", r, w, h, q);
-            foreach (var (r, w, h) in spec2) Add(ramly, "Inner", r, w, h, 1);
-
-            // Same W1/H1 (outer) + W2/H2 (inner) rows on CUT LIST.
-            var import = new List<ProGlassAutomation.Services.ProformaInvoice.Step5Grid.CutListImportRow>();
-            foreach (var (r, w, h, q) in spec1)
-            {
-                import.Add(new ProGlassAutomation.Services.ProformaInvoice.Step5Grid.CutListImportRow
-                {
-                    GlassRef = r, W1 = w, H1 = h, W2 = w, H2 = h, Qty = q
-                });
-            }
-            foreach (var (r, w, h) in spec2)
-            {
-                import.Add(new ProGlassAutomation.Services.ProformaInvoice.Step5Grid.CutListImportRow
-                {
-                    GlassRef = r, W1 = w, H1 = h, W2 = w, H2 = h, Qty = 1
-                });
-            }
-            var grid = ManualCutList;
-            if (string.IsNullOrWhiteSpace(grid.SelectedGlassType))
-                grid.SelectedGlassType = "DGU";
-            grid.ItemRows.Clear();
-            int cutRows = grid.ApplyImportedRows(import);
-            CutListStatus = string.Format(CultureInfo.InvariantCulture,
-                "Reference job → {0} CUT LIST row(s) (W1/H1 outer · W2/H2 inner).",
-                cutRows);
-
-            // 31138eb seeded these four house racks so STOCK / Run were not empty.
-            if (Stocks.Count == 0)
-            {
-                foreach (var (w, h) in new[] { (3210, 2250), (2500, 1875), (2440, 1830), (3660, 2440) })
-                {
-                    Stocks.Add(new StockEntryVm(
-                        w.ToString(CultureInfo.InvariantCulture),
-                        h.ToString(CultureInfo.InvariantCulture),
-                        string.Empty,
-                        "default rack")
-                    { IsUsedInRun = true });
-                }
-                OnPropertyChanged(nameof(HasStocks));
-                StocksStatusText = "Reference job house racks (3210×2250 / 2500×1875 / 2440×1830 / 3660×2440).";
-            }
-
-            RunMessage = "Reference calibration job loaded — 152 pieces: 76 low-e outer · 64 clear inner · 12 ramly inner.";
+            Stocks.Clear();
+            StocksStatusText = "Select a confirmed Job Order (approved PI) to load racks.";
+            RunMessage = "Reference calibration job removed — select a confirmed Job Order (from an approved PI) on the left. Its Step 5 cutting sizes (W1/H1/W2/H2/Qty) and Step 4 sheets will populate SIZES/STOCKS automatically.";
             RefreshDerived();
         }
 
         private void RefreshDerived()
         {
-            // 2026-09-19 regression fix: validate/reset the cutting-group
-            // selection FIRST (against the CURRENT piece set). The old order
-            // built SizeGroups + CutPlan with a possibly-stale selection and
-            // only then re-validated it — after a Pieces.Clear() by any
-            /// caller (reference load, session restore, clear), a stale
-            // selection filtered every group out and the SIZES tab + cut
-            // plan rendered empty while KPIs still showed the full count.
-            RebuildCuttingGroups();
-
             int count = 0;
             double area = 0;
             foreach (var p in Pieces)
@@ -331,17 +223,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // Merge groups carry ONLY their own pcs + area (low-e 76, clear
             // 64, ramly 12) — and reflect the cutting-group selector, so
             // picking "low-e outer" shows that group alone.
-            //
-            // RC-010: keyed through CompositionLabel so the group key, the
-            // dropdown entry and the cut-plan key are the SAME string. The raw
-            // `(p.GlassRef ?? "").Trim()` key produced "" for unlabelled glass,
-            // which the dropdown deliberately excluded — so SelectedGroupMatches
-            // filtered that whole group out of the cards whenever a specific
-            // composition was selected, and glass quietly left the SIZES tab.
             SizeGroups.Clear();
             foreach (var grp in Pieces
                 .Where(p => p.TryParse(out _, out _, out _))
-                .GroupBy(p => CompositionLabel(p.GlassRef), StringComparer.OrdinalIgnoreCase)
+                .GroupBy(p => (p.GlassRef ?? string.Empty).Trim())
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase))
             {
                 if (!SelectedGroupMatches(grp.Key)) continue;
@@ -368,6 +253,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 });
             }
 
+            RebuildCuttingGroups();
             RebuildCutPlan();
             RefreshKpis();
             RebuildIndustrialReport();

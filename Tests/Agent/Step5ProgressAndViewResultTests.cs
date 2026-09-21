@@ -167,7 +167,7 @@ namespace ProGlassAutomation.Tests.Agent
         public void The_step5_run_hands_quick_the_same_sink_optimize_already_had()
         {
             string run = Read(RunVm);
-            Assert.Contains("rotation, SplitMode.HorizontalFirst, ct, groupProgress))", run);
+            Assert.Contains("rotation, SplitMode.HorizontalFirst, ct, groupProgress);", run);
             // The sink already feeds Step 5's bar through the composer mirror.
             Assert.Contains("RunProgressPercent = (int)Math.Round(done * 100.0);", run);
         }
@@ -199,7 +199,7 @@ namespace ProGlassAutomation.Tests.Agent
             // A Step 4 rack marks its (group, composition) as covered...
             Assert.Contains("rackedKeys.Add(compKey(group.GroupNumber, outerComp));", live);
             Assert.Contains("rackedKeys.Add(compKey(group.GroupNumber, innerComp));", live);
-            Assert.Contains("OptimizationMaterialIdentity.DguLamThirdRackThicknessMm", live);
+            Assert.Contains("group.ThirdSheetWidthMm", live);
             Assert.DoesNotContain("ParseMm(ThicknessText)", live);
             // ...and the fallback skips anything already covered, so Step 4 is
             // never overridden — it is only supplemented.

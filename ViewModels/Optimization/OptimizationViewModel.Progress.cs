@@ -91,60 +91,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// <summary>True when a job-size line is available to show.</summary>
         public bool HasRunScale => !string.IsNullOrWhiteSpace(_runScaleLabel);
 
-        private string _runArchitectureLabel = string.Empty;
-        /// <summary>
-        /// The search architecture the CURRENT run actually uses, derived
-        /// from the engine's real tiering (part count + effort). The
-        /// progress screen used to show a static "Stratified Proportional
-        /// Batches (K=400)" line that matched nothing in the engine — the
-        /// operator was told an algorithm that was never run. This label is
-        /// built from the same thresholds GuillotinePacker uses, so what the
-        /// screen says and what the run does agree.
-        /// </summary>
-        public string RunArchitectureLabel
-        {
-            get => _runArchitectureLabel;
-            private set
-            {
-                if (_runArchitectureLabel == value) return;
-                _runArchitectureLabel = value ?? string.Empty;
-                OnPropertyChanged();
-            }
-        }
-
         /// <summary>True while the progress screen should be on display.</summary>
         public bool IsRunProgressVisible => _isRunning;
-
-        /// <summary>
-        /// Mirrors the engine's ACTUAL routing, so the line on screen is the
-        /// architecture the run performs:
-        ///   • groups of ≤2,000 parts → GuillotinePacker.PackOptimize — the
-        ///     full multi-candidate search, breadth growing with effort level;
-        ///   • any group over 2,000 parts → GuillotinePacker.
-        ///     PackOptimizePartitioned — stratified production batches plus a
-        ///     global multi-pass baseline (the two are compared, best kept).
-        /// Candidate counts below are the engine's real numbers for the
-        /// standard (≤2,000) band at each effort level.
-        /// </summary>
-        private static string BuildRunArchitectureLabel(string stage, int maxGroupParts, int effort)
-        {
-            if (!string.Equals(stage, "OPTIMIZE", StringComparison.Ordinal))
-                return "Single deterministic shelf pass — area-first ordering, horizontal-first splits, every plate open, consolidation sweep";
-
-            if (maxGroupParts <= 2000)
-                return effort <= 1
-                    ? "Single deterministic pass — identical to the QUICK stage (area-first, horizontal-first splits)"
-                    : effort == 2
-                        ? "Multi-candidate search — 3 ordering candidates plus Best-Split, Sheet-Fill, Wall-Seed and Smart Placement"
-                        : effort == 3
-                            ? "Full multi-candidate search — 12 ordering/split candidates plus Best-Split, Sheet-Fill, Wall-Seed, Smart Placement, MaxRects and beam-corrected Best-Split"
-                            : effort == 4
-                                ? "Full multi-candidate search — 18 ordering/split candidates × 4 deterministic shuffles, plus Best-Split, Sheet-Fill, Wall-Seed, horizontal + vertical Smart Placement, MaxRects and widened beam"
-                                : "Deep multi-candidate search — 18 ordering/split candidates × 7 deterministic shuffles, plus Best-Split, Sheet-Fill, Wall-Seed, horizontal + vertical Smart Placement, MaxRects over all 6 orderings and widened beam";
-
-            // > 2,000 parts per group → PackOptimizePartitioned.
-            return "Stratified partitioned search — anchor/medium/filler production batches, per-batch windowed multi-strategy passes, global multi-pass baseline, cross-batch consolidation, tail repack and unplaced recovery";
-        }
 
         private DispatcherTimer _runClock;
         private DateTime _runStartedAt;

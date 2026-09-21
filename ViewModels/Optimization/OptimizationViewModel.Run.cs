@@ -143,7 +143,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             public string Composition { get; set; } = string.Empty;
             public string Thickness { get; set; } = string.Empty;
-            public string StockSize { get; set; } = string.Empty;
             public string PieceCount { get; set; } = string.Empty;
             public string Sheets { get; set; } = string.Empty;
             public string Utilization { get; set; } = string.Empty;
@@ -173,16 +172,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             /// re-verify every sheet of every group a second time, and Verify
             /// is O(pieces^2) per sheet.</summary>
             public int ProblemCount;
-
-            /// <summary>
-            /// PHASE 4 / finding 4c: true when an oracle reported a problem
-            /// against this group's plan. Such a group stays on screen for
-            /// inspection but is excluded from the cut-list export and from the
-            /// Step 6 feed — a plan that fails geometry or conservation must
-            /// never become production work or drive a quote's charges.
-            /// </summary>
             public bool ValidationFailed;
-
             public string SheetsLabel = string.Empty;
             public string MarginNote = string.Empty;
         }
@@ -192,30 +182,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             public GroupRun Run = null!;
             public int SheetIndex;
-        }
-
-        /// <summary>
-        /// Names what the oracles ACTUALLY checked, so a green label can never
-        /// claim a guarantee that was not made.
-        ///
-        /// PHASE 4 / finding 4e: "Verified" used to mean "GuillotinePacker.Verify
-        /// found nothing", and Verify checks geometry only. On the QUICK path
-        /// conservation had never been checked at all, so a plan that had lost
-        /// pieces could still display "Verified" — the exact failure class the
-        /// owner has been chasing, wearing a green label.
-        /// </summary>
-        private static string BuildOracleLabel(OptimizationResult result, int problems)
-        {
-            if (problems > 0)
-                return problems.ToString(CultureInfo.InvariantCulture) +
-                       " issue(s) — not exportable";
-
-            if (result.ConservationChecked && result.GeometryChecked)
-                return "Verified";
-
-            return result.GeometryChecked
-                ? "Geometry checked — conservation NOT verified"
-                : "Not verified";
         }
 
         private readonly List<GroupRun> _groupRuns = new();
@@ -291,16 +257,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// <summary>The last successfully applied engine stage ("QUICK" /
         /// "OPTIMIZE") — session save uses it to name and later re-run the
         /// session with the same stage.</summary>
+        private string _lastRunId = string.Empty;
+        private string _lastInputFingerprint = string.Empty;
         private string _lastRunStage = "QUICK";
         public string LastRunStage => _lastRunStage;
-        private string _lastInputFingerprint = string.Empty;
-        private string _lastRunId = string.Empty;
-
-        /// <summary>
-        /// True while packing W1/H1/W2/H2 from MANUAL CUT LIST or Step 5.
-        /// Skips the confirmed-JO store-identity gate for that one Run().
-        /// </summary>
-        private bool _sizeOnlyPack;
 
         // ── run ────────────────────────────────────────────────────────
 
@@ -314,74 +274,28 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             // A run that never starts must not leave the "reopen to REPORT"
             // flag dangling — clear it on every early exit.
-            if (IsRunning) { _openToReportAfterRun = false; return false; }
-            ClearInputWarnings();
-
-            // Confirmed JO packing still refuses unresolved store identity.
-            // Size packing (Step 5 live grid, MANUAL CUT LIST SEND TO ENGINE)
-            // is W×H against a sheet — not specs or leftover prices.
-            if (!IsHeadlessHost && !_sizeOnlyPack)
+            if (IsRunning || IsDisposed) { _openToReportAfterRun = false; return false; }
+            var blocked = SelectedJobs.FirstOrDefault(j => !j.CanOptimizeMaterial);
+            if (blocked != null)
             {
-                var blocked = SelectedJobs.FirstOrDefault(j => !j.CanOptimizeMaterial);
-                if (blocked != null)
-                {
-                    _openToReportAfterRun = false;
-                    RunMessage = "Cannot optimize: "
-                        + (string.IsNullOrWhiteSpace(blocked.MaterialInvalidReason)
-                            ? "Step 4 material is unresolved or invalid — optimization cannot use this spec."
-                            : blocked.MaterialInvalidReason)
-                        + " Missing Sheet Store price or material identity is an invalid input state.";
-                    return false;
-                }
+                RunMessage = "Cannot optimize: " + blocked.MaterialInvalidReason;
+                _openToReportAfterRun = false;
+                return false;
             }
-
-            OptimizationResultFeed.Invalidate("optimization run started");
-
             if (!TryBuildInputs(out var pieces, out var stockPool, out var margins))
             { _openToReportAfterRun = false; return false; }
-
-            _lastInputFingerprint = OptimizationMaterialIdentity.Fingerprint(pieces);
-            _lastRunId = Guid.NewGuid().ToString("N");
 
             int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
                 CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
             var rotation = RotationEnabled ? RotationPolicy.Free90 : RotationPolicy.Locked;
             var groups = BuildCuttingGroups(pieces);
 
-            // Phase 2: stamp the run with the single selected job order, so
-            // the Step 6 / Step 9 feed can refuse to apply these figures to
-            // an unrelated quote (the structural join — spec number + side +
-            // sheet size — matches across documents that share a rack size).
-            // Multi-job runs have no single identity and stay shared, as
-            // before; a Step 5 host sets its own DocumentKey before calling
-            // here and is never overwritten (no jobs are selected there).
-            var selectedJoIds = AvailableJobs
-                .Where(j => j.IsSelected)
-                .Select(j => j.JobOrderId)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-            if (selectedJoIds.Count == 1)
-                DocumentKey = selectedJoIds[0];
-
             // SIZES dropdown: optimize ONE pane group at a time when a
             // specific composition (outer / inner / …) is selected.
             if (!string.Equals(_selectedCuttingGroup, AllCuttingGroups, StringComparison.OrdinalIgnoreCase))
             {
-                // RC-012 (2026-09-20): compare on the SAME canonical key the
-                // groups were built with. The dropdown carries the piece row's
-                // raw GlassRef while BuildCuttingGroups groups by
-                // CompositionKey.Normalize(GlassRef) and labels the group with
-                // the FIRST row's raw ref — so a hand-typed list holding both
-                // "6mm clear ft" and "6mm Clear FT Glass" produced ONE group
-                // labelled with whichever row came first, and picking the
-                // other spelling in the dropdown refused the run with "The
-                // selected cutting group has no valid pieces." Normalising both
-                // sides removes the whole mismatch class.
-                string wantedGroup = CompositionKey.Normalize(_selectedCuttingGroup);
                 groups = groups
-                    .Where(g => string.Equals(
-                        CompositionKey.Normalize(g.Composition), wantedGroup,
-                        StringComparison.OrdinalIgnoreCase))
+                    .Where(g => string.Equals(g.Composition, _selectedCuttingGroup, StringComparison.OrdinalIgnoreCase))
                     .ToList();
                 if (groups.Count == 0)
                 {
@@ -391,6 +305,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 }
             }
 
+            foreach (var group in groups)
+            {
+                if (ResolveGroupStocks(group.Composition, stockPool, out _).Count == 0)
+                {
+                    RunMessage = $"No matching stock for {group.Composition}. Import its Step 4 sheet or add a manual rack.";
+                    _openToReportAfterRun = false;
+                    return false;
+                }
+            }
+            _lastRunId = Guid.NewGuid().ToString("N");
+            _lastInputFingerprint = OptimizationSessionIdentity.FingerprintRows(Pieces.Select(ToPieceRecord));
+            OptimizationResultFeed.Invalidate("optimization started");
+            HasResult = false;
             IsRunning = true;
             RunStageLabel = stage == "OPTIMIZE"
                 ? $"Optimizing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s) · level {effort.ToString(CultureInfo.InvariantCulture)}…"
@@ -401,11 +328,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RunScaleLabel = string.Format(CultureInfo.InvariantCulture,
                 "{0} cutting group(s) · {1} part(s) · SETTINGS level {2}",
                 groups.Count, totalParts, SelectedEffortLevel);
-            // The engine tiers per GROUP (a group over 2,000 parts goes to
-            // the partitioned path even inside a mostly-small run), so the
-            // architecture line is keyed on the largest group, not the total.
-            RunArchitectureLabel = BuildRunArchitectureLabel(
-                stage, groups.Max(g => g.Pieces.Count), effort);
             RunProgressPercent = 0;
             RunProgressDetail = stage == "OPTIMIZE"
                 ? "Preparing multi-start search…"
@@ -423,29 +345,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>Groups the piece list by glass composition — one pack run
-        /// each. Grouping uses the CANONICAL composition key (Phase 2), so
-        /// "6mm clear ft glass" and "6mm clear ft" are one group again; the
-        /// displayed label keeps the first original spelling. This is the
-        /// defensive net for rows that bypass the import-time normalisation
-        /// (hand-typed pieces on the PARTS list).</summary>
+        /// each. Keys are trimmed so the run composition exactly matches the
+        /// SIZES merge, the STOCKS rack tags and the industrial report.</summary>
         private static List<(string Composition, List<CutPiece> Pieces)> BuildCuttingGroups(List<CutPiece> pieces)
         {
             return pieces
-                .GroupBy(p =>
-                {
-                    if (!string.IsNullOrWhiteSpace(p.MaterialKey))
-                        return "M:" + p.MaterialKey;
-                    string key = CompositionKey.Normalize(p.GlassRef);
-                    return key.Length == 0 ? UnlabelledGlass : key;
-                })
+                .GroupBy(p => string.IsNullOrWhiteSpace(p.GlassRef)
+                        ? "(unlabelled glass)" : p.GlassRef.Trim(),
+                    StringComparer.OrdinalIgnoreCase)
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
-                .Select(g =>
-                {
-                    string label = g.Key == UnlabelledGlass
-                        ? UnlabelledGlass
-                        : g.First().GlassRef.Trim();
-                    return (label, g.ToList());
-                })
+                .Select(g => (g.Key, g.ToList()))
                 .ToList();
         }
 
@@ -453,42 +362,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// Thickness-aware margins: when a cutting group's glass thickness
         /// differs from the MARGINS tab, the group is cut with that
         /// thickness's house defaults and the note surfaces on the result.
-        /// When the user explicitly configures margins, those user settings
-        /// take authoritative precedence.
         /// </summary>
         private static (MarginProfile Margins, string Note) ResolveGroupMargins(
             string composition, MarginProfile userMargins)
         {
-            // PHASE 1 / finding 3 (2026-09-20): this used to read
-            //     if (userMargins != null && (userMargins.LeftMm != 0 || userMargins.TopMm != 0))
-            // i.e. "did the operator customize?" was INFERRED from two of the
-            // four margin fields being non-zero. An operator who deliberately
-            // set Left = 0 and Top = 0 — a normal trim pattern, and exactly
-            // what the house thick-glass profile does for its bottom edge —
-            // was read as having customized nothing, and house defaults for
-            // the parsed thickness were substituted with Note = string.Empty.
-            // Setting Right = 15 / Bottom = 15 while Left and Top stayed 0 was
-            // invisible too. The result was a wrong usable area, a wrong sheet
-            // count, and nothing on screen to explain either.
-            //
-            // Customization is now an explicit fact set where the operator's
-            // input is read (TryBuildInputs), so a deliberate zero is honoured.
-            if (userMargins != null && userMargins.IsCustomized)
-                return (userMargins, string.Empty);
-
+            if (userMargins.IsCustomized) return (userMargins, "custom margins");
             int thickness = ParseThicknessMm(composition);
-            if (thickness <= 0 || (userMargins != null && thickness == userMargins.ThicknessMm))
-                return (userMargins ?? MarginProfile.DefaultFor(6), string.Empty);
-
-            // A substituted profile is named WITH ITS VALUES. The old note said
-            // only "cut with 10mm house margins", which told the operator a
-            // substitution happened but not what it did — and the thick bucket
-            // is asymmetric (BM = 0), so the numbers are the part that matters.
-            var house = MarginProfile.DefaultFor(thickness);
-            return (house, string.Format(CultureInfo.InvariantCulture,
-                "cut with {0}mm house margins (LM {1} · RM {2} · TM {3} · BM {4} · breakout {5})",
-                thickness, house.LeftMm, house.RightMm, house.TopMm, house.BottomMm,
-                house.MinBreakoutMm));
+            if (thickness <= 0 || thickness == userMargins.ThicknessMm)
+                return (userMargins, string.Empty);
+            return (MarginProfile.DefaultFor(thickness),
+                "cut with " + thickness.ToString(CultureInfo.InvariantCulture) + "mm house margins");
         }
 
         /// <summary>
@@ -497,31 +380,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// manual "any group" racks (empty composition) are the fallback,
         /// and only when no Step 4 sheet is recorded for the glass do we
         /// drop back to the whole pool so pieces are never silently lost.
-        /// When multiple racks fit, prioritize the largest primary stock
-        /// envelope so huge architectural panels are not fragmented across
-        /// smaller remnant plates.
+        /// A manual rack must never be offered to a group that already has
+        /// a dedicated rack — otherwise "smallest stock first" can route a
+        /// spec's pieces onto the wrong rack.
         /// </summary>
         private static List<StockSize> ResolveGroupStocks(
             string composition,
             List<(StockSize Stock, string Composition)> pool,
-            bool allowCrossComposition,
-            out string note,
-            string? materialKey = null)
+            out string note)
         {
             note = string.Empty;
 
-            // 1. Dedicated Step 4 racks for this glass (material key first,
-            // composition text only as a fallback label match).
+            // 1. Dedicated Step 4 racks for this glass.
             var dedicated = pool
-                .Where(t =>
-                    (!string.IsNullOrWhiteSpace(materialKey)
-                        && string.Equals(t.Stock.MaterialKey, materialKey, StringComparison.OrdinalIgnoreCase))
-                    || (!string.IsNullOrWhiteSpace(t.Composition)
-                        && string.Equals(t.Composition, composition, StringComparison.OrdinalIgnoreCase)))
+                .Where(t => !string.IsNullOrWhiteSpace(t.Composition)
+                            && string.Equals(t.Composition, composition, StringComparison.OrdinalIgnoreCase))
                 .Select(t => t.Stock)
                 .ToList();
             dedicated = DistinctBySize(dedicated);
-            if (dedicated.Count > 0) return SortStocksLargestFirstForTieBreak(dedicated);
+            if (dedicated.Count > 0) return dedicated;
 
             // 2. Manual "any group" racks (no composition tag).
             var manual = pool
@@ -532,144 +409,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (manual.Count > 0)
             {
                 note = "no Step 4 sheet — packed on manual racks";
-                return SortStocksLargestFirstForTieBreak(manual);
+                return manual;
             }
 
-            // 3. Nothing dedicated and nothing manual.
-            //
-            // PHASE 5 / finding 5a (2026-09-20): this used to hand the group
-            // EVERY rack in the pool — "keep the run alive … rather than
-            // dropping the pieces" — so 6mm clear was packed onto a 12mm
-            // laminated rack. OpenNewSheet then picks the SMALLEST rack that
-            // fits, so it would happily choose a small offcut of the wrong
-            // glass. The note did surface, but the sheet count, utilisation and
-            // cost that reached Step 6 and Step 9 were for material that cannot
-            // physically be cut, and keeping the run alive is not worth
-            // inventing a plan.
-            //
-            // Now refused by default. The opt-in stays available in SETTINGS for
-            // an operator who genuinely wants a ballpark across mixed racks, and
-            // when it is used the note says so in terms nobody can mistake for a
-            // real plan.
-            var all = DistinctBySize(pool.Select(t => t.Stock).ToList());
-            if (all.Count == 0) return all;
-
-            if (!allowCrossComposition)
-            {
-                note = "NO RACK FOR THIS GLASS — nothing was cut. Every rack on STOCKS belongs to a " +
-                       "different composition. Add this glass's sheet size, or a manual rack with no " +
-                       "composition, or enable \"allow packing on other specs' racks\" in SETTINGS " +
-                       "for a ballpark plan only.";
-                return new List<StockSize>();
-            }
-
-            note = "no Step 4 sheet — packed on OTHER SPECS' RACKS (glass differs, so this is a " +
-                   "ballpark plan, not a cut list)";
-            return SortStocksLargestFirstForTieBreak(all);
+            // Never cut a composition on another spec's tagged glass.
+            note = "no matching stock";
+            return new List<StockSize>();
         }
 
-        /// <summary>
-        /// Orders a group's racks largest-first.
-        ///
-        /// PHASE 5 / finding 5b (2026-09-20): the name claimed this decides
-        /// which rack the group is cut on. It does not — OpenNewSheet re-sorts
-        /// the whole pool ASCENDING by area and takes the smallest rack that
-        /// fits, which is the owner's "save the large racks for the glass that
-        /// needs them" rule and correctly overrides this. What survives is the
-        /// tie-break: OpenNewSheet's ordering ends in ThenBy(i => i), so among
-        /// racks of EQUAL area the one this put first wins. Renaming the intent
-        /// rather than deleting it, because a tie-break that looks like a
-        /// preference is how the next person "fixes" it in the wrong direction.
-        /// </summary>
-        private static List<StockSize> SortStocksLargestFirstForTieBreak(List<StockSize> stocks) =>
-            stocks.OrderByDescending(s => (long)s.WidthMm * s.HeightMm).ToList();
-
-        /// <summary>
-        /// Collapses stock rows that share a physical size into one rack.
-        ///
-        /// PHASE 9 / finding B1: this used to be <c>g.First()</c>, which threw the
-        /// balance away. Two deliveries of the same 3210 × 2250 — say Available 10
-        /// and Available 15 — became ONE rack carrying whichever row happened to be
-        /// first, and the other 15 sheets disappeared from the run. The plan then
-        /// reported pieces as unplaced, or refused the group outright, against glass
-        /// that was physically standing on the floor. Balances for the SAME
-        /// PHYSICAL GLASS are now summed.
-        ///
-        /// PHASE 9 (safe): the grouping key is size + thickness + colour, not size
-        /// alone. <c>AddStep5Rack</c> de-duplicates on (W, H, composition), so the
-        /// pool can legitimately hold two rows at the same dimensions that are
-        /// DIFFERENT GLASS — a 6mm and an 8mm 3210 × 2250. Keying on size alone
-        /// collapsed those into one rack and, once summed, claimed 20 sheets of a
-        /// glass that only has 10. Finding B3 made racks carry their thickness, so
-        /// the two are now distinguishable and stay apart. This is also the same
-        /// physical identity <see cref="BalanceKey"/> uses for the run ledger, so
-        /// merging and accounting can no longer disagree about what a rack is.
-        ///
-        /// The unlimited sentinel needs care. 0 means "no limit", not "none left",
-        /// so if ANY row at a size is unlimited the merged rack is unlimited —
-        /// summing a real number into an unlimited one would invent a cap the
-        /// operator never typed.
-        /// </summary>
         private static List<StockSize> DistinctBySize(List<StockSize> stocks) =>
-            stocks.GroupBy(BalanceKey)
-                  .Select(g =>
-                  {
-                      var first = g.First();
-
-                      if (g.Any(s => s.MaxSheets == StockSize.UnlimitedSheets))
-                          return first.MaxSheets == StockSize.UnlimitedSheets
-                              ? first
-                              : first.WithMaxSheets(StockSize.UnlimitedSheets);
-
-                      // PHASE 9 (safe): Available defaults to 99999999 — "no cap,
-                      // usage is tracked". That is a real int rather than the 0
-                      // sentinel, so without this branch the sum below would treat
-                      // a no-limit rack as a very large FINITE one: it would enter
-                      // the run ledger, be deducted sheet by sheet, and fire a
-                      // BALANCE warning on every ordinary run where nobody ever set
-                      // a balance. The largest such row wins instead of being
-                      // summed, because adding to "no limit" means nothing.
-                      int effectivelyUnlimited = 0;
-                      foreach (var st in g)
-                          if (st.MaxSheets >= StockSize.EffectivelyUnlimitedSheets &&
-                              st.MaxSheets > effectivelyUnlimited)
-                              effectivelyUnlimited = st.MaxSheets;
-
-                      if (effectivelyUnlimited > 0)
-                          return first.MaxSheets == effectivelyUnlimited
-                              ? first
-                              : first.WithMaxSheets(effectivelyUnlimited);
-
-                      // PHASE 9 (safe) — accumulate in long and clamp.
-                      //
-                      // The Available field defaults to
-                      // StockSize.EffectivelyUnlimitedSheets ("effectively
-                      // unlimited — usage is tracked, not capped"), so summing
-                      // duplicates in int overflows at around 22 rows sharing a
-                      // size. An overflowed total goes NEGATIVE, and the packer's
-                      // `sheetsPerStock[i] < stocks[i].MaxSheets` test then fails on
-                      // the very first sheet: the rack would read as exhausted and
-                      // every piece come back unplaced. Clamping to int.MaxValue
-                      // preserves the "effectively unlimited" meaning without
-                      // inventing a cap the operator never typed.
-                      long summed = 0;
-                      foreach (var st in g) summed += st.MaxSheets;
-                      int merged = summed >= int.MaxValue ? int.MaxValue : (int)summed;
-
-                      return merged == first.MaxSheets ? first : first.WithMaxSheets(merged);
-                  })
+            stocks.GroupBy(s => (s.WidthMm, s.HeightMm))
+                  .Select(g => g.First())
                   .ToList();
 
-        /// <summary>
-        /// Physical identity of a rack for balance accounting: size, thickness and
-        /// colour — the same dimensions <see cref="DistinctBySize"/> collapses on.
-        /// Composition is deliberately NOT part of the key. It decides which
-        /// <c>ResolveGroupStocks</c> branch a row is resolved through, and
-        /// <c>SheetLayout.Stock</c> does not carry the tag back out of the engine,
-        /// so a key including it could never be matched at deduction time.
-        /// </summary>
         private static (int W, int H, int T, string Color) BalanceKey(StockSize s) =>
-            (s.WidthMm, s.HeightMm, s.ThicknessMm, (s.Color ?? string.Empty).Trim());
+            (s.WidthMm, s.HeightMm, s.ThicknessMm, (s.Color ?? string.Empty).Trim().ToUpperInvariant());
 
         /// <summary>
         /// The pool as the floor sees it RIGHT NOW: every capped rack reduced by
@@ -744,43 +498,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             try
             {
-                // ── RUN-WIDE BALANCE LEDGER (PHASE 9 / finding B2) ──────────
-                //
-                // ResolveGroupStocks is called once per cutting group and the pool
-                // it was handed never changed, so EVERY group saw the full Sheet
-                // Store balance. A rack with Available 10 and no composition tag
-                // could be committed 10 sheets to 6mm clear and another 10 to 8mm
-                // clear — twenty sheets cut from ten — and the sheet counts,
-                // utilization and cost for that phantom glass were published
-                // straight through to Step 6 and Step 9.
-                //
-                // Racks any row declares unlimited are left out of the ledger
-                // entirely, so they are never deducted — and that includes the
-                // 99999999 default, which is a finite int the packer honours as an
-                // enormous cap rather than the 0 sentinel. Leaving it in would
-                // report a balance constraint on runs where no balance was set.
-                // Values are long for the same reason DistinctBySize sums in long:
-                // the default Available of 99999999 overflows int when several rows
-                // share a size, and a negative balance reads as exhausted.
-                var balanceLedger = new Dictionary<(int W, int H, int T, string Color), long>();
-                var unlimitedKeys = new HashSet<(int W, int H, int T, string Color)>();
-
-                foreach (var row in stockPool)
-                    if (row.Stock.MaxSheets == StockSize.UnlimitedSheets ||
-                        row.Stock.MaxSheets >= StockSize.EffectivelyUnlimitedSheets)
-                        unlimitedKeys.Add(BalanceKey(row.Stock));
-
-                foreach (var row in stockPool)
-                {
-                    var key = BalanceKey(row.Stock);
-                    if (unlimitedKeys.Contains(key)) continue;
-                    balanceLedger.TryGetValue(key, out long have);
-                    balanceLedger[key] = have + row.Stock.MaxSheets;
-                }
-
-                int balanceConstrainedGroups = 0;
-                var balanceConstrainedNames = new List<string>();
-
+                // Duplicate aliases of one physical rack share a conservative cap.
+                var balanceLedger = stockPool
+                    .Where(r => r.Stock.MaxSheets > 0 && r.Stock.MaxSheets < StockSize.EffectivelyUnlimitedSheets)
+                    .GroupBy(r => BalanceKey(r.Stock))
+                    .ToDictionary(g => g.Key, g => (long)g.Min(r => r.Stock.MaxSheets));
                 var runs = new List<GroupRun>();
                 foreach (var (composition, groupPieces) in groups)
                 {
@@ -793,94 +515,23 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // (the sheet its pane was quoted on), falling back to
                     // manual "any group" racks only when no Step 4 sheet is
                     // recorded for that glass.
-                    // What the floor has LEFT after the groups already cut, not
-                    // what it started with. See the ledger above.
-                    var effectivePool = ApplyRunBalance(stockPool, balanceLedger,
-                        out bool poolReduced);
-                    if (poolReduced)
-                    {
-                        balanceConstrainedGroups++;
-                        if (!balanceConstrainedNames.Contains(composition))
-                            balanceConstrainedNames.Add(composition);
-                    }
-
-                    string groupMaterialKey = groupPieces
-                        .Select(p => p.MaterialKey)
-                        .FirstOrDefault(k => !string.IsNullOrWhiteSpace(k)) ?? string.Empty;
-                    var groupStocks = ResolveGroupStocks(composition, effectivePool,
-                        AllowCrossCompositionStock, out string stockNote, groupMaterialKey);
+                    var effectivePool = ApplyRunBalance(stockPool, balanceLedger, out bool poolReduced);
+                    var groupStocks = ResolveGroupStocks(composition, effectivePool, out string stockNote);
+                    if (poolReduced) stockNote = "stock balance reduced by earlier cutting groups";
                     string note = string.IsNullOrWhiteSpace(stockNote)
                         ? marginNote
                         : (string.IsNullOrWhiteSpace(marginNote)
                             ? stockNote
                             : marginNote + " · " + stockNote);
 
-                    // PHASE 5 / finding 5a: no rack for this glass means no plan.
-                    // Short-circuit rather than handing the packer an empty pool,
-                    // so the group reports "not cut" with every piece accounted
-                    // for as unplaced instead of producing 0 sheets and a
-                    // confusing silence. Conservation still holds: input count
-                    // equals placed (0) plus unplaced (all).
-                    // PHASE 9 (safe): "no rack for this glass" and "the rack ran
-                    // out earlier in this run" send an operator to two completely
-                    // different places — one to Step 4 to set a sheet size, the
-                    // other to the Sheet Store to top up a balance. Before the
-                    // run-wide ledger existed, both reported as the first, so a
-                    // group starved by an earlier group looked like missing setup
-                    // and the operator would go hunting for a rack that is there.
-                    // Re-resolving against the UNTOUCHED pool answers the question
-                    // exactly: if racks exist there but not in the reduced pool,
-                    // the balance is what ran out.
-                    bool ranOutOfBalance = groupStocks.Count == 0 && poolReduced &&
-                        ResolveGroupStocks(composition, stockPool,
-                            AllowCrossCompositionStock, out _, groupMaterialKey).Count > 0;
-
-                    if (groupStocks.Count == 0)
-                    {
-                        var refused = new OptimizationResult { Rotation = rotation };
-                        foreach (var refusedPiece in groupPieces)
-                            refused.Unplaced.Add(refusedPiece);
-                        if (!string.IsNullOrWhiteSpace(stockNote))
-                            refused.ScaleNotes.Add(stockNote);
-                        if (ranOutOfBalance)
-                            refused.ScaleNotes.Add(
-                                "BALANCE: the rack(s) for this glass were used up by earlier "
-                                + "cutting groups in this run — top up the balance on STOCKS, "
-                                + "or split the job across two runs.");
-                        refused.RecordValidation(Array.Empty<string>(),
-                            conservationChecked: true, geometryChecked: true);
-
-                        runs.Add(new GroupRun
-                        {
-                            Composition = composition,
-                            Thickness = ParseThicknessLabel(composition),
-                            PieceCount = groupPieces.Count,
-                            Margins = groupMargins,
-                            Result = refused,
-                            UtilizationPct = 0,
-                            WasteM2 = 0,
-                            UnplacedLabel = groupPieces.Count.ToString(CultureInfo.InvariantCulture),
-                            OracleLabel = ranOutOfBalance
-                                ? "NOT CUT — rack balance exhausted earlier in this run"
-                                : "NOT CUT — no rack for this glass",
-                            ProblemCount = 0,
-                            ValidationFailed = false,
-                            SheetsLabel = "0",
-                            MarginNote = note
-                        });
-
-                        RunProgressPercent = groupCount <= 0
-                            ? 0
-                            : (int)Math.Round(groupIndex * 100.0 / groupCount);
-                        continue;
-                    }
-
                     // Progress<T> captures the UI synchronization context when
                     // it is constructed, so the engine can report from the
                     // worker thread and the label updates on the dispatcher.
                     int gi = groupIndex;
+                    string progressRunId = _lastRunId;
                     var groupProgress = new Progress<OptimizeProgress>(p =>
                     {
+                        if (IsDisposed || !IsRunning || ct.IsCancellationRequested || progressRunId != _lastRunId) return;
                         RunStageLabel = stage == "OPTIMIZE"
                             ? $"Optimizing {composition} · group {gi} of {groupCount} · {p.Message}"
                             : $"Quick packing {composition} · group {gi} of {groupCount}";
@@ -901,15 +552,33 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     if (stage != "OPTIMIZE" && groupCount > 0)
                         RunProgressPercent = (int)Math.Round(((gi - 1) * 100.0) / groupCount);
 
-                    var result = await Task.Run(() => stage == "OPTIMIZE"
-                        ? (groupPieces.Count > 2000
-                            ? GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
-                                  rotation, effort, ct, groupProgress)
-                            : GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
-                                  rotation, effort, ct, groupProgress))
-                        : GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
-                              rotation, SplitMode.HorizontalFirst, ct, groupProgress))
-                        .ConfigureAwait(true);
+                    var result = await Task.Run(() =>
+                    {
+                        if (groupStocks.Count == 0)
+                        {
+                            var exhausted = new OptimizationResult { Rotation = rotation };
+                            exhausted.Unplaced.AddRange(groupPieces);
+                            return exhausted;
+                        }
+                        if (stage != "OPTIMIZE")
+                            return GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
+                                rotation, SplitMode.HorizontalFirst, ct, groupProgress);
+                        // The preserved partitioner gives each batch the rack cap independently.
+                        // Finite inventory must use the globally capped advanced search instead.
+                        bool finiteStock = groupStocks.Any(stock => stock.MaxSheets > 0
+                            && stock.MaxSheets < StockSize.EffectivelyUnlimitedSheets);
+                        var packed = finiteStock
+                            ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
+                                rotation, effort, ct, groupProgress)
+                            : GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
+                                rotation, effort, ct, groupProgress);
+                        if (finiteStock) packed.ScaleNotes.Add("Finite inventory: global advanced search preserves the shared rack cap.");
+                        return packed;
+                    }, ct).ConfigureAwait(true);
+
+                    foreach (var used in result.Sheets.GroupBy(sheet => BalanceKey(sheet.Stock)))
+                        if (balanceLedger.TryGetValue(used.Key, out long remaining))
+                            balanceLedger[used.Key] = remaining - used.Count();
 
                     // Size-driven search reductions are surfaced, never silent.
                     foreach (var scaleNote in result.ScaleNotes)
@@ -919,40 +588,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     // evaluates up to 147 complete plans and keeps one, so without
                     // this a better sheet count is unexplainable — and an
                     // unexplainable improvement is one nobody trusts.
-                    string winningStrat = !string.IsNullOrWhiteSpace(result.Strategy)
-                        ? result.Strategy
-                        : (stage == "OPTIMIZE" ? "MULTI-START" : "QUICK SHELF");
-                    if (!smartWins.Contains($"{composition} [{winningStrat}]"))
-                        smartWins.Add($"{composition} [{winningStrat}]");
+                    if (string.Equals(result.Strategy, GuillotinePacker.SmartStrategyLabel,
+                            StringComparison.Ordinal) && !smartWins.Contains(composition))
+                        smartWins.Add(composition);
 
                     double glass = result.Sheets.Sum(s => s.Pieces.Sum(p => (long)p.WidthMm * p.HeightMm));
                     double stockArea = result.Sheets.Sum(s => (long)s.Stock.WidthMm * s.Stock.HeightMm);
-                    // PHASE 4 / findings 4b, 4c, 4e (2026-09-20): this line used
-                    // to be
-                    //     int problems = GuillotinePacker.Verify(result, groupMargins).Count;
-                    // and the group was then labelled "Verified" when it was 0.
-                    // Verify checks GEOMETRY only — margins, rotation policy,
-                    // dimension integrity, overlap, kerf. It never checks that
-                    // every input piece survived. So the label claimed a
-                    // conservation guarantee that had not been made, and on the
-                    // QUICK path conservation had not been checked at all until
-                    // Phase 4a. The plan's own verdict is now folded in and the
-                    // label says what was actually checked.
-                    var geometryProblems = GuillotinePacker.Verify(result, groupMargins);
-                    result.RecordValidation(
-                        geometryProblems, conservationChecked: false, geometryChecked: true);
-
-                    int problems = result.ValidationProblems.Count;
-
-                    // Take this group's sheets out of the run-wide balance. Keyed
-                    // off SheetLayout.Stock, which is the rack the packer actually
-                    // opened, so a group that fell back to a different size
-                    // charges the rack it really used.
-                    foreach (var used in result.Sheets.GroupBy(sh => BalanceKey(sh.Stock)))
-                    {
-                        if (!balanceLedger.TryGetValue(used.Key, out long have)) continue;
-                        balanceLedger[used.Key] = have - used.Count();
-                    }
+                    int problems = await Task.Run(() =>
+                        GuillotinePacker.VerifyComprehensive(result, groupPieces, groupMargins).Count, ct);
 
                     runs.Add(new GroupRun
                     {
@@ -964,61 +607,23 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         UtilizationPct = stockArea == 0 ? 0 : glass / stockArea * 100.0,
                         WasteM2 = Math.Max(0, (stockArea - glass) / 1_000_000.0),
                         UnplacedLabel = result.Unplaced.Count.ToString(CultureInfo.InvariantCulture),
-                        OracleLabel = BuildOracleLabel(result, problems),
+                        OracleLabel = problems == 0 ? "Verified" : problems.ToString(CultureInfo.InvariantCulture) + " issue(s)",
                         ProblemCount = problems,
-                        ValidationFailed = result.HasValidationFailure,
+                        ValidationFailed = problems > 0,
                         SheetsLabel = result.SheetsUsed.ToString(CultureInfo.InvariantCulture),
                         MarginNote = note
                     });
                 }
 
-                    // The codebase's standing rule is that a size- or
-                    // stock-driven change to the plan is surfaced, never silent.
-                    // Appended to scaleNotes so it travels the existing
-                    // append-never-replace path into the run header.
-                    if (balanceConstrainedGroups > 0)
-                    {
-                        long exhausted = balanceLedger.Values.Count(v => v <= 0);
+                ct.ThrowIfCancellationRequested();
+                if (IsDisposed) return;
+                ApplyResults(stage, runs, rotation);
 
-                        // Naming the groups matters: which one loses scarce glass
-                        // is decided by cutting-list order, so an operator reading
-                        // only a count cannot tell whether the group they care
-                        // about was the one starved.
-                        string named = string.Join(", ", balanceConstrainedNames.Take(4).ToArray())
-                            + (balanceConstrainedNames.Count > 4
-                                ? string.Format(CultureInfo.InvariantCulture,
-                                    " +{0} more", balanceConstrainedNames.Count - 4)
-                                : string.Empty);
-
-                        scaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
-                            "BALANCE: {0} cutting group(s) ran on a Sheet Store balance already "
-                            + "partly consumed by earlier groups in this run — {1}{2}. Groups are "
-                            + "served in cutting-list order, so move a group up the list if it "
-                            + "should get first call on a short rack.",
-                            balanceConstrainedGroups,
-                            named,
-                            exhausted > 0
-                                ? string.Format(CultureInfo.InvariantCulture,
-                                    "; {0} rack(s) ran out and were withdrawn from the later groups", exhausted)
-                                : string.Empty));
-                    }
-
-                    ApplyResults(stage, runs, rotation);
-
-                    // PHASE 2 / finding 19: input warnings (excluded invalid
-                    // rows, racks left out at a zero balance) are appended here
-                    // rather than set in TryBuildInputs, because ApplyResults has
-                    // just written the summary the operator reads first. Same
-                    // append-never-replace rule as the scale notes below — and
-                    // these matter most on exactly the large jobs where a
-                    // replaced message would hide an exclusion.
-                    ApplyInputWarningsToRunMessage();
-
-                    // APPEND, never replace: ApplyResults has just written the
-                    // sheet-count / utilization summary the operator reads first.
-                    // Overwriting it would hide the result exactly on the large
-                    // jobs where the note matters most.
-                    if (scaleNotes.Count > 0)
+                // APPEND, never replace: ApplyResults has just written the
+                // sheet-count / utilization summary the operator reads first.
+                // Overwriting it would hide the result exactly on the large
+                // jobs where the note matters most.
+                if (scaleNotes.Count > 0)
                 {
                     string notes = string.Join(" ", scaleNotes);
                     RunMessage = string.IsNullOrWhiteSpace(RunMessage)
@@ -1031,7 +636,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (smartWins.Count > 0)
                 {
                     string smartNote = string.Format(CultureInfo.InvariantCulture,
-                        "Strategy breakdown: {0}.", string.Join(", ", smartWins));
+                        "Smart placement won {0} of {1} cutting group(s): {2}.",
+                        smartWins.Count, runs.Count, string.Join(", ", smartWins));
                     RunMessage = string.IsNullOrWhiteSpace(RunMessage)
                         ? smartNote
                         : RunMessage + " " + smartNote;
@@ -1086,21 +692,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int totalProblems = runs.Sum(r => r.ProblemCount);
 
             string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
-            // Phase 3: when the run is scoped to exactly ONE confirmed job
-            // order, say which — Step 6 and the operator need to know the
-            // result belongs to JO-2026-004 and not to whatever job was
-            // ticked before. Multi-job and Step-5 runs stay unattributed.
-            var singleJob = SelectedJobs
-                .Select(j => j.JobOrderId)
-                .Where(id => !string.IsNullOrWhiteSpace(id))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-            string jobScope = singleJob.Count == 1
-                ? " · " + singleJob[0]
-                : string.Empty;
             ResultStage = stage == "OPTIMIZE"
-                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s){jobScope}"
-                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s){jobScope}";
+                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s)"
+                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s)";
             // Stamps the SETTINGS level onto this result and, when this run was
             // an upgrade of a previous QUICK result, reports what it bought.
             UpdateUpgradeSummary(stage, totalSheets);
@@ -1156,19 +750,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     unplacedSeen - unplacedListed)
                 : string.Empty;
 
-            // Per-cutting-group breakdown (composition → sheets / util / waste / stock size).
+            // Per-cutting-group breakdown (composition → sheets / util / waste).
             GroupResults.Clear();
             foreach (var r in runs)
             {
-                string stockSummary = string.Join(", ", r.Result.Sheets
-                    .Select(s => string.Format(CultureInfo.InvariantCulture, "{0}×{1}", s.Stock.WidthMm, s.Stock.HeightMm))
-                    .Distinct());
-
                 GroupResults.Add(new CuttingGroupResultVm
                 {
                     Composition = r.Composition,
                     Thickness = r.Thickness,
-                    StockSize = string.IsNullOrWhiteSpace(stockSummary) ? "—" : stockSummary,
                     PieceCount = r.PieceCount.ToString(CultureInfo.InvariantCulture),
                     Sheets = r.SheetsLabel,
                     Utilization = r.UtilizationPct.ToString("0.0", CultureInfo.InvariantCulture) + "%",

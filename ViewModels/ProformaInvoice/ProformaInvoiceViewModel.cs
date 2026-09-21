@@ -500,7 +500,7 @@ public ProformaInvoiceViewModel() : this(
         /// </remarks>
         private ViewModels.Optimization.OptimizationViewModel CreateOptimizationHost()
         {
-            var host = new ViewModels.Optimization.OptimizationViewModel();
+            var host = new ViewModels.Optimization.OptimizationViewModel(isHeadlessHost: true);
             // RC-007 FIX: mark as headless host BEFORE LoadJobs async finishes,
             // so RebuildSelectedJobBreakdown does not wipe Pieces/Stocks that
             // RunFromStep5 just populated (race: ctor LoadJobs -> async
@@ -657,22 +657,109 @@ public ProformaInvoiceViewModel() : this(
             if (CurrentStepNumber < 5)
                 return;
 
-            // CurrentSpecFingerprint covers the FULL section selection
-            // (spec name, glass type, panes, sheets, rate). Without it only
-            // rate-visible changes propagated: a same-price glass swap, a
-            // sheet-size switch or a colour change left Step 5 on the stale
-            // type/spec until the next navigation — the "not force updating
-            // / not syncing properly" report. The fingerprint only raises
-            // when the hash actually changes, so a re-sync is skipped when
-            // Step 4 is untouched.
-            if (e.PropertyName is nameof(Step4PricingEstimator.PricingEstimatorViewModel.EstimatedRatePerSqm)
-                or nameof(Step4PricingEstimator.PricingEstimatorViewModel.CurrentSpecFingerprint)
-                or nameof(Step4PricingEstimator.PricingEstimatorViewModel.SelectedGlassType)
+            if (e.PropertyName is nameof(Step4PricingEstimator.PricingEstimatorViewModel.SelectedGlassType)
                 or null
                 or "")
             {
                 SyncStep5SelectionsFromStep4();
                 Step6VM.RefreshWorkspace();
+            }
+            else if (e.PropertyName is nameof(Step4PricingEstimator.PricingEstimatorViewModel.EstimatedRatePerSqm))
+            {
+                SyncStep5BaseRatesFromStep4();
+                Step6VM.RefreshWorkspace();
+            }
+        }
+
+        /// <summary>
+        /// Rate-only push: Step 4 pricing numbers (yield/margin/BasePrice)
+        /// changed but the chosen glass type/spec did not. Only the quoted
+        /// rate (BaseRate/ImportedPrice) is refreshed for Step-4-owned groups;
+        /// glass type, spec name, pane colours and sheet sizes are left alone
+        /// so a manual Step 5 glass-type choice is never cleared by a price
+        /// edit, and HasManualStep5BaseRateOverride is honoured. This was the
+        /// source of “glass type getting reset from the price section”:
+        /// EstimatedRatePerSqm firing the full ApplyStep4PricingSnapshot.
+        /// </summary>
+        private void SyncStep5BaseRatesFromStep4()
+        {
+            var sections = Step4VM.CaptureSectionSnapshots();
+            int count = Math.Min(sections.Count, Step5VM.SpecGroups.Count);
+
+            for (int i = 0; i < count; i++)
+            {
+                var section = sections[i];
+                var group = Step5VM.SpecGroups[i];
+
+                if (string.IsNullOrWhiteSpace(section.GeneratedSpecName))
+                    continue;
+
+                bool hasNoStep5Spec = string.IsNullOrWhiteSpace(group.SelectedSpecName);
+                bool isFreshBootstrap = hasNoStep5Spec
+                    && !group.HasManualStep5SpecOverride
+                    && !group.HasManualStep5GlassTypeOverride;
+
+                bool selectedSpecMatchesStep4 =
+                    string.Equals(group.SelectedSpecName,
+                        section.GeneratedSpecName,
+                        StringComparison.OrdinalIgnoreCase);
+
+                bool specIsStep4Owned = isFreshBootstrap
+                    || selectedSpecMatchesStep4
+                    || (!group.HasManualStep5SpecOverride
+                        && !string.IsNullOrWhiteSpace(group.LastSyncedStep4SpecName)
+                        && string.Equals(group.SelectedSpecName,
+                            group.LastSyncedStep4SpecName,
+                            StringComparison.OrdinalIgnoreCase));
+
+                bool markersConfirmCurrentStep4Selection =
+                    !string.IsNullOrWhiteSpace(group.LastSyncedStep4SpecName)
+                    && !string.IsNullOrWhiteSpace(group.LastSyncedStep4GlassType)
+                    && string.Equals(group.LastSyncedStep4SpecName,
+                        section.GeneratedSpecName,
+                        StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(group.LastSyncedStep4GlassType,
+                        section.SelectedGlassTypeCode,
+                        StringComparison.OrdinalIgnoreCase);
+
+                bool selectedGlassTypeMatchesStep4 =
+                    string.Equals(group.SelectedGlassType,
+                        section.SelectedGlassTypeCode,
+                        StringComparison.OrdinalIgnoreCase);
+
+                bool glassTypeIsStep4Owned = isFreshBootstrap
+                    || selectedGlassTypeMatchesStep4
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && string.IsNullOrWhiteSpace(group.SelectedGlassType))
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && markersConfirmCurrentStep4Selection)
+                    || (!group.HasManualStep5GlassTypeOverride
+                        && !string.IsNullOrWhiteSpace(group.LastSyncedStep4GlassType)
+                        && string.Equals(group.SelectedGlassType,
+                            group.LastSyncedStep4GlassType,
+                            StringComparison.OrdinalIgnoreCase));
+
+                if (!specIsStep4Owned || !glassTypeIsStep4Owned)
+                    continue;
+
+                if (section.EstimatedRatePerSqm > 0m
+                    && !group.HasManualStep5BaseRateOverride)
+                {
+                    group.BaseRate = section.EstimatedRatePerSqm;
+                }
+
+                bool incomingSpecChangesSelection =
+                    !string.IsNullOrWhiteSpace(section.GeneratedSpecName)
+                    && !string.Equals(group.SelectedSpecName, section.GeneratedSpecName,
+                        StringComparison.OrdinalIgnoreCase);
+
+                if (section.EstimatedRatePerSqm > 0m
+                    && (incomingSpecChangesSelection || group.ImportedPrice <= 0m))
+                {
+                    group.ImportedPrice = section.EstimatedRatePerSqm;
+                }
+
+                group.LastSyncedStep4ContentHash = section.ComputeContentHash();
             }
         }
 

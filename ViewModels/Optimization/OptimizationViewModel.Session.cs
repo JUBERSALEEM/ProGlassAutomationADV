@@ -310,7 +310,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 if (!HasResult) return;
 
-                var resultRows = BuildResultRows();
+                var resultRows = HasResult ? BuildResultRows() : new List<ResultRowDto>();
 
                 // RC-018 (2026-09-20): this used to read
                 //     if (resultRows.Count == 0) return;
@@ -493,7 +493,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 PiecesJson = OptimizationSessionIdentity.Serialize(new OptimizationSessionPiecesPayload
                 {
                     IdentityVersion = OptimizationSessionIdentity.CurrentIdentityVersion,
-                    RunId = _lastRunId ?? string.Empty,
+                    RunId = HasResult ? _lastRunId : string.Empty,
                     InputFingerprint = OptimizationSessionIdentity.FingerprintRows(pieces),
                     DocumentKey = DocumentKey ?? string.Empty,
                     Pieces = pieces
@@ -545,7 +545,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // handler runs on, for the same reason as PersistLatestRunAsync:
                 // one atomic view of the four UI-bound collections rather than a
                 // mix of pre- and post-await state.
-                var resultRows = BuildResultRows();
+                var resultRows = HasResult ? BuildResultRows() : new List<ResultRowDto>();
 
                 var session = BuildSessionSnapshot(string.Format(CultureInfo.InvariantCulture,
                     "{0} · {1:yyyy-MM-dd HH:mm}", LastRunStage, DateTime.Now), resultRows);
@@ -609,7 +609,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private void RestoreSessionCore(SavedOptimizationSession s, bool openToReport)
         {
+            if (IsRunning || IsDisposed) return;
+            _sessionInputsActive = true;
             var payload = OptimizationSessionIdentity.Parse(s.PiecesJson);
+            if (!string.IsNullOrWhiteSpace(payload.DocumentKey)) DocumentKey = payload.DocumentKey;
             var pieces = payload.Pieces ?? new List<OptimizationSessionPieceRecord>();
             if (OptimizationSessionIdentity.IsCurrentIdentityVersion(payload.IdentityVersion))
             {
@@ -688,7 +691,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     AvailableText = string.IsNullOrWhiteSpace(st.Available)
                         ? StockSize.EffectivelyUnlimitedSheets.ToString(CultureInfo.InvariantCulture)
                         : st.Available,
-                    IsUsedInRun = st.IsUsedInRun
+                    IsUsedInRun = st.IsUsedInRun,
+                    SpecNumber = st.SpecNumber,
+                    Side = st.Side,
+                    Color = st.Color,
+                    ThicknessMm = st.ThicknessMm,
+                    MaterialKey = st.MaterialKey,
+                    SheetStoreSku = st.SheetStoreSku,
+                    PricePerSqm = st.PricePerSqm
                 });
             }
 

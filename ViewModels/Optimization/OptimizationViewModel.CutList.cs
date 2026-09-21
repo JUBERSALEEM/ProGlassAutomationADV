@@ -36,8 +36,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
-using ProGlassAutomation.Services.Optimization;
-using ProGlassAutomation.Services.ProformaInvoice.Step5Grid;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 
@@ -137,14 +135,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 && CutListGlassTypeOptions.Count > 0)
             {
                 group.SelectedGlassType = CutListGlassTypeOptions[0];
-            }
-
-            // Ensure specifications repository is wired from ServiceProvider so the dropdown is populated
-            if (group.Specifications == null && App.ServiceProvider != null)
-            {
-                group.Specifications = App.ServiceProvider.GetService(
-                    typeof(Services.ProformaInvoice.SpecificationsRepository.ISpecificationsRepository))
-                    as Services.ProformaInvoice.SpecificationsRepository.ISpecificationsRepository;
             }
 
             return group;
@@ -283,18 +273,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </remarks>
         private void SendCutListToEngine()
         {
-            // LostFocus cells do not commit until the cell loses focus. SEND
-            // without tabbing out used to send an empty list.
-            try
-            {
-                if (System.Windows.Input.Keyboard.FocusedElement is System.Windows.FrameworkElement fe)
-                    fe.GetBindingExpression(System.Windows.Controls.TextBox.TextProperty)?.UpdateSource();
-            }
-            catch { }
-
             var rows = ManualCutList.ItemRows
-                .Where(r => r != null && r.Qty > 0
-                    && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0)))
+                .Where(r => r != null && !r.IsEmpty && r.Qty > 0 && (r.W1 > 0 || r.W2 > 0))
                 .ToList();
 
             if (rows.Count == 0)
@@ -304,137 +284,52 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return;
             }
 
-            // Do not untick a confirmed JO. SEND packs W1/H1/W2/H2 as a
-            // size-only run; store identity / leftover prices are not inputs.
+            string composition = ResolveCutListComposition();
 
-            // Phase 2: canonical composition — the cut list's composition is
-            // free text (a typed spec name or the build type), and it is the
-            // merge key for cutting groups AND the rack-routing tag, so it
-            // enters the module already canonicalised.
-            string composition = CompositionKey.Normalize(ResolveCutListComposition());
-
-            // PHASE 7 / finding 17 (2026-09-20): this used to open with
-            //     Pieces.Clear();
-            // — no confirmation, no undo, no merge. Tick jobs on the JOBS tab and
-            // their panes auto-import into the cutting list; press SEND TO ENGINE
-            // afterwards and that import was simply gone, replaced by whatever the
-            // manual grid happened to hold.
-            //
-            // The fix is not a modal prompt. This module has NO dialog service at
-            // all — it communicates through status lines, which is also what lets
-            // the headless Step 5 host run without any UI, and injecting
-            // IDialogService into a DI-resolved view model is the change the PI
-            // wizard records as having broken construction once already (ERR-633EEB).
-            // So the action itself stops being destructive: SEND now MERGES on the
-            // same key the job auto-import uses — normalized composition + size +
-            // position, summing quantity — and CLEAR CUT LIST stays the explicit,
-            // separate way to start from nothing.
-
-            int rowsBefore = Pieces.Count;
-            int mergedRows = 0;
-
-            var mergeIndex = new Dictionary<(string Comp, int W, int H, string Pos), PieceEntryVm>();
-            foreach (var existing in Pieces)
-            {
-                if (existing == null || !existing.TryParse(out int ew, out int eh, out _)) continue;
-                mergeIndex[(CompositionKey.Normalize(existing.GlassRef), ew, eh,
-                    (existing.Position ?? string.Empty).Trim())] = existing;
-            }
-
+            Pieces.Clear();
             int pieces = 0;
             int units = 0;
             int skipped = 0;
-
-            // Adds a pane, or folds its quantity into the row already holding the
-            // same glass at the same size and position. Merging may combine; it
-            // must never make pieces disappear, so the summed quantity is written
-            // back to the surviving row rather than replacing it.
-            void AddOrMerge(string position, string label, int w, int h, int qty)
-            {
-                var key = (composition, w, h, (position ?? string.Empty).Trim());
-
-                if (mergeIndex.TryGetValue(key, out var target) &&
-                    target != null &&
-                    target.TryParse(out _, out _, out int existingQty))
-                {
-                    target.QtyText = (existingQty + qty).ToString(CultureInfo.InvariantCulture);
-                    mergedRows++;
-                }
-                else
-                {
-                    var row = NewPieceRow(composition, label,
-                        w.ToString(CultureInfo.InvariantCulture),
-                        h.ToString(CultureInfo.InvariantCulture),
-                        qty.ToString(CultureInfo.InvariantCulture));
-                    row.Position = position;
-                    if (string.Equals(position, InnerPaneLabel, StringComparison.OrdinalIgnoreCase))
-                    {
-                        row.W2 = w;
-                        row.H2 = h;
-                    }
-                    else
-                    {
-                        row.W1 = w;
-                        row.H1 = h;
-                    }
-                    mergeIndex[key] = row;
-                    Pieces.Add(row);
-                }
-
-                pieces += qty;
-            }
 
             foreach (var r in rows)
             {
                 string label = string.IsNullOrWhiteSpace(r.GlassRef)
                     ? "—"
                     : r.GlassRef.Trim();
+                string qty = r.Qty.ToString(CultureInfo.InvariantCulture);
                 units += r.Qty;
 
                 if (r.W1 > 0 && r.H1 > 0)
-                    AddOrMerge(OuterPaneLabel, label, r.W1, r.H1, r.Qty);
+                {
+                    var outer = NewPieceRow(composition, label,
+                        r.W1.ToString(CultureInfo.InvariantCulture),
+                        r.H1.ToString(CultureInfo.InvariantCulture), qty);
+                    outer.Position = OuterPaneLabel;
+                    Pieces.Add(outer);
+                    pieces += r.Qty;
+                }
                 else
+                {
                     skipped++;
+                }
 
                 if (r.W2 > 0 && r.H2 > 0)
-                    AddOrMerge(InnerPaneLabel, label, r.W2, r.H2, r.Qty);
+                {
+                    var inner = NewPieceRow(composition, label,
+                        r.W2.ToString(CultureInfo.InvariantCulture),
+                        r.H2.ToString(CultureInfo.InvariantCulture), qty);
+                    inner.Position = InnerPaneLabel;
+                    Pieces.Add(inner);
+                    pieces += r.Qty;
+                }
             }
 
-            _selectedCuttingGroup = AllCuttingGroups;
-            EnsureSizeOnlyStock();
             RefreshDerived();
-
-            _sizeOnlyPack = true;
-            bool started;
-            try
-            {
-                started = Run("QUICK");
-            }
-            finally
-            {
-                _sizeOnlyPack = false;
-            }
 
             CutListStatus = string.Format(CultureInfo.InvariantCulture,
                 "{0} row(s) → {1} piece(s) across {2} unit(s), cut from “{3}”. "
-                + (started
-                    ? "QUICK packing started from W1/H1/W2/H2."
-                    : (string.IsNullOrWhiteSpace(RunMessage)
-                        ? "Sizes are on the cutting list — add a rack on STOCKS if the run did not start."
-                        : RunMessage)),
+                + "Check the racks on STOCKS, then press RUN QUICK or RUN OPTIMIZE.",
                 rows.Count, pieces, units, composition);
-
-            if (rowsBefore > 0)
-            {
-                CutListStatus += string.Format(CultureInfo.InvariantCulture,
-                    " MERGED into the {0} row(s) already on the cutting list{1} — nothing was discarded. "
-                    + "Use CLEAR CUT LIST first to replace them instead.",
-                    rowsBefore,
-                    mergedRows > 0
-                        ? string.Format(CultureInfo.InvariantCulture,
-                            " ({0} row(s) matched an existing size and had their quantity added)", mergedRows)
-                        : string.Empty);
-            }
 
             if (skipped > 0)
             {
@@ -632,26 +527,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             int thickness = TextParsing.ParseInt(CutListSpecThicknessText);
-
-            // PHASE 2 / finding 6 (2026-09-20): this used to be
-            //     decimal.TryParse(TextParsing.CleanNum(CutListSpecPriceText), …) ? parsed : 0m;
-            // CleanNum strips EVERY comma, so a European decimal comma turned
-            // "45,5" into "455" — a tenfold price inflation written into the
-            // specification catalogue, which Step 4 and Step 9 read back as a
-            // fallback rate. And an unparseable value saved 0m with a status
-            // line reporting success, so "free glass" entered the catalogue.
-            //
-            // A parse failure is an error, never a default, and an ambiguous
-            // separator is refused rather than guessed: inflating a rate 10× is
-            // the one mistake here that quietly reaches a customer's invoice.
-            if (!TryParseMoney(CutListSpecPriceText, out decimal price) || price <= 0m)
-            {
-                CutListStatus = string.Format(CultureInfo.InvariantCulture,
-                    "A specification needs a price per m² greater than zero — “{0}” was not read as one. " +
-                    "Enter a plain number (45.5 or 45,5). Nothing was saved.",
-                    (CutListSpecPriceText ?? string.Empty).Trim());
-                return;
-            }
+            decimal price = decimal.TryParse(
+                TextParsing.CleanNum(CutListSpecPriceText),
+                NumberStyles.Number, CultureInfo.InvariantCulture, out decimal parsedPrice)
+                    ? parsedPrice
+                    : 0m;
 
             IsSavingCutListSpec = true;
             try
@@ -717,11 +597,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (rows == null || rows.Count == 0) return;
             if (!HasResult) return;
 
-            // Phase 3: scope the join to THIS list's composition. Every row
-            // of one cut list cuts from one composition, so a result row from
-            // a different glass group that happens to share a size must not
-            // count toward this list's QTY USED.
-            int stamped = StampRows(rows, CostingRows, ResolveCutListComposition());
+            int stamped = StampRows(rows, CostingRows);
             CutListStatus = string.Format(CultureInfo.InvariantCulture,
                 "{0} of {1} row(s) matched the last run — QTY USED and OPT % are read from it.",
                 stamped, rows.Count);
@@ -735,26 +611,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// <returns>How many rows found at least one matching result.</returns>
         public static int StampRows(
             IEnumerable<GlassItemRow>? rows,
-            IEnumerable<CostingRowVm>? results,
-            string? rowComposition = null)
+            IEnumerable<CostingRowVm>? results)
         {
             if (rows == null || results == null) return 0;
-
-            // Phase 3: when the caller knows the list's composition, result
-            // rows from OTHER glass groups are excluded — the old size-only
-            // join summed two groups' pieces whenever they shared a size
-            // (low-e outer + another spec at 1057×2489 showed both totals on
-            // every row).
-            string rowComp = CompositionKey.Normalize(rowComposition);
-            bool compScoped = rowComp.Length > 0;
 
             var bySize = new Dictionary<(int W, int H), (int Pieces, decimal Glass, decimal Stock)>();
             foreach (CostingRowVm? result in results)
             {
                 if (result == null || result.WidthMm <= 0 || result.HeightMm <= 0) continue;
-                if (compScoped && !string.Equals(
-                        CompositionKey.Normalize(result.Composition), rowComp, StringComparison.Ordinal))
-                    continue;
                 var key = (result.WidthMm, result.HeightMm);
                 bySize.TryGetValue(key, out (int Pieces, decimal Glass, decimal Stock) acc);
                 bySize[key] = (acc.Pieces + result.PieceCount,
@@ -821,145 +685,5 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// outer/inner vocabulary the rest of the chain uses.</summary>
         private const string OuterPaneLabel = "Outer";
         private const string InnerPaneLabel = "Inner";
-
-        /// <summary>
-        /// Size packing needs a sheet envelope. Uses the cut-list outer/inner
-        /// sheet when set; otherwise the 3210×2250 house rack. No price is
-        /// invented.
-        /// </summary>
-        private void EnsureSizeOnlyStock()
-        {
-            foreach (var s in Stocks)
-            {
-                if (s == null || !s.IsUsedInRun) continue;
-                if (TryParseWholeMm(s.WidthText, out int sw)
-                    && TryParseWholeMm(s.HeightText, out int sh)
-                    && sw > 0 && sh > 0)
-                    return;
-            }
-
-            int w = 0, h = 0;
-            if (_manualCutList != null)
-            {
-                if (_manualCutList.OuterSheetWidthMm > 0 && _manualCutList.OuterSheetHeightMm > 0)
-                {
-                    w = _manualCutList.OuterSheetWidthMm;
-                    h = _manualCutList.OuterSheetHeightMm;
-                }
-                else if (_manualCutList.InnerSheetWidthMm > 0 && _manualCutList.InnerSheetHeightMm > 0)
-                {
-                    w = _manualCutList.InnerSheetWidthMm;
-                    h = _manualCutList.InnerSheetHeightMm;
-                }
-            }
-            if (w <= 0 || h <= 0)
-            {
-                w = 3210;
-                h = 2250;
-            }
-
-            Stocks.Add(new StockEntryVm(
-                w.ToString(CultureInfo.InvariantCulture),
-                h.ToString(CultureInfo.InvariantCulture),
-                string.Empty,
-                "size-only rack")
-            { IsUsedInRun = true });
-            OnPropertyChanged(nameof(HasStocks));
-        }
-
-        /// <summary>
-        /// Fills the CUT LIST tab from ticked jobs' Step 5 rows (GlassRef,
-        /// W1, H1, W2, H2, Qty). Does not touch the grid when no job is
-        /// ticked — operator-typed rows must survive an empty picker.
-        /// </summary>
-        private void SyncCutListFromSelectedJobs()
-        {
-            if (IsHeadlessHost) return;
-
-            var jobs = AvailableJobs.Where(j => j.IsSelected).ToList();
-            if (jobs.Count == 0) return;
-
-            var import = new List<CutListImportRow>();
-            foreach (var job in jobs)
-            {
-                if (job?.Step5Rows != null)
-                {
-                    foreach (var row in job.Step5Rows)
-                    {
-                        if (row == null) continue;
-                        if (row.W1 <= 0 && row.H1 <= 0 && row.W2 <= 0 && row.H2 <= 0) continue;
-                        import.Add(new CutListImportRow
-                        {
-                            GlassRef = row.GlassRef ?? string.Empty,
-                            W1 = row.W1,
-                            H1 = row.H1,
-                            W2 = row.W2,
-                            H2 = row.H2,
-                            Qty = row.Qty > 0 ? row.Qty : 1
-                        });
-                    }
-                }
-
-                // If the embedded PI had no ItemRows, rebuild W1/H1/W2/H2
-                // from the exploded pane layers so the studio grid is not empty.
-                if (import.Count == 0 && job?.Specs != null)
-                {
-                    foreach (var spec in job.Specs)
-                    {
-                        foreach (var layer in spec.Layers.Where(l => l.IsPane))
-                        {
-                            bool inner = string.Equals(layer.Position, "Inner", StringComparison.OrdinalIgnoreCase)
-                                || (layer.Position ?? string.Empty).IndexOf("Lam", StringComparison.OrdinalIgnoreCase) >= 0;
-                            foreach (var piece in layer.Pieces)
-                            {
-                                if (piece.W <= 0 || piece.H <= 0) continue;
-                                int qty = piece.Qty > 0 ? piece.Qty : 1;
-                                import.Add(new CutListImportRow
-                                {
-                                    GlassRef = string.IsNullOrWhiteSpace(piece.Label) ? piece.Glass : piece.Label,
-                                    W1 = inner ? 0 : piece.W,
-                                    H1 = inner ? 0 : piece.H,
-                                    W2 = inner ? piece.W : 0,
-                                    H2 = inner ? piece.H : 0,
-                                    Qty = qty
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-
-            var grid = ManualCutList;
-            var primary = jobs[0];
-
-            // Type then spec then colours/sheets. SelectedSpecName calls
-            // AdoptSheetSelection which zeros sheets — write JO sheets after.
-            if (!string.IsNullOrWhiteSpace(primary.GlassType))
-                grid.SelectedGlassType = primary.GlassType;
-            if (!string.IsNullOrWhiteSpace(primary.SpecName))
-                grid.SelectedSpecName = primary.SpecName;
-            grid.OuterGlassColor = primary.OuterGlassColor ?? string.Empty;
-            grid.InnerGlassColor = primary.InnerGlassColor ?? string.Empty;
-            grid.ThirdGlassColor = primary.ThirdGlassColor ?? string.Empty;
-            grid.OuterSheetWidthMm = primary.OuterSheetWidthMm;
-            grid.OuterSheetHeightMm = primary.OuterSheetHeightMm;
-            grid.InnerSheetWidthMm = primary.InnerSheetWidthMm;
-            grid.InnerSheetHeightMm = primary.InnerSheetHeightMm;
-            grid.ThirdSheetWidthMm = primary.ThirdSheetWidthMm;
-            grid.ThirdSheetHeightMm = primary.ThirdSheetHeightMm;
-            grid.OuterSheetPricePerSqm = primary.OuterSheetPricePerSqm;
-            grid.InnerSheetPricePerSqm = primary.InnerSheetPricePerSqm;
-            OnPropertyChanged(nameof(CutListCompositionDisplay));
-
-            if (import.Count == 0) return;
-
-            grid.ItemRows.Clear();
-            int added = grid.ApplyImportedRows(import);
-            CutListStatus = string.Format(CultureInfo.InvariantCulture,
-                "Imported {0} Step 5 row(s) from {1} ticked job(s) · {2} · {3}.",
-                added, jobs.Count,
-                string.IsNullOrWhiteSpace(primary.GlassType) ? "type unset" : primary.GlassType,
-                string.IsNullOrWhiteSpace(primary.SpecName) ? "spec unset" : primary.SpecName);
-        }
     }
 }

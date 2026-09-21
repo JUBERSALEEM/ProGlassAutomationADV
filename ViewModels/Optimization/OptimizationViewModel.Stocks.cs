@@ -139,7 +139,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         public ObservableCollection<StockEntryVm> Stocks { get; } = new();
-
         public bool HasStocks => Stocks.Count > 0;
         public ICommand AddStockCommand { get; }
         public ICommand RemoveStockCommand { get; }
@@ -174,18 +173,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 "manual")
             { AvailableText = NewStock.AvailableText };
             Stocks.Add(row);
-            OnPropertyChanged(nameof(HasStocks));
             RunMessage = string.Empty;
             StocksStatusText = "Manual rack added — it serves any cutting group without its own Step 4 sheet.";
         }
 
         private void RemoveStock(StockEntryVm entry)
         {
-            if (entry != null)
-            {
-                Stocks.Remove(entry);
-                OnPropertyChanged(nameof(HasStocks));
-            }
+            if (entry != null) Stocks.Remove(entry);
         }
 
         /// <summary>
@@ -226,95 +220,26 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             var sheets = SelectedJobs.SelectMany(j => j.Step4Sheets).ToList();
 
-            // Phase 3: manual racks survive a selection change. The old
-            // behaviour deleted a hand-added rack the moment the operator
-            // ticked or unticked a job (documented in code, still a
-            // data-loss trap mid-work). Step 4 racks are still fully
-            // replaced — only provenance "manual" is kept.
-            var manualRacks = Stocks
-                .Where(s => string.Equals(s.SourceLabel, "manual", StringComparison.OrdinalIgnoreCase))
-                .ToList();
             Stocks.Clear();
-            foreach (var m in manualRacks) Stocks.Add(m);
-
-            var seen = new HashSet<(int W, int H, string C)>();
-            foreach (var m in manualRacks)
-            {
-                if (int.TryParse(m.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int mw)
-                    && int.TryParse(m.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int mh))
-                    seen.Add((mw, mh, (m.Composition ?? string.Empty).Trim()));
-            }
-            // How many Step 4 racks inventory could price unambiguously, and how
-            // many it could not. Both are reported: silently applying a balance to
-            // some racks and not others is how an operator ends up trusting a
-            // number on one row and not knowing the next one is a default.
-            int balancesApplied = 0;
-            int balancesUnknown = 0;
-
+            var seen = new HashSet<(int W, int H, string C, int Spec, string Side)>();
             foreach (var (w, h, composition, source, pricePerSqm, specNumber, side) in sheets)
             {
                 if (w <= 0 || h <= 0) continue;
                 string comp = (composition ?? string.Empty).Trim();
-                if (!seen.Add((w, h, comp))) continue;
+                if (!seen.Add((w, h, comp.ToUpperInvariant(), specNumber, side))) continue;
 
                 // Step 4 sheets are auto-selected for the run (outer and
                 // inner, colour-based); the operator can untick any rack.
-                //
-                // PHASE 11 — the Step 5 feed asks inventory how many sheets are
-                // on hand; this path can only ask when the answer is CERTAIN.
-                //
-                // Step4Sheets carries (w, h, composition, source, price, spec,
-                // side) and NO colour, and inventory is keyed by colour. Looking a
-                // balance up on size alone would merge a Clear and a Low-E rack at
-                // the same dimensions — the exact double-count
-                // RefreshStockUsage's header comment exists to prevent — and hand
-                // the run a number belonging to glass it is not cutting. A wrong
-                // balance is worse than no balance, because it refuses groups that
-                // do have stock.
-                //
-                // So this uses TryGetUnambiguousStockBalance, which answers only
-                // when inventory holds exactly ONE colour at that size and
-                // thickness — where the rack cannot be anything else — and
-                // otherwise says nothing. Racks it cannot attribute keep the
-                // visible "effectively unlimited" default for the operator to
-                // correct, rather than being handed a guess.
-                var rack = new StockEntryVm(
+                Stocks.Add(new StockEntryVm(
                     w.ToString(CultureInfo.InvariantCulture),
                     h.ToString(CultureInfo.InvariantCulture),
                     comp,
                     "Step 4 · " + source)
-                { IsUsedInRun = true, PricePerSqm = pricePerSqm, SpecNumber = specNumber, Side = side };
-
-                if (Services.ProformaInvoice.SheetStorePricingService
-                        .TryGetUnambiguousStockBalance(ParseThicknessMm(comp), w, h, out int storeBalance))
-                {
-                    rack.AvailableText = storeBalance.ToString(CultureInfo.InvariantCulture);
-                    balancesApplied++;
-                }
-                else
-                {
-                    balancesUnknown++;
-                }
-
-                Stocks.Add(rack);
+                { IsUsedInRun = true, PricePerSqm = pricePerSqm, SpecNumber = specNumber, Side = side });
             }
 
             if (sheets.Count == 0 && Stocks.Count == 0)
                 StocksStatusText = "Tick a Job Order — its Step 4 sheet sizes become the stock pool for this run.";
-            else if (balancesApplied > 0 || balancesUnknown > 0)
-            {
-                // Never silent: the operator has to be able to tell which
-                // Available figures came from inventory and which are the
-                // unlimited default waiting to be typed over.
-                StocksStatusText = balancesUnknown == 0
-                    ? string.Format(CultureInfo.InvariantCulture,
-                        "{0} Step 4 rack(s) now carry their Sheet Store balance.", balancesApplied)
-                    : string.Format(CultureInfo.InvariantCulture,
-                        "{0} Step 4 rack(s) carry their Sheet Store balance; {1} could not be "
-                        + "matched to one glass in inventory and are left unlimited — type their "
-                        + "Available count if the run must respect it.",
-                        balancesApplied, balancesUnknown);
-            }
 
             return Stocks.Count;
         }
@@ -328,24 +253,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // used" (17 + 17) instead of their own 17 each. Keying by
             // (width, height, composition) keeps every rack's tally scoped
             // to its OWN cutting group.
-            //
-            // CROSS-REFERENCE (Phase 10): this is a DISPLAY tally and it is not
-            // the only accounting over a run. RunCoreAsync keeps a separate
-            // run-wide balance ledger, keyed on (W, H, thickness, colour) via
-            // BalanceKey, which CONSTRAINS the engine. The two keys differ on
-            // purpose and must not be "unified" without reading both rationales:
-            //
-            //   • this tally can key on composition because it walks GroupRun
-            //     objects, which carry the group's composition alongside their
-            //     sheets;
-            //   • the ledger cannot, because it deducts from SheetLayout.Stock,
-            //     and StockSize does not carry a composition tag back out of the
-            //     engine. It uses thickness instead — populated since finding B3
-            //     — which separates the same physical cases this comment does.
-            //
-            // They answer different questions ("how many did this rack show as
-            // used?" vs "how many are left for the NEXT group?") and agree on the
-            // totals; only the grouping differs.
             var used = new Dictionary<(int W, int H, string C), int>();
             foreach (var r in runs)
             {

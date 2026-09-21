@@ -181,6 +181,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private bool TryPassExportGate(string what)
         {
+            if (!HasResult || IsRunning)
+            {
+                RunMessage = "Run optimization again before exporting a cutting plan.";
+                return false;
+            }
             if (_groupRuns.Count == 0) return true;
 
             var problems = new List<string>();

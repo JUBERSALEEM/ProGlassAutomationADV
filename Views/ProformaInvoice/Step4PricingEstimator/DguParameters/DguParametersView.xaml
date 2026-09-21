@@ -62,7 +62,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding OuterBasePrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SheetW}" Style="{StaticResource ModuleFieldLabelStyle}"/>
@@ -97,7 +97,7 @@
                             </StackPanel>
                             <StackPanel Grid.Column="4">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SpacerSQM}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding SpacerPrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##, UpdateSourceTrigger=PropertyChanged}"/>
+                                <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                         </Grid>
                         <Grid Margin="0,8,0,0">
@@ -116,7 +116,7 @@
                                 <CheckBox Margin="0,6,0,0"
                                           Content="Combine panel extras"
                                           IsChecked="{Binding UseCustomPanelExtra, Mode=TwoWay}"
-                                          Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                          Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBox Margin="0,4,0,0"
                                          Text="{Binding CustomPanelExtra, UpdateSourceTrigger=PropertyChanged}"
                                          ToolTip="Example: With Fanhole and Argon Gas As Per DWG">
@@ -144,7 +144,7 @@
                                     </Style>
                                 </StackPanel.Style>
                                 <TextBlock Text="{DynamicResource ProformaInvoice.UInsertSQM}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding UInsertPricePerSqm, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBox Text="{Binding UInsertPricePerSqm, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource Step4InputStyle}"
                                          ToolTip="{DynamicResource ProformaInvoice.SeparateFabricationChargeSQMForwardedStep6}"/>
                             </StackPanel>
@@ -183,7 +183,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Common.Price}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding InnerBasePrice, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="{DynamicResource ProformaInvoice.SheetW}" Style="{StaticResource ModuleFieldLabelStyle}"/>
@@ -204,11 +204,11 @@
                         </Grid.ColumnDefinitions>
                         <StackPanel>
                             <TextBlock Text="{DynamicResource ProformaInvoice.Yield}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                            <TextBox Text="{Binding YieldFactor, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}" Style="{StaticResource Step4InputStyle}"/>
+                            <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
                         </StackPanel>
                         <StackPanel Grid.Column="2">
                             <TextBlock Text="{DynamicResource ProformaInvoice.Margin}" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                            <TextBox Text="{Binding MarginProfitPercent, Converter={StaticResource DecimalTypingConverter}, ConverterParameter=0.##}" Style="{StaticResource Step4InputStyle}"/>
+                            <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
                         </StackPanel>
                     </Grid>
                 </Border>

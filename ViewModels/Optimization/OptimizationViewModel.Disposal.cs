@@ -59,6 +59,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             _disposed = true;
 
             if (!disposing) return;
+            DisposeInputLifetime();
 
             // Assigned with the null-forgiving operator: _runClock and _runCts
             // are declared non-nullable in their own partials, and this project
@@ -113,8 +114,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             catch (Exception ex) { LogTeardown("job handlers", ex); }
 
-            try { UnhookJobListLifecycle(); }
-            catch (Exception ex) { LogTeardown("job list lifecycle", ex); }
+
 
             try
             {
@@ -138,7 +138,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 _groupRuns.Clear();
                 _flatSheets.Clear();
-                ClearInputWarnings();
+
             }
             catch (Exception ex) { LogTeardown("retained plan data", ex); }
         }

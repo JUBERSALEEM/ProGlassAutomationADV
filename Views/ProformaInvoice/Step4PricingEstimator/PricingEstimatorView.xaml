@@ -1,4 +1,4 @@
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.PricingEstimatorView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.PricingEstimatorView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -100,7 +100,7 @@
                             <TextBlock Text="{DynamicResource ProformaInvoice.Sections}"
                                        FontSize="{DynamicResource FontSize.Body}"
                                        FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0"/>
                             <Border Background="{DynamicResource TintBlueBrush}"
@@ -242,7 +242,7 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0">
                     <TextBlock Text="{DynamicResource ProformaInvoice.EstimatedRATE}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Bottom" Margin="0,0,10,6"/>
                     <TextBlock Text="AED"
                                FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
@@ -253,7 +253,7 @@
                                Foreground="{DynamicResource TextPrimaryBrush}"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.Sqm}"
                                FontSize="{DynamicResource FontSize.Title}"
-                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Bottom" Margin="4,0,0,6"/>
                 </StackPanel>
 
@@ -288,14 +288,14 @@
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             Padding="12,8"
-                                            Height="40">
+                                            Height="40" Style="{StaticResource SurfacePrimaryStyle}">
                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                             <TextBlock x:Name="CodeText" Text="{Binding Code}"
                                                        FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock x:Name="TitleText" Text="{Binding Title}"
                                                        FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        Margin="8,0,0,0"
                                                        TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>

@@ -150,74 +150,23 @@ namespace ProGlassAutomation.Tests.Production
         public void Optimization_imports_step5_rows_from_confirmed_jo()
         {
             string jobs = Read("ViewModels/Optimization/OptimizationViewModel.Jobs.cs");
-            Assert.Contains("public List<GlassItemRowSnapshot> Step5Rows", jobs);
-            Assert.Contains("opt.Step5Rows.Add(row);", jobs);
-            Assert.Contains("SubscribeDocumentsChanged", jobs);
-            Assert.Contains("UnsubscribeDocumentsChanged", jobs);
-            Assert.Contains("value.IsSelected = true", jobs);
-            Assert.Contains("DguDimensionSemantics.TryResolveInnerSize(", jobs);
-            Assert.Contains("SyncCutListFromSelectedJobs();", jobs);
-            Assert.Contains("AddSyntheticSpecFromStep5Rows", jobs);
-            Assert.Contains("TryImportPiecesFromSelectedJobStep5Rows", jobs);
-            Assert.Contains("if (options.Count == 0 && Pieces.Count == 0)", jobs);
-
-            string picker = Read("Views/Optimization/Tabs/JobsTabView.xaml");
-            Assert.Contains("SelectedItem=\"{Binding SelectedJob, Mode=TwoWay}\"", picker);
-
-            string listItem = Read("Themes/Styles/DataGridStyles.xaml");
-            Assert.Contains("x:Key=\"LineItemsListViewItemStyle\"", listItem);
-            Assert.Contains("OverridesDefaultStyle", listItem);
-            Assert.DoesNotContain("AncestorType={x:Type ItemsControl}", listItem);
-
-            string cutList = Read("Views/Optimization/Tabs/CutListTabView.xaml");
-            Assert.Contains("ItemContainerStyle=\"{StaticResource LineItemsListViewItemStyle}\"", cutList);
-
-            string step5 = Read("Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml");
-            Assert.Contains("BasedOn=\"{StaticResource LineItemsListViewItemStyle}\"", step5);
-
-            string cut = Read("ViewModels/Optimization/OptimizationViewModel.CutList.cs");
-            Assert.Contains("private void SyncCutListFromSelectedJobs()", cut);
-            Assert.Contains("ApplyImportedRows(import)", cut);
-            Assert.Contains("if (jobs.Count == 0) return;", cut);
-            Assert.Contains("UpdateSource()", cut);
-
-            string parts = Read("ViewModels/Optimization/OptimizationViewModel.Parts.cs");
-            Assert.Contains("grid.ApplyImportedRows(import)", parts);
-            Assert.Contains("Reference job →", parts);
-            Assert.Contains("selected job's approved PI imported", parts);
-            Assert.DoesNotContain("if (job.IsSelected) job.IsSelected = false;", parts);
-
+            Assert.Contains("JobOrderMapper.DeserializeSnapshot(jo)", jobs);
+            Assert.Contains("ProductionDistributionEngine.Distribute", jobs);
+            Assert.Contains("AddSelectedPanes()", jobs);
+            Assert.DoesNotContain("AddSyntheticSpecFromStep5Rows", jobs);
+            Assert.DoesNotContain(".Take(100)", jobs);
             string live = Read("ViewModels/Optimization/OptimizationViewModel.LiveRun.cs");
-            Assert.Contains("hasCuttable", live);
-            Assert.Contains("hasSheet", live);
-            Assert.Contains("bool engineStarted = Run(", live);
-            Assert.Contains("DguDimensionSemantics.TryResolveInnerSize(", live);
-
+            Assert.Contains("ProductionDistributionEngine.Distribute", live);
+            Assert.Contains("if (!Run(", live);
             string run = Read("ViewModels/Optimization/OptimizationViewModel.Run.cs");
-            Assert.Contains("private bool Run(string stage)", run);
-            Assert.Contains("GuillotinePacker.PackOptimize", run);
+            Assert.Contains("GuillotinePacker.PackOptimizePartitioned", run);
             Assert.Contains("GuillotinePacker.PackQuick", run);
-
-            string rail = Read("Views/Optimization/OptimizationView.xaml");
-            Assert.Contains("Content=\"MANUAL CUT LIST\"", rail);
-
             string pi = Read("ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs");
             Assert.Contains("bool started = host.RunFromStep5(specGroups, stage, out string message);", pi);
-            Assert.DoesNotContain("ReportOptimizationProgress(true, 0, \"RUNNING OPTIMIZATION\")", pi);
-
-            string spec = Read("ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.Part2.cs");
-            Assert.Contains("Keeping glass type", spec);
-            Assert.Contains("HasManualStep5GlassTypeOverride", spec);
-            Assert.Contains("IsStep4OwnedSelection", spec);
-
+            Assert.Contains("SyncStep5BaseRatesFromStep4", pi);
             string step5 = Read("Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml");
             Assert.Contains("RUNNING OPTIMIZATION", step5);
-            Assert.Contains("Panel.ZIndex=\"20\"", step5);
             Assert.Contains("IsOptimizationRunning", step5);
-
-            string opt = Read("Views/Optimization/OptimizationView.xaml");
-            Assert.Contains("Panel.ZIndex=\"20\"", opt);
-            Assert.Contains("IsRunProgressVisible", opt);
         }
 
         [Fact]

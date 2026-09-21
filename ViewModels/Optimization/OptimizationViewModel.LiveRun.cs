@@ -36,9 +36,7 @@ using System.Globalization;
 using System.Linq;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
-using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Services.Production;
-using ProGlassAutomation.Services.ProformaInvoice;
 
 namespace ProGlassAutomation.ViewModels.Optimization
 {
@@ -57,16 +55,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// Set BEFORE the run: both the live publish and the persisted
         /// latest-run row read it when the run finishes.
         /// </remarks>
-        public string DocumentKey { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Step 4 material must be valid before Distribute / Run / TryBuildInputs.
-        /// Unresolved or invalid identity is an invalid input state, not a leftover price.
-        /// </summary>
         public bool TryAuthorizeJobInvoiceForOptimization(
             ProformaInvoiceSnapshot? invoice, out string message)
         {
-            var verdict = Step4MaterialIntegrity.EvaluateSpecGroups(invoice?.SpecGroups);
+            var verdict = Services.ProformaInvoice.Step4MaterialIntegrity.EvaluateSpecGroups(invoice?.SpecGroups);
             if (verdict.IsValid)
             {
                 message = string.Empty;
@@ -76,6 +68,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             message = "Cannot optimize: " + verdict.Reason;
             return false;
         }
+
+        public string DocumentKey { get; set; } = string.Empty;
 
         /// <summary>Effort the Step 5 QUICK button runs at.</summary>
         private const string Step5QuickEffort = "1";
@@ -100,16 +94,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             message = string.Empty;
 
-            // ── DIAGNOSTIC LOGGING (Rule 18) ────────────────────────────────
-            try
-            {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-STEP5] RunFromStep5 requested stage={stage} doc={DocumentKey} groups={specGroups?.Count ?? 0}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
-            }
-            catch { }
-
-            if (IsRunning)
+            if (IsRunning || IsDisposed)
             {
                 message = "An optimization run is already in progress — wait for it to finish.";
                 return false;
@@ -126,18 +111,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 return false;
             }
 
-            // Step 5 QUICK/OPTIMIZE packs the live W1/H1/W2/H2 grid. It does
-            // not require a Job Order, store-resolved identity, or a price.
-            bool hasCuttable = groups.Any(g => g.ItemRows != null && g.ItemRows.Any(r =>
-                r != null && r.Qty > 0
-                && ((r.W1 > 0 && r.H1 > 0) || (r.W2 > 0 && r.H2 > 0))));
-            if (!hasCuttable)
-            {
-                message = "Step 5 has no cutting sizes yet — enter W1×H1 or W2×H2 and a quantity.";
-                return false;
-            }
-            message = string.Empty;
-
             // A minimal invoice snapshot: Distribute only needs SpecGroups, and
             // every other field it reads (Company / Client / Project /
             // OtherCharges) is null-guarded and only feeds plan metadata.
@@ -148,14 +121,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             var plan = ProductionDistributionEngine.Distribute(DocumentKey, invoice);
 
-            try
-            {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-STEP5] Distribute result: {plan.Items.Count} items, {plan.Warnings.Count} warnings, doc={DocumentKey}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
-            }
-            catch { }
-
             // Same filter as the Job Order path: only cutting-stage items with
             // real dimensions become pieces.
             var cut = plan.Items
@@ -163,22 +128,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     && i.WidthMm > 0 && i.HeightMm > 0)
                 .ToList();
 
-            // Phase 3: build the new list FIRST and clear the current one
-            // only after it validates. The old code cleared Pieces/Stocks up
-            // front — when Run() then refused the inputs, the operator was
-            // left with an empty module and a status message.
-            var newPieces = new List<PieceEntryVm>();
-            var newStocks = new List<StockEntryVm>();
+            Pieces.Clear();
+            Stocks.Clear();
 
             int piecesAdded = 0;
             int racksAdded = 0;
-            var rackSeen = new HashSet<(int W, int H, string C)>();
-
-            // How many racks ended up carrying a real inventory count rather than
-            // the "effectively unlimited" default. Announced below; applying a
-            // balance silently is how an operator ends up with a refused group and
-            // no idea the number came from the Sheet Store rather than from them.
-            int balancesApplied = 0;
+            var rackSeen = new HashSet<(int W, int H, string C, int Spec, string Side)>();
             var compositions = new List<string>();
             // ── sheet-size provenance (2026-09-17) ────────────────────────────────────
             // Step 4 is the AUTHORITY for sheet size, and for SGU / DGU / LAM it
@@ -220,23 +175,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     var o = occurrences.FirstOrDefault(x => x.Slot == slot);
                     if (o == null) return string.Empty;
-                    // Phase 2: canonical key — rack tag must match the
-                    // cutting list rows byte-for-byte.
-                    return CompositionKey.Normalize(
-                        string.IsNullOrWhiteSpace(o.Composition)
-                            ? (group.SelectedSpecName ?? string.Empty)
-                            : o.Composition);
-                }
-
-                string ComposeForPosition(string position)
-                {
-                    var o = occurrences.FirstOrDefault(x =>
-                        string.Equals(x.Position, position, StringComparison.OrdinalIgnoreCase));
-                    if (o == null) return string.Empty;
-                    return CompositionKey.Normalize(
-                        string.IsNullOrWhiteSpace(o.Composition)
-                            ? (group.SelectedSpecName ?? string.Empty)
-                            : o.Composition);
+                    return string.IsNullOrWhiteSpace(o.Composition)
+                        ? (group.SelectedSpecName ?? string.Empty)
+                        : o.Composition;
                 }
 
                 foreach (var occ in occurrences)
@@ -246,44 +187,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             && string.Equals(i.Position, occ.Position,
                                 StringComparison.OrdinalIgnoreCase))
                         .ToList();
-                    if (paneItems.Count == 0)
-                    {
-                        foreach (var row in group.ItemRows ?? Enumerable.Empty<GlassItemRowSnapshot>())
-                        {
-                            if (row == null) continue;
-                            int w, h;
-                            if (occ.Slot == PaneSlot.Pane1)
-                            {
-                                w = row.W1;
-                                h = row.H1;
-                            }
-                            else if (!DguDimensionSemantics.TryResolveInnerSize(
-                                         row.W1, row.H1, row.W2, row.H2, out w, out h, out _))
-                            {
-                                continue;
-                            }
-                            if (w <= 0 || h <= 0) continue;
-                            paneItems.Add(new ProductionWorkItem
-                            {
-                                WidthMm = w,
-                                HeightMm = h,
-                                Qty = row.Qty > 0 ? row.Qty : 1,
-                                GlassRef = row.GlassRef ?? string.Empty,
-                                SpecGroupNumber = group.GroupNumber,
-                                Position = occ.Position,
-                                Stage = ProductionStage.Cutting
-                            });
-                        }
-                        if (paneItems.Count == 0) continue;
-                    }
+                    if (paneItems.Count == 0) continue;
 
-                    // Phase 2: canonical composition (same key as the Job
-                    // Order import path) — a Step 5 run and a Job Order run
-                    // over identical data must produce identical groups.
-                    string composition = CompositionKey.Normalize(
-                        string.IsNullOrWhiteSpace(occ.Composition)
-                            ? group.SelectedSpecName ?? string.Empty
-                            : occ.Composition);
+                    string composition = string.IsNullOrWhiteSpace(occ.Composition)
+                        ? group.SelectedSpecName ?? string.Empty
+                        : occ.Composition;
 
                     if (!string.IsNullOrWhiteSpace(composition)
                         && !compositions.Contains(composition, StringComparer.OrdinalIgnoreCase))
@@ -323,39 +231,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             sizeGroup.Key.HeightMm.ToString(CultureInfo.InvariantCulture),
                             qty.ToString(CultureInfo.InvariantCulture));
                         row.Position = occ.Position;
-                        row.ProformaId = DocumentKey ?? string.Empty;
+                        row.ProformaId = DocumentKey;
                         row.SpecGroupNumber = group.GroupNumber;
-                        string paneColor = occ.Pane?.Color;
-                        if (string.IsNullOrWhiteSpace(paneColor))
-                            paneColor = occ.Slot == PaneSlot.Pane2
-                                ? (group.InnerGlassColor ?? group.OuterGlassColor)
-                                : group.OuterGlassColor;
-                        int paneThk = occ.ThicknessMm > 0
-                            ? occ.ThicknessMm
-                            : ParseThicknessMm(composition);
-                        if (paneThk <= 0)
-                            paneThk = ParseThicknessMm(group.SelectedSpecName);
-                        row.Color = paneColor ?? string.Empty;
-                        row.ThicknessMm = paneThk;
-                        row.Processing = occ.Treatment ?? string.Empty;
-                        row.MaterialKey = OptimizationMaterialIdentity.BuildKey(
-                            group.SelectedGlassType, row.Color, paneThk, occ.Treatment, string.Empty);
-                        if (string.IsNullOrWhiteSpace(row.MaterialKey))
-                            row.MaterialKey = "UNRESOLVED|" + (DocumentKey ?? string.Empty) + "|"
-                                + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + "|"
-                                + (occ.Position ?? string.Empty);
-                        if (occ.Slot == PaneSlot.Pane2)
-                        {
-                            row.W2 = sizeGroup.Key.WidthMm;
-                            row.H2 = sizeGroup.Key.HeightMm;
-                        }
-                        else
-                        {
-                            row.W1 = sizeGroup.Key.WidthMm;
-                            row.H1 = sizeGroup.Key.HeightMm;
-                        }
-                        row.EnsureMaterialKey();
-                        newPieces.Add(row);
+                        row.ThicknessMm = occ.ThicknessMm;
+                        row.Color = occ.Pane?.Color ?? string.Empty;
+                        Pieces.Add(row);
                         piecesAdded += qty;
                     }
                 }
@@ -367,81 +247,39 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
                 {
                     string outerComp = ComposeForSlot(PaneSlot.Pane1);
-                    var outerOcc = occurrences.FirstOrDefault(x => x.Slot == PaneSlot.Pane1);
-                    int outerThk = outerOcc != null && outerOcc.ThicknessMm > 0
-                        ? outerOcc.ThicknessMm : 0;
-                    string outerKey = OptimizationMaterialIdentity.BuildKey(
-                        string.Empty, outerOcc?.Pane?.Color ?? group.OuterGlassColor,
-                        outerThk, outerOcc?.Treatment, string.Empty);
-                    int? outerBalance = outerThk > 0
-                        ? LookupStoreBalance(group.OuterGlassColor,
-                            outerThk, group.OuterSheetWidthMm, group.OuterSheetHeightMm)
-                        : null;
-                    if (outerBalance.HasValue) balancesApplied++;
-                    racksAdded += AddStep5Rack(rackSeen, newStocks,
+                    racksAdded += AddStep5Rack(rackSeen,
                         group.OuterSheetWidthMm, group.OuterSheetHeightMm,
                         outerComp,
                         specLabel + " outer", group.OuterSheetPricePerSqm,
-                        group.GroupNumber, "Outer", outerBalance,
-                        group.OuterGlassColor, outerThk, outerKey);
+                        group.GroupNumber, "Outer");
                     rackedKeys.Add(compKey(group.GroupNumber, outerComp));
                     CrossCheckStep4Sheet(group.GroupNumber, "outer", group.OuterGlassColor,
-                        group.OuterSheetWidthMm, group.OuterSheetHeightMm, sheetNotes, outerThk);
+                        group.OuterSheetWidthMm, group.OuterSheetHeightMm, sheetNotes, ParseThicknessMm(outerComp));
                 }
 
                 if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
                 {
                     string innerComp = ComposeForSlot(PaneSlot.Pane2);
-                    var innerOcc = occurrences.FirstOrDefault(x => x.Slot == PaneSlot.Pane2);
-                    int innerThk = innerOcc != null && innerOcc.ThicknessMm > 0
-                        ? innerOcc.ThicknessMm : 0;
-                    string innerKey = OptimizationMaterialIdentity.BuildKey(
-                        string.Empty, innerOcc?.Pane?.Color ?? group.InnerGlassColor,
-                        innerThk, innerOcc?.Treatment, string.Empty);
-                    int? innerBalance = innerThk > 0
-                        ? LookupStoreBalance(group.InnerGlassColor,
-                            innerThk, group.InnerSheetWidthMm, group.InnerSheetHeightMm)
-                        : null;
-                    if (innerBalance.HasValue) balancesApplied++;
-                    racksAdded += AddStep5Rack(rackSeen, newStocks,
+                    racksAdded += AddStep5Rack(rackSeen,
                         group.InnerSheetWidthMm, group.InnerSheetHeightMm,
                         innerComp,
                         specLabel + " inner", group.InnerSheetPricePerSqm,
-                        group.GroupNumber, "Inner", innerBalance,
-                        group.InnerGlassColor, innerThk, innerKey);
+                        group.GroupNumber, "Inner");
                     rackedKeys.Add(compKey(group.GroupNumber, innerComp));
                     CrossCheckStep4Sheet(group.GroupNumber, "inner", group.InnerGlassColor,
-                        group.InnerSheetWidthMm, group.InnerSheetHeightMm, sheetNotes, innerThk);
+                        group.InnerSheetWidthMm, group.InnerSheetHeightMm, sheetNotes, ParseThicknessMm(innerComp));
                 }
-
                 if (group.ThirdSheetWidthMm > 0 && group.ThirdSheetHeightMm > 0)
                 {
-                    string thirdComp = ComposeForPosition("Lam Inner");
-                    var thirdOcc = occurrences.FirstOrDefault(x =>
-                        string.Equals(x.Position, "Lam Inner", StringComparison.OrdinalIgnoreCase));
-                    // Independent of SETTINGS and of the other two panes.
-                    int thirdThk = OptimizationMaterialIdentity.DguLamThirdRackThicknessMm(
-                        thirdOcc != null ? thirdOcc.ThicknessMm : 0);
-                    string thirdColor = !string.IsNullOrWhiteSpace(group.ThirdGlassColor)
-                        ? group.ThirdGlassColor
-                        : (thirdOcc?.Pane?.Color ?? string.Empty);
-                    string thirdKey = OptimizationMaterialIdentity.BuildKey(
-                        string.Empty, thirdColor, thirdThk, thirdOcc?.Treatment, string.Empty);
-                    int? thirdBalance = thirdThk > 0 && !string.IsNullOrWhiteSpace(thirdColor)
-                        ? LookupStoreBalance(thirdColor, thirdThk,
-                            group.ThirdSheetWidthMm, group.ThirdSheetHeightMm)
-                        : null;
-                    if (thirdBalance.HasValue) balancesApplied++;
-                    racksAdded += AddStep5Rack(rackSeen, newStocks,
-                        group.ThirdSheetWidthMm, group.ThirdSheetHeightMm,
-                        thirdComp,
-                        specLabel + " lam inner", group.ThirdSheetPricePerSqm,
-                        group.GroupNumber, "LamInner", thirdBalance,
-                        thirdColor, thirdThk, thirdKey);
-                    rackedKeys.Add(compKey(group.GroupNumber, thirdComp));
-                    CrossCheckStep4Sheet(group.GroupNumber, "lam inner",
-                        thirdColor,
-                        group.ThirdSheetWidthMm, group.ThirdSheetHeightMm, sheetNotes, thirdThk);
+                    var third = occurrences.FirstOrDefault(o => o.Position == "Lam Inner");
+                    string composition = third?.Composition ?? string.Empty;
+                    if (!string.IsNullOrWhiteSpace(composition))
+                    {
+                        racksAdded += AddStep5Rack(rackSeen, group.ThirdSheetWidthMm,
+                            group.ThirdSheetHeightMm, composition, specLabel + " lam inner",
+                            group.ThirdSheetPricePerSqm, group.GroupNumber, "LamInner");
+                        rackedKeys.Add(compKey(group.GroupNumber, composition));
+                    }
                 }
             }
 
@@ -458,91 +296,46 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 foreach (var comp in wanted)
                 {
                     if (rackedKeys.Contains(compKey(group.GroupNumber, comp))) continue;
-                    string colour = !string.IsNullOrWhiteSpace(group.OuterGlassColor)
-                        ? group.OuterGlassColor
-                        : group.InnerGlassColor;
-                    // Balance-aware overload: picks the largest sheet that is
-                    // actually IN STOCK. The 4-argument one is untouched and still
-                    // answers the weaker "does inventory hold this size at all?"
-                    // question the cross-check note asks.
-                    int paneThk = ParseThicknessMm(comp);
-                    if (paneThk <= 0) continue;
+                    string build = ProductionDistributionEngine.ResolveBuildType(group, invoice);
+                    var occurrence = ProductionDistributionEngine.ResolvePaneOccurrences(build, group)
+                        .FirstOrDefault(o => string.Equals(o.Composition, comp, StringComparison.OrdinalIgnoreCase));
+                    string colour = occurrence?.Pane?.Color ?? string.Empty;
+                    int glassThicknessMm = occurrence?.ThicknessMm ?? 0;
+                    if (string.IsNullOrWhiteSpace(colour) || glassThicknessMm <= 0) continue;
                     if (!Services.ProformaInvoice.SheetStorePricingService.TryResolveStockSheet(
-                            colour, paneThk, out int sheetW, out int sheetH,
-                            out int sheetBalance))
+                            colour, glassThicknessMm, out int sheetW, out int sheetH))
                     {
                         continue;
                     }
-                    storeRacks += AddStep5Rack(rackSeen, newStocks, sheetW, sheetH, comp,
-                        "Sheet Store cross-check", group.OuterSheetPricePerSqm,
-                        group.GroupNumber, "Outer", sheetBalance,
-                        colour, paneThk,
-                        OptimizationMaterialIdentity.BuildKey(string.Empty, colour, paneThk, string.Empty, string.Empty));
-                    balancesApplied++;
+                    storeRacks += AddStep5Rack(rackSeen, sheetW, sheetH, comp,
+                        "Sheet Store cross-check", occurrence?.Position == "Lam Inner"
+                            ? group.ThirdSheetPricePerSqm
+                            : occurrence?.Slot == PaneSlot.Pane2 ? group.InnerSheetPricePerSqm : group.OuterSheetPricePerSqm,
+                        group.GroupNumber, occurrence?.Position ?? "Outer");
                     rackedKeys.Add(compKey(group.GroupNumber, comp));
                     sheetNotes.Add(string.Format(CultureInfo.InvariantCulture,
                         "Spec {0} had no sheet size from Step 4 — cut against the largest "
-                        + "{1} sheet in the Sheet Store ({2} × {3}, {4} on hand); confirm it on Step 4.",
+                        + "{1} sheet in the Sheet Store ({2} × {3}); confirm it on Step 4.",
                         group.GroupNumber,
                         string.IsNullOrWhiteSpace(colour) ? "stocked" : colour,
-                        sheetW, sheetH, sheetBalance));
+                        sheetW, sheetH));
                 }
             }
             racksAdded += storeRacks;
 
-            if (balancesApplied > 0)
-            {
-                sheetNotes.Add(string.Format(CultureInfo.InvariantCulture,
-                    "{0} rack(s) now carry their real Sheet Store balance instead of "
-                    + "unlimited glass — check the Available column on STOCKS before "
-                    + "running, and top it up there if the count is stale.",
-                    balancesApplied));
-            }
-
-            // ── DIAGNOSTIC LOGGING ────────────────────────────────────────
-            try
-            {
-                Services.Logging.AppLogService.Info(
-                    $"[OPT-STEP5] built newPieces={newPieces.Count} newStocks={newStocks.Count} piecesAdded={piecesAdded} racksAdded={racksAdded} storeRacks={storeRacks} wantedGroups={wantedByGroup.Count}",
-                    new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
-            }
-            catch { }
-
-            if (newPieces.Count == 0)
+            if (Pieces.Count == 0)
             {
                 message = "No cutting rows found on Step 5 — enter pane sizes and quantities first.";
-                try
-                {
-                    Services.Logging.AppLogService.Warning(
-                        $"[OPT-STEP5] no pieces after build: groups={groups.Count} cutItems={cut.Count} planWarnings={string.Join(" | ", plan.Warnings.Take(3))}",
-                        new Services.Logging.LogContext { Module = "Optimization", Operation = "RunFromStep5" });
-                }
-                catch { }
                 return false;
             }
 
-            if (newStocks.Count == 0)
+            if (Stocks.Count == 0)
             {
-                // Size packing still needs a sheet envelope. No store price
-                // is invented — 3210×2250 is the house rack used by the
-                // calibration job, tagged as a manual (untagged) rack.
-                racksAdded += AddStep5Rack(rackSeen, newStocks,
-                    3210, 2250, string.Empty,
-                    "size-only house rack", 0m,
-                    0, string.Empty);
-            }
-
-            if (newStocks.Count == 0)
-            {
-                message = "Step 5 has cutting sizes but no rack could be added.";
+                message = "The Step 5 specs have no sheet sizes, so there is no rack to cut against — "
+                    + "set the outer/inner sheet size on Step 4 first. "
+                    + "The Sheet Store had no stocked size for these glass colours either.";
                 return false;
             }
-
-            // Validated — and only now is the current pool replaced.
-            Pieces.Clear();
-            foreach (var p in newPieces) Pieces.Add(p);
-            Stocks.Clear();
-            foreach (var s in newStocks) Stocks.Add(s);
 
             // Step 5 has no SETTINGS tab, so the two buttons carry fixed depths:
             // QUICK is one deterministic pass, OPTIMIZE the deepest search.
@@ -555,23 +348,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // Run() is the same entry point the OPTIMIZATION tab's buttons use,
             // so validation, grouping, packing, progress, costing, the live
             // publish and the persisted latest-run row all behave identically.
-            _sizeOnlyPack = true;
-            bool engineStarted;
-            try
+            if (!Run(string.Equals(stage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
+                ? "OPTIMIZE" : "QUICK"))
             {
-                engineStarted = Run(string.Equals(stage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
-                    ? "OPTIMIZE"
-                    : "QUICK");
-            }
-            finally
-            {
-                _sizeOnlyPack = false;
-            }
-            if (!engineStarted)
-            {
-                message = string.IsNullOrWhiteSpace(RunMessage)
-                    ? "Optimization run did not start — the engine was not invoked."
-                    : RunMessage;
+                message = RunMessage;
                 return false;
             }
 
@@ -587,20 +367,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // not left to wonder why the sheet count moved.
             if (sheetNotes.Count > 0)
                 message += " " + string.Join(" ", sheetNotes);
-
-            // Distribution warnings were previously discarded here too: a Step 5
-            // row with no quantity silently becomes 1 piece, a row without W2/H2
-            // loses its inner pane. The operator must see that on the status
-            // line, not discover it as a wrong sheet count later.
-            if (plan.Warnings.Count > 0)
-            {
-                var distinct = plan.Warnings.Distinct().ToList();
-                var shown = distinct.Take(3);
-                message += " Import warnings: " + string.Join(" | ", shown)
-                    + (distinct.Count > 3
-                        ? string.Format(CultureInfo.InvariantCulture, " (+{0} more)", distinct.Count - 3)
-                        : string.Empty);
-            }
             return true;
         }
 
@@ -651,41 +417,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// usage-tracked rather than capped, and the Job Order path relies on
         /// exactly that.
         /// </remarks>
-        /// <summary>
-        /// PHASE 10: the Sheet Store's own count for a rack, or <c>null</c> when
-        /// the store cannot say.
-        ///
-        /// <c>null</c> and never <c>0</c> is the whole point. 0 in
-        /// <see cref="StockSize.MaxSheets"/> is the <c>UnlimitedSheets</c>
-        /// sentinel — infinite glass — so answering "cannot say" with 0 would hand
-        /// the engine unlimited stock for a rack the store could not price. A null
-        /// leaves <see cref="StockEntryVm"/>'s default in place, which is exactly
-        /// the pre-Phase-10 behaviour: the run plans as it always did, and the
-        /// operator is not told a number inventory never gave.
-        /// </summary>
-        private static int? LookupStoreBalance(
-            string? colour, int thicknessMm, int widthMm, int heightMm) =>
-            Services.ProformaInvoice.SheetStorePricingService.TryGetStockBalance(
-                colour, thicknessMm, widthMm, heightMm, out int balance)
-                ? balance
-                : (int?)null;
-
         private int AddStep5Rack(
-            HashSet<(int W, int H, string C)> seen,
-            List<StockEntryVm> target,
+            HashSet<(int W, int H, string C, int Spec, string Side)> seen,
             int widthMm, int heightMm, string composition, string source,
-            decimal pricePerSqm, int specNumber, string side,
-            int? storeBalance = null,
-            string? color = null,
-            int thicknessMm = 0,
-            string? materialKey = null)
+            decimal pricePerSqm, int specNumber, string side)
         {
             if (widthMm <= 0 || heightMm <= 0) return 0;
 
             string comp = (composition ?? string.Empty).Trim();
-            if (!seen.Add((widthMm, heightMm, comp))) return 0;
+            if (!seen.Add((widthMm, heightMm, comp.ToUpperInvariant(), specNumber, side))) return 0;
 
-            var row = new StockEntryVm(
+            Stocks.Add(new StockEntryVm(
                 widthMm.ToString(CultureInfo.InvariantCulture),
                 heightMm.ToString(CultureInfo.InvariantCulture),
                 comp,
@@ -694,26 +436,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 IsUsedInRun = true,
                 PricePerSqm = pricePerSqm,
                 SpecNumber = specNumber,
-                Side = side,
-                Color = color ?? string.Empty,
-                ThicknessMm = thicknessMm,
-                MaterialKey = materialKey ?? string.Empty,
-                SheetStoreSku = OptimizationMaterialIdentity.StockSku(color, thicknessMm, widthMm, heightMm)
-            };
-
-            // PHASE 10: until now this row was built without an Available value,
-            // so StockEntryVm's default applied and the engine planned against
-            // INFINITE glass — the Optimization module was the one consumer of
-            // Sheet Store inventory that ignored the balance. Both Production
-            // consumers filter Balance > 0 and pass the real count; this now does
-            // too. Only a number inventory actually gave is written: a null keeps
-            // the default rather than inventing a cap, and a genuine 0 is written
-            // as 0 because 0 sheets means 0 sheets — TryBuildInputs already leaves
-            // a zero-balance rack out of the run and tells the operator.
-            if (storeBalance.HasValue)
-                row.AvailableText = storeBalance.Value.ToString(CultureInfo.InvariantCulture);
-
-            target.Add(row);
+                Side = side
+            });
             return 1;
         }
     }

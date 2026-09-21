@@ -77,57 +77,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (_selectedCuttingGroup == value || value == null) return;
                 _selectedCuttingGroup = value;
                 OnPropertyChanged();
-                // RC-011 (2026-09-20): SizeGroups and CutPlanRows are filtered
-                // by this selection (see SelectedGroupMatches), so picking a
-                // group MUST re-derive them. It did not: the setter only raised
-                // PropertyChanged, so the SIZES tab kept showing every group
-                // until some unrelated edit happened to call RefreshDerived —
-                // while Run() DID honour the selection immediately. Screen and
-                // engine disagreed, and the dropdown looked dead.
-                //
-                // Not re-entrant: RefreshDerived → RebuildCuttingGroups writes
-                // the FIELD (never this setter) and re-resolves `previous`,
-                // which is the value just set and is present in the rebuilt
-                // list, so the selection survives the refresh.
-                RefreshDerived();
             }
         }
 
         /// <summary>Sentinel: pack every cutting group (default).</summary>
         public const string AllCuttingGroups = "ALL — every glass group";
-
-        /// <summary>
-        /// The ONE label for a piece whose glass composition did not resolve.
-        /// Run (BuildCuttingGroups), Report (RebuildIndustrialReport) and the
-        /// SIZES tab all group by composition, so they must all name the
-        /// empty key identically — a fourth spelling would split the same
-        /// glass into two cutting groups again.
-        /// </summary>
-        public const string UnlabelledGlass = "(unlabelled glass)";
-
-        /// <summary>
-        /// Canonical composition label of a piece row: the trimmed glass ref,
-        /// or <see cref="UnlabelledGlass"/> when it is empty.
-        /// <para>
-        /// RC-010 (2026-09-20): every consumer of the piece list — the SIZES
-        /// dropdown, the merged-group cards, the cut plan, the run grouping and
-        /// the industrial report — MUST go through this. Before it existed the
-        /// dropdown was built from compositions with <c>Length &gt; 0</c> while
-        /// the group cards and the cut plan keyed on the RAW trimmed ref
-        /// ("" and "—" respectively). A piece whose composition did not
-        /// resolve therefore had no dropdown entry, and the moment the
-        /// operator picked any specific group, <see cref="SelectedGroupMatches"/>
-        /// filtered that piece out of BOTH <see cref="SizeGroups"/> and
-        /// <see cref="CutPlanRows"/>: Pieces still held it, the KPI still
-        /// counted it, the engine still cut it, and the SIZES tab silently
-        /// showed less glass than the job contains.
-        /// </para>
-        /// </summary>
-        private static string CompositionLabel(string? glassRef)
-        {
-            string c = (glassRef ?? string.Empty).Trim();
-            return c.Length == 0 ? UnlabelledGlass : c;
-        }
 
         private bool SelectedGroupMatches(string composition) =>
             string.Equals(_selectedCuttingGroup, AllCuttingGroups, StringComparison.OrdinalIgnoreCase) ||
@@ -142,12 +96,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             string previous = _selectedCuttingGroup;
 
-            // RC-010: keyed through CompositionLabel, so unlabelled glass gets
-            // its own selectable entry instead of being unreachable — and then
-            // filtered out of the cards and the cut plan (see CompositionLabel).
             var compositions = Pieces
                 .Where(p => p.TryParse(out _, out _, out _))
-                .Select(p => CompositionLabel(p.GlassRef))
+                .Select(p => (p.GlassRef ?? string.Empty).Trim())
+                .Where(c => c.Length > 0)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
                 .ToList();
@@ -180,12 +132,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             foreach (var p in Pieces)
             {
                 if (!p.TryParse(out int w, out int h, out int q)) continue;
-                // RC-010: was `string.IsNullOrWhiteSpace(p.GlassRef) ? "—" : …`.
-                // "—" is not a composition the dropdown can ever contain, so an
-                // unlabelled piece was dropped from the cut plan the moment any
-                // specific group was selected. Keyed through CompositionLabel
-                // now, exactly like the dropdown and the merged-group cards.
-                string composition = CompositionLabel(p.GlassRef);
+                string composition = string.IsNullOrWhiteSpace(p.GlassRef) ? "—" : p.GlassRef.Trim();
                 if (!SelectedGroupMatches(composition)) continue;
 
                 total += q;

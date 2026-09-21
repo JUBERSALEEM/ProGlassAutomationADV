@@ -32,6 +32,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public IReadOnlyList<OptimizationPaneResult> BuildLivePaneResults()
         {
             var rows = new List<OptimizationPaneResult>();
+            if (Pieces.Select(p => p.ProformaId).Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase).Skip(1).Any()) return rows;
 
             // PHASE 4 / finding 4c (2026-09-20): a cutting group whose plan
             // FAILED an oracle is excluded from the feed. Before this, every

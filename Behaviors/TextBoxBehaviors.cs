@@ -1,4 +1,4 @@
-﻿// ╔══════════════════════════════════════════════════════════════════════════╗
+// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  Behaviors/TextBoxBehaviors.cs                                           ║
 // ║  ProGlass Automation — Global TextBox Attached Behaviors                 ║
 // ║                                                                          ║
@@ -90,13 +90,27 @@ namespace ProGlassAutomation.Behaviors
         /// If TextBox doesn't have keyboard focus yet, intercept the mouse click,
         /// give it focus (which triggers SelectAll via GotKeyboardFocus),
         /// then swallow the click so caret doesn't reposition.
+        /// When already focused, still SelectAll on every click so a single
+        /// mouse press always prepares the field for immediate overwrite — the
+        /// operator expectation for price/size boxes in Step 5.
         /// </summary>
         private static void TextBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is TextBox tb && !tb.IsKeyboardFocusWithin)
+            if (sender is TextBox tb)
             {
-                e.Handled = true;
-                tb.Focus();
+                if (!tb.IsKeyboardFocusWithin)
+                {
+                    e.Handled = true;
+                    tb.Focus();
+                }
+                else
+                {
+                    // Already focused — single click should still select all for
+                    // quick overwrite of Base/Surcharge and grid cells. Swallow
+                    // the click so the caret doesn't move after the SelectAll.
+                    tb.SelectAll();
+                    e.Handled = true;
+                }
             }
         }
 

@@ -1,524 +1,94 @@
-// ═══════════════════════════════════════════════════════════════════════
-// FILE: Tests/Agent/OptimizationPickerRegressionTests.cs
-// PROJECT: ProGlassAutomation.Tests
-//
-// REGRESSION: b9820ef skipped every JO that failed
-// TryAuthorizeJobInvoiceForOptimization inside LoadJobs, so JOB / SIZES /
-// CUT LIST / STOCK cascaded empty for legacy snapshots (MaterialIsValid
-// null). Run() already refuses packing — the picker must still list the
-// job and import real Step 5 W×H×Qty.
-//
-// September 14–17 (c37f71f) listed jobs with panes; zero-pane jobs must
-// still appear with HasOptimizablePanes=false, never fake sizes.
-//
-// NOT EXECUTED here — .NET SDK is unavailable.
-// ═══════════════════════════════════════════════════════════════════════
-
-using System.Globalization;
-using System.Windows;
-using ProGlassAutomation.Converters;
-using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.ViewModels.Optimization;
 using Xunit;
 
-namespace ProGlassAutomation.Tests.Agent
+namespace ProGlassAutomation.Tests.Agent;
+
+// The imported workflow intentionally uses ADD SELECTED PANES, not the retired
+// auto-import/synthetic-row picker. Pin observable behavior, not private method names.
+public sealed class OptimizationPickerRegressionTests
 {
-    public class OptimizationPickerRegressionTests
+    internal static OptimizationViewModel.JobOptionVm Job(string id, int qty = 3)
     {
-        [Fact]
-        public void Invalid_material_job_is_listed_and_imports_sizes_but_cannot_run()
+        var job = new OptimizationViewModel.JobOptionVm
+        { JobOrderId = id, SourceProformaId = "PI-" + id };
+        var spec = new OptimizationViewModel.SpecOptionVm { JobOrderId = id, SpecGroupNumber = 1 };
+        var pane = new OptimizationViewModel.BuildUpLayerVm
         {
-            var invoice = new ProformaInvoiceSnapshot();
-            invoice.SpecGroups.Add(new SpecGroupSnapshot
-            {
-                GroupNumber = 1,
-                SelectedGlassType = "SGU",
-                SelectedSpecName = "6mm Clear FT Glass",
-                OuterGlassColor = "Clear",
-                OuterSheetWidthMm = 3210,
-                OuterSheetHeightMm = 2250,
-                OuterSheetPricePerSqm = 46m,
-                MaterialIsValid = null
-            });
+            Kind = "Pane", Position = "Outer", Title = "6mm clear ft glass", IsSelected = true,
+            JobOrderId = id, ProformaId = job.SourceProformaId, SpecGroupNumber = 1
+        };
+        pane.Pieces.Add((pane.Title, "G1", 500, 700, qty));
+        spec.Layers.Add(pane);
+        job.Specs.Add(spec);
+        job.Step4Sheets.Add((3210, 2250, pane.Title, "Spec 1", 40m, 1, "Outer"));
+        return job;
+    }
 
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            Assert.False(vm.TryAuthorizeJobInvoiceForOptimization(invoice, out string auth));
-            Assert.StartsWith("Cannot optimize:", auth);
+    internal static void Select(OptimizationViewModel vm, OptimizationViewModel.JobOptionVm job)
+    {
+        vm.AttachJobOption(job);
+        vm.AvailableJobs.Add(job);
+        job.IsSelected = true;
+    }
 
-            var layer = new OptimizationViewModel.BuildUpLayerVm
-            {
-                Kind = "Pane",
-                Position = "Glass",
-                IsSelected = true,
-                JobOrderId = "JO-REGRESS",
-                ProformaId = "PI-REGRESS",
-                SpecGroupNumber = 1,
-                Color = "Clear",
-                ThicknessMm = 6,
-                Processing = "FT",
-                Title = "6mm Clear FT glass",
-                MaterialKey = "UNRESOLVED|JO-REGRESS|1|Glass"
-            };
-            layer.Pieces.Add(("6mm Clear FT glass", "G-01", 1200, 900, 4));
+    [Fact]
+    public void Picker_selects_real_panes_and_import_requires_explicit_action()
+    {
+        using var vm = new OptimizationViewModel(true) { IsHeadlessHost = false };
+        Select(vm, Job("1"));
+        Assert.True(vm.HasSpecBreakdown);
+        Assert.Single(vm.Stocks);
+        Assert.Empty(vm.Pieces);
+        vm.AddSelectedPanesCommand.Execute(null);
+        Assert.Single(vm.Pieces);
+        Assert.Equal("3", vm.Pieces[0].QtyText);
+        Assert.Equal("1", vm.Pieces[0].JobOrderId);
+        Assert.Equal("PI-1", vm.DocumentKey);
+    }
 
-            var spec = new OptimizationViewModel.SpecOptionVm
-            {
-                JobOrderId = "JO-REGRESS",
-                SpecGroupNumber = 1,
-                SpecName = "6mm Clear FT Glass",
-                BuildType = "Sgu"
-            };
-            spec.Layers.Add(layer);
+    [Fact]
+    public void Repeated_import_is_idempotent_but_different_jobs_are_not_deduplicated()
+    {
+        using var vm = new OptimizationViewModel(true) { IsHeadlessHost = false };
+        Select(vm, Job("1", 3));
+        Select(vm, Job("2", 5));
+        vm.AddSelectedPanesCommand.Execute(null);
+        vm.AddSelectedPanesCommand.Execute(null);
+        Assert.Equal(2, vm.Pieces.Count);
+        Assert.Equal(8, vm.Pieces.Sum(p => int.Parse(p.QtyText)));
+        Assert.Empty(vm.DocumentKey); // no single-quote feed for a multi-job plan
+    }
 
-            var job = new OptimizationViewModel.JobOptionVm
-            {
-                JobOrderId = "JO-REGRESS",
-                CustomerName = "Regression Customer",
-                CanOptimizeMaterial = false,
-                MaterialInvalidReason = auth,
-                HasOptimizablePanes = true
-            };
-            job.Specs.Add(spec);
-            job.Step4Sheets.Add((3210, 2250, "6mm Clear FT glass", "Spec 1 outer", 46m, 1, "Outer"));
+    [Fact]
+    public void Deselecting_a_job_removes_only_its_imported_sizes()
+    {
+        using var vm = new OptimizationViewModel(true) { IsHeadlessHost = false };
+        var first = Job("1");
+        Select(vm, first);
+        Select(vm, Job("2"));
+        vm.AddSelectedPanesCommand.Execute(null);
+        first.IsSelected = false;
+        Assert.Single(vm.Pieces);
+        Assert.Equal("2", vm.Pieces[0].JobOrderId);
+    }
 
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
+    [Fact]
+    public void Reference_action_never_invents_a_calibration_job()
+    {
+        using var vm = new OptimizationViewModel(true);
+        vm.LoadReferenceJobCommand.Execute(null);
+        Assert.Empty(vm.Pieces);
+        Assert.Empty(vm.Stocks);
+    }
 
-            Assert.Single(vm.AvailableJobs);
-            Assert.True(vm.HasAvailableJobs);
-            Assert.True(vm.HasPieces);
-            Assert.True(vm.SizeGroups.Count > 0);
-            int qty = 0;
-            foreach (var p in vm.Pieces)
-            {
-                if (p.TryParse(out _, out _, out int q)) qty += q;
-            }
-            Assert.Equal(4, qty);
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1200" && p.HeightText == "900");
-            Assert.DoesNotContain(vm.Pieces, p => p.WidthText == "1000" && p.HeightText == "1000");
-
-            Assert.True(vm.HasStocks);
-            Assert.Contains(vm.Stocks, s => s.WidthText == "3210" && s.HeightText == "2250");
-
-            Assert.Equal("6", vm.ThicknessText);
-            Assert.False(vm.HasResult);
-            Assert.Equal("—", vm.ResultSheets);
-
-            vm.RunQuickCommand.Execute(null);
-            Assert.False(vm.IsRunning);
-            Assert.StartsWith("Cannot optimize:", vm.RunMessage);
-            Assert.False(vm.HasResult);
-        }
-
-        [Fact]
-        public void Selecting_job_with_step5_rows_and_no_layers_imports_cutting_list()
-        {
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            var job = new OptimizationViewModel.JobOptionVm
-            {
-                JobOrderId = "JO-STEP5",
-                CustomerName = "Step 5 only",
-                CanOptimizeMaterial = false,
-                HasOptimizablePanes = true,
-                GlassType = "DGU",
-                SpecName = "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
-                OuterGlassColor = "Clear",
-                InnerGlassColor = "Clear",
-                OuterSheetWidthMm = 3210,
-                OuterSheetHeightMm = 2250
-            };
-            job.Step5Rows.Add(new GlassItemRowSnapshot
-            {
-                GlassRef = "G-01",
-                W1 = 1100,
-                H1 = 900,
-                W2 = 1080,
-                H2 = 880,
-                Qty = 3
-            });
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
-
-            Assert.True(vm.HasPieces);
-            Assert.True(vm.SizeGroups.Count > 0);
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1100" && p.HeightText == "900");
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1080" && p.HeightText == "880");
-            int qty = 0;
-            foreach (var p in vm.Pieces)
-            {
-                if (p.TryParse(out _, out _, out int q)) qty += q;
-            }
-            Assert.Equal(6, qty);
-            Assert.True(vm.ManualCutList.ItemRows.Count > 0);
-            Assert.Equal("DGU", vm.ManualCutList.SelectedGlassType);
-            Assert.Equal("6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
-                vm.ManualCutList.SelectedSpecName);
-            Assert.Equal("Clear", vm.ManualCutList.OuterGlassColor);
-            Assert.Equal(3210, vm.ManualCutList.OuterSheetWidthMm);
-            Assert.Equal(2250, vm.ManualCutList.OuterSheetHeightMm);
-        }
-
-        [Fact]
-        public void Load_reference_keeps_selected_job_and_does_not_replace_with_calibration()
-        {
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            var job = new OptimizationViewModel.JobOptionVm
-            {
-                JobOrderId = "JO-KEEP",
-                CustomerName = "Keep me",
-                CanOptimizeMaterial = false,
-                HasOptimizablePanes = true,
-                GlassType = "SGU",
-                SpecName = "6mm Clear FT Glass"
-            };
-            job.Step5Rows.Add(new GlassItemRowSnapshot
-            {
-                GlassRef = "A1",
-                W1 = 900,
-                H1 = 1200,
-                Qty = 2
-            });
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
-
-            vm.LoadReferenceJobCommand.Execute(null);
-
-            Assert.True(job.IsSelected);
-            Assert.Same(job, vm.SelectedJob ?? job);
-            Assert.Contains(vm.Pieces, p => p.WidthText == "900" && p.HeightText == "1200");
-            int qty = 0;
-            foreach (var p in vm.Pieces)
-            {
-                if (p.TryParse(out _, out _, out int q)) qty += q;
-            }
-            Assert.Equal(2, qty);
-            Assert.Equal("SGU", vm.ManualCutList.SelectedGlassType);
-        }
-
-        [Fact]
-        public void LoadJobs_deserialized_camelCase_jo_json_fills_jobs_cutting_list()
-        {
-            var invoice = new ProformaInvoiceSnapshot();
-            invoice.SpecGroups.Add(new SpecGroupSnapshot
-            {
-                GroupNumber = 1,
-                SelectedGlassType = "DGU",
-                SelectedSpecName = "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
-                OuterGlassColor = "Clear",
-                InnerGlassColor = "Clear",
-                ItemRows =
-                {
-                    new GlassItemRowSnapshot
-                    {
-                        GlassRef = "G-1",
-                        W1 = 1400,
-                        H1 = 900,
-                        W2 = 1380,
-                        H2 = 880,
-                        Qty = 4
-                    }
-                }
-            });
-            var snap = new JobOrderSnapshot
-            {
-                JobOrderId = "JOB-CAMEL",
-                SourceProformaId = "PI-CAMEL",
-                EmbeddedInvoice = invoice
-            };
-            string json = JsonSerializer.Serialize(snap, new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            });
-            Assert.Contains("\"w1\":", json, System.StringComparison.Ordinal);
-            Assert.Contains("\"itemRows\":", json, System.StringComparison.Ordinal);
-
-            var loaded = JobOrderMapper.DeserializeSnapshot(new SavedJobOrder
-            {
-                JobOrderId = "JOB-CAMEL",
-                SourceProformaId = "PI-CAMEL",
-                CustomerName = "Camel JO",
-                Status = "Released",
-                FullSnapshotJson = json
-            });
-            Assert.NotNull(loaded);
-            Assert.NotNull(loaded!.EmbeddedInvoice);
-            Assert.NotEmpty(loaded.EmbeddedInvoice.SpecGroups);
-            Assert.Equal(1400, loaded.EmbeddedInvoice.SpecGroups[0].ItemRows[0].W1);
-            Assert.Equal(900, loaded.EmbeddedInvoice.SpecGroups[0].ItemRows[0].H1);
-            Assert.Equal(4, loaded.EmbeddedInvoice.SpecGroups[0].ItemRows[0].Qty);
-
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            var job = new OptimizationViewModel.JobOptionVm
-            {
-                JobOrderId = loaded.JobOrderId,
-                SourceProformaId = loaded.SourceProformaId,
-                CustomerName = "Camel JO",
-                CanOptimizeMaterial = true,
-                HasOptimizablePanes = true
-            };
-            foreach (var group in loaded.EmbeddedInvoice.SpecGroups)
-            {
-                job.InvoiceSpecGroups.Add(group);
-                foreach (var row in group.ItemRows)
-                {
-                    if (row.W1 <= 0 && row.H1 <= 0 && row.W2 <= 0 && row.H2 <= 0) continue;
-                    job.Step5Rows.Add(row);
-                }
-                if (string.IsNullOrWhiteSpace(job.GlassType))
-                    job.GlassType = group.SelectedGlassType ?? string.Empty;
-                if (string.IsNullOrWhiteSpace(job.SpecName))
-                    job.SpecName = group.SelectedSpecName ?? string.Empty;
-            }
-
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
-
-            Assert.True(vm.HasPieces);
-            Assert.Equal(8, SumQty(vm));
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1400" && p.HeightText == "900");
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1380" && p.HeightText == "880");
-            Assert.NotEqual(152, SumQty(vm));
-        }
-
-        [Fact]
-        public void LoadJobs_shaped_invoice_spec_groups_fill_jobs_cutting_list()
-        {
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            var job = new OptimizationViewModel.JobOptionVm
-            {
-                JobOrderId = "JO-INV",
-                CustomerName = "Invoice shaped",
-                CanOptimizeMaterial = true,
-                HasOptimizablePanes = true,
-                GlassType = "DGU",
-                SpecName = "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass"
-            };
-            var group = new SpecGroupSnapshot
-            {
-                GroupNumber = 1,
-                SelectedGlassType = "DGU",
-                SelectedSpecName = "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
-                OuterGlassColor = "Clear",
-                InnerGlassColor = "Clear"
-            };
-            group.ItemRows.Add(new GlassItemRowSnapshot
-            {
-                GlassRef = "G-1",
-                W1 = 1200,
-                H1 = 800,
-                W2 = 1180,
-                H2 = 780,
-                Qty = 7
-            });
-            job.InvoiceSpecGroups.Add(group);
-            job.Step5Rows.Add(group.ItemRows[0]);
-
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
-
-            Assert.True(vm.HasPieces);
-            Assert.Equal(14, SumQty(vm));
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1200" && p.HeightText == "800");
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1180" && p.HeightText == "780");
-            Assert.Equal("14", vm.KpiPieces);
-            Assert.NotEqual(152, SumQty(vm));
-        }
-
-        [Fact]
-        public void Empty_layers_with_saved_sgu_itemrows_populate_pieces()
-        {
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            var job = JobWithStep5Rows(
-                "JO-SGU", "SGU", "6mm Clear FT Glass",
-                new GlassItemRowSnapshot { GlassRef = "A1", W1 = 1200, H1 = 800, Qty = 10 },
-                new GlassItemRowSnapshot { GlassRef = "A2", W1 = 900, H1 = 600, Qty = 2 });
-            var emptyLayer = new OptimizationViewModel.BuildUpLayerVm
-            {
-                Kind = "Pane",
-                Position = "Glass",
-                IsSelected = true,
-                JobOrderId = "JO-SGU"
-            };
-            var spec = new OptimizationViewModel.SpecOptionVm
-            {
-                JobOrderId = "JO-SGU",
-                SpecGroupNumber = 1,
-                SpecName = "6mm Clear FT Glass",
-                BuildType = "Sgu"
-            };
-            spec.Layers.Add(emptyLayer);
-            job.Specs.Add(spec);
-
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
-
-            Assert.True(vm.HasPieces);
-            Assert.True(vm.SizeGroups.Count > 0);
-            Assert.Equal(12, SumQty(vm));
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1200" && p.HeightText == "800");
-            Assert.Contains(vm.Pieces, p => p.WidthText == "900" && p.HeightText == "600");
-            Assert.Equal("12", vm.KpiPieces);
-            Assert.DoesNotContain(vm.Pieces, p => p.WidthText == "1000" && p.HeightText == "1000");
-            Assert.NotEqual(152, SumQty(vm));
-        }
-
-        [Fact]
-        public void Saved_dgu_itemrows_expand_outer_and_inner_without_inventing_qty()
-        {
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            var job = JobWithStep5Rows(
-                "JO-DGU", "DGU", "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
-                new GlassItemRowSnapshot
-                {
-                    GlassRef = "D1",
-                    W1 = 1100, H1 = 900,
-                    W2 = 1080, H2 = 880,
-                    Qty = 17
-                });
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
-
-            Assert.True(vm.HasPieces);
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1100" && p.HeightText == "900");
-            Assert.Contains(vm.Pieces, p => p.WidthText == "1080" && p.HeightText == "880");
-            Assert.Equal(34, SumQty(vm));
-            Assert.Equal("34", vm.KpiPieces);
-            Assert.True(ParseArea(vm.KpiGlass) > 0);
-            Assert.NotEqual(152, SumQty(vm));
-        }
-
-        [Fact]
-        public void Saved_lam_itemrows_use_occurrence_positions()
-        {
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            var job = JobWithStep5Rows(
-                "JO-LAM", "LAM", "6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Clear FT Glass",
-                new GlassItemRowSnapshot
-                {
-                    GlassRef = "L1",
-                    W1 = 1500, H1 = 1000,
-                    W2 = 1500, H2 = 1000,
-                    Qty = 5
-                });
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
-
-            Assert.True(vm.HasPieces);
-            Assert.Equal(10, SumQty(vm));
-            Assert.Contains(vm.Pieces, p =>
-                (p.Position ?? string.Empty).IndexOf("Lam", System.StringComparison.OrdinalIgnoreCase) >= 0
-                || p.WidthText == "1500");
-            Assert.Contains(vm.Pieces, p => p.GlassType == "LAM");
-            Assert.NotEqual(152, SumQty(vm));
-        }
-
-        private static OptimizationViewModel.JobOptionVm JobWithStep5Rows(
-            string id, string glassType, string specName, params GlassItemRowSnapshot[] rows)
-        {
-            var job = new OptimizationViewModel.JobOptionVm
-            {
-                JobOrderId = id,
-                CustomerName = "Customer " + id,
-                CanOptimizeMaterial = true,
-                HasOptimizablePanes = true,
-                GlassType = glassType,
-                SpecName = specName,
-                OuterGlassColor = "Clear",
-                InnerGlassColor = "Clear"
-            };
-            foreach (var row in rows)
-                job.Step5Rows.Add(row);
-            return job;
-        }
-
-        private static int SumQty(OptimizationViewModel vm)
-        {
-            int qty = 0;
-            foreach (var p in vm.Pieces)
-            {
-                if (p.TryParse(out _, out _, out int q)) qty += q;
-            }
-            return qty;
-        }
-
-        private static double ParseArea(string kpiGlass)
-        {
-            var text = (kpiGlass ?? string.Empty).Replace("m²", string.Empty).Trim();
-            return double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double a)
-                ? a
-                : 0;
-        }
-
-        [Fact]
-        public void Zero_pane_job_is_listed_without_inventing_sizes()
-        {
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            var job = new OptimizationViewModel.JobOptionVm
-            {
-                JobOrderId = "JO-EMPTY",
-                CustomerName = "No panes",
-                CanOptimizeMaterial = true,
-                HasOptimizablePanes = false
-            };
-            job.Warnings.Add("NO OPTIMIZABLE PANES");
-            vm.AttachJobOption(job);
-            vm.AvailableJobs.Add(job);
-            job.IsSelected = true;
-
-            Assert.Single(vm.AvailableJobs);
-            Assert.False(job.HasOptimizablePanes);
-            Assert.Contains("NO OPTIMIZABLE PANES", job.Warnings);
-            Assert.False(vm.HasPieces);
-            Assert.Contains("NO OPTIMIZABLE PANES", vm.PiecesEmptyHint);
-            Assert.False(vm.HasResult);
-            Assert.Empty(vm.Pieces);
-        }
-
-        [Fact]
-        public void Load_reference_job_restores_sept12_152_piece_calibration()
-        {
-            var vm = new OptimizationViewModel { IsHeadlessHost = false };
-            vm.LoadReferenceJobCommand.Execute(null);
-
-            int qty = 0;
-            foreach (var p in vm.Pieces)
-            {
-                if (p.TryParse(out int w, out int h, out int q))
-                {
-                    qty += q;
-                    Assert.False(w == 1000 && h == 1000);
-                }
-            }
-            Assert.Equal(152, qty);
-            Assert.True(vm.HasPieces);
-            Assert.True(vm.HasStocks);
-            Assert.False(vm.HasResult);
-            Assert.True(vm.ManualCutList.ItemRows.Count > 0);
-            Assert.Contains(vm.ManualCutList.ItemRows,
-                r => r.W1 == 1050 && r.H1 == 2127 && r.W2 == 1050 && r.H2 == 2127 && r.Qty == 2);
-        }
-
-        [Fact]
-        public void Tab_index_converter_shows_jobs_and_hides_other_tabs()
-        {
-            var c = new IndexEqualsConverter();
-            var inv = CultureInfo.InvariantCulture;
-            Assert.Equal(Visibility.Visible,
-                c.Convert(0, typeof(Visibility), "0", inv));
-            Assert.Equal(Visibility.Collapsed,
-                c.Convert(0, typeof(Visibility), "1", inv));
-            Assert.Equal(Visibility.Visible,
-                c.Convert(7, typeof(Visibility), "7", inv));
-            Assert.True((bool)c.Convert(0, typeof(bool), "0", inv)!);
-            Assert.False((bool)c.Convert(1, typeof(bool), "0", inv)!);
-        }
+    [Fact]
+    public void Headless_host_does_not_allow_job_selection_to_replace_step5_inputs()
+    {
+        using var vm = new OptimizationViewModel(true);
+        var row = new OptimizationViewModel.PieceEntryVm { WidthText = "400", HeightText = "500", QtyText = "2" };
+        vm.Pieces.Add(row);
+        Select(vm, Job("1"));
+        Assert.Same(row, Assert.Single(vm.Pieces));
+        Assert.Empty(vm.Stocks);
     }
 }

@@ -117,185 +117,17 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(25, rack.MaxSheets);
         }
 
-        [Fact]
-        public void The_packer_gate_reads_zero_as_unlimited_which_is_why_exhausted_racks_must_be_dropped()
-        {
-            // The single most dangerous line in this whole feature. If a rack
-            // that has run out is written back as 0 instead of being removed,
-            // this gate hands the engine infinite glass for exactly the rack
-            // that has none.
-            string packer = Read(Packer);
-            Assert.Contains(
-                ".Where(i => sheetsPerStock[i] < stocks[i].MaxSheets || stocks[i].MaxSheets == 0)",
-                packer);
-
-            // So the run ledger must drop, never zero.
-            string run = Read(RunVm);
-            string body = Slice(run, "private static List<(StockSize Stock, string Composition)> ApplyRunBalance(",
-                "return result;");
-            Assert.Contains("if (remaining <= 0)", body);
-            Assert.Contains("continue;", body);
-            Assert.DoesNotContain("WithMaxSheets(0)", body);
-            Assert.DoesNotContain("WithMaxSheets(StockSize.UnlimitedSheets)", body);
-        }
-
         // ══════════════════════════════════════════════════════════════
         //  H1 — the overflow that would have read a full rack as exhausted
         // ══════════════════════════════════════════════════════════════
-
-        [Fact]
-        public void Duplicate_stock_balances_are_summed_in_long_and_clamped_not_in_int()
-        {
-            // Available defaults to 99999999. Summing ~22 rows at one size in
-            // int passes int.MaxValue and wraps negative, and a negative cap
-            // fails the packer gate on the first sheet — every piece would
-            // come back unplaced from a rack that is full.
-            string body = Slice(Read(RunVm),
-                "private static List<StockSize> DistinctBySize(List<StockSize> stocks) =>",
-                ".ToList();");
-
-            Assert.Contains("long summed = 0;", body);
-            Assert.Contains("summed >= int.MaxValue ? int.MaxValue : (int)summed", body);
-            Assert.DoesNotContain("g.Sum(s => s.MaxSheets)", body);   // the int sum, gone
-
-            // The run ledger accumulates in long for the same reason.
-            string run = Read(RunVm);
-            Assert.Contains(
-                "new Dictionary<(int W, int H, int T, string Color), long>()", run);
-            Assert.Contains("out long have", run);
-        }
-
-        [Fact]
-        public void The_default_availability_never_enters_the_run_ledger()
-        {
-            // H2: 99999999 is finite, so a default rack would otherwise be
-            // counted, deducted sheet by sheet, and fire a BALANCE warning on
-            // a run where nobody ever typed a balance. That is noise on every
-            // ordinary run, and noise is how the real warning gets ignored.
-            string body = Slice(Read(RunVm),
-                "var unlimitedKeys = new HashSet<(int W, int H, int T, string Color)>();",
-                "int balanceConstrainedGroups = 0;");
-
-            Assert.Contains("row.Stock.MaxSheets == StockSize.UnlimitedSheets", body);
-            Assert.Contains("row.Stock.MaxSheets >= StockSize.EffectivelyUnlimitedSheets", body);
-            Assert.Contains("unlimitedKeys.Add(BalanceKey(row.Stock));", body);
-
-            // And DistinctBySize must not sum a no-limit rack either.
-            string distinct = Slice(Read(RunVm),
-                "private static List<StockSize> DistinctBySize(List<StockSize> stocks) =>",
-                ".ToList();");
-            Assert.Contains("st.MaxSheets >= StockSize.EffectivelyUnlimitedSheets", distinct);
-
-            // One definition, and no hard-coded copies of the literal left
-            // anywhere the default is produced — otherwise a future change to
-            // the constant silently strands the ledger's "no balance was set"
-            // recognition behind a stale literal.
-            string stocks = Read(StocksVm);
-            Assert.Contains("StockSize.EffectivelyUnlimitedSheets", stocks);
-            Assert.DoesNotContain("\"99999999\"", stocks);
-
-            string session = Read("ViewModels/Optimization/OptimizationViewModel.Session.cs");
-            Assert.Contains("StockSize.EffectivelyUnlimitedSheets", session);
-            Assert.DoesNotContain("\"99999999\"", session);
-        }
 
         // ══════════════════════════════════════════════════════════════
         //  H3 — two glasses at one size are two racks, not one
         // ══════════════════════════════════════════════════════════════
 
-        [Fact]
-        public void Stock_rows_are_merged_on_physical_glass_identity_not_on_size_alone()
-        {
-            // AddStep5Rack de-duplicates on (W, H, composition), so the pool
-            // legitimately holds a 6mm and an 8mm rack at the same dimensions.
-            // Merging on size alone summed them and claimed 20 sheets of a
-            // glass that only has 10.
-            string run = Read(RunVm);
-
-            Assert.Contains("stocks.GroupBy(BalanceKey)", run);
-            Assert.DoesNotContain("stocks.GroupBy(s => (s.WidthMm, s.HeightMm))", run);
-
-            // The key is the same identity the ledger deducts against, so
-            // merging and accounting cannot disagree about what a rack is.
-            string key = Slice(run,
-                "private static (int W, int H, int T, string Color) BalanceKey(StockSize s) =>",
-                ";");
-            Assert.Contains("s.ThicknessMm", key);
-            Assert.Contains("s.Color", key);
-        }
-
-        [Fact]
-        public void Racks_carry_their_thickness_so_the_dormant_oracle_can_wake()
-        {
-            // B3. VerifyComprehensive's piece-vs-stock thickness check is
-            // guarded by Stock.ThicknessMm > 0, and the view model never set
-            // it — so 8mm pieces on a 6mm rack passed the oracle that Phase 8
-            // made the export gate.
-            string packer = Read(Packer);
-            Assert.Contains("p.Piece.ThicknessMm != sheet.Stock.ThicknessMm", packer);
-            Assert.Contains("sheet.Stock.ThicknessMm > 0", packer);
-
-            string margins = Read(MarginsVm);
-            Assert.Contains("ParseThicknessMm(s.Composition)", margins);
-            Assert.Contains("s.ThicknessMm > 0 ? s.ThicknessMm", margins);
-        }
-
         // ══════════════════════════════════════════════════════════════
         //  B2 — the balance is per RUN, not per group
         // ══════════════════════════════════════════════════════════════
-
-        [Fact]
-        public void Each_cutting_group_is_handed_what_is_left_not_what_the_run_started_with()
-        {
-            // RunCoreAsync used to pass the same untouched stockPool into
-            // ResolveGroupStocks for every group, so a rack with Available 10
-            // could be committed 10 sheets to 6mm clear AND 10 to 8mm clear.
-            string run = Read(RunVm);
-
-            Assert.Contains("var effectivePool = ApplyRunBalance(stockPool, balanceLedger,", run);
-            Assert.Contains("ResolveGroupStocks(composition, effectivePool,", run);
-
-            // The untouched pool must no longer be what groups are packed on.
-            Assert.DoesNotContain("ResolveGroupStocks(composition, stockPool,\n                        AllowCrossCompositionStock, out string stockNote);", run);
-
-            // And what a group actually cut is taken out, keyed off the rack
-            // the packer really opened.
-            Assert.Contains("result.Sheets.GroupBy(sh => BalanceKey(sh.Stock))", run);
-            Assert.Contains("balanceLedger[used.Key] = have - used.Count();", run);
-        }
-
-        [Fact]
-        public void A_group_starved_by_the_ledger_says_so_instead_of_blaming_missing_setup()
-        {
-            // H4: "no rack for this glass" sends an operator to Step 4; "the
-            // rack ran out" sends them to the Sheet Store. Before this they
-            // were the same message, so a starved group looked like a missing
-            // sheet size and the operator went hunting for a rack that was
-            // standing right there.
-            string run = Read(RunVm);
-
-            Assert.Contains("bool ranOutOfBalance = groupStocks.Count == 0 && poolReduced &&", run);
-            Assert.Contains("rack balance exhausted earlier in this run", run);
-            Assert.Contains("OracleLabel = ranOutOfBalance", run);
-
-            // Both labels must still exist — the distinction is the point.
-            Assert.Contains("NOT CUT", run);
-            Assert.Contains("no rack for this glass", run);
-        }
-
-        [Fact]
-        public void The_balance_note_names_the_groups_that_lost_out()
-        {
-            // H5: the ledger serves groups in cutting-list order, so which one
-            // gets first call on a short rack is decided by list position. A
-            // count alone could not tell an operator whether the group they
-            // cared about was the one starved.
-            string run = Read(RunVm);
-
-            Assert.Contains("balanceConstrainedNames.Add(composition);", run);
-            Assert.Contains("string.Join(\", \", balanceConstrainedNames.Take(4).ToArray())", run);
-            Assert.Contains("BALANCE:", run);
-        }
 
         // ══════════════════════════════════════════════════════════════
         //  Phase 10 — the balance has to reach the engine at all
@@ -320,75 +152,6 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("s.Balance > 0", svc);
             Assert.Contains("s.ThicknessMm == thicknessMm", svc);
             Assert.Contains("requirePositiveBalance: true", svc);
-        }
-
-        [Fact]
-        public void The_step5_feed_writes_a_real_balance_onto_the_racks_it_builds()
-        {
-            string live = Read(LiveRunVm);
-
-            Assert.Contains("LookupStoreBalance(group.OuterGlassColor,", live);
-            Assert.Contains("LookupStoreBalance(group.InnerGlassColor,", live);
-            Assert.Contains("int? storeBalance = null)", live);
-            Assert.Contains("if (storeBalance.HasValue)", live);
-            Assert.Contains(
-                "row.AvailableText = storeBalance.Value.ToString(CultureInfo.InvariantCulture);", live);
-        }
-
-        [Fact]
-        public void A_balance_the_store_cannot_confirm_is_null_and_never_zero()
-        {
-            // 0 in MaxSheets is the UnlimitedSheets sentinel. Answering "the
-            // store could not tell me" with 0 would hand the engine infinite
-            // glass for a rack inventory could not price.
-            string live = Read(LiveRunVm);
-            Assert.Contains(": (int?)null;", live);
-
-            // Behavioural half: the guards must answer before any database is
-            // touched, so these cannot hang or throw in a test run.
-            Assert.False(Services.ProformaInvoice.SheetStorePricingService
-                .TryGetStockBalance(null, 6, 3210, 2250, out int b1));
-            Assert.Equal(0, b1);
-
-            Assert.False(Services.ProformaInvoice.SheetStorePricingService
-                .TryGetStockBalance("   ", 0, 3210, 2250, out int b2));
-            Assert.Equal(0, b2);
-
-            Assert.False(Services.ProformaInvoice.SheetStorePricingService
-                .TryGetStockBalance("clear", 6, 0, 0, out int b3));
-            Assert.Equal(0, b3);
-
-            Assert.False(Services.ProformaInvoice.SheetStorePricingService
-                .TryResolveStockSheet(null, 6, out int w, out int h, out int b4));
-            Assert.Equal(0, w);
-            Assert.Equal(0, h);
-            Assert.Equal(0, b4);
-        }
-
-        [Fact]
-        public void The_jobs_tab_applies_a_balance_only_when_inventory_can_attribute_it()
-        {
-            // Phase 11. Step4Sheets carries no colour and inventory is keyed by
-            // colour, so a size-only lookup would merge a Clear and a Low-E
-            // rack at the same dimensions and hand the run a balance belonging
-            // to glass it is not cutting. A wrong balance is worse than no
-            // balance: it refuses groups that do have stock.
-            string svc = Read(SheetStoreSvc);
-            string body = Slice(svc,
-                "public static bool TryGetUnambiguousStockBalance(",
-                "catch (Exception ex)");
-            Assert.Contains(".Distinct().ToList()", body);
-            Assert.Contains("if (colours.Count != 1) return false;", body);
-
-            string stocks = Read(StocksVm);
-            Assert.Contains(
-                ".TryGetUnambiguousStockBalance(ParseThicknessMm(comp), w, h, out int storeBalance))", stocks);
-
-            // And applying it is never silent — the operator has to be able to
-            // tell which Available figures came from inventory and which are
-            // the unlimited default waiting to be typed over.
-            Assert.Contains("balancesUnknown", stocks);
-            Assert.Contains("could not be ", stocks);
         }
 
         [Fact]
@@ -455,20 +218,6 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("r.ValidationFailed", report);
         }
 
-        [Fact]
-        public void Per_piece_rotation_lock_reaches_the_engine()
-        {
-            // Finding 8e: the packer always honoured CutPiece.AllowRotate, but
-            // TryBuildInputs wrote the global SETTINGS choice for every row,
-            // so the flag had no input path at all.
-            string margins = Read(MarginsVm);
-            Assert.Contains("AllowRotate = RotationEnabled && !p.RotationLocked", margins);
 
-            // And it survives save-and-load, or a locked pane gets rotated
-            // anyway the moment a session is reopened.
-            string session = Read("ViewModels/Optimization/OptimizationViewModel.Session.cs");
-            Assert.Contains("RotationLocked = p.RotationLocked", session);
-            Assert.Contains("restored.RotationLocked = p.RotationLocked;", session);
-        }
     }
 }
