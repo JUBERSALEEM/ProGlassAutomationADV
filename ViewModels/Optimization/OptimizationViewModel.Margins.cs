@@ -204,7 +204,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         public ObservableCollection<string> StageStrategies { get; } = new()
         {
-            "Stage 1: QUICK (Shelf + Strips + Pattern Beam)",
+            "Stage 1: QUICK (Quantity Patterns + Smart Fit)",
             "Stage 2: Effort 2 (Area Patterns + Multi-Order Grid)",
             "Stage 3: Effort 3 (Min-Side Patterns + Smart Search)",
             "Stage 4: Effort 4 (Height Patterns + Best-Split)",

@@ -20,7 +20,12 @@ class OptimizationPort(unittest.TestCase):
                           "Services/Optimization/GuillotinePacker.BestSplit.cs"}, set(approved))
         additions = manifest.get("approved_additions", {})
         self.assertEqual({"Services/Optimization/GuillotinePacker.CapacityStrips.cs",
-                          "Services/Optimization/GuillotinePacker.PatternSearch.cs"}, set(additions))
+                          "Services/Optimization/GuillotinePacker.PatternSearch.cs",
+                          "Services/Optimization/GuillotinePacker.RepeatedPatterns.cs",
+                          "Services/Optimization/GuillotinePacker.RepeatPricing.cs",
+                          "Services/Optimization/GuillotinePacker.RepeatMaster.cs",
+                          "Services/Optimization/GuillotinePacker.RepeatInteger.cs",
+                          "Services/Optimization/GuillotinePacker.RepeatTail.cs"}, set(additions))
         for path, approval in additions.items():
             self.assertTrue(approval["reason"])
             self.assertEqual(approval["sha256"], hashlib.sha256((ROOT / path).read_bytes()).hexdigest())

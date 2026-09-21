@@ -39,6 +39,9 @@ namespace ProGlassAutomation.Services.Optimization
             if (pieces.Count == 0)
                 return new OptimizationResult { Rotation = rotation };
 
+            if (pieces.Count >= IndustrialQuantityThreshold)
+                return PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress);
+
             if (effortLevel <= 1)
                 return PackQuick(pieces, stocks, margins, rotation,
                     cancellationToken: cancellationToken, progress: progress);
@@ -106,7 +109,8 @@ namespace ProGlassAutomation.Services.Optimization
             // that the partitioned engine NEVER regresses the global deterministic benchmark.
             progress?.Report(OptimizeProgress.Of("global", 68, 100, "Evaluating global baseline passes..."));
             var globalQuick = PackQuick(pieces, stocks, margins, rotation, SplitMode.HorizontalFirst, cancellationToken);
-            var bestGlobal = globalQuick;
+            var bestGlobal = Better(globalQuick, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation,
+                effortLevel, cancellationToken), pieces, margins, cancellationToken));
 
             if (effortLevel >= 2)
             {

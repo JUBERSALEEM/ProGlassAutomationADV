@@ -38,9 +38,9 @@
 		     could say which 2.0.1 produced it. Bump the PATCH digit on
 		     every behavioural fix; that is what makes the update
 		     reachable and the build identifiable.          -->
-		<Version>2.0.10</Version>
-		<AssemblyVersion>2.0.10.0</AssemblyVersion>
-		<FileVersion>2.0.10.0</FileVersion>
+		<Version>2.0.11</Version>
+		<AssemblyVersion>2.0.11.0</AssemblyVersion>
+		<FileVersion>2.0.11.0</FileVersion>
 	</PropertyGroup>
 
 	<!-- ══════════════════════════════════════════════════════════════

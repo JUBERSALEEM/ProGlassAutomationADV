@@ -129,7 +129,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private static string BuildRunArchitectureLabel(string stage, int maxGroupParts, int effort)
         {
             if (!string.Equals(stage, "OPTIMIZE", StringComparison.Ordinal) || effort <= 1)
-                return "QUICK — shelf, capacity strips and bounded Best-Split beam 4/8; whole small jobs or weak-sheet repair windows; best validated plan retained";
+                return maxGroupParts >= 100000
+                    ? "QUICK industrial — count-based pattern master, scalable strip floors and bounded remainder repair; all panes retained"
+                    : "QUICK — whole-order repeated-pattern quantities, shelf/strip floors and bounded pattern repair; best validated plan retained";
+
+            if (maxGroupParts >= 100000)
+                return "Industrial quantity search — count-based pattern master, scalable strip floors and bounded remainder search; no whole-order quadratic beam";
 
             if (maxGroupParts <= 2000)
                 return effort == 2
@@ -141,7 +146,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 : "QUICK floor + cumulative pattern beams through 32 — 18 ordering/split candidates × 7 deterministic shuffles, plus Best-Split, Sheet-Fill, Wall-Seed, horizontal + vertical Smart Placement, MaxRects over all 6 orderings and widened beam";
 
             // > 2,000 parts per group → PackOptimizePartitioned.
-            return "Stratified partitioned search — anchor/medium/filler production batches, per-batch bounded pattern repair and multi-strategy passes, global QUICK floor, cross-batch consolidation, tail repack and unplaced recovery";
+            return "Stratified partitioned search — anchor/medium/filler production batches, per-batch bounded pattern repair and multi-strategy passes, global quantity-aware QUICK floor, cross-batch consolidation, tail repack and unplaced recovery";
         }
 
         private DispatcherTimer _runClock;

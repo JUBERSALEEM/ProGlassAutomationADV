@@ -185,6 +185,9 @@ namespace ProGlassAutomation.Services.Optimization
             if (margins == null) throw new ArgumentNullException(nameof(margins));
             cancellationToken.ThrowIfCancellationRequested();
 
+            if (pieces.Count >= IndustrialQuantityThreshold)
+                return PackIndustrialPatterns(pieces, stocks, margins, rotation, 1, cancellationToken, progress);
+
             // 2026-09-16: was OrderBy.MaxSide, which cost a whole sheet on the
             // owner's own benchmark. MaxSide packs the Low-E group into 18
             // sheets @ 78.18%; Area reaches 17 @ 82.77% — the reference figure
@@ -216,6 +219,10 @@ namespace ProGlassAutomation.Services.Optimization
                 "Bounded Best-Split pattern search (beam 4 + 8)"));
             result = ImprovePatterns(result, pieces, stocks, margins, rotation, 1, 1,
                 cancellationToken, () => quickWatch.Elapsed >= plan.TimeBudget);
+            progress?.Report(OptimizeProgress.Of("repeat", 95, 100,
+                "Balancing reusable patterns against whole-order quantities"));
+            result = Better(result, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, 1,
+                cancellationToken), pieces, margins, cancellationToken));
             if (quickWatch.Elapsed >= plan.TimeBudget)
                 result.ScaleNotes.Add("QUICK pattern budget reached; retained the best validated candidate found.");
             if (result.HasValidationFailure)
@@ -244,6 +251,9 @@ namespace ProGlassAutomation.Services.Optimization
             if (stocks == null || stocks.Count == 0)
                 throw new ArgumentException("At least one stock size is required.", nameof(stocks));
             if (margins == null) throw new ArgumentNullException(nameof(margins));
+
+            if (pieces.Count >= IndustrialQuantityThreshold)
+                return PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress);
 
             if (effortLevel <= 1)
                 return PackQuick(pieces, stocks, margins, rotation,
@@ -326,6 +336,9 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken: cancellationToken);
             best = ImprovePatterns(best, pieces, stocks, margins, rotation, 2, effortLevel,
                 cancellationToken, BudgetExhausted);
+            if (!BudgetExhausted())
+                best = Better(best, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, effortLevel,
+                    cancellationToken), pieces, margins, cancellationToken));
             void Consider(OptimizationResult candidate) =>
                 best = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken));
             for (int ci = 0; ci < comboList.Count; ci++)
