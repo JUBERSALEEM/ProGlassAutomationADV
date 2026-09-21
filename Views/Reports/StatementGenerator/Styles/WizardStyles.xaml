@@ -106,7 +106,7 @@
                     <Border x:Name="bd"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource PrimaryGradient}"
-                            Effect="{StaticResource PrimaryButtonShadow}"
+                            Effect="{DynamicResource PrimaryButtonShadow}"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -144,7 +144,7 @@
                     <Border x:Name="bd"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource SuccessGradient}"
-                            Effect="{StaticResource SuccessButtonShadow}"
+                            Effect="{DynamicResource SuccessButtonShadow}"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"
@@ -286,7 +286,7 @@
                             Padding="12,8"
                             MaxWidth="320"
                             SnapsToDevicePixels="True"
-                            Effect="{StaticResource ToolTipShadow}">
+                            Effect="{DynamicResource ToolTipShadow}">
                         <!-- Use ContentPresenter so BOTH plain-string
                              tooltips AND complex-content tooltips work.
                              The default TextBlock style scoped inside

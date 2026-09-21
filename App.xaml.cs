@@ -158,13 +158,12 @@ namespace ProGlassAutomation
         //      the correct working directory and command-line args
         //      before the rest of the WPF process state is built.
         //
-        //  WPF normally generates Main() automatically from the
-        //  App.xaml ApplicationDefinition. To put our own Main in
-        //  front of it, App.xaml's Build Action is set to "Page"
-        //  (see ProGlassAutomation.csproj) and the Startup event
-        //  handler below still wires Application_Startup → the same
-        //  crash-guarded StartupCoreAsync() as before. No behavioural
-        //  change other than the Velopack hook running first.
+        //  WPF generates Main() from ApplicationDefinition unless
+        //  DISABLE_XAML_GENERATED_MAIN is set (ProGlassAutomation.csproj).
+        //  App.xaml stays ApplicationDefinition so InitializeComponent
+        //  is generated. Custom Main below runs Velopack first, then
+        //  InitializeComponent + Run. Startup still wires
+        //  Application_Startup → StartupCoreAsync.
         // ══════════════════════════════════════════════════════════════
         [STAThread]
         public static void Main(string[] args)
