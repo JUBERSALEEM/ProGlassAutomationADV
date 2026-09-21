@@ -131,5 +131,26 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.False(vm.HasResult);
             Assert.Empty(vm.Pieces);
         }
+
+        [Fact]
+        public void Load_reference_job_restores_sept12_152_piece_calibration()
+        {
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            vm.LoadReferenceJobCommand.Execute(null);
+
+            int qty = 0;
+            foreach (var p in vm.Pieces)
+            {
+                if (p.TryParse(out int w, out int h, out int q))
+                {
+                    qty += q;
+                    Assert.False(w == 1000 && h == 1000);
+                }
+            }
+            Assert.Equal(152, qty);
+            Assert.True(vm.HasPieces);
+            Assert.True(vm.HasStocks);
+            Assert.False(vm.HasResult);
+        }
     }
 }

@@ -15,52 +15,57 @@
              light and dark. -->
         <!-- Radius follows Appearance CardCornerRadius. -->
 
-        <!-- ══ Panel card — shared frost surface ═══════ -->
-        <Style x:Key="OptPanelCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <!-- ══ 2026-09-12 dusk-navy cards (31138eb) — NOT SurfacePrimaryStyle.
+             GDS last-win BasedOn SurfacePrimaryStyle flattened these to cream
+             empty-looking panels. Explicit glass tokens restore the studio. -->
+        <Style x:Key="OptPanelCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="18,16"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <!-- Inner card (job cards, nested surfaces) -->
-        <Style x:Key="OptInnerCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Style x:Key="OptInnerCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="Padding" Value="12,10"/>
         </Style>
 
         <Style x:Key="OptKpiCard" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
-            <Setter Property="Padding" Value="18,14"/>
-            <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="16,14"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <!-- Tinted circular icon badge on each KPI card -->
         <Style x:Key="OptKpiBadge" TargetType="Border">
-            <Setter Property="Width" Value="44"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="CornerRadius" Value="22"/>
+            <Setter Property="Width" Value="42"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="CornerRadius" Value="10"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <!-- Typography -->
         <Style x:Key="OptHeader" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{DynamicResource FontSize.Label}"/>
+            <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
         </Style>
         <Style x:Key="OptPanelTitle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
         <Style x:Key="OptKpiValue" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontSize" Value="25"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,2,0,0"/>
         </Style>
 
         <!-- ══ Left rail tab ══════════════════════════════════════════ -->

@@ -689,15 +689,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                     : string.Empty,
                                 truncationNote);
 
-                        // 2026-09-14 AUTO-TRIGGER REMOVED (Phase 1 data
-                        // integrity): the reference calibration job used to
-                        // load itself whenever the list was empty. Its 152
-                        // benchmark pieces then mixed with a real job's
-                        // panes — untracked "job order" specs in the cutting
-                        // list, and when the glass strings matched they were
-                        // merged straight into the real job's cutting group.
-                        // The reference job is now reachable only through its
-                        // explicit button, which says exactly what it loads.
+                        // 2026-09-12 (31138eb): when there is no confirmed JO,
+                        // load the owner calibration so JOBS/SIZES/STOCK are
+                        // not a blank studio. Only when the picker is empty —
+                        // never mixed into a real job's panes.
+                        if (options.Count == 0 && Pieces.Count == 0)
+                        {
+                            LoadReferenceJob();
+                            JobsStatusText = "No confirmed job orders — loaded the 11–12 Sep calibration job (152 pieces). Use Load reference job to reload.";
+                        }
                     });
                 }
             }

@@ -1217,13 +1217,21 @@
          Pill button KEYS are NOT restyled here — GlassPillButtonTemplate owns
          Tag-as-icon. That template is industrialized in Styles/ButtonStyles.xaml. -->
     <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <!-- Last-win must keep Optimization studio padding (c37f71f). A bare
-         BasedOn SurfacePrimaryStyle used Space.Card only and flattened the
-         JOBS/SETTINGS cards. -->
-    <Style x:Key="OptPanelCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+    <!-- Last-win MUST match 2026-09-12 dusk-navy (31138eb). Do not BasedOn
+         SurfacePrimaryStyle — that flattened Optimization to empty cream cards. -->
+    <Style x:Key="OptPanelCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="18,16"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
-    <Style x:Key="OptInnerCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+    <Style x:Key="OptInnerCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="Padding" Value="12,10"/>
     </Style>
     <Style x:Key="PgCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>

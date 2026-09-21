@@ -238,6 +238,9 @@
                                                    Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Content="Load reference job" Style="{StaticResource OptGhostButton}"
+                                                Command="{Binding LoadReferenceJobCommand}" Margin="0,0,4,0"
+                                                ToolTip="Owner calibration DGU from 11–12 Sep 2026 — 152 pieces (76 low-e / 64 clear / 12 ramly). Not placeholder sizes."/>
                                         <Button Content="Clear list" Style="{StaticResource OptGhostButton}"
                                                 Command="{Binding ClearPiecesCommand}"/>
                                     </StackPanel>

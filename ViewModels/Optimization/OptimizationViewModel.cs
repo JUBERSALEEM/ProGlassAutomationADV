@@ -90,9 +90,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             AddPieceCommand = new RelayCommand(_ => AddPiece());
             RemovePieceCommand = new RelayCommand(p => RemovePiece(p as PieceEntryVm));
             ClearPiecesCommand = new RelayCommand(_ => { Pieces.Clear(); RefreshDerived(); });
-            // SENIOR 2026-09-20: Load reference job removed per user request
-            // — left side job selection now auto-imports spec + cut sizes,
-            //   merging matching spec/glass across multi-jobs.
+            LoadReferenceJobCommand = new RelayCommand(_ => LoadReferenceJob());
             RefreshJobsCommand = new RelayCommand(_ => LoadJobs());
             AddSelectedPanesCommand = new RelayCommand(_ => AddSelectedPanes());
             SelectAllPanesCommand = new RelayCommand(_ => SetAllPanesSelected(true));

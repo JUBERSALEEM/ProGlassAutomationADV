@@ -135,10 +135,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ICommand AddPieceCommand { get; }
         public ICommand RemovePieceCommand { get; }
         public ICommand ClearPiecesCommand { get; }
-        // REMOVED 2026-09-20: LoadReferenceJobCommand — per user request
-        // "load reference job in optimization in module in jobs page is not
-        // working remove it and left side is job selection so job list should
-        // auto import". Auto-import now handles job → spec → cutlist.
+        /// <summary>2026-09-12 (31138eb) calibration DGU — 152 pieces.</summary>
+        public ICommand LoadReferenceJobCommand { get; }
 
         private string _pieceSummary = "No pieces yet";
         public string PieceSummary { get => _pieceSummary; private set { _pieceSummary = value; OnPropertyChanged(); } }
@@ -188,13 +186,83 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RefreshDerived();
         }
 
-        // REMOVED 2026-09-20: LoadReferenceJob() — hardcoded 152-piece benchmark
-        // removed per owner request. Job selection now auto-imports real jobs
-        // with merging. Method kept as no-op for binary compat if referenced
-        // via reflection, but does nothing.
+        /// <summary>
+        /// Owner calibration DGU from 2026-09-11/12 (f2780ff / 31138eb):
+        /// 76 low-e outer + 64 clear inner + 12 ramly inner = 152 pieces.
+        /// These are the measured benchmark sizes, not placeholders.
+        /// </summary>
         private void LoadReferenceJob()
         {
-            RunMessage = "Reference job loader removed — tick real jobs on the left to auto-import (merged by spec+glass+size).";
+            const string lowE = "6mm climaguard hp neutral 70 low e ft glass";
+            const string clear = "6mm clear ft glass";
+            const string ramly = "6mm obscure clear ramly ft glass";
+
+            (string Ref, int W, int H, int Qty)[] spec1 =
+            {
+                ("11",1050,2127,2),("9",1054,2130,2),("10",1055,2130,2),("12",800,1798,2),
+                ("1",905,2536,2),("2",1054,1986,2),("4",854,1981,2),("7",1003,1857,2),
+                ("3",856,1970,2),("8",844,1457,2),("13",650,1382,2),("14",650,1372,2),
+                ("2",605,1471,2),("5",553,1448,2),("SA",499,1430,2),("S",509,1421,2),
+                ("R17",1815,725,1),("R8",1515,530,1),("R10",2013,828,1),("R10",2513,535,1),
+                ("A2",1055,1985,2),("A11",1046,2130,2),("A9",1050,2130,2),("A10",1055,2130,2),
+                ("A7",968,1889,2),("A4",850,1970,2),("A3",837,1984,2),("A1",838,2532,2),
+                ("A14",657,1350,2),("A8",935,1418,2),("A13",652,1350,2),("A5",654,1479,2),
+                ("A6",655,1474,2),("A12",800,1805,2)
+            };
+
+            (string Ref, int W, int H)[] spec2 =
+            {
+                ("A7",525,380),("A11",725,430),("A13",720,430),("A14",720,430),
+                ("A18",725,430),("A19",725,430),("8",520,375),("12",725,430),
+                ("14",710,430),("15",730,430),("19",720,430),("20",720,430)
+            };
+
+            Pieces.Clear();
+            void Add(string composition, string position, string label, int w, int h, int qty)
+            {
+                var row = NewPieceRow(
+                    composition, label,
+                    w.ToString(CultureInfo.InvariantCulture),
+                    h.ToString(CultureInfo.InvariantCulture),
+                    qty.ToString(CultureInfo.InvariantCulture));
+                row.Position = position;
+                if (string.Equals(position, "Inner", StringComparison.OrdinalIgnoreCase))
+                {
+                    row.W2 = w;
+                    row.H2 = h;
+                }
+                else
+                {
+                    row.W1 = w;
+                    row.H1 = h;
+                }
+                row.EnsureMaterialKey();
+                Pieces.Add(row);
+            }
+
+            foreach (var (r, w, h, q) in spec1) Add(lowE, "Outer", r, w, h, q);
+            foreach (var (r, w, h) in spec2) Add(lowE, "Outer", r, w, h, 1);
+            foreach (var (r, w, h, q) in spec1) Add(clear, "Inner", r, w, h, q);
+            foreach (var (r, w, h) in spec2) Add(ramly, "Inner", r, w, h, 1);
+
+            // 31138eb seeded these four house racks so STOCK / Run were not empty.
+            if (Stocks.Count == 0)
+            {
+                foreach (var (w, h) in new[] { (3210, 2250), (2500, 1875), (2440, 1830), (3660, 2440) })
+                {
+                    Stocks.Add(new StockEntryVm(
+                        w.ToString(CultureInfo.InvariantCulture),
+                        h.ToString(CultureInfo.InvariantCulture),
+                        string.Empty,
+                        "default rack")
+                    { IsUsedInRun = true });
+                }
+                OnPropertyChanged(nameof(HasStocks));
+                StocksStatusText = "Reference job house racks (3210×2250 / 2500×1875 / 2440×1830 / 3660×2440).";
+            }
+
+            RunMessage = "Reference calibration job loaded — 152 pieces: 76 low-e outer · 64 clear inner · 12 ramly inner.";
+            RefreshDerived();
         }
 
         private void RefreshDerived()
