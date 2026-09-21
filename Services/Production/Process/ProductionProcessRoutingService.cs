@@ -45,7 +45,9 @@ namespace ProGlassAutomation.Services.Production.Process
                 Position = workItem.Position,
                 BuildType = workItem.BuildType,
                 GlassRef = workItem.GlassRef,
-                PieceId = $"{workItem.JobRef}|{workItem.SpecGroupNumber}|{workItem.SerialNumber}|{workItem.Position}|{workItem.WidthMm}*{workItem.HeightMm}|0"
+                // Route is WorkItem-scoped. UniqueKey is the stable stage identity.
+                // Pane-instance ids (P0001…) are minted only by cutting expansion.
+                PieceId = workItem.UniqueKey ?? string.Empty
             };
 
             // Cutting always required — first stage

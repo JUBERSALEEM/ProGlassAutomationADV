@@ -16,6 +16,7 @@ using ProGlassAutomation.Models.Production.Process;
 using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Production;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -159,7 +160,7 @@ namespace ProGlassAutomation.Services.Production.Process
                         {
                             components.Add(new AssemblyComponent
                             {
-                                PieceId = $"{jobRef}|{specGroupNumber}|{serialNumber}|Outer|{outerWi.WidthMm}*{outerWi.HeightMm}|{i}",
+                                PieceId = ProductionPieceIdentity.FromWorkItem(outerWi, i + 1),
                                 GlassRef = outerWi.GlassRef,
                                 Position = "Outer",
                                 WorkItemId = outerWi.Id,
@@ -170,7 +171,7 @@ namespace ProGlassAutomation.Services.Production.Process
                         {
                             components.Add(new AssemblyComponent
                             {
-                                PieceId = $"{jobRef}|{specGroupNumber}|{serialNumber}|Inner|{innerWi.WidthMm}*{innerWi.HeightMm}|{i}",
+                                PieceId = ProductionPieceIdentity.FromWorkItem(innerWi, i + 1),
                                 GlassRef = innerWi.GlassRef,
                                 Position = "Inner",
                                 WorkItemId = innerWi.Id,

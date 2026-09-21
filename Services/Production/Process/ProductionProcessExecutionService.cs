@@ -107,18 +107,10 @@ namespace ProGlassAutomation.Services.Production.Process
                     return (true, $"Resumed {processType} for {pieceId}", existing);
                 }
 
-                // Determine input/output piece ids — preserve original, deterministic child when transformation creates new entity
+                // Stage move does not mint a new physical lite. Tempering keeps
+                // the same PieceId; pairing/assembly use PairingId/AssemblyId.
                 string inputPieceId = pieceId;
-                string outputPieceId = pieceId; // safe default — same PieceId preserved
-
-                // For transformations that genuinely create new entity (e.g., Tempering creates tempered version, Pairing creates Pair-001)
-                // Use deterministic child identity only when needed — for now preserve same, except Pairing/Doubling handled separately
-                if (processType == ProductionProcessType.Tempering)
-                {
-                    // Tempering: input P001 → output P001-T01 if we want child, but spec says if safe preserve same PieceId
-                    // We preserve same for traceability, but record PreviousStage/NextStage
-                    outputPieceId = $"{pieceId}-T01"; // deterministic child — preserves original via InputPieceId
-                }
+                string outputPieceId = pieceId;
 
                 var prevStage = route.PreviousRequiredBefore(processType)?.ToString() ?? "";
                 var nextStage = route.NextRequiredAfter(processType)?.ToString() ?? "";

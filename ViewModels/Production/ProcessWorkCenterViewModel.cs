@@ -606,7 +606,8 @@ namespace ProGlassAutomation.ViewModels.Production
             }
 
             var e = SelectedExecution;
-            TraceabilityLabel = $"PI {e.SourceProformaId} → JO {e.JobRef} → Spec {e.SpecGroupNumber}/{e.SerialNumber} {e.SpecName} → Position {e.Position} → Production Piece {e.PieceId} → Input {e.InputPieceId} → Process {((ProductionProcessType)e.ProcessType)} Execution {e.ExecutionId} Seq {e.Sequence} → Output {e.OutputPieceId} → WorkItem {e.OutputWorkItemId} → Previous {e.PreviousStage} → Next {e.NextStage} → Parent {e.ParentExecutionId} Rework {e.ReworkSequence} IsFoc {e.IsFoc} → QC {e.QcId} Status {e.QcStatus}";
+            string kind = ProductionPieceIdentity.Classify(e.PieceId);
+            TraceabilityLabel = $"PI {e.SourceProformaId} → JO {e.JobRef} → Spec {e.SpecGroupNumber}/{e.SerialNumber} {e.SpecName} → Position {e.Position} → Identity ({kind}) {e.PieceId} → Input {e.InputPieceId} → Process {((ProductionProcessType)e.ProcessType)} ExecutionId {e.ExecutionId} (not PieceId) Seq {e.Sequence} → Output {e.OutputPieceId} → WorkItem {e.OutputWorkItemId} → Previous {e.PreviousStage} → Next {e.NextStage} → Parent {e.ParentExecutionId} Rework {e.ReworkSequence} IsFoc {e.IsFoc} → QC {e.QcId} Status {e.QcStatus}";
         }
 
         private void UpdateProcessDetail()

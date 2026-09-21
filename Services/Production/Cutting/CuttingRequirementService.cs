@@ -13,6 +13,7 @@ using ProGlassAutomation.Models.Production.Cutting;
 using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Optimization;
+using ProGlassAutomation.Services.Production;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -76,7 +77,9 @@ namespace ProGlassAutomation.Services.Production.Cutting
                         globalSeq++;
                         int pieceIndex = q + 1;
 
-                        string pieceId = BuildPieceId(jobRef, wi.SpecGroupNumber, wi.SerialNumber, wi.Position, wi.WidthMm, wi.HeightMm, pieceIndex);
+                        string pieceId = ProductionPieceIdentity.BuildPaneInstanceId(
+                            jobRef, wi.SpecGroupNumber, wi.SerialNumber, wi.Position,
+                            wi.WidthMm, wi.HeightMm, pieceIndex, wi.ReplacementSequence);
 
                         var req = new CuttingRequirement
                         {

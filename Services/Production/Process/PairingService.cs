@@ -17,6 +17,7 @@ using ProGlassAutomation.Models.Production.Process;
 using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Production;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -107,28 +108,31 @@ namespace ProGlassAutomation.Services.Production.Process
                     .ThenBy(e => e.Sequence)
                     .ToListAsync(ct).ConfigureAwait(false);
 
-                // For each qty, create pairing
-                // Determine qty — from work items Qty (should be same for outer/inner)
-                int qty = workItems.FirstOrDefault()?.Qty ?? 1;
+                // Finished-unit count = pairing WorkItem.Qty (never pane-cut sum).
+                var doublingWi = workItems.FirstOrDefault(w => w.Stage == (int)ProductionStage.DoublingLamination);
+                var outerCutting = workItems.FirstOrDefault(w =>
+                    w.Stage == (int)ProductionStage.Cutting && IsOuterPosition(w.Position));
+                var innerCutting = workItems.FirstOrDefault(w =>
+                    w.Stage == (int)ProductionStage.Cutting && IsInnerPosition(w.Position));
+
+                int qty = pairingWi?.Qty ?? doublingWi?.Qty ?? 0;
+                if (qty <= 0)
+                    qty = Math.Min(outerCutting?.Qty ?? 1, innerCutting?.Qty ?? 1);
                 if (qty <= 0) qty = 1;
 
-                // Check gating: all required predecessor stages must be complete for outer/inner
-                // For simplicity, check that Cutting (and optional processing) for outer/inner are completed
-                // We check WorkItems QtyDone >= Qty for outer/inner cutting
-                var cuttingOuter = workItems.FirstOrDefault(w => w.Stage == (int)ProductionStage.Cutting &&
-                    (w.Position.Equals("Outer", StringComparison.OrdinalIgnoreCase) || w.Position.Equals("Glass", StringComparison.OrdinalIgnoreCase)));
-                var cuttingInner = workItems.FirstOrDefault(w => w.Stage == (int)ProductionStage.Cutting && w.Position.Equals("Inner", StringComparison.OrdinalIgnoreCase));
-
-                if (cuttingOuter != null && cuttingOuter.QtyDone < cuttingOuter.Qty)
-                    return (false, $"Pairing cannot begin — Outer cutting incomplete {cuttingOuter.QtyDone}/{cuttingOuter.Qty}", new List<SavedProcessPairing>());
-                if (cuttingInner != null && cuttingInner.QtyDone < cuttingInner.Qty)
-                    return (false, $"Pairing cannot begin — Inner cutting incomplete {cuttingInner.QtyDone}/{cuttingInner.Qty}", new List<SavedProcessPairing>());
+                if (outerCutting != null && outerCutting.QtyDone < outerCutting.Qty)
+                    return (false, $"Pairing cannot begin — Outer cutting incomplete {outerCutting.QtyDone}/{outerCutting.Qty}", new List<SavedProcessPairing>());
+                if (innerCutting != null && innerCutting.QtyDone < innerCutting.Qty)
+                    return (false, $"Pairing cannot begin — Inner cutting incomplete {innerCutting.QtyDone}/{innerCutting.Qty}", new List<SavedProcessPairing>());
 
                 // Deterministic pairing — stable: JobRef Spec Serial Position Component identity Piece index
                 var pairings = new List<SavedProcessPairing>();
                 var existingPairings = await db.ProcessPairings.AsNoTracking()
                     .Where(p => p.JobRef == jobRef && p.SpecGroupNumber == specGroupNumber && p.SerialNumber == serialNumber)
                     .ToListAsync(ct).ConfigureAwait(false);
+
+                var outerPlaced = await LoadLatestPlacedPanesAsync(db, outerCutting, ct).ConfigureAwait(false);
+                var innerPlaced = await LoadLatestPlacedPanesAsync(db, innerCutting, ct).ConfigureAwait(false);
 
                 for (int i = 0; i < qty; i++)
                 {
@@ -138,16 +142,15 @@ namespace ProGlassAutomation.Services.Production.Process
                     if (existingPairings.Any(p => p.PairingId == pairingId))
                         continue; // idempotent — no duplicate pairing
 
-                    // Deterministic piece ids — preserve original piece identity
-                    string outerPieceId = $"{jobRef}|{specGroupNumber}|{serialNumber}|Outer|{1000}*{1000}|{i}"; // simplified, actual should use real PieceId from cutting
-                    string innerPieceId = $"{jobRef}|{specGroupNumber}|{serialNumber}|Inner|{1000}*{1000}|{i}";
+                    var outerExec = executions.FirstOrDefault(e =>
+                        IsOuterPosition(e.Position) && e.Sequence == i);
+                    var innerExec = executions.FirstOrDefault(e =>
+                        IsInnerPosition(e.Position) && e.Sequence == i);
 
-                    // Try to get real PieceId from executions if available
-                    var outerExec = executions.FirstOrDefault(e => e.Position.Equals("Outer", StringComparison.OrdinalIgnoreCase) && e.Sequence == i);
-                    var innerExec = executions.FirstOrDefault(e => e.Position.Equals("Inner", StringComparison.OrdinalIgnoreCase) && e.Sequence == i);
-
-                    if (outerExec != null) outerPieceId = outerExec.OutputPieceId;
-                    if (innerExec != null) innerPieceId = innerExec.OutputPieceId;
+                    string outerPieceId = ResolvePaneInstanceId(
+                        i, outerPlaced, outerExec, outerCutting, jobRef, specGroupNumber, serialNumber, "Outer");
+                    string innerPieceId = ResolvePaneInstanceId(
+                        i, innerPlaced, innerExec, innerCutting, jobRef, specGroupNumber, serialNumber, "Inner");
 
                     // Outer/inner work item ids
                     int outerWiId = outerItems.FirstOrDefault()?.Id ?? 0;
@@ -205,6 +208,62 @@ namespace ProGlassAutomation.Services.Production.Process
                     ex, new LogContext { Module = "Production", Class = nameof(PairingService), Operation = nameof(PairAsync) });
                 return (false, $"Pairing failed: {ex.Message}", new List<SavedProcessPairing>());
             }
+        }
+
+        private static bool IsOuterPosition(string? position) =>
+            !string.IsNullOrWhiteSpace(position) &&
+            (position.Equals("Outer", StringComparison.OrdinalIgnoreCase) ||
+             position.Equals("Lam Outer", StringComparison.OrdinalIgnoreCase) ||
+             position.Equals("Glass", StringComparison.OrdinalIgnoreCase));
+
+        private static bool IsInnerPosition(string? position) =>
+            !string.IsNullOrWhiteSpace(position) &&
+            (position.Equals("Inner", StringComparison.OrdinalIgnoreCase) ||
+             position.Equals("Lam Inner", StringComparison.OrdinalIgnoreCase));
+
+        private static async Task<List<SavedCuttingPlacedPiece>> LoadLatestPlacedPanesAsync(
+            ProductionDbContext db,
+            SavedProductionWorkItem? cuttingWi,
+            CancellationToken ct)
+        {
+            if (cuttingWi == null || cuttingWi.Id <= 0)
+                return new List<SavedCuttingPlacedPiece>();
+
+            var rows = await db.CuttingPlacedPieces.AsNoTracking()
+                .Where(p => p.SourceWorkItemId == cuttingWi.Id)
+                .ToListAsync(ct).ConfigureAwait(false);
+
+            return rows
+                .GroupBy(p => p.PieceId, StringComparer.Ordinal)
+                .Select(g => g.OrderByDescending(p => p.CreatedAt).First())
+                .OrderBy(p => p.PieceId, StringComparer.Ordinal)
+                .ToList();
+        }
+
+        private static string ResolvePaneInstanceId(
+            int index0,
+            List<SavedCuttingPlacedPiece> placed,
+            SavedProcessExecution? exec,
+            SavedProductionWorkItem? cuttingWi,
+            string jobRef,
+            int specGroupNumber,
+            int serialNumber,
+            string defaultPosition)
+        {
+            if (index0 >= 0 && index0 < placed.Count
+                && ProductionPieceIdentity.IsPaneInstanceId(placed[index0].PieceId))
+                return placed[index0].PieceId;
+
+            if (exec != null && ProductionPieceIdentity.IsPaneInstanceId(exec.OutputPieceId))
+                return exec.OutputPieceId;
+            if (exec != null && ProductionPieceIdentity.IsPaneInstanceId(exec.PieceId))
+                return exec.PieceId;
+
+            if (cuttingWi != null)
+                return ProductionPieceIdentity.FromWorkItem(cuttingWi, index0 + 1);
+
+            return ProductionPieceIdentity.BuildPaneInstanceId(
+                jobRef, specGroupNumber, serialNumber, defaultPosition, 0, 0, index0 + 1);
         }
 
         public static async Task<List<SavedProcessPairing>> GetByJobAsync(string jobRef, CancellationToken ct = default)
