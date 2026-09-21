@@ -447,7 +447,8 @@ namespace ProGlassAutomation.Services.Optimization
                 best = Better(best, CheckCandidate(smartPass, batchPieces, margins, cancellationToken));
             }
 
-            return best ?? areaPass;
+            return ImprovePatterns(best ?? areaPass, batchPieces, stocks, margins, rotation,
+                1, effortLevel, cancellationToken);
         }
 
         /// <summary>

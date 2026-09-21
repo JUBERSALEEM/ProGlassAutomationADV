@@ -226,19 +226,22 @@ namespace ProGlassAutomation.Services.Optimization
         private static OptimizationResult RunBestSplitBeam(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, int beam,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            OrderBy ordering = OrderBy.MaxSide, int maxExpansions = int.MaxValue,
+            int consolidationSweeps = int.MaxValue, int[] initiallyUsed = null)
         {
             if (beam < 1) beam = 1;
-            var start = Sort(pieces, OrderBy.MaxSide);
+            var start = Sort(pieces, ordering);
+            int expansions = 0;
 
             var states = new List<BeamState>
             {
-                new BeamState { Sheets = new List<SheetState>(), Per = new int[stocks.Count], Remaining = start }
+                new BeamState { Sheets = new List<SheetState>(), Per = initiallyUsed == null ? new int[stocks.Count] : (int[])initiallyUsed.Clone(), Remaining = start }
             };
             List<SheetState> winner = null;
             long winnerArea = -1;
 
-            while (states.Count > 0)
+            while (states.Count > 0 && expansions < maxExpansions)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var next = new List<BeamState>();
@@ -258,6 +261,7 @@ namespace ProGlassAutomation.Services.Optimization
                         continue;
                     }
 
+                    if (expansions++ >= maxExpansions) break;
                     foreach (var split in AllSplits)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
@@ -286,12 +290,12 @@ namespace ProGlassAutomation.Services.Optimization
                     .ThenBy(s => s.Sheets.Count)
                     .ThenByDescending(s => s.Sheets.Sum(PlacedArea)))
                 {
-                    // Two states that have opened the same number of plates
-                    // and hold the same multiset of remaining sizes are the
-                    // same search position — expanding both is wasted work.
-                    string sig = s.Sheets.Count + "|" + string.Join(",",
-                        s.Remaining.OrderBy(p => p.WidthMm).ThenBy(p => p.HeightMm)
-                                   .Select(p => p.WidthMm.ToString() + "x" + p.HeightMm.ToString()));
+                    // Only merge equivalent rack consumption AND remaining
+                    // size/rotation multisets. Equal sheet counts alone hide
+                    // different finite-stock choices and locked-pane futures.
+                    string sig = string.Join(",", s.Per) + "|" + string.Join(",",
+                        s.Remaining.OrderBy(p => p.WidthMm).ThenBy(p => p.HeightMm).ThenBy(p => p.AllowRotate)
+                                   .Select(p => p.WidthMm.ToString() + "x" + p.HeightMm.ToString() + ":" + p.AllowRotate));
                     if (!seen.Add(sig)) continue;
                     deduped.Add(s);
                     if (deduped.Count >= beam) break;
@@ -304,7 +308,7 @@ namespace ProGlassAutomation.Services.Optimization
                 return FinishFromSheets(new List<SheetState>(), start, rotation, "BEST-SPLIT-BEAM");
 
             ConsolidateAll(winner, margins, rotation, SplitMode.HorizontalFirst,
-                cancellationToken: cancellationToken);
+                consolidationSweeps, cancellationToken: cancellationToken);
             return FinishFromSheets(winner, new List<CutPiece>(), rotation, "BEST-SPLIT-BEAM");
         }
     }

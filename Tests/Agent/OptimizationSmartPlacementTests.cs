@@ -295,8 +295,9 @@ namespace ProGlassAutomation.Tests.Agent
             var quick = GuillotinePacker.PackQuick(
                 MixedJob(), new List<StockSize> { Rack() }, Margins(), RotationPolicy.Free90);
 
-            Assert.Contains(quick.Strategy, new[] { "QUICK SHELF (Area / HorizontalFirst)",
-                "CAPACITY STRIPS (columns)", "CAPACITY STRIPS (rows)" });
+            Assert.True(quick.Strategy.StartsWith("PATTERN BEAM (", StringComparison.Ordinal)
+                || new[] { "QUICK SHELF (Area / HorizontalFirst)", "CAPACITY STRIPS (columns)",
+                    "CAPACITY STRIPS (rows)" }.Contains(quick.Strategy));
         }
 
         [Fact]

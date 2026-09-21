@@ -9,7 +9,7 @@
 // Clear 16 sheets @ 84.92%, Ramly 1 sheet on 2500×1875.
 //
 // Stages
-//   PackQuick    — deterministic portfolio: area-first shelf plus capacity strips,
+//   PackQuick    — deterministic portfolio: area-first shelf, capacity strips and bounded pattern beam,
 //                  horizontal-first guillotine splits, adaptive
 //                  rotation, consolidation.
 //   PackOptimize — multi-start effort levels (orderings × split modes,
@@ -35,8 +35,7 @@
 // Guarantees (pinned by oracle tests via Verify):
 //   • pieces never overlap — kerf gap enforced between neighbours
 //   • pieces stay inside the usable rectangle (stock − LM/RM/TM/BM)
-//   • rotation only when the policy allows it (Free90 = original
-//     orientation first, rotate only when the piece otherwise won't fit)
+//   • rotation only when the policy and the individual pane allow it
 //   • deterministic — same input, same layout
 //   • smart placement never offers stock narrower than the minimum
 //     breakout, so it cannot ask the floor to cut an uncuttable sliver
@@ -163,7 +162,7 @@ namespace ProGlassAutomation.Services.Optimization
             }
         }
 
-        /// <summary>QUICK stage — a fixed shelf/column/row candidate portfolio.</summary>
+        /// <summary>QUICK stage — a fixed shelf/strip/bounded-pattern portfolio.</summary>
         /// <param name="progress">Optional per-part progress. QUICK reported
         /// nothing at all until 2026-09-17, so the bar sat pinned at 0% for the
         /// whole run and then jumped to 100% — and because a Step 5 quote is
@@ -193,9 +192,10 @@ namespace ProGlassAutomation.Services.Optimization
             // Area is also identical on Clear (17) and Ramly (1 sheet, smallest
             // stock), so it is a strict improvement for the QUICK stage.
             // Keep the old shelf candidate and its scale limits. Add two
-            // bounded capacity-strip candidates below; QUICK remains a fixed
-            // portfolio rather than an effort-dependent multi-start search.
+            // bounded capacity-strip and pattern-beam candidates below; QUICK
+            // remains a fixed portfolio rather than a full deep search.
             var plan = OptimizationSearchGovernor.PlanForQuick(pieces.Count);
+            var quickWatch = System.Diagnostics.Stopwatch.StartNew();
             int window = plan.OpenSheetWindow;
             var result = RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
                 cancellationToken, plan.MaxConsolidationSweeps,
@@ -212,6 +212,12 @@ namespace ProGlassAutomation.Services.Optimization
                 var strips = RunCapacityStrips(pieces, stocks, margins, rotation, transpose, cancellationToken);
                 result = Better(result, CheckCandidate(strips, pieces, margins, cancellationToken));
             }
+            progress?.Report(OptimizeProgress.Of("pattern", 90, 100,
+                "Bounded Best-Split pattern search (beam 4 + 8)"));
+            result = ImprovePatterns(result, pieces, stocks, margins, rotation, 1, 1,
+                cancellationToken, () => quickWatch.Elapsed >= plan.TimeBudget);
+            if (quickWatch.Elapsed >= plan.TimeBudget)
+                result.ScaleNotes.Add("QUICK pattern budget reached; retained the best validated candidate found.");
             if (result.HasValidationFailure)
                 result.ScaleNotes.Add("WARNING: no valid QUICK candidate — inspection only, not exportable.");
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
@@ -318,6 +324,8 @@ namespace ProGlassAutomation.Services.Optimization
             // search can improve it but cannot replace it with an invalid plan.
             OptimizationResult best = PackQuick(pieces, stocks, margins, rotation,
                 cancellationToken: cancellationToken);
+            best = ImprovePatterns(best, pieces, stocks, margins, rotation, 2, effortLevel,
+                cancellationToken, BudgetExhausted);
             void Consider(OptimizationResult candidate) =>
                 best = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken));
             for (int ci = 0; ci < comboList.Count; ci++)

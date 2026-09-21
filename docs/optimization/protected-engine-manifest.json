@@ -28,18 +28,26 @@
       "reason": "2026-09-21 owner request: thick-glass LM/RM/BM 50, TM 0; breakout 50 or 40. Only the house table and its comments changed; baseline hash above retained."
     },
     "Services/Optimization/GuillotinePacker.cs": {
-      "sha256": "22505d7eb9a3530a84381133e6884a08721735938d77b4ca622bd750f1bfd111",
-      "reason": "2026-09-21 explicit owner request to improve QUICK generically: retain legacy passes, add capacity-strip portfolio, valid-first candidate selection and comprehensive breakout/conservation/stock-cap validation. Not a source-engine port; baseline hash retained."
+      "sha256": "5c77ca468a3f6aee2f7f1f3a27f445199cf486245ff43c604d6286c4532342fe",
+      "reason": "2026-09-21 explicit owner request to improve QUICK generically: retain legacy passes, add capacity-strip portfolio, valid-first candidate selection and comprehensive breakout/conservation/stock-cap validation. Not a source-engine port; baseline hash retained. 2026-09-21 owner request: promote beam 4/8 to bounded Level 1 pattern search, add cumulative wider/order-diverse searches at levels 2-5, preserve inventory and rotation distinctions during state deduplication."
     },
     "Services/Optimization/GuillotinePacker.Partitioned.cs": {
-      "sha256": "0361bfa133e8cd4d1fc8b24a0676975f3ade4504913682dbced67b01fce79914",
-      "reason": "2026-09-21 explicit owner request: retain advanced partitioned search, include capacity strips in batch/global floors, validate candidates before selection, and enforce finite stock globally. Baseline hash retained."
+      "sha256": "d12eb7536302717ae42bb63d6192cdd312f9abd4b532ecbcdd2f4ab5a81a74ec",
+      "reason": "2026-09-21 explicit owner request: retain advanced partitioned search, include capacity strips in batch/global floors, validate candidates before selection, and enforce finite stock globally. Baseline hash retained. 2026-09-21 owner request: promote beam 4/8 to bounded Level 1 pattern search, add cumulative wider/order-diverse searches at levels 2-5, preserve inventory and rotation distinctions during state deduplication."
+    },
+    "Services/Optimization/GuillotinePacker.BestSplit.cs": {
+      "reason": "Original baseline hash retained; existing Best-Split algorithm preserved. 2026-09-21 owner request: promote beam 4/8 to bounded Level 1 pattern search, add cumulative wider/order-diverse searches at levels 2-5, preserve inventory and rotation distinctions during state deduplication.",
+      "sha256": "43239f572f09fd56392f5f602d09b7696dccea35cc314769a8353a011bfc81fc"
     }
   },
   "approved_additions": {
     "Services/Optimization/GuillotinePacker.CapacityStrips.cs": {
       "sha256": "7f94d451089d1cb55b20a1b6ff9bfc62eb5f1397999de2f0d3f9d8b3617ec6cb",
       "reason": "2026-09-21 explicit owner authorization: generic bounded row/column capacity lookahead and capacity-family widening; no customer-specific dimensions or quantity cap."
+    },
+    "Services/Optimization/GuillotinePacker.PatternSearch.cs": {
+      "sha256": "89bb9bed5588f89103cb45e9abd12c0e9f7ffa7fdc620b8e8a1f241789751b13",
+      "reason": "2026-09-21 owner-authorized Level 1 strategy promotion: bounded whole-small-job or weak-sheet-window pattern search, finite-stock reservation and validated immutable-floor comparison. No customer cutting-list data."
     }
   }
 }

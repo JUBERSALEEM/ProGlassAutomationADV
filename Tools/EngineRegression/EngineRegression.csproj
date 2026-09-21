@@ -21,6 +21,7 @@
     <Compile Include="../../Services/Optimization/OptimizationPartitionModels.cs" Link="Engine/OptimizationPartitionModels.cs" />
     <Compile Include="../../Services/Optimization/PieceCandidateIndex.cs" Link="Engine/PieceCandidateIndex.cs" />
     <Compile Include="../../Services/Optimization/OptimizationProgress.cs" Link="Engine/OptimizationProgress.cs" />
+    <Compile Include="../../Tests/Optimization/PatternSearchRegressionTests.cs" Link="Tests/PatternSearchRegressionTests.cs" />
     <Compile Include="../../Tests/Optimization/CapacityStripRegressionTests.cs" Link="Tests/CapacityStripRegressionTests.cs" />
     <Compile Include="../../Tests/Agent/OptimizationEngineTests.cs" Link="Tests/OptimizationEngineTests.cs" />
     <Compile Include="../../Tests/Agent/OptimizationBenchmarkTests.cs" Link="Tests/OptimizationBenchmarkTests.cs" />
