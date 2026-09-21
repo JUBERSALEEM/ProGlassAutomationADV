@@ -74,9 +74,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
             get => _selectedCuttingGroup;
             set
             {
-                if (_selectedCuttingGroup == value || value == null) return;
-                _selectedCuttingGroup = value;
+                if (_rebuildingCuttingGroups || value == null) return;
+                string next = CuttingGroups.FirstOrDefault(group =>
+                    string.Equals(group, value, StringComparison.OrdinalIgnoreCase)) ?? AllCuttingGroups;
+                if (_selectedCuttingGroup == next) return;
+                _selectedCuttingGroup = next;
                 OnPropertyChanged();
+                RefreshSizeViews();
             }
         }
 
@@ -92,27 +96,33 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// inner / …) so the operator can optimize one pane group at a time
         /// against its own Step 4 sheet. Selection survives edits.
         /// </summary>
+        private bool _rebuildingCuttingGroups;
         private void RebuildCuttingGroups()
         {
-            string previous = _selectedCuttingGroup;
+            _rebuildingCuttingGroups = true;
+            try
+            {
+                string previous = _selectedCuttingGroup;
 
-            var compositions = Pieces
-                .Where(p => p.TryParse(out _, out _, out _))
-                .Select(p => (p.GlassRef ?? string.Empty).Trim())
-                .Where(c => c.Length > 0)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
-                .ToList();
+                var compositions = Pieces
+                    .Where(p => p.TryParse(out _, out _, out _))
+                    .Select(p => (p.GlassRef ?? string.Empty).Trim())
+                    .Where(c => c.Length > 0)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
 
-            CuttingGroups.Clear();
-            CuttingGroups.Add(AllCuttingGroups);
-            foreach (var c in compositions) CuttingGroups.Add(c);
+                CuttingGroups.Clear();
+                CuttingGroups.Add(AllCuttingGroups);
+                foreach (var c in compositions) CuttingGroups.Add(c);
 
-            // Keep the selection only if it still exists — and point it at
-            // the canonical list item so the ComboBox selection matches.
-            var matched = compositions.FirstOrDefault(c =>
-                string.Equals(c, previous, StringComparison.OrdinalIgnoreCase));
-            _selectedCuttingGroup = matched ?? AllCuttingGroups;
+                // Keep the selection only if it still exists — and point it at
+                // the canonical list item so the ComboBox selection matches.
+                var matched = compositions.FirstOrDefault(c =>
+                    string.Equals(c, previous, StringComparison.OrdinalIgnoreCase));
+                _selectedCuttingGroup = matched ?? AllCuttingGroups;
+            }
+            finally { _rebuildingCuttingGroups = false; }
             OnPropertyChanged(nameof(SelectedCuttingGroup));
         }
 

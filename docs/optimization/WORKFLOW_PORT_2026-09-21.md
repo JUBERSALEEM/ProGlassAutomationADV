@@ -1,5 +1,7 @@
 # Optimization workflow port — engineering analysis and handoff
 
+> **2.0.7 follow-up:** the reported job/pane/Sizes failure exposed a retained integer-parser bug (successful parse with zero outputs), missing card/gesture wiring and stale group projections. See [the repair and revised assessment](IMPORT_WORKFLOW_REPAIR_2026-09-21.md). Earlier workflow ratings are not evidence of a working import. Current portable checks: **11/11**; Windows build and runtime acceptance remain pending.
+
 ## Status
 
 **Implemented in the working tree; not certified as a working Windows release.**

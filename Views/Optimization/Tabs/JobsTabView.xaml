@@ -9,20 +9,11 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}">
 
                 <!-- ── TAB 0 · JOBS ─────────────────────────────────── -->
                 <Grid>
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
 
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="360"/>
@@ -46,7 +37,8 @@
                                      Style="{StaticResource ModuleListFilterInputStyle}" Margin="0,0,0,12"
                                      ToolTip="Filter by job id, customer or summary"/>
 
-                            <ListBox Grid.Row="2" ItemsSource="{Binding FilteredJobs}"
+                            <ListBox x:Name="JobPicker" Grid.Row="2" ItemsSource="{Binding FilteredJobs}"
+                                     SelectedItem="{Binding SelectedJob, Mode=TwoWay}"
                                      Style="{StaticResource OptListBox}"
                                      ItemContainerStyle="{StaticResource OptListBoxItem}">
                                 <ListBox.ItemTemplate>
@@ -57,7 +49,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="*"/>
                                                 </Grid.ColumnDefinitions>
-                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                           VerticalAlignment="Top" Margin="0,2,12,0"
                                                           Style="{StaticResource LiquidGlassCheckBox}"
                                                           ToolTip="Tick to include this job's panes — tick many jobs to combine (e.g. shared low-e outers merge into one cutting group)"/>
@@ -67,6 +59,9 @@
                                                     <TextBlock Text="{Binding SourceLabel, Mode=OneWay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                                Foreground="{DynamicResource AccentBrush}" Margin="0,1,0,0"/>
+                                                    <TextBlock Text="{Binding WarningSummary}" TextWrapping="Wrap"
+                                                               Foreground="{DynamicResource WarningBrush}"
+                                                               Visibility="{Binding HasWarnings, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                     <TextBlock Text="{Binding CustomerName}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextTrimming="CharacterEllipsis" Margin="0,1,0,8"/>
@@ -154,6 +149,8 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Padding="4,7" BorderThickness="0,0,0,1"
+                                                        Background="Transparent" MouseLeftButtonDown="PaneRow_MouseLeftButtonDown"
+                                                        ToolTip="Double-click to import this pane and open its sizes"
                                                         BorderBrush="{DynamicResource DividerBrush}">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
@@ -164,7 +161,7 @@
                                                             <ColumnDefinition Width="72"/>
                                                             <ColumnDefinition Width="86"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                   VerticalAlignment="Center"
                                                                   Style="{StaticResource LiquidGlassCheckBox}"/>
                                                         <TextBlock Grid.Column="1" Text="{Binding Sub}" FontSize="{DynamicResource FontSize.BodySmall}"
@@ -189,8 +186,9 @@
                                     </ItemsControl>
                                 </ScrollViewer>
 
-                                <Button Content="{Binding AddPanesButtonLabel}" Style="{StaticResource PrimaryPillButton}"
+                                <Button x:Name="AddSelectedPanesButton" Content="{Binding AddPanesButtonLabel}" Style="{StaticResource PrimaryPillButton}"
                                         Command="{Binding AddSelectedPanesCommand}"
+                                        IsEnabled="{Binding HasSelectedPanes}"
                                         HorizontalAlignment="Stretch" Margin="0,12,0,0"
                                         Visibility="{Binding HasPaneChecklist, Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
@@ -218,8 +216,8 @@
                                                    Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Button Content="Load reference job" Style="{StaticResource OptGhostButton}"
-                                                Command="{Binding LoadReferenceJobCommand}" Margin="0,0,4,0"/>
+                                        <Button Content="View imported sizes →" Style="{StaticResource OptGhostButton}"
+                                                Command="{Binding OpenImportedSizesCommand}" Margin="0,0,4,0"/>
                                         <Button Content="Clear list" Style="{StaticResource OptGhostButton}"
                                                 Command="{Binding ClearPiecesCommand}"/>
                                     </StackPanel>
@@ -286,6 +284,8 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <Border Padding="4,7" BorderThickness="0,0,0,1"
+                                                        Background="Transparent" MouseLeftButtonDown="CuttingRow_MouseLeftButtonDown"
+                                                        ToolTip="Double-click to open this glass group's imported sizes"
                                                         BorderBrush="{DynamicResource DividerBrush}">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>

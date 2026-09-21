@@ -9,20 +9,11 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}">
 
                 <!-- ── TAB 3 · SETTINGS ─────────────────────────────── -->
                 <Grid>
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
 
                     <Border Style="{StaticResource OptPanelCard}">
                         <StackPanel MaxWidth="760" HorizontalAlignment="Left">

@@ -112,8 +112,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (string.IsNullOrWhiteSpace(text)) return false;
                 text = text.Trim();
 
-                if (int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out int direct))
-                    return direct > 0;
+                // Match the source branch's integer import path: assign the OUT
+                // value, not a temporary. Returning true with value still zero
+                // erased W/H/Qty in SIZES and in the engine's input expansion.
+                if (int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value))
+                    return value > 0;
 
                 if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double d))
                 {
@@ -220,13 +223,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             HasPieces = count > 0;
 
+            RebuildCuttingGroups();
+            RefreshSizeViews();
+            RefreshKpis();
+            RebuildIndustrialReport();
+        }
+
+        private void RefreshSizeViews()
+        {
             // Merge groups carry ONLY their own pcs + area (low-e 76, clear
             // 64, ramly 12) — and reflect the cutting-group selector, so
             // picking "low-e outer" shows that group alone.
             SizeGroups.Clear();
             foreach (var grp in Pieces
                 .Where(p => p.TryParse(out _, out _, out _))
-                .GroupBy(p => (p.GlassRef ?? string.Empty).Trim())
+                .GroupBy(p => (p.GlassRef ?? string.Empty).Trim(), StringComparer.OrdinalIgnoreCase)
                 .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase))
             {
                 if (!SelectedGroupMatches(grp.Key)) continue;
@@ -253,10 +264,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 });
             }
 
-            RebuildCuttingGroups();
             RebuildCutPlan();
-            RefreshKpis();
-            RebuildIndustrialReport();
         }
 
         /// <summary>

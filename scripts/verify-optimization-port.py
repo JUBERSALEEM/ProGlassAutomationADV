@@ -71,6 +71,56 @@ class OptimizationPort(unittest.TestCase):
                                     f"Undeclared result members: {assigned - members}")
                     self.assertIn("StockSize", assigned)
 
+    def test_integer_import_parser_assigns_its_out_value(self):
+        source = read("ViewModels/Optimization/OptimizationViewModel.Parts.cs")
+        parser = source.split("private static bool ParsePositiveInt", 1)[1].split(
+            "public ObservableCollection<PieceEntryVm>", 1)[0]
+        # The previous helper returned true for integers but left value = 0.
+        self.assertRegex(parser, r"int\.TryParse\(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value\)\)\s*return value > 0;")
+        self.assertNotIn("out int direct", parser)
+
+    def test_job_selection_import_button_and_double_clicks_are_wired(self):
+        ns = {"w": "http://schemas.microsoft.com/winfx/2006/xaml/presentation"}
+        xname = "{http://schemas.microsoft.com/winfx/2006/xaml}Name"
+        view = ET.fromstring(read("Views/Optimization/Tabs/JobsTabView.xaml"))
+        picker = next(node for node in view.iter() if node.get(xname) == "JobPicker")
+        self.assertEqual("{Binding SelectedJob, Mode=TwoWay}", picker.get("SelectedItem"))
+        button = next(node for node in view.iter() if node.get(xname) == "AddSelectedPanesButton")
+        self.assertEqual("{Binding AddSelectedPanesCommand}", button.get("Command"))
+        self.assertEqual("{Binding AddPanesButtonLabel}", button.get("Content"))
+        handlers = {node.get("MouseLeftButtonDown") for node in view.findall(".//w:Border", ns)}
+        code = read("Views/Optimization/Tabs/JobsTabView.xaml.cs")
+        for handler in ("PaneRow_MouseLeftButtonDown", "CuttingRow_MouseLeftButtonDown"):
+            self.assertIn(handler, handlers)
+            self.assertIn("private void " + handler, code)
+        for command in ("ImportPaneSizesCommand", "OpenPieceSizesCommand"):
+            self.assertIn(command + ".CanExecute", code)
+            self.assertIn(command + ".Execute", code)
+        jobs = read("ViewModels/Optimization/OptimizationViewModel.Jobs.cs")
+        self.assertIn("value.IsSelected = true;", jobs)
+        self.assertIn("options.Add(BuildJobOption(", jobs)
+        self.assertIn("ProductionDistributionEngine.Distribute(jobOrderId, invoice)", jobs)
+        self.assertIn("ImportPaneLayers(PaneChecklist.Where", jobs)
+
+    def test_sizes_refresh_when_filter_changes_or_is_removed(self):
+        sizes = read("ViewModels/Optimization/OptimizationViewModel.Sizes.cs")
+        setter = sizes.split("public string SelectedCuttingGroup", 1)[1].split(
+            "public const string AllCuttingGroups", 1)[0]
+        self.assertIn("RefreshSizeViews();", setter)
+        source = read("ViewModels/Optimization/OptimizationViewModel.Parts.cs")
+        derive = source.split("private void RefreshDerived()", 1)[1].split(
+            "private void RefreshSizeViews()", 1)[0]
+        self.assertLess(derive.index("RebuildCuttingGroups();"), derive.index("RefreshSizeViews();"))
+
+    def test_inactive_tabs_collapse_at_usercontrol_boundary(self):
+        indices = {"Jobs": 0, "Sizes": 1, "Stocks": 2, "Settings": 3,
+                   "Summary": 4, "TwoDView": 5, "Report": 6, "CutList": 7}
+        for name, index in indices.items():
+            with self.subTest(tab=name):
+                view = ET.fromstring(read(f"Views/Optimization/Tabs/{name}TabView.xaml"))
+                self.assertEqual("{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter="
+                                 + str(index) + "}", view.get("Visibility"))
+
     def test_headless_host_and_rate_only_sync(self):
         composer = read("ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs")
         self.assertIn("OptimizationViewModel(isHeadlessHost: true)", composer)

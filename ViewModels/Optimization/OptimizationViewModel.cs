@@ -80,7 +80,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             ClearPiecesCommand = new RelayCommand(_ => { Pieces.Clear(); RefreshDerived(); });
             LoadReferenceJobCommand = new RelayCommand(_ => LoadReferenceJob());
             RefreshJobsCommand = new RelayCommand(_ => LoadJobsAsync());
-            AddSelectedPanesCommand = new RelayCommand(_ => AddSelectedPanes());
+            AddSelectedPanesCommand = new RelayCommand(_ => AddSelectedPanes(),
+                _ => CanUseJobInputs && HasSelectedPanes);
             SelectAllPanesCommand = new RelayCommand(_ => SetAllPanesSelected(true));
             ClearPaneSelectionCommand = new RelayCommand(_ => SetAllPanesSelected(false));
             if (!IsHeadlessHost) LoadJobsAsync();

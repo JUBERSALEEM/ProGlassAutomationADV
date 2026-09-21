@@ -245,9 +245,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
             get => _selectedJob;
             set
             {
-                if (_selectedJob == value) return;
-                _selectedJob = value;
-                OnPropertyChanged();
+                if (IsDisposed || IsRunning || IsHeadlessHost) return;
+                if (_selectedJob != value)
+                {
+                    _selectedJob = value;
+                    OnPropertyChanged();
+                }
+                // Clicking/keyboard-selecting a job card must behave like ticking
+                // it. Keep other ticked jobs: the picker is a combined-job workflow.
+                if (value != null && AvailableJobs.Contains(value))
+                {
+                    AttachJobOption(value);
+                    value.IsSelected = true;
+                }
             }
         }
 
@@ -292,6 +302,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 OnPropertyChanged(nameof(SelectedPaneSummary));
                 OnPropertyChanged(nameof(HasSelectedPanes));
                 OnPropertyChanged(nameof(AddPanesButtonLabel));
+                if (AddSelectedPanesCommand is RelayCommand command) command.RaiseCanExecuteChanged();
             }
         }
         public string SelectedPaneSummary => SelectedPaneCount == 0
@@ -319,7 +330,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// <summary>Shown on JOBS/SIZES tabs while the cutting list is empty.</summary>
         public string PiecesEmptyHint => HasPieces
             ? string.Empty
-            : "No pieces yet — select a confirmed job order on the left and load its cutting list, or add pieces manually below.";
+            : "Select a job, tick its panes, then press Add selected panes. Double-click an imported row to open its sizes.";
 
         public ICommand RefreshJobsCommand { get; }
         public ICommand AddSelectedPanesCommand { get; }
@@ -381,167 +392,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     var snapshot = JobOrderMapper.DeserializeSnapshot(jo);
                     var invoice = snapshot?.EmbeddedInvoice;
-                    var plan = ProductionDistributionEngine.Distribute(jo.JobOrderId, invoice);
-
-                    var cut = plan.Items
-                        .Where(i => i.Stage == ProductionStage.Cutting && i.WidthMm > 0 && i.HeightMm > 0)
-                        .ToList();
-
-                    var opt = new JobOptionVm
-                    {
-                        JobOrderId = jo.JobOrderId,
-                        SourceProformaId = jo.SourceProformaId ?? string.Empty,
-                        CustomerName = jo.CustomerName
-                    };
-
-                    // ── Step 4/5 spec build-up (outer → ASP → inner) ─────
-                    // Each spec group becomes a strip of layer boxes using
-                    // the SAME pane routing the production floor uses
-                    // (W1/H1 = outer, W2/H2 = inner, equal-size fallback).
-                    // Two specs sharing one outer pane (low-e on a clear DGU
-                    // and on an obscure DGU) expose that pane once per spec —
-                    // the operator ticks both and the SIZES merge folds them
-                    // into ONE cutting group by composition.
-                    var groups = (invoice?.SpecGroups ?? new List<SpecGroupSnapshot>())
-                        .Where(g => g != null)
-                        .OrderBy(g => g.GroupNumber)
-                        .ToList();
-
-                    foreach (var group in groups)
-                    {
-                        string buildType = ProductionDistributionEngine.ResolveBuildType(group, invoice);
-                        var occurrences = ProductionDistributionEngine.ResolvePaneOccurrences(buildType, group);
-                        var spec = new SpecOptionVm
-                        {
-                            JobOrderId = jo.JobOrderId,
-                            SpecGroupNumber = group.GroupNumber,
-                            SpecName = group.SelectedSpecName ?? string.Empty,
-                            BuildType = buildType
-                        };
-
-                        int paneIndex = 0;
-                        foreach (var occ in occurrences)
-                        {
-                            var paneItems = cut
-                                .Where(i => i.SpecGroupNumber == group.GroupNumber
-                                    && string.Equals(i.Position, occ.Position, StringComparison.OrdinalIgnoreCase))
-                                .ToList();
-                            if (paneItems.Count == 0) continue;
-
-                            string composition = string.IsNullOrWhiteSpace(occ.Composition)
-                                ? group.SelectedSpecName ?? string.Empty
-                                : occ.Composition;
-
-                            var layer = new BuildUpLayerVm
-                            {
-                                Kind = "Pane",
-                                JobOrderId = jo.JobOrderId,
-                                ProformaId = jo.SourceProformaId ?? string.Empty,
-                                SpecGroupNumber = group.GroupNumber,
-                                Position = occ.Position,
-                                SpecLabel = "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture),
-                                Title = composition,
-                                Thickness = occ.ThicknessMm > 0
-                                    ? occ.ThicknessMm.ToString(CultureInfo.InvariantCulture) + "mm"
-                                    : ParseThicknessLabel(composition),
-                                Sub = occ.Position.ToUpperInvariant()
-                                    + (string.IsNullOrWhiteSpace(occ.Treatment)
-                                        ? string.Empty : " · " + occ.Treatment),
-                                // Panes are pre-ticked so a job's sizes import
-                                // with a single click on "Add selected panes";
-                                // the operator can still untick any pane.
-                                IsSelected = true
-                            };
-
-                            // merge identical sizes; the row refs ride along
-                            // as the label so the 2D view and cut plan stay
-                            // traceable back to Step 5.
-                            foreach (var sizeGroup in paneItems
-                                .GroupBy(i => new { i.WidthMm, i.HeightMm })
-                                .OrderBy(g => g.Key.WidthMm).ThenBy(g => g.Key.HeightMm))
-                            {
-                                int qty = sizeGroup.Sum(i => i.Qty);
-                                string label = string.Join(", ",
-                                    sizeGroup.Select(i => i.GlassRef)
-                                             .Where(r => !string.IsNullOrWhiteSpace(r))
-                                             .Distinct());
-                                layer.Pieces.Add((
-                                    composition,
-                                    string.IsNullOrWhiteSpace(label) ? "—" : label,
-                                    sizeGroup.Key.WidthMm, sizeGroup.Key.HeightMm, qty));
-                            }
-
-                            layer.TotalPcs = layer.Pieces.Sum(p => p.Qty);
-                            double paneArea = layer.Pieces.Sum(p => p.W / 1000.0 * p.H / 1000.0 * p.Qty);
-                            layer.AreaLabel = paneArea.ToString("0.00", CultureInfo.InvariantCulture) + " m²";
-                            layer.CountLabel = layer.TotalPcs.ToString(CultureInfo.InvariantCulture) + " pcs";
-
-                            spec.Layers.Add(layer);
-                            paneIndex++;
-
-                            // Insert the informational spacer/interlayer box
-                            // exactly where it sits in the stack (nothing is
-                            // cut from it — it shows the build-up only).
-                            AddBuildUpInfoBox(spec, buildType, paneIndex, group.SelectedSpecName);
-                        }
-
-                        if (spec.Layers.Count > 0) opt.Specs.Add(spec);
-
-                        // Step 4 stock sheets (the rack the job was quoted on),
-                        // tagged with the pane's glass composition so the STOCKS
-                        // tab routes each cutting group to its own rack. The
-                        // composition here is the SAME canonical label used for
-                        // the cutting list, so group→rack matching is exact.
-                        if (spec.Layers.Count > 0)
-                        {
-                            string ComposeForSlot(PaneSlot slot)
-                            {
-                                var o = occurrences.FirstOrDefault(x => x.Slot == slot);
-                                if (o == null) return string.Empty;
-                                return string.IsNullOrWhiteSpace(o.Composition)
-                                    ? (group.SelectedSpecName ?? string.Empty)
-                                    : o.Composition;
-                            }
-
-                            if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
-                                opt.Step4Sheets.Add((group.OuterSheetWidthMm, group.OuterSheetHeightMm,
-                                    ComposeForSlot(PaneSlot.Pane1),
-                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " outer",
-                                    group.OuterSheetPricePerSqm, group.GroupNumber, "Outer"));
-
-                            if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
-                                opt.Step4Sheets.Add((group.InnerSheetWidthMm, group.InnerSheetHeightMm,
-                                    ComposeForSlot(PaneSlot.Pane2),
-                                    "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner",
-                                    group.InnerSheetPricePerSqm, group.GroupNumber, "Inner"));
-                            var third = occurrences.FirstOrDefault(o => o.Position == "Lam Inner");
-                            if (third != null && group.ThirdSheetWidthMm > 0 && group.ThirdSheetHeightMm > 0)
-                                opt.Step4Sheets.Add((group.ThirdSheetWidthMm, group.ThirdSheetHeightMm,
-                                    third.Composition, "Spec " + group.GroupNumber + " lam inner",
-                                    group.ThirdSheetPricePerSqm, group.GroupNumber, "LamInner"));
-                        }
-                    }
-
-                    int pcs = opt.TotalPcs;
-                    double m2 = opt.Specs.Sum(sp => sp.Layers.Where(l => l.Kind == "Pane")
-                        .Sum(l => l.Pieces.Sum(x => x.W / 1000.0 * x.H / 1000.0 * x.Qty)));
-                    // Spec count = the PI's ACTUAL specification groups, not
-                    // just the groups that produced selectable panes. A Job
-                    // Order with two specs must read "2 specs" even when one
-                    // spec has no cutting rows yet (previously the card read
-                    // "1 spec" because that group contributed no pane layers
-                    // and never reached opt.Specs).
-                    int specCount = groups.Count;
-                    opt.PieceRows = opt.Specs.Sum(sp => sp.Layers.Count(l => l.Kind == "Pane"));
-                    opt.Summary = string.Format(CultureInfo.InvariantCulture,
-                        "{0} · {1} pcs · {2:0.0} m² · {3} spec(s)",
-                        jo.CustomerName, pcs, m2, specCount);
-                    opt.PiecesLabel = pcs.ToString(CultureInfo.InvariantCulture) + " pcs";
-                    opt.AreaLabel = m2.ToString("0.0", CultureInfo.InvariantCulture) + " m²";
-                    opt.SpecCountLabel = specCount.ToString(CultureInfo.InvariantCulture)
-                        + (specCount == 1 ? " spec" : " specs");
-
-                    if (opt.Specs.Count > 0) options.Add(opt);
+                    options.Add(BuildJobOption(jo.JobOrderId, jo.SourceProformaId ?? string.Empty,
+                        jo.CustomerName, invoice));
                 }
 
                 var dispatcher = System.Windows.Application.Current?.Dispatcher;
@@ -566,9 +418,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         if (!_sessionInputsActive) RebuildSelectedJobBreakdown();
                         RefreshKpis();
                         JobsStatusText = options.Count == 0
-                            ? "No confirmed job orders with cutting pieces yet — confirm a Proforma Invoice to create a Job Order with Step 5 cutting sizes."
+                            ? "No confirmed job orders yet — confirm a Proforma Invoice to create a Job Order with Step 5 cutting sizes."
                             : string.Format(CultureInfo.InvariantCulture,
-                                "{0} confirmed job order(s) ready — select job(s) to load their Step 5 sizes.", options.Count);
+                                "{0} confirmed job order(s) — select a job, review its panes, then Add selected panes. Jobs with missing sizes show a warning.", options.Count);
                         // Calibration 152-piece auto-load removed 2026-09-21:
                         // optimization no longer invents data. Pieces/Stocks
                         // are populated only from the selected approved JO(s).
@@ -581,10 +433,192 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
         }
 
+        /// <summary>
+        /// The source branch's invoice → production panes → size rows projection.
+        /// Shared by the database picker and tests; never synthesizes missing sizes.
+        /// </summary>
+        internal static JobOptionVm BuildJobOption(string jobOrderId, string sourceProformaId,
+            string customerName, ProformaInvoiceSnapshot? invoice)
+        {
+            var plan = ProductionDistributionEngine.Distribute(jobOrderId, invoice);
+
+            var cut = plan.Items
+                .Where(i => i.Stage == ProductionStage.Cutting && i.WidthMm > 0 && i.HeightMm > 0)
+                .ToList();
+
+            var opt = new JobOptionVm
+            {
+                JobOrderId = jobOrderId,
+                SourceProformaId = sourceProformaId ?? string.Empty,
+                CustomerName = customerName
+            };
+
+            // ── Step 4/5 spec build-up (outer → ASP → inner) ─────
+            // Each spec group becomes a strip of layer boxes using
+            // the SAME pane routing the production floor uses
+            // (W1/H1 = outer, W2/H2 = inner, equal-size fallback).
+            // Two specs sharing one outer pane (low-e on a clear DGU
+            // and on an obscure DGU) expose that pane once per spec —
+            // the operator ticks both and the SIZES merge folds them
+            // into ONE cutting group by composition.
+            var groups = (invoice?.SpecGroups ?? new List<SpecGroupSnapshot>())
+                .Where(g => g != null)
+                .OrderBy(g => g.GroupNumber)
+                .ToList();
+
+            foreach (var group in groups)
+            {
+                string buildType = ProductionDistributionEngine.ResolveBuildType(group, invoice);
+                var occurrences = ProductionDistributionEngine.ResolvePaneOccurrences(buildType, group);
+                var spec = new SpecOptionVm
+                {
+                    JobOrderId = jobOrderId,
+                    SpecGroupNumber = group.GroupNumber,
+                    SpecName = group.SelectedSpecName ?? string.Empty,
+                    BuildType = buildType
+                };
+
+                int paneIndex = 0;
+                foreach (var occ in occurrences)
+                {
+                    var paneItems = cut
+                        .Where(i => i.SpecGroupNumber == group.GroupNumber
+                            && string.Equals(i.Position, occ.Position, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    if (paneItems.Count == 0) continue;
+
+                    string composition = string.IsNullOrWhiteSpace(occ.Composition)
+                        ? group.SelectedSpecName ?? string.Empty
+                        : occ.Composition;
+
+                    var layer = new BuildUpLayerVm
+                    {
+                        Kind = "Pane",
+                        JobOrderId = jobOrderId,
+                        ProformaId = sourceProformaId ?? string.Empty,
+                        SpecGroupNumber = group.GroupNumber,
+                        Color = occ.Pane?.Color ?? string.Empty,
+                        ThicknessMm = occ.ThicknessMm,
+                        Processing = occ.Treatment ?? string.Empty,
+                        Position = occ.Position,
+                        SpecLabel = "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture),
+                        Title = composition,
+                        Thickness = occ.ThicknessMm > 0
+                            ? occ.ThicknessMm.ToString(CultureInfo.InvariantCulture) + "mm"
+                            : ParseThicknessLabel(composition),
+                        Sub = occ.Position.ToUpperInvariant()
+                            + (string.IsNullOrWhiteSpace(occ.Treatment)
+                                ? string.Empty : " · " + occ.Treatment),
+                        // Panes are pre-ticked so a job's sizes import
+                        // with a single click on "Add selected panes";
+                        // the operator can still untick any pane.
+                        IsSelected = true
+                    };
+
+                    // merge identical sizes; the row refs ride along
+                    // as the label so the 2D view and cut plan stay
+                    // traceable back to Step 5.
+                    foreach (var sizeGroup in paneItems
+                        .GroupBy(i => new { i.WidthMm, i.HeightMm })
+                        .OrderBy(g => g.Key.WidthMm).ThenBy(g => g.Key.HeightMm))
+                    {
+                        int qty = sizeGroup.Sum(i => i.Qty);
+                        string label = string.Join(", ",
+                            sizeGroup.Select(i => i.GlassRef)
+                                     .Where(r => !string.IsNullOrWhiteSpace(r))
+                                     .Distinct());
+                        layer.Pieces.Add((
+                            composition,
+                            string.IsNullOrWhiteSpace(label) ? "—" : label,
+                            sizeGroup.Key.WidthMm, sizeGroup.Key.HeightMm, qty));
+                    }
+
+                    layer.TotalPcs = layer.Pieces.Sum(p => p.Qty);
+                    double paneArea = layer.Pieces.Sum(p => p.W / 1000.0 * p.H / 1000.0 * p.Qty);
+                    layer.AreaLabel = paneArea.ToString("0.00", CultureInfo.InvariantCulture) + " m²";
+                    layer.CountLabel = layer.TotalPcs.ToString(CultureInfo.InvariantCulture) + " pcs";
+
+                    spec.Layers.Add(layer);
+                    paneIndex++;
+
+                    // Insert the informational spacer/interlayer box
+                    // exactly where it sits in the stack (nothing is
+                    // cut from it — it shows the build-up only).
+                    AddBuildUpInfoBox(spec, buildType, paneIndex, group.SelectedSpecName);
+                }
+
+                if (spec.Layers.Count > 0) opt.Specs.Add(spec);
+
+                // Step 4 stock sheets (the rack the job was quoted on),
+                // tagged with the pane's glass composition so the STOCKS
+                // tab routes each cutting group to its own rack. The
+                // composition here is the SAME canonical label used for
+                // the cutting list, so group→rack matching is exact.
+                if (spec.Layers.Count > 0)
+                {
+                    string ComposeForSlot(PaneSlot slot)
+                    {
+                        var o = occurrences.FirstOrDefault(x => x.Slot == slot);
+                        if (o == null) return string.Empty;
+                        return string.IsNullOrWhiteSpace(o.Composition)
+                            ? (group.SelectedSpecName ?? string.Empty)
+                            : o.Composition;
+                    }
+
+                    if (group.OuterSheetWidthMm > 0 && group.OuterSheetHeightMm > 0)
+                        opt.Step4Sheets.Add((group.OuterSheetWidthMm, group.OuterSheetHeightMm,
+                            ComposeForSlot(PaneSlot.Pane1),
+                            "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " outer",
+                            group.OuterSheetPricePerSqm, group.GroupNumber, "Outer"));
+
+                    if (group.InnerSheetWidthMm > 0 && group.InnerSheetHeightMm > 0)
+                        opt.Step4Sheets.Add((group.InnerSheetWidthMm, group.InnerSheetHeightMm,
+                            ComposeForSlot(PaneSlot.Pane2),
+                            "Spec " + group.GroupNumber.ToString(CultureInfo.InvariantCulture) + " inner",
+                            group.InnerSheetPricePerSqm, group.GroupNumber, "Inner"));
+                    var third = occurrences.FirstOrDefault(o => o.Position == "Lam Inner");
+                    if (third != null && group.ThirdSheetWidthMm > 0 && group.ThirdSheetHeightMm > 0)
+                        opt.Step4Sheets.Add((group.ThirdSheetWidthMm, group.ThirdSheetHeightMm,
+                            third.Composition, "Spec " + group.GroupNumber + " lam inner",
+                            group.ThirdSheetPricePerSqm, group.GroupNumber, "LamInner"));
+                }
+            }
+
+            int pcs = opt.TotalPcs;
+            double m2 = opt.Specs.Sum(sp => sp.Layers.Where(l => l.Kind == "Pane")
+                .Sum(l => l.Pieces.Sum(x => x.W / 1000.0 * x.H / 1000.0 * x.Qty)));
+            // Spec count = the PI's ACTUAL specification groups, not
+            // just the groups that produced selectable panes. A Job
+            // Order with two specs must read "2 specs" even when one
+            // spec has no cutting rows yet (previously the card read
+            // "1 spec" because that group contributed no pane layers
+            // and never reached opt.Specs).
+            int specCount = groups.Count;
+            opt.PieceRows = opt.Specs.Sum(sp => sp.Layers.Count(l => l.Kind == "Pane"));
+            opt.Summary = string.Format(CultureInfo.InvariantCulture,
+                "{0} · {1} pcs · {2:0.0} m² · {3} spec(s)",
+                customerName, pcs, m2, specCount);
+            opt.PiecesLabel = pcs.ToString(CultureInfo.InvariantCulture) + " pcs";
+            opt.AreaLabel = m2.ToString("0.0", CultureInfo.InvariantCulture) + " m²";
+            opt.SpecCountLabel = specCount.ToString(CultureInfo.InvariantCulture)
+                + (specCount == 1 ? " spec" : " specs");
+
+            opt.Warnings.AddRange(plan.Warnings);
+            opt.HasOptimizablePanes = opt.Specs.Any(spec => spec.Layers.Any(layer => layer.IsPane && layer.Pieces.Count > 0));
+            if (!opt.HasOptimizablePanes)
+                opt.Warnings.Add("No usable Step 5 cutting sizes in the saved job snapshot. Open the source invoice and check its sizes.");
+            return opt;
+        }
+
         private void OnJobSelectionChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(JobOptionVm.IsSelected)) return;
             _sessionInputsActive = false;
+            if (sender is JobOptionVm job && !job.IsSelected && ReferenceEquals(_selectedJob, job))
+            {
+                _selectedJob = null;
+                OnPropertyChanged(nameof(SelectedJob));
+            }
             RebuildSelectedJobBreakdown();
         }
 
@@ -732,13 +766,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private void AddSelectedPanes()
         {
-            if (IsRunning || IsDisposed) return;
+            if (IsRunning || IsDisposed || IsHeadlessHost) return;
+            ImportPaneLayers(PaneChecklist.Where(layer => layer.IsSelected).ToList());
+        }
+
+        private void ImportPaneLayers(IReadOnlyList<BuildUpLayerVm> selected)
+        {
+            if (IsRunning || IsDisposed || IsHeadlessHost) return;
             var imported = new HashSet<(string Job, int Spec, string Position, string Glass, string Label, string W, string H)>(
                 Pieces.Select(p => (p.JobOrderId, p.SpecGroupNumber, p.Position, p.GlassRef, p.PieceLabel, p.WidthText, p.HeightText)));
-            var selected = JobSpecBreakdown
-                .SelectMany(s => s.Layers)
-                .Where(l => l.IsPane && l.IsSelected)
-                .ToList();
             if (selected.Count == 0)
             {
                 RunMessage = "Tick at least one pane box (outer / inner) to add.";
@@ -754,9 +790,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     string wText = w.ToString(CultureInfo.InvariantCulture);
                     string hText = h.ToString(CultureInfo.InvariantCulture);
 
-                    // Guard against double-import: identical glass × size rows
-                    // already in the cutting list are skipped, so clicking
-                    // "Add selected panes" twice never duplicates the list.
+                    // Source row identity includes job/spec/pane: two jobs can
+                    // legitimately have the same label and dimensions.
                     if (!imported.Add((layer.JobOrderId, layer.SpecGroupNumber, layer.Position,
                         glass, label, wText, hText))) { skipped++; continue; }
 
@@ -766,11 +801,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     row.JobOrderId = layer.JobOrderId;
                     row.ProformaId = layer.ProformaId;
                     row.SpecGroupNumber = layer.SpecGroupNumber;
+                    row.Color = layer.Color;
+                    row.ThicknessMm = layer.ThicknessMm;
+                    row.Processing = layer.Processing;
+                    row.MaterialKey = layer.MaterialKey;
                     Pieces.Add(row);
                     addedPieces += qty;
                 }
             }
 
+            // An earlier one-glass filter must not hide newly imported panes.
+            _selectedCuttingGroup = AllCuttingGroups;
             RefreshDerived();
 
             var compositions = selected
