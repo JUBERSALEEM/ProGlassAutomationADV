@@ -86,6 +86,17 @@
                                                         <!-- Import warnings: skipped rows, defaulted quantities,
                                                              unparsed specs — the cutting list for this job is NOT
                                                              exactly what Step 5 says until these are read. -->
+                                                        <Border Visibility="{Binding CanOptimizeMaterial, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                                                Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0"
+                                                                ToolTip="{Binding MaterialInvalidReason, Mode=OneWay}">
+                                                            <TextBlock Text="RUN BLOCKED" FontSize="{DynamicResource FontSize.Caption}"
+                                                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
+                                                        </Border>
+                                                        <Border Visibility="{Binding HasOptimizablePanes, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                                                Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0">
+                                                            <TextBlock Text="NO OPTIMIZABLE PANES" FontSize="{DynamicResource FontSize.Caption}"
+                                                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource WarningBrush}"/>
+                                                        </Border>
                                                         <Border Visibility="{Binding WarningVisibility}"
                                                                 Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="8,3" Margin="6,0,0,0"
                                                                 ToolTip="{Binding WarningSummary, Mode=OneWay}">

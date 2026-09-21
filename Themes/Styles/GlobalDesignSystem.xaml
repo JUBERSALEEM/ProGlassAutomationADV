@@ -1217,8 +1217,15 @@
          Pill button KEYS are NOT restyled here — GlassPillButtonTemplate owns
          Tag-as-icon. That template is industrialized in Styles/ButtonStyles.xaml. -->
     <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="OptPanelCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
-    <Style x:Key="OptInnerCard" TargetType="Border" BasedOn="{StaticResource SurfaceDetailStyle}"/>
+    <!-- Last-win must keep Optimization studio padding (c37f71f). A bare
+         BasedOn SurfacePrimaryStyle used Space.Card only and flattened the
+         JOBS/SETTINGS cards. -->
+    <Style x:Key="OptPanelCard" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+        <Setter Property="Padding" Value="18,16"/>
+    </Style>
+    <Style x:Key="OptInnerCard" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
+        <Setter Property="Padding" Value="12,10"/>
+    </Style>
     <Style x:Key="PgCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}"/>
 
     <Style x:Key="ModuleTabButtonStyle" TargetType="Button" BasedOn="{StaticResource Button.Secondary}">

@@ -25,7 +25,14 @@
                     </Grid.Style>
 
                     <Border Style="{StaticResource OptPanelCard}">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                        <TextBlock Text="{Binding PiecesEmptyHint}"
+                                   FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="4,8,4,0"
+                                   VerticalAlignment="Top"
+                                   Visibility="{Binding HasPieces, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      Visibility="{Binding HasPieces, Converter={StaticResource BoolToVisibilityConverter}}">
                             <StackPanel>
                                 <!-- selector -->
                                 <Grid Margin="0,0,0,14">
@@ -141,6 +148,7 @@
                                 </StackPanel>
                             </StackPanel>
                         </ScrollViewer>
+                        </Grid>
                     </Border>
                 </Grid>
 </UserControl>

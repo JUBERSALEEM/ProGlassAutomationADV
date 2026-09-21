@@ -139,6 +139,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         public ObservableCollection<StockEntryVm> Stocks { get; } = new();
+
+        public bool HasStocks => Stocks.Count > 0;
         public ICommand AddStockCommand { get; }
         public ICommand RemoveStockCommand { get; }
         public ICommand ImportStockFromStep4Command { get; }
@@ -172,13 +174,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 "manual")
             { AvailableText = NewStock.AvailableText };
             Stocks.Add(row);
+            OnPropertyChanged(nameof(HasStocks));
             RunMessage = string.Empty;
             StocksStatusText = "Manual rack added — it serves any cutting group without its own Step 4 sheet.";
         }
 
         private void RemoveStock(StockEntryVm entry)
         {
-            if (entry != null) Stocks.Remove(entry);
+            if (entry != null)
+            {
+                Stocks.Remove(entry);
+                OnPropertyChanged(nameof(HasStocks));
+            }
         }
 
         /// <summary>

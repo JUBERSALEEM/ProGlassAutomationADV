@@ -110,6 +110,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public bool CanOptimizeMaterial { get; set; } = true;
             public string MaterialInvalidReason { get; set; } = "";
 
+            /// <summary>
+            /// False when Distribute produced no selectable pane layers.
+            /// The job still lists; Sizes/Cut List stay empty until panes exist.
+            /// </summary>
+            public bool HasOptimizablePanes { get; set; } = true;
+
             public int TotalPcs => Specs.Sum(s => s.Layers.Where(l => l.Kind == "Pane").Sum(l => l.TotalPcs));
         }
 
@@ -177,6 +183,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         public ObservableCollection<JobOptionVm> AvailableJobs { get; } = new();
+
+        public bool HasAvailableJobs => AvailableJobs.Count > 0;
 
         /// <summary>Job picker filtered by <see cref="JobSearchText"/> (id / customer).</summary>
         public ObservableCollection<JobOptionVm> FilteredJobs { get; } = new();
@@ -273,9 +281,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         /// <summary>Shown on JOBS/SIZES tabs while the cutting list is empty.
         /// SENIOR 2026-09-20: updated to reflect auto-import (no manual load).</summary>
+        public bool HasSelectedJobs => AvailableJobs.Any(j => j.IsSelected);
+
         public string PiecesEmptyHint => HasPieces
             ? string.Empty
-            : "No pieces yet — tick job orders on the left to auto-import their Step 4/5 cutting sizes (merged by matching spec+glass). Or add pieces manually below.";
+            : SelectedJobs.Any(j => !j.HasOptimizablePanes) && !SelectedJobs.Any(j => j.HasOptimizablePanes)
+                ? "NO OPTIMIZABLE PANES — the selected job has no Step 5 cutting sizes."
+                : HasSelectedJobs
+                    ? "No pieces yet — tick pane boxes on JOBS, or add sizes manually."
+                    : "No pieces yet — tick job orders on the left to auto-import their Step 4/5 cutting sizes (merged by matching spec+glass). Or add pieces manually below.";
 
         public ICommand RefreshJobsCommand { get; }
         public ICommand AddSelectedPanesCommand { get; }
@@ -593,7 +607,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     opt.SpecCountLabel = specCount.ToString(CultureInfo.InvariantCulture)
                         + (specCount == 1 ? " spec" : " specs");
 
-                    if (opt.Specs.Count > 0) options.Add(opt);
+                    opt.HasOptimizablePanes = opt.Specs.Count > 0;
+                    if (!opt.HasOptimizablePanes)
+                    {
+                        const string noPanes = "NO OPTIMIZABLE PANES";
+                        if (!opt.Warnings.Contains(noPanes))
+                            opt.Warnings.Add(noPanes);
+                    }
+                    // September 17 listed jobs with panes only. A confirmed JO
+                    // with zero cutting panes must still appear — blank picker
+                    // is not the same as "no panes on this job".
+                    options.Add(opt);
                 }
 
                 var dispatcher = System.Windows.Application.Current?.Dispatcher;
@@ -642,11 +666,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 " Showing the {0} most recent of {1}.",
                                 jobListDisplayCap, totalEligible)
                             : string.Empty;
+                        OnPropertyChanged(nameof(HasAvailableJobs));
+                        int zeroPane = options.Count(o => !o.HasOptimizablePanes);
                         JobsStatusText = options.Count == 0
-                            ? "No confirmed job orders with cutting pieces yet."
+                            ? "No confirmed job orders yet."
                             : string.Format(CultureInfo.InvariantCulture,
-                                "{0} confirmed job order(s) with cutting pieces.{1}{2}{3}",
+                                "{0} confirmed job order(s).{1}{2}{3}{4}",
                                 options.Count,
+                                zeroPane > 0
+                                    ? string.Format(CultureInfo.InvariantCulture,
+                                        " {0} have NO OPTIMIZABLE PANES.",
+                                        zeroPane)
+                                    : string.Empty,
                                 blockedMaterial > 0
                                     ? string.Format(CultureInfo.InvariantCulture,
                                         " {0} cannot RUN until Step 4 material is store-resolved — sizes still import.",
@@ -706,6 +737,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (sender is JobOptionVm job && job.IsSelected)
                 ResetPaneTicksToDefault(job);
 
+            OnPropertyChanged(nameof(HasSelectedJobs));
+            OnPropertyChanged(nameof(PiecesEmptyHint));
             RebuildSelectedJobBreakdown();
         }
 

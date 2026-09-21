@@ -71,7 +71,12 @@
                                         ToolTip="Replaces the pool with the Step 4 sheet sizes of the selected Job Orders (deduped by size × glass), all ticked for use"/>
                             </Grid>
 
-                            <Grid Grid.Row="3">
+                            <TextBlock Grid.Row="3" Text="{Binding StocksStatusText}"
+                                       FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource TextTertiaryBrush}" Margin="4,8,4,0"
+                                       VerticalAlignment="Top"
+                                       Visibility="{Binding HasStocks, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                            <Grid Grid.Row="3" Visibility="{Binding HasStocks, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>

@@ -8,6 +8,9 @@
 // null). Run() already refuses packing — the picker must still list the
 // job and import real Step 5 W×H×Qty.
 //
+// September 14–17 (c37f71f) listed jobs with panes; zero-pane jobs must
+// still appear with HasOptimizablePanes=false, never fake sizes.
+//
 // NOT EXECUTED here — .NET SDK is unavailable.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -69,15 +72,18 @@ namespace ProGlassAutomation.Tests.Agent
                 JobOrderId = "JO-REGRESS",
                 CustomerName = "Regression Customer",
                 CanOptimizeMaterial = false,
-                MaterialInvalidReason = auth
+                MaterialInvalidReason = auth,
+                HasOptimizablePanes = true
             };
             job.Specs.Add(spec);
+            job.Step4Sheets.Add((3210, 2250, "6mm Clear FT glass", "Spec 1 outer", 46m, 1, "Outer"));
 
             vm.AttachJobOption(job);
             vm.AvailableJobs.Add(job);
             job.IsSelected = true;
 
             Assert.Single(vm.AvailableJobs);
+            Assert.True(vm.HasAvailableJobs);
             Assert.True(vm.HasPieces);
             int qty = 0;
             foreach (var p in vm.Pieces)
@@ -86,11 +92,44 @@ namespace ProGlassAutomation.Tests.Agent
             }
             Assert.Equal(4, qty);
             Assert.Contains(vm.Pieces, p => p.WidthText == "1200" && p.HeightText == "900");
+            Assert.DoesNotContain(vm.Pieces, p => p.WidthText == "1000" && p.HeightText == "1000");
+
+            Assert.True(vm.HasStocks);
+            Assert.Contains(vm.Stocks, s => s.WidthText == "3210" && s.HeightText == "2250");
+
+            Assert.Equal("6", vm.ThicknessText);
+            Assert.False(vm.HasResult);
+            Assert.Equal("—", vm.ResultSheets);
 
             vm.RunQuickCommand.Execute(null);
             Assert.False(vm.IsRunning);
             Assert.StartsWith("Cannot optimize:", vm.RunMessage);
             Assert.False(vm.HasResult);
+        }
+
+        [Fact]
+        public void Zero_pane_job_is_listed_without_inventing_sizes()
+        {
+            var vm = new OptimizationViewModel { IsHeadlessHost = false };
+            var job = new OptimizationViewModel.JobOptionVm
+            {
+                JobOrderId = "JO-EMPTY",
+                CustomerName = "No panes",
+                CanOptimizeMaterial = true,
+                HasOptimizablePanes = false
+            };
+            job.Warnings.Add("NO OPTIMIZABLE PANES");
+            vm.AttachJobOption(job);
+            vm.AvailableJobs.Add(job);
+            job.IsSelected = true;
+
+            Assert.Single(vm.AvailableJobs);
+            Assert.False(job.HasOptimizablePanes);
+            Assert.Contains("NO OPTIMIZABLE PANES", job.Warnings);
+            Assert.False(vm.HasPieces);
+            Assert.Contains("NO OPTIMIZABLE PANES", vm.PiecesEmptyHint);
+            Assert.False(vm.HasResult);
+            Assert.Empty(vm.Pieces);
         }
     }
 }
