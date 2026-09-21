@@ -35,7 +35,12 @@ namespace ProGlassAutomation.ViewModels.Production
         public bool ShowSizeColumn => IsCuttingStation || IsHolesStation || IsTemperingStation;
         public bool ShowGlassColumn => IsCuttingStation || IsEdgeDeletionStation || IsPairingStation || IsAssemblyStation;
         public bool ShowLmColumn => IsPolishStation || IsMitringStation;
-        public bool ShowTreatmentColumn => IsHolesStation || IsEdgeDeletionStation;
+        /// <summary>
+        /// Furnace queue must show FT / HS / HST — annealed panes never
+        /// land here. Holes/edge-deletion also surface treatment so the
+        /// floor can see coated vs clear work without opening the unit.
+        /// </summary>
+        public bool ShowTreatmentColumn => IsHolesStation || IsEdgeDeletionStation || IsTemperingStation;
         public bool ShowLoadColumn => IsTemperingStation;
         public bool ShowMatchColumn => IsPairingStation || IsAssemblyStation;
 

@@ -179,6 +179,21 @@ namespace ProGlassAutomation.Tests.Agent
             var tempering = Stage(items, ProductionStage.Tempering).Single();
             Assert.Equal("FT", tempering.Treatment);
             Assert.Equal("Cutting", tempering.PredecessorStage);
+            Assert.Equal("FT CYCLE", tempering.Notes);
+            Assert.Equal("JOB-2026-001|1|1|Glass|6", tempering.UniqueKey);
+        }
+
+        [Fact]
+        public void Sgu_heat_soaked_tempers_with_cycle_note()
+        {
+            var items = Distribute(Snapshot(
+                Group(1, "6mm Clear Heat Soaked Glass",
+                    Row(1, "G-01", 1000, 800, 4))));
+
+            var tempering = Stage(items, ProductionStage.Tempering).Single();
+            Assert.Equal("Heat Soaked", tempering.Treatment);
+            Assert.Equal("HEAT SOAKED CYCLE", tempering.Notes);
+            Assert.Equal("JOB-2026-001|1|1|Glass|6", tempering.UniqueKey);
         }
 
         [Fact]
