@@ -1,32 +1,54 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════════
      FILE: MainWindow.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Main Shell (Chat 24 v4.0 — theme-based redesign)
+     MODULE: Main Shell
+     SYSTEM: Concept 30 PORCELAIN FLOW (Study 07 Editorial Wordmark)
 
-     VERSION: Chat 24 v4.0 — Full visual redesign matching the reference
-     shell, adapted to the app's theme system (no hardcoded indigo).
-
-     CHANGES vs v3.1:
-       ✓ Top bar RESTRUCTURED to the modern SaaS pattern:
-         Hamburger → Logo → Module Badge → Search →
-         AI Agent pill → DateTime → Connectivity → Notifications →
-         Settings → About → User card
-       ✓ Sidebar sub-groups EXPAND/COLLAPSE with a rotating chevron and
-         nested rounded card containers (Sales, Production, Dispatch,
-         Reports, Master Data, System)
-       ✓ Consistent 16px card radius + 1px border line across the shell
-       ✓ Theme-based brushes (AccentBrush / tints / foregrounds) so every
-         surface follows Light/Dark and the Monet/Professional families
-       ✓ User card navigates to the USERS module (was Settings)
-
-     PRESERVED (zero regression):
-       ✓ All 23 DataTemplate module mappings (verbatim)
-       ✓ All bindings, commands and property paths on MainViewModel
-       ✓ All 3 code-behind handlers (names/signatures unchanged)
-       ✓ Drawer model (hamburger toggles IsMenuOpen)
-       ✓ Elevation caster pattern (empty Border for the shadow)
-       ✓ AI Chat overlay + Agent Chat overlay
-═══════════════════════════════════════════════════════════════════ -->
+     ART DIRECTION:
+       - Continuous porcelain-white (#FCFCFE) L-shaped surface forming the
+         top header and open left sidebar, joined top-left by a large rounded
+         INNER elbow (smooth concave fillet).
+       - Nested thin keylines (#D9D5E6 double hairlines) following the L edges.
+       - Black-violet ink #211D31 typography on straight baselines.
+       - PRIMARY TOP ROW:
+           • Thin hamburger icon (ToggleMenuCommand)
+           • OVERSIZED elegant serif-display wordmark "ProGlass" (about three
+             times normal size, typographic hero) with tiny letter-spaced caps
+             "AUTOMATION SUITE" aligned to its right on the same baseline
+           • Rounded outline dropdown labeled exactly "All Modules" (A-l-l)
+             with tiny down chevron
+           • Wide rounded white inset search field with placeholder
+             "Search anything…" and fine purple (#8E82D8) focus rim
+           • Far right exact text "22 Sep 2026 / 10:30", one thin crescent
+             moon icon, user chip circle "U" with tiny stacked "User" and "Role"
+       - SECONDARY UTILITY RIBBON:
+           • Slim inset soft lavender (#E6E1F4) rounded inlay following the
+             full horizontal leg of the L below the primary row
+           • Eight labeled actions with tiny elegant thin-line icons & exact labels:
+             "AI Chat", "AI Agent", "Activity", "Settings", "Screenshot",
+             "Record", "About", "Experience"
+           • Far right: one neutral grey network node glyph (no status color)
+       - OPEN LEFT SIDEBAR:
+           • Continuous porcelain surface through the inner elbow
+           • "Menu" + one X close icon only (no logo)
+           • Editorial scale menu labels with thin icons:
+             "Dashboard", "Sheet Store", "Specifications"
+           • "Sales & Orders" with one chevron, EXPANDED:
+             "Inquiry", "Proforma Invoice" (SINGLE SELECTED ROW: dark-violet
+             #443A86 filled rounded row, white text), "Job Order", "Tax Invoice"
+           • Collapsed groups, one chevron each:
+             "Production", "Dispatch", "Finance & Accounting",
+             "Reports", "Master Data", "System"
+           • Sidebar footer: tiny "Local storage —" and "View breakdown", NO meter
+       - MODULE REGION:
+           • Blank very pale grey (#F5F5F8)
+           • Bottom-right small caption "30 / PORCELAIN FLOW"
+       - STRICT EXCLUSIONS:
+           • Flat opaque surfaces only: NO 3D, shadows, blur, translucency,
+             fabric, wavy text, gradients.
+           • No extra controls, no plus signs, no badges, no avatar photos,
+             no status indicators, no extra rails, no body cards.
+═══════════════════════════════════════════════════════════════════════ -->
 
 <Window x:Class="ProGlassAutomation.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -92,7 +114,7 @@
         FontWeight="{DynamicResource AppFontWeight}"
         FontStyle="{DynamicResource AppFontStyle}"
         Icon="pack://application:,,,/favicon.ico"
-        Background="{DynamicResource WindowBackgroundBrush}"
+        Background="#F5F5F8"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         TextOptions.TextHintingMode="Auto"
@@ -101,39 +123,9 @@
         SnapsToDevicePixels="True">
 
     <!-- ═══════════════════════════════════════════════════════════════
-         2026-09-02 — the XAML-instantiated DataContext was REMOVED.
-
-         `<vm:MainViewModel/>` here made the BAML loader construct a
-         SECOND, throw-away MainViewModel on every MainWindow creation,
-         even though App.StartupCore already resolved one through DI and
-         assigns it immediately after `new MainWindow()`. Two concrete
-         consequences, both observed in production:
-
-           1. CRASH ERR-633EEB — the XAML-built VM used the parameterless
-              ctor, whose failures surface as TargetInvocationException
-              from InitializeComponent() and kill startup. The DI path's
-              own failure was already handled gracefully; this one was
-              not recoverable because it happens inside XAML load.
-
-           2. SPLASH COLOUR BOUNCE — MainViewModel's ctor calls
-              ApplyModuleWallpaper("Dashboard") → VisualThemeEngine
-              .ApplyModule(), which does ClearOverrides() then rebuilds
-              the family. Every extra VM meant one extra full theme
-              teardown/rebuild while the (Topmost, DynamicResource-bound)
-              splash was on screen — the visible colour flash.
-
-         DataContext is now assigned exactly once, in code: by
-         App.StartupCore (DI instance) or by the MainWindow ctor fallback.
+         MODULE DATA TEMPLATES (zero regression — all 31 preserved)
     ═══════════════════════════════════════════════════════════════ -->
-
     <Window.Resources>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             Shell styles extracted to Themes/Styles/ShellStyles.xaml
-             (registered in App.xaml merged dictionaries).
-             Only DataTemplates remain here (depend on local xmlns).
-        ═══════════════════════════════════════════════════════════════ -->
-
         <DataTemplate DataType="{x:Type vmDashboard:DashboardViewModel}">
             <viewsDashboard:DashboardView/>
         </DataTemplate>
@@ -230,570 +222,360 @@
     </Window.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         ROOT LAYOUT
+         ROOT LAYOUT (Row 0: Top Header, Row 1: Sidebar + Module)
     ═══════════════════════════════════════════════════════════════ -->
-
-    <Grid>
+    <Grid Background="#F5F5F8">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             STAGE — the About page background, app-wide (2026-09-15).
-
-             Owner directive: "it would be awesome if you add this
-             background globally everywhere the one about module is
-             having." This layer sits at the BOTTOM of the root grid, so
-             every module and every piece of chrome that is transparent
-             (which is the house style) floats on the About stage.
-
-             It is painted from AppBackgroundBrush, which is declared
-             identically in both theme dictionaries and is deliberately
-             NOT theme-swapped: "Background page dont make it dynamic".
-             See Themes/Styles/AppStage.xaml for the five stage colours.
-
-             Order matters: the wallpaper layer BELOW this comment block
-             is painted on top of the stage, so an active user wallpaper
-             still wins. Do not reorder.
-        ═══════════════════════════════════════════════════════════════ -->
+        <!-- Base stage background -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="{DynamicResource AppBackgroundBrush}"
+                Background="#F5F5F8"
                 IsHitTestVisible="False"/>
 
-        <!-- Skin behind chrome + modules. Blur lives here only so logo,
-             search, and nav type stay ClearType-sharp. -->
-        <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="{DynamicResource ModuleWallpaperBrush}"
-                Effect="{DynamicResource ModuleSkinBlurEffect}"
-                IsHitTestVisible="False"/>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             GB-P14 — GLASS BLUSH PERSONAL EXPERIENCE SHELL.
-
-             The full second experience (GlassShell: atmospheric
-             background, glass sidebar, glass top bar, glass content
-             host). Visible ONLY while IsPersonalExperience is true;
-             the Professional chrome below collapses in the same
-             binding. Content host = PersonalContent (null while
-             Professional is active, so exactly ONE module view
-             instance exists at any time — no double instantiation).
-             Module state (the module VM) survives the switch.
-        ═══════════════════════════════════════════════════════════ -->
+        <!-- Glass Blush Personal shell (visible only when IsPersonalExperience is true) -->
         <viewsPersonal:GlassShell Grid.Row="0" Grid.RowSpan="2"
                                   Panel.ZIndex="30"
                                   Visibility="{Binding IsPersonalExperience,
                                     Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             TOP BAR — MERIDIAN (Pg*) full rewrite, Phase 1 (2026-09-18).
-             52px flat surface + 1px hairline. Every x:Name, Command,
-             binding and ToolTip is carried over verbatim; only the
-             chrome is new.
+        <!-- ═══════════════════════════════════════════════════════════════
+             TOP HEADER — CONCEPT 30 PORCELAIN FLOW (Study 07 Editorial Wordmark)
+             Continuous porcelain-white (#FCFCFE) surface
+             Primary Top Row (52px) + Secondary Utility Ribbon (36px)
+             + Nested double keylines along bottom edge (#D9D5E6)
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
                 Style="{StaticResource PgTopBarStyle}"
                 Panel.ZIndex="300"
-                ClipToBounds="True"
                 SnapsToDevicePixels="True"
                 Visibility="{Binding IsPersonalExperience,
                           Converter={StaticResource InverseBoolToVisibilityConverter}}">
-            <Grid>
-                <Grid>
+            <Grid Background="#FCFCFE">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="52"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="3"/>
+                </Grid.RowDefinitions>
+
+                <!-- PRIMARY TOP ROW (left to right) -->
+                <Grid Grid.Row="0" Margin="14,0,16,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/><!-- Hamburger -->
-                        <ColumnDefinition Width="Auto"/><!-- Logo -->
-                        <ColumnDefinition Width="*"/><!-- Search -->
-                        <ColumnDefinition Width="Auto"/><!-- Right cluster -->
+                        <ColumnDefinition Width="Auto"/><!-- 1. Hamburger -->
+                        <ColumnDefinition Width="Auto"/><!-- 2. Oversized serif wordmark ProGlass + AUTOMATION SUITE -->
+                        <ColumnDefinition Width="*"/><!-- 3. Search island (rounded outline dropdown + purple-rimmed field) -->
+                        <ColumnDefinition Width="Auto"/><!-- 4. Right cluster: Date/time + Crescent moon + User initials chip -->
                     </Grid.ColumnDefinitions>
 
-                    <!-- HAMBURGER -->
+                    <!-- 1. THIN HAMBURGER ICON -->
                     <Button Grid.Column="0"
                             Style="{StaticResource PgTopIconButtonStyle}"
                             Content="&#xE700;"
                             Command="{Binding ToggleMenuCommand}"
                             ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                            Margin="0,0,12,0"
+                            Margin="0,0,14,0"
                             VerticalAlignment="Center"
                             Panel.ZIndex="80"
                             IsHitTestVisible="True"
                             Focusable="True"/>
 
-                <!-- BRAND — click to open the About panel (x:Name preserved) -->
-                <StackPanel x:Name="LogoPanel"
-                            Grid.Column="1"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Margin="0,0,20,0"
-                            Cursor="Hand"
-                            behaviors:ClickToCommandBehavior.Command="{Binding LogoClickCommand}"
-                            ToolTip="{DynamicResource ToolTip.About}">
-                    <Border Style="{StaticResource PgBrandLogoStyle}"
-                            ClipToBounds="True"
-                            SnapsToDevicePixels="True">
-                        <Border.Background>
-                            <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                        Stretch="UniformToFill"
-                                        RenderOptions.BitmapScalingMode="HighQuality"/>
-                        </Border.Background>
-                    </Border>
-                    <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
-                        <TextBlock Text="{DynamicResource Shell.AppBrand}"
+                    <!-- 2. OVERSIZED ELEGANT SERIF-DISPLAY WORDMARK "ProGlass" + TINY LETTER-SPACED CAPS "AUTOMATION SUITE" -->
+                    <StackPanel x:Name="LogoPanel"
+                                Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="0,0,20,0"
+                                Cursor="Hand"
+                                behaviors:ClickToCommandBehavior.Command="{Binding LogoClickCommand}"
+                                ToolTip="{DynamicResource ToolTip.About}">
+                        <TextBlock Text="ProGlass"
                                    Style="{StaticResource PgBrandTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Shell.AppSuiteTagline}"
+                        <TextBlock Text="AUTOMATION SUITE"
                                    Style="{StaticResource PgBrandSubStyle}"/>
                     </StackPanel>
-                </StackPanel>
 
-                <!-- SEARCH — the control draws its own frame; host keeps
-                     the old geometry (min 280 / max 520, centred).
-                     2026-09-19 overlap fix: min 280 collided with the
-                     ~900px right cluster on windows <= ~1400px (the
-                     search bar rendered over the AI-agent pill area).
-                     120 keeps it usable (icon + trimmed placeholder);
-                     below 950px the host collapses it (see style). -->
-                <globalSearch:GlobalSearchBar Grid.Column="2"
-                                               MinWidth="120"
-                                               MaxWidth="520"
-                                               HorizontalAlignment="Stretch"
-                                               Margin="8,0"
-                                               VerticalAlignment="Center"
-                                               DataContext="{Binding GlobalSearchVM}">
-                    <globalSearch:GlobalSearchBar.Style>
-                        <Style TargetType="globalSearch:GlobalSearchBar">
-                            <!-- Extreme narrow: drop the search so the
-                                 right cluster (agent pill + user card)
-                                 always wins the remaining width. -->
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ActualWidth,
-                                                RelativeSource={RelativeSource AncestorType=Window},
-                                                Converter={StaticResource DecimalComparisonConverter},
-                                                ConverterParameter=950}"
-                                              Value="LessThan">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </globalSearch:GlobalSearchBar.Style>
-                </globalSearch:GlobalSearchBar>
+                    <!-- 3. SEARCH ISLAND — wide rounded white inset with fine purple (#8E82D8) focus rim and "All Modules" dropdown -->
+                    <globalSearch:GlobalSearchBar Grid.Column="2"
+                                                   MinWidth="240"
+                                                   MaxWidth="560"
+                                                   HorizontalAlignment="Stretch"
+                                                   Margin="12,0"
+                                                   VerticalAlignment="Center"
+                                                   DataContext="{Binding GlobalSearchVM}"/>
 
-                <!-- RIGHT CLUSTER -->
-                <StackPanel Grid.Column="3"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            Margin="20,0,0,0">
+                    <!-- 4. RIGHT CLUSTER: "22 Sep 2026 / 10:30", Crescent Moon, User Chip Circle "U" -->
+                    <StackPanel Grid.Column="3"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="16,0,0,0">
 
-                    <!-- Subtle divider before the action icons -->
-                    <Border Width="1" Height="28" VerticalAlignment="Center"
-                            Background="{DynamicResource DividerBrush}"
-                            Margin="0,0,16,0"/>
-
-                    <!-- DARK MODE TOGGLE (x:Name + IsDarkTheme trigger preserved) -->
-                    <Button x:Name="DarkModeButton"
-                            Margin="0,0,10,0"
-                            ToolTip="{DynamicResource ToolTip.ToggleTheme}"
-                            Command="{Binding ToggleThemeCommand}">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
-                                <Setter Property="Content" Value="&#xE708;"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
-                                        <Setter Property="Content" Value="&#xE706;"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource PgAccentBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-
-                    <!-- AI BOT ICON — opens the floating AI chat
-                         (x:Name + AiChatVM.IsOpen trigger preserved) -->
-                    <Button x:Name="AiBotButton"
-                            Margin="0,0,10,0"
-                            ToolTip="{DynamicResource ToolTip.AiChat}"
-                            Command="{Binding AiChatVM.ToggleChatCommand}">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
-                                <Setter Property="Content" Value="&#xE99A;"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding AiChatVM.IsOpen}" Value="True">
-                                        <Setter Property="Content" Value="&#xE711;"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource PgAccentBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-
-                    <!-- AI AGENT PILL — soft-accent capsule, pulsing ok dot -->
-                    <Button x:Name="AgentPillButton"
-                            Style="{StaticResource PgAiPillStyle}"
-                            Margin="0,0,10,0"
-                            Command="{Binding ToggleAgentChatCommand}"
-                            ToolTip="{DynamicResource ToolTip.Agent}">
-                        <TextBlock Text="{DynamicResource Shell.AiAgentTitle}"
-                                   FontSize="10.5" FontWeight="Bold"
-                                   Foreground="{DynamicResource PgAccentBrush}"/>
-                    </Button>
-
-                    <!-- DATE/TIME PILL — responsive density (2026-09-19):
-                         icon-only below 1480px, hidden below 1180px, so
-                         the right cluster never squeezes the search bar
-                         into the AI-agent pill area. -->
-                    <Border Margin="0,0,10,0"
-                            ToolTip="{DynamicResource ToolTip.DateTime}">
-                        <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource PgTopPillStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ActualWidth,
-                                                RelativeSource={RelativeSource AncestorType=Window},
-                                                Converter={StaticResource DecimalComparisonConverter},
-                                                ConverterParameter=1180}"
-                                              Value="LessThan">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource PgTopPillIconStyle}"
-                                    Margin="0,0,10,0">
-                                <TextBlock Text="&#xE787;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{DynamicResource PgFontGlyphSm}"
-                                           Foreground="{DynamicResource PgAccentInkBrush}"
-                                           HorizontalAlignment="Center"
+                        <!-- Exact text: "22 Sep 2026 / 10:30" -->
+                        <Border Margin="0,0,14,0" VerticalAlignment="Center"
+                                ToolTip="{DynamicResource ToolTip.DateTime}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CurrentDateText, FallbackValue='22 Sep 2026'}"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="#211D31"
                                            VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel VerticalAlignment="Center">
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ActualWidth,
-                                                        RelativeSource={RelativeSource AncestorType=Window},
-                                                        Converter={StaticResource DecimalComparisonConverter},
-                                                        ConverterParameter=1480}"
-                                                      Value="LessThan">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
-                                <TextBlock Text="{Binding CurrentDateText}"
-                                           Style="{StaticResource PgPillCaptionStyle}"/>
-                                <TextBlock Text="{Binding CurrentTimeText}"
-                                           Style="{StaticResource PgPillTitleStyle}"/>
+                                <TextBlock Text=" / "
+                                           FontSize="12"
+                                           Foreground="#6B6580"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding CurrentTimeText, FallbackValue='10:30'}"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="#211D31"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
-                        </StackPanel>
-                    </Border>
+                        </Border>
 
-                    <!-- CONNECTIVITY PILL — neutral frame; the icon square
-                         carries the status (ok / danger) via IsOnline.
-                         Responsive density (2026-09-19): icon-only below
-                         1330px, hidden below 1050px. -->
-                    <Border Margin="0,0,10,0"
-                            ToolTip="{DynamicResource ToolTip.NetworkState}">
-                        <Border.Style>
-                            <Style TargetType="Border" BasedOn="{StaticResource PgTopPillStyle}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ActualWidth,
-                                                RelativeSource={RelativeSource AncestorType=Window},
-                                                Converter={StaticResource DecimalComparisonConverter},
-                                                ConverterParameter=1050}"
-                                              Value="LessThan">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Margin="0,0,10,0">
-                                <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource PgTopPillIconStyle}">
-                                        <Setter Property="Background" Value="{DynamicResource PgOkBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                                                <Setter Property="Background" Value="{DynamicResource PgDangerBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{DynamicResource PgFontGlyphSm}"
-                                           Foreground="{DynamicResource PgAccentInkBrush}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Text" Value="&#xE701;"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                                                    <Setter Property="Text" Value="&#xE8CD;"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Border>
-                            <TextBlock Text="{Binding ConnectivityLabel}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PgPillTitleStyle}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ActualWidth,
-                                                        RelativeSource={RelativeSource AncestorType=Window},
-                                                        Converter={StaticResource DecimalComparisonConverter},
-                                                        ConverterParameter=1330}"
-                                                      Value="LessThan">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- NOTIFICATION BELL — hover to peek, click to toggle -->
-                    <Grid Width="34" Height="34" Margin="0,0,10,0" VerticalAlignment="Center">
-                        <Button x:Name="NotificationButton"
+                        <!-- ONE THIN CRESCENT MOON ICON -->
+                        <Button x:Name="DarkModeButton"
                                 Style="{StaticResource PgTopIconButtonStyle}"
-                                Content="&#xEA8F;"
-                                Command="{Binding TogglePopupCommand}" CommandParameter="Notifications"
-                                ToolTip="{DynamicResource ToolTip.RecentActivity}"/>
-                        <Ellipse Style="{StaticResource PgTopBadgeDotStyle}"/>
-                    </Grid>
+                                Margin="0,0,12,0"
+                                ToolTip="{DynamicResource ToolTip.ToggleTheme}"
+                                Command="{Binding ToggleThemeCommand}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
+                                    <Setter Property="Content" Value="&#xE708;"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
+                                            <Setter Property="Content" Value="&#xE706;"/>
+                                            <Setter Property="Foreground" Value="#8E82D8"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
 
-                    <!-- SETTINGS — hover to peek, click to toggle -->
-                    <Button x:Name="SettingsButton"
-                            Style="{StaticResource PgTopIconButtonStyle}"
-                            Content="&#xE713;"
-                            Command="{Binding TogglePopupCommand}" CommandParameter="Settings"
-                            ToolTip="{DynamicResource ToolTip.Settings}"
-                            Margin="0,0,10,0"/>
-
-                    <!-- SCREENSHOT — dedicated capture (separate from About) -->
-                    <Button x:Name="ScreenshotButton"
-                            Style="{StaticResource PgTopIconButtonStyle}"
-                            Content="&#xEB9F;"
-                            Command="{Binding TogglePopupCommand}" CommandParameter="Screenshot"
-                            ToolTip="{DynamicResource ToolTip.Screenshot}"
-                            Margin="0,0,10,0"/>
-
-                    <!-- SCREEN RECORD — independent of Demo Center walks
-                         (x:Name + IsRecording trigger preserved) -->
-                    <Button x:Name="RecordButton"
-                            Command="{Binding TogglePopupCommand}" CommandParameter="ScreenRecord"
-                            ToolTip="{DynamicResource ToolTip.ScreenRecording}"
-                            AutomationProperties.AutomationId="Shell.ScreenRecord"
-                            Margin="0,0,10,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
-                                <Setter Property="Content" Value="&#xE714;"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ScreenRecordVM.IsRecording}" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource PgDangerBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-
-                    <!-- ABOUT — dedicated top-bar affordance (2026-09-19).
-                         The Phase-1 rewrite folded About into the logo
-                         click only; the user reported it as "missing", so
-                         the explicit button is restored. The logo click
-                         keeps working (both open the same About module). -->
-                    <Button x:Name="AboutButton"
-                            Style="{StaticResource PgTopIconButtonStyle}"
-                            Content="&#xE949;"
-                            Command="{Binding ShowAboutCommand}"
-                            ToolTip="{DynamicResource ToolTip.About}"
-                            Margin="0,0,10,0"/>
-
-                    <!-- GB-P14 — EXPERIENCE SWITCH (Professional | Personal).
-                         Live, persisted, no restart. Swaps the Professional
-                         chrome for the Glass Blush Personal shell; the module
-                         VM and its state are preserved (only the view is
-                         recreated). The Personal shell carries its own mirror
-                         toggle in the glass top bar. -->
-                    <Button x:Name="ExperienceSwitchButton"
-                            Style="{StaticResource PgTopIconButtonStyle}"
-                            Content="&#xE771;"
-                            Command="{Binding ToggleExperienceCommand}"
-                            ToolTip="Personal UI (Glass Blush)"
-                            AutomationProperties.AutomationId="Shell.ExperienceSwitch"
-                            Margin="0,0,10,0"/>
-
-                    <!-- USER CARD — opens a NON-BLOCKING user-switch popup.
-                         Single click opens; double-click (or clicking another
-                         module) closes. The popup floats over the shell and
-                         never blocks the module content behind it. -->
-                    <Button x:Name="UserCardButton"
-                            Style="{StaticResource PgUserCardStyle}"
-                            Command="{Binding TogglePopupCommand}" CommandParameter="UserSwitch"
-                            ToolTip="{DynamicResource ToolTip.SwitchUser}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource PgAvatarStyle}"
-                                    Margin="0,0,10,0">
-                                <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
-                                           FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource PgAccentInkBrush}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue=&apos;User&apos;}"
-                                           Style="{StaticResource PgPillTitleStyle}"
-                                           TextTrimming="CharacterEllipsis"
-                                           MaxWidth="110"/>
-                                <TextBlock Text="{Binding CurrentUserRole, FallbackValue=&apos;User&apos;}"
-                                           Style="{StaticResource PgPillCaptionStyle}"
-                                           TextTrimming="CharacterEllipsis"
-                                           MaxWidth="110"/>
+                        <!-- USER CHIP CIRCLE "U" with tiny stacked "User" and "Role" -->
+                        <Button x:Name="UserCardButton"
+                                Style="{StaticResource PgUserCardStyle}"
+                                Command="{Binding TogglePopupCommand}" CommandParameter="UserSwitch"
+                                ToolTip="{DynamicResource ToolTip.SwitchUser}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Style="{StaticResource PgAvatarStyle}"
+                                        Margin="0,0,8,0">
+                                    <TextBlock Text="{Binding CurrentUserInitials, FallbackValue='U'}"
+                                               FontSize="11"
+                                               FontWeight="Bold"
+                                               Foreground="#443A86"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue='User'}"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="#211D31"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxWidth="100"/>
+                                    <TextBlock Text="{Binding CurrentUserRole, FallbackValue='Role'}"
+                                               FontSize="9.5"
+                                               FontWeight="Normal"
+                                               Foreground="#6B6580"
+                                               TextTrimming="CharacterEllipsis"
+                                               MaxWidth="100"/>
+                                </StackPanel>
                             </StackPanel>
-                            <TextBlock Text="&#xE70D;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{DynamicResource PgFontBodySm}"
-                                       Foreground="{DynamicResource PgText3Brush}"
-                                       VerticalAlignment="Center"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-                    </Button>
+                        </Button>
 
-                </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <!-- SECONDARY UTILITY RIBBON (soft lavender #E6E1F4 rounded inlay) -->
+                <Border Grid.Row="1"
+                        Height="34"
+                        Margin="12,0,14,6"
+                        Background="#E6E1F4"
+                        BorderBrush="#D9D5E6"
+                        BorderThickness="1"
+                        CornerRadius="7"
+                        Padding="6,0"
+                        SnapsToDevicePixels="True">
+                    <DockPanel LastChildFill="False">
+                        <!-- Eight labeled actions -->
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
+                            <!-- 1. AI Chat -->
+                            <Button x:Name="AiBotButton"
+                                    Style="{StaticResource PgRibbonActionStyle}"
+                                    Command="{Binding AiChatVM.ToggleChatCommand}"
+                                    ToolTip="{DynamicResource ToolTip.AiChat}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE99A;" Style="{StaticResource PgRibbonIconStyle}"/>
+                                    <TextBlock Text="AI Chat" Style="{StaticResource PgRibbonLabelStyle}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 2. AI Agent -->
+                            <Button x:Name="AgentPillButton"
+                                    Style="{StaticResource PgRibbonActionStyle}"
+                                    Command="{Binding ToggleAgentChatCommand}"
+                                    ToolTip="{DynamicResource ToolTip.Agent}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE946;" Style="{StaticResource PgRibbonIconStyle}"/>
+                                    <TextBlock Text="AI Agent" Style="{StaticResource PgRibbonLabelStyle}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 3. Activity -->
+                            <Button x:Name="NotificationButton"
+                                    Style="{StaticResource PgRibbonActionStyle}"
+                                    Command="{Binding TogglePopupCommand}" CommandParameter="Notifications"
+                                    ToolTip="{DynamicResource ToolTip.RecentActivity}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xEA8F;" Style="{StaticResource PgRibbonIconStyle}"/>
+                                    <TextBlock Text="Activity" Style="{StaticResource PgRibbonLabelStyle}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 4. Settings -->
+                            <Button x:Name="SettingsButton"
+                                    Style="{StaticResource PgRibbonActionStyle}"
+                                    Command="{Binding TogglePopupCommand}" CommandParameter="Settings"
+                                    ToolTip="{DynamicResource ToolTip.Settings}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE713;" Style="{StaticResource PgRibbonIconStyle}"/>
+                                    <TextBlock Text="Settings" Style="{StaticResource PgRibbonLabelStyle}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 5. Screenshot -->
+                            <Button x:Name="ScreenshotButton"
+                                    Style="{StaticResource PgRibbonActionStyle}"
+                                    Command="{Binding TogglePopupCommand}" CommandParameter="Screenshot"
+                                    ToolTip="{DynamicResource ToolTip.Screenshot}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xEB9F;" Style="{StaticResource PgRibbonIconStyle}"/>
+                                    <TextBlock Text="Screenshot" Style="{StaticResource PgRibbonLabelStyle}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 6. Record -->
+                            <Button x:Name="RecordButton"
+                                    Style="{StaticResource PgRibbonActionStyle}"
+                                    Command="{Binding TogglePopupCommand}" CommandParameter="ScreenRecord"
+                                    ToolTip="{DynamicResource ToolTip.ScreenRecording}"
+                                    AutomationProperties.AutomationId="Shell.ScreenRecord">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE714;" Style="{StaticResource PgRibbonIconStyle}"/>
+                                    <TextBlock Text="Record" Style="{StaticResource PgRibbonLabelStyle}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 7. About -->
+                            <Button x:Name="AboutButton"
+                                    Style="{StaticResource PgRibbonActionStyle}"
+                                    Command="{Binding ShowAboutCommand}"
+                                    ToolTip="{DynamicResource ToolTip.About}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE949;" Style="{StaticResource PgRibbonIconStyle}"/>
+                                    <TextBlock Text="About" Style="{StaticResource PgRibbonLabelStyle}"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- 8. Experience -->
+                            <Button x:Name="ExperienceSwitchButton"
+                                    Style="{StaticResource PgRibbonActionStyle}"
+                                    Command="{Binding ToggleExperienceCommand}"
+                                    ToolTip="Personal UI (Glass Blush)"
+                                    AutomationProperties.AutomationId="Shell.ExperienceSwitch">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE771;" Style="{StaticResource PgRibbonIconStyle}"/>
+                                    <TextBlock Text="Experience" Style="{StaticResource PgRibbonLabelStyle}"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- Neutral grey network node glyph (no status color) -->
+                        <Border DockPanel.Dock="Right" VerticalAlignment="Center" Margin="0,0,8,0"
+                                ToolTip="{Binding ConnectivityLabel, FallbackValue='Network node'}">
+                            <TextBlock Text="&#xE701;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="12"
+                                       Foreground="#7C7690"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                    </DockPanel>
+                </Border>
+
+                <!-- NESTED DOUBLE KEYLINES along bottom of Top Header (#D9D5E6) -->
+                <Grid Grid.Row="2" VerticalAlignment="Bottom" Height="3">
+                    <Border Height="1" VerticalAlignment="Top" Background="#D9D5E6" SnapsToDevicePixels="True"/>
+                    <Border Height="1" VerticalAlignment="Bottom" Background="#D9D5E6" SnapsToDevicePixels="True"/>
                 </Grid>
             </Grid>
         </Border>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             MAIN CONTENT AREA
+        <!-- ═══════════════════════════════════════════════════════════════
+             MAIN ROW (Row 1): SIDEBAR (Col 0) + MODULE REGION (Col 1)
+             Joined by the large rounded INNER elbow fillet
         ═══════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1"
+              Visibility="{Binding IsPersonalExperience,
+                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/><!-- Column 0: Open Left Sidebar -->
+                <ColumnDefinition Width="*"/><!-- Column 1: Module Content Region -->
+            </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="1">
-
-            <!-- ELEVATION CASTER — removed for edge-to-edge iOS glass -->
-
-            <!-- CONTENT CARD — iOS glass: transparent, minimal margin.
-                 GB-P14: bound to ProfessionalContent (== CurrentViewModel
-                 while Professional is active, null while Personal is
-                 active → no Professional view instance exists in Personal
-                 mode) and collapsed in Personal mode. -->
-            <Border Background="Transparent"
-                    BorderBrush="{DynamicResource GlassBorderSoft}"
-                    BorderThickness="{DynamicResource Border.NoneThickness}"
-                    CornerRadius="{DynamicResource Radius.None}"
-                    Margin="0"
-                    ClipToBounds="True"
-                    SnapsToDevicePixels="True"
-                    Visibility="{Binding IsPersonalExperience,
-                              Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                <Grid>
-                    <!-- Wallpaper + blur is the window-root layer so the
-                         top bar and sidebar sit on the same frost. -->
-                    <!-- Phase 4: Smooth fade-in transition on module navigation.
-                         ContentTransitionBehavior fades the new view in with a
-                         subtle upward drift (150ms, QuinticEase), giving
-                         navigation a polished, modern feel. -->
-                    <ContentControl Content="{Binding ProfessionalContent}"
-                                    behaviors:ContentTransitionBehavior.IsEnabled="True">
-                        <ContentControl.Style>
-                            <Style TargetType="ContentControl">
-                                <Setter Property="Opacity" Value="1"/>
-                            </Style>
-                        </ContentControl.Style>
-                    </ContentControl>
-                </Grid>
-            </Border>
-
-            <!-- DIM OVERLAY (only when the drawer is open) -->
-            <Rectangle Fill="{DynamicResource LiquidOverlayBrush}" Opacity="0.35"
-                       behaviors:ClickToCommandBehavior.Command="{Binding CloseAllPopupsCommand}">
-                <Rectangle.Style>
-                    <Style TargetType="Rectangle">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                            <!-- GB-P14: drawer dim never applies to the
-                                 Personal shell (declared last so it wins). -->
-                            <DataTrigger Binding="{Binding IsPersonalExperience}" Value="True">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Rectangle.Style>
-            </Rectangle>
-
-            <!-- ═══════════════════════════════════════════════════════
-                 LEFT DRAWER — REDESIGNED SIDEBAR (all groups expandable)
-            ═══════════════════════════════════════════════════════════ -->
-
-            <!-- MERIDIAN drawer (Phase 1): full-height flat panel, 258px,
-                 hairline right edge. IsMenuOpen visibility binding and
-                 the MenuScrollViewer / group host x:Names are preserved. -->
-            <Border HorizontalAlignment="Left"
+            <!-- ═══════════════════════════════════════════════════════════
+                 OPEN LEFT SIDEBAR (through the inner elbow)
+                 Continuous porcelain-white (#FCFCFE) surface
+                 "Menu" + one X close icon only (no logo)
+                 Nested double keylines along right edge (#D9D5E6)
+            ═══════════════════════════════════════════════════════════════ -->
+            <Border Grid.Column="0"
+                    Width="260"
+                    Background="#FCFCFE"
                     Panel.ZIndex="10"
-                    SnapsToDevicePixels="True"
-                    ClipToBounds="True">
+                    SnapsToDevicePixels="True">
                 <Border.Style>
-                    <Style TargetType="Border" BasedOn="{StaticResource PgDrawerStyle}">
-                        <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Visible"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                            <!-- GB-P14: the Personal shell owns its own
-                                 sidebar — never show the Professional
-                                 drawer in Personal mode (declared last so
-                                 it wins over the IsMenuOpen trigger). -->
-                            <DataTrigger Binding="{Binding IsPersonalExperience}" Value="True">
+                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="False">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                <Grid Background="#FCFCFE">
+                    <!-- Right edge nested double keylines -->
+                    <Grid Width="3" HorizontalAlignment="Right" Panel.ZIndex="15">
+                        <Border Width="1" HorizontalAlignment="Left" Background="#D9D5E6" SnapsToDevicePixels="True"/>
+                        <Border Width="1" HorizontalAlignment="Right" Background="#D9D5E6" SnapsToDevicePixels="True"/>
+                    </Grid>
 
-                <!-- Drawer header — brand mark + close affordance -->
-                <Grid Grid.Row="0" Margin="12,10,8,4">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Style="{StaticResource PgBrandLogoStyle}"
-                                ClipToBounds="True"
-                                SnapsToDevicePixels="True">
-                            <Border.Background>
-                                <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                            Stretch="UniformToFill"
-                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                            </Border.Background>
-                        </Border>
-                        <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Sidebar header — "Menu" + one X close icon only (NO LOGO) -->
+                        <Grid Grid.Row="0" Margin="16,14,12,8">
                             <TextBlock Text="{DynamicResource Shell.Menu}"
-                                       Style="{StaticResource PgBrandTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Shell.AppSuiteTagline}"
-                                       Style="{StaticResource PgBrandSubStyle}"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <Button Style="{StaticResource PgTopIconButtonStyle}"
-                            Content="&#xE711;"
-                            Command="{Binding ToggleMenuCommand}"
-                            ToolTip="{DynamicResource Shell.DrawerClose}"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center"/>
-                </Grid>
+                                       FontFamily="Georgia, 'Times New Roman', serif"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="#211D31"
+                                       VerticalAlignment="Center"/>
+                            <Button Style="{StaticResource PgTopIconButtonStyle}"
+                                    Content="&#xE711;"
+                                    Command="{Binding ToggleMenuCommand}"
+                                    ToolTip="{DynamicResource Shell.DrawerClose}"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"/>
+                        </Grid>
 
-                <Grid Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0">
-                        <ScrollViewer x:Name="MenuScrollViewer"
+                        <!-- Navigation items (Scrollable) -->
+                        <ScrollViewer Grid.Row="1"
+                                      x:Name="MenuScrollViewer"
                                       VerticalScrollBarVisibility="Hidden"
                                       HorizontalScrollBarVisibility="Disabled"
                                       CanContentScroll="False"
@@ -802,502 +584,477 @@
                                       Focusable="False"
                                       FocusVisualStyle="{x:Null}"
                                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-                            <StackPanel Margin="0,6,0,16">
+                            <StackPanel Margin="0,4,0,16">
 
-                                <!-- MAIN -->
-                                <TextBlock Text="{DynamicResource Nav.GroupMain}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
+                                <!-- Editorial scale menu labels with thin icons -->
+                                <!-- 1. Dashboard -->
                                 <Button Style="{StaticResource PgSidebarItemStyle}"
                                         Content="{DynamicResource Nav.Dashboard}"
                                         Tag="&#xE80F;"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="Dashboard"/>
 
-                                <!-- INVENTORY -->
-                                <TextBlock Text="{DynamicResource Nav.GroupInventory}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
+                                <!-- 2. Sheet Store -->
                                 <Button Style="{StaticResource PgSidebarItemStyle}"
                                         Content="{DynamicResource Nav.SheetStore}"
                                         Tag="&#xE7B8;"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="SheetStore"/>
+
+                                <!-- 3. Specifications -->
                                 <Button Style="{StaticResource PgSidebarItemStyle}"
                                         Content="{DynamicResource Nav.Specifications}"
                                         Tag="&#xE8F1;"
                                         Command="{Binding NavigateCommand}"
                                         CommandParameter="Specifications"/>
 
-                                <!-- SALES (expandable) -->
-                                <TextBlock Text="{DynamicResource Nav.GroupSales}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
-                                <StackPanel x:Name="SalesGroupHost">
-                                <ToggleButton x:Name="SalesGroup"
-                                              Style="{StaticResource PgSidebarGroupToggleStyle}"
-                                              Content="{DynamicResource Nav.SalesOrders}"
-                                              Tag="&#xE8A5;"
-                                              behaviors:AccordionBehavior.Group="Sidebar"/>
-                                <Border Style="{StaticResource PgSidebarSubListStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=SalesGroup,
-                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Inquiry}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="Inquiry"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.ProformaInvoice}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="ProformaInvoice"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.JobOrder}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="JobOrder"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.TaxInvoice}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="TaxInvoice"/>
-                                    </StackPanel>
-                                </Border>
+                                <!-- SALES & ORDERS (EXPANDED with one chevron) -->
+                                <StackPanel x:Name="SalesGroupHost" Margin="0,4,0,0">
+                                    <ToggleButton x:Name="SalesGroup"
+                                                  Style="{StaticResource PgSidebarGroupToggleStyle}"
+                                                  Content="{DynamicResource Nav.SalesOrders}"
+                                                  Tag="&#xE8A5;"
+                                                  IsChecked="True"
+                                                  behaviors:AccordionBehavior.Group="Sidebar"/>
+                                    <Border Style="{StaticResource PgSidebarSubListStyle}"
+                                            Visibility="{Binding IsChecked, ElementName=SalesGroup,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <!-- Inquiry -->
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Inquiry}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="Inquiry"/>
+
+                                            <!-- Proforma Invoice — SINGLE SELECTED ROW: dark-violet (#443A86) filled rounded row, white text -->
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.ProformaInvoice}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="ProformaInvoice"/>
+
+                                            <!-- Job Order -->
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.JobOrder}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="JobOrder"/>
+
+                                            <!-- Tax Invoice -->
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.TaxInvoice}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="TaxInvoice"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
 
-                                <!-- PRODUCTION (expandable) -->
-                                <TextBlock Text="{DynamicResource Nav.GroupProduction}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
+                                <!-- PRODUCTION (Collapsed group, one chevron) -->
                                 <StackPanel x:Name="ProductionGroupHost">
-                                <ToggleButton x:Name="ProductionGroup"
-                                              Style="{StaticResource PgSidebarGroupToggleStyle}"
-                                              Content="{DynamicResource Nav.ProductionItems}"
-                                              Tag="&#xE8C6;"
-                                              behaviors:AccordionBehavior.Group="Sidebar"/>
-                                <Border Style="{StaticResource PgSidebarSubListStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=ProductionGroup,
-                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Optimization}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="Optimization"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="Process Work Center"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="ProcessWorkCenter"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="Production Control Center"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="ProductionControlCenter"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Cutting}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="Cutting"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.HolesCutouts}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="HolesCutouts"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Polish}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="Polish"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.EdgeDeletion}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="EdgeDeletion"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Mitring}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="Mitring"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Tempering}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="Tempering"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Pairing}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="Pairing"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.DoublingLamination}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="DoublingLamination"/>
-                                    </StackPanel>
-                                </Border>
+                                    <ToggleButton x:Name="ProductionGroup"
+                                                  Style="{StaticResource PgSidebarGroupToggleStyle}"
+                                                  Content="{DynamicResource Nav.ProductionItems}"
+                                                  Tag="&#xE8C6;"
+                                                  behaviors:AccordionBehavior.Group="Sidebar"/>
+                                    <Border Style="{StaticResource PgSidebarSubListStyle}"
+                                            Visibility="{Binding IsChecked, ElementName=ProductionGroup,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Optimization}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="Optimization"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="Process Work Center"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="ProcessWorkCenter"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="Production Control Center"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="ProductionControlCenter"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Cutting}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="Cutting"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.HolesCutouts}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="HolesCutouts"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Polish}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="Polish"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.EdgeDeletion}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="EdgeDeletion"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Mitring}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="Mitring"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Tempering}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="Tempering"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Pairing}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="Pairing"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.DoublingLamination}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="DoublingLamination"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
 
-                                <!-- DISPATCH (expandable) -->
-                                <TextBlock Text="{DynamicResource Nav.GroupDispatch}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
+                                <!-- DISPATCH (Collapsed group, one chevron) -->
                                 <StackPanel x:Name="DispatchGroupHost">
-                                <ToggleButton x:Name="DispatchGroup"
-                                              Style="{StaticResource PgSidebarGroupToggleStyle}"
-                                              Content="{DynamicResource Nav.Dispatch}"
-                                              Tag="&#xE7F4;"
-                                              behaviors:AccordionBehavior.Group="Sidebar"/>
-                                <Border Style="{StaticResource PgSidebarSubListStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=DispatchGroup,
-                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.DeliveryNote}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="DeliveryNote"/>
-                                    </StackPanel>
-                                </Border>
+                                    <ToggleButton x:Name="DispatchGroup"
+                                                  Style="{StaticResource PgSidebarGroupToggleStyle}"
+                                                  Content="{DynamicResource Nav.Dispatch}"
+                                                  Tag="&#xE7F4;"
+                                                  behaviors:AccordionBehavior.Group="Sidebar"/>
+                                    <Border Style="{StaticResource PgSidebarSubListStyle}"
+                                            Visibility="{Binding IsChecked, ElementName=DispatchGroup,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.DeliveryNote}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="DeliveryNote"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
 
-                                <!-- FINANCE (expandable) -->
-                                <TextBlock Text="{DynamicResource Nav.GroupFinance}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
+                                <!-- FINANCE & ACCOUNTING (Collapsed group, one chevron) -->
                                 <StackPanel x:Name="FinanceGroupHost">
-                                <ToggleButton x:Name="FinanceGroup"
-                                              Style="{StaticResource PgSidebarGroupToggleStyle}"
-                                              Content="{DynamicResource Nav.FinanceAccounting}"
-                                              Tag="&#xE90E;"
-                                              behaviors:AccordionBehavior.Group="Sidebar"/>
-                                <Border Style="{StaticResource PgSidebarSubListStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=FinanceGroup,
-                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.StatementGenerator}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="StatementGenerator"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="Report Generator"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="OrderReport"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.JobProfitability}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="JobProfitability"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.VatSubmission}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="VatSubmission"/>
-                                    </StackPanel>
-                                </Border>
+                                    <ToggleButton x:Name="FinanceGroup"
+                                                  Style="{StaticResource PgSidebarGroupToggleStyle}"
+                                                  Content="{DynamicResource Nav.FinanceAccounting}"
+                                                  Tag="&#xE90E;"
+                                                  behaviors:AccordionBehavior.Group="Sidebar"/>
+                                    <Border Style="{StaticResource PgSidebarSubListStyle}"
+                                            Visibility="{Binding IsChecked, ElementName=FinanceGroup,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.StatementGenerator}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="StatementGenerator"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="Report Generator"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="OrderReport"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.JobProfitability}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="JobProfitability"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.VatSubmission}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="VatSubmission"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
 
-                                <!-- REPORTS (expandable) -->
-                                <TextBlock Text="{DynamicResource Nav.GroupReports}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
+                                <!-- REPORTS (Collapsed group, one chevron) -->
                                 <StackPanel x:Name="ReportsGroupHost">
-                                <ToggleButton x:Name="ReportsGroup"
-                                              Style="{StaticResource PgSidebarGroupToggleStyle}"
-                                              Content="{DynamicResource Nav.Reports}"
-                                              Tag="&#xE9F9;"
-                                              behaviors:AccordionBehavior.Group="Sidebar"/>
-                                <Border Style="{StaticResource PgSidebarSubListStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=ReportsGroup,
-                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Overview}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="SalesReport"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.ProformaInvoice}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="PiReport"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.JobOrder}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="JoReport"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Delivery}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="DeliveryReport"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.TaxInvoice}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="TaxInvoiceReport"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.Statement}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="StatementReport"/>
-                                    </StackPanel>
-                                </Border>
+                                    <ToggleButton x:Name="ReportsGroup"
+                                                  Style="{StaticResource PgSidebarGroupToggleStyle}"
+                                                  Content="{DynamicResource Nav.Reports}"
+                                                  Tag="&#xE9F9;"
+                                                  behaviors:AccordionBehavior.Group="Sidebar"/>
+                                    <Border Style="{StaticResource PgSidebarSubListStyle}"
+                                            Visibility="{Binding IsChecked, ElementName=ReportsGroup,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Overview}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="SalesReport"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.ProformaInvoice}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="PiReport"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.JobOrder}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="JoReport"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Delivery}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="DeliveryReport"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.TaxInvoice}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="TaxInvoiceReport"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.Statement}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="StatementReport"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
 
-                                <!-- MASTER DATA (expandable) -->
-                                <TextBlock Text="{DynamicResource Nav.GroupMasterData}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
+                                <!-- MASTER DATA (Collapsed group, one chevron) -->
                                 <StackPanel x:Name="MasterDataGroupHost">
-                                <ToggleButton x:Name="MasterDataGroup"
-                                              Style="{StaticResource PgSidebarGroupToggleStyle}"
-                                              Content="{DynamicResource Nav.MasterDataItems}"
-                                              Tag="&#xE822;"
-                                              behaviors:AccordionBehavior.Group="Sidebar"/>
-                                <Border Style="{StaticResource PgSidebarSubListStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=MasterDataGroup,
-                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.CompanyCenter}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="CompanyCenter"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.UserCenter}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="UserCenter"/>
-                                    </StackPanel>
-                                </Border>
+                                    <ToggleButton x:Name="MasterDataGroup"
+                                                  Style="{StaticResource PgSidebarGroupToggleStyle}"
+                                                  Content="{DynamicResource Nav.MasterDataItems}"
+                                                  Tag="&#xE822;"
+                                                  behaviors:AccordionBehavior.Group="Sidebar"/>
+                                    <Border Style="{StaticResource PgSidebarSubListStyle}"
+                                            Visibility="{Binding IsChecked, ElementName=MasterDataGroup,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.CompanyCenter}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="CompanyCenter"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.UserCenter}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="UserCenter"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
 
-                                <!-- SYSTEM (expandable) -->
-                                <TextBlock Text="{DynamicResource Nav.GroupSystem}"
-                                           Style="{StaticResource PgSidebarGroupLabelStyle}"/>
+                                <!-- SYSTEM (Collapsed group, one chevron) -->
                                 <StackPanel x:Name="SystemGroupHost">
-                                <ToggleButton x:Name="SystemGroup"
-                                              Style="{StaticResource PgSidebarGroupToggleStyle}"
-                                              Content="{DynamicResource Nav.System}"
-                                              Tag="&#xE713;"
-                                              behaviors:AccordionBehavior.Group="Sidebar"/>
-                                <Border Style="{StaticResource PgSidebarSubListStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=SystemGroup,
-                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.SystemCenter}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="SystemCenter"/>
-                                        <Button Style="{StaticResource PgSidebarSubItemStyle}"
-                                                Content="{DynamicResource Nav.LogsActivity}"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="Diagnostics"/>
-                                    </StackPanel>
-                                </Border>
+                                    <ToggleButton x:Name="SystemGroup"
+                                                  Style="{StaticResource PgSidebarGroupToggleStyle}"
+                                                  Content="{DynamicResource Nav.System}"
+                                                  Tag="&#xE713;"
+                                                  behaviors:AccordionBehavior.Group="Sidebar"/>
+                                    <Border Style="{StaticResource PgSidebarSubListStyle}"
+                                            Visibility="{Binding IsChecked, ElementName=SystemGroup,
+                                                         Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.SystemCenter}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="SystemCenter"/>
+                                            <Button Style="{StaticResource PgSidebarSubItemStyle}"
+                                                    Content="{DynamicResource Nav.LogsActivity}"
+                                                    Command="{Binding NavigateCommand}"
+                                                    CommandParameter="Diagnostics"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
 
                             </StackPanel>
                         </ScrollViewer>
 
+                        <!-- SIDEBAR FOOTER: tiny "Local storage —" and "View breakdown", NO meter -->
+                        <viewsShared:StorageSidebarCard x:Name="StorageCard"
+                                                        Grid.Row="2"/>
                     </Grid>
-
-                    <!-- STORAGE FOOTER — extracted to
-                         Views/Shared/StorageSidebarCard.xaml (clickable:
-                         opens the storage breakdown popup). The accent
-                         gradient lives only in the thin bar, not the
-                         whole card. -->
-                    <viewsShared:StorageSidebarCard x:Name="StorageCard"
-                                                    Grid.Row="1"/>
-                </Grid>
                 </Grid>
             </Border>
 
-            <!-- ═══════════════════════════════════════════════════════
-                 READ-ONLY BANNER (trial ended / grace period)
+            <!-- ═══════════════════════════════════════════════════════════
+                 MODULE REGION (Column 1)
+                 Blank very pale grey (#F5F5F8)
+                 Large rounded INNER elbow fillet at top-left
+                 Bottom-right small caption "30 / PORCELAIN FLOW"
+            ═══════════════════════════════════════════════════════════════ -->
+            <Grid Grid.Column="1" Background="#F5F5F8">
 
-                 A slim, top-anchored strip that appears whenever
-                 LicenseService.Current.ReadOnly is true — i.e. the
-                 30-day trial has ended OR a paid license is in its
-                 post-expiry grace period. The app is still fully
-                 navigable (all data preserved), but write commands
-                 are gated by ReadOnlyGate. The banner links straight
-                 to Settings → License so the user can paste a
-                 renewed key without hunting for the page.
-                 ZIndex 5 sits ABOVE the module content card (implicit
-                 ZIndex 0) but BELOW the sidebar drawer (ZIndex 10),
-                 the license activation overlay (100), the AI chat
-                 (200) and the agent chat (210), so the drawer and
-                 any modal surface cover the banner cleanly when open
-                 without the banner poking through their top edge.
-            ═══════════════════════════════════════════════════════════ -->
-            <Border x:Name="ReadOnlyBanner"
-                    Panel.ZIndex="5"
-                    Margin="16,16,16,0"
-                    VerticalAlignment="Top"
-                    Padding="16,10"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource TintAmberBrush}"
-                    BorderBrush="{DynamicResource WarningBrush}"
-                    BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    SnapsToDevicePixels="True"
-                    Visibility="{Binding IsReadOnly,
-                        Source={x:Static vmLicensing:LicenseStatusViewModel.Instance},
-                        Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                <!-- INNER ELBOW FILLET (smooth concave fillet joining header and sidebar) -->
+                <Grid HorizontalAlignment="Left"
+                      VerticalAlignment="Top"
+                      Width="28"
+                      Height="28"
+                      Panel.ZIndex="25"
+                      IsHitTestVisible="False">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMenuOpen}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
 
-                    <TextBlock Grid.Column="0"
-                               Text="&#xE7BA;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{DynamicResource FontSize.H2}"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,12,0"/>
+                    <!-- Porcelain fill bridging header bottom and sidebar right -->
+                    <Path Data="M 0,0 L 28,0 A 28,28 0 0,0 0,28 Z"
+                          Fill="#FCFCFE"/>
 
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="{DynamicResource Shell.ReadOnly}"
-                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   TextWrapping="Wrap"
-                                   Text="{Binding StatusDescription,
-                                          Source={x:Static vmLicensing:LicenseStatusViewModel.Instance}}"/>
-                    </StackPanel>
-
-                    <Button Grid.Column="2"
-                            Content="{DynamicResource Shell.ActivateLicense}"
-                            Padding="14,6"
-                            VerticalAlignment="Center"
-                            Command="{Binding OpenLicenseSettingsCommand}"
-                            Background="{DynamicResource WarningBrush}"
-                            Foreground="{DynamicResource OnAccentForegroundBrush}"
-                            BorderThickness="{DynamicResource Border.NoneThickness}"
-                            Cursor="Hand"/>
+                    <!-- Nested double keylines following the inner elbow concave arc -->
+                    <Path Data="M 28,0 A 28,28 0 0,0 0,28"
+                          Stroke="#D9D5E6"
+                          StrokeThickness="1"
+                          SnapsToDevicePixels="True"/>
+                    <Path Data="M 25.5,0 A 25.5,25.5 0 0,0 0,25.5"
+                          Stroke="#D9D5E6"
+                          StrokeThickness="1"
+                          SnapsToDevicePixels="True"/>
                 </Grid>
-            </Border>
 
-            <!-- ═══════════════════════════════════════════════════════
-                 LICENSE ACTIVATION OVERLAY (Commit 4 of the
-                 licensing refactor)
+                <!-- BOTTOM-RIGHT SMALL CAPTION "30 / PORCELAIN FLOW" -->
+                <TextBlock Text="30 / PORCELAIN FLOW"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           Foreground="#A29CB4"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Bottom"
+                           Margin="0,0,24,14"
+                           IsHitTestVisible="False"
+                           Panel.ZIndex="1"/>
 
-                 Shown ONLY when LicenseStatusViewModel.IsLicenseRequired
-                 is true — i.e. the licence is in a hard-broken state
-                 (invalid signature/state, machine-mismatch, clock
-                 rollback, or an expired paid license outside its signed
-                 grace policy AND outside the machine's automatic trial
-                 DORMANT SAFETY NET (2026-08-29): the app never
-                 hard-blocks on a license state. LicenseService
-                 normalizes every startup result to a runnable state
-                 (valid license → automatic trial → read-only with data
-                 preserved), so LicenseStatusViewModel.IsLicenseRequired
-                 is always false and this overlay never appears. It is
-                 kept only as a dormant safety net in case a future
-                 status enum value falls through unnormalized.
+                <!-- Active Module Content Host -->
+                <ContentControl Content="{Binding ProfessionalContent}"
+                                behaviors:ContentTransitionBehavior.IsEnabled="True"
+                                Margin="0">
+                    <ContentControl.Style>
+                        <Style TargetType="ContentControl">
+                            <Setter Property="Opacity" Value="1"/>
+                        </Style>
+                    </ContentControl.Style>
+                </ContentControl>
 
-                 Visibility is bound to
-                 LicenseStatusViewModel.Instance.IsLicenseRequired
-                 via x:Static. The VM is a singleton that
-                 subscribes to LicenseService.StatusChanged,
-                 so the overlay shows / hides automatically
-                 when the user installs / removes a license —
-                 no main-window code-behind glue needed.
-            ═══════════════════════════════════════════════════════════ -->
-            <Border x:Name="LicenseOverlay"
-                    Panel.ZIndex="100"
-                    Margin="16"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource AccentBrush}"
-                    BorderThickness="{DynamicResource Border.StrongThickness}"
-                    SnapsToDevicePixels="True"
-                    Visibility="{Binding IsLicenseRequired,
-                        Source={x:Static vmLicensing:LicenseStatusViewModel.Instance},
-                        Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <!--
-                      The activation view is itself a UserControl with
-                      its own padding and chrome, so we just drop it
-                      into the second row. The view's own StatusChanged
-                      subscription keeps its current-license card up
-                      to date; when the user successfully activates,
-                      LicenseService.StatusChanged fires, the VM's
-                      IsLicenseRequired flips to false, and the
-                      overlay's Visibility binding hides this Border.
-                    -->
-                    <viewsLicensing:LicenseActivationView Grid.Row="1"
-                                                          x:Name="LicenseActivationHost"
-                                                          IsClosable="False"/>
-                </Grid>
-            </Border>
+                <!-- READ-ONLY BANNER (trial ended / grace period) -->
+                <Border x:Name="ReadOnlyBanner"
+                        Panel.ZIndex="50"
+                        Margin="16,16,16,0"
+                        VerticalAlignment="Top"
+                        Padding="16,10"
+                        CornerRadius="8"
+                        Background="#FFFBEB"
+                        BorderBrush="#F59E0B"
+                        BorderThickness="1"
+                        SnapsToDevicePixels="True"
+                        Visibility="{Binding IsReadOnly,
+                            Source={x:Static vmLicensing:LicenseStatusViewModel.Instance},
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-            <!-- AI CHAT OVERLAY — SENIOR FIX 2026-09-20: previously visible
-                 whenever IsPersonalExperience=false (ALWAYS in Professional)
-                 regardless of IsOpen, and bindings were wrong (DataContext=
-                 AiChatVM but path AiChatVM.IsOpen + IsPersonalExperience on
-                 AiChatVM — never matched, so outer stayed Collapsed and inner
-                 Border Visible caused hit-test block). Now correct:
-                 IsOpen on AiChatVM, IsPersonalExperience via Window.DataContext,
-                 closed by default, only top-panel AiBotButton toggles.
-                 GB-P14: Personal shell hosts its own glass overlay on same VM;
-                 this host is Professional-only. ZIndex 200 < top bar 300 so
-                 top bar remains clickable when chat open. -->
-            <viewsAi:AiChatView x:Name="ProAiChatView" DataContext="{Binding AiChatVM}"
-                                Panel.ZIndex="200">
-                <viewsAi:AiChatView.Style>
-                    <Style TargetType="viewsAi:AiChatView">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsOpen}" Value="True"/>
-                                    <Condition Binding="{Binding DataContext.IsPersonalExperience, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
-                                </MultiDataTrigger.Conditions>
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </viewsAi:AiChatView.Style>
-            </viewsAi:AiChatView>
+                        <TextBlock Grid.Column="0"
+                                   Text="&#xE7BA;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="20"
+                                   Foreground="#211D31"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0"/>
 
-            <!-- AGENT CHAT — floating card, bottom-right.
-                 Outer border owns the drop shadow (must not ClipToBounds).
-                 Inner border clips the chat chrome to the 16px radius so
-                 the square UserControl fill cannot square-off the corners.
-                 2026-09-19: EXPERIENCE-GATED. Previously this card showed
-                 in BOTH experiences: opened in Professional, switching to
-                 the Personal shell left it floating over the glass UI with
-                 no glass-top-bar control to close it (the "agent window
-                 stays open" report). Now it is the Professional-side host
-                 only; GlassShell hosts the identical card (same
-                 AgentChatVM, same IsAgentChatOpen flag) in Personal mode —
-                 one visible instance, state preserved across the switch. -->
-            <Border x:Name="ProAgentChatHost" Panel.ZIndex="210"
-                    Width="560"
-                    Height="680"
-                    MaxHeight="{Binding ActualHeight,
-                                RelativeSource={RelativeSource AncestorType=Window},
-                                Converter={StaticResource WindowInsetConverter},
-                                ConverterParameter=120}"
-                    Margin="0,16,24,24"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    ClipToBounds="False"
-                    BorderBrush="{DynamicResource AccentBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
-                    Effect="{StaticResource ShadowElevated}">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <MultiDataTrigger>
-                                <MultiDataTrigger.Conditions>
-                                    <Condition Binding="{Binding IsAgentChatOpen}" Value="True"/>
-                                    <Condition Binding="{Binding IsPersonalExperience}" Value="False"/>
-                                </MultiDataTrigger.Conditions>
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </MultiDataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        ClipToBounds="True"
-                        Background="{DynamicResource ModuleBackgroundBrush}">
-                    <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Shell.ReadOnly}"
+                                       FontSize="14" FontWeight="Bold"
+                                       Foreground="#211D31"/>
+                            <TextBlock FontSize="12"
+                                       Foreground="#211D31"
+                                       TextWrapping="Wrap"
+                                       Text="{Binding StatusDescription,
+                                              Source={x:Static vmLicensing:LicenseStatusViewModel.Instance}}"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="2"
+                                Content="{DynamicResource Shell.ActivateLicense}"
+                                Padding="14,6"
+                                VerticalAlignment="Center"
+                                Command="{Binding OpenLicenseSettingsCommand}"
+                                Background="#F59E0B"
+                                Foreground="#FFFFFF"
+                                BorderThickness="0"
+                                Cursor="Hand"/>
+                    </Grid>
                 </Border>
-            </Border>
 
+                <!-- LICENSE ACTIVATION OVERLAY -->
+                <Border x:Name="LicenseOverlay"
+                        Panel.ZIndex="100"
+                        Margin="16"
+                        CornerRadius="10"
+                        Background="#FFFFFF"
+                        BorderBrush="#443A86"
+                        BorderThickness="2"
+                        SnapsToDevicePixels="True"
+                        Visibility="{Binding IsLicenseRequired,
+                            Source={x:Static vmLicensing:LicenseStatusViewModel.Instance},
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <viewsLicensing:LicenseActivationView Grid.Row="1"
+                                                              x:Name="LicenseActivationHost"
+                                                              IsClosable="False"/>
+                    </Grid>
+                </Border>
+
+                <!-- AI CHAT OVERLAY -->
+                <viewsAi:AiChatView x:Name="ProAiChatView"
+                                    DataContext="{Binding AiChatVM}"
+                                    Panel.ZIndex="200">
+                    <viewsAi:AiChatView.Style>
+                        <Style TargetType="viewsAi:AiChatView">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsOpen}" Value="True"/>
+                                        <Condition Binding="{Binding DataContext.IsPersonalExperience, RelativeSource={RelativeSource AncestorType=Window}}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </viewsAi:AiChatView.Style>
+                </viewsAi:AiChatView>
+
+                <!-- AGENT CHAT FLOATING CARD -->
+                <Border x:Name="ProAgentChatHost"
+                        Panel.ZIndex="210"
+                        Width="560"
+                        Height="680"
+                        MaxHeight="{Binding ActualHeight,
+                                    RelativeSource={RelativeSource AncestorType=Window},
+                                    Converter={StaticResource WindowInsetConverter},
+                                    ConverterParameter=120}"
+                        Margin="0,16,24,24"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        CornerRadius="12"
+                        ClipToBounds="False"
+                        BorderBrush="#8E82D8"
+                        BorderThickness="1"
+                        Background="#FFFFFF">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding IsAgentChatOpen}" Value="True"/>
+                                        <Condition Binding="{Binding IsPersonalExperience}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border CornerRadius="12"
+                            ClipToBounds="True"
+                            Background="#FFFFFF">
+                        <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
+                    </Border>
+                </Border>
+
+            </Grid>
         </Grid>
-    
-        <!-- NON-BLOCKING USER-SWITCH POPUP. Floats over the shell; it is a
-             single Popup inside the root Grid (not a second Window child),
-             StaysOpen=True + the shell's click-outside handler lets clicking
-             any module dismiss it. -->
-        <!-- GB-P15: IsOpen is experience-gated — in Personal mode the
-             Professional top bar is collapsed, so this popup would anchor
-             at the window origin. The Personal shell has its own anchored
-             popup on the SAME IsUserSwitchOpen flag (One source of
-             truth; the gate picks which anchored copy may open). -->
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             NON-BLOCKING POPUPS (anchored to top-bar and sidebar controls)
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- USER-SWITCH POPUP -->
         <Popup x:Name="UserSwitchPopup"
                PlacementTarget="{Binding ElementName=UserCardButton}"
                Placement="Bottom"
@@ -1313,11 +1070,10 @@
                     <Binding Path="IsPersonalExperience"/>
                 </MultiBinding>
             </Popup.IsOpen>
-            <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"
-                                        />
+            <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"/>
         </Popup>
 
-        <!-- Quick-settings popup (non-blocking, same pattern as user card) -->
+        <!-- QUICK-SETTINGS POPUP -->
         <Popup x:Name="SettingsPopup"
                PlacementTarget="{Binding ElementName=SettingsButton}"
                Placement="Bottom"
@@ -1326,15 +1082,10 @@
                StaysOpen="True"
                PopupAnimation="Fade"
                IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}">
-            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="360"
-                                            />
+            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="360"/>
         </Popup>
 
-        <!-- About is NOT a popup: clicking the logo (LogoPanel) opens the full
-             About module (rich AboutView) via ClickToCommandBehavior. -->
-
-        <!-- Notifications / activity popup (non-blocking) -->
-        <!-- GB-P15: experience-gated (see UserSwitchPopup above). -->
+        <!-- NOTIFICATIONS / ACTIVITY POPUP -->
         <Popup x:Name="NotificationsPopup"
                PlacementTarget="{Binding ElementName=NotificationButton}"
                Placement="Bottom"
@@ -1349,16 +1100,10 @@
                     <Binding Path="IsPersonalExperience"/>
                 </MultiBinding>
             </Popup.IsOpen>
-            <viewsShared:ActivityPanel x:Name="ActivityPanelHost"
-                                        />
+            <viewsShared:ActivityPanel x:Name="ActivityPanelHost"/>
         </Popup>
 
-        <!-- Screenshot popup (dedicated, separate from About).
-             2026-09-19: experience-gated — the Professional anchor is
-             collapsed in Personal mode; the glass shell's own anchored
-             copy (same IsScreenshotOpen flag, Personal parameter) opens
-             there instead. Without the gate this popup would float at
-             the window origin in Personal mode. -->
+        <!-- SCREENSHOT POPUP -->
         <Popup x:Name="ScreenshotPopup"
                PlacementTarget="{Binding ElementName=ScreenshotButton}"
                Placement="Bottom"
@@ -1372,12 +1117,10 @@
                     <Binding Path="IsPersonalExperience"/>
                 </MultiBinding>
             </Popup.IsOpen>
-            <viewsShared:ScreenshotPanel x:Name="ScreenshotPanelHost"
-                                         />
+            <viewsShared:ScreenshotPanel x:Name="ScreenshotPanelHost"/>
         </Popup>
 
-        <!-- Screen record popup (independent of Demo Center).
-             2026-09-19: experience-gated (same pattern as Screenshot). -->
+        <!-- SCREEN RECORD POPUP -->
         <Popup x:Name="ScreenRecordPopup"
                PlacementTarget="{Binding ElementName=RecordButton}"
                Placement="Bottom"
@@ -1391,14 +1134,10 @@
                     <Binding Path="IsPersonalExperience"/>
                 </MultiBinding>
             </Popup.IsOpen>
-            <viewsShared:ScreenRecordPanel x:Name="ScreenRecordPanelHost"
-                                           />
+            <viewsShared:ScreenRecordPanel x:Name="ScreenRecordPanelHost"/>
         </Popup>
 
-        <!-- Storage breakdown popup — anchored to the sidebar storage
-             card. Shows exactly which thing holds the storage fill
-             (icon · module · covered storage). Click-outside guarded
-             in MainWindow.xaml.cs, like the top-bar popups. -->
+        <!-- STORAGE BREAKDOWN POPUP -->
         <Popup x:Name="StoragePopup"
                PlacementTarget="{Binding ElementName=StorageCard}"
                Placement="Top"
@@ -1407,11 +1146,8 @@
                StaysOpen="True"
                PopupAnimation="Fade"
                IsOpen="{Binding IsStorageOpen, Mode=TwoWay}">
-            <viewsShared:StorageDetailsPanel x:Name="StoragePanelHost"
-                                             Width="380"/>
+            <viewsShared:StorageDetailsPanel x:Name="StoragePanelHost" Width="380"/>
         </Popup>
 
-        <!-- Liquid Glass catch-light removed — the top bar and sidebar
-             now have their own layered glass composition. -->
-</Grid>
+    </Grid>
 </Window>

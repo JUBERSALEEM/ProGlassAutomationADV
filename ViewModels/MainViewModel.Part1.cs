@@ -304,7 +304,8 @@ namespace ProGlassAutomation.ViewModels
         // ── active navigation key ──────────────────────────────────────
         // Matches each sidebar button's CommandParameter, so the sidebar can
         // highlight the currently open module (active indicator).
-        private string _currentModuleKey = "Dashboard";
+        // Concept 30 PORCELAIN FLOW: "Proforma Invoice" is the primary selected row.
+        private string _currentModuleKey = "ProformaInvoice";
         public string CurrentModuleKey
         {
             get => _currentModuleKey;
@@ -358,6 +359,7 @@ namespace ProGlassAutomation.ViewModels
             return sb.ToString();
         }
 
+        private bool _isMenuOpen = true;
         public bool IsMenuOpen
         {
             get => _isMenuOpen;
@@ -464,13 +466,12 @@ namespace ProGlassAutomation.ViewModels
         private void UpdateClock()
         {
             var now = DateTime.Now;
-            // Only update time string when seconds actually changed
-            var timeStr = now.ToString("HH:mm:ss");
+            // Exact format for Concept 30 Porcelain Flow: "dd MMM yyyy / HH:mm"
+            var timeStr = now.ToString("HH:mm");
             if (timeStr != _currentTimeText)
                 CurrentTimeText = timeStr;
 
-            // Only update date string when the day changes
-            var dateStr = now.ToString("ddd, dd MMM yyyy");
+            var dateStr = now.ToString("dd MMM yyyy");
             if (dateStr != _lastDateStr)
             {
                 _lastDateStr = dateStr;
@@ -1189,8 +1190,8 @@ namespace ProGlassAutomation.ViewModels
                 _connectivity.ConnectivityChanged += _connectivityHandler;
             }
 
-            CurrentViewModel = DashboardVM;
-            ApplyModuleWallpaper("Dashboard");
+            CurrentViewModel = ProformaInvoiceVM;
+            ApplyModuleWallpaper("ProformaInvoice");
             StartClock();
             RefreshCurrentUser();
             RefreshStorage();

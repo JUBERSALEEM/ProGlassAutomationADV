@@ -8,75 +8,62 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- Sidebar storage card — now an interactive button: clicking it
-         opens the storage breakdown popup (icon · module · covered
-         storage). Hover shows the menu-hover surface so the card
-         reads as clickable, not as a static footer. -->
+    <!-- ═══════════════════════════════════════════════════════════════
+         Sidebar storage footer card (Concept 30 PORCELAIN FLOW)
+         Tiny "Local storage —" and "View breakdown", NO meter.
+         Clicking opens the Storage breakdown popup.
+    ═══════════════════════════════════════════════════════════════ -->
     <Button Command="{Binding StorageCardCommand}"
             Cursor="Hand"
             FocusVisualStyle="{x:Null}"
-            Margin="12,0,12,14"
+            Margin="10,0,10,12"
             Padding="0"
             HorizontalContentAlignment="Stretch"
             ToolTip="{DynamicResource Storage.TapForDetails}">
         <Button.Template>
             <ControlTemplate TargetType="Button">
                 <Border x:Name="Card"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource SidebarCardBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="{DynamicResource Border.HairlineThickness}"
-                        Padding="14,12"
+                        CornerRadius="8"
+                        Background="#E6E1F4"
+                        BorderBrush="#D9D5E6"
+                        BorderThickness="1"
+                        Padding="12,9"
                         SnapsToDevicePixels="True">
                     <ContentPresenter/>
                 </Border>
                 <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter TargetName="Card" Property="Background"
-                                Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                        <Setter TargetName="Card" Property="BorderBrush"
-                                Value="{DynamicResource AccentBrush}"/>
+                        <Setter TargetName="Card" Property="Background" Value="#DDD8EE"/>
+                        <Setter TargetName="Card" Property="BorderBrush" Value="#8E82D8"/>
                     </Trigger>
                     <Trigger Property="IsPressed" Value="True">
-                        <Setter TargetName="Card" Property="Background"
-                                Value="{DynamicResource TintIndigoBrush}"/>
+                        <Setter TargetName="Card" Property="Background" Value="#D0C9E8"/>
                     </Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate>
         </Button.Template>
 
         <StackPanel>
-            <Grid Margin="0,0,0,6">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE8B7;"
-                               FontFamily="{DynamicResource FontFamily.Icon}"
-                               FontSize="{DynamicResource FontSize.Caption}"
-                               Foreground="{DynamicResource AccentBrush}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,6,0"/>
-                    <TextBlock Text="{DynamicResource Nav.GroupStorage}"
-                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextTertiaryBrush}"
+            <Grid>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Local storage —"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="#211D31"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding StorageDisplay, FallbackValue='—'}"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="#443A86"
+                               Margin="4,0,0,0"
                                VerticalAlignment="Center"/>
                 </StackPanel>
-                <TextBlock Text="{Binding StorageDisplay, FallbackValue='—'}"
-                           HorizontalAlignment="Right"
-                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource TextPrimaryBrush}"/>
             </Grid>
-            <Border Height="6"
-                    Background="{DynamicResource BorderBrush}"
-                    CornerRadius="{DynamicResource Radius.XSmall}">
-                <Border Width="180"
-                        HorizontalAlignment="Left"
-                        CornerRadius="{DynamicResource Radius.XSmall}"
-                        Background="{DynamicResource StorageBarGradient}"/>
-            </Border>
-            <TextBlock Text="{Binding StorageSubtitle, FallbackValue='Storage unavailable'}"
-                       FontSize="{DynamicResource FontSize.BodySmall}"
-                       Foreground="{DynamicResource TextTertiaryBrush}"
-                       Margin="0,6,0,0"
-                       TextWrapping="Wrap"/>
+            <TextBlock Text="View breakdown"
+                       FontSize="10"
+                       FontWeight="Medium"
+                       Foreground="#6B6580"
+                       Margin="0,3,0,0"/>
         </StackPanel>
     </Button>
 </UserControl>

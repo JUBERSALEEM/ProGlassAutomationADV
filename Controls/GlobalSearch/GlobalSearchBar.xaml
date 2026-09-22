@@ -5,23 +5,23 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignWidth="420"
+             d:DesignWidth="460"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 
-        <!-- Compact top-bar module filter -->
+        <!-- Compact top-bar module filter with rounded outline -->
         <Style x:Key="GsModuleComboStyle" TargetType="ComboBox">
             <Setter Property="Template" Value="{StaticResource Themed.ComboBoxTemplate}"/>
             <Setter Property="Background"               Value="Transparent"/>
-            <Setter Property="Foreground"               Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Foreground"               Value="#211D31"/>
             <Setter Property="BorderThickness"          Value="0"/>
-            <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+            <Setter Property="FontSize"                 Value="11"/>
             <Setter Property="FontWeight"               Value="SemiBold"/>
-            <Setter Property="Height"                   Value="26"/>
-            <Setter Property="Width"                    Value="120"/>
+            <Setter Property="Height"                   Value="24"/>
+            <Setter Property="MinWidth"                 Value="100"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="ToolTip"                  Value="{DynamicResource ToolTip.SearchModuleFilter}"/>
         </Style>
@@ -30,25 +30,25 @@
         <Style x:Key="GsInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background"               Value="Transparent"/>
-            <Setter Property="Foreground"               Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="Foreground"               Value="#211D31"/>
             <Setter Property="BorderThickness"          Value="0"/>
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontSize"                 Value="11.5"/>
             <Setter Property="Height"                   Value="26"/>
             <Setter Property="MinWidth"                 Value="150"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush"               Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="CaretBrush"               Value="#443A86"/>
         </Style>
 
         <Style x:Key="GsResultTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="Foreground" Value="#211D31"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
 
         <Style x:Key="GsResultSubtitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="Foreground" Value="#6B6580"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
             <Setter Property="Margin"     Value="0,2,0,0"/>
         </Style>
@@ -57,54 +57,56 @@
 
     <Grid>
         <!-- ══════════════════════════════════════════════════════════════
-             SEARCH PILL — module filter · query · clear
+             SEARCH ISLAND (Concept 30 PORCELAIN FLOW)
+             Rounded white inset with fine purple (#8E82D8) focus rim
+             and outline dropdown labeled "All Modules".
         ══════════════════════════════════════════════════════════════ -->
         <Border x:Name="SearchPill"
-                CornerRadius="{StaticResource TopPillCornerRadius}"
+                CornerRadius="18"
                 Height="36"
-                Padding="14,0,8,0"
+                Padding="4,0,8,0"
                 VerticalAlignment="Center"
-                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
+                Background="#FFFFFF"
+                BorderBrush="#8E82D8"
+                BorderThickness="1"
                 SnapsToDevicePixels="True">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <!-- Rounded outline dropdown labeled exactly "All Modules" -->
+                <Border BorderBrush="#D9D5E6"
+                        BorderThickness="1"
+                        CornerRadius="12"
+                        Background="#FCFCFE"
+                        Padding="6,1"
+                        Margin="2,0,6,0"
+                        VerticalAlignment="Center">
+                    <ComboBox ItemsSource="{Binding ModuleOptions}"
+                              SelectedItem="{Binding SelectedModule}"
+                              Style="{StaticResource GsModuleComboStyle}"/>
+                </Border>
 
                 <!-- Search glyph -->
                 <TextBlock Text="&#xE721;"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextBodyLarge}"
+                           FontSize="12"
                            VerticalAlignment="Center"
-                           Margin="2,0,10,0"
-                           Foreground="{DynamicResource AccentBrush}"/>
+                           Margin="2,0,6,0"
+                           Foreground="#8E82D8"/>
 
-                <ComboBox ItemsSource="{Binding ModuleOptions}"
-                          SelectedItem="{Binding SelectedModule}"
-                          Style="{StaticResource GsModuleComboStyle}"/>
-
+                <!-- Divider -->
                 <Border Width="1"
-                        Margin="8,8"
-                        Background="{DynamicResource DividerBrush}"/>
+                        Height="18"
+                        Margin="2,0,6,0"
+                        Background="#D9D5E6"/>
 
-                <!-- Query box with a placeholder watermark so the field never
-                     reads as an empty shape - it shows "Search anything..." only
-                     while the query is blank. -->
+                <!-- Query box with placeholder watermark "Search anything…" -->
                 <Grid>
                     <TextBlock Text="{DynamicResource Shell.SearchWatermark}"
-                               FontSize="{StaticResource TextBody}"
+                               FontSize="11.5"
                                VerticalAlignment="Center"
                                Margin="2,0,0,0"
                                IsHitTestVisible="False"
-                               Foreground="{DynamicResource TextTertiaryBrush}">
+                               Foreground="#6B6580">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -128,13 +130,13 @@
                 <Button Command="{Binding ClearCommand}"
                         Content="&#xE711;"
                         FontFamily="Segoe MDL2 Assets"
-                        FontSize="{StaticResource TextCaption}"
+                        FontSize="10"
                         Width="20" Height="20"
                         Padding="0"
                         Cursor="Hand"
-                        BorderThickness="{DynamicResource Border.NoneThickness}"
+                        BorderThickness="0"
                         Background="Transparent"
-                        Foreground="{DynamicResource TextTertiaryBrush}"
+                        Foreground="#6B6580"
                         VerticalAlignment="Center"
                         ToolTip="{DynamicResource ToolTip.ClearSearch}">
                     <Button.Style>
@@ -163,10 +165,10 @@
                PopupAnimation="Fade"
                MaxHeight="460">
 
-            <Border Background="{DynamicResource PopupSurfaceBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
+            <Border Background="#FFFFFF"
+                    BorderBrush="#D9D5E6"
+                    BorderThickness="1"
+                    CornerRadius="10"
                     MinWidth="440"
                     Padding="0">
                 <Grid>
@@ -180,7 +182,7 @@
                              ItemsSource="{Binding Results}"
                              SelectedItem="{Binding SelectedResult, Mode=TwoWay}"
                              Background="Transparent"
-                             BorderThickness="{DynamicResource Border.NoneThickness}"
+                             BorderThickness="0"
                              MaxHeight="400"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              VirtualizingPanel.IsVirtualizing="True"
@@ -194,10 +196,10 @@
                         </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,9"
+                                <Border CornerRadius="8" Padding="12,9"
                                         Background="Transparent"
-                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}">
+                                        BorderBrush="#D9D5E6"
+                                        BorderThickness="0,0,0,1">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
@@ -207,16 +209,16 @@
 
                                         <Border Grid.Column="0"
                                                 Width="26" Height="26"
-                                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                                CornerRadius="6"
                                                 Margin="0,0,10,0"
                                                 VerticalAlignment="Center"
-                                                Background="{DynamicResource TintIndigoBrush}">
+                                                Background="#E6E1F4">
                                             <TextBlock Text="{Binding Glyph}"
                                                        FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="{StaticResource TextBody}"
+                                                       FontSize="12"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
-                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                                       Foreground="#443A86"/>
                                         </Border>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -226,16 +228,16 @@
                                                        Style="{StaticResource GsResultSubtitleStyle}"/>
                                         </StackPanel>
 
-                                        <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="2"
-                                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                        <Border BorderBrush="#D9D5E6" BorderThickness="1" Grid.Column="2"
+                                                CornerRadius="6"
                                                 Padding="8,3"
                                                 Margin="10,0,0,0"
                                                 VerticalAlignment="Center"
-                                                Background="{DynamicResource TintIndigoBrush}">
+                                                Background="#E6E1F4">
                                             <TextBlock Text="{Binding ModuleLabel}"
-                                                       FontSize="{StaticResource TextXSmall}"
+                                                       FontSize="9.5"
                                                        FontWeight="Bold"
-                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                                       Foreground="#443A86"/>
                                         </Border>
                                     </Grid>
                                 </Border>
@@ -250,31 +252,31 @@
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="&#xE721;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextHeadline}"
+                                       FontSize="20"
                                        HorizontalAlignment="Center"
                                        Margin="0,0,0,8"
-                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                       Foreground="#8E82D8"/>
                             <TextBlock Text="{DynamicResource Shell.SearchNoMatches}"
-                                       FontSize="{StaticResource TextBody}"
+                                       FontSize="12"
                                        FontWeight="SemiBold"
                                        HorizontalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Foreground="#211D31"/>
                             <TextBlock Text="{DynamicResource Shell.SearchNoMatchesHint}"
-                                       FontSize="{StaticResource TextCaption}"
+                                       FontSize="10.5"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"
-                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                       Foreground="#6B6580"/>
                         </StackPanel>
                     </Border>
 
                     <!-- Status footer -->
-                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
+                    <Border BorderBrush="#D9D5E6" BorderThickness="0,1,0,0" Grid.Row="1"
                             Padding="12,7"
-                            Background="{DynamicResource PopupSurfaceBrush}"
-                            CornerRadius="{DynamicResource Radius.Bottom.Medium}">
+                            Background="#F5F5F8"
+                            CornerRadius="0,0,10,10">
                         <TextBlock Text="{Binding StatusMessage}"
-                                   FontSize="{StaticResource TextCaption}"
-                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                   FontSize="10"
+                                   Foreground="#6B6580"/>
                     </Border>
                 </Grid>
             </Border>
