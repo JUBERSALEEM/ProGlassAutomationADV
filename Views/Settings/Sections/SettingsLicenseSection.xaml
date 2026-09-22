@@ -1,30 +1,9 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsLicenseSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings — LICENSE page (2026-09-16 grammar rewrite)
-
-     WHAT CHANGED AND WHY
-     ────────────────────
-     Restyled to the approved Settings grammar
-     (Views/Settings/SettingsCardStyles.xaml). The page's job is unchanged
-     and so is every binding: this is a structural rewrite of the chrome.
-
-       • The old file opened with its own H1 + subtitle block. The shell
-         already renders a header strip with the page name, so every page
-         printed its title twice. Local titles are gone; the shell strip is
-         the single page header.
-       • `<Border Style="SurfaceDetailStyle"/>` was used as a vertical
-         GAP between two groups. SurfaceDetailStyle is a card — a card used
-         as a spacer is why the page read as a stack of unrelated slabs.
-         Real spacing + SettingsRowSeparatorStyle now do that.
-       • Cards were `SurfacePrimaryStyle` with nested `SurfacePrimaryStyle`
-         inside them (a card inside a card of the same style). Now: one
-         SettingsPageCardStyle per card, content in SettingsInnerTileStyle.
-       • Values are pills (SettingsValuePillStyle), status is a chip, and
-         spacing comes from the grammar's tokens — no local margins.
-
-     The activation view stays the single source of truth for key entry and
-     PC-ID display; this page deliberately does not duplicate it.
+     MODULE: Settings — LICENSE page (Full Light Studio Bento redesign)
+     Preserves all ViewModel bindings while elevating to Studio Bento:
+     hero header, activation details, hardware ID, and licensed modules matrix.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsLicenseSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -56,7 +35,7 @@
                   Padding="{StaticResource SettingsPagePadding}">
         <StackPanel DataContext="{x:Static vmLicensing:LicenseStatusViewModel.Instance}">
 
-            <!-- ═══ CARD 1 — STATUS AT A GLANCE ═══ -->
+            <!-- ═══ CARD 1 — STATUS AT A GLANCE (BENTO HERO) ═══ -->
             <Border Style="{StaticResource SettingsPageCardStyle}">
                 <StackPanel>
                     <Grid>
@@ -121,7 +100,68 @@
                 </StackPanel>
             </Border>
 
-            <!-- ═══ CARD 2 — ACTIVATION ═══ -->
+            <!-- ═══ CARD 2 — LICENSED MODULE CAPABILITIES MATRIX ═══ -->
+            <Border Style="{StaticResource SettingsPageCardStyle}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE8F1;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Licensed Module Capabilities" Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="Industrial modules active on this workstation" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="2D Guillotine Optimization Engine" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                    <TextBlock Text="High-yield layout calculation &amp; offcut management" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="CNC Machine Output (Lisec, Bottero)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                    <TextBlock Text="Direct G-Code export to industrial cutting bridges" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="Multi-Currency &amp; VAT Submissions" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                    <TextBlock Text="Live exchange rates &amp; UAE Federal Tax Authority VAT export" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="14" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="AI Estimator &amp; Whisper Voice Input" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                    <TextBlock Text="Local on-device transcription &amp; cost analysis" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══ CARD 3 — ACTIVATION & KEY MANAGEMENT ═══ -->
             <Border Style="{StaticResource SettingsPageCardStyle}">
                 <StackPanel>
                     <Grid>
@@ -147,10 +187,7 @@
 
                     <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
-                    <!-- Reuses the same UserControl the main window used to show
-                         as a full-screen overlay; inside a ScrollViewer
-                         IsClosable stays false (there is nothing to close —
-                         you navigate away from the page instead). -->
+                    <!-- Reuses LicenseActivationView -->
                     <viewsLicensing:LicenseActivationView IsClosable="False"/>
                 </StackPanel>
             </Border>
