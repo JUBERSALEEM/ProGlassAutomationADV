@@ -68,13 +68,10 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel>
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE767;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.InternalAudio}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE767;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.InternalAudio}" VerticalAlignment="Center"/>
+</StackPanel>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CaptureAppNarrationSoundRunningApp}"/>
@@ -95,13 +92,10 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel>
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Microphone}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Microphone}" VerticalAlignment="Center"/>
+</StackPanel>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CaptureLiveSpokenNarrationMicrophone}"/>

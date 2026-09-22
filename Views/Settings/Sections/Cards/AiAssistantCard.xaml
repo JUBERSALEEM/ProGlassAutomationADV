@@ -34,13 +34,10 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel>
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}" VerticalAlignment="Center"/>
+</StackPanel>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
@@ -61,13 +58,10 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel>
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}" VerticalAlignment="Center"/>
+</StackPanel>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
@@ -82,13 +76,10 @@
                             <!-- Model readout -->
                             <Border Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.ActiveModel}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ActiveModel}" VerticalAlignment="Center"/>
+</StackPanel>
                                     <TextBlock Text="{Binding AiModel}"
                                                TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
@@ -99,13 +90,10 @@
                             <!-- Max tokens -->
                             <Border Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.MaxTokens}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.MaxTokens}" VerticalAlignment="Center"/>
+</StackPanel>
                                     <TextBlock Text="{Binding AiMaxTokens}"
                                                TextWrapping="Wrap"/>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
@@ -116,13 +104,10 @@
                             <!-- Temperature -->
                             <Border>
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Temperature}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Temperature}" VerticalAlignment="Center"/>
+</StackPanel>
                                     <TextBlock Text="{Binding AiTemperature}"
                                                TextWrapping="Wrap"/>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"

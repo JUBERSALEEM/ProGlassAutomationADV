@@ -277,25 +277,22 @@
                             <!-- UI scale -->
                             <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.UIScale}"/>
-                                            <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
-                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource AccentBrush}">
-                                                <Run Text="{Binding UiScalePercent, Mode=OneWay}"/>
-                                                <Run Text="%"/>
-                                            </TextBlock>
-                                            <Button Content="{DynamicResource Action.Reset}"
-                                                Style="{StaticResource OutlinedPillButton}"
-                                                Command="{Binding ResetUiScaleCommand}"
-                                                Margin="{StaticResource SettingsInlineGap12}"
-                                                Height="26" MinWidth="60" Padding="10,0"
-                                                FontSize="{DynamicResource FontSize.BodySmall}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;" VerticalAlignment="Center"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.UIScale}"/>
+                                        <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
+                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource AccentBrush}">
+                                            <Run Text="{Binding UiScalePercent, Mode=OneWay}"/>
+                                            <Run Text="%"/>
+                                        </TextBlock>
+                                        <Button Content="{DynamicResource Action.Reset}"
+                                            Style="{StaticResource OutlinedPillButton}"
+                                            Command="{Binding ResetUiScaleCommand}"
+                                            Margin="{StaticResource SettingsInlineGap12}"
+                                            Height="26" MinWidth="60" Padding="10,0"
+                                            FontSize="{DynamicResource FontSize.BodySmall}"/>
+                                    </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.CtrlMouseWheelZoomsAppCtrl0Resets100}"/>
                                     <Slider Style="{StaticResource ModernSliderStyle}"

@@ -59,13 +59,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.InquiryReference}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.InquiryReference}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ShortCustomerFacingReferenceLineInquiry}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryReference}"
                                         AutomationProperties.Name="{DynamicResource Inquiry.InquiryReference}"
@@ -76,13 +73,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.CustomerLocation}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.CustomerLocation}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.EmirateCityCarriedProformaBillingAddress}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerLocation}"
                                         AutomationProperties.Name="{DynamicResource Settings.CustomerLocation}"
@@ -93,13 +87,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ProjectDescription}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ProjectDescription}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.LongerFreeTextDescriptionProjectScope}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectDescription}"
                                         AutomationProperties.Name="{DynamicResource Settings.ProjectDescription}"
@@ -110,13 +101,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Salesman}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Salesman}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SalesRepresentativeWhoOwnsInquiry}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesman}"
                                         AutomationProperties.Name="{DynamicResource Common.Salesman}"
@@ -127,13 +115,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.Prepared2}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.Prepared2}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorWhoFirstTypedInquiry}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPreparedBy}"
                                         AutomationProperties.Name="{DynamicResource Inquiry.Prepared2}"
@@ -144,13 +129,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Priority}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Priority}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.UrgentHighNormalLowTriageBucket}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPriority}"
                                         AutomationProperties.Name="{DynamicResource Common.Priority}"
@@ -161,13 +143,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EstimatedValue}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EstimatedValue}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.RoughAEDEstimatePotentialOrder}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryValue}"
                                         AutomationProperties.Name="{DynamicResource Settings.EstimatedValue}"
@@ -178,13 +157,10 @@
                                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Notes}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Notes}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformNotesStoredInquiryRecord}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"
                                         AutomationProperties.Name="{DynamicResource Common.Notes}"

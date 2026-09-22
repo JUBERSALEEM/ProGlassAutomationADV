@@ -34,13 +34,10 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel>
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}" VerticalAlignment="Center"/>
+</StackPanel>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>

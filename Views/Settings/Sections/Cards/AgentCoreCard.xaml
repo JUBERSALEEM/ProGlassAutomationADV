@@ -255,9 +255,9 @@
 
                         <!-- ═══════ GROUP: TAUGHT PHRASES ═══════ -->
                         <TextBlock Text="{DynamicResource Settings.TaughtPhrases}"
-                                  />
+                                   Style="{StaticResource SettingsCardTitleStyle}"/>
                         <TextBlock Text="{DynamicResource Settings.TaughtPhraseNothingUntilApproveHere}"
-                                  />
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
 
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
@@ -277,7 +277,7 @@
                                                 <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                         BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                                        Padding="0,10" Style="{StaticResource SettingsInnerTileStyle}">
+                                                        Padding="0,10" Background="Transparent">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="*"/>

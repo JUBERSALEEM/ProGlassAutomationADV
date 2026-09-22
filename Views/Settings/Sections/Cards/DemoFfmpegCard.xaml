@@ -22,13 +22,10 @@
                             Converter={StaticResource BoolToVisibilityConverter},
                             FallbackValue=Collapsed}">
                     <StackPanel>
-                        <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Ffmpeg}"/>
-                            </StackPanel>
-                        </Border>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;" VerticalAlignment="Center"/>
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Ffmpeg}"/>
+                        </StackPanel>
                         <TextBlock Text="{Binding FfmpegStatus}"
                                    Style="{StaticResource SettingsRowMetaStyle}"
                                    FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"

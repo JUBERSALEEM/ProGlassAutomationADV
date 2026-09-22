@@ -459,7 +459,7 @@
                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             Margin="{StaticResource SettingsStackGap8}"
                                             Height="150"
-                                            SnapsToDevicePixels="True" Style="{StaticResource SettingsInnerTileStyle}">
+                                            SnapsToDevicePixels="True">
                                         <crystal:CrystalWaterControl
                                             WaterEnabled="{DynamicResource CrystalWaterDefaultEnabled}"
                                             WaterLevel="0.4"
@@ -497,14 +497,11 @@
                         Visibility="{Binding IsCrystalThemeActive,
                             Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <StackPanel>
-                        <Border 
-        Style="{StaticResource SettingsInnerTileStyle}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
-                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
-                                       Text="{DynamicResource Settings.SecThemes}"/>
-                            </StackPanel>
-                        </Border>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;" VerticalAlignment="Center"/>
+                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
+                                   Text="{DynamicResource Settings.SecThemes}"/>
+                        </StackPanel>
                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="{DynamicResource Settings.CrystalOnlyIos17pm}"/>
                     </StackPanel>

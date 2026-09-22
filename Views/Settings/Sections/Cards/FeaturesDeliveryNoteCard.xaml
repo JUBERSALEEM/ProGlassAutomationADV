@@ -59,13 +59,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource DeliveryNote.DriverNAME}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource DeliveryNote.DriverNAME}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.WhoDeliveredLoad}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDriverName}"
                                         AutomationProperties.Name="{DynamicResource DeliveryNote.DriverNAME}"
@@ -76,13 +73,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource DeliveryNote.VehicleNumber}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource DeliveryNote.VehicleNumber}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.TruckVanPlate}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowVehicleNumber}"
                                         AutomationProperties.Name="{DynamicResource DeliveryNote.VehicleNumber}"
@@ -93,13 +87,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.FOCFreeCost}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.FOCFreeCost}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.MarkDeliveryFreeComplimentary}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIsFoc}"
                                         AutomationProperties.Name="{DynamicResource Settings.FOCFreeCost}"
@@ -110,13 +101,10 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource DeliveryNote.ReceiverNAME}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource DeliveryNote.ReceiverNAME}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.WhoSignedGoods}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowReceiverName}"
                                         AutomationProperties.Name="{DynamicResource DeliveryNote.ReceiverNAME}"
@@ -127,13 +115,10 @@
                                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                            <StackPanel>
-                                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;"/>
-                                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Notes}"/>
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Notes}" VerticalAlignment="Center"/>
+</StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformDispatchNotes}"/>
                                         <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"
                                         AutomationProperties.Name="{DynamicResource Common.Notes}"
