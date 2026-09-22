@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsSectionStyles.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — shared resource dictionary
@@ -148,15 +148,17 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="BorderBrush"
-                                    Value="{DynamicResource Surface.Primary.BorderBrush}"/>
-                            <Setter TargetName="bd" Property="Opacity" Value="0.92"/>
+                                    Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="bd" Property="Background"
+                                    Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                            <Setter TargetName="bd" Property="Opacity" Value="0.95"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="bd" Property="BorderBrush"
-                                    Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+                                    Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="bd" Property="BorderThickness"
                                     Value="1.5"/>
                         </Trigger>
@@ -496,15 +498,16 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource Surface.Primary.BorderBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -564,9 +567,10 @@
                         <Ellipse Width="16" Height="16"
                                  Fill="{DynamicResource AccentBrush}">
                             <Ellipse.Effect>
-                                <DropShadowEffect BlurRadius="6"
+                                <DropShadowEffect BlurRadius="4"
                                                   ShadowDepth="1"
-                                                  Opacity="0.25"
+                                                  Opacity="0.20"
+                                                  RenderingBias="Performance"
                                                   Color="{DynamicResource LiquidShadowColor}"/>
                             </Ellipse.Effect>
                         </Ellipse>
@@ -584,6 +588,8 @@
         <Setter Property="Height" Value="40"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Slider">

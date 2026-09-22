@@ -721,8 +721,9 @@
     </LinearGradientBrush>
 
     <DropShadowEffect x:Key="SettingsCardShadow"
-                      Color="#020617" Opacity="0.34"
-                      BlurRadius="40" ShadowDepth="18" Direction="90"
+                      Color="#020617" Opacity="0.25"
+                      BlurRadius="8" ShadowDepth="2" Direction="270"
+                      RenderingBias="Performance"
                       po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26HairlineBrush"           Color="#FF262A34" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26TrackBrush"              Color="#FF262A34" po:Freeze="True"/>
