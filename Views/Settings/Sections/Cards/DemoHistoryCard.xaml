@@ -19,10 +19,21 @@
 
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Common.Status}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.WhatLastRunDidWhereOutput}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE9D2;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Common.Status}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.WhatLastRunDidWhereOutput}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                             <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>

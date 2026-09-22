@@ -55,6 +55,32 @@
                       FocusVisualStyle="{x:Null}">
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
+                <!-- ═══ BENTO HERO BANNER — THEMES & SURFACE TUNING ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Themes &amp; Surface Tuning" Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="Bounded material precision tuning, porcelain contrast, and real-time fluid refraction" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
+                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
+                            <TextBlock Text="Studio Engine" Style="{StaticResource SettingsChipTextStyle}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
                 <!-- ═══ CARD — VISUAL THEME (always visible) ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>

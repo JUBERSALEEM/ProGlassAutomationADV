@@ -19,10 +19,21 @@
 
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="Company LAN / Wi-Fi Database"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="Connect all office workstations to one shared ProGlass data folder on the same network. Use a stable Windows/SMB shared folder, not a cloud-sync folder. Restart is required after changing this."
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE968;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="Company LAN / Wi-Fi Database"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="Connect all office workstations to one shared ProGlass data folder on the same network. Use a stable Windows/SMB shared folder, not a cloud-sync folder. Restart is required after changing this."
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
                             <StackPanel>
                                 <Grid>

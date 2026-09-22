@@ -19,10 +19,21 @@
 
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Settings.Wallpapers}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.OneImageBehindModulePlusModuleOverrides}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xEB9F;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Settings.Wallpapers}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.OneImageBehindModulePlusModuleOverrides}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <!-- One card per row (Columns=1): Global Wallpaper fills the
                              full width, then Per-Module Wallpapers fills the full
                              width below it with its own three-column grid. -->

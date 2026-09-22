@@ -50,6 +50,32 @@
                   Padding="{StaticResource SettingsPagePadding}">
         <StackPanel>
 
+            <!-- ═══ BENTO HERO BANNER — ABOUT & KNOWLEDGE BASE ═══ -->
+            <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                        <TextBlock Text="&#xE946;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                        <TextBlock Text="About &amp; Knowledge Base" Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="System architecture, offline neural models, DPAPI privacy guarantees, and workstation diagnostics" Style="{StaticResource SettingsCardNoteStyle}"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
+                            Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
+                        <TextBlock Text="ProGlass 2026" Style="{StaticResource SettingsChipTextStyle}"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                    </Border>
+                </Grid>
+            </Border>
+
             <!-- ═══ CARD — APPLICATION ═══ -->
             <Border Style="{StaticResource SettingsPageCardStyle}">
                 <StackPanel>

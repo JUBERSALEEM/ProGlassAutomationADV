@@ -19,10 +19,21 @@
 
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Settings.Assistant}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.MasterSwitchesTuningValuesUsedRequest}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE8F2;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Settings.Assistant}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.MasterSwitchesTuningValuesUsedRequest}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
 
                             <!-- Master toggle -->

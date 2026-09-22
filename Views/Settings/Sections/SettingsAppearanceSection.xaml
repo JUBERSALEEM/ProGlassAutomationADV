@@ -1,20 +1,11 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsAppearanceSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings v2 — APPEARANCE page (redesigned Aug 2026)
-     REDESIGN
-       Was: one giant SectionCardStyle per subject (Theme mode, Wallpaper,
-       Accent, Font, Motion, Module wallpapers) containing full-width
-       DockPanel rows. On wide monitors that wasted 60-70% of horizontal
-       space; on 1366 laptops it felt endless.
-       Now: page cards from the module grammar (SettingsCardStyles.xaml) —
-       a card per subject with its heading in the card header, rows directly
-       inside it, and SettingsInnerTileStyle for surfaces within a card.
-       MODE and DISPLAY DENSITY are their own cards (sheets 02/03) because a
-       segmented control needs the width. Every binding is preserved
-       byte-for-byte — this is a layout redesign, not a data change.
-     Bindings target SettingsViewModel (DataContext flows from shell).
-═══════════════════════════════════════════════════════════════════════ -->
+     MODULE: Settings — APPEARANCE (Full Light Studio Bento redesign)
+     Visual source of truth: mockups/v4-01-appearance.png
+     Preserves all bindings to SettingsViewModel while elevating the
+     layout hierarchy, card grammar, spacing, and typography ladder.
+═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAppearanceSection"
              xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -35,45 +26,62 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True"
+                  Focusable="False"
+                  FocusVisualStyle="{x:Null}">
+        <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
+            <!-- ═══ BENTO HERO BANNER — APPEARANCE & WORKSPACE ═══ -->
+            <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-        <ScrollViewer Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      CanContentScroll="False"
-                      PanningMode="VerticalOnly"
-                      behaviors:SmoothScrollBehavior.IsEnabled="True"
-                      Focusable="False"
-                      FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="{StaticResource SettingsPagePadding}">
+                    <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                        <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                    </Border>
 
-                <!-- ═══ CARD — THEME & LAYOUT ═══ -->
-                <cards:AppearanceThemeLayoutCard/>
+                    <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                        <TextBlock Text="Appearance &amp; Studio Workspace" Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="Full Light Studio Bento visual system, typography ladder, and color accents" Style="{StaticResource SettingsCardNoteStyle}"/>
+                    </StackPanel>
 
-                <!-- ═══ CARD — MODE (sheet 02: the base colour mode) ═══ -->
-                <cards:AppearanceModeCard/>
+                    <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
+                            Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                        <TextBlock Text="Active Studio" Style="{StaticResource SettingsChipTextStyle}"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                    </Border>
+                </Grid>
+            </Border>
 
-                <!-- ═══ CARD — DISPLAY DENSITY (sheet 03) ═══ -->
-                <cards:AppearanceDensityCard/>
+            <!-- ═══ CARD — THEME & LAYOUT ═══ -->
+            <cards:AppearanceThemeLayoutCard/>
 
-                <!-- ═══ CARD — ACCENT & FONT ═══ -->
-                <cards:AppearanceAccentFontCard/>
+            <!-- ═══ CARD — MODE (sheet 02: the base colour mode) ═══ -->
+            <cards:AppearanceModeCard/>
 
-                <!-- ═══ CARD — WALLPAPERS ═══ -->
-                <cards:AppearanceWallpapersCard/>
+            <!-- ═══ CARD — DISPLAY DENSITY (sheet 03) ═══ -->
+            <cards:AppearanceDensityCard/>
 
-                <!-- ═══ CARD — SPLASH SCREEN THEMES ═══ -->
-                <cards:AppearanceSplashCard/>
+            <!-- ═══ CARD — ACCENT & FONT ═══ -->
+            <cards:AppearanceAccentFontCard/>
 
-                <!-- ═══ CARD — LANGUAGE &amp; CURRENCY ═══ -->
-                <cards:AppearanceLanguageCard/>
+            <!-- ═══ CARD — WALLPAPERS ═══ -->
+            <cards:AppearanceWallpapersCard/>
 
-            </StackPanel>
-        </ScrollViewer>
-    </Grid>
+            <!-- ═══ CARD — SPLASH SCREEN THEMES ═══ -->
+            <cards:AppearanceSplashCard/>
+
+            <!-- ═══ CARD — LANGUAGE &amp; CURRENCY ═══ -->
+            <cards:AppearanceLanguageCard/>
+
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

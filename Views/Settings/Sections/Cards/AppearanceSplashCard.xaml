@@ -1,7 +1,8 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/Cards/AppearanceSplashCard.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings → Appearance → Splash Screen Stage & Styles
+     MODULE: Settings v3 — Appearance: Splash Screen Stage & Styles
+     Studio Bento card with 10 corporate glass architecture presets.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceSplashCard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

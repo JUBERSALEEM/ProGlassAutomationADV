@@ -24,13 +24,10 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <Border Grid.Row="0"
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel>
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.GradientSurfaces}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;" VerticalAlignment="Center"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.GradientSurfaces}"/>
+                                    </StackPanel>
                                     <TextBlock Grid.Row="1"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>

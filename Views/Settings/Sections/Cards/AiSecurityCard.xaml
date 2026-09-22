@@ -19,10 +19,21 @@
 
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Settings.Security}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.ControlKeyPersistenceWipeStoredConversation}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE72E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Settings.Security}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.ControlKeyPersistenceWipeStoredConversation}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleed}">
 
                             <!-- Keep API keys saved -->

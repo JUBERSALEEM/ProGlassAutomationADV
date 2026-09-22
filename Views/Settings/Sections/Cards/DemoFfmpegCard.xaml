@@ -22,10 +22,21 @@
                             Converter={StaticResource BoolToVisibilityConverter},
                             FallbackValue=Collapsed}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Ffmpeg}"/>
-                        </StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE7B8;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Settings.Ffmpeg}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="Hardware media foundation and recording pipeline status"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <TextBlock Text="{Binding FfmpegStatus}"
                                    Style="{StaticResource SettingsRowMetaStyle}"
                                    FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"

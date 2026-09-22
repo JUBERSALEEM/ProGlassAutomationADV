@@ -51,6 +51,30 @@
                       FocusVisualStyle="{x:Null}">
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
+                <!-- ═══ BENTO HERO BANNER — AI MODELS & ORCHESTRATION ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE8F2;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="AI Models &amp; Intelligent Assistant" Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="Multi-provider LLM integration, token budget routing, and DPAPI-encrypted credential vault" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsChipGreenStyle}" VerticalAlignment="Center">
+                            <TextBlock Text="Encrypted Vault" Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
                 <!-- ═══ CARD — SWITCHES & MODEL ═══ -->
                 <cards:AiAssistantCard/>
 

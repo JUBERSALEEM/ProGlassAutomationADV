@@ -48,6 +48,32 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
+                <!-- ═══ BENTO HERO BANNER — DEMO & RECORDER ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE714;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Demo Studio &amp; Screen Recorder" Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="FFmpeg hardware encoding, session isolation sandbox, and video capture" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
+                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
+                            <TextBlock Text="1080p 60fps" Style="{StaticResource SettingsChipTextStyle}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
                 <!-- ═══════ GROUP: FFMPEG (conditional) ═══════ -->
                 <cards:DemoFfmpegCard/>
 

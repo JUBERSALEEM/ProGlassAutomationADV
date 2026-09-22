@@ -19,10 +19,21 @@
 
                     <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Common.JobOrder}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings.TurnOptionalProductionFieldsStatusPriority}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE8B7;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Common.JobOrder}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.TurnOptionalProductionFieldsStatusPriority}"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
                             <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <StackPanel>

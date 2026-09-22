@@ -19,10 +19,21 @@
 
                     <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Module.Inquiry}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings.TurnOptionalFieldsInquiryEditorCustomerName}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE9D2;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Module.Inquiry}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.TurnOptionalFieldsInquiryEditorCustomerName}"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
                             <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <StackPanel>

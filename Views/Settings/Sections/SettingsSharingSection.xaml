@@ -39,7 +39,32 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
-                <!-- ═══ PROVIDERS ═══ -->
+                <!-- ═══ BENTO HERO BANNER — DOCUMENT SHARING & EXPORT ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE72D;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Export &amp; Document Sharing Hub" Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="WhatsApp Business API, SMTP email delivery, and multi-format document templates" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
+                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
+                            <TextBlock Text="Active Hub" Style="{StaticResource SettingsChipTextStyle}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
                 <!-- ═══ CARD — PROVIDERS ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
@@ -54,14 +79,11 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <Border 
-                Style="{StaticResource SettingsInnerTileStyle}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
-                                                   Text="{DynamicResource Sharing.Providers}"/>
-                                        </StackPanel>
-                                    </Border>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;" VerticalAlignment="Center"/>
+                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
+                                               Text="{DynamicResource Sharing.Providers}"/>
+                                    </StackPanel>
                                     <CheckBox Content="{DynamicResource Sharing.ProviderWhatsApp}"
                                     AutomationProperties.Name="{DynamicResource Sharing.ProviderWhatsApp}"
                                               IsChecked="{Binding SharingWhatsAppEnabled, Mode=TwoWay}"

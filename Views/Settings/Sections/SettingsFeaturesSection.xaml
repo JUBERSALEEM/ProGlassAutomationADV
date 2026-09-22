@@ -152,6 +152,32 @@
                       FocusVisualStyle="{x:Null}">
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
+                <!-- ═══ BENTO HERO BANNER — FEATURE FLAGS & MODULE CUSTOMIZATION ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                            <TextBlock Text="&#xE73E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                            <TextBlock Text="Feature Flags &amp; Field Customization" Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="Granular quotation field toggles, workflow step visibility, and session state" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        </StackPanel>
+
+                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
+                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
+                            <TextBlock Text="5 Workflow Modules" Style="{StaticResource SettingsChipTextStyle}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </Border>
+                    </Grid>
+                </Border>
+
                 <!-- ═══════════ SESSION ═══════════
                      Bound to the parent SettingsViewModel via
                      ElementName since the descendant toggles below

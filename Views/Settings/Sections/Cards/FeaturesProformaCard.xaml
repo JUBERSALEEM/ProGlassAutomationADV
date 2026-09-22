@@ -19,10 +19,21 @@
 
                     <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings.ShowHideOptionalFieldsSteps13InvoiceWizard}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE8A5;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.ShowHideOptionalFieldsSteps13InvoiceWizard}"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
                         <!-- ── STEP 1 · COMPANY ─────────────────────── -->
                             <TextBlock Text="{DynamicResource Settings.STEP1Company}"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
