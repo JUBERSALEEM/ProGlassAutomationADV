@@ -1,8 +1,8 @@
-<!-- ═══════════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/JobProfitability/PortfolioGlassTypeComparisonView.xaml
-     MODULE: Portfolio Glass Type Comparison (Job Profitability → Tab 4)
+     MODULE: Portfolio Glass Type Comparison (Studio Bento Edition)
 ═══════════════════════════════════════════════════════════════════════ -->
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.JobProfitability.PortfolioGlassTypeComparisonView"
+<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.PortfolioGlassTypeComparisonView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,14 +14,16 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
 
     <UserControl.Resources>
-        
-
-        
-
-        
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">
@@ -33,18 +35,13 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════ HEADER ═══════ -->
-        <Border Grid.Row="0" Margin="16,16,16,0" Padding="16"
-                Background="{DynamicResource SurfacePrimaryBrush}"
-                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
+        <Border Grid.Row="0" Margin="16,16,16,0" Padding="16,14"
+                Style="{StaticResource Sl.Card}">
             <StackPanel>
                 <TextBlock Text="Glass Type Comparison — All Confirmed Jobs"
-                           FontSize="{DynamicResource FontSize.H2}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                           Style="{StaticResource Sl.Title}"/>
                 <TextBlock Text="Which glass types (DGU, SGU, LAM, DGU+LAM) are most profitable? Compare revenue, cost, profit and margin across all confirmed PIs."
-                           FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
+                           Style="{StaticResource Sl.Subtitle}"
                            Margin="0,4,0,0"/>
             </StackPanel>
         </Border>
@@ -63,67 +60,56 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+            <Border Grid.Column="0" Style="{StaticResource Sl.Hero}" Padding="16,12">
                 <StackPanel>
-                    <TextBlock Text="JOBS ANALYZED" FontSize="{DynamicResource FontSize.BodySmall}"
-                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="JOBS ANALYZED" Style="{StaticResource Sl.Label}" Foreground="{DynamicResource Ov.OnAccentMuted}"/>
                     <TextBlock Text="{Binding TotalJobsAnalyzed}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                               Foreground="{DynamicResource Ov.OnAccent}"
+                               Typography.NumeralAlignment="Tabular"
                                Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+            <Border Grid.Column="2" Style="{StaticResource Sl.Card}" Padding="16,12">
                 <StackPanel>
-                    <TextBlock Text="TOTAL REVENUE" FontSize="{DynamicResource FontSize.BodySmall}"
-                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="TOTAL REVENUE" Style="{StaticResource Sl.Label}"/>
                     <TextBlock Text="{Binding TotalRevenueDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                               Foreground="{DynamicResource Ov.Ink}"
+                               Typography.NumeralAlignment="Tabular"
                                Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="4" Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+            <Border Grid.Column="4" Style="{StaticResource Sl.Card}" Padding="16,12">
                 <StackPanel>
-                    <TextBlock Text="TOTAL PROFIT" FontSize="{DynamicResource FontSize.BodySmall}"
-                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="TOTAL PROFIT" Style="{StaticResource Sl.Label}"/>
                     <TextBlock Text="{Binding TotalProfitDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                               Foreground="{DynamicResource Ov.Ink}"
+                               Typography.NumeralAlignment="Tabular"
                                Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="6" Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+            <Border Grid.Column="6" Style="{StaticResource Sl.Card}" Padding="16,12">
                 <StackPanel>
-                    <TextBlock Text="OVERALL MARGIN" FontSize="{DynamicResource FontSize.BodySmall}"
-                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="OVERALL MARGIN" Style="{StaticResource Sl.Label}"/>
                     <TextBlock Text="{Binding OverallMarginDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                               Foreground="{DynamicResource Ov.Ink}"
+                               Typography.NumeralAlignment="Tabular"
                                Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="8" Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                    CornerRadius="{DynamicResource Radius.Small}" Padding="16,12">
+            <Border Grid.Column="8" Style="{StaticResource Sl.Card}" Padding="16,12">
                 <StackPanel>
-                    <TextBlock Text="BEST PERFORMER" FontSize="{DynamicResource FontSize.BodySmall}"
-                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                    <TextBlock Text="BEST PERFORMER" Style="{StaticResource Sl.Label}"/>
                     <TextBlock Text="{Binding BestPerformingGlassType}"
-                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource SuccessBrush}"
+                               FontSize="{DynamicResource FontSize.Title}" FontWeight="Bold"
+                               Foreground="{DynamicResource Ov.Success}"
                                TextTrimming="CharacterEllipsis"
                                Margin="0,4,0,0"/>
                 </StackPanel>
@@ -132,9 +118,9 @@
 
         <!-- ═══════ DETAILED COMPARISON TABLE ═══════ -->
         <Border Grid.Row="2" Margin="16,12,16,0"
-                Background="{DynamicResource SurfacePrimaryBrush}"
-                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Small}">
+                Style="{StaticResource Sl.Shell}"
+                CornerRadius="14" Padding="0"
+                ClipToBounds="True">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -142,8 +128,7 @@
                 </Grid.RowDefinitions>
 
                 <!-- Table Header -->
-                <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10">
+                <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Padding="16,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.5*"/>
@@ -154,12 +139,12 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0" Text="GLASS TYPE"/>
-                        <TextBlock Grid.Column="1" Text="JOBS" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="2" Text="REVENUE" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="COST" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="PROFIT" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="MARGIN %" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="GLASS TYPE" Style="{StaticResource Sl.ColumnLabel}"/>
+                        <TextBlock Grid.Column="1" Text="JOBS" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="2" Text="REVENUE" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="COST" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="PROFIT" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="MARGIN %" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -169,8 +154,7 @@
                     <ItemsControl ItemsSource="{Binding GlassTypeRows}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                        BorderThickness="{DynamicResource Border.BottomHairlineThickness}" Padding="16,10">
+                                <Border Style="{StaticResource Sl.Row}" Padding="16,10">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="1.5*"/>
@@ -182,12 +166,13 @@
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Grid.Column="0" Text="{Binding GlassType}"
-                                                   FontWeight="{DynamicResource Weight.SemiBold}">
+                                                   FontWeight="SemiBold" VerticalAlignment="Center">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.DataGrid}">
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsBestPerformer}" Value="True">
-                                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -195,23 +180,26 @@
                                         </TextBlock>
 
                                         <TextBlock Grid.Column="1" Text="{Binding JobCount}"
-                                                   HorizontalAlignment="Right"/>
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource Ov.Ink}" Typography.NumeralAlignment="Tabular"/>
 
                                         <TextBlock Grid.Column="2" Text="{Binding TotalRevenueDisplay}"
-                                                   HorizontalAlignment="Right"/>
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource Ov.Ink}" Typography.NumeralAlignment="Tabular"/>
 
                                         <TextBlock Grid.Column="3" Text="{Binding TotalCostDisplay}"
-                                                   HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource Ov.Muted}" Typography.NumeralAlignment="Tabular"/>
 
                                         <TextBlock Grid.Column="4" Text="{Binding TotalProfitDisplay}"
-                                                   HorizontalAlignment="Right">
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   FontWeight="Bold" Typography.NumeralAlignment="Tabular">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.DataGrid}">
-                                                    <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsProfitable}" Value="False">
-                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -219,16 +207,18 @@
                                         </TextBlock>
 
                                         <TextBlock Grid.Column="5" Text="{Binding MarginDisplay}"
-                                                   HorizontalAlignment="Right">
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   FontWeight="Bold" Typography.NumeralAlignment="Tabular">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource Typography.DataGrid}">
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsProfitable}" Value="False">
-                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsBestPerformer}" Value="True">
-                                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                                            <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                            <Setter Property="FontWeight" Value="Bold"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -241,22 +231,18 @@
                     </ItemsControl>
                 </ScrollViewer>
 
-                <!-- Empty state: shown whenever there are no rows. The VM
-                     explains the difference between "no confirmed jobs yet"
-                     and "jobs exist but none could be classified from saved
-                     Step 9 data" — it never pretends the table is empty when
-                     Job Profitability Tab 1 has real rows. -->
+                <!-- Empty state -->
                 <Border Grid.Row="1" Padding="24,48"
                         Visibility="{Binding GlassTypeRows.Count, Converter={StaticResource CountToVisibilityConverter}}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#xE8FD;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
-                                   HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12"/>
+                                   HorizontalAlignment="Center" Foreground="{DynamicResource Ov.Muted}" Margin="0,0,0,12"/>
                         <TextBlock Text="{Binding EmptyStateTitle}"
-                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   HorizontalAlignment="Center" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" Foreground="{DynamicResource Ov.Ink}"/>
                         <TextBlock Text="{Binding EmptyStateMessage}"
                                    FontSize="{DynamicResource FontSize.Body}" HorizontalAlignment="Center"
-                                   Margin="0,4,0,0" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   Margin="0,4,0,0" Foreground="{DynamicResource Ov.Muted}"
                                    TextAlignment="Center" TextWrapping="Wrap" MaxWidth="560"/>
                     </StackPanel>
                 </Border>
@@ -267,7 +253,7 @@
         <Border Grid.Row="3" Margin="16,12,16,16" Padding="4,0">
             <TextBlock Text="{Binding StatusMessage}"
                        FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
-                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                       Foreground="{DynamicResource Ov.Muted}"/>
         </Border>
 
         <!-- ═══════ LOADING OVERLAY ═══════ -->
@@ -275,16 +261,14 @@
                 Background="{DynamicResource SurfaceOverlayBrush}"
                 Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}"
+                <Border Style="{StaticResource Sl.Card}"
                         Padding="28,16">
                     <StackPanel Orientation="Horizontal">
                         <ProgressBar IsIndeterminate="True" Width="20" Height="20"
                                      VerticalAlignment="Center" Margin="0,0,12,0"/>
                         <TextBlock Text="Analyzing..."
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Ov.Ink}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
