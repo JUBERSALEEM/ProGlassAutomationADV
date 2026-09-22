@@ -621,7 +621,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 },
                 canExecute: param => param is string s && !string.IsNullOrWhiteSpace(s));
 
-            _database.SubscribeDocumentsChanged(LoadAsync);
+            _database?.SubscribeDocumentsChanged(LoadAsync);
 
             _ = LoadAsync();
         }
@@ -842,10 +842,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 HasError = false;
                 ErrorMessage = "";
 
-                if (_deliveryNotes == null)
+                if (_deliveryNotes == null || _database == null)
                 {
                     HasError = true;
-                    ErrorMessage = "Delivery Notes database not initialized.";
+                    ErrorMessage = "Delivery Notes database services are not initialized.";
                     return;
                 }
 

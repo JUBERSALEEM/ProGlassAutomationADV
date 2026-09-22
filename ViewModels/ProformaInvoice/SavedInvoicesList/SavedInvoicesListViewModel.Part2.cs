@@ -42,6 +42,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             private async Task ApproveAsync(SavedProformaInvoice entity)
         {
             if (entity == null) return;
+            if (OnInvoiceApproveRequested == null)
+            {
+                _dialogs.Show("Approval requires Step 8 in the main Proforma Invoice module. Close this load picker and open the invoice there to continue.",
+                    "Invoice approval", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
 
             // 2026-09-10 unification — single merged approve flow: forward
             // straight to Step 8, whose ONE "APPROVE INVOICE" action takes
@@ -570,7 +576,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (_disposed) return;
             _disposed = true;
             try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DataSeeded detach failed: " + ExceptionMessages.Deep(ex)); }
-            try { _database.UnsubscribeDocumentsChanged(LoadInvoicesAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DocumentLifecycle detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { _database?.UnsubscribeDocumentsChanged(LoadInvoicesAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DocumentLifecycle detach failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
 

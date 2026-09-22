@@ -36,6 +36,8 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
         /// <summary>Set when the user clicks Restore on a version.</summary>
         public int? RestoreVersionId { get; private set; }
 
+        public bool CanRestore { get; private set; } = true;
+
         private VersionsDialog()
         {
             InitializeComponent();
@@ -47,13 +49,17 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
         public static int? Show(
             Window? owner,
             string invoiceId,
-            List<RecordVersion> versions)
+            List<RecordVersion> versions,
+            bool canRestore = true)
         {
-            var dialog = new VersionsDialog { Owner = owner };
+            var dialog = new VersionsDialog { Owner = owner, CanRestore = canRestore };
             dialog.DialogSubtitle =
                 $"{invoiceId} — {versions.Count} version(s). " +
                 "Restoring opens that version in the editor; saving it " +
                 "creates a new version.";
+            if (!canRestore)
+                dialog.DialogSubtitle = $"{invoiceId} — {versions.Count} version(s). " +
+                    "Read-only history in this load picker. Restore from the main Proforma Invoice list.";
 
             var rows = new List<VersionRowDisplay>();
             foreach (var v in versions)
@@ -70,6 +76,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 
         private async void OnRestoreClick(object sender, RoutedEventArgs e)
         {
+            if (!CanRestore) return;
             if (sender is not Button button ||
                 button.Tag is not VersionRowDisplay row)
                 return;

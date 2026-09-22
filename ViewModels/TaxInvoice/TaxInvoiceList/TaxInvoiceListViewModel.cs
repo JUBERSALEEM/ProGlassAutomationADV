@@ -228,7 +228,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 
         // ── Tab badge counts ──────────────────────────────────────────────
 
-        public int AllCount => _allCount > 0 ? _allCount : _allFamilies.Count;
+        public int AllCount => _allCount;
 
         private int _draftCount;
         public int DraftCount
@@ -504,7 +504,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 }
             });
 
-            _database.SubscribeDocumentsChanged(LoadAsync);
+            _database?.SubscribeDocumentsChanged(LoadAsync);
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -525,10 +525,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 HasError = false;
                 ErrorMessage = "";
 
-                if (_taxInvoices == null)
+                if (_taxInvoices == null || _database == null)
                 {
                     HasError = true;
-                    ErrorMessage = "Tax Invoices database not initialized.";
+                    ErrorMessage = "Tax Invoices database services are not initialized.";
                     return;
                 }
 
@@ -542,8 +542,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 });
 
                 // Everything below runs on UI thread (no ConfigureAwait)
+                // Rebind selection to refreshed data, or clear a removed family.
+                var selectedReference = SelectedFamily?.ProformaId;
                 _rawFamilies = familyVms;
                 _filteredFamilies = familyVms;
+                SelectedFamily = selectedReference == null ? null
+                    : familyVms.FirstOrDefault(f => f.ProformaId == selectedReference);
                 ApplyFilters();
 
                 // KPI aggregations — safe on UI thread after assignment
@@ -564,6 +568,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             {
                 IsLoading = false;
                 Interlocked.Exchange(ref _loadingFlag, 0);
+                if (Interlocked.CompareExchange(ref _reloadQueued, 0, 1) == 1)
+                    _ = LoadAsync();
             }
         }
 

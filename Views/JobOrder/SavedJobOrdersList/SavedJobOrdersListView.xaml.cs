@@ -31,15 +31,29 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
         /// </summary>
         private void OnRowRightClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender is not FrameworkElement element) return;
+            ShowRowMenu(sender as FrameworkElement, atPointer: true);
+            e.Handled = true;
+        }
+
+        // The visible More button and right-click share every original menu action.
+        private void OnRowMoreClick(object sender, RoutedEventArgs e)
+        {
+            ShowRowMenu(sender as FrameworkElement, atPointer: false);
+            e.Handled = true;
+        }
+
+        private void ShowRowMenu(FrameworkElement? element, bool atPointer)
+        {
+            if (element == null) return;
             if (element.DataContext is not JobOrderRowViewModel row) return;
             if (DataContext is not SavedJobOrdersListViewModel vm) return;
 
             var menu = new ContextMenu
             {
                 PlacementTarget = element,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
-                Style = (Style)FindResource("ModernContextMenuStyle")
+                Placement = atPointer ? System.Windows.Controls.Primitives.PlacementMode.MousePoint
+                    : System.Windows.Controls.Primitives.PlacementMode.Bottom,
+                Style = (Style)FindResource("Sl.ContextMenu")
             };
 
             // Open
@@ -47,7 +61,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             {
                 Header = "\uE8E5  Open Job Order",
                 FontWeight = FontWeights.SemiBold,
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             openItem.Click += (_, __) => vm.OpenJobOrderCommand.Execute(row);
@@ -55,21 +69,21 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // ── Export sub-menu (Phase 9.5a-r3) ─────────────────────
             var exportMenu = new MenuItem
             {
                 Header = "\uEDE1  Export",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
 
             var exportPdfItem = new MenuItem
             {
                 Header = "\uE8A5  PDF — Production Sheet",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             exportPdfItem.Click += async (_, __) =>
@@ -89,7 +103,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             var exportExcelItem = new MenuItem
             {
                 Header = "\uE9F9  Excel — Multi-Sheet Workbook",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             exportExcelItem.Click += async (_, __) =>
@@ -112,7 +126,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             var shareItem = new MenuItem
             {
                 Header = "\uE72D  Share…",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             shareItem.Click += async (_, __) =>
@@ -131,7 +145,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // Change Status sub-menu — friendly labels mapping to the stored
@@ -139,7 +153,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             var statusMenu = new MenuItem
             {
                 Header = "\uE8C8  Change Status",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             foreach (var (stored, label) in new[]
@@ -157,7 +171,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
                     Header = label,
                     IsCheckable = true,
                     IsChecked = string.Equals(row.StatusRaw, stored, StringComparison.OrdinalIgnoreCase),
-                    Style = (Style)FindResource("ModernCheckableMenuItemStyle"),
+                    Style = (Style)FindResource("Sl.CheckableMenuItem"),
                     Padding = new Thickness(8, 6, 20, 6),
                     Command = vm.ChangeStatusCommand,
                     CommandParameter = Tuple.Create(row, stored)
@@ -169,7 +183,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             var priorityMenu = new MenuItem
             {
                 Header = "\uE8D4  Change Priority",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             foreach (var priority in new[] { "High", "Medium", "Low" })
@@ -179,7 +193,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
                     Header = priority,
                     IsCheckable = true,
                     IsChecked = string.Equals(row.PriorityRaw, priority, StringComparison.OrdinalIgnoreCase),
-                    Style = (Style)FindResource("ModernCheckableMenuItemStyle"),
+                    Style = (Style)FindResource("Sl.CheckableMenuItem"),
                     Padding = new Thickness(8, 6, 20, 6),
                     Command = vm.ChangePriorityCommand,
                     CommandParameter = Tuple.Create(row, priority)
@@ -189,7 +203,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // Delete
@@ -197,7 +211,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             {
                 Header = "\uE74D  Delete Job Order",
                 Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush"),
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             deleteItem.Click += (_, __) => vm.DeleteJobOrderCommand.Execute(row);
@@ -205,7 +219,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             element.ContextMenu = menu;
             menu.IsOpen = true;
-            e.Handled = true;
+
         }
     }
 }

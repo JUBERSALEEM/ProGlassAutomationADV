@@ -41,7 +41,20 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
         /// </summary>
         private void OnRowRightClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender is not FrameworkElement element) return;
+            ShowRowMenu(sender as FrameworkElement, atPointer: true);
+            e.Handled = true;
+        }
+
+        // The visible More button and right-click share every original menu action.
+        private void OnRowMoreClick(object sender, RoutedEventArgs e)
+        {
+            ShowRowMenu(sender as FrameworkElement, atPointer: false);
+            e.Handled = true;
+        }
+
+        private void ShowRowMenu(FrameworkElement? element, bool atPointer)
+        {
+            if (element == null) return;
             if (element.DataContext is not SavedInvoiceListItem item) return;
             if (DataContext is not SavedInvoicesListViewModel vm) return;
 
@@ -49,8 +62,9 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             {
                 // BUG-87: anchor menu to the clicked row explicitly
                 PlacementTarget = element,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
-                Style = (Style)FindResource("ModernContextMenuStyle")
+                Placement = atPointer ? System.Windows.Controls.Primitives.PlacementMode.MousePoint
+                    : System.Windows.Controls.Primitives.PlacementMode.Bottom,
+                Style = (Style)FindResource("Sl.ContextMenu")
             };
 
             // ── Primary actions ──────────────────────────────────────────
@@ -63,14 +77,14 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // ── Export sub-menu ──────────────────────────────────────────
             var exportMenu = new MenuItem
             {
                 Header = "📤  Export",
-                Style = (Style)FindResource("ModernMenuItemStyle")
+                Style = (Style)FindResource("Sl.MenuItem")
             };
             exportMenu.Items.Add(CreateMenuItem("PDF — Full Invoice",
                 vm.ExportPdfFromListCommand, item));
@@ -82,7 +96,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // ── Change Status sub-menu ───────────────────────────────────
@@ -92,7 +106,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             var statusMenu = new MenuItem
             {
                 Header = "🔄  Change Status",
-                Style = (Style)FindResource("ModernMenuItemStyle")
+                Style = (Style)FindResource("Sl.MenuItem")
             };
             statusMenu.Items.Add(CreateStatusItem("PI Created", "Draft", item, vm));
             statusMenu.Items.Add(CreateStatusItem("PI Sent", "Sent", item, vm));
@@ -103,7 +117,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             var deleteItem = CreateMenuItem("🗑  Delete Invoice",
@@ -114,7 +128,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 
             element.ContextMenu = menu;
             menu.IsOpen = true;
-            e.Handled = true;
+
         }
 
         private MenuItem CreateMenuItem(
@@ -125,7 +139,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
                 Header = header,
                 Command = command,
                 CommandParameter = parameter,
-                Style = (Style)Application.Current.FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             if (bold) item.FontWeight = FontWeights.SemiBold;
@@ -150,7 +164,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
                 Tag = storedStatus,
                 IsCheckable = true,
                 IsChecked = string.Equals(item.Status, storedStatus, StringComparison.OrdinalIgnoreCase),
-                Style = (Style)Application.Current.FindResource("ModernCheckableMenuItemStyle"),
+                Style = (Style)FindResource("Sl.CheckableMenuItem"),
                 Padding = new Thickness(8, 6, 20, 6),
 
                 // BUG-72: use command with Tuple parameter — VM handles errors

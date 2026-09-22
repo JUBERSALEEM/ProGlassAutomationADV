@@ -22,6 +22,7 @@ using System.Collections.ObjectModel;
 using ProGlassAutomation.Utilities;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Services.Audit;
@@ -90,7 +91,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         /// AND zero rows in current filtered view.
         /// Never true during a loading operation.
         /// </summary>
-        public bool IsEmpty => _isLoaded && !_isLoading && Rows.Count == 0;
+        public bool IsEmpty => _isLoaded && !_isLoading && !HasError && Rows.Count == 0;
 
         /// <summary>
         /// FIX L1: New property required by redesigned StatementListView.xaml.
@@ -99,7 +100,29 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         /// Replaces the old InverseBoolToVisibilityConverter on IsEmpty
         /// which could not guard against the IsLoading race condition.
         /// </summary>
-        public bool IsListVisible => _isLoaded && !_isLoading && Rows.Count > 0;
+        public bool IsListVisible => _isLoaded && !_isLoading && !HasError && Rows.Count > 0;
+
+        private int _loadingFlag;
+        private int _reloadQueued;
+        private bool _hasError;
+        public bool HasError
+        {
+            get => _hasError;
+            private set
+            {
+                if (_hasError == value) return;
+                _hasError = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsEmpty));
+                OnPropertyChanged(nameof(IsListVisible));
+            }
+        }
+        private string _errorMessage = "";
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            private set { if (_errorMessage == value) return; _errorMessage = value; OnPropertyChanged(); }
+        }
 
         private string _statusMessage = "";
         public string StatusMessage
@@ -175,7 +198,7 @@ public StatementListViewModel(IDialogService? dialogs,
             // signal the module list pages subscribe to. The wizard
             // (StatementGeneratorViewModel) deliberately does NOT subscribe:
             // reloading mid-wizard would wipe the user's filter state.
-            _database.SubscribeDocumentsChanged(LoadAsync);
+            _database?.SubscribeDocumentsChanged(LoadAsync);
 
             NewStatementCommand = new RelayCommand(
                 _ => OnRequestNewStatement?.Invoke());
@@ -221,51 +244,79 @@ public StatementListViewModel(IDialogService? dialogs,
         // ═════════════════════════════════════════════════════════════════
         public async Task LoadAsync()
         {
-            IsLoading = true;
-            StatusMessage = "Loading statements…";
-
+            // Coalesce document notifications; a slower old refresh must not replace newer results.
+            if (Interlocked.CompareExchange(ref _loadingFlag, 1, 0) != 0)
+            {
+                Interlocked.Exchange(ref _reloadQueued, 1);
+                return;
+            }
             try
             {
-                var items = await Task.Run(
-                    () => _repo.GetAllAsync());
-
-                var rows = items
-                    .Select(i => new StatementListRowViewModel(i))
-                    .ToList();
-
-                // FIX L9: all UI state mutations go through Dispatcher
-                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+                do
                 {
-                    _allRows = rows;
-                    _isLoaded = true;
-
-                    ApplySearch();
-                    UpdateKpis(rows);
-
-                    // Status message set inside Dispatcher — safe UI thread write
-                    StatusMessage = rows.Count == 0
-                        ? "No statements found. Click '+ New Statement' to begin."
-                        : $"{rows.Count} statement(s) loaded.";
-                }));
-            }
-            catch (Exception ex)
-            {
-                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    _isLoaded = true;
-
-                    // FIX L3: notify state after error so empty state renders
-                    OnPropertyChanged(nameof(IsEmpty));
-                    OnPropertyChanged(nameof(IsListVisible));
-
-                    StatusMessage = $"Error loading statements: {ExceptionMessages.Deep(ex)}";
-                }));
+                    Interlocked.Exchange(ref _reloadQueued, 0);
+                    await LoadCoreAsync();
+                }
+                while (Interlocked.CompareExchange(ref _reloadQueued, 0, 1) == 1);
             }
             finally
             {
-                // IsLoading setter fires IsEmpty + IsListVisible notifications
-                IsLoading = false;
+                Interlocked.Exchange(ref _loadingFlag, 0);
+                if (Interlocked.CompareExchange(ref _reloadQueued, 0, 1) == 1)
+                    _ = LoadAsync();
             }
+        }
+
+        private async Task LoadCoreAsync()
+        {
+            await UpdateUiAsync(() =>
+            {
+                IsLoading = true;
+                HasError = false;
+                ErrorMessage = "";
+                StatusMessage = "Loading statements…";
+            });
+            try
+            {
+                if (_repo == null || _database == null)
+                    throw new InvalidOperationException("Statement database services are not initialized.");
+                var items = await Task.Run(() => _repo.GetAllAsync());
+                var rows = items.Select(i => new StatementListRowViewModel(i)).ToList();
+
+                // Await publication before releasing the loading gate. BeginInvoke allowed
+                // IsLoading=False/another refresh to run before the rows had been installed.
+                await UpdateUiAsync(() =>
+                {
+                    _allRows = rows;
+                    _isLoaded = true;
+                    ApplySearch();
+                    UpdateKpis(rows);
+                    StatusMessage = rows.Count == 0
+                        ? "No statements found. Click '+ New Statement' to begin."
+                        : $"{rows.Count} statement(s) loaded.";
+                });
+            }
+            catch (Exception ex)
+            {
+                await UpdateUiAsync(() =>
+                {
+                    _isLoaded = true;
+                    HasError = true;
+                    ErrorMessage = $"Error loading statements: {ExceptionMessages.Deep(ex)}";
+                    StatusMessage = ErrorMessage;
+                });
+            }
+            finally
+            {
+                await UpdateUiAsync(() => IsLoading = false);
+            }
+        }
+
+        private static async Task UpdateUiAsync(Action update)
+        {
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher == null || dispatcher.CheckAccess()) update();
+            else await dispatcher.InvokeAsync(update);
         }
 
         // ═════════════════════════════════════════════════════════════════

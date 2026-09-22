@@ -48,10 +48,22 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
 
         // ── Family row: right-click context menu ─────────────────────────
 
-        private void OnFamilyRowRightClick(
-            object sender, MouseButtonEventArgs e)
+        private void OnFamilyRowRightClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender is not FrameworkElement fe) return;
+            ShowRowMenu(sender as FrameworkElement, atPointer: true);
+            e.Handled = true;
+        }
+
+        // The visible More button and right-click share every original menu action.
+        private void OnRowMoreClick(object sender, RoutedEventArgs e)
+        {
+            ShowRowMenu(sender as FrameworkElement, atPointer: false);
+            e.Handled = true;
+        }
+
+        private void ShowRowMenu(FrameworkElement? fe, bool atPointer)
+        {
+            if (fe == null) return;
             if (fe.DataContext is not InvoiceFamilyRowViewModel family) return;
             if (Vm == null) return;
 
@@ -61,8 +73,9 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             var menu = new ContextMenu
             {
                 PlacementTarget = fe,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
-                Style = (Style)FindResource("ModernContextMenuStyle")
+                Placement = atPointer ? System.Windows.Controls.Primitives.PlacementMode.MousePoint
+                    : System.Windows.Controls.Primitives.PlacementMode.Bottom,
+                Style = (Style)FindResource("Sl.ContextMenu")
             };
 
             // ── Open Latest Invoice ──────────────────────────────────────
@@ -70,7 +83,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             {
                 Header = "📂  Open Latest Invoice",
                 FontWeight = FontWeights.SemiBold,
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             openItem.Click += (_, _) =>
@@ -79,7 +92,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // ── Family info section (visual only, no click) ──────────────
@@ -88,7 +101,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
                 Header = $"📋 {family.ProformaId}",
                 IsEnabled = false,
                 Foreground = (System.Windows.Media.Brush)FindResource("SecondaryForegroundBrush"),
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             menu.Items.Add(infoHeader);
@@ -97,7 +110,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             {
                 Header = $"🧾 {family.InvoiceCount} invoice(s) in family",
                 IsEnabled = false,
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             menu.Items.Add(countItem);
@@ -106,7 +119,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             {
                 Header = $"📊 Status: {family.FamilyStatus}",
                 IsEnabled = false,
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             menu.Items.Add(statusItem);
@@ -116,28 +129,28 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
                 Header = $"💰 {family.ProgressPercent:0.#}% invoiced " +
                          $"({family.InvoicedTotalDisplay})",
                 IsEnabled = false,
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             menu.Items.Add(progressItem);
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // ── Refresh list ─────────────────────────────────────────────
             var refreshItem = new MenuItem
             {
                 Header = "🔄  Refresh List",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             refreshItem.Click += (_, _) => Vm.RefreshCommand.Execute(null);
             menu.Items.Add(refreshItem);
 
             menu.IsOpen = true;
-            e.Handled = true;
+
         }
     }
 }

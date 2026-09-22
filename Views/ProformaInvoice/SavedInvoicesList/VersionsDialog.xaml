@@ -94,6 +94,7 @@
                                         Background="{DynamicResource AccentBrush}"
                                         Foreground="{DynamicResource OnAccentForegroundBrush}"
                                         VerticalAlignment="Center"
+                                        IsEnabled="{Binding CanRestore, RelativeSource={RelativeSource AncestorType=Window}}"
                                         Click="OnRestoreClick"
                                         Tag="{Binding}" Style="{StaticResource SecondaryButtonStyle}"/>
                             </Grid>

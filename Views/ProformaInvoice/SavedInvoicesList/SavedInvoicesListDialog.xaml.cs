@@ -1,4 +1,5 @@
-﻿using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
+using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
+using System;
 using System.Windows;
 
 namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
@@ -18,6 +19,14 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             };
 
             EmbeddedListView.DataContext = vm;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // This picker owns a separate list VM; detach live document subscriptions.
+            if (EmbeddedListView.DataContext is IDisposable disposable)
+                disposable.Dispose();
+            base.OnClosed(e);
         }
 
         private void OnInvoicePicked(int invoiceId)

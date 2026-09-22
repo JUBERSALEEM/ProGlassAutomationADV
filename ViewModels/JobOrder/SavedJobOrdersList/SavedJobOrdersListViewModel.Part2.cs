@@ -214,7 +214,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             // Detach the static lifecycle subscriber too, or this VM stays
             // alive forever and re-runs LoadJobOrdersAsync on every document
             // change across the app even when the list is no longer in use.
-            try { _database.UnsubscribeDocumentsChanged(LoadJobOrdersAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Dispose: DocumentLifecycle detach failed: " + ExceptionMessages.Deep(ex)); }
+            try { _database?.UnsubscribeDocumentsChanged(LoadJobOrdersAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedJobOrdersListViewModel] Dispose: DocumentLifecycle detach failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
         }
 

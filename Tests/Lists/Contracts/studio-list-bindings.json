@@ -1,0 +1,2290 @@
+{
+  "baseline": "7663b7d1277266680e73a6dc49a0bb27b8ccfae9",
+  "pages": {
+    "Views/ProformaInvoice/SavedInvoicesList/SavedInvoicesListView.xaml": {
+      "class": "ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.SavedInvoicesListView",
+      "bindings": [
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding TotalCount, StringFormat=N0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding FilteredCount, StringFormat=N0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding TotalValueSum, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding StatusFilterOptions}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedItem",
+          "expression": "{Binding SelectedStatusFilter}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedDate",
+          "expression": "{Binding FromDate}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedDate",
+          "expression": "{Binding ToDate}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding SortPresetOptions}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedItem",
+          "expression": "{Binding SelectedSortPreset}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding ShowVoided}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding ClearFiltersCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding RefreshCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding SetTodayFilterCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding ExportFilteredExcelCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading,                                          Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding FilteredItems.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding IsLoading}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding FilteredItems}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Background",
+          "expression": "{Binding DisplayStatusBrushKey,                                                              Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding ProformaId}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding ProformaId}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding CompanyName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding CompanyName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding CustomerName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding CustomerName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding ProjectName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding ProjectName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Background",
+          "expression": "{Binding DisplayStatusBrushKey,                                                                      Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding DisplayStatus}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding DisplayStatus}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding GrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding CreatedAt, StringFormat={}{0:d}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding CreatedAt, StringFormat={}{0:G}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.LoadInvoiceCommand,                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.ShowVersionsCommand,                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.ExportDossierCommand,                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding PlacementTarget.Tag.ExportDossierCommand,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding PlacementTarget.DataContext,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding PlacementTarget.Tag.ExportDossierPdfCommand,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding PlacementTarget.DataContext,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding PlacementTarget.Tag.ExportInternalDossierCommand,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding PlacementTarget.DataContext,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding PlacementTarget.Tag.ExportInternalDossierPdfCommand,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding PlacementTarget.DataContext,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.ShareFromListCommand,                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        }
+      ],
+      "object_bindings": [
+        {
+          "scope": "$page/$inline-template",
+          "attributes": {
+            "Path": "DataContext",
+            "RelativeSource": "{RelativeSource AncestorType=UserControl}"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Command": "{Binding ClearFiltersCommand}",
+          "Tag": "\ue711",
+          "Content": "{DynamicResource Action.Clear}",
+          "ToolTip": "{DynamicResource ProformaInvoice.ClearSearchFilters}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Command": "{Binding RefreshCommand}",
+          "Tag": "\ue72c",
+          "Content": "{DynamicResource Action.Refresh}",
+          "ToolTip": "{DynamicResource ProformaInvoice.ReloadInvoiceList}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Command": "{Binding SetTodayFilterCommand}",
+          "Tag": "\ue787",
+          "Content": "{DynamicResource Shell.Today}",
+          "ToolTip": "{DynamicResource ProformaInvoice.FilterInvoicesPreparedToday}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Command": "{Binding ExportFilteredExcelCommand}",
+          "Tag": "\ue72d",
+          "Content": "{DynamicResource ProformaInvoice.ShareExcel}",
+          "ToolTip": "{DynamicResource ProformaInvoice.ExportFilteredInvoicesOneExcelTable}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "Command": "{Binding DataContext.LoadInvoiceCommand,                                                         RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}",
+          "ToolTip": "{DynamicResource ProformaInvoice.OpenEditRightClickMoreOptions}",
+          "Tag": "\ue8e5",
+          "Content": "{DynamicResource Action.Open}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "Command": "{Binding DataContext.ShowVersionsCommand,                                                         RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}",
+          "ToolTip": "{DynamicResource Common.VersionHistory}",
+          "Tag": "\ue81c"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "Command": "{Binding DataContext.ExportDossierCommand,                                                         RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}",
+          "ToolTip": "{DynamicResource ProformaInvoice.ExportDossierTip}",
+          "Content": "\ue9f9"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "MenuItem",
+          "Command": "{Binding PlacementTarget.Tag.ExportDossierCommand,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}",
+          "CommandParameter": "{Binding PlacementTarget.DataContext,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "MenuItem",
+          "Command": "{Binding PlacementTarget.Tag.ExportDossierPdfCommand,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}",
+          "CommandParameter": "{Binding PlacementTarget.DataContext,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "MenuItem",
+          "Command": "{Binding PlacementTarget.Tag.ExportInternalDossierCommand,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}",
+          "CommandParameter": "{Binding PlacementTarget.DataContext,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "MenuItem",
+          "Command": "{Binding PlacementTarget.Tag.ExportInternalDossierPdfCommand,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}",
+          "CommandParameter": "{Binding PlacementTarget.DataContext,                                                                       RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "Command": "{Binding DataContext.ShareFromListCommand,                                                         RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}",
+          "ToolTip": "{DynamicResource Sharing.Share}",
+          "Content": "\ue72d"
+        }
+      ],
+      "events": [
+        {
+          "scope": "$page/$inline-template",
+          "event": "MouseRightButtonUp",
+          "handler": "OnRowRightClick"
+        }
+      ],
+      "collections": [
+        {
+          "scope": "$page",
+          "element": "ComboBox",
+          "source": "{Binding StatusFilterOptions}",
+          "template": null
+        },
+        {
+          "scope": "$page",
+          "element": "ComboBox",
+          "source": "{Binding SortPresetOptions}",
+          "template": null
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding FilteredItems}",
+          "template": null
+        }
+      ]
+    },
+    "Views/JobOrder/SavedJobOrdersList/SavedJobOrdersListView.xaml": {
+      "class": "ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.SavedJobOrdersListView",
+      "bindings": [
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding CreateJobOrderCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError,                              Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding TotalCount, StringFormat=N0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding InProductionCount, StringFormat=N0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding CompletedCount, StringFormat=N0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding OverdueCount, StringFormat=N0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding OverdueCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding StatusFilterOptions}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedItem",
+          "expression": "{Binding SelectedStatusFilter}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding PriorityFilterOptions}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedItem",
+          "expression": "{Binding SelectedPriorityFilter}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding SortOptions}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedItem",
+          "expression": "{Binding SelectedSort}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding ShowVoided}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding ClearFiltersCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding RefreshCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading,                                          Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding DisplayedJobs.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding IsLoading}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding DisplayedJobs}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Background",
+          "expression": "{Binding PriorityBrushKey,                                                              Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding JobOrderId}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding JobOrderId}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding ProjectName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding ProjectName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding SourceProformaId, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding SourceProformaId, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Binding",
+          "expression": "{Binding IsOverdue}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding OverdueDisplay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding CustomerName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding CustomerName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding DeliveryDisplay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding DeliveryDisplay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding ProjectName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding ProjectName}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding GrandTotalDisplay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Background",
+          "expression": "{Binding StatusBrushKey,                                                                  Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding StatusLabel}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Background",
+          "expression": "{Binding DisplayStatusBrushKey,                                                                  Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding DisplayStatus}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Background",
+          "expression": "{Binding PriorityBrushKey,                                                              Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding PriorityLabel}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.OpenJobOrderCommand,                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.ShowVersionsCommand,                                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        }
+      ],
+      "object_bindings": [],
+      "actions": [
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Command": "{Binding CreateJobOrderCommand}",
+          "Tag": "\ue710",
+          "Content": "{DynamicResource JobOrder.CreateJOBOrder}",
+          "ToolTip": "{DynamicResource JobOrder.RaiseJobOrderApprovedProformaInvoice}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue711",
+          "Content": "{DynamicResource Action.Clear}",
+          "ToolTip": "{DynamicResource Action.ClearFilters}",
+          "Command": "{Binding ClearFiltersCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue72c",
+          "Content": "{DynamicResource Action.Refresh}",
+          "ToolTip": "{DynamicResource JobOrder.RefreshList}",
+          "Command": "{Binding RefreshCommand}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "Tag": "\ue8e5",
+          "Content": "{DynamicResource Action.Open}",
+          "ToolTip": "{DynamicResource JobOrder.OpenJobOrder}",
+          "Command": "{Binding DataContext.OpenJobOrderCommand,                                                               RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "Tag": "\ue81c",
+          "Content": "{DynamicResource DeliveryNote.History}",
+          "ToolTip": "{DynamicResource Common.VersionHistory}",
+          "Command": "{Binding DataContext.ShowVersionsCommand,                                                               RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}"
+        }
+      ],
+      "events": [
+        {
+          "scope": "$page",
+          "event": "Loaded",
+          "handler": "OnLoaded"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "event": "MouseRightButtonUp",
+          "handler": "OnRowRightClick"
+        }
+      ],
+      "collections": [
+        {
+          "scope": "$page",
+          "element": "ComboBox",
+          "source": "{Binding StatusFilterOptions}",
+          "template": null
+        },
+        {
+          "scope": "$page",
+          "element": "ComboBox",
+          "source": "{Binding PriorityFilterOptions}",
+          "template": null
+        },
+        {
+          "scope": "$page",
+          "element": "ComboBox",
+          "source": "{Binding SortOptions}",
+          "template": null
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding DisplayedJobs}",
+          "template": null
+        }
+      ]
+    },
+    "Views/DeliveryNote/DeliveryNoteList/DeliveryNoteListView.xaml": {
+      "class": "ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.DeliveryNoteListView",
+      "bindings": [
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Binding",
+          "expression": "{Binding AllDelivered}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding JobOrderId}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "ToolTip",
+          "expression": "{Binding LatestDnId, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding LatestDeliveryDateDisplay, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding LatestDriverName, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding LatestDnId, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding CustomerName}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "ToolTip",
+          "expression": "{Binding CustomerName, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding ProjectName}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "ToolTip",
+          "expression": "{Binding ProjectName, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Binding",
+          "expression": "{Binding AllDelivered}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding TotalOrdered, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding TotalDelivered, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding TotalBalance, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding TotalOrderedSqm, Mode=OneWay, StringFormat={}{0:0.000}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding TotalDeliveredSqm, Mode=OneWay, StringFormat={}{0:0.000}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding TotalBalanceSqm, Mode=OneWay, StringFormat={}{0:0.000}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Background",
+          "expression": "{Binding StatusTintKey,                                                  Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding StatusLabel}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Foreground",
+          "expression": "{Binding StatusForegroundKey,                                                         Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding DnCount, Mode=OneWay}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Visibility",
+          "expression": "{Binding HasFoc,                                                  Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRework,                                                  Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Visibility",
+          "expression": "{Binding HasReturn,                                                  Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLatestVoid,                                                  Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.CreateDnForJobOrderCommand,                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "CommandParameter",
+          "expression": "{Binding JobOrderId}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.GenerateMasterInvoiceCommand,                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding CreateDnCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError,                              Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard1Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard1Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard2Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard2Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard3Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard3Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard4Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard4Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard5Icon}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard5Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard5Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding HasSelection,                                      Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding SelectedDnMetaLine}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ToolTip",
+          "expression": "{Binding SelectedDnMetaLine}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding OpenCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding SelectedRow}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding DeleteCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding SelectedRow}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding ClearSelectionCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding StatusFilterOptions}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedItem",
+          "expression": "{Binding SelectedStatusFilter}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding ShowVoided}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding ClearFiltersCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding RefreshCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding AllGroupedCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding PreparedGroupedCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding DeliveredGroupedCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding PendingItems.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding ReworkGroupedCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding ReturnedGroupedCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading,                                          Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding AllItemsGrouped}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding AllItems.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding IsLoading}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding PreparedItemsGrouped}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding PreparedItems.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding DeliveredItemsGrouped}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding DeliveredItems.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding PendingItems}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding JobOrderId}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding CustomerName, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding ProjectName, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding ProgressDisplay, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding TotalBalance, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding PendingItems.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding ReworkItemsGrouped}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding ReworkItems.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding ReturnedItemsGrouped}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding ReturnedItems.Count}"
+        }
+      ],
+      "object_bindings": [
+        {
+          "scope": "JoGroupRowTemplate",
+          "attributes": {
+            "Path": "ProgressPercent"
+          }
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "attributes": {
+            "Path": "ActualWidth",
+            "ElementName": "ProgressTrack"
+          }
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attributes": {
+            "Path": "ProgressPercent"
+          }
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attributes": {
+            "Path": "ActualWidth",
+            "ElementName": "PendingTrack"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "scope": "JoGroupRowTemplate",
+          "element": "Button",
+          "Tag": "\ue710",
+          "Content": "{DynamicResource Dnl.NewDn}",
+          "ToolTip": "{DynamicResource Dnl.NewDnHint}",
+          "Command": "{Binding DataContext.CreateDnForJobOrderCommand,                                           RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding JobOrderId}"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "element": "Button",
+          "Tag": "\ue8a5",
+          "Content": "{DynamicResource Dnl.Invoice}",
+          "ToolTip": "{DynamicResource Dnl.InvoiceHint}",
+          "Command": "{Binding DataContext.GenerateMasterInvoiceCommand,                                           RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue7f4",
+          "Content": "{DynamicResource Dnl.CreateDn}",
+          "Command": "{Binding CreateDnCommand}",
+          "ToolTip": "{DynamicResource Dnl.CreateDnHint}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue8a7",
+          "Content": "Open Details",
+          "Command": "{Binding OpenCommand}",
+          "CommandParameter": "{Binding SelectedRow}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue711",
+          "Content": "Void / Cancel",
+          "ToolTip": "Soft-close with mandatory audit reason",
+          "Command": "{Binding DeleteCommand}",
+          "CommandParameter": "{Binding SelectedRow}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue711",
+          "Content": "{DynamicResource God.Clear}",
+          "ToolTip": "{DynamicResource Dnl.ClearSelection}",
+          "Command": "{Binding ClearSelectionCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue711",
+          "Content": "{DynamicResource God.Clear}",
+          "ToolTip": "{DynamicResource Dnl.ClearFilters}",
+          "Command": "{Binding ClearFiltersCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue72c",
+          "Content": "{DynamicResource God.Refresh}",
+          "ToolTip": "{DynamicResource Dnl.RefreshList}",
+          "Command": "{Binding RefreshCommand}"
+        }
+      ],
+      "events": [
+        {
+          "scope": "JoGroupRowTemplate",
+          "event": "MouseLeftButtonUp",
+          "handler": "OnGroupRowLeftClick"
+        },
+        {
+          "scope": "JoGroupRowTemplate",
+          "event": "MouseRightButtonUp",
+          "handler": "OnGroupRowRightClick"
+        }
+      ],
+      "collections": [
+        {
+          "scope": "$page",
+          "element": "ComboBox",
+          "source": "{Binding StatusFilterOptions}",
+          "template": null
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding AllItemsGrouped}",
+          "template": "{StaticResource JoGroupRowTemplate}"
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding PreparedItemsGrouped}",
+          "template": "{StaticResource JoGroupRowTemplate}"
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding DeliveredItemsGrouped}",
+          "template": "{StaticResource JoGroupRowTemplate}"
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding PendingItems}",
+          "template": null
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding ReworkItemsGrouped}",
+          "template": "{StaticResource JoGroupRowTemplate}"
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding ReturnedItemsGrouped}",
+          "template": "{StaticResource JoGroupRowTemplate}"
+        }
+      ]
+    },
+    "Views/TaxInvoice/TaxInvoiceList/TaxInvoiceListView.xaml": {
+      "class": "ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList.TaxInvoiceListView",
+      "bindings": [
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Binding",
+          "expression": "{Binding IsSelected}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Binding",
+          "expression": "{Binding IsSelected}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Binding",
+          "expression": "{Binding IsFullyPaid}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Binding",
+          "expression": "{Binding AnyOverdue}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding ProformaId}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "ToolTip",
+          "expression": "{Binding LatestInvoiceNumber, Mode=OneWay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding LatestIssueDateDisplay, Mode=OneWay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding LatestInvoiceNumber, Mode=OneWay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding LatestInvoiceStatus, Mode=OneWay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding CustomerName}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "ToolTip",
+          "expression": "{Binding CustomerName, Mode=OneWay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding ProjectName}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "ToolTip",
+          "expression": "{Binding ProjectName, Mode=OneWay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding InvoiceCount, Mode=OneWay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Binding",
+          "expression": "{Binding IsFullyPaid}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Binding",
+          "expression": "{Binding AnyOverdue}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding InvoicedTotalDisplay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding BalanceTotalDisplay}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Background",
+          "expression": "{Binding FamilyStatusBrushKey,                                              Converter={StaticResource BrushKeyConverter}}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Text",
+          "expression": "{Binding FamilyStatus}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Visibility",
+          "expression": "{Binding AnyOverdue,                                     Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.OpenFamilyCommand,                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.DeleteFamilyCommand,                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding CreateInvoiceCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError,                              Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard1Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard1Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard2Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard2Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard3Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard3Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard4Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard4Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard5Label}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding HeroCard5Value}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding HasSelection,                                      Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding SelectedFamilyMetaLine}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ToolTip",
+          "expression": "{Binding SelectedFamilyMetaLine}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding ClearSelectionCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding StatusFilterOptions}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedItem",
+          "expression": "{Binding SelectedStatusFilter}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding ClearFiltersCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding RefreshCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding AllCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding DraftCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding IssuedCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "CommandParameter",
+          "expression": "{Binding PaidCount}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "IsChecked",
+          "expression": "{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading,                                          Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding AllFamilies}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding AllFamilies.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding IsLoading}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding DraftFamilies}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding DraftFamilies.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding IssuedFamilies}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding IssuedFamilies.Count}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding SelectedTabIndex}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding PaidFamilies}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding PaidFamilies.Count}"
+        }
+      ],
+      "object_bindings": [
+        {
+          "scope": "FamilyRowTemplate",
+          "attributes": {
+            "Path": "ProgressPercent"
+          }
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "attributes": {
+            "Path": "ActualWidth",
+            "ElementName": "ProgressTrack"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "scope": "FamilyRowTemplate",
+          "element": "Button",
+          "Tag": "\ue8b7",
+          "Content": "{DynamicResource Action.Open}",
+          "ToolTip": "{DynamicResource TaxInvoice.OpenInvoiceFamily}",
+          "Command": "{Binding DataContext.OpenFamilyCommand,                                           RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "element": "Button",
+          "Tag": "\ue74d",
+          "Content": "{DynamicResource TaxInvoice.DEL}",
+          "ToolTip": "{DynamicResource TaxInvoice.DeleteInvoiceFamilyAsksConfirmation}",
+          "Command": "{Binding DataContext.DeleteFamilyCommand,                                           RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue710",
+          "Content": "{DynamicResource Dashboard.NewInvoice}",
+          "Command": "{Binding CreateInvoiceCommand}",
+          "ToolTip": "{DynamicResource TaxInvoice.CreateNewTaxInvoice}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue711",
+          "Content": "{DynamicResource Action.Clear}",
+          "ToolTip": "{DynamicResource TaxInvoice.ClearSelection}",
+          "Command": "{Binding ClearSelectionCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue711",
+          "Content": "{DynamicResource Action.Clear}",
+          "ToolTip": "{DynamicResource TaxInvoice.ClearSearchFilters}",
+          "Command": "{Binding ClearFiltersCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue72c",
+          "Content": "{DynamicResource Action.Refresh}",
+          "ToolTip": "{DynamicResource JobOrder.RefreshList}",
+          "Command": "{Binding RefreshCommand}"
+        }
+      ],
+      "events": [
+        {
+          "scope": "FamilyRowTemplate",
+          "event": "MouseLeftButtonUp",
+          "handler": "OnFamilyRowLeftClick"
+        },
+        {
+          "scope": "FamilyRowTemplate",
+          "event": "MouseRightButtonUp",
+          "handler": "OnFamilyRowRightClick"
+        }
+      ],
+      "collections": [
+        {
+          "scope": "$page",
+          "element": "ComboBox",
+          "source": "{Binding StatusFilterOptions}",
+          "template": null
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding AllFamilies}",
+          "template": "{StaticResource FamilyRowTemplate}"
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding DraftFamilies}",
+          "template": "{StaticResource FamilyRowTemplate}"
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding IssuedFamilies}",
+          "template": "{StaticResource FamilyRowTemplate}"
+        },
+        {
+          "scope": "$page",
+          "element": "ListBox",
+          "source": "{Binding PaidFamilies}",
+          "template": "{StaticResource FamilyRowTemplate}"
+        }
+      ]
+    },
+    "Views/Reports/StatementList/StatementListView.xaml": {
+      "class": "ProGlassAutomation.Views.Reports.StatementList.StatementListView",
+      "bindings": [
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Value",
+          "expression": "{Binding Background, RelativeSource={RelativeSource TemplatedParent}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding StatusMessage}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding NewStatementCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding TotalStatements, StringFormat=N0}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding TotalInvoicedDisplay}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding TotalOutstandingDisplay}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding TotalOverdueDisplay}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Binding",
+          "expression": "{Binding HasOverdue}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Text",
+          "expression": "{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding HasSearchText,                                           Converter={StaticResource InverseBoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding ClearSearchCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding HasSearchText,                                             Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding RefreshCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding IsListVisible,                             Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading,                                 Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding IsEmpty,                                 Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Command",
+          "expression": "{Binding NewStatementCommand}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "ItemsSource",
+          "expression": "{Binding Rows}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "SelectedItem",
+          "expression": "{Binding SelectedRow}"
+        },
+        {
+          "scope": "$page",
+          "attribute": "Visibility",
+          "expression": "{Binding IsListVisible,                                   Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Binding",
+          "expression": "{Binding HasOverdue}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding StatementNumber, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding SubTitle, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "ToolTip",
+          "expression": "{Binding SubTitle, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding InvoiceCount, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding CreatedAtDisplay, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Visibility",
+          "expression": "{Binding HasAttachments,                                                             Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding TotalInvoicedDisplay, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding TotalOutstandingDisplay, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Visibility",
+          "expression": "{Binding HasOverdue,                                                            Converter={StaticResource BoolToVisibilityConverter}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Text",
+          "expression": "{Binding OverdueAmountDisplay, Mode=OneWay}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Binding",
+          "expression": "{Binding HasOverdue}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Binding",
+          "expression": "{Binding HasOverdue}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.OpenPdfCommand,                                                         RelativeSource={RelativeSource AncestorType=ListView}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "IsEnabled",
+          "expression": "{Binding HasPdf}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.ShareStatementCommand,                                                         RelativeSource={RelativeSource AncestorType=ListView}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "IsEnabled",
+          "expression": "{Binding HasPdf}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.EditStatementCommand,                                                         RelativeSource={RelativeSource AncestorType=ListView}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.DeleteStatementCommand,                                                         RelativeSource={RelativeSource AncestorType=ListView}}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}"
+        }
+      ],
+      "object_bindings": [],
+      "actions": [
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Command": "{Binding NewStatementCommand}",
+          "Tag": "\ue710",
+          "Content": "{DynamicResource Reports.NewStatement}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Tag": "\ue711",
+          "ToolTip": "{DynamicResource Reports.ClearSearch}",
+          "Command": "{Binding ClearSearchCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Command": "{Binding RefreshCommand}",
+          "Tag": "\ue72c",
+          "Content": "{DynamicResource Action.Refresh}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Content": "{DynamicResource Reports.NewStatement}",
+          "Command": "{Binding NewStatementCommand}",
+          "Tag": "\ue710"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "ToolTip": "PDF",
+          "Command": "{Binding DataContext.OpenPdfCommand,                                                         RelativeSource={RelativeSource AncestorType=ListView}}",
+          "CommandParameter": "{Binding}",
+          "IsEnabled": "{Binding HasPdf}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "ToolTip": "{DynamicResource Sharing.Share}",
+          "Command": "{Binding DataContext.ShareStatementCommand,                                                         RelativeSource={RelativeSource AncestorType=ListView}}",
+          "CommandParameter": "{Binding}",
+          "IsEnabled": "{Binding HasPdf}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "Command": "{Binding DataContext.EditStatementCommand,                                                         RelativeSource={RelativeSource AncestorType=ListView}}",
+          "CommandParameter": "{Binding}"
+        },
+        {
+          "scope": "$page/$inline-template",
+          "element": "Button",
+          "Command": "{Binding DataContext.DeleteStatementCommand,                                                         RelativeSource={RelativeSource AncestorType=ListView}}",
+          "CommandParameter": "{Binding}"
+        }
+      ],
+      "events": [],
+      "collections": [
+        {
+          "scope": "$page",
+          "element": "ListView",
+          "source": "{Binding Rows}",
+          "template": null
+        }
+      ]
+    }
+  },
+  "parent": {
+    "path": "Views/ProformaInvoice/ProformaInvoiceView.xaml",
+    "bindings": [
+      [
+        "Binding",
+        "{Binding IsListView}"
+      ],
+      [
+        "Command",
+        "{Binding NewFromInquiryCommand}"
+      ],
+      [
+        "Command",
+        "{Binding NewInvoiceCommand}"
+      ],
+      [
+        "Content",
+        "{Binding SavedInvoicesListVM}"
+      ],
+      [
+        "Binding",
+        "{Binding IsWizardView}"
+      ],
+      [
+        "Command",
+        "{Binding BackToListCommand}"
+      ],
+      [
+        "ItemsSource",
+        "{Binding WizardSteps}"
+      ],
+      [
+        "Command",
+        "{Binding DataContext.GoToStepCommand,                                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
+      ],
+      [
+        "CommandParameter",
+        "{Binding}"
+      ],
+      [
+        "ToolTip",
+        "{Binding Subtitle}"
+      ],
+      [
+        "Text",
+        "{Binding StationCode}"
+      ],
+      [
+        "Text",
+        "{Binding RailLabel}"
+      ],
+      [
+        "Binding",
+        "{Binding IsCompleted}"
+      ],
+      [
+        "Binding",
+        "{Binding IsActive}"
+      ],
+      [
+        "Text",
+        "{Binding StepProgressText}"
+      ],
+      [
+        "Content",
+        "{Binding Step1VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Content",
+        "{Binding Step2VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Content",
+        "{Binding Step3VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Content",
+        "{Binding Step4VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Content",
+        "{Binding Step5VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Content",
+        "{Binding Step6VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Content",
+        "{Binding Step7VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Content",
+        "{Binding Step8VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Content",
+        "{Binding Step9VM}"
+      ],
+      [
+        "Binding",
+        "{Binding CurrentStepNumber}"
+      ],
+      [
+        "Command",
+        "{Binding PreviousStepCommand}"
+      ],
+      [
+        "Value",
+        "{Binding ProgressPercent, Mode=OneWay}"
+      ],
+      [
+        "Command",
+        "{Binding NextStepCommand}"
+      ]
+    ],
+    "automation_ids": [
+      "ProformaInvoice.NewFromInquiryButton",
+      "ProformaInvoice.NewInvoiceButton",
+      "ProformaInvoice.BackButton",
+      "ProformaInvoice.ContinueButton"
+    ]
+  },
+  "menus": {
+    "Views/ProformaInvoice/SavedInvoicesList/SavedInvoicesListView.xaml.cs": {
+      "original_handler": "OnRowRightClick",
+      "normalized_body_sha256": "bb375148660e13eba47a0fc62521d344f1bbef84820b5d29a272b1a818e5107c"
+    },
+    "Views/JobOrder/SavedJobOrdersList/SavedJobOrdersListView.xaml.cs": {
+      "original_handler": "OnRowRightClick",
+      "normalized_body_sha256": "b8b50b7f8b9b571e9c9c8848d80ad2e4e8c1fd4cc3959def4882a469a0b2e466"
+    },
+    "Views/DeliveryNote/DeliveryNoteList/DeliveryNoteListView.xaml.cs": {
+      "original_handler": "OnGroupRowRightClick",
+      "normalized_body_sha256": "3f1d7d4d0e619430bc977d941f5162dc8b5efc9da9b74282d44c9ea53f003f01"
+    },
+    "Views/TaxInvoice/TaxInvoiceList/TaxInvoiceListView.xaml.cs": {
+      "original_handler": "OnFamilyRowRightClick",
+      "normalized_body_sha256": "ed442c7aa04b203b64e2aa1a80a096f290a7d8ddf05b2742279e3f6ca3fc4c51"
+    }
+  }
+}

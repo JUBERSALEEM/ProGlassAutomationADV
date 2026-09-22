@@ -31,7 +31,14 @@
     <Grid Background="Transparent">
 
         <!-- LIST -->
-        <Grid>
+        <Grid Background="{DynamicResource Ov.Canvas}">
+            <Grid.Resources>
+                <ResourceDictionary>
+                    <ResourceDictionary.MergedDictionaries>
+                        <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
+                    </ResourceDictionary.MergedDictionaries>
+                </ResourceDictionary>
+            </Grid.Resources>
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -46,19 +53,16 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Grid Margin="12,4,12,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource ProformaInvoice.ProformaInvoices}" Style="{StaticResource ModulePageTitleStyle}"/>
+            <WrapPanel Margin="16,16,16,12">
+
+                <StackPanel MinWidth="320" Margin="0,0,24,10">
+                    <TextBlock Text="{DynamicResource ProformaInvoice.ProformaInvoices}" Style="{StaticResource Sl.Title}"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.SavedQuotationsReadyConvertJobOrders}"
-                               Style="{StaticResource ModulePageSubtitleStyle}"/>
+                               Style="{StaticResource Sl.Subtitle}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <WrapPanel VerticalAlignment="Center" Margin="0,0,0,10">
                     <Button Command="{Binding NewFromInquiryCommand}"
-                            Style="{StaticResource PrimaryPillButton}"
+                            Style="{StaticResource Sl.PrimaryButton}"
                             Tag="&#xE710;"
                             Content="{DynamicResource ProformaInvoice.NEWInquiry}"
                             ToolTip="{DynamicResource ProformaInvoice.CreateNewProformaInvoiceConfirmedInquiry}"
@@ -66,13 +70,13 @@
                             AutomationProperties.Name="New From Inquiry"/>
                     <Button Margin="8,0,0,0"
                             Command="{Binding NewInvoiceCommand}"
-                            Style="{StaticResource OutlinedPillButton}"
+                            Style="{StaticResource Sl.Button}"
                             Content="{DynamicResource ProformaInvoice.BlankRecommended}"
                             ToolTip="{DynamicResource ProformaInvoice.CreateBlankProformaInvoiceWithoutInquiryUse}"
                             AutomationProperties.AutomationId="ProformaInvoice.NewInvoiceButton"
                             AutomationProperties.Name="New Invoice Blank"/>
-                </StackPanel>
-            </Grid>
+                </WrapPanel>
+            </WrapPanel>
             <ContentControl Grid.Row="1" Margin="12,0,12,8" Content="{Binding SavedInvoicesListVM}">
                 <ContentControl.ContentTemplate>
                     <DataTemplate>

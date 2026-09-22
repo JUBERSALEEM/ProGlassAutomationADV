@@ -175,6 +175,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             private set { _isLoading = value; OnPropertyChanged(); }
         }
 
+        private bool _hasError;
+        public bool HasError
+        {
+            get => _hasError;
+            private set { if (_hasError == value) return; _hasError = value; OnPropertyChanged(); }
+        }
+
+        private string _errorMessage = "";
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            private set { if (_errorMessage == value) return; _errorMessage = value; OnPropertyChanged(); }
+        }
+
         // BUG-75: user feedback for export operations
         private string _lastExportStatus = "";
         public string LastExportStatus
@@ -252,7 +266,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             // TI is created or deleted. Display status is derived from those
             // documents, so a delete in another module must reload this list
             // without waiting for a manual Refresh.
-            _database.SubscribeDocumentsChanged(LoadInvoicesAsync);
+            _database?.SubscribeDocumentsChanged(LoadInvoicesAsync);
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             LoadInvoiceCommand = new RelayCommand(p => RequestLoad(p as SavedInvoiceListItem));
 
@@ -349,7 +363,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             var restoreId = Views.ProformaInvoice.SavedInvoicesList
                 .VersionsDialog.Show(
                     Application.Current.MainWindow,
-                    item.ProformaId, versions);
+                    item.ProformaId, versions,
+                    canRestore: OnSnapshotRestoreRequested != null);
 
             if (restoreId == null) return;
 
@@ -466,11 +481,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         private async Task LoadInvoicesCoreAsync()
         {
-            if (_invoices == null) return;
             IsLoading = true;
+            HasError = false;
+            ErrorMessage = "";
 
             try
             {
+                if (_invoices == null || _database == null)
+                    throw new InvalidOperationException("Proforma Invoice database services are not initialized.");
+
                 // PERF-9: list-page projection — GetAllAsync() dragged every
                 // FullSnapshotJson blob (whole invoice) into memory just to
                 // render one row per invoice. GetListRowsAsync() reads only
@@ -511,7 +530,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                _dialogs.Show(
+                HasError = true;
+                ErrorMessage = "Could not refresh saved invoices. Retry with Refresh. " + ExceptionMessages.Deep(ex);
+                _dialogs?.Show(
                     string.Format(LocalizationService.Instance.T("Msg.FailedToLoadSavedInvoices"), ExceptionMessages.Deep(ex)),
                     LocalizationService.Instance.T("Msg.CapLoadError"),
                     MessageBoxButton.OK,

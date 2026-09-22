@@ -62,10 +62,22 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
         //    🗑 Delete latest DN
         // ═════════════════════════════════════════════════════════════════
 
-        private void OnGroupRowRightClick(
-            object sender, MouseButtonEventArgs e)
+        private void OnGroupRowRightClick(object sender, MouseButtonEventArgs e)
         {
-            if (sender is not FrameworkElement element) return;
+            ShowRowMenu(sender as FrameworkElement, atPointer: true);
+            e.Handled = true;
+        }
+
+        // The visible More button and right-click share every original menu action.
+        private void OnRowMoreClick(object sender, RoutedEventArgs e)
+        {
+            ShowRowMenu(sender as FrameworkElement, atPointer: false);
+            e.Handled = true;
+        }
+
+        private void ShowRowMenu(FrameworkElement? element, bool atPointer)
+        {
+            if (element == null) return;
             if (element.DataContext is not JobOrderGroupRowViewModel group)
                 return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
@@ -73,8 +85,9 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             var menu = new ContextMenu
             {
                 PlacementTarget = element,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
-                Style = (Style)FindResource("ModernContextMenuStyle")
+                Placement = atPointer ? System.Windows.Controls.Primitives.PlacementMode.MousePoint
+                    : System.Windows.Controls.Primitives.PlacementMode.Bottom,
+                Style = (Style)FindResource("Sl.ContextMenu")
             };
 
             // ── Open latest DN — Dispatching only. Dispatched opens from God View.
@@ -82,7 +95,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             {
                 Header = $"📂  Open latest DN ({group.LatestDnId})",
                 FontWeight = FontWeights.SemiBold,
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             openItem.Click += (_, __) =>
@@ -106,7 +119,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             var masterItem = new MenuItem
             {
                 Header = "📋  View Master DN (original from Job Order)",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             masterItem.Click += (_, __) =>
@@ -115,14 +128,14 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // ── Change Status submenu ─────────────────────────────────
             var statusMenu = new MenuItem
             {
                 Header = "🔄  Change Status",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             foreach (var status in new[]
@@ -134,7 +147,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 var statusItem = new MenuItem
                 {
                     Header = s,
-                    Style = (Style)FindResource("ModernCheckableMenuItemStyle"),
+                    Style = (Style)FindResource("Sl.CheckableMenuItem"),
                     Padding = new Thickness(8, 6, 20, 6)
                 };
                 statusItem.Click += async (_, __) =>
@@ -182,7 +195,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // ── Generate Master Tax Invoice ───────────────────────────
@@ -190,7 +203,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             {
                 Header = "🧾  Generate Master Tax Invoice",
                 IsEnabled = group.AnyDelivered,
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             masterInvItem.Click += (_, __) =>
@@ -204,7 +217,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             // ── Void latest DN (Soft-close with audit & reason) ───────
@@ -212,7 +225,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             {
                 Header = $"🚫  Void latest DN ({group.LatestDnId})",
                 Foreground = (System.Windows.Media.Brush)FindResource("WarningBrush"),
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             voidItem.Click += (_, __) =>
@@ -237,7 +250,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             {
                 Header = $"🗑  Delete / Purge DN ({group.LatestDnId})",
                 Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush"),
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             deleteItem.Click += (_, __) =>
@@ -297,14 +310,14 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             {
                 PlacementTarget = element,
                 Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
-                Style = (Style)FindResource("ModernContextMenuStyle")
+                Style = (Style)FindResource("Sl.ContextMenu")
             };
 
             var openItem = new MenuItem
             {
                 Header = "📂  Open Delivery Note",
                 FontWeight = FontWeights.SemiBold,
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             openItem.Click += (_, __) => vm.OpenCommand.Execute(row);
@@ -312,13 +325,13 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             var statusMenu = new MenuItem
             {
                 Header = "🔄  Change Status",
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             foreach (var status in new[]
@@ -332,7 +345,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                     Header = s,
                     IsCheckable = true,
                     IsChecked = string.Equals(row.Status, s, StringComparison.OrdinalIgnoreCase),
-                    Style = (Style)FindResource("ModernCheckableMenuItemStyle"),
+                    Style = (Style)FindResource("Sl.CheckableMenuItem"),
                     Padding = new Thickness(8, 6, 20, 6)
                 };
                 statusItem.Click += (_, __) =>
@@ -343,14 +356,14 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             menu.Items.Add(new Separator
             {
-                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+                Style = (Style)FindResource("Sl.MenuSeparator")
             });
 
             var deleteItem = new MenuItem
             {
                 Header = "🗑  Delete Delivery Note",
                 Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush"),
-                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Style = (Style)FindResource("Sl.MenuItem"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
             deleteItem.Click += (_, __) => vm.DeleteCommand.Execute(row);

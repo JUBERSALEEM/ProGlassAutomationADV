@@ -324,7 +324,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             // A DN / TI delete in another module must refresh this list
             // immediately so derived delivery status matches remaining docs.
-            _database.SubscribeDocumentsChanged(LoadJobOrdersAsync);
+            _database?.SubscribeDocumentsChanged(LoadJobOrdersAsync);
 
             // v2 §24: version history dialog (shared with Proforma).
             ShowVersionsCommand = new RelayCommand(
@@ -357,10 +357,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 HasError = false;
                 ErrorMessage = string.Empty;
 
-                if (_jobs == null)
+                if (_jobs == null || _database == null)
                 {
                     HasError = true;
-                    ErrorMessage = "Job Order database not initialised.";
+                    ErrorMessage = "Job Order database services are not initialized.";
                     return;
                 }
 
