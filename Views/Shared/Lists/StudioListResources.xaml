@@ -265,4 +265,69 @@
             <DataTrigger Binding="{Binding HasError}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
         </Style.Triggers>
     </Style>
+
+    <!-- Studio Bento DataGrid styles for enterprise God Views & reporting grids -->
+    <Style x:Key="Sl.DataGrid" TargetType="DataGrid">
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="RowBackground" Value="{DynamicResource Ov.Surface}"/>
+        <Setter Property="AlternatingRowBackground" Value="{DynamicResource Ov.Soft}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="VerticalGridLinesBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="RowHeight" Value="{DynamicResource DensityRowHeight}"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserDeleteRows" Value="False"/>
+        <Setter Property="CanUserResizeColumns" Value="True"/>
+        <Setter Property="EnableRowVirtualization" Value="True"/>
+        <Setter Property="EnableColumnVirtualization" Value="True"/>
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel"/>
+        <Setter Property="VirtualizingPanel.CacheLength" Value="400,800"/>
+        <Setter Property="VirtualizingPanel.CacheLengthUnit" Value="Pixel"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="False"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="Sl.DataGridHeader" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="14,10"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="Sl.DataGridHeaderCenter" TargetType="DataGridColumnHeader" BasedOn="{StaticResource Sl.DataGridHeader}">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="Sl.DataGridHeaderRight" TargetType="DataGridColumnHeader" BasedOn="{StaticResource Sl.DataGridHeader}">
+        <Setter Property="HorizontalContentAlignment" Value="Right"/>
+    </Style>
+
+    <Style x:Key="Sl.CellText" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <Style x:Key="Sl.CellTextCenter" TargetType="TextBlock" BasedOn="{StaticResource Sl.CellText}">
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="Sl.CellTextRight" TargetType="TextBlock" BasedOn="{StaticResource Sl.CellText}">
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+    </Style>
 </ResourceDictionary>
