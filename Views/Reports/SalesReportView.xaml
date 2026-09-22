@@ -44,9 +44,15 @@
     TextOptions.TextFormattingMode="Ideal"
     TextOptions.TextRenderingMode="ClearType"
     UseLayoutRounding="True"
-    SnapsToDevicePixels="True">
+    SnapsToDevicePixels="True"
+    Background="{DynamicResource Ov.Canvas}"
+    Foreground="{DynamicResource Ov.Ink}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <!-- VM → View Mappings -->
         <DataTemplate DataType="{x:Type vmPi:PiReportViewModel}"><vPi:PiReportView/></DataTemplate>
@@ -78,31 +84,24 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bd"
-                                CornerRadius="{DynamicResource Radius.Medium}"
+                                CornerRadius="10"
                                 Padding="10,8"
                                 Background="{TemplateBinding Background}"
-                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                BorderThickness="1"
                                 BorderBrush="Transparent"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Ov.Soft}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
                             </Trigger>
                             <Trigger Property="Tag" Value="Active">
-                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Ov.Accent}"/>
                                 <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent"/>
-                                <!-- CONTRAST: the active pill fills with AccentBrush, so the
-                                     content must flip to the on-accent foreground. The old
-                                     hand-copied cards did this with a per-TextBlock DataTrigger
-                                     in every block; doing it once here means the data-driven
-                                     template cannot forget it and the label can never render
-                                     dark-on-dark. TextElement.Foreground inherits into the
-                                     ContentPresenter, covering title and subtitle together. -->
                                 <Setter TargetName="Bd" Property="TextElement.Foreground"
-                                        Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                        Value="{DynamicResource Ov.OnAccent}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -119,13 +118,13 @@
             <Setter Property="Height" Value="34"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                CornerRadius="8"
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE700;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
@@ -136,11 +135,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ov.Soft}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ov.Soft}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -148,6 +147,7 @@
             </Setter>
         </Style>
 
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">
@@ -165,15 +165,15 @@
              LEFT — NAVIGATION RAIL (stays open on report pick; the
              hamburger collapses/expands it on demand)
         ══════════════════════════════════════════════════════════════ -->
-        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+        <Border CornerRadius="16"
                 Grid.Column="0"
                 Margin="14,14,6,14"
                 Width="268"
                 Visibility="{Binding IsRailOpen,
                     Converter={StaticResource BoolToVisibilityConverter}}"
-                Background="{DynamicResource SurfaceSecondaryBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                Background="{DynamicResource Ov.Surface}"
+                BorderBrush="{DynamicResource Ov.Line}"
+                BorderThickness="1"
                 SnapsToDevicePixels="True">
 
             <Grid Margin="10,12,10,12">
@@ -184,20 +184,20 @@
                 </Grid.RowDefinitions>
 
                 <!-- Brand Header -->
-                <Border Grid.Row="0" Margin="4,2,4,10" Style="{StaticResource DocumentHeaderBandStyle}" Padding="12,12">
+                <Border Grid.Row="0" Margin="4,2,4,10" Style="{StaticResource Sl.Card}" Padding="12,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="36"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource ModuleListKpiIconStyle}" Grid.Column="0" Background="{DynamicResource TintIndigoBrush}">
-                            <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border Style="{StaticResource ModuleListKpiIconStyle}" Grid.Column="0" Background="{DynamicResource Ov.Soft}">
+                            <TextBlock Text="&#xE9D2;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource Ov.Accent}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Reports.ReportsHUB}" Style="{StaticResource ModulePageSubtitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Reports.IntelligenceCenter}" Style="{StaticResource ModulePageTitleStyle}" Margin="0,1,0,0"/>
-                            <TextBlock Text="{DynamicResource Reports.RowLevelTraceability}" Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,2,0,0"/>
+                            <TextBlock Text="{DynamicResource Reports.ReportsHUB}" Style="{StaticResource Sl.Subtitle}"/>
+                            <TextBlock Text="{DynamicResource Reports.IntelligenceCenter}" Style="{StaticResource Sl.Title}" Margin="0,1,0,0"/>
+                            <TextBlock Text="{DynamicResource Reports.RowLevelTraceability}" Style="{StaticResource Sl.Subtitle}" Margin="0,2,0,0"/>
                         </StackPanel>
                         <!-- Collapse rail button (hamburger style) -->
                         <Button Grid.Column="2"
@@ -208,7 +208,7 @@
                                 Cursor="Hand"
                                 ToolTip="{DynamicResource Reports.CollapseNavigationRail}"
                                 Command="{Binding ToggleRailCommand}">
-                            <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource Ov.Accent}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
                     </Grid>
                 </Border>
