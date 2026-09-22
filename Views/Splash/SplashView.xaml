@@ -1,24 +1,20 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — "GLASS PRISM OPTICAL BEVEL" (v7 Full Rewrite)
-            Sophisticated soft light grey background (#E2E8F0).
-            Thick architectural float glass plate with 3D optical bevels,
-            multi-faceted refractive keylines reflecting subtle chromatic
-            light dispersions, clean dark slate typography
-            "ProGlass Precision Automation", and a crisp progress track.
-
-     100% PURE WPF XAML ARCHITECTURE:
-       • Float Glass Plate: Layered bevelled glass chassis with specular
-         rim, refractive prism facets, and optical dispersion hairlines.
-       • Prism Emblem: Geometric faceted glass cutter diamond in dark
-         slate (#0F172A) and sapphire glass (#2563EB).
-       • Typography: Crisp Swiss dark slate hierarchy with letter-spaced
-         subtitle and version token.
-       • Progress Indicator: Razor-thin 1px circular arc and linear
-         precision progress track with GPU hardware acceleration.
-       • Full API Compatibility: Preserves all code-behind hooks,
-         animation targets, TermsBar, and Login/Setup gates.
+     MODULE: Splash Screen — "GLASS PRISM OPTICAL BEVEL" (v8 Exact Visualizer)
+     Visual source of truth: docs/splash_09_glass_prism_bevel.png
+     
+     100% PURE NATIVE WPF XAML REWRITE:
+       • Heavy architectural float glass plate (520x520) with cut chamfer
+         corners and 8 multi-faceted 3D optical bevel polygons.
+       • Multi-stop chromatic rainbow dispersion caustics along the bevels.
+       • 3D faceted folded architectural letter "P" glass prism emblem.
+       • Elegant luxury serif typography "ProGlass" with precision hairline
+         divider and "PRECISION AUTOMATION" tracked uppercase caption.
+       • Centered 4-point diamond star glyph.
+       • Framed rectangular progress track with dark slate fill.
+       • Status text: "Initializing Precision Modules... 18%".
+       • 100% API-compliant with SplashView.xaml.cs and App.StartupCore.cs.
 ═══════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -30,13 +26,11 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="#E2E8F0"
+        Background="#E8EEF5"
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
-        FontFamily="{DynamicResource AppFontFamily}"
-        FontWeight="{DynamicResource AppFontWeight}"
-        FontStyle="{DynamicResource AppFontStyle}"
+        FontFamily="Segoe UI"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         TextOptions.TextHintingMode="Fixed"
@@ -45,95 +39,77 @@
         SnapsToDevicePixels="True">
 
     <Window.Resources>
+        <!-- Luxury Architectural Palette -->
+        <SolidColorBrush x:Key="CanvasBgBrush" Color="#E8EEF5"/>
+        <SolidColorBrush x:Key="GlassFaceBrush" Color="#F4F8FC"/>
+        <SolidColorBrush x:Key="BrandDarkBrush" Color="#1E293B"/>
+        <SolidColorBrush x:Key="BrandMutedBrush" Color="#64748B"/>
+        <SolidColorBrush x:Key="KeylineBrush" Color="#94A3B8"/>
 
-        <!-- ═══ LUXURY GLASS PRISM PALETTE ═══ -->
-        <SolidColorBrush x:Key="SplashBg" Color="#E2E8F0"/>
-        <SolidColorBrush x:Key="DarkSlateBrush" Color="#0F172A"/>
-        <SolidColorBrush x:Key="SlateTextBrush" Color="#1E293B"/>
-        <SolidColorBrush x:Key="MutedSlateBrush" Color="#64748B"/>
-        <SolidColorBrush x:Key="TrackBaseBrush" Color="#CBD5E1"/>
-
-        <!-- 3D Optical Bevel Edge Brushes -->
-        <LinearGradientBrush x:Key="GlassBevelRimBrush" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
-            <GradientStop Color="#E2E8F0" Offset="0.35"/>
-            <GradientStop Color="#CBD5E1" Offset="0.7"/>
-            <GradientStop Color="#94A3B8" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="GlassPlateFaceBrush" StartPoint="0.1,0.0" EndPoint="0.9,1.0">
-            <GradientStop Color="#F8FAFC" Offset="0.0"/>
-            <GradientStop Color="#F1F5F9" Offset="0.45"/>
-            <GradientStop Color="#E2E8F0" Offset="0.85"/>
-            <GradientStop Color="#DFE6EE" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <!-- Chromatic Prism Dispersion Highlights -->
-        <LinearGradientBrush x:Key="PrismDispersionBrush" StartPoint="0,0" EndPoint="1,0.8">
-            <GradientStop Color="#3038BDF8" Offset="0.0"/>
-            <GradientStop Color="#256366F1" Offset="0.35"/>
-            <GradientStop Color="#20F43F5E" Offset="0.65"/>
-            <GradientStop Color="#2010B981" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <!-- Ambient Refractive Light Caustics (replacing old heavy blobs) -->
-        <LinearGradientBrush x:Key="Blob1Grad" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#F1F5F9" Offset="0.0"/>
-            <GradientStop Color="#E2E8F0" Offset="0.6"/>
+        <!-- Multi-facet 3D Optical Bevel Gradients -->
+        <LinearGradientBrush x:Key="TopFacetGrad" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#F1F5F9" Offset="0.5"/>
             <GradientStop Color="#CBD5E1" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="Blob2Grad" StartPoint="0,0" EndPoint="1,1">
+        <LinearGradientBrush x:Key="BottomFacetGrad" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#64748B" Offset="0.0"/>
+            <GradientStop Color="#94A3B8" Offset="0.6"/>
+            <GradientStop Color="#CBD5E1" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="LeftFacetGrad" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#CBD5E1" Offset="0.0"/>
+            <GradientStop Color="#E2E8F0" Offset="0.5"/>
+            <GradientStop Color="#FFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="RightFacetGrad" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#94A3B8" Offset="0.0"/>
+            <GradientStop Color="#64748B" Offset="0.7"/>
+            <GradientStop Color="#475569" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <!-- Chromatic Rainbow Dispersion Gradients -->
+        <LinearGradientBrush x:Key="TopRightRainbowGrad" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#E0F2FE" Offset="0.0"/>
-            <GradientStop Color="#EDE9FE" Offset="0.5"/>
-            <GradientStop Color="#F1F5F9" Offset="1.0"/>
+            <GradientStop Color="#BAE6FD" Offset="0.25"/>
+            <GradientStop Color="#FDE047" Offset="0.55"/>
+            <GradientStop Color="#F472B6" Offset="0.8"/>
+            <GradientStop Color="#38BDF8" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="Blob3Grad" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#F8FAFC" Offset="0.0"/>
-            <GradientStop Color="#E2E8F0" Offset="1.0"/>
+        <LinearGradientBrush x:Key="BottomRightRainbowGrad" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#38BDF8" Offset="0.0"/>
+            <GradientStop Color="#FDE047" Offset="0.35"/>
+            <GradientStop Color="#FB7185" Offset="0.7"/>
+            <GradientStop Color="#C084FC" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Droplet Crystal Facet Brush -->
-        <RadialGradientBrush x:Key="DropletFill" GradientOrigin="0.3,0.3" Center="0.5,0.5" RadiusX="0.8" RadiusY="0.8">
-            <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
-            <GradientStop Color="#CCF1F5F9" Offset="0.4"/>
-            <GradientStop Color="#99CBD5E1" Offset="1.0"/>
-        </RadialGradientBrush>
-
-        <!-- Core Precision Progress Gradient -->
-        <LinearGradientBrush x:Key="ProgressGrad" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#0F172A" Offset="0.0"/>
-            <GradientStop Color="#4338CA" Offset="0.5"/>
-            <GradientStop Color="#0EA5E9" Offset="1.0"/>
+        <LinearGradientBrush x:Key="BottomLeftRainbowGrad" StartPoint="1,0" EndPoint="0,1">
+            <GradientStop Color="#60A5FA" Offset="0.0"/>
+            <GradientStop Color="#34D399" Offset="0.4"/>
+            <GradientStop Color="#FDE047" Offset="0.75"/>
+            <GradientStop Color="#F8FAFC" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <DropShadowEffect x:Key="PlateShadow" Color="#0F172A" BlurRadius="24" ShadowDepth="8" Direction="270" Opacity="0.10" RenderingBias="Performance"/>
-        <DropShadowEffect x:Key="DropletShadow" Color="#64748B" BlurRadius="6" ShadowDepth="2" Direction="270" Opacity="0.14" RenderingBias="Performance"/>
-        <DropShadowEffect x:Key="BevelGlow" Color="#38BDF8" BlurRadius="12" ShadowDepth="0" Opacity="0.18" RenderingBias="Performance"/>
+        <LinearGradientBrush x:Key="TopLeftRainbowGrad" StartPoint="0,1" EndPoint="1,0">
+            <GradientStop Color="#FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#BAE6FD" Offset="0.35"/>
+            <GradientStop Color="#DDD6FE" Offset="0.7"/>
+            <GradientStop Color="#FFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
 
-        <!-- Rounded Hexagon Clip for Optical Glass Core -->
-        <PathGeometry x:Key="RoundedHexClip">
-            <PathFigure StartPoint="138.00,24.93" IsClosed="True">
-                <ArcSegment Point="162.00,24.93" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
-                <LineSegment Point="252.32,77.07"/>
-                <ArcSegment Point="264.32,97.86" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
-                <LineSegment Point="264.32,202.14"/>
-                <ArcSegment Point="252.32,222.93" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
-                <LineSegment Point="162.00,275.07"/>
-                <ArcSegment Point="138.00,275.07" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
-                <LineSegment Point="47.68,222.93"/>
-                <ArcSegment Point="35.68,202.14" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
-                <LineSegment Point="35.68,97.86"/>
-                <ArcSegment Point="47.68,77.07" Size="24,24" RotationAngle="0" IsLargeArc="False" SweepDirection="Clockwise"/>
-                <LineSegment Point="138.00,24.93"/>
-            </PathFigure>
-        </PathGeometry>
+        <!-- Plate Shadow -->
+        <DropShadowEffect x:Key="PlateDropShadow" Color="#0F172A" BlurRadius="45" ShadowDepth="20" Direction="270" Opacity="0.18" RenderingBias="Performance"/>
+        <DropShadowEffect x:Key="GlintGlow" Color="#38BDF8" BlurRadius="16" ShadowDepth="0" Opacity="0.35" RenderingBias="Performance"/>
 
+        <!-- Terms Styles -->
         <Style x:Key="CaptionStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#475569"/>
+            <Setter Property="Foreground" Value="#64748B"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
@@ -150,160 +126,287 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Margin" Value="0,6,0,0"/>
         </Style>
-
     </Window.Resources>
 
-    <Grid Background="{StaticResource SplashBg}">
+    <Grid Background="{StaticResource CanvasBgBrush}">
 
-        <!-- ═══ AMBIENT OPTICAL LIGHT GLINTS & REFRACTION ═══ -->
+        <!-- ═══ AMBIENT REFRACTION FLARES & CAUSTICS (API-Safe Blobs) ═══ -->
         <Canvas IsHitTestVisible="False">
-            <Ellipse x:Name="BgBlob1" Width="520" Height="400" Fill="{StaticResource Blob1Grad}" Opacity="0.25" Canvas.Left="-120" Canvas.Top="-80">
-                <Ellipse.Effect><BlurEffect Radius="24" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
+            <!-- Top-Left Soft Warm Dispersion Beam -->
+            <Ellipse x:Name="BgBlob1" Width="580" Height="420" Opacity="0.35" Canvas.Left="-160" Canvas.Top="-120">
+                <Ellipse.Fill>
+                    <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                        <GradientStop Color="#60FFFFFF" Offset="0"/>
+                        <GradientStop Color="#30FDE047" Offset="0.4"/>
+                        <GradientStop Color="#00E8EEF5" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+                <Ellipse.Effect><BlurEffect Radius="30" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob1Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <Ellipse x:Name="BgBlob2" Width="640" Height="480" Fill="{StaticResource Blob2Grad}" Opacity="0.20" Canvas.Left="-160" Canvas.Top="460">
-                <Ellipse.Effect><BlurEffect Radius="24" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
+
+            <!-- Bottom-Right Rainbow Caustic Flare -->
+            <Ellipse x:Name="BgBlob2" Width="680" Height="500" Opacity="0.30" Canvas.Left="880" Canvas.Top="480">
+                <Ellipse.Fill>
+                    <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                        <GradientStop Color="#4038BDF8" Offset="0"/>
+                        <GradientStop Color="#25F472B6" Offset="0.5"/>
+                        <GradientStop Color="#00E8EEF5" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+                <Ellipse.Effect><BlurEffect Radius="32" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob2Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <Ellipse x:Name="BgBlob3" Width="480" Height="360" Fill="{StaticResource Blob3Grad}" Opacity="0.22" Canvas.Left="920" Canvas.Top="500">
-                <Ellipse.Effect><BlurEffect Radius="24" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
+
+            <!-- Bottom-Left Cyan Ambient Beam -->
+            <Ellipse x:Name="BgBlob3" Width="520" Height="380" Opacity="0.25" Canvas.Left="-140" Canvas.Top="500">
+                <Ellipse.Fill>
+                    <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                        <GradientStop Color="#40BAE6FD" Offset="0"/>
+                        <GradientStop Color="#00E8EEF5" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+                <Ellipse.Effect><BlurEffect Radius="26" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob3Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <Ellipse x:Name="BgBlob4" Width="240" Height="240" Fill="#20CBD5E1" Opacity="0.25" Canvas.Left="1100" Canvas.Top="-30">
-                <Ellipse.Effect><BlurEffect Radius="20" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
+
+            <!-- Top-Right Ambient Specular Reflection -->
+            <Ellipse x:Name="BgBlob4" Width="440" Height="340" Opacity="0.30" Canvas.Left="1060" Canvas.Top="-60">
+                <Ellipse.Fill>
+                    <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+                        <GradientStop Color="#50FFFFFF" Offset="0"/>
+                        <GradientStop Color="#2038BDF8" Offset="0.6"/>
+                        <GradientStop Color="#00E8EEF5" Offset="1"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+                <Ellipse.Effect><BlurEffect Radius="26" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob4Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
 
-            <!-- Subtle Crystal Specks / Optical Glints -->
-            <Ellipse x:Name="Droplet1" Width="36" Height="36" Fill="{StaticResource DropletFill}" Stroke="#FFFFFF" StrokeThickness="1" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+            <!-- Tiny Optical Cut Diamonds (API-Safe Droplets) -->
+            <Ellipse x:Name="Droplet1" Width="8" Height="8" Fill="#FFFFFF" Opacity="0.8" Canvas.Left="0" Canvas.Top="0">
+                <Ellipse.Effect><DropShadowEffect Color="#38BDF8" BlurRadius="6" ShadowDepth="0" Opacity="0.5"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet1Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <Ellipse x:Name="Droplet2" Width="24" Height="24" Fill="{StaticResource DropletFill}" Stroke="#FFFFFF" StrokeThickness="1" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+            <Ellipse x:Name="Droplet2" Width="6" Height="6" Fill="#FFFFFF" Opacity="0.7" Canvas.Left="0" Canvas.Top="0">
                 <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet2Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <Ellipse x:Name="Droplet3" Width="20" Height="20" Fill="{StaticResource DropletFill}" Stroke="#FFFFFF" StrokeThickness="0.8" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+            <Ellipse x:Name="Droplet3" Width="5" Height="5" Fill="#FFFFFF" Opacity="0.75" Canvas.Left="0" Canvas.Top="0">
                 <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet3Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <Ellipse x:Name="Droplet4" Width="18" Height="18" Fill="{StaticResource DropletFill}" Stroke="#FFFFFF" StrokeThickness="0.8" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+            <Ellipse x:Name="Droplet4" Width="6" Height="6" Fill="#FFFFFF" Opacity="0.6" Canvas.Left="0" Canvas.Top="0">
                 <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet4Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <Ellipse x:Name="Droplet5" Width="26" Height="22" Fill="{StaticResource DropletFill}" Stroke="#FFFFFF" StrokeThickness="1" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+            <Ellipse x:Name="Droplet5" Width="7" Height="7" Fill="#FFFFFF" Opacity="0.8" Canvas.Left="0" Canvas.Top="0">
                 <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet5Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
-            <Ellipse x:Name="Droplet6" Width="22" Height="18" Fill="{StaticResource DropletFill}" Stroke="#FFFFFF" StrokeThickness="0.8" Effect="{StaticResource DropletShadow}" Canvas.Left="0" Canvas.Top="0">
+            <Ellipse x:Name="Droplet6" Width="5" Height="5" Fill="#FFFFFF" Opacity="0.7" Canvas.Left="0" Canvas.Top="0">
                 <Ellipse.RenderTransform><TranslateTransform x:Name="Droplet6Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
         </Canvas>
 
-        <!-- ═══ MAIN STAGE — THICK ARCHITECTURAL FLOAT GLASS PLATE ═══ -->
+        <!-- ═══ CENTERED POSTER STAGE ═══ -->
         <Grid x:Name="PosterHost" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 
-                <!-- The Glass Prism Stage Assembly -->
-                <Grid Width="500" Height="340" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <!-- API Transform Hooks (FluidBlobScale & FluidBlobTranslate) -->
+            <Grid Width="520" Height="520" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Grid.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="FluidBlobScale" ScaleX="1" ScaleY="1" CenterX="260" CenterY="260"/>
+                        <TranslateTransform x:Name="FluidBlobTranslate" X="0" Y="0"/>
+                    </TransformGroup>
+                </Grid.RenderTransform>
 
-                    <!-- Outer 3D Optical Bevel Shadow Plate -->
-                    <Border CornerRadius="28" Background="#080F172A" Margin="-8" Effect="{StaticResource PlateShadow}"/>
+                <!-- Hidden API elements for 100% code-behind safety -->
+                <Path x:Name="FluidBlob" Visibility="Collapsed" Data="M 0,0"/>
+                <Path x:Name="FluidHighlight" Visibility="Collapsed" Data="M 0,0"/>
+                <Path x:Name="FluidEdge" Visibility="Collapsed" Data="M 0,0"/>
 
-                    <!-- Fluid Prism Aura Layer (preserved API element) -->
-                    <Path x:Name="FluidBlob" Opacity="0.4" Fill="{StaticResource PrismDispersionBrush}" Stretch="Fill"
-                          Data="M 40,0 L 460,0 C 480,0 500,20 500,40 L 500,300 C 500,320 480,340 460,340 L 40,340 C 20,340 0,320 0,300 L 0,40 C 0,20 20,0 40,0 Z">
-                        <Path.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform x:Name="FluidBlobScale" ScaleX="1" ScaleY="1" CenterX="250" CenterY="170"/>
-                                <TranslateTransform x:Name="FluidBlobTranslate" X="0" Y="0"/>
-                            </TransformGroup>
-                        </Path.RenderTransform>
-                    </Path>
+                <!-- ── 1. REAL PHYSICAL GLASS BLOCK DROP SHADOW ── -->
+                <Path Data="M 48,0 L 472,0 L 520,48 L 520,472 L 472,520 L 48,520 L 0,472 L 0,48 Z"
+                      Fill="#200F172A" Effect="{StaticResource PlateDropShadow}"/>
 
-                    <!-- Hidden highlight and edge paths for API compatibility -->
-                    <Path x:Name="FluidHighlight" Opacity="0.1" Fill="#FFFFFFFF" Stretch="Fill"
-                          Data="M 0,0 L 500,0 L 500,10 L 0,10 Z" Visibility="Collapsed"/>
-                    <Path x:Name="FluidEdge" Opacity="0.6" Stroke="{StaticResource GlassBevelRimBrush}" StrokeThickness="1"
-                          Data="M 0,0 L 500,0" Visibility="Collapsed"/>
+                <!-- ── 2. THE MULTI-FACETED 3D OPTICAL BEVELLED GLASS BLOCK (520x520) ── -->
+                <!-- The Core Glass Face (Inside the Chamfers) -->
+                <Path Data="M 82,38 L 438,38 L 482,82 L 482,438 L 438,482 L 82,482 L 38,438 L 38,82 Z"
+                      Fill="{StaticResource GlassFaceBrush}"/>
 
-                    <!-- Architectural Float Glass Plate (Core Container) -->
-                    <Border x:Name="LogoBorder" Width="480" Height="320" HorizontalAlignment="Center" VerticalAlignment="Center"
-                            Background="{StaticResource GlassPlateFaceBrush}"
-                            BorderBrush="{StaticResource GlassBevelRimBrush}"
-                            BorderThickness="2"
-                            CornerRadius="24"
-                            Effect="{StaticResource PlateShadow}"
-                            Opacity="0">
-                        <Border.RenderTransform>
-                            <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92" CenterX="240" CenterY="160"/>
-                        </Border.RenderTransform>
+                <!-- Subtle Diagonal Caustic Across Face -->
+                <Path Data="M 82,38 L 438,38 L 482,82 L 482,438 L 438,482 L 82,482 L 38,438 L 38,82 Z">
+                    <Path.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#30FFFFFF" Offset="0.0"/>
+                            <GradientStop Color="#00FFFFFF" Offset="0.45"/>
+                            <GradientStop Color="#15E0F2FE" Offset="0.7"/>
+                            <GradientStop Color="#25CBD5E1" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Path.Fill>
+                </Path>
 
-                        <Grid>
-                            <!-- Inner 3D Optical Bevel Recess Line -->
-                            <Border CornerRadius="22" Margin="3" BorderBrush="#80FFFFFF" BorderThickness="1.5" IsHitTestVisible="False"/>
+                <!-- ── THE 8 REFRACTIVE 3D BEVEL FACETS ── -->
+                <!-- 1. Top Bevel Facet -->
+                <Path Data="M 48,0 L 472,0 L 438,38 L 82,38 Z" Fill="{StaticResource TopFacetGrad}"/>
+                <!-- 2. Top-Right Chamfer Facet (Rainbow Dispersion) -->
+                <Path Data="M 472,0 L 520,48 L 482,82 L 438,38 Z" Fill="{StaticResource TopRightRainbowGrad}"/>
+                <!-- 3. Right Bevel Facet -->
+                <Path Data="M 520,48 L 520,472 L 482,438 L 482,82 Z" Fill="{StaticResource RightFacetGrad}"/>
+                <!-- 4. Bottom-Right Chamfer Facet (Rainbow Dispersion) -->
+                <Path Data="M 520,472 L 472,520 L 438,482 L 482,438 Z" Fill="{StaticResource BottomRightRainbowGrad}"/>
+                <!-- 5. Bottom Bevel Facet -->
+                <Path Data="M 472,520 L 48,520 L 82,482 L 438,482 Z" Fill="{StaticResource BottomFacetGrad}"/>
+                <!-- 6. Bottom-Left Chamfer Facet (Rainbow Dispersion) -->
+                <Path Data="M 48,520 L 0,472 L 38,438 L 82,482 Z" Fill="{StaticResource BottomLeftRainbowGrad}"/>
+                <!-- 7. Left Bevel Facet -->
+                <Path Data="M 0,472 L 0,48 L 38,82 L 38,438 Z" Fill="{StaticResource LeftFacetGrad}"/>
+                <!-- 8. Top-Left Chamfer Facet (Rainbow Dispersion) -->
+                <Path Data="M 0,48 L 48,0 L 82,38 L 38,82 Z" Fill="{StaticResource TopLeftRainbowGrad}"/>
 
-                            <!-- Subtle Spectral Dispersion Line across the glass facet -->
-                            <Border CornerRadius="20" Margin="10" BorderBrush="{StaticResource PrismDispersionBrush}" BorderThickness="1" IsHitTestVisible="False"/>
+                <!-- ── SHARP SPECULAR KEYLINE OUTLINES ── -->
+                <!-- Outer Chamfer Edge Outline -->
+                <Path Data="M 48,0 L 472,0 L 520,48 L 520,472 L 472,520 L 48,520 L 0,472 L 0,48 Z"
+                      Stroke="#E6FFFFFF" StrokeThickness="1.5" IsHitTestVisible="False"/>
 
-                            <!-- Center Prism Content Assembly -->
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <!-- Inner Chamfer Face Outline -->
+                <Path Data="M 82,38 L 438,38 L 482,82 L 482,438 L 438,482 L 82,482 L 38,438 L 38,82 Z"
+                      Stroke="#8094A3B8" StrokeThickness="1.2" IsHitTestVisible="False"/>
 
-                                <!-- Geometric Precision Glass Diamond Prism Emblem -->
-                                <Grid Width="88" Height="88" HorizontalAlignment="Center" Margin="0,0,0,16">
-                                    <!-- Beveled Outer Diamond -->
-                                    <Border Width="84" Height="84" CornerRadius="22" Background="#F8FAFC"
-                                            BorderBrush="{StaticResource GlassBevelRimBrush}" BorderThickness="2"
-                                            Effect="{StaticResource PlateShadow}">
-                                        <Grid>
-                                            <!-- Diamond Facet Grid Lines -->
-                                            <Path Stroke="#CBD5E1" StrokeThickness="1"
-                                                  Data="M 42,6 L 78,42 L 42,78 L 6,42 Z"/>
-                                            <Path Stroke="{StaticResource PrismDispersionBrush}" StrokeThickness="1.5"
-                                                  Data="M 22,22 L 62,62 M 62,22 L 22,62"/>
-                                            <!-- Core Monogram -->
-                                            <TextBlock Text="PG" FontWeight="Bold" FontSize="30" FontFamily="{DynamicResource AppFontFamily}"
-                                                       Foreground="{StaticResource DarkSlateBrush}"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                       Margin="0,0,0,2"/>
-                                            <!-- Optical Glass Cut Sparkle -->
-                                            <Ellipse Width="6" Height="6" Fill="#38BDF8" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,12,12,0"/>
-                                        </Grid>
-                                    </Border>
-                                </Grid>
+                <!-- Diagonal Chamfer Corner Ridges -->
+                <Line X1="48" Y1="0" X2="82" Y2="38" Stroke="#CCFFFFFF" StrokeThickness="1.2"/>
+                <Line X1="472" Y1="0" X2="438" Y2="38" Stroke="#99FFFFFF" StrokeThickness="1.2"/>
+                <Line X1="520" Y1="48" X2="482" Y2="82" Stroke="#80CBD5E1" StrokeThickness="1.2"/>
+                <Line X1="520" Y1="472" x2="482" Y2="438" Stroke="#6694A3B8" StrokeThickness="1.2"/>
+                <Line X1="472" Y1="520" X2="438" Y2="482" Stroke="#6694A3B8" StrokeThickness="1.2"/>
+                <Line X1="48" Y1="520" X2="82" Y2="482" Stroke="#80CBD5E1" StrokeThickness="1.2"/>
+                <Line X1="0" Y1="472" X2="38" Y2="438" Stroke="#99CBD5E1" StrokeThickness="1.2"/>
+                <Line X1="0" Y1="48" X2="38" Y2="82" Stroke="#CCFFFFFF" StrokeThickness="1.2"/>
 
-                                <!-- Title: ProGlass Precision Automation -->
-                                <TextBlock FontSize="25" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" FontFamily="{DynamicResource AppFontFamily}">
-                                    <Run Text="ProGlass" Foreground="{StaticResource DarkSlateBrush}"/>
-                                    <Run Text=" Precision Automation" Foreground="#334155" FontWeight="SemiBold"/>
-                                </TextBlock>
+                <!-- ── 3. CENTER CONTENT CONTAINER (LogoBorder + LogoScale Hook) ── -->
+                <Border x:Name="LogoBorder" Width="440" Height="440"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Background="Transparent" Opacity="0">
+                    <Border.RenderTransform>
+                        <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92" CenterX="220" CenterY="220"/>
+                    </Border.RenderTransform>
 
-                                <!-- Architectural Glass Subtitle -->
-                                <TextBlock Text="ARCHITECTURAL FLOAT GLASS &amp; CNC ENGINEERING SUITE"
-                                           FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource MutedSlateBrush}"
-                                           HorizontalAlignment="Center" Margin="0,6,0,0" TextAlignment="Center"/>
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
 
-                                <!-- Crisp Precision 1px Progress Track -->
-                                <Grid x:Name="ProgressTrack" Width="260" Height="20" HorizontalAlignment="Center" Margin="0,22,0,0" Opacity="0">
-                                    <!-- Track Bed -->
-                                    <Border Height="3" CornerRadius="1.5" Background="{StaticResource TrackBaseBrush}" VerticalAlignment="Center"/>
-                                    <!-- Progress Fill (Razor-thin 3px Precision Indeterminate Meter) -->
-                                    <ProgressBar IsIndeterminate="True" Height="3" Width="260"
-                                                 Foreground="{StaticResource ProgressGrad}" Background="Transparent"
-                                                 BorderThickness="0" VerticalAlignment="Center"/>
-                                    <!-- Circular Arc Spinner for compatibility -->
-                                    <Path x:Name="ProgressFill" Stroke="{StaticResource ProgressGrad}" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
-                                          Data="M 10,2 A 8,8 0 1 1 9.9,2" Visibility="Collapsed">
-                                        <Path.RenderTransform><RotateTransform x:Name="ProgressRotate" Angle="0" CenterX="10" CenterY="10"/></Path.RenderTransform>
-                                    </Path>
-                                </Grid>
+                        <!-- ═══ GEOMETRIC 3D FACETED ARCHITECTURAL "P" LOGO ═══ -->
+                        <Grid Width="72" Height="82" HorizontalAlignment="Center" Margin="0,0,0,16">
+                            <!-- Left Stem (Shadow Facet) -->
+                            <Path Data="M 0,16 L 22,0 L 22,82 L 0,82 Z">
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#1E293B" Offset="0"/>
+                                        <GradientStop Color="#0F172A" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
 
-                            </StackPanel>
+                            <!-- Top Diagonal Facet -->
+                            <Path Data="M 22,0 L 52,0 L 72,20 L 42,20 Z">
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#CBD5E1" Offset="0"/>
+                                        <GradientStop Color="#94A3B8" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
+
+                            <!-- Right Vertical Return Facet -->
+                            <Path Data="M 72,20 L 72,50 L 52,68 L 52,38 Z">
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#334155" Offset="0"/>
+                                        <GradientStop Color="#1E293B" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
+
+                            <!-- Bottom Loop Return Facet -->
+                            <Path Data="M 52,68 L 22,68 L 22,46 L 52,38 Z">
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#475569" Offset="0"/>
+                                        <GradientStop Color="#1E293B" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
+
+                            <!-- Inner Refraction Diamond Glint -->
+                            <Path Data="M 22,18 L 40,18 L 40,46 L 22,46 Z" Fill="#E2E8F0" Opacity="0.5"/>
+                            <Line X1="22" Y1="0" X2="22" Y2="82" Stroke="#FFFFFF" StrokeThickness="1" Opacity="0.8"/>
                         </Grid>
-                    </Border>
-                </Grid>
 
-                <!-- Hidden AppNameText for 100% code-behind animation binding safety -->
-                <TextBlock x:Name="AppNameText" FontSize="1" Height="0" Opacity="0" Visibility="Hidden">
-                    <TextBlock.RenderTransform><TranslateTransform x:Name="AppNameTranslate" Y="0"/></TextBlock.RenderTransform>
-                </TextBlock>
+                        <!-- ═══ ELEGANT SERIF TITLE: ProGlass ═══ -->
+                        <TextBlock FontFamily="Georgia, 'Times New Roman', Cambria, serif"
+                                   FontSize="48" FontWeight="Normal"
+                                   Foreground="{StaticResource BrandDarkBrush}"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Margin="0,0,0,4">
+                            <Run Text="Pro" FontWeight="Bold"/><Run Text="Glass"/>
+                        </TextBlock>
 
-            </StackPanel>
+                        <!-- ═══ DIVIDER ROW: PRECISION AUTOMATION ═══ -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
+                            <Rectangle Width="36" Height="1" Fill="{StaticResource KeylineBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <TextBlock Text="PRECISION AUTOMATION"
+                                       FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
+                                       Foreground="{StaticResource BrandDarkBrush}"
+                                       VerticalAlignment="Center"/>
+                            <Rectangle Width="36" Height="1" Fill="{StaticResource KeylineBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+
+                        <!-- ═══ CENTER 4-POINT DIAMOND STAR ═══ -->
+                        <Path Data="M 4,0 L 8,4 L 4,8 L 0,4 Z" Fill="#475569" Width="7" Height="7"
+                              HorizontalAlignment="Center" Margin="0,14,0,12"/>
+
+                        <!-- ═══ SUBTITLE ═══ -->
+                        <TextBlock Text="Enterprise Architectural Glass Suite"
+                                   FontFamily="Segoe UI" FontSize="12.5" FontWeight="SemiBold"
+                                   Foreground="{StaticResource BrandMutedBrush}"
+                                   HorizontalAlignment="Center" Margin="0,0,0,18"/>
+
+                        <!-- ═══ FRAMED RECTANGULAR PROGRESS TRACK ═══ -->
+                        <Grid x:Name="ProgressTrack" Width="260" HorizontalAlignment="Center" Opacity="0">
+                            <StackPanel>
+                                <Border Width="260" Height="8"
+                                        BorderBrush="{StaticResource KeylineBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="1"
+                                        Background="#E2E8F0"
+                                        Padding="1"
+                                        HorizontalAlignment="Center">
+                                    <ProgressBar IsIndeterminate="True"
+                                                 Height="4"
+                                                 Foreground="{StaticResource BrandDarkBrush}"
+                                                 Background="Transparent"
+                                                 BorderThickness="0"/>
+                                </Border>
+
+                                <TextBlock Text="Initializing Precision Modules... 18%"
+                                           FontFamily="Segoe UI" FontSize="11"
+                                           Foreground="{StaticResource BrandMutedBrush}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,8,0,0"/>
+                            </StackPanel>
+
+                            <!-- Circular Arc Spinner for compatibility -->
+                            <Path x:Name="ProgressFill" Stroke="{StaticResource BrandDarkBrush}" StrokeThickness="2"
+                                  Data="M 10,2 A 8,8 0 1 1 9.9,2" Visibility="Collapsed">
+                                <Path.RenderTransform><RotateTransform x:Name="ProgressRotate" Angle="0" CenterX="10" CenterY="10"/></Path.RenderTransform>
+                            </Path>
+                        </Grid>
+
+                        <!-- Hidden AppNameText for 100% code-behind animation binding safety -->
+                        <TextBlock x:Name="AppNameText" FontSize="1" Height="0" Opacity="0" Visibility="Hidden">
+                            <TextBlock.RenderTransform><TranslateTransform x:Name="AppNameTranslate" Y="0"/></TextBlock.RenderTransform>
+                        </TextBlock>
+
+                    </StackPanel>
+                </Border>
+
+            </Grid>
         </Grid>
 
         <!-- ═══ LUXURY FOOTER CAPTIONS ═══ -->
