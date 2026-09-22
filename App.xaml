@@ -252,6 +252,7 @@
             <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
             <FontWeight x:Key="AppFontWeight">Normal</FontWeight>
             <FontStyle x:Key="AppFontStyle">Normal</FontStyle>
+            <x:Null x:Key="AppTextDecorations"/>
 
             <!-- BUILT-IN + CUSTOM CONVERTERS moved to
                  Themes/Styles/ConverterResources.xaml and merged FIRST

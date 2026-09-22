@@ -108,40 +108,54 @@
             <Grid>
                 <DockPanel Margin="12,12,12,12">
 
-                <!-- Brand header: accent card, icon tile, collapse inside. -->
-                    <Border DockPanel.Dock="Top" Margin="4,2,4,8"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource AccentBrush}"
-                        Padding="10,10" Style="{StaticResource SurfacePrimaryStyle}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="38"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Width="38" Height="38"
-                                CornerRadius="{DynamicResource Radius.Medium}"
-                                Background="{DynamicResource SurfaceElevatedBrush}" Style="{StaticResource SurfacePrimaryStyle}">
-                                <TextBlock Text="&#xE713;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H2}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Settings.Title}"
-                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                <TextBlock Text="{DynamicResource Settings.Subtitle}"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-                    <Border DockPanel.Dock="Top" Height="1"
+                <!-- Sidebar header: "Menu" with X close ONLY (no logo) -->
+                <Grid DockPanel.Dock="Top" Margin="10,6,8,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="Menu"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"
+                               Margin="4,0,0,0"/>
+                    <Button Grid.Column="1"
+                            Command="{Binding ToggleSettingsRailCommand}"
+                            ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                            Width="30" Height="30"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Cursor="Hand"
+                            VerticalAlignment="Center">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="CloseBorder"
+                                        Background="Transparent"
+                                        CornerRadius="{DynamicResource Radius.Small}"
+                                        Width="28" Height="28">
+                                    <TextBlock Text="&#xE711;"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="CloseBorder" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
+                <Border DockPanel.Dock="Top" Height="1"
                         Background="{DynamicResource BorderDefaultBrush}"
-                        Margin="14,0,14,8"/>
+                        Margin="6,0,6,8"/>
 
                 <!-- Nav items — grouped, scrollable safety net. -->
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -248,10 +262,6 @@
             ══════════════════════════════════════════════════════════ -->
             <Border Grid.Row="0" Margin="18,14,18,8" Padding="14,12"
                     Style="{StaticResource SettingsPageCardStyle}">
-                <Border.Resources>
-                    <!-- The strip owns its own margin above. -->
-                    <Thickness x:Key="SettingsCardMargin">0</Thickness>
-                </Border.Resources>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

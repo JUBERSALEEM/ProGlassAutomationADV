@@ -355,7 +355,6 @@
                                 <Button Grid.Column="1"
                                         Content="Show all PIs"
                                         Command="{Binding ClearRowSelectionCommand}"
-                                        Style="{StaticResource Sl.Button}"
                                         Padding="12,4"
                                         MinHeight="28"
                                         VerticalAlignment="Center">
@@ -550,8 +549,7 @@
                                                                               Command="{Binding DataContext.OpenFullDetailCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                               CommandParameter="{Binding}"/>
                                                             </ContentControl.InputBindings>
-                                                            <Border Style="{StaticResource Sl.Row}"
-                                                                    Padding="12,8">
+                                                            <Border Padding="12,8">
                                                                 <Border.Style>
                                                                     <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
                                                                         <Style.Triggers>

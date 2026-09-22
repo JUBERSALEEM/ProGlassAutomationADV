@@ -96,11 +96,36 @@ namespace ProGlassAutomation.Services.Fonts
         /// <summary>Currently applied style.</summary>
         public static FontStyle CurrentStyle { get; private set; } = FontStyles.Normal;
 
+        /// <summary>Currently applied underline decoration.</summary>
+        public static bool CurrentUnderline { get; private set; } = false;
+
         // ══════════════════════════════════════════════════════════════
-        //  DISCOVERY
+        //  DISCOVERY & FILTERING
         // ══════════════════════════════════════════════════════════════
 
-        /// <summary>Installed system fonts, sorted by name.</summary>
+        /// <summary>
+        /// Filters out emoji, symbol, wingdings, and icon glyph fonts so the
+        /// user is only presented with genuine typography families.
+        /// </summary>
+        public static bool IsExcludedFont(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return true;
+            var lower = name.ToLowerInvariant();
+            return lower.Contains("emoji")
+                || lower.Contains("symbol")
+                || lower.Contains("wingding")
+                || lower.Contains("webding")
+                || lower.Contains("marlett")
+                || lower.Contains("holomdl2")
+                || lower.Contains("fluent")
+                || lower.Contains("segoe mdl2")
+                || lower.Contains("ms outlook")
+                || lower.Contains("extra")
+                || lower.Contains("dingbats")
+                || lower.Contains("icons");
+        }
+
+        /// <summary>Installed system fonts, sorted by name, excluding icon/emoji fonts.</summary>
         public static IReadOnlyList<FontOption> GetSystemFonts()
         {
             var list = new List<FontOption>();
@@ -110,7 +135,10 @@ namespace ProGlassAutomation.Services.Fonts
                 // (ProGlassAutomation.Services.Fonts) would otherwise shadow
                 // System.Windows.Media.Fonts.
                 foreach (var family in System.Windows.Media.Fonts.SystemFontFamilies)
+                {
+                    if (IsExcludedFont(family.Source)) continue;
                     list.Add(new FontOption { Name = family.Source, Source = "System" });
+                }
             }
             catch (Exception ex)
             {
@@ -134,7 +162,7 @@ namespace ProGlassAutomation.Services.Fonts
                 {
                     if (!IsSupportedFontFile(file)) continue;
                     var name = ReadFamilyName(file);
-                    if (string.IsNullOrWhiteSpace(name)) continue;
+                    if (string.IsNullOrWhiteSpace(name) || IsExcludedFont(name)) continue;
                     list.Add(new FontOption { Name = name, Source = "Imported", FilePath = file });
                 }
             }
@@ -159,6 +187,7 @@ namespace ProGlassAutomation.Services.Fonts
             foreach (var f in GetSystemFonts())
             {
                 if (seen.Contains(f.Name)) continue;
+                if (IsExcludedFont(f.Name)) continue;
                 merged.Add(f);
                 seen.Add(f.Name);
             }
@@ -280,12 +309,12 @@ namespace ProGlassAutomation.Services.Fonts
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Applies a family + weight + style app-wide via the shared
-        /// AppFontFamily / AppFontWeight / AppFontStyle resources.
+        /// Applies a family + weight + style + underline app-wide via the shared
+        /// AppFontFamily / AppFontWeight / AppFontStyle / AppTextDecorations resources.
         /// Persists the choice and raises <see cref="FontChanged"/>.
         /// </summary>
         public static Result ApplyFont(
-            string familyName, FontWeight weight, FontStyle style,
+            string familyName, FontWeight weight, FontStyle style, bool underline,
             bool persist = true, string? correlationId = null)
         {
             var corrId = correlationId ?? CorrelationContext.NewId();
@@ -302,6 +331,7 @@ namespace ProGlassAutomation.Services.Fonts
                 CurrentFamily = name;
                 CurrentWeight = weight;
                 CurrentStyle = style;
+                CurrentUnderline = underline;
 
                 var app = Application.Current;
                 if (app != null)
@@ -309,6 +339,7 @@ namespace ProGlassAutomation.Services.Fonts
                     app.Resources["AppFontFamily"] = new FontFamily(name);
                     app.Resources["AppFontWeight"] = weight;
                     app.Resources["AppFontStyle"] = style;
+                    app.Resources["AppTextDecorations"] = underline ? TextDecorations.Underline : null;
                 }
 
                 if (persist && App.Config?.Appearance != null)
@@ -318,6 +349,7 @@ namespace ProGlassAutomation.Services.Fonts
                         weight == FontWeights.Bold ? "Bold" : "Normal";
                     App.Config.Appearance.FontStyleName =
                         style == FontStyles.Italic ? "Italic" : "Normal";
+                    App.Config.Appearance.FontUnderline = underline;
                     Services.AI.AIConfig.ConfigService.Save(App.Config);
                 }
 
@@ -332,10 +364,18 @@ namespace ProGlassAutomation.Services.Fonts
             }
         }
 
-        /// <summary>Resets to Segoe UI / Normal / Normal and clears persistence.</summary>
+        /// <summary>
+        /// Backward-compatible overload for 3-argument callers.
+        /// </summary>
+        public static Result ApplyFont(
+            string familyName, FontWeight weight, FontStyle style,
+            bool persist = true, string? correlationId = null)
+            => ApplyFont(familyName, weight, style, false, persist, correlationId);
+
+        /// <summary>Resets to Segoe UI / Normal / Normal without underline and clears persistence.</summary>
         public static Result ResetToDefault(string? correlationId = null)
         {
-            return ApplyFont(DefaultFontFamily, FontWeights.Normal, FontStyles.Normal,
+            return ApplyFont(DefaultFontFamily, FontWeights.Normal, FontStyles.Normal, false,
                 persist: true, correlationId: correlationId);
         }
 
@@ -351,8 +391,9 @@ namespace ProGlassAutomation.Services.Fonts
                     ? FontWeights.Bold : FontWeights.Normal;
                 FontStyle style = string.Equals(a.FontStyleName, "Italic", StringComparison.OrdinalIgnoreCase)
                     ? FontStyles.Italic : FontStyles.Normal;
+                bool underline = a.FontUnderline;
 
-                ApplyFont(a.FontFamilyName, weight, style, persist: false);
+                ApplyFont(a.FontFamilyName, weight, style, underline, persist: false);
             }
             catch (Exception ex)
             {

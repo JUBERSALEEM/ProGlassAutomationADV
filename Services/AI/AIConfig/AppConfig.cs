@@ -321,6 +321,11 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string FontStyleName { get; set; } = "Normal";
 
         /// <summary>
+        /// Global UI font text decoration: true for underline.
+        /// </summary>
+        public bool FontUnderline { get; set; } = false;
+
+        /// <summary>
         /// Theme customization (Settings → Themes, 2026-09-06).
         /// Family-aware: only the Crystal Fluid (Ios-17pm) material axes
         /// are persisted here (they map 1:1 onto the Crystal*

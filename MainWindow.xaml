@@ -334,7 +334,6 @@
 
                         <!-- ONE THIN CRESCENT MOON ICON -->
                         <Button x:Name="DarkModeButton"
-                                Style="{StaticResource PgTopIconButtonStyle}"
                                 Margin="0,0,12,0"
                                 ToolTip="{DynamicResource ToolTip.ToggleTheme}"
                                 Command="{Binding ToggleThemeCommand}">

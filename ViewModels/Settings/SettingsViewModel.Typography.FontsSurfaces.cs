@@ -122,7 +122,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (value == null || ReferenceEquals(_selectedFont, value)) return;
                 _selectedFont = value;
                 OnPropertyChanged();
-                ApplyFontSelection();
+                UpdateFontPreview();
             }
         }
 
@@ -135,7 +135,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_selectedFontWeight == value || string.IsNullOrWhiteSpace(value)) return;
                 _selectedFontWeight = value;
                 OnPropertyChanged();
-                ApplyFontSelection();
+                OnPropertyChanged(nameof(IsFontBold));
+                UpdateFontPreview();
             }
         }
 
@@ -148,19 +149,90 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (_selectedFontStyle == value || string.IsNullOrWhiteSpace(value)) return;
                 _selectedFontStyle = value;
                 OnPropertyChanged();
-                ApplyFontSelection();
+                OnPropertyChanged(nameof(IsFontItalic));
+                UpdateFontPreview();
+            }
+        }
+
+        public bool IsFontBold
+        {
+            get => string.Equals(_selectedFontWeight, "Bold", StringComparison.OrdinalIgnoreCase);
+            set
+            {
+                SelectedFontWeight = value ? "Bold" : "Regular";
+            }
+        }
+
+        public bool IsFontItalic
+        {
+            get => string.Equals(_selectedFontStyle, "Italic", StringComparison.OrdinalIgnoreCase);
+            set
+            {
+                SelectedFontStyle = value ? "Italic" : "Normal";
+            }
+        }
+
+        private bool _isFontUnderline;
+        public bool IsFontUnderline
+        {
+            get => _isFontUnderline;
+            set
+            {
+                if (_isFontUnderline == value) return;
+                _isFontUnderline = value;
+                OnPropertyChanged();
+                UpdateFontPreview();
+            }
+        }
+
+        public FontFamily PreviewFontFamily =>
+            new FontFamily(SelectedFont?.Name ?? FontService.DefaultFontFamily);
+
+        public FontWeight PreviewFontWeight =>
+            IsFontBold ? FontWeights.Bold : FontWeights.Normal;
+
+        public FontStyle PreviewFontStyle =>
+            IsFontItalic ? FontStyles.Italic : FontStyles.Normal;
+
+        public TextDecorationCollection? PreviewTextDecorations =>
+            IsFontUnderline ? TextDecorations.Underline : null;
+
+        public string PreviewFontSampleText =>
+            "ProGlass Studio — 3210 × 2250 mm Glass Fabrication & Cutting Engine";
+
+        public bool CanApplyFont
+        {
+            get
+            {
+                if (_selectedFont == null) return false;
+                bool familyDiffers = !string.Equals(FontService.CurrentFamily, _selectedFont.Name, StringComparison.OrdinalIgnoreCase);
+                bool weightDiffers = (FontService.CurrentWeight == FontWeights.Bold) != IsFontBold;
+                bool styleDiffers = (FontService.CurrentStyle == FontStyles.Italic) != IsFontItalic;
+                bool underlineDiffers = FontService.CurrentUnderline != _isFontUnderline;
+                return familyDiffers || weightDiffers || styleDiffers || underlineDiffers;
             }
         }
 
         public ICommand ImportFontCommand { get; private set; } = null!;
         public ICommand ResetFontCommand { get; private set; } = null!;
+        public ICommand ApplyFontCommand { get; private set; } = null!;
 
         public string FontStatus =>
             string.IsNullOrWhiteSpace(FontService.CurrentFamily)
                 ? "Segoe UI (default)"
                 : FontService.CurrentFamily +
                   (FontService.CurrentWeight == FontWeights.Bold ? " · Bold" : "") +
-                  (FontService.CurrentStyle == FontStyles.Italic ? " · Italic" : "");
+                  (FontService.CurrentStyle == FontStyles.Italic ? " · Italic" : "") +
+                  (FontService.CurrentUnderline ? " · Underline" : "");
+
+        private void UpdateFontPreview()
+        {
+            OnPropertyChanged(nameof(PreviewFontFamily));
+            OnPropertyChanged(nameof(PreviewFontWeight));
+            OnPropertyChanged(nameof(PreviewFontStyle));
+            OnPropertyChanged(nameof(PreviewTextDecorations));
+            OnPropertyChanged(nameof(CanApplyFont));
+        }
 
         private void InitializeFontSettings()
         {
@@ -171,6 +243,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ? "Bold" : "Regular";
             _selectedFontStyle = string.Equals(current?.FontStyleName, "Italic", StringComparison.OrdinalIgnoreCase)
                 ? "Italic" : "Normal";
+            _isFontUnderline = current?.FontUnderline ?? false;
 
             string family = current?.FontFamilyName ?? FontService.DefaultFontFamily;
             _selectedFont = FontOptions.FirstOrDefault(f =>
@@ -178,6 +251,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ?? FontOptions.FirstOrDefault(f =>
                     string.Equals(f.Name, FontService.DefaultFontFamily, StringComparison.OrdinalIgnoreCase));
 
+            ApplyFontCommand = new RelayCommand(_ => ApplyFontSelection());
             ImportFontCommand = new RelayCommand(_ => ImportFontDialog());
             ResetFontCommand = new RelayCommand(_ =>
             {
@@ -188,8 +262,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (d != null) { _selectedFont = d; OnPropertyChanged(nameof(SelectedFont)); }
                 _selectedFontWeight = "Regular"; OnPropertyChanged(nameof(SelectedFontWeight));
                 _selectedFontStyle = "Normal"; OnPropertyChanged(nameof(SelectedFontStyle));
+                _isFontUnderline = false; OnPropertyChanged(nameof(IsFontUnderline));
+                UpdateFontPreview();
                 OnPropertyChanged(nameof(FontStatus));
             });
+
+            UpdateFontPreview();
         }
 
         private void ReloadFontOptions()
@@ -199,7 +277,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 FontOptions.Add(f);
         }
 
-        private void ApplyFontSelection()
+        public void ApplyFontSelection()
         {
             if (_selectedFont == null) return;
 
@@ -208,8 +286,14 @@ namespace ProGlassAutomation.ViewModels.Settings
             var style = string.Equals(_selectedFontStyle, "Italic", StringComparison.OrdinalIgnoreCase)
                 ? FontStyles.Italic : FontStyles.Normal;
 
-            FontService.ApplyFont(_selectedFont.Name, weight, style);
+            FontService.ApplyFont(_selectedFont.Name, weight, style, _isFontUnderline);
             OnPropertyChanged(nameof(FontStatus));
+            OnPropertyChanged(nameof(CanApplyFont));
+
+            ProGlassAutomation.Services.Audit.AuditService.Log(
+                ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                "Font applied",
+                $"{_selectedFont.Name} ({weight}, {style}, Underline={_isFontUnderline})");
         }
 
         private void ImportFontDialog()
