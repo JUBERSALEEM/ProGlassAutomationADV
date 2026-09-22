@@ -109,6 +109,78 @@ namespace ProGlassAutomation.Views.Splash
 
             Loaded += SplashView_Loaded;
             Unloaded += SplashView_Unloaded;
+
+            try
+            {
+                var cfg = ConfigService.Current ?? ConfigService.Load();
+                int activeStyle = ProGlassAutomation.Services.Splash.SplashThemeManager.ResolveActiveStyle(cfg);
+                ApplySplashStyle(activeStyle);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[SplashView] Initial style resolve: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Dynamically applies the chosen Corporate Splash architecture theme (Styles 1..10).
+        /// Style 9 is the primary Glass Prism Optical Bevel design.
+        /// </summary>
+        public void ApplySplashStyle(int styleId)
+        {
+            try
+            {
+                var theme = ProGlassAutomation.Services.Splash.SplashThemeManager.GetThemeConfig(styleId);
+                if (theme == null) return;
+
+                var canvasBg = (SolidColorBrush)new BrushConverter().ConvertFromString(theme.CanvasBgHex)!;
+                var plateBg = (SolidColorBrush)new BrushConverter().ConvertFromString(theme.PlateBgHex)!;
+                var titleColor = (SolidColorBrush)new BrushConverter().ConvertFromString(theme.TitleForegroundHex)!;
+                var subtitleColor = (SolidColorBrush)new BrushConverter().ConvertFromString(theme.SubtitleForegroundHex)!;
+                var keylineColor = (SolidColorBrush)new BrushConverter().ConvertFromString(theme.KeylineHex)!;
+                var accentColor = (SolidColorBrush)new BrushConverter().ConvertFromString(theme.AccentHex)!;
+
+                Background = canvasBg;
+                if (MainRootGrid != null) MainRootGrid.Background = canvasBg;
+                if (GlassFacePath != null) GlassFacePath.Fill = plateBg;
+                if (BrandTitleText != null)
+                {
+                    BrandTitleText.Foreground = titleColor;
+                    BrandTitleText.FontFamily = theme.IsSerif
+                        ? new FontFamily("Georgia, 'Times New Roman', Cambria, serif")
+                        : new FontFamily("Segoe UI, -apple-system, sans-serif");
+                }
+                if (DividerLabel != null) DividerLabel.Foreground = titleColor;
+                if (DividerRuleLeft != null) DividerRuleLeft.Fill = keylineColor;
+                if (DividerRuleRight != null) DividerRuleRight.Fill = keylineColor;
+                if (DiamondGlyph != null)
+                {
+                    DiamondGlyph.Fill = subtitleColor;
+                    DiamondGlyph.Visibility = theme.ShowStar ? Visibility.Visible : Visibility.Collapsed;
+                }
+                if (SubtitleLabel != null)
+                {
+                    SubtitleLabel.Text = theme.Subtitle;
+                    SubtitleLabel.Foreground = subtitleColor;
+                }
+                if (ProgressBorder != null)
+                {
+                    ProgressBorder.BorderBrush = keylineColor;
+                }
+                if (ProgressIndicator != null)
+                {
+                    ProgressIndicator.Foreground = accentColor;
+                }
+                if (StatusLabel != null)
+                {
+                    StatusLabel.Text = theme.StatusText;
+                    StatusLabel.Foreground = subtitleColor;
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[SplashView] ApplySplashStyle failed: " + ExceptionMessages.Deep(ex));
+            }
         }
 
         // ══════════════════════════════════════════════════════════════

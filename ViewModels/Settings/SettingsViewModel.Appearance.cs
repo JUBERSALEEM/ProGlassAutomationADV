@@ -257,5 +257,25 @@ namespace ProGlassAutomation.ViewModels.Settings
         public string SelectedSplashStyleDescription =>
             ProGlassAutomation.Services.Splash.SplashThemeManager.AvailableStyles
                 .FirstOrDefault(s => s.Id == SelectedSplashStyle)?.Description ?? "";
+
+        // ══════════════════════════════════════════════════════════════
+        //  REBOOT / RESTART APPLICATION COMMAND
+        // ══════════════════════════════════════════════════════════════
+
+        private ICommand? _restartAppCommand;
+        public ICommand RestartAppCommand => _restartAppCommand ??= new RelayCommand(_ =>
+        {
+            var res = _dialogs.Show(
+                "Restart ProGlass Automation to reload all modules and display the active boot splash screen?\n\nAny unsaved preferences will be saved immediately.",
+                "Restart Application",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (res == System.Windows.MessageBoxResult.Yes)
+            {
+                FlushDebouncedSave();
+                RestartApplication();
+            }
+        });
     }
 }

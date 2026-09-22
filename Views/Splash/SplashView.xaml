@@ -1,7 +1,7 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — "GLASS PRISM OPTICAL BEVEL" (v8 Exact Visualizer)
+     MODULE: Splash Screen — "GLASS PRISM OPTICAL BEVEL" (v9 Master Approved)
      Visual source of truth: docs/splash_09_glass_prism_bevel.png
      
      100% PURE NATIVE WPF XAML REWRITE:
@@ -14,6 +14,7 @@
        • Centered 4-point diamond star glyph.
        • Framed rectangular progress track with dark slate fill.
        • Status text: "Initializing Precision Modules... 18%".
+       • Zero national flags / Zero "MADE IN INDIA" text.
        • 100% API-compliant with SplashView.xaml.cs and App.StartupCore.cs.
 ═══════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
@@ -26,7 +27,7 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        Background="#E8EEF5"
+        Background="#E2E8F0"
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
@@ -39,11 +40,11 @@
         SnapsToDevicePixels="True">
 
     <Window.Resources>
-        <!-- Luxury Architectural Palette -->
-        <SolidColorBrush x:Key="CanvasBgBrush" Color="#E8EEF5"/>
+        <!-- Luxury Architectural Float Glass Palette -->
+        <SolidColorBrush x:Key="CanvasBgBrush" Color="#E2E8F0"/>
         <SolidColorBrush x:Key="GlassFaceBrush" Color="#F4F8FC"/>
-        <SolidColorBrush x:Key="BrandDarkBrush" Color="#1E293B"/>
-        <SolidColorBrush x:Key="BrandMutedBrush" Color="#64748B"/>
+        <SolidColorBrush x:Key="BrandDarkBrush" Color="#0F172A"/>
+        <SolidColorBrush x:Key="BrandMutedBrush" Color="#475569"/>
         <SolidColorBrush x:Key="KeylineBrush" Color="#94A3B8"/>
 
         <!-- Multi-facet 3D Optical Bevel Gradients -->
@@ -103,16 +104,8 @@
 
         <!-- Plate Shadow -->
         <DropShadowEffect x:Key="PlateDropShadow" Color="#0F172A" BlurRadius="45" ShadowDepth="20" Direction="270" Opacity="0.18" RenderingBias="Performance"/>
-        <DropShadowEffect x:Key="GlintGlow" Color="#38BDF8" BlurRadius="16" ShadowDepth="0" Opacity="0.35" RenderingBias="Performance"/>
 
         <!-- Terms Styles -->
-        <Style x:Key="CaptionStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#64748B"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-        </Style>
         <Style x:Key="TermsLead" TargetType="TextBlock">
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -128,7 +121,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid Background="{StaticResource CanvasBgBrush}">
+    <Grid x:Name="MainRootGrid" Background="{StaticResource CanvasBgBrush}">
 
         <!-- ═══ AMBIENT REFRACTION FLARES & CAUSTICS (API-Safe Blobs) ═══ -->
         <Canvas IsHitTestVisible="False">
@@ -138,7 +131,7 @@
                     <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
                         <GradientStop Color="#60FFFFFF" Offset="0"/>
                         <GradientStop Color="#30FDE047" Offset="0.4"/>
-                        <GradientStop Color="#00E8EEF5" Offset="1"/>
+                        <GradientStop Color="#00E2E8F0" Offset="1"/>
                     </RadialGradientBrush>
                 </Ellipse.Fill>
                 <Ellipse.Effect><BlurEffect Radius="30" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
@@ -151,7 +144,7 @@
                     <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
                         <GradientStop Color="#4038BDF8" Offset="0"/>
                         <GradientStop Color="#25F472B6" Offset="0.5"/>
-                        <GradientStop Color="#00E8EEF5" Offset="1"/>
+                        <GradientStop Color="#00E2E8F0" Offset="1"/>
                     </RadialGradientBrush>
                 </Ellipse.Fill>
                 <Ellipse.Effect><BlurEffect Radius="32" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
@@ -163,7 +156,7 @@
                 <Ellipse.Fill>
                     <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
                         <GradientStop Color="#40BAE6FD" Offset="0"/>
-                        <GradientStop Color="#00E8EEF5" Offset="1"/>
+                        <GradientStop Color="#00E2E8F0" Offset="1"/>
                     </RadialGradientBrush>
                 </Ellipse.Fill>
                 <Ellipse.Effect><BlurEffect Radius="26" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
@@ -176,7 +169,7 @@
                     <RadialGradientBrush Center="0.5,0.5" GradientOrigin="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
                         <GradientStop Color="#50FFFFFF" Offset="0"/>
                         <GradientStop Color="#2038BDF8" Offset="0.6"/>
-                        <GradientStop Color="#00E8EEF5" Offset="1"/>
+                        <GradientStop Color="#00E2E8F0" Offset="1"/>
                     </RadialGradientBrush>
                 </Ellipse.Fill>
                 <Ellipse.Effect><BlurEffect Radius="26" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
@@ -228,7 +221,8 @@
 
                 <!-- ── 2. THE MULTI-FACETED 3D OPTICAL BEVELLED GLASS BLOCK (520x520) ── -->
                 <!-- The Core Glass Face (Inside the Chamfers) -->
-                <Path Data="M 82,38 L 438,38 L 482,82 L 482,438 L 438,482 L 82,482 L 38,438 L 38,82 Z"
+                <Path x:Name="GlassFacePath"
+                      Data="M 82,38 L 438,38 L 482,82 L 482,438 L 438,482 L 82,482 L 38,438 L 38,82 Z"
                       Fill="{StaticResource GlassFaceBrush}"/>
 
                 <!-- Subtle Diagonal Caustic Across Face -->
@@ -338,7 +332,8 @@
                         </Grid>
 
                         <!-- ═══ ELEGANT SERIF TITLE: ProGlass ═══ -->
-                        <TextBlock FontFamily="Georgia, 'Times New Roman', Cambria, serif"
+                        <TextBlock x:Name="BrandTitleText"
+                                   FontFamily="Georgia, 'Times New Roman', Cambria, serif"
                                    FontSize="48" FontWeight="Normal"
                                    Foreground="{StaticResource BrandDarkBrush}"
                                    HorizontalAlignment="Center"
@@ -349,20 +344,20 @@
 
                         <!-- ═══ DIVIDER ROW: PRECISION AUTOMATION ═══ -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
-                            <Rectangle Width="36" Height="1" Fill="{StaticResource KeylineBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
-                            <TextBlock Text="PRECISION AUTOMATION"
+                            <Rectangle x:Name="DividerRuleLeft" Width="36" Height="1" Fill="{StaticResource KeylineBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            <TextBlock x:Name="DividerLabel" Text="PRECISION AUTOMATION"
                                        FontFamily="Segoe UI" FontSize="11" FontWeight="SemiBold"
                                        Foreground="{StaticResource BrandDarkBrush}"
                                        VerticalAlignment="Center"/>
-                            <Rectangle Width="36" Height="1" Fill="{StaticResource KeylineBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                            <Rectangle x:Name="DividerRuleRight" Width="36" Height="1" Fill="{StaticResource KeylineBrush}" VerticalAlignment="Center" Margin="12,0,0,0"/>
                         </StackPanel>
 
                         <!-- ═══ CENTER 4-POINT DIAMOND STAR ═══ -->
-                        <Path Data="M 4,0 L 8,4 L 4,8 L 0,4 Z" Fill="#475569" Width="7" Height="7"
+                        <Path x:Name="DiamondGlyph" Data="M 4,0 L 8,4 L 4,8 L 0,4 Z" Fill="#475569" Width="7" Height="7"
                               HorizontalAlignment="Center" Margin="0,14,0,12"/>
 
                         <!-- ═══ SUBTITLE ═══ -->
-                        <TextBlock Text="Enterprise Architectural Glass Suite"
+                        <TextBlock x:Name="SubtitleLabel" Text="Splash 09: Glass Prism Optical Bevel"
                                    FontFamily="Segoe UI" FontSize="12.5" FontWeight="SemiBold"
                                    Foreground="{StaticResource BrandMutedBrush}"
                                    HorizontalAlignment="Center" Margin="0,0,0,18"/>
@@ -370,21 +365,21 @@
                         <!-- ═══ FRAMED RECTANGULAR PROGRESS TRACK ═══ -->
                         <Grid x:Name="ProgressTrack" Width="260" HorizontalAlignment="Center" Opacity="0">
                             <StackPanel>
-                                <Border Width="260" Height="8"
+                                <Border x:Name="ProgressBorder" Width="260" Height="8"
                                         BorderBrush="{StaticResource KeylineBrush}"
                                         BorderThickness="1"
                                         CornerRadius="1"
                                         Background="#E2E8F0"
                                         Padding="1"
                                         HorizontalAlignment="Center">
-                                    <ProgressBar IsIndeterminate="True"
+                                    <ProgressBar x:Name="ProgressIndicator" IsIndeterminate="True"
                                                  Height="4"
                                                  Foreground="{StaticResource BrandDarkBrush}"
                                                  Background="Transparent"
                                                  BorderThickness="0"/>
                                 </Border>
 
-                                <TextBlock Text="Initializing Precision Modules... 18%"
+                                <TextBlock x:Name="StatusLabel" Text="Initializing Precision Modules... 18%"
                                            FontFamily="Segoe UI" FontSize="11"
                                            Foreground="{StaticResource BrandMutedBrush}"
                                            HorizontalAlignment="Center"
@@ -409,23 +404,11 @@
             </Grid>
         </Grid>
 
-        <!-- ═══ LUXURY FOOTER CAPTIONS ═══ -->
-        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,40,32" IsHitTestVisible="False">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <!-- Tricolor Accent Bar -->
-                <Border Width="3" Height="14" CornerRadius="1" Margin="0,0,8,0" VerticalAlignment="Center">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#FF9933" Offset="0.0"/>
-                            <GradientStop Color="#FFFFFF" Offset="0.5"/>
-                            <GradientStop Color="#138808" Offset="1.0"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
-                </Border>
-                <TextBlock x:Name="CaptionMadeIn" Text="MADE IN INDIA" Style="{StaticResource CaptionStyle}" Opacity="0"/>
-            </StackPanel>
-            <TextBlock x:Name="CaptionEnterprise" Opacity="0" Visibility="Collapsed" Text="ENTERPRISE"/>
-            <TextBlock x:Name="CaptionSecure" Opacity="0" Visibility="Collapsed" Text="OFFLINE · SECURE"/>
+        <!-- ═══ CODE-BEHIND COMPATIBILITY HOOKS (Null-safe, Zero Visual Clutter) ═══ -->
+        <StackPanel Visibility="Collapsed" Opacity="0" IsHitTestVisible="False">
+            <TextBlock x:Name="CaptionMadeIn" Visibility="Collapsed" Opacity="0"/>
+            <TextBlock x:Name="CaptionEnterprise" Visibility="Collapsed" Opacity="0"/>
+            <TextBlock x:Name="CaptionSecure" Visibility="Collapsed" Opacity="0"/>
         </StackPanel>
 
         <!-- ═══ AUTHENTICATION & TERMS GATES ═══ -->

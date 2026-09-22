@@ -740,6 +740,15 @@ namespace ProGlassAutomation
 
             // 12) Splash screen — this one window owns terms AND login.
             var splash = new SplashView();
+            try
+            {
+                int activeSplashStyle = ProGlassAutomation.Services.Splash.SplashThemeManager.ResolveActiveStyle(Config);
+                splash.ApplySplashStyle(activeSplashStyle);
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[Startup] Splash style activation: " + ex.Message);
+            }
             splash.Show();
 
             // 13) Loading delay for splash animations

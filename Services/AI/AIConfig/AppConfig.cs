@@ -187,10 +187,10 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// 6 = "Cyber Industrial Monolith"
         /// 7 = "Nordic Frosted Slate"
         /// 8 = "Dynamic Aurora Gradient"
-        /// 9 = "High-Density Operations"
-        /// 10 = "Glass Mural Chassis"
+        /// 9 = "Glass Prism Optical Bevel" (Default Approved)
+        /// 10 = "Minimalist Indigo Monogram"
         /// </summary>
-        public int SplashStyle { get; set; } = 0;
+        public int SplashStyle { get; set; } = 9;
 
         /// <summary>
         /// Track the last boot splash index to cycle automatically.
