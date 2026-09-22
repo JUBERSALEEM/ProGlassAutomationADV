@@ -3,7 +3,7 @@
 Static verification for the ProGlassAutomation dashboard grammar work.
 
 There is no .NET SDK in this sandbox, so nothing here can compile. These
-checks are what stand in for a build, and they are the checks that caught
+checks supplement, but do not replace, a native build. They caught
 real regressions on the previous change:
 
   1. XAML well-formedness for every .xaml in the repo.
@@ -188,7 +188,15 @@ def main():
         for k in re.findall(r'\{DynamicResource ([A-Za-z0-9\.]+)\}', s):
             if k not in keys: miss_dyn.append((name, k))
         surface = vm_props(os.path.join(ROOT, vm)) | BASE_PROPS | NESTED_OK
-        for b in re.findall(r'\{Binding (?:Path=)?([A-Za-z][A-Za-z0-9_\.]*)', s):
+        for match in re.finditer(r'\{Binding (?:Path=)?([A-Za-z][A-Za-z0-9_\.]*)([^"\n]*)', s):
+            b, options = match.groups()
+            # View-owned layout DPs are not VM properties. Validate against the
+            # actual code-behind, and only for an explicit ancestor binding.
+            if "RelativeSource" in options and "AncestorType" in options:
+                owner = re.search(r'x:Class="([^"]+)"', s)
+                if owner and owner.group(1).split(".")[-1] in options:
+                    if b in vm_props(p + ".cs"):
+                        continue
             parts = [p for p in b.split(".") if p != "DataContext"]
             if not parts: continue
             if parts[0] not in surface: miss_bind.append((name, b))
@@ -199,7 +207,7 @@ def main():
     for n, k in miss_dyn: print(f"    {n}: {k}")
     print(f"[5] Binding heads not on VM surface: {len(miss_bind)}")
     for n, b in miss_bind: print(f"    {n}: {b}")
-    if miss_static: rc = 1
+    if miss_static or miss_dyn or miss_bind: rc = 1
 
     # style-kit usage discipline
     print("[6] grammar discipline (dashboard pages):")

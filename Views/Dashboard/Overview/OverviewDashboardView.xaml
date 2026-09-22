@@ -1,437 +1,258 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Dashboard/Overview/OverviewDashboardView.xaml
-     PROJECT: ProGlassAutomation
-     SYSTEM: MERIDIAN — Phase 3 full rewrite (2026-09-18)
-
-     Every binding, command, chart control property, i18n key and the
-     four-state contract (loading / error / empty / data) is preserved
-     from the LAYOUT-03 version; the chrome is the new Meridian design
-     language (Pg* keys — see Themes/Professional/ProfessionalCore.xaml).
-═══════════════════════════════════════════════════════════════════════ -->
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
-             TextOptions.TextHintingMode="Fixed"
+<UserControl x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:ProGlassAutomation.Views.Dashboard.Overview"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
-             xmlns:donut="clr-namespace:ProGlassAutomation.Controls.DonutChart"
              xmlns:mini="clr-namespace:ProGlassAutomation.Controls.MiniBarChart"
-             FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Display"
-             TextOptions.TextRenderingMode="ClearType"
-             UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
-
-    <Grid Background="Transparent">
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      CanContentScroll="False"
-                      PanningMode="VerticalOnly"
-                      Focusable="False"
-                      FocusVisualStyle="{x:Null}"
-                      Background="Transparent"
-                      behaviors:SmoothScrollBehavior.IsEnabled="True">
-
-            <Grid Margin="{DynamicResource PgPageMargin}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>  <!-- hero -->
-                    <RowDefinition Height="Auto"/>  <!-- state band / skeleton -->
-                    <RowDefinition Height="Auto"/>  <!-- pipeline -->
-                    <RowDefinition Height="Auto"/>  <!-- pulse | mix | stats -->
-                    <RowDefinition Height="*" MinHeight="280"/>  <!-- trend + feed -->
-                    <RowDefinition Height="Auto"/>  <!-- KPI bands -->
-                </Grid.RowDefinitions>
-
-                <!-- ══ HERO ══════════════════════════════════════════ -->
-                <Grid Grid.Row="0" Margin="0,0,0,18">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}"
-                                   Style="{StaticResource PgHeroTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Dashboard.OperationalAnalyticsInvoicesJobsDelivery}"
-                                   Style="{StaticResource PgHeroSubStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                VerticalAlignment="Center">
-                        <Border Style="{StaticResource PgLiveChipStyle}" Margin="0,0,10,0">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Grid Width="12" Height="12" Margin="0,0,8,0">
-                                    <Ellipse Fill="{DynamicResource PgOkBrush}" Opacity="0.4">
-                                        <Ellipse.RenderTransform>
-                                            <ScaleTransform x:Name="LivePulseScale"
-                                                            ScaleX="1" ScaleY="1"
-                                                            CenterX="6" CenterY="6"/>
-                                        </Ellipse.RenderTransform>
-                                        <Ellipse.Triggers>
-                                            <EventTrigger RoutedEvent="Loaded">
-                                                <BeginStoryboard>
-                                                    <Storyboard RepeatBehavior="Forever">
-                                                        <DoubleAnimation Storyboard.TargetName="LivePulseScale"
-                                                                         Storyboard.TargetProperty="ScaleX"
-                                                                         From="1" To="2.2" Duration="0:0:2"/>
-                                                        <DoubleAnimation Storyboard.TargetName="LivePulseScale"
-                                                                         Storyboard.TargetProperty="ScaleY"
-                                                                         From="1" To="2.2" Duration="0:0:2"/>
-                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                         From="0.5" To="0" Duration="0:0:2"/>
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </EventTrigger>
-                                        </Ellipse.Triggers>
-                                    </Ellipse>
-                                    <Ellipse Width="7" Height="7"
-                                             Fill="{DynamicResource PgOkBrush}"
-                                             HorizontalAlignment="Center"
-                                             VerticalAlignment="Center"/>
-                                </Grid>
-                                <TextBlock Text="{DynamicResource Common.Live}"
-                                           Style="{StaticResource PgLiveTextStyle}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                        <TextBlock Text="{Binding LastRefreshed}"
-                                   Style="{StaticResource PgMetaStyle}"
-                                   Margin="0,0,14,0"/>
-                        <Button Content="{DynamicResource Dashboard.NewInvoice}" Tag="&#xE710;"
-                                Style="{StaticResource PgBtnPrimaryStyle}"
-                                Command="{Binding NewInvoiceCommand}"
-                                ToolTip="{DynamicResource Dashboard.CreateNewTaxInvoice}"/>
-                        <Button Content="{DynamicResource Dashboard.Jobs}" Tag="&#xE9F9;"
-                                Style="{StaticResource PgBtnGhostStyle}"
-                                Command="{Binding ViewJobsCommand}"
-                                ToolTip="{DynamicResource Dashboard.ViewJobOrders}"/>
-                        <Button Content="{DynamicResource Dashboard.Deliveries}" Tag="&#xE806;"
-                                Style="{StaticResource PgBtnGhostStyle}" Margin="0"
-                                Command="{Binding ViewDeliveriesCommand}"
-                                ToolTip="{DynamicResource Dashboard.ViewDeliveryNotes}"/>
-                    </StackPanel>
-                </Grid>
-
-                <!-- ══ STATE BANDS ═══════════════════════════════════ -->
-                <Border Grid.Row="1" Style="{StaticResource PgStateBandStyle}"
-                        Background="{DynamicResource PgAccentSoftBrush}"
-                        Visibility="{Binding IsLoading,
-                            Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource PgSkeletonCircleStyle}" Width="20" Height="20" Margin="0,0,12,0"/>
-                        <StackPanel Grid.Column="1">
-                            <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="12" Width="180" HorizontalAlignment="Left"/>
-                            <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="8" Width="260" Margin="0,6,0,0" HorizontalAlignment="Left" Opacity="0.5"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-                <Border Grid.Row="1" Style="{StaticResource PgStateBandStyle}"
-                        Background="{DynamicResource PgDangerSoftBrush}"
-                        Visibility="{Binding HasError,
-                            Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="{Binding ErrorMessage}"
-                               Style="{StaticResource PgErrorTextStyle}"/>
-                </Border>
-
-                <!-- ══ SKELETON (visible while loading) ══════════════ -->
-                <StackPanel Grid.Row="2" Grid.RowSpan="4"
-                            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Border Style="{StaticResource PgSkeletonBandStyle}">
-                        <StackPanel>
-                            <Border Style="{StaticResource PgSkeletonBlockStyle}" Height="14" Width="160" HorizontalAlignment="Left" Margin="0,0,0,12"/>
-                            <ItemsControl Style="{StaticResource PgPipelineSkeletonItemsStyle}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <!-- mirrors the data pipeline: even 5-cell row -->
-                                        <UniformGrid Columns="5"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ContentControl ContentTemplate="{StaticResource PgSkeletonPipelineStageTemplate}"/>
-                                <ContentControl ContentTemplate="{StaticResource PgSkeletonPipelineStageTemplate}"/>
-                                <ContentControl ContentTemplate="{StaticResource PgSkeletonPipelineStageTemplate}"/>
-                                <ContentControl ContentTemplate="{StaticResource PgSkeletonPipelineStageTemplate}"/>
-                                <ContentControl ContentTemplate="{StaticResource PgSkeletonPipelineStageTemplate}"/>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-                    <Grid Margin="0,0,0,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="1.2*"/>
-                            <ColumnDefinition Width="0.9*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="14" Width="100" HorizontalAlignment="Left" Margin="0,0,0,12"/><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="28" Width="120" HorizontalAlignment="Left" Margin="0,0,0,8"/><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="160" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel></Border>
-                        <Border Grid.Column="1" Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="14" Width="100" HorizontalAlignment="Left" Margin="0,0,0,12"/><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="28" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="120" HorizontalAlignment="Left" Opacity="0.5"/></StackPanel></Border>
-                        <StackPanel Grid.Column="2">
-                            <Border Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0" Padding="16,12"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="60" HorizontalAlignment="Left"/><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="18" Width="48" Margin="0,8,0,0" HorizontalAlignment="Left"/></StackPanel></Border>
-                            <Border Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0" Padding="16,12"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="60" HorizontalAlignment="Left"/><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="18" Width="48" Margin="0,8,0,0" HorizontalAlignment="Left"/></StackPanel></Border>
-                            <Border Style="{StaticResource PgSkeletonCardStyle}" Padding="16,12"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="10" Width="60" HorizontalAlignment="Left"/><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="18" Width="48" Margin="0,8,0,0" HorizontalAlignment="Left"/></StackPanel></Border>
-                        </StackPanel>
-                    </Grid>
-                    <Grid Margin="0,0,0,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.8*"/>
-                            <ColumnDefinition Width="1.2*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0"><ContentControl ContentTemplate="{StaticResource PgSkeletonChartTemplate}"/></Border>
-                        <Border Grid.Column="1" Style="{StaticResource PgSkeletonCardStyle}"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="14" Width="120" HorizontalAlignment="Left" Margin="0,0,0,12"/><ContentControl ContentTemplate="{StaticResource PgSkeletonFeedRowTemplate}"/><ContentControl ContentTemplate="{StaticResource PgSkeletonFeedRowTemplate}"/></StackPanel></Border>
-                    </Grid>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Style="{StaticResource PgSkeletonCardStyle}" Margin="0,0,16,0"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="12" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><ItemsControl Style="{StaticResource PgSkeletonKpiBandStyle}" ItemsPanel="{StaticResource PgSkeletonKpiBandPanel}"><ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/><ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/></ItemsControl></StackPanel></Border>
-                        <Border Grid.Column="1" Style="{StaticResource PgSkeletonCardStyle}"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="12" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><ItemsControl Style="{StaticResource PgSkeletonKpiBandStyle}" ItemsPanel="{StaticResource PgSkeletonKpiBandPanel}"><ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/><ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/></ItemsControl></StackPanel></Border>
-                        <Border Grid.Column="2" Style="{StaticResource PgSkeletonCardStyle}" Margin="16,0,0,0"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="12" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><ItemsControl Style="{StaticResource PgSkeletonKpiBandStyle}" ItemsPanel="{StaticResource PgSkeletonKpiBandPanel}"><ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/><ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/></ItemsControl></StackPanel></Border>
-                        <Border Grid.Column="3" Style="{StaticResource PgSkeletonCardStyle}" Margin="16,0,0,0"><StackPanel><Border Style="{StaticResource PgSkeletonBlockStyle}" Height="12" Width="80" HorizontalAlignment="Left" Margin="0,0,0,8"/><ItemsControl Style="{StaticResource PgSkeletonKpiBandStyle}" ItemsPanel="{StaticResource PgSkeletonKpiBandPanel}"><ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/><ContentControl ContentTemplate="{StaticResource PgSkeletonKpiTileTemplate}"/></ItemsControl></StackPanel></Border>
-                    </Grid>
+             FontFamily="Segoe UI" Foreground="{DynamicResource Ov.Ink}"
+             Background="{DynamicResource Ov.Canvas}" UseLayoutRounding="True"
+             SnapsToDevicePixels="True" TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType" SizeChanged="OnOverviewSizeChanged" Loaded="OnOverviewLoaded">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False" PanningMode="VerticalOnly" Focusable="False"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+        <StackPanel Margin="28,26,28,30">
+            <!-- Header: actual commands/data, never the illustration's sample figures. -->
+            <Grid x:Name="HeroHeader" Margin="0,0,0,24">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <StackPanel x:Name="HeroIdentity">
+                    <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}" Style="{StaticResource Ov.Title}"/>
+                    <TextBlock Text="{DynamicResource Dashboard.OperationalAnalyticsInvoicesJobsDelivery}"
+                               Style="{StaticResource Ov.Meta}" Margin="0,7,16,0"/>
                 </StackPanel>
-
-                <!-- ══ ORDER-TO-CASH PIPELINE ════════════════════════ -->
-                <Border Grid.Row="2" Style="{StaticResource PgCardStyle}" Margin="0,0,0,16"
-                        Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                    <DockPanel>
-                        <TextBlock DockPanel.Dock="Top"
-                                   Text="{DynamicResource Dashboard.PipelineVolumeConfirmation}"
-                                   Style="{StaticResource PgCardTitleStyle}"
-                                   Margin="0,0,0,12"/>
-                        <ItemsControl ItemsSource="{Binding WorkflowStages}"
-                                      ItemTemplate="{StaticResource PgPipelineStageTemplate}">
-                            <!-- 2026-09-19 overlap fix: WrapPanel measures
-                                 children at INFINITE width, so the stage
-                                 TextTrimming (name/value, GB-B7) could never
-                                 engage and each card took its natural width
-                                 — layout then depended on data length and
-                                 spilled/wrapped unpredictably. UniformGrid
-                                 gives every stage a FINITE equal cell, so
-                                 all existing trims actually work and the
-                                 5-stage flow (design: Quote→Payment) always
-                                 reads as one even row. -->
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Columns="5"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemContainerStyle>
-                                <Style TargetType="ContentPresenter">
-                                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                                    <Setter Property="Margin" Value="0,0,4,0"/>
+                <StackPanel x:Name="HeroActions" Grid.Column="1" VerticalAlignment="Center">
+                    <WrapPanel HorizontalAlignment="Right" Margin="0,0,0,12">
+                        <Border x:Name="SnapshotBadge" Background="{DynamicResource Ov.Soft}" CornerRadius="6" Padding="8,3" Margin="0,0,10,0">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLoading}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                                        <DataTrigger Binding="{Binding HasError}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                                    </Style.Triggers>
                                 </Style>
-                            </ItemsControl.ItemContainerStyle>
-                        </ItemsControl>
-                    </DockPanel>
+                            </Border.Style>
+                            <TextBlock Text="Snapshot" Style="{StaticResource Ov.Meta}"/>
+                        </Border>
+                        <TextBlock Text="{Binding LastRefreshed}" Style="{StaticResource Ov.Meta}" VerticalAlignment="Center"/>
+                    </WrapPanel>
+                    <WrapPanel>
+                        <!-- Existing NewInvoiceCommand opens PROFORMA, not TaxInvoice. -->
+                        <Button Content="+ New proforma" Command="{Binding NewInvoiceCommand}"
+                                Style="{StaticResource Ov.PrimaryButton}" Margin="0,0,8,4"
+                                ToolTip="Create a new proforma invoice"/>
+                        <Button Content="{DynamicResource Dashboard.Jobs}" Command="{Binding ViewJobsCommand}"
+                                Style="{StaticResource Ov.Button}" Margin="0,0,8,4"/>
+                        <Button Content="{DynamicResource Dashboard.Deliveries}" Command="{Binding ViewDeliveriesCommand}"
+                                Style="{StaticResource Ov.Button}" Margin="0,0,0,4"/>
+                    </WrapPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- Explicit failure: never paint a failed load as a healthy zero dashboard. -->
+            <Border Style="{StaticResource Ov.Card}" Background="{DynamicResource Ov.DangerSoft}" Margin="0,0,0,18"
+                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
+                    AutomationProperties.LiveSetting="Assertive">
+                <StackPanel>
+                    <TextBlock Text="{Binding ErrorMessage}" Style="{StaticResource Ov.Text}" Foreground="{DynamicResource Ov.Danger}"/>
+                    <TextBlock Text="Switch to another dashboard tab and return to Overview to retry."
+                               Style="{StaticResource Ov.Meta}" Margin="0,8,0,0"/>
+                </StackPanel>
+            </Border>
+            <!-- Static skeleton deliberately avoids an endless animation/reduced-motion conflict. -->
+            <StackPanel Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                        AutomationProperties.LiveSetting="Polite" AutomationProperties.Name="Loading overview">
+                <Border Style="{StaticResource Ov.Card}" Margin="0,0,0,18">
+                    <StackPanel>
+                        <TextBlock Text="Loading overview…" Style="{StaticResource Ov.CardTitle}" Margin="0,0,0,22"/>
+                        <Border Style="{StaticResource Ov.Skeleton}" Width="180" HorizontalAlignment="Left"/>
+                        <Border Style="{StaticResource Ov.Skeleton}" Height="44" MaxWidth="430" HorizontalAlignment="Stretch"/>
+                        <Border Style="{StaticResource Ov.Skeleton}" Height="100"/>
+                    </StackPanel>
                 </Border>
+                <Border Style="{StaticResource Ov.Card}" Margin="0,0,0,18">
+                    <StackPanel><Border Style="{StaticResource Ov.Skeleton}" Width="210" HorizontalAlignment="Left"/>
+                        <Border Style="{StaticResource Ov.Skeleton}" Height="230"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
 
-                <!-- ══ PULSE | MIX | STATS ═══════════════════════════ -->
-                <Grid Grid.Row="3" Margin="0,0,0,16"
-                      Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="1.2*"/>
-                        <ColumnDefinition Width="0.9*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
+            <StackPanel>
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLoading}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                            <DataTrigger Binding="{Binding HasError}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <!-- 1. Purple financial bento + four independent delivery counters. -->
+                <Grid x:Name="PrimaryGrid" Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <Border x:Name="PulseCard" Style="{StaticResource Ov.Card}" Background="{DynamicResource Ov.Hero}" BorderThickness="0" MinHeight="218">
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="130"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}"
-                                           Style="{StaticResource PgCardTitleStyle}"/>
-                                <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
-                                         StretchDirection="DownOnly" Margin="0,10,12,4">
-                                    <TextBlock Text="{Binding PulseDisplay}"
-                                               FontSize="26" FontWeight="Bold"
-                                               Foreground="{DynamicResource PgText1Brush}"/>
-                                </Viewbox>
-                                <TextBlock Text="{Binding PulseHint}"
-                                           Style="{StaticResource PgKpiFootStyle}"/>
-                            </StackPanel>
-                            <mini:MiniBarChartControl Grid.Column="1"
-                                                      Height="72"
-                                                      VerticalAlignment="Bottom"
-                                                      Margin="0,24,0,0"
-                                                      Values="{Binding PulseSpark}"
-                                                      BarBrush="{DynamicResource PgAccentBrush}"
-                                                      HighlightBrush="{DynamicResource PgAccentHoverBrush}"/>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <TextBlock Text="Total proforma value" Style="{StaticResource Ov.CardTitle}" Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+                            <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,18,0,14">
+                                <TextBlock Text="{Binding PulseDisplay}" Style="{StaticResource Ov.Value}" FontSize="38" Foreground="{DynamicResource Ov.OnAccent}"/>
+                            </Viewbox>
+                            <TextBlock Grid.Row="2" Text="{Binding PulseHint}" Style="{StaticResource Ov.Text}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource Ov.OnAccent}"/>
+                            <Grid Grid.Row="3" Margin="0,14,0,0">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
+                                <TextBlock Text="Proforma values · VAT included" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource Ov.OnAccentMuted}" VerticalAlignment="Bottom" Margin="0,0,10,0"/>
+                                <mini:MiniBarChartControl Grid.Column="1" Height="46" Values="{Binding PulseSpark}"
+                                                          BarBrush="{DynamicResource Ov.OnAccentMuted}" HighlightBrush="{DynamicResource Ov.OnAccent}"
+                                                          AutomationProperties.Name="Six-month proforma sparkline"/>
+                            </Grid>
                         </Grid>
                     </Border>
-
-                    <Border Grid.Column="1" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
+                    <Border x:Name="DeliveryCard" Grid.Column="1" Style="{StaticResource Ov.Card}" Margin="18,0,0,0">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Dashboard.DeliveryMix}"
-                                       Style="{StaticResource PgCardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Dashboard.NotesRemainingPcs}"
-                                       Style="{StaticResource PgCardSubStyle}"
-                                       Margin="0,2,0,10"/>
-                            <donut:DonutChartControl Height="150"
-                                                     Slices="{Binding DeliveryMixSlices}"
-                                                     HoleLabel="MIX"
-                                                     EmptyMessage="No delivery movement yet."
-                                                     Thickness="16"/>
+                            <TextBlock Text="Delivery snapshot" Style="{StaticResource Ov.CardTitle}"/>
+                            <TextBlock Text="Notes and pieces are separate units" Style="{StaticResource Ov.Meta}" Margin="0,5,0,14"/>
+                            <ItemsControl ItemsSource="{Binding DeliveryMixSlices}" ItemTemplate="{StaticResource Ov.DeliveryTemplate}" Margin="-5,0,-5,0">
+                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="{Binding DeliveryColumns, RelativeSource={RelativeSource AncestorType={x:Type local:OverviewDashboardView}}}"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                            <TextBlock Text="No delivery movement yet." Margin="0,10,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource Ov.Meta}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DeliveryMixSlices, Converter={StaticResource Ov.EmptyDelivery}}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </Border>
-
-                    <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource PgCardStyle}" Margin="0,0,16,0" Padding="16,12">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource Dashboard.Production}"
-                                           Style="{StaticResource PgStatLabelStyle}"/>
-                                <TextBlock Text="{Binding InProductionDisplay}"
-                                           Style="{StaticResource PgStatValueStyle}"
-                                           Foreground="{DynamicResource PgAccentBrush}"/>
-                            </StackPanel>
-                        </Border>
-                        <Border Style="{StaticResource PgCardStyle}" Margin="0,0,16,0" Padding="16,12">
-                            <Grid>
-                                <Border Style="{StaticResource PgAlertBarStyle}"
-                                        Background="{DynamicResource PgDangerBrush}"
-                                        Visibility="{Binding HasOverdueJobs,
-                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                <StackPanel Margin="10,0,0,0">
-                                    <TextBlock Text="{DynamicResource Common.Overdue}"
-                                               Style="{StaticResource PgStatLabelStyle}"/>
-                                    <TextBlock Text="{Binding OverdueDisplay}">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock" BasedOn="{StaticResource PgStatValueStyle}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasOverdueJobs}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource PgDangerBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                        <Border Style="{StaticResource PgCardStyle}" Padding="16,12">
-                            <StackPanel>
-                                <TextBlock Text="{DynamicResource Dashboard.PendingPCS}"
-                                           Style="{StaticResource PgStatLabelStyle}"/>
-                                <TextBlock Text="{Binding PendingPcsDisplay}"
-                                           Style="{StaticResource PgStatValueStyle}"
-                                           Foreground="{DynamicResource PgWarnBrush}"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
                 </Grid>
+                <!-- 2–3. Stats above the area chart; the document feed spans both on the right. -->
+                <Grid x:Name="AnalyticsGrid" Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="1.45*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <!-- 2. Three operational stats, not extra invented KPIs. -->
+                    <UniformGrid x:Name="StatsBand" Grid.Row="0" Columns="{Binding StatColumns, RelativeSource={RelativeSource AncestorType={x:Type local:OverviewDashboardView}}}" Margin="-7,0,-7,11">
+                        <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,7">
+                            <StackPanel><TextBlock Text="{DynamicResource Dashboard.Production}" Style="{StaticResource Ov.Meta}"/>
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,12,0,0">
+                                    <TextBlock Text="{Binding InProductionDisplay}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource Ov.Accent}"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,7">
+                            <StackPanel><TextBlock Text="{DynamicResource Common.Overdue}" Style="{StaticResource Ov.Meta}"/>
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,12,0,0">
+                                <TextBlock Text="{Binding OverdueDisplay}">
+                                    <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource Ov.Value}">
+                                        <Style.Triggers><DataTrigger Binding="{Binding HasOverdueJobs}" Value="True"><Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/></DataTrigger></Style.Triggers>
+                                    </Style></TextBlock.Style>
+                                </TextBlock>
+                                </Viewbox>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,7">
+                            <StackPanel><TextBlock Text="{DynamicResource Dashboard.PendingPCS}" Style="{StaticResource Ov.Meta}"/>
+                                <Viewbox Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Left" Margin="0,12,0,0">
+                                    <TextBlock Text="{Binding PendingPcsDisplay}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource Ov.Warning}"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
 
-                <!-- ══ TREND + RECENT DOCUMENTS ══════════════════════ -->
-                <Grid Grid.Row="4" Margin="0,0,0,16"
-                      Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.8*"/>
-                        <ColumnDefinition Width="1.2*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
-                        <DockPanel>
-                            <!-- GB-B7: 2-column header — title (*) + meta (Auto)
-                                 in separate cells; the old single-cell pair
-                                 overlapped when the date range was long. -->
-                            <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{DynamicResource Dashboard.RevenueTrend}"
-                                           Style="{StaticResource PgCardTitleStyle}"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1" Text="{Binding ChartTitle}"
-                                           Style="{StaticResource PgMetaStyle}"
-                                           Margin="12,0,0,0"/>
-                            </Grid>
-                            <Border Style="{StaticResource PgChartWellStyle}">
-                                <trend:TrendChartControl
-                                    Points="{Binding MonthlySalesBars}"
-                                    SeriesKind="Bar"
-                                    ValuePrefix="AED "
-                                    EmptyMessage="No revenue recorded yet."
-                                    SeriesBrush="{DynamicResource PgAccentBrush}"
-                                    SeriesEndBrush="{DynamicResource PgAccentHoverBrush}"
-                                    GridBrush="{DynamicResource PgHairlineBrush}"
-                                    LabelBrush="{DynamicResource PgText3Brush}"/>
-                            </Border>
-                        </DockPanel>
+                    <Border x:Name="TrendCard" Grid.Row="1" Style="{StaticResource Ov.Card}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <TextBlock Text="Proforma value trend" Style="{StaticResource Ov.CardTitle}"/>
+                            <TextBlock Grid.Row="1" Text="{Binding ChartTitle}" Style="{StaticResource Ov.Meta}" Margin="0,6,0,18"/>
+                            <trend:TrendChartControl Grid.Row="2" Height="260" Points="{Binding MonthlySalesBars}" SeriesKind="Area"
+                                                     ValuePrefix="AED " EmptyMessage="No proforma value recorded yet."
+                                                     SeriesBrush="{DynamicResource Ov.Accent}" SeriesEndBrush="{DynamicResource Ov.AreaEnd}"
+                                                     GridBrush="{DynamicResource Ov.Line}" LabelBrush="{DynamicResource Ov.Muted}"
+                                                     AutomationProperties.Name="Monthly proforma value, in AED"/>
+                        </Grid>
                     </Border>
-
-                    <Border Grid.Column="1" Style="{StaticResource PgCardStyle}">
-                        <DockPanel>
-                            <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Dashboard.RecentDocuments}"
-                                       Style="{StaticResource PgCardTitleStyle}"
-                                       Margin="0,0,0,8"/>
-                            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Disabled"
-                                          CanContentScroll="True"
-                                          PanningMode="VerticalOnly"
-                                          MaxHeight="480"
-                                          behaviors:SmoothScrollBehavior.IsEnabled="True"
-                                          behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
-                                          Focusable="False"
-                                          FocusVisualStyle="{x:Null}">
-                                <ItemsControl Style="{StaticResource PgFeedItemsStyle}"
-                                              ItemsSource="{Binding RecentActivity}"
-                                              ItemTemplate="{StaticResource PgFeedRowTemplate}"/>
+                    <Border x:Name="ActivityCard" Grid.Column="1" Grid.RowSpan="2" Style="{StaticResource Ov.Card}" Margin="18,0,0,0">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <TextBlock Text="{DynamicResource Dashboard.RecentDocuments}" Style="{StaticResource Ov.CardTitle}"/>
+                            <TextBlock Grid.Row="1" Text="Latest cross-module activity" Style="{StaticResource Ov.Meta}" Margin="0,6,0,14"/>
+                            <!-- Recent documents: retain the complete 20-item feed and wheel bubbling. -->
+                            <ScrollViewer Grid.Row="2" MaxHeight="440" MinHeight="220" VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled" CanContentScroll="True" PanningMode="VerticalOnly"
+                                          behaviors:SmoothScrollBehavior.IsEnabled="True" behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
+                                          Visibility="{Binding HasRecentActivity, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl ItemsSource="{Binding RecentActivity}" ItemTemplate="{StaticResource Ov.FeedTemplate}"/>
                             </ScrollViewer>
-                        </DockPanel>
+                            <StackPanel Grid.Row="2" VerticalAlignment="Center" Margin="12,40"
+                                        Visibility="{Binding HasRecentActivity, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <TextBlock Text="&#xE8A5;" Style="{StaticResource Ov.Glyph}" FontSize="28"/>
+                                <TextBlock Text="No recent documents yet." Style="{StaticResource Ov.Text}" HorizontalAlignment="Center" Margin="0,16,0,6"/>
+                                <TextBlock Text="New documents and stock activity will appear here." Style="{StaticResource Ov.Meta}" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
                 </Grid>
-
-                <!-- ══ KPI BANDS ═════════════════════════════════════ -->
-                <Grid Grid.Row="5"
-                      Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
+                <!-- 4. Full five-stage rail. Unknown tax figures remain em dashes from the VM. -->
+                <Border Style="{StaticResource Ov.Card}" Margin="0,0,0,18">
+                    <StackPanel>
+                        <TextBlock Text="Order-to-cash" Style="{StaticResource Ov.CardTitle}"/>
+                        <TextBlock Text="Stage counters · quote totals, work in progress and payment status" Style="{StaticResource Ov.Meta}" Margin="0,6,0,14"/>
+                        <ItemsControl ItemsSource="{Binding WorkflowStages}" ItemTemplate="{StaticResource Ov.StageTemplate}" Margin="-5,0,-5,0">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate>
+                                <UniformGrid Columns="{Binding PipelineColumns, RelativeSource={RelativeSource AncestorType={x:Type local:OverviewDashboardView}}}"/>
+                            </ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                <!-- 5. Every original collection: 4 sales + 4 production + 4 inventory + 5 delivery. -->
+                <UniformGrid Columns="{Binding KpiColumns, RelativeSource={RelativeSource AncestorType={x:Type local:OverviewDashboardView}}}" Margin="-7,0,-7,0">
+                    <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,14">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Nav.GroupSales}" Style="{StaticResource PgCardTitleStyle}" Margin="0,0,0,10"/>
-                            <ItemsControl Style="{StaticResource PgKpiBandStyle}"
-                                          ItemsSource="{Binding SalesTiles}"
-                                          ItemTemplate="{StaticResource PgKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource PgKpiBandPanel}"/>
+                            <TextBlock Text="{DynamicResource Nav.GroupSales}" Style="{StaticResource Ov.CardTitle}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Proforma values · VAT included" Style="{StaticResource Ov.Meta}" Margin="0,0,0,18"/>
+                            <ItemsControl Style="{StaticResource Ov.KpiHost}" ItemsSource="{Binding SalesTiles}" ItemTemplate="{StaticResource Ov.KpiTemplate}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
+                    <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,14">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Module.Production}" Style="{StaticResource PgCardTitleStyle}" Margin="0,0,0,10"/>
-                            <ItemsControl Style="{StaticResource PgKpiBandStyle}"
-                                          ItemsSource="{Binding ProductionTiles}"
-                                          ItemTemplate="{StaticResource PgKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource PgKpiBandPanel}"/>
+                            <TextBlock Text="{DynamicResource Module.Production}" Style="{StaticResource Ov.CardTitle}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Job order snapshot" Style="{StaticResource Ov.Meta}" Margin="0,0,0,18"/>
+                            <ItemsControl Style="{StaticResource Ov.KpiHost}" ItemsSource="{Binding ProductionTiles}" ItemTemplate="{StaticResource Ov.KpiTemplate}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource PgCardStyle}" Margin="0,0,16,0">
+                    <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,14">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Module.SheetStore}" Style="{StaticResource PgCardTitleStyle}" Margin="0,0,0,10"/>
-                            <ItemsControl Style="{StaticResource PgKpiBandStyle}"
-                                          ItemsSource="{Binding InventoryTiles}"
-                                          ItemTemplate="{StaticResource PgKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource PgKpiBandPanel}"/>
+                            <TextBlock Text="{DynamicResource Nav.GroupInventory}" Style="{StaticResource Ov.CardTitle}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Stock valued at selling price" Style="{StaticResource Ov.Meta}" Margin="0,0,0,18"/>
+                            <ItemsControl Style="{StaticResource Ov.KpiHost}" ItemsSource="{Binding InventoryTiles}" ItemTemplate="{StaticResource Ov.KpiTemplate}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="3" Style="{StaticResource PgCardStyle}">
+                    <Border Style="{StaticResource Ov.Card}" Margin="7,0,7,14">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Nav.Delivery}" Style="{StaticResource PgCardTitleStyle}" Margin="0,0,0,10"/>
-                            <ItemsControl Style="{StaticResource PgKpiBandStyle}"
-                                          ItemsSource="{Binding DeliveryTiles}"
-                                          ItemTemplate="{StaticResource PgKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource PgKpiBandPanel}"/>
+                            <TextBlock Text="{DynamicResource Nav.Delivery}" Style="{StaticResource Ov.CardTitle}" Margin="0,0,0,6"/>
+                            <TextBlock Text="Notes and pieces, separately" Style="{StaticResource Ov.Meta}" Margin="0,0,0,18"/>
+                            <ItemsControl Style="{StaticResource Ov.KpiHost}" ItemsSource="{Binding DeliveryTiles}" ItemTemplate="{StaticResource Ov.KpiTemplate}"/>
                         </StackPanel>
                     </Border>
-                </Grid>
-            </Grid>
-        </ScrollViewer>
-    </Grid>
+                </UniformGrid>
+                <Border BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,1,0,0" Padding="0,16,0,0" Margin="0,6,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Proforma value is not collected revenue. Inventory uses selling-price valuation." Style="{StaticResource Ov.Meta}"/>
+                        <TextBlock Text="Payment count includes paid / partly paid tax invoices issued this month." Style="{StaticResource Ov.Meta}" Margin="0,5,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

@@ -29,6 +29,20 @@ namespace ProGlassAutomation.Tests.Dashboard
             Assert.Contains("Grid.Column=\"1\"", nameTag);
         }
 
+        [Fact]
+        public void Indigo_stage_keeps_name_beside_glyph_and_binds_all_stage_details()
+        {
+            string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
+                "Views", "Dashboard", "Overview", "IndigoStudioResources.xaml"));
+            int start = src.IndexOf("x:Key=\"Ov.StageTemplate\"", StringComparison.Ordinal);
+            Assert.True(start >= 0);
+            int end = src.IndexOf("</DataTemplate>", start, StringComparison.Ordinal);
+            string template = src.Substring(start, end - start);
+            Assert.Contains("<DockPanel", template);
+            foreach (string property in new[] { "Name", "Glyph", "ValueDisplay", "Foot", "IsFirst", "IsActive", "AccentKey" })
+                Assert.Contains("{Binding " + property, template);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

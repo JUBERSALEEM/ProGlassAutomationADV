@@ -12,10 +12,9 @@
 //   1. TrendChartControl exposes SeriesEndBrush, and ResolveSeriesBrush()
 //      builds a top→bottom LinearGradientBrush from the primary to the end
 //      brush (the modern gradient-bar fill).
-//   2. Every dashboard bar chart that uses SeriesBrush=AccentBrush now also
-//      sets SeriesEndBrush=AccentDarkBrush (blue gradient bars).
-//   3. The Overview dashboard uses the DashHeroBlueBrush gradient hero card
-//      with the white-on-blue Factory pulse number.
+//   2. Every dashboard trend chart declares both series brushes.
+//   3. The Overview dashboard uses its scoped Indigo Studio gradient hero card
+//      with the white-on-indigo Factory pulse number.
 //   4. DashHeroBlueBrush exists in BOTH Light and Dark themes.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -68,32 +67,35 @@ namespace ProGlassAutomation.Tests.Dashboard
         [InlineData("Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml")]
         [InlineData("Views/Dashboard/DeliveryNote/DnDashboard/DnDashboardView.xaml")]
         [InlineData("Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml")]
-        public void All_bar_charts_use_the_blue_gradient(string rel)
+        public void All_dashboard_charts_declare_both_series_brushes(string rel)
         {
             var root = LocateProjectRoot();
             var src = File.ReadAllText(Path.Combine(root, rel));
 
-            // Every SeriesBrush=AccentBrush must be paired with a
-            // SeriesEndBrush=AccentDarkBrush.
-            int primary = Regex.Matches(src, @"SeriesBrush=""\{DynamicResource AccentBrush\}""").Count;
-            int end = Regex.Matches(src, @"SeriesEndBrush=""\{DynamicResource AccentDarkBrush\}""").Count;
-            Assert.True(primary > 0,
-                $"{rel}: expected at least one accent-brushed bar chart.");
-            Assert.Equal(primary, end);
+            // Palette can be page-scoped (Indigo Overview) or shared (Pg).
+            // Check each chart, not a count that could match unrelated elements.
+            var charts = Regex.Matches(src, @"<\w+:TrendChartControl\b[^>]*>");
+            Assert.NotEmpty(charts.Cast<Match>());
+            foreach (Match chart in charts)
+            {
+                Assert.Contains("SeriesBrush=", chart.Value);
+                Assert.Contains("SeriesEndBrush=", chart.Value);
+            }
         }
 
         [Fact]
-        public void Overview_uses_the_blue_gradient_hero_card()
+        public void Overview_uses_the_scoped_indigo_gradient_hero_card()
         {
             var root = LocateProjectRoot();
             var src = File.ReadAllText(Path.Combine(root,
                 "Views/Dashboard/Overview/OverviewDashboardView.xaml"));
 
-            Assert.Contains("DashHeroBlueBrush", src);
-            Assert.Contains("FACTORY PULSE", src);
-            // The hero number is white on the blue gradient.
-            Assert.Contains("Foreground=\"White\"", src);
-            Assert.Contains("Foreground=\"#CCFFFFFF\"", src);
+            Assert.Contains("IndigoStudioResources.xaml", src);
+            Assert.Contains("Background=\"{DynamicResource Ov.Hero}\"", src);
+            Assert.Contains("Dashboard.FactoryPulse", src);
+            Assert.Contains("Foreground=\"{DynamicResource Ov.OnAccent}\"", src);
+            Assert.Contains("Foreground=\"{DynamicResource Ov.OnAccentMuted}\"", src);
+            Assert.Contains("SeriesKind=\"Area\"", src);
         }
 
         [Fact]
@@ -108,18 +110,18 @@ namespace ProGlassAutomation.Tests.Dashboard
             }
         }
 
-        /// <summary>
-        /// The Overview bottom section (Sales / Production / Sheet store) now
-        /// renders its 4 KPI tiles as a 2×2 grid (Rows=2) so each tile is
-        /// larger and the label/value are legible, instead of four thin tiles
-        /// crammed into a single row.
-        /// </summary>
         [Fact]
-        public void Overview_kpi_band_uses_a_two_row_grid()
+        public void Overview_keeps_all_four_complete_kpi_collections()
         {
             var root = LocateProjectRoot();
-            var styles = File.ReadAllText(Path.Combine(root, "Styles/DashboardStyles.xaml"));
-            Assert.Contains("<UniformGrid Rows=\"2\"/>", styles);
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Dashboard/Overview/OverviewDashboardView.xaml"));
+            foreach (string collection in new[] { "SalesTiles", "ProductionTiles", "InventoryTiles", "DeliveryTiles" })
+                Assert.Contains("ItemsSource=\"{Binding " + collection + "}\"", src);
+            var resources = File.ReadAllText(Path.Combine(root,
+                "Views/Dashboard/Overview/IndigoStudioResources.xaml"));
+            Assert.Contains("<ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate>", resources);
+            Assert.DoesNotContain("MaxHeight=", resources);
         }
 
         /// <summary>
@@ -138,14 +140,14 @@ namespace ProGlassAutomation.Tests.Dashboard
             Assert.Contains("Recent documents", src);
             Assert.Contains("SmartScrollBubblingBehavior.IsEnabled=\"True\"", src);
             Assert.Contains("SmoothScrollBehavior.IsEnabled=\"True\"", src);
-            Assert.Contains("MaxHeight=\"320\"", src);
+            Assert.Contains("MaxHeight=\"440\"", src);
             Assert.Contains("CanContentScroll=\"True\"", src);
         }
 
         /// <summary>
         /// The Statement dashboard now matches the other modules: it exposes a
         /// KpiCards collection (same KpiCardModel shape) and renders through
-        /// the shared SoftKpiCardTemplate instead of hand-written scalar cards.
+        /// the shared PgKpiTileTemplate instead of hand-written scalar cards.
         /// </summary>
         [Fact]
         public void Statement_matches_the_other_module_dashboards()
@@ -158,7 +160,7 @@ namespace ProGlassAutomation.Tests.Dashboard
 
             Assert.Contains("KpiCards", vm);
             Assert.Contains("ObservableCollection<ProGlassAutomation.Models.Dashboard.KpiCardModel>", vm);
-            Assert.Contains("SoftKpiCardTemplate", view);
+            Assert.Contains("PgKpiTileTemplate", view);
             Assert.Contains("ItemsSource=\"{Binding KpiCards}\"", view);
         }
 

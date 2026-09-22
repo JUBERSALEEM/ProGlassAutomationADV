@@ -289,7 +289,7 @@
     <sys:String x:Key="Dashboard.DispatchFlowDeliveryBalanceRecentMovements">Dispatch flow, delivery balance and recent movements</sys:String>
     <sys:String x:Key="Dashboard.DispatchPulse">Dispatch pulse</sys:String>
     <sys:String x:Key="Dashboard.DummySplitMaster">Dummy / split / master</sys:String>
-    <sys:String x:Key="Dashboard.FactoryPulse">FACTORY PULSE</sys:String>
+    <sys:String x:Key="Dashboard.FactoryPulse">Factory pulse</sys:String>
     <sys:String x:Key="Dashboard.GenerateNewCustomerStatement">Generate new customer statement</sys:String>
     <sys:String x:Key="Dashboard.GenerateStatementSeeCustomerBalancesHere">Generate a statement to see customer balances here.</sys:String>
     <sys:String x:Key="Dashboard.HighMediumLow">High / medium / low</sys:String>
