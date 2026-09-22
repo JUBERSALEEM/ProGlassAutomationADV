@@ -14,7 +14,7 @@ Implemented the approved Indigo/lavender bento presentation in the actual WPF li
 4. Tax Invoice list, including all four family tabs.
 5. Statement Generator's saved-statement list (`StatementListView`), not the read-only Statement Report or generation wizard.
 
-The user's standing instruction is to push completed source work while excluding mockups/images. This change is prepared for publication on the session branch with the native-verification limitation disclosed. **No mockup, PNG/JPG, illustrative business record, rendering script or new dependency is included.** The approved images remain outside the repository.
+The user's standing instruction is to push completed source work while excluding mockups/images. The initial implementation was published as `1185a09f4e8b2baa386121483075ba94408fc068`; the focused follow-up below stays on the same session branch with the native-verification limitation disclosed. **No mockup, PNG/JPG, illustrative business record, rendering script or new dependency is included.** The approved images remain outside the repository.
 
 **Native build / xUnit / WPF rendering / DPI / performance: NOT EXECUTED — TOOLCHAIN UNAVAILABLE.** Source contracts and syntax checks do not replace compilation or runtime binding tracing. This is not a release-certification or full-regression claim.
 
@@ -115,14 +115,14 @@ Repositories, permission gates, duplicate/revision construction, approval persis
 
 | Check | Result |
 |---|---|
-| `python3 scripts/verify-studio-lists.py` | **PASS — 24 source tests** |
+| `python3 scripts/verify-studio-lists.py` | **PASS — 27 source tests** |
 | `python3 scripts/verify-indigo-modules.py` | **PASS — 18 source tests**, existing six-dashboard contracts |
 | `python3 scripts/verify-indigo-overview.py` | **PASS — 12 source tests**, approved Overview/shell |
-| **Portable total** | **54 passing tests**; not native execution |
-| `verify-dashboard.py` | **340/340 XAML well-formed**; zero unresolved dashboard resources/binding heads/style-target/KPI-host issues. Dashboard checks are not a claim of native list binding resolution |
-| `xaml-resource-lint.py` | **Clean — 340 XAML files**, 121 non-fatal typed-resource warnings across the repository |
+| **Portable total** | **57 passing tests**; not native execution |
+| `verify-dashboard.py` | **341/341 XAML well-formed**; zero unresolved dashboard resources/binding heads/style-target/KPI-host issues. Dashboard checks are not a claim of native list binding resolution |
+| `xaml-resource-lint.py` | **Clean — 341 XAML files**, 121 non-fatal typed-resource warnings across the repository |
 | `xaml-xref-audit.py` | **0 forward references / 0 reported duplicate keys** under this tool's checks |
-| Changed/new C# delimiter checks | **16 files balanced**; not compilation |
+| Changed/new C# delimiter checks | **17 files balanced**; not compilation |
 | `git diff --check` | PASS |
 | Services, Models, App.xaml, project file, dashboards and Statement Generator wizard compared with baseline | Unchanged |
 | Native build / full xUnit / rendering / DPI / performance | **NOT EXECUTED — TOOLCHAIN UNAVAILABLE** |
@@ -135,7 +135,7 @@ The apparent decrease of five is **not five fixed global defects**: local resour
 
 ### Native tests added, not executed
 
-`Tests/Lists/StudioListPresentationTests.cs`: four Facts plus six Theory cases (10 cases total): Tag safety; finite width/height conversion; toolbar-height bounds; scrollbar gutter; strong/soft semantic brushes; and a real WPF ListBox in a bounded horizontal viewport at narrow/wide widths with all 500 synthetic test items retained and container recycling assertions. These integer-only test items are not mockup/customer data and never enter the application.
+`Tests/Lists/StudioListPresentationTests.cs`: five Facts plus six Theory cases (11 cases total): Tag safety; finite width/height conversion; toolbar-height bounds; scrollbar gutter; strong/soft semantic brushes; isolated popup palette loading and style-resource precedence over ancestor colors; and a real WPF ListBox in a bounded horizontal viewport at narrow/wide widths with all 500 synthetic test items retained and container recycling assertions. These integer-only test items are not mockup/customer data and never enter the application.
 
 ## 7. Remaining validation and known boundaries
 
@@ -143,7 +143,7 @@ Before release on Windows:
 
 ```powershell
 dotnet build ProGlassAutomation.csproj -c Release
-dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release --filter "FullyQualifiedName~Lists|FullyQualifiedName~Dashboard"
+dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release --filter "FullyQualifiedName~Lists|FullyQualifiedName~Dashboard|FullyQualifiedName~ProformaStatusWorkflowSourceTests"
 dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release
 ```
 
@@ -155,6 +155,30 @@ dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release
 6. Confirm Job status vs delivery status vs priority, PDF/Excel/share/history and delete/void dependency guards; Delivery master/latest/dispatch restrictions and invoice generation; Tax latest-family navigation and family delete/void; Statement PDF/share availability, edit/new/delete and list/wizard toggle.
 7. Measure realized containers and scroll/input performance on large real lists. No performance improvement is certified from the source configuration alone.
 
-Previously identified business-flow concerns are not disguised as styling fixes: PI conversion-success messaging after a caught job-conversion failure, Step 7 save-outcome propagation before loading, duplicate-snapshot sanitization fallback, and older source tests that assume monolithic VM files require separate focused investigation/validation. No blanket claim that all legacy business defects or all native tests are resolved is made.
+Previously identified business-flow concerns are not disguised as styling fixes: PI conversion-success messaging after a caught job-conversion failure, Step 7 save-outcome propagation before loading, and duplicate-snapshot sanitization fallback require separate focused investigation/validation. This follow-up repairs the stale `ProformaStatusWorkflowSourceTests` fixture only; it does not certify other legacy test fixtures. No blanket claim that all legacy business defects or all native tests are resolved is made.
 
 **Result:** one implemented shared Studio Bento list system, with original module-specific sources/actions retained and documented list-state/layout corrections. Publish source only; native acceptance remains pending.
+
+
+## 8. Focused integration follow-up after initial publication
+
+### Popup resources — source-established gap, not an observed rendering failure
+
+The inherited `ModernMenuItemStyle` and `ModernCheckableMenuItemStyle` templates use `MenuHoverBrush` for highlighted/open states. The initial shared list dictionary did not define that alias. A static dark-ink foreground alone therefore did not fully control the color pair; popup/submenu templates also use dynamic surface, outline and foreground aliases.
+
+Added `Views/Shared/Lists/StudioListPopupResources.xaml`, backed by the existing Overview palette, and installed it **in each consuming style's resources**: `Sl.ContextMenu`, `Sl.MenuItem`, `Sl.CheckableMenuItem`, `Sl.MenuSeparator`, and `Sl.Combo`. This makes the palette travel with detached controls rather than relying only on a page-level visual ancestor. The portable check requires coverage of every brush token used by the existing menu and combo templates. Normal menu ink/surface and ink/hover contrast are also checked at 4.5:1 or greater.
+
+No global template, App resource merge, menu builder, command, permission or business binding was changed. Native popup rendering, nested submenu lookup, keyboard behavior and theme switching still require the Windows checklist. The added STA test covers palette BAML loading and style-resource lookup, not full popup rendering.
+
+### Proforma workflow test drift
+
+`Tests/ProformaInvoice/ProformaStatusWorkflowSourceTests.cs` still read partial-family entry stubs as if they contained the implementation, expected literal UI labels after localization, and searched the list VM for status logic now delegated to `DocumentListStatus.ForProforma`.
+
+- Reused the existing `SourceFamily.Read` test helper for mapper, printable VM and list VM assertions.
+- Tied SAVE ONLY and its Step 8 tooltip to the actual Save command button's resource keys and English dictionary entries.
+- Kept the existing mapper/snapshot/save-only assertions; replaced obsolete in-VM status-body assertions with the consumed service call and five direct status-service cases (approval with/without attachment proof, case-insensitive approval, draft and sent).
+- Independent Python inspection of the fixture's literal string assertions found **21 mismatches out of 27 before**, versus **0 out of 20 after**. This is a source-text check, **not an executed xUnit result**. Localized-button and service-call checks also run in the portable suite.
+
+### Follow-up validation boundary
+
+The 57 portable tests, XAML/resource checks and 17-file C# delimiter check were rerun after this follow-up. Repository-wide hygiene remains separately reported above; native build and all xUnit cases remain **NOT EXECUTED — TOOLCHAIN UNAVAILABLE**. No application services, models, workflow logic, optimizer, dashboard, wizard or project file changed in this follow-up.

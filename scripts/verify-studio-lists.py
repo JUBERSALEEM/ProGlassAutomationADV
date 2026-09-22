@@ -281,9 +281,51 @@ class StudioListContracts(unittest.TestCase):
             rgb = [int(code[i:i+2], 16) / 255 for i in (1, 3, 5)]
             linear = [x / 12.92 if x <= 0.04045 else ((x + 0.055) / 1.055) ** 2.4 for x in rgb]
             return sum(x * y for x, y in zip(linear, [0.2126, 0.7152, 0.0722]))
-        for ink, fill in [('Ov.Accent', 'Ov.Soft'), ('Ov.Muted', 'Ov.Soft'), ('Ov.Success', 'Ov.SuccessSoft'), ('Ov.Warning', 'Ov.WarningSoft'), ('Ov.Danger', 'Ov.DangerSoft')]:
+        for ink, fill in [('Ov.Ink', 'Ov.Soft'), ('Ov.Ink', 'Ov.Surface'), ('Ov.Accent', 'Ov.Soft'), ('Ov.Muted', 'Ov.Soft'), ('Ov.Success', 'Ov.SuccessSoft'), ('Ov.Warning', 'Ov.WarningSoft'), ('Ov.Danger', 'Ov.DangerSoft')]:
             a, b = sorted([luminance(colors[ink]), luminance(colors[fill])])
             self.assertGreaterEqual((b + 0.05) / (a + 0.05), 4.5, (ink, fill))
+
+    def test_popup_palette_is_owned_by_each_detached_popup_style(self):
+        shared = ET.parse(RESOURCE).getroot()
+        palette_path = RESOURCE.with_name('StudioListPopupResources.xaml')
+        palette = ET.parse(palette_path).getroot()
+        keys = {e.get(X + 'Key') for e in palette if e.get(X + 'Key')}
+        for name in ['Sl.Combo', 'Sl.ContextMenu', 'Sl.MenuItem', 'Sl.CheckableMenuItem', 'Sl.MenuSeparator']:
+            style = next(e for e in shared if e.get(X + 'Key') == name)
+            resources = style.find(W + 'Style.Resources')
+            self.assertIsNotNone(resources, name)
+            sources = [e.get('Source') for e in resources.iter(W + 'ResourceDictionary') if e.get('Source')]
+            self.assertEqual(['StudioListPopupResources.xaml'], sources, name)
+        for template in ['Styles/ContextMenuStyles.xaml', 'Themes/Styles/ComboTemplates.xaml']:
+            brushes = set(re.findall(r'{DynamicResource ([^}]*Brush)}', read(template)))
+            self.assertFalse(brushes - keys, (template, brushes - keys))
+        self.assertNotIn('StudioListPopupResources', read('App.xaml'))
+        aliases = {e.get(X + 'Key'): e.get('Color') for e in palette if e.tag == W + 'SolidColorBrush'}
+        self.assertIn('Ov.Soft', aliases['MenuHoverBrush'])
+        self.assertIn('Ov.Ink', aliases['PrimaryForegroundBrush'])
+        self.assertIn('Ov.Surface', aliases['PopupSurfaceBrush'])
+
+    def test_save_only_label_contract_follows_the_localized_command_button(self):
+        page = ET.parse(ROOT / 'Views/ProformaInvoice/Step7PrintPreview/PrintPreviewView.xaml').getroot()
+        buttons = [e for e in page.iter(W + 'Button')
+                   if e.get('Command') == '{Binding PrintableInvoice.SaveInvoiceCommand}']
+        self.assertEqual(1, len(buttons))
+        self.assertEqual('{DynamicResource ProformaInvoice.SAVE}', buttons[0].get('Content'))
+        self.assertEqual('{DynamicResource ProformaInvoice.SaveInvoiceConfirmationHappensStep8}', buttons[0].get('ToolTip'))
+        labels = {e.get(X + 'Key'): e.text for e in ET.parse(ROOT / 'Themes/Languages/en-US.xaml').getroot()}
+        self.assertEqual('SAVE ONLY', labels['ProformaInvoice.SAVE'])
+        self.assertIn('Confirmation happens through Step 8 attachments', labels['ProformaInvoice.SaveInvoiceConfirmationHappensStep8'])
+
+    def test_native_workflow_source_tests_read_partial_families_and_consumed_status_service(self):
+        test = read('Tests/ProformaInvoice/ProformaStatusWorkflowSourceTests.cs')
+        for variable in ['mapper', 'printable', 'listVm']:
+            self.assertNotIn(f'string {variable} = File.ReadAllText', test)
+            self.assertIn(f'string {variable} = SourceFamily.Read', test)
+        vm = ''.join(p.read_text() for p in sorted((ROOT / 'ViewModels/ProformaInvoice/SavedInvoicesList').glob('SavedInvoicesListViewModel*.cs')))
+        self.assertRegex(vm, r'DocumentListStatus\.ForProforma\(\s*e\.Status \?\? "Draft",\s*hasApprovalProof,')
+        self.assertIn('DocumentListStatus.ForProforma(storedStatus, hasProof, null)', test)
+        self.assertIn('[InlineData("Approved", false, "PI created", "NeutralBrush")]', test)
+        self.assertIn('[InlineData("Approved", true, "PI confirmed", "AccentBrush")]', test)
 
     def test_no_duplicate_property_assignments(self):
         for p, r, _ in roots():

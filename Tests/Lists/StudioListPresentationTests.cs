@@ -70,6 +70,30 @@ namespace ProGlassAutomation.Tests.Lists
             Assert.Same(Brushes.Honeydew, converter.Convert("TintGreenBrush", typeof(Brush), null!, CultureInfo.InvariantCulture));
         });
 
+        [Fact]
+        public void Popup_palette_loads_and_style_resources_override_ancestor_theme_colors() => OnSta(() =>
+        {
+            string assembly = typeof(StudioListBrushConverter).Assembly.GetName().Name!;
+            var palette = new ResourceDictionary
+            {
+                Source = new Uri($"pack://application:,,,/{assembly};component/Views/Shared/Lists/StudioListPopupResources.xaml", UriKind.Absolute)
+            };
+            var style = new Style(typeof(MenuItem));
+            style.Resources.MergedDictionaries.Add(palette);
+            var parent = new MenuItem();
+            parent.Resources["MenuHoverBrush"] = Brushes.Black;
+            parent.Resources["PrimaryForegroundBrush"] = Brushes.White;
+            var item = new MenuItem { Style = style };
+            parent.Items.Add(item);
+            var hover = Assert.IsType<SolidColorBrush>(item.FindResource("MenuHoverBrush"));
+            var ink = Assert.IsType<SolidColorBrush>(item.FindResource("PrimaryForegroundBrush"));
+            Assert.Equal(((SolidColorBrush)palette["Ov.Soft"]).Color, hover.Color);
+            Assert.Equal(((SolidColorBrush)palette["Ov.Ink"]).Color, ink.Color);
+            Assert.NotEqual(hover.Color, ink.Color);
+            Assert.Equal(((SolidColorBrush)palette["Ov.Surface"]).Color,
+                ((SolidColorBrush)item.FindResource("PopupSurfaceBrush")).Color);
+        });
+
         [Theory]
         [InlineData(600.0)]
         [InlineData(1500.0)]

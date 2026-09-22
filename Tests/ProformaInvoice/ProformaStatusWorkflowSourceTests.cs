@@ -1,5 +1,9 @@
 using System;
 using System.IO;
+using System.Linq;
+using System.Xml.Linq;
+using ProGlassAutomation.Services.Documents;
+using ProGlassAutomation.Tests.TestSupport;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.ProformaInvoice
@@ -13,20 +17,30 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
             string xaml = File.ReadAllText(Path.Combine(root,
                 "Views", "ProformaInvoice", "Step7PrintPreview", "PrintPreviewView.xaml"));
 
-            Assert.Contains("SAVE ONLY", xaml);
-            Assert.DoesNotContain("SAVE DRAFT", xaml);
-            Assert.Contains("Confirmation happens through Step 8 attachments", xaml);
+            XNamespace wpf = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+            XNamespace key = "http://schemas.microsoft.com/winfx/2006/xaml";
+            var save = XDocument.Parse(xaml).Descendants(wpf + "Button").Single(b =>
+                (string?)b.Attribute("Command") == "{Binding PrintableInvoice.SaveInvoiceCommand}");
+            Assert.Equal("{DynamicResource ProformaInvoice.SAVE}", (string?)save.Attribute("Content"));
+            Assert.Equal("{DynamicResource ProformaInvoice.SaveInvoiceConfirmationHappensStep8}",
+                (string?)save.Attribute("ToolTip"));
+            var english = XDocument.Load(Path.Combine(root, "Themes", "Languages", "en-US.xaml"));
+            string Label(string name) => english.Root!.Elements()
+                .Single(e => (string?)e.Attribute(key + "Key") == name).Value;
+            Assert.Equal("SAVE ONLY", Label("ProformaInvoice.SAVE"));
+            Assert.Contains("Confirmation happens through Step 8 attachments",
+                Label("ProformaInvoice.SaveInvoiceConfirmationHappensStep8"));
         }
 
         [Fact]
         public void Mapper_and_snapshot_do_not_promote_printable_status_into_workflow_confirmation()
         {
             string root = LocateProjectRoot();
-            string mapper = File.ReadAllText(Path.Combine(root,
+            string mapper = SourceFamily.Read(root, Path.Combine(
                 "Services", "ProformaInvoice", "ProformaInvoiceRepository", "ProformaInvoiceMapper.cs"));
             string snapshot = File.ReadAllText(Path.Combine(root,
                 "Models", "ProformaInvoice", "SavedInvoice", "ProformaInvoiceSnapshot.cs"));
-            string printable = File.ReadAllText(Path.Combine(root,
+            string printable = SourceFamily.Read(root, Path.Combine(
                 "ViewModels", "ProformaInvoice", "Step7PrintPreview", "PrintableInvoice", "PrintableInvoiceViewModel.cs"));
             string printableXaml = File.ReadAllText(Path.Combine(root,
                 "Views", "ProformaInvoice", "Step7PrintPreview", "PrintableInvoice", "PrintableInvoiceView.xaml"));
@@ -47,24 +61,37 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         public void Saved_list_only_shows_confirmed_when_approved_and_step8_attachment_exists()
         {
             string root = LocateProjectRoot();
-            string listVm = File.ReadAllText(Path.Combine(root,
+            string listVm = SourceFamily.Read(root, Path.Combine(
                 "ViewModels", "ProformaInvoice", "SavedInvoicesList", "SavedInvoicesListViewModel.cs"));
 
             Assert.Contains("LoadApprovalProofStateAsync", listVm);
             Assert.Contains("hasApprovalProof", listVm);
-            Assert.Contains("string.Equals(storedStatus, \"Approved\", StringComparison.OrdinalIgnoreCase)", listVm);
-            Assert.Contains("&& hasConfirmationAttachment", listVm);
-            Assert.Contains("return (\"PI confirmed\", \"AccentBrush\");", listVm);
-            Assert.Contains("return (\"PI sent\", \"AccentDarkBrush\");", listVm);
-            Assert.Contains("return (\"PI created\", \"NeutralBrush\");", listVm);
+            Assert.Contains("DocumentListStatus.ForProforma(", listVm);
+            Assert.Matches(@"DocumentListStatus\.ForProforma\(\s*e\.Status \?\? ""Draft"",\s*hasApprovalProof,", listVm);
             Assert.Contains("\"PI created\", \"PI sent\", \"PI confirmed\"", listVm);
+        }
+
+        // Exercise the shared status service actually consumed by the saved list.
+        // A stored approval without Step 8 proof must not be displayed as confirmed.
+        [Theory]
+        [InlineData("Approved", false, "PI created", "NeutralBrush")]
+        [InlineData("Approved", true, "PI confirmed", "AccentBrush")]
+        [InlineData("approved", true, "PI confirmed", "AccentBrush")]
+        [InlineData("Draft", true, "PI created", "NeutralBrush")]
+        [InlineData("Sent", true, "PI sent", "AccentDarkBrush")]
+        public void List_confirmation_requires_both_stored_approval_and_attachment(
+            string storedStatus, bool hasProof, string status, string brush)
+        {
+            var actual = DocumentListStatus.ForProforma(storedStatus, hasProof, null);
+            Assert.Equal(status, actual.Status);
+            Assert.Equal(brush, actual.BrushKey);
         }
 
         [Fact]
         public void Save_only_path_normalizes_illegal_manual_approved_status_back_to_workflow_state()
         {
             string root = LocateProjectRoot();
-            string printable = File.ReadAllText(Path.Combine(root,
+            string printable = SourceFamily.Read(root, Path.Combine(
                 "ViewModels", "ProformaInvoice", "Step7PrintPreview", "PrintableInvoice", "PrintableInvoiceViewModel.cs"));
 
             Assert.Contains("NormalizeSaveOnlyStatus", printable);

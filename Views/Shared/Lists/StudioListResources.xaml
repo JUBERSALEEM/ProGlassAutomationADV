@@ -129,6 +129,13 @@
         <Setter Property="MinHeight" Value="38"/>
     </Style>
     <Style x:Key="Sl.Combo" TargetType="ComboBox" BasedOn="{StaticResource ModuleListFilterComboStyle}">
+        <Style.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="StudioListPopupResources.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Style.Resources>
         <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
         <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
@@ -212,17 +219,46 @@
         <Setter Property="Padding" Value="14,10"/>
     </Style>
     <Style x:Key="Sl.ContextMenu" TargetType="ContextMenu" BasedOn="{StaticResource ModernContextMenuStyle}">
+        <Style.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="StudioListPopupResources.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Style.Resources>
         <Setter Property="Background" Value="{StaticResource Ov.Surface}"/>
         <Setter Property="Foreground" Value="{StaticResource Ov.Ink}"/>
         <Setter Property="BorderBrush" Value="{StaticResource Ov.Line}"/>
     </Style>
     <Style x:Key="Sl.MenuItem" TargetType="MenuItem" BasedOn="{StaticResource ModernMenuItemStyle}">
+        <Style.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="StudioListPopupResources.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Style.Resources>
         <Setter Property="Foreground" Value="{StaticResource Ov.Ink}"/>
     </Style>
     <Style x:Key="Sl.CheckableMenuItem" TargetType="MenuItem" BasedOn="{StaticResource ModernCheckableMenuItemStyle}">
+        <Style.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="StudioListPopupResources.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Style.Resources>
         <Setter Property="Foreground" Value="{StaticResource Ov.Ink}"/>
     </Style>
-    <Style x:Key="Sl.MenuSeparator" TargetType="Separator" BasedOn="{StaticResource ModernMenuSeparatorStyle}"/>
+    <Style x:Key="Sl.MenuSeparator" TargetType="Separator" BasedOn="{StaticResource ModernMenuSeparatorStyle}">
+        <Style.Resources>
+            <ResourceDictionary>
+                <ResourceDictionary.MergedDictionaries>
+                    <ResourceDictionary Source="StudioListPopupResources.xaml"/>
+                </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+        </Style.Resources>
+    </Style>
     <!-- Failed data is not presented as a successful empty result. Retry remains outside this gate. -->
     <Style x:Key="Sl.DataArea" TargetType="Grid">
         <Style.Triggers>
