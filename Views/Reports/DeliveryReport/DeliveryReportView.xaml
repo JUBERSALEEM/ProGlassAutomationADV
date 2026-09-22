@@ -1,4 +1,4 @@
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Reports.DeliveryReport.DeliveryReportView"
+<UserControl x:Class="ProGlassAutomation.Views.Reports.DeliveryReport.DeliveryReportView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,7 +10,17 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════════
          DELIVERY NOTE REPORT — ROW-LEVEL (SINGLE GRID)
@@ -27,13 +37,13 @@
         </Grid.RowDefinitions>
 
         <!-- Page Header -->
-        <StackPanel Grid.Row="0" Margin="16,14,16,12">
-            <TextBlock Text="{DynamicResource Reports.DeliveryReport.DeliveryNoteReport}" Style="{StaticResource ModulePageTitleStyle}" FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"/>
-            <TextBlock Text="{DynamicResource Reports.DeliveryReport.RowLevelDeliveryTracePISpecificationRowTotal}" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
+        <StackPanel Grid.Row="0" Margin="16,16,16,12">
+            <TextBlock Text="{DynamicResource Reports.DeliveryReport.DeliveryNoteReport}" Style="{StaticResource Sl.Title}"/>
+            <TextBlock Text="{DynamicResource Reports.DeliveryReport.RowLevelDeliveryTracePISpecificationRowTotal}" Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,4,0,0"/>
         </StackPanel>
 
         <!-- Main Shell Card -->
-        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,14">
+        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,0,16,14">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- KPI Strip -->
