@@ -73,6 +73,35 @@ namespace ProGlassAutomation.Tests.Dashboard
             Assert.DoesNotContain("GrandTotal +", src);
         }
 
+        [Fact]
+        public void Empty_statement_snapshot_rebuilds_kpis_after_clearing_totals()
+        {
+            string src = File.ReadAllText(Path.Combine(LocateProjectRoot(),
+                "ViewModels/Dashboard/Statement/StDashboardViewModel.cs"));
+            int start = src.IndexOf("if (metrics.TotalStatements == 0)", StringComparison.Ordinal);
+            Assert.True(start >= 0);
+            string branch = src.Substring(start, src.IndexOf("return;", start, StringComparison.Ordinal) - start);
+            Assert.Contains("_totalInvoiced = 0m", branch);
+            Assert.Contains("_totalOutstanding = 0m", branch);
+            Assert.Contains("_overdueAmount = 0m", branch);
+            Assert.Contains("RebuildKpiCards();", branch);
+        }
+
+        [Theory]
+        [InlineData("ViewModels/Dashboard/SheetStore/SheetStoreDashboardViewModel.cs")]
+        [InlineData("ViewModels/Dashboard/JobOrder/JoDashboard/JoDashboardViewModel.cs")]
+        [InlineData("ViewModels/Dashboard/Statement/StDashboardViewModel.cs")]
+        public void Unavailable_metrics_service_sets_explicit_error_state(string path)
+        {
+            string src = File.ReadAllText(Path.Combine(LocateProjectRoot(), path));
+            int start = src.IndexOf("protected override async Task LoadCoreAsync()", StringComparison.Ordinal);
+            Assert.True(start >= 0);
+            string guard = src.Substring(start, src.IndexOf("return;", start, StringComparison.Ordinal) - start);
+            Assert.Contains("App.DashboardMetrics == null", guard);
+            Assert.Contains("HasError = true;", guard);
+            Assert.Contains("ErrorMessage =", guard);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

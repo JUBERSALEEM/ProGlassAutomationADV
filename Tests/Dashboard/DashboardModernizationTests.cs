@@ -147,7 +147,7 @@ namespace ProGlassAutomation.Tests.Dashboard
         /// <summary>
         /// The Statement dashboard now matches the other modules: it exposes a
         /// KpiCards collection (same KpiCardModel shape) and renders through
-        /// the shared PgKpiTileTemplate instead of hand-written scalar cards.
+        /// the shared Ds.KpiTileTemplate instead of hand-written scalar cards.
         /// </summary>
         [Fact]
         public void Statement_matches_the_other_module_dashboards()
@@ -160,7 +160,7 @@ namespace ProGlassAutomation.Tests.Dashboard
 
             Assert.Contains("KpiCards", vm);
             Assert.Contains("ObservableCollection<ProGlassAutomation.Models.Dashboard.KpiCardModel>", vm);
-            Assert.Contains("PgKpiTileTemplate", view);
+            Assert.Contains("Ds.KpiTileTemplate", view);
             Assert.Contains("ItemsSource=\"{Binding KpiCards}\"", view);
         }
 

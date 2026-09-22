@@ -101,10 +101,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         {
             if (App.DashboardMetrics == null)
             {
-                // Degrade to an empty page rather than throwing inside the
-                // load. Same guard the Statement dashboard uses.
+                // Missing metrics are unavailable, not a successful empty snapshot.
                 AppLogService.Debug("[SheetStoreDashboard] metrics service not ready.");
                 HasChartData = false;
+                HasError = true;
+                ErrorMessage = "Sheet Store metrics are not available yet. Return to this dashboard after startup completes.";
                 return;
             }
 

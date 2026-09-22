@@ -193,7 +193,7 @@ namespace ProGlassAutomation.Controls.DonutChart
             return new Point(cx + r * Math.Cos(rad), cy + r * Math.Sin(rad));
         }
 
-        private static FrameworkElement BuildLegend(ChartSliceModel slice, Brush brush)
+        private FrameworkElement BuildLegend(ChartSliceModel slice, Brush brush)
         {
             var row = new StackPanel
             {
@@ -215,7 +215,7 @@ namespace ProGlassAutomation.Controls.DonutChart
                 Text = slice.Label,
                 FontSize = 11,
                 FontWeight = FontWeights.SemiBold,
-                Foreground = (Brush)Application.Current.TryFindResource("PrimaryForegroundBrush")
+                Foreground = (Brush)TryFindResource("PrimaryForegroundBrush")
                     ?? Brushes.Black
             });
             texts.Children.Add(new TextBlock
@@ -224,7 +224,7 @@ namespace ProGlassAutomation.Controls.DonutChart
                     ? slice.RawValue.ToString("0")
                     : slice.ValueDisplay,
                 FontSize = 10,
-                Foreground = (Brush)Application.Current.TryFindResource("SecondaryForegroundBrush")
+                Foreground = (Brush)TryFindResource("SecondaryForegroundBrush")
                     ?? Brushes.Gray
             });
             row.Children.Add(texts);

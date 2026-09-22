@@ -153,12 +153,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
             // Guard: both dependencies may be null if this page is loaded
             // before App.StartupCore has finished. _statements is still
             // injected (DI selects the greediest constructor) and is checked
-            // here so a half-initialised app degrades to an empty page rather
-            // than throwing inside the load.
+            // here so a half-initialised app shows an explicit unavailable state
+            // rather than old totals or a successful empty snapshot.
             if (_statements == null || App.DashboardMetrics == null)
             {
                 AppLogService.Debug(
                     "[StDashboard] dependencies not yet initialized.");
+                HasError = true;
+                ErrorMessage = "Statement metrics are not available yet. Return to this dashboard after startup completes.";
                 return;
             }
 
@@ -180,6 +182,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                     _overdueAmount = 0m;
                     _isLoaded = true;
                     RebuildBalanceMix();
+                    // Empty is a real snapshot too: do not retain the previous KPI values.
+                    RebuildKpiCards();
                     OnPropertyChanged(string.Empty);
                 }));
                 return;

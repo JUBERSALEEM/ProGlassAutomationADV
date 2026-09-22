@@ -200,6 +200,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
             if (_jobs == null || App.DashboardMetrics == null)
             {
                 AppLogService.Debug("[JoDashboard] dependencies not yet initialized.");
+                HasError = true;
+                ErrorMessage = "Job Order metrics are not available yet. Return to this dashboard after startup completes.";
                 return;
             }
 

@@ -1,0 +1,1275 @@
+{
+  "baseline": "1c09c117a1c3ab9376c26b401038f50c821742eb",
+  "pages": {
+    "Views/Dashboard/DeliveryNote/DnDashboard/DnDashboardView.xaml": {
+      "bindings": [
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding LastRefreshed}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding KpiCards}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatusData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TrendChartControl",
+          "attribute": "Points",
+          "expression": "{Binding StatusBars}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatusData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "DonutChartControl",
+          "attribute": "Slices",
+          "expression": "{Binding StatusMixSlices}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatusData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TrendChartControl",
+          "attribute": "Points",
+          "expression": "{Binding TypeBars}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatusData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding RecentFeed}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRecentFeed, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRecentFeed, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        }
+      ],
+      "heads": [
+        "ErrorMessage",
+        "HasError",
+        "HasRecentFeed",
+        "HasStatusData",
+        "IsLoading",
+        "KpiCards",
+        "LastRefreshed",
+        "RecentFeed",
+        "StatusBars",
+        "StatusMixSlices",
+        "TypeBars"
+      ],
+      "collection_templates": [
+        {
+          "scope": "$page",
+          "source": "{Binding KpiCards}",
+          "template": "{StaticResource PgKpiTileTemplate}"
+        },
+        {
+          "scope": "$page",
+          "source": "{Binding RecentFeed}",
+          "template": "{StaticResource PgFeedRowTemplate}"
+        }
+      ],
+      "command_endpoints": [],
+      "root_class": "ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard.DnDashboardView"
+    },
+    "Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml": {
+      "bindings": [
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding LastRefreshed}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding KpiCards}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatusData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TrendChartControl",
+          "attribute": "Points",
+          "expression": "{Binding StatusBars}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatusData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "DonutChartControl",
+          "attribute": "Slices",
+          "expression": "{Binding StatusMixSlices}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatusData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TrendChartControl",
+          "attribute": "Points",
+          "expression": "{Binding PriorityBars}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatusData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding RecentFeed}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRecentFeed, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRecentFeed, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        }
+      ],
+      "heads": [
+        "ErrorMessage",
+        "HasError",
+        "HasRecentFeed",
+        "HasStatusData",
+        "IsLoading",
+        "KpiCards",
+        "LastRefreshed",
+        "PriorityBars",
+        "RecentFeed",
+        "StatusBars",
+        "StatusMixSlices"
+      ],
+      "collection_templates": [
+        {
+          "scope": "$page",
+          "source": "{Binding KpiCards}",
+          "template": "{StaticResource PgKpiTileTemplate}"
+        },
+        {
+          "scope": "$page",
+          "source": "{Binding RecentFeed}",
+          "template": "{StaticResource PgFeedRowTemplate}"
+        }
+      ],
+      "command_endpoints": [],
+      "root_class": "ProGlassAutomation.Views.Dashboard.JobOrder.JoDashboard.JoDashboardView"
+    },
+    "Views/Dashboard/ProformaInvoice/PiDashboardView.xaml": {
+      "bindings": [
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding LastRefreshed}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding KpiCards}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasChartData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TrendChartControl",
+          "attribute": "Points",
+          "expression": "{Binding StatusBars}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasChartData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "DonutChartControl",
+          "attribute": "Slices",
+          "expression": "{Binding StatusMixSlices}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasChartData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TrendChartControl",
+          "attribute": "Points",
+          "expression": "{Binding TopCustomerBars}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasChartData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        }
+      ],
+      "heads": [
+        "ErrorMessage",
+        "HasChartData",
+        "HasError",
+        "IsLoading",
+        "KpiCards",
+        "LastRefreshed",
+        "StatusBars",
+        "StatusMixSlices",
+        "TopCustomerBars"
+      ],
+      "collection_templates": [
+        {
+          "scope": "$page",
+          "source": "{Binding KpiCards}",
+          "template": "{StaticResource PgKpiTileTemplate}"
+        }
+      ],
+      "command_endpoints": [],
+      "root_class": "ProGlassAutomation.Views.Dashboard.ProformaInvoice.PiDashboardView"
+    },
+    "Views/Dashboard/SheetStore/SheetStoreDashboardView.xaml": {
+      "bindings": [
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding LastRefreshed}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding KpiCards}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasChartData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TrendChartControl",
+          "attribute": "Points",
+          "expression": "{Binding CategoryBars}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding HasChartData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "DonutChartControl",
+          "attribute": "Slices",
+          "expression": "{Binding CategoryMixSlices}",
+          "scope": "$page"
+        }
+      ],
+      "heads": [
+        "CategoryBars",
+        "CategoryMixSlices",
+        "ErrorMessage",
+        "HasChartData",
+        "HasError",
+        "IsLoading",
+        "KpiCards",
+        "LastRefreshed"
+      ],
+      "collection_templates": [
+        {
+          "scope": "$page",
+          "source": "{Binding KpiCards}",
+          "template": "{StaticResource PgKpiTileTemplate}"
+        }
+      ],
+      "command_endpoints": [],
+      "root_class": "ProGlassAutomation.Views.Dashboard.SheetStore.SheetStoreDashboardView"
+    },
+    "Views/Dashboard/Statement/StDashboardView.xaml": {
+      "bindings": [
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding Index, Mode=OneWay}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding StatementNumber, Mode=OneWay}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding SubTitle, Mode=OneWay}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasAttachments, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding TotalInvoicedDisplay, Mode=OneWay}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding OutstandingDisplay, Mode=OneWay}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Visibility",
+          "expression": "{Binding HasOverdue, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Visibility",
+          "expression": "{Binding HasOverdue, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding OverdueDisplay, Mode=OneWay}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding InvoiceCount, Mode=OneWay}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding CreatedAtDisplay, Mode=OneWay}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Button",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.OpenPdfCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Button",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Button",
+          "attribute": "IsEnabled",
+          "expression": "{Binding HasPdf}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Button",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.ShareCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Button",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "Button",
+          "attribute": "IsEnabled",
+          "expression": "{Binding HasPdf}",
+          "scope": "StStatementRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding LastRefreshed}",
+          "scope": "$page"
+        },
+        {
+          "element": "Button",
+          "attribute": "Command",
+          "expression": "{Binding NewStatementCommand}",
+          "scope": "$page"
+        },
+        {
+          "element": "Button",
+          "attribute": "Command",
+          "expression": "{Binding GoToStatementsCommand}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding KpiCards}",
+          "scope": "$page"
+        },
+        {
+          "element": "DonutChartControl",
+          "attribute": "Slices",
+          "expression": "{Binding BalanceMixSlices}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasOverdue, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding OverdueAmountDisplay}",
+          "scope": "$page"
+        },
+        {
+          "element": "DataTrigger",
+          "attribute": "Binding",
+          "expression": "{Binding HasOverdue}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Button",
+          "attribute": "Command",
+          "expression": "{Binding NewStatementCommand}",
+          "scope": "$page"
+        },
+        {
+          "element": "ScrollViewer",
+          "attribute": "Visibility",
+          "expression": "{Binding HasStatements, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding RecentStatements}",
+          "scope": "$page"
+        }
+      ],
+      "heads": [
+        "BalanceMixSlices",
+        "CreatedAtDisplay",
+        "DataContext.OpenPdfCommand",
+        "DataContext.ShareCommand",
+        "ErrorMessage",
+        "GoToStatementsCommand",
+        "HasAttachments",
+        "HasError",
+        "HasOverdue",
+        "HasPdf",
+        "HasStatements",
+        "Index",
+        "InvoiceCount",
+        "IsEmpty",
+        "IsLoading",
+        "KpiCards",
+        "LastRefreshed",
+        "NewStatementCommand",
+        "OutstandingDisplay",
+        "OverdueAmountDisplay",
+        "OverdueDisplay",
+        "RecentStatements",
+        "StatementNumber",
+        "SubTitle",
+        "TotalInvoicedDisplay"
+      ],
+      "collection_templates": [
+        {
+          "scope": "$page",
+          "source": "{Binding KpiCards}",
+          "template": "{StaticResource PgKpiTileTemplate}"
+        },
+        {
+          "scope": "$page",
+          "source": "{Binding RecentStatements}",
+          "template": "{StaticResource StStatementRowTemplate}"
+        }
+      ],
+      "command_endpoints": [
+        {
+          "scope": "StStatementRowTemplate",
+          "element": "Button",
+          "Content": "PDF",
+          "Tag": "\ue8a5",
+          "ToolTip": "{DynamicResource Dashboard.OpenStatementPDF}",
+          "Command": "{Binding DataContext.OpenPdfCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}",
+          "CommandParameter": "{Binding}",
+          "IsEnabled": "{Binding HasPdf}"
+        },
+        {
+          "scope": "StStatementRowTemplate",
+          "element": "Button",
+          "Content": "\ue72d",
+          "ToolTip": "{DynamicResource Sharing.Share}",
+          "Command": "{Binding DataContext.ShareCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}",
+          "CommandParameter": "{Binding}",
+          "IsEnabled": "{Binding HasPdf}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Content": "{DynamicResource Dashboard.NewStatement}",
+          "Tag": "\ue710",
+          "ToolTip": "{DynamicResource Dashboard.GenerateNewCustomerStatement}",
+          "Command": "{Binding NewStatementCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Content": "{DynamicResource Dashboard.View}",
+          "Tag": "\ue8fd",
+          "ToolTip": "{DynamicResource Dashboard.ViewGeneratedStatements}",
+          "Command": "{Binding GoToStatementsCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Content": "{DynamicResource Dashboard.NewStatement}",
+          "Tag": "\ue710",
+          "ToolTip": "{DynamicResource Dashboard.GenerateNewCustomerStatement}",
+          "Command": "{Binding NewStatementCommand}"
+        }
+      ],
+      "root_class": "ProGlassAutomation.Views.Dashboard.Statement.StDashboardView"
+    },
+    "Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml": {
+      "bindings": [
+        {
+          "element": "MouseBinding",
+          "attribute": "Command",
+          "expression": "{Binding DataContext.OpenInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "MouseBinding",
+          "attribute": "CommandParameter",
+          "expression": "{Binding}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "Border",
+          "attribute": "Background",
+          "expression": "{Binding TintColor, Converter={StaticResource BrushKeyConverter}}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "Setter",
+          "attribute": "Value",
+          "expression": "{Binding StatusColor, Converter={StaticResource BrushKeyConverter}}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "DataTrigger",
+          "attribute": "Binding",
+          "expression": "{Binding Status}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "DataTrigger",
+          "attribute": "Binding",
+          "expression": "{Binding Status}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "DataTrigger",
+          "attribute": "Binding",
+          "expression": "{Binding Status}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "DataTrigger",
+          "attribute": "Binding",
+          "expression": "{Binding Status}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "DataTrigger",
+          "attribute": "Binding",
+          "expression": "{Binding Status}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "DataTrigger",
+          "attribute": "Binding",
+          "expression": "{Binding Status}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding InvoiceNumber}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding CustomerName, Mode=OneWay}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding IssueDateDisplay, Mode=OneWay}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding AmountDisplay}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "Border",
+          "attribute": "Background",
+          "expression": "{Binding StatusColor, Converter={StaticResource BrushKeyConverter}}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding Status}",
+          "scope": "TiRecentInvoiceTemplate"
+        },
+        {
+          "element": "Border",
+          "attribute": "Background",
+          "expression": "{Binding TintColor, Converter={StaticResource BrushKeyConverter}}",
+          "scope": "TiAgingRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding Label}",
+          "scope": "TiAgingRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding CountDisplay}",
+          "scope": "TiAgingRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding AmountDisplay}",
+          "scope": "TiAgingRowTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Foreground",
+          "expression": "{Binding SeverityColor, Converter={StaticResource BrushKeyConverter}}",
+          "scope": "TiAgingRowTemplate"
+        },
+        {
+          "element": "ColumnDefinition",
+          "attribute": "Width",
+          "expression": "{Binding NormalizedWidth, Converter={StaticResource FractionToStarConverter}}",
+          "scope": "TiAgingRowTemplate"
+        },
+        {
+          "element": "ColumnDefinition",
+          "attribute": "Width",
+          "expression": "{Binding NormalizedWidth, Converter={StaticResource FractionToStarConverter}, ConverterParameter=invert}",
+          "scope": "TiAgingRowTemplate"
+        },
+        {
+          "element": "Border",
+          "attribute": "Background",
+          "expression": "{Binding SeverityColor, Converter={StaticResource BrushKeyConverter}}",
+          "scope": "TiAgingRowTemplate"
+        },
+        {
+          "element": "Border",
+          "attribute": "Background",
+          "expression": "{Binding BarColor, Converter={StaticResource ColorStringConverter}}",
+          "scope": "TiTopCustomerTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding Rank}",
+          "scope": "TiTopCustomerTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding CustomerName}",
+          "scope": "TiTopCustomerTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding InvoiceCountDisplay}",
+          "scope": "TiTopCustomerTemplate"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding AmountDisplay}",
+          "scope": "TiTopCustomerTemplate"
+        },
+        {
+          "element": "ColumnDefinition",
+          "attribute": "Width",
+          "expression": "{Binding NormalizedWidth, Converter={StaticResource FractionToStarConverter}}",
+          "scope": "TiTopCustomerTemplate"
+        },
+        {
+          "element": "ColumnDefinition",
+          "attribute": "Width",
+          "expression": "{Binding NormalizedWidth, Converter={StaticResource FractionToStarConverter}, ConverterParameter=invert}",
+          "scope": "TiTopCustomerTemplate"
+        },
+        {
+          "element": "Border",
+          "attribute": "Background",
+          "expression": "{Binding BarColor, Converter={StaticResource ColorStringConverter}}",
+          "scope": "TiTopCustomerTemplate"
+        },
+        {
+          "element": "Button",
+          "attribute": "Command",
+          "expression": "{Binding CreateTaxInvoiceCommand}",
+          "scope": "$page"
+        },
+        {
+          "element": "Button",
+          "attribute": "Command",
+          "expression": "{Binding ViewAllInvoicesCommand}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding ErrorMessage}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasOverdueInvoices, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding OverdueCount, Mode=OneWay}",
+          "scope": "$page"
+        },
+        {
+          "element": "Run",
+          "attribute": "Text",
+          "expression": "{Binding OverdueAmountDisplay, Mode=OneWay}",
+          "scope": "$page"
+        },
+        {
+          "element": "StackPanel",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding KpiTiles}",
+          "scope": "$page"
+        },
+        {
+          "element": "DonutChartControl",
+          "attribute": "Slices",
+          "expression": "{Binding AgingMixSlices}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasOverdueInvoices, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding OverdueCount}",
+          "scope": "$page"
+        },
+        {
+          "element": "DataTrigger",
+          "attribute": "Binding",
+          "expression": "{Binding HasOverdueInvoices}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding OverdueAmountDisplay}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TextBlock",
+          "attribute": "Text",
+          "expression": "{Binding RevenueChartTitle}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRevenueData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "TrendChartControl",
+          "attribute": "Points",
+          "expression": "{Binding RevenueBars}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRevenueData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ScrollViewer",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRecentInvoices, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding RecentInvoices}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasRecentInvoices, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "Grid",
+          "attribute": "Visibility",
+          "expression": "{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ScrollViewer",
+          "attribute": "Visibility",
+          "expression": "{Binding HasTopCustomers, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding TopCustomers}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasTopCustomers, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ScrollViewer",
+          "attribute": "Visibility",
+          "expression": "{Binding HasAgingData, Converter={StaticResource BoolToVisibilityConverter}}",
+          "scope": "$page"
+        },
+        {
+          "element": "ItemsControl",
+          "attribute": "ItemsSource",
+          "expression": "{Binding AgingBrackets}",
+          "scope": "$page"
+        },
+        {
+          "element": "Border",
+          "attribute": "Visibility",
+          "expression": "{Binding HasAgingData, Converter={StaticResource InverseBoolToVisibilityConverter}}",
+          "scope": "$page"
+        }
+      ],
+      "heads": [
+        "AgingBrackets",
+        "AgingMixSlices",
+        "AmountDisplay",
+        "BarColor",
+        "CountDisplay",
+        "CreateTaxInvoiceCommand",
+        "CustomerName",
+        "DataContext.OpenInvoiceCommand",
+        "ErrorMessage",
+        "HasAgingData",
+        "HasError",
+        "HasOverdueInvoices",
+        "HasRecentInvoices",
+        "HasRevenueData",
+        "HasTopCustomers",
+        "InvoiceCountDisplay",
+        "InvoiceNumber",
+        "IsLoading",
+        "IssueDateDisplay",
+        "KpiTiles",
+        "Label",
+        "NormalizedWidth",
+        "OverdueAmountDisplay",
+        "OverdueCount",
+        "Rank",
+        "RecentInvoices",
+        "RevenueBars",
+        "RevenueChartTitle",
+        "SeverityColor",
+        "Status",
+        "StatusColor",
+        "TintColor",
+        "TopCustomers",
+        "ViewAllInvoicesCommand"
+      ],
+      "collection_templates": [
+        {
+          "scope": "$page",
+          "source": "{Binding KpiTiles}",
+          "template": "{StaticResource PgKpiTileTemplate}"
+        },
+        {
+          "scope": "$page",
+          "source": "{Binding RecentInvoices}",
+          "template": "{StaticResource TiRecentInvoiceTemplate}"
+        },
+        {
+          "scope": "$page",
+          "source": "{Binding TopCustomers}",
+          "template": "{StaticResource TiTopCustomerTemplate}"
+        },
+        {
+          "scope": "$page",
+          "source": "{Binding AgingBrackets}",
+          "template": "{StaticResource TiAgingRowTemplate}"
+        }
+      ],
+      "command_endpoints": [
+        {
+          "scope": "TiRecentInvoiceTemplate",
+          "element": "MouseBinding",
+          "Command": "{Binding DataContext.OpenInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}",
+          "CommandParameter": "{Binding}",
+          "MouseAction": "LeftClick"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Content": "{DynamicResource Dashboard.NewInvoice}",
+          "Tag": "\ue710",
+          "ToolTip": "{DynamicResource Dashboard.NewInvoice}",
+          "Command": "{Binding CreateTaxInvoiceCommand}"
+        },
+        {
+          "scope": "$page",
+          "element": "Button",
+          "Content": "{DynamicResource Dashboard.View}",
+          "Tag": "\ue8fd",
+          "ToolTip": "{DynamicResource Dashboard.View}",
+          "Command": "{Binding ViewAllInvoicesCommand}"
+        }
+      ],
+      "root_class": "ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard.TiDashboardView"
+    }
+  }
+}
