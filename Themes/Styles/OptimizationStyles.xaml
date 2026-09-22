@@ -110,7 +110,6 @@
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-        <Setter Property="LetterSpacing" Value="0.5"/>
     </Style>
     <Style x:Key="OptPanelTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="15"/>

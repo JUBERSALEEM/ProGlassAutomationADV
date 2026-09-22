@@ -38,7 +38,7 @@
                     <Border Grid.Column="0" Style="{StaticResource OptHeroCard}" Margin="0,0,12,0">
                         <StackPanel>
                             <TextBlock Text="OVERALL YIELD EFFICIENCY" FontSize="11" FontWeight="SemiBold"
-                                       Foreground="#DDD6FE" LetterSpacing="0.5"/>
+                                       Foreground="#DDD6FE"/>
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                 <TextBlock Text="{Binding ResultUtilization}" FontSize="32" FontWeight="Bold"
                                            Foreground="#FFFFFF" Typography.NumeralAlignment="Tabular"/>
