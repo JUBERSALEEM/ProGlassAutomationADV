@@ -123,12 +123,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (p is int idx && idx >= 0 && idx < _flatSheets.Count)
                 {
                     SelectedSheetIndex = idx;
+                    IsGalleryMode = false;
                     SelectedTabIndex = TabIndexTwoDView; // jump straight to the 2D VIEW
                 }
             });
             PreviewZoomInCommand = new RelayCommand(_ => PreviewScale += 0.25);
             PreviewZoomOutCommand = new RelayCommand(_ => PreviewScale -= 0.25);
             PreviewZoomResetCommand = new RelayCommand(_ => PreviewScale = 1.0);
+            InitPreviewGalleryCommands();
 
             // The stock pool starts EMPTY — it is populated from the ticked
             // Job Orders' Step 4 sheet sizes (STOCKS tab rule). No generic

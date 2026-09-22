@@ -2,6 +2,10 @@
      FILE: Views/Optimization/Tabs/SizesTabView.xaml
      MODULE: Optimization — Sizes tab (hosted by OptimizationView).
      DataContext = OptimizationViewModel (inherited from the shell).
+
+     STUDIO BENTO REDESIGN (MOCKUP 03 SIZES MATRIX):
+     Cutting group selector, merged glass groups cards, and cut plan
+     schedule of pieces as the saw cuts them.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.SizesTabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -12,126 +16,147 @@
              SnapsToDevicePixels="True"
              Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}">
 
-                <!-- ── TAB 1 · SIZES ────────────────────────────────── -->
-                <Grid>
+    <Grid>
+        <Border Style="{StaticResource OptPanelCard}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <!-- Cutting Group Selection Strip -->
+                    <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                            CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                    <Border Style="{StaticResource OptPanelCard}">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel>
-                                <!-- selector -->
-                                <Grid Margin="0,0,0,14">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="CUTTING GROUP" Style="{StaticResource OptPanelTitle}"
-                                               VerticalAlignment="Center" Margin="0,0,12,0"/>
-                                    <ComboBox Grid.Column="1" MinWidth="300" ItemsSource="{Binding CuttingGroups}"
-                                              SelectedItem="{Binding SelectedCuttingGroup}"
-                                              Style="{StaticResource OptComboStyle}"
-                                              ToolTip="Optimize one pane group at a time (outer / inner / …) against its own Step 4 sheet"/>
-                                    <!-- An empty cutting group usually means there are no
-                                         pieces yet, and the only way to get some used to be a
-                                         confirmed Job Order. This is the door to the standalone
-                                         path: type or paste a cut list, no proforma needed. -->
-                                    <Button Grid.Column="2" Content="MANUAL CUT LIST"
-                                            Command="{Binding OpenCutListTabCommand}"
-                                            Style="{StaticResource OutlinedPillButton}"
-                                            Height="32" Margin="10,0,0,0"
-                                            VerticalAlignment="Center"
-                                            ToolTip="Type or paste a cut list and optimize it with no proforma invoice behind it — the standalone way to drive this engine."/>
-                                    <TextBlock Grid.Column="3" Text="{Binding PieceSummary}" FontSize="{DynamicResource FontSize.Body}"
-                                               FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                </Grid>
+                            <TextBlock Grid.Column="0" Text="CUTTING GROUP" Style="{StaticResource OptPanelTitle}"
+                                       VerticalAlignment="Center" Margin="0,0,14,0"/>
 
-                                <!-- merged groups -->
-                                <TextBlock Text="MERGED GLASS GROUPS" Style="{StaticResource OptHeader}" Margin="0,0,0,8"/>
-                                <ItemsControl ItemsSource="{Binding SizeGroups}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Style="{StaticResource OptInnerCard}" Margin="0,0,0,8">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="100"/>
-                                                        <ColumnDefinition Width="100"/>
-                                                        <ColumnDefinition Width="110"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                                        <TextBlock Text="{Binding Composition}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
-                                                        <TextBlock Text="{Binding Thickness}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                   Foreground="{DynamicResource AccentBrush}"/>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="1">
-                                                        <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
-                                                        <TextBlock Text="{Binding PieceCount}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="2">
-                                                        <TextBlock Text="SIZE ROWS" Style="{StaticResource OptHeader}"/>
-                                                        <TextBlock Text="{Binding SizeRows}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="3">
-                                                        <TextBlock Text="AREA (M²)" Style="{StaticResource OptHeader}"/>
-                                                        <TextBlock Text="{Binding AreaM2}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                            <ComboBox Grid.Column="1" MinWidth="320" ItemsSource="{Binding CuttingGroups}"
+                                      SelectedItem="{Binding SelectedCuttingGroup}"
+                                      Style="{StaticResource OptComboStyle}"
+                                      ToolTip="Optimize one pane group at a time against its stock rack"/>
 
-                                <!-- cut plan -->
-                                <StackPanel Margin="0,14,0,0" Visibility="{Binding HasCutPlan, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <TextBlock Text="CUT PLAN — PIECES AS THE SAW CUTS THEM" Style="{StaticResource OptHeader}" Margin="0,0,0,8"/>
-                                    <TextBlock Text="{Binding CutPlanNote}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,0,0,6"
-                                               Visibility="{Binding HasCutPlanNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                    <Grid Margin="0,0,0,6">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="64"/>
-                                            <ColumnDefinition Width="180"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="140"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="#" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Grid.Column="1" Text="REF" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Grid.Column="2" Text="GLASS COMPOSITION" Style="{StaticResource OptHeader}"/>
-                                        <TextBlock Grid.Column="3" Text="SIZE (MM)" Style="{StaticResource OptHeader}"/>
-                                    </Grid>
-                                    <ItemsControl ItemsSource="{Binding CutPlanRows}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Padding="4,6" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="64"/>
-                                                            <ColumnDefinition Width="180"/>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="140"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0" Text="{Binding Number}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                                        <TextBlock Grid.Column="1" Text="{Binding Ref}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource TextPrimaryBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                                        <TextBlock Grid.Column="2" Text="{Binding Composition}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                                        <TextBlock Grid.Column="3" Text="{Binding Size}" FontSize="{DynamicResource FontSize.Body}"
-                                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </StackPanel>
-                        </ScrollViewer>
+                            <Button Grid.Column="2" Content="Manual Cut List →"
+                                    Command="{Binding OpenCutListTabCommand}"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Height="34" Margin="12,0,0,0" VerticalAlignment="Center"
+                                    ToolTip="Type or paste an ad-hoc cut list without a proforma invoice"/>
+
+                            <Border Grid.Column="3" Background="{StaticResource OptAccentBg}"
+                                    BorderBrush="{StaticResource OptAccentBorder}" BorderThickness="1"
+                                    CornerRadius="6" Padding="10,4" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PieceSummary}" FontSize="12"
+                                           FontWeight="Bold" Foreground="{StaticResource OptAccentInk}"/>
+                            </Border>
+                        </Grid>
                     </Border>
-                </Grid>
+
+                    <!-- Merged Glass Groups -->
+                    <TextBlock Text="MERGED GLASS SPECIFICATION GROUPS" Style="{StaticResource OptHeader}" Margin="0,0,0,10"/>
+                    <ItemsControl ItemsSource="{Binding SizeGroups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource OptInnerCard}" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="120"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Margin="0,0,12,0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Composition}" FontSize="13"
+                                                       FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Thickness}" FontSize="11"
+                                                       Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Text="{Binding PieceCount}" FontSize="14" FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                            <TextBlock Text="SIZE ROWS" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Text="{Binding SizeRows}" FontSize="14" FontWeight="Bold"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="3" VerticalAlignment="Center">
+                                            <TextBlock Text="GROSS AREA" Style="{StaticResource OptHeader}"/>
+                                            <TextBlock Text="{Binding AreaM2, StringFormat='{}{0} m²'}" FontSize="14" FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Cut Plan: Pieces as the saw cuts them -->
+                    <StackPanel Margin="0,16,0,0" Visibility="{Binding HasCutPlan, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="CUT PLAN — PIECES AS THE SAW CUTS THEM" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+
+                        <TextBlock Text="{Binding CutPlanNote}" FontSize="12"
+                                   Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,0,0,8"
+                                   Visibility="{Binding HasCutPlanNote, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                        <!-- Header -->
+                        <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="6" Padding="10,8" Margin="0,0,0,4">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="64"/>
+                                    <ColumnDefinition Width="180"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="160"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="#" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Grid.Column="1" Text="PIECE REF" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Grid.Column="2" Text="GLASS COMPOSITION" Style="{StaticResource OptHeader}"/>
+                                <TextBlock Grid.Column="3" Text="SIZE (W × H MM)" Style="{StaticResource OptHeader}"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Rows -->
+                        <ItemsControl ItemsSource="{Binding CutPlanRows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="10,8" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="64"/>
+                                                <ColumnDefinition Width="180"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="160"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Background="#443A86" CornerRadius="4" Padding="6,2"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding Number}" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                            </Border>
+                                            <TextBlock Grid.Column="1" Text="{Binding Ref}" FontSize="12"
+                                                       FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Composition}" FontSize="12"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding Size}" FontSize="12" FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+    </Grid>
 </UserControl>

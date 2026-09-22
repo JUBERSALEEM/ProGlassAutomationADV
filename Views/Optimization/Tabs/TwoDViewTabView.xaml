@@ -3,10 +3,13 @@
      MODULE: Optimization — TwoDView tab (hosted by OptimizationView).
      DataContext = OptimizationViewModel (inherited from the shell).
 
-     Redesigned navigator: LEFT previous · CENTRE sheet no + utilization
-     + size · RIGHT next. The canvas is centred with a two-tone trim
-     overlay — LM/RM/TM/BM margin zone (accent) and minimum-breakout
-     band (amber) are never drawn in the same colour.
+     STUDIO BENTO + CONCEPT 30 PORCELAIN FLOW REDESIGN:
+     1. Single Sheet CAD visualizer with exact cut sizes (W×H mm)
+        on each piece, outer plate dimension ticks, usable/breakout
+        guidelines, reusable remnant offcuts, and piece schedule table.
+     2. Multi-Sheet Gallery Grid (4, 8, 12 per page) with miniature
+        vector layout previews, per-sheet yield badges, and 1-click
+        sheet inspection.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.TwoDViewTabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -17,217 +20,651 @@
              SnapsToDevicePixels="True"
              Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}">
 
-                <!-- ── TAB 5 · 2D VIEW ──────────────────────────────── -->
-                <Grid>
+    <Grid>
+        <Border Style="{StaticResource OptPanelCard}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <!-- Row 0: Top View Mode Switcher & Navigation Toolbar -->
+                    <RowDefinition Height="Auto"/>
+                    <!-- Row 1: Main Visualizer Workspace (Single vs Gallery) -->
+                    <RowDefinition Height="*"/>
+                    <!-- Row 2: Bottom Status & CAD Legend -->
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                    <Border>
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                <!-- ═════════════════════════════════════════════════════
+                     ROW 0: TOP TOOLBAR & VIEW MODE CONTROLS
+                     ═════════════════════════════════════════════════════ -->
+                <Grid Grid.Row="0" Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                            <!-- ── Navigator: prev · centre read-out · next ── -->
-                            <Grid Grid.Row="0" Margin="0,0,0,14">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}" Width="46" Height="40"
-                                        Command="{Binding SelectPreviousSheetCommand}" ToolTip="Previous sheet"
-                                        Content="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
-                                        VerticalAlignment="Center"/>
-
-                                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding PreviewSheetCounter}" FontSize="{DynamicResource FontSize.H3}"
-                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,3,0,0">
-                                            <TextBlock Text="{Binding PreviewUtilization}" FontSize="{DynamicResource FontSize.Body}"
-                                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SuccessBrush}"/>
-                                            <TextBlock Text="  ·  " FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                            <TextBlock Text="{Binding PreviewStockLabel}" FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        </StackPanel>
-                                        <TextBlock Text="{Binding PreviewGroupLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   Foreground="{DynamicResource TextTertiaryBrush}"
-                                                   HorizontalAlignment="Center" Margin="0,2,0,0" TextTrimming="CharacterEllipsis"
-                                                   MaxWidth="420"/>
-                                    </StackPanel>
-
-                                    <!-- Mini-map thumbnail: whole sheet at a glance, zoom-independent -->
-                                    <Border Margin="20,0,0,0" VerticalAlignment="Center"
-                                            BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
-                                            Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                                            ToolTip="Whole-sheet mini-map — every placed piece at a glance">
-                                        <Canvas Width="{Binding MiniMapWidth}" Height="{Binding MiniMapHeight}">
-                                            <ItemsControl ItemsSource="{Binding MiniMapRects}">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <Canvas/>
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemContainerStyle>
-                                                    <Style TargetType="ContentPresenter">
-                                                        <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                                                        <Setter Property="Canvas.Top" Value="{Binding Y}"/>
-                                                    </Style>
-                                                </ItemsControl.ItemContainerStyle>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                                BorderThickness="0.5" BorderBrush="{DynamicResource DividerBrush}">
-                                                            <Border.Style>
-                                                                <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                                                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger Binding="{Binding Rotated}" Value="True">
-                                                                            <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Border.Style>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </Canvas>
-                                    </Border>
-                                </StackPanel>
-
-                                <TextBlock Grid.Column="1" Text="No sheets yet — run a cut, then open a sheet from Summary."
-                                           FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                                           Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-
-                                <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}" Width="46" Height="40"
-                                        Command="{Binding SelectNextSheetCommand}" ToolTip="Next sheet"
-                                        Content="&#xE76C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.H3}"
-                                        VerticalAlignment="Center"/>
-                            </Grid>
-
-                            <!-- ── Centred canvas ── -->
-                            <Grid Grid.Row="1">
-                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                                            Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                    <TextBlock Text="&#xE80A;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Display}"
-                                               HorizontalAlignment="Center" Foreground="{DynamicResource TextTertiaryBrush}" Opacity="0.6"/>
-                                    <TextBlock Text="No layout to preview yet" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                               HorizontalAlignment="Center" Margin="0,12,0,4" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="Run Quick or Optimize, then open a sheet from Summary — the canvas shows every piece, the margin zone and the minimum-breakout band."
-                                               FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="460"
-                                               Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                </StackPanel>
-
-                                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                                              Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="12">
-                                        <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="2"
-                                                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
-                                                HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
-
-                                                <!-- LM/RM/TM/BM margin zone (usable rect) — accent -->
-                                                <Rectangle Canvas.Left="{Binding UsableX}" Canvas.Top="{Binding UsableY}"
-                                                           Width="{Binding UsableW}" Height="{Binding UsableH}"
-                                                           Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.5"
-                                                           StrokeDashArray="5,3" Fill="Transparent" IsHitTestVisible="False"/>
-
-                                                <!-- minimum-breakout band — amber (never mixed with the margin colour) -->
-                                                <Rectangle Canvas.Left="{Binding BreakoutX}" Canvas.Top="{Binding BreakoutY}"
-                                                           Width="{Binding BreakoutW}" Height="{Binding BreakoutH}"
-                                                           Stroke="{DynamicResource WarningBrush}" StrokeThickness="1"
-                                                           StrokeDashArray="2,2" Fill="Transparent" IsHitTestVisible="False"/>
-
-                                                <ItemsControl ItemsSource="{Binding SheetRects}">
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <Canvas/>
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                    <ItemsControl.ItemContainerStyle>
-                                                        <Style TargetType="ContentPresenter">
-                                                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                                                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
-                                                        </Style>
-                                                    </ItemsControl.ItemContainerStyle>
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <Border Width="{Binding Width}" Height="{Binding Height}" BorderThickness="1" BorderBrush="{DynamicResource DividerBrush}" CornerRadius="{DynamicResource Radius.XSmall}">
-                                                                <Border.Style>
-                                                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                                        <Style.Triggers>
-                                                                            <DataTrigger Binding="{Binding Rotated}" Value="True">
-                                                                                <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
-                                                                            </DataTrigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Border.Style>
-                                                                <TextBlock Text="{Binding Label}" FontSize="{DynamicResource FontSize.Caption}"
-                                                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                                           Margin="3,2" TextTrimming="CharacterEllipsis"/>
-                                                            </Border>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </Canvas>
+                    <!-- Left: Single / Gallery View Mode Switcher -->
+                    <Border Grid.Column="0" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                            CornerRadius="8" Padding="3" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <!-- Single Sheet Focus Mode -->
+                            <Button Command="{Binding SwitchToSingleViewCommand}"
+                                    Cursor="Hand" Padding="12,6" BorderThickness="0">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSingleSheetMode}" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
+                                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Text="Single Sheet CAD" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                            </StackPanel>
                                         </Border>
-                                    </Grid>
-                                </ScrollViewer>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+
+                            <!-- Multi-Sheet Gallery Mode -->
+                            <Button Command="{Binding SwitchToGalleryViewCommand}"
+                                    Cursor="Hand" Padding="12,6" BorderThickness="0" Margin="2,0,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGalleryMode}" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
+                                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xF0E2;" FontFamily="Segoe MDL2 Assets" FontSize="12" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                                <TextBlock Text="Multi-Sheet Gallery" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Center: Sheet Readout & Stepper (Visible in Single Sheet Mode) -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding IsSingleSheetMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Button Style="{StaticResource OutlinedPillButton}" Width="36" Height="34"
+                                Command="{Binding SelectPreviousSheetCommand}" ToolTip="Previous sheet (Left Arrow)"
+                                Content="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="12"
+                                VerticalAlignment="Center" Margin="0,0,8,0"/>
+
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
+                                    Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <!-- Sheet Number Pill -->
+                            <Border Background="{StaticResource OptBentoHeroBg}" CornerRadius="6" Padding="10,5" Margin="0,0,8,0">
+                                <TextBlock Text="{Binding PreviewSheetCounter}" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
+                            </Border>
+
+                            <!-- Stock Dimensions Pill -->
+                            <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    CornerRadius="6" Padding="10,5" Margin="0,0,8,0">
+                                <TextBlock Text="{Binding PreviewStockLabel}" FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Border>
+
+                            <!-- Utilization Yield Badge -->
+                            <Border Background="{StaticResource OptSuccessBg}" BorderBrush="{StaticResource OptSuccessBorder}"
+                                    BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,8,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Yield: " FontSize="12" Foreground="{StaticResource OptSuccessInk}"/>
+                                    <TextBlock Text="{Binding PreviewUtilization}" FontSize="12" FontWeight="Bold"
+                                               Foreground="{StaticResource OptSuccessInk}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Composition / Spec Label -->
+                            <TextBlock Text="{Binding PreviewGroupLabel}" FontSize="12"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       VerticalAlignment="Center" Margin="6,0,0,0" TextTrimming="CharacterEllipsis"
+                                       MaxWidth="320"/>
+                        </StackPanel>
+
+                        <TextBlock Text="Run optimization to generate 2D sheet layouts"
+                                   FontSize="13" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center"
+                                   Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                        <Button Style="{StaticResource OutlinedPillButton}" Width="36" Height="34"
+                                Command="{Binding SelectNextSheetCommand}" ToolTip="Next sheet (Right Arrow)"
+                                Content="&#xE76C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="12"
+                                VerticalAlignment="Center" Margin="8,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Center: Multi-Sheet Gallery Header (Visible in Gallery Mode) -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Visibility="{Binding IsGalleryMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <!-- Per-Page Selector -->
+                        <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="8" Padding="3" Margin="0,0,16,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Show:" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                           VerticalAlignment="Center" Margin="6,0,4,0"/>
+                                <Button Content="4" Command="{Binding SetGalleryPageSizeCommand}" CommandParameter="4"
+                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"/>
+                                <Button Content="8" Command="{Binding SetGalleryPageSizeCommand}" CommandParameter="8"
+                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"/>
+                                <Button Content="12" Command="{Binding SetGalleryPageSizeCommand}" CommandParameter="12"
+                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Paging Navigator -->
+                        <Button Style="{StaticResource OutlinedPillButton}" Width="32" Height="30"
+                                Command="{Binding GalleryPrevPageCommand}" IsEnabled="{Binding CanGalleryPrev}"
+                                ToolTip="Previous page" Content="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                FontSize="10" VerticalAlignment="Center" Margin="0,0,6,0"/>
+
+                        <TextBlock Text="{Binding GalleryPaginationSummary}" FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"
+                                   Margin="6,0"/>
+
+                        <Button Style="{StaticResource OutlinedPillButton}" Width="32" Height="30"
+                                Command="{Binding GalleryNextPageCommand}" IsEnabled="{Binding CanGalleryNext}"
+                                ToolTip="Next page" Content="&#xE76C;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                FontSize="10" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Right: Zoom Controls & Mini-map Thumbnail (Single Mode) -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
+                                Visibility="{Binding IsSingleSheetMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
+                            <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="30" Height="30"
+                                    Command="{Binding PreviewZoomOutCommand}" Margin="0,0,4,0" ToolTip="Zoom out"/>
+                            <Border CornerRadius="6" Background="{DynamicResource SurfacePrimaryBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    Padding="8,3" Margin="0,0,4,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="11" FontWeight="Bold"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Border>
+                            <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="30" Height="30"
+                                    Command="{Binding PreviewZoomInCommand}" Margin="0,0,4,0" ToolTip="Zoom in"/>
+                            <Button Content="100%" Style="{StaticResource OutlinedPillButton}" Height="30" Padding="8,0"
+                                    Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%"/>
+                        </StackPanel>
+
+                        <!-- Mini-map thumbnail -->
+                        <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                                CornerRadius="4" Padding="2" VerticalAlignment="Center"
+                                ToolTip="Whole sheet mini-map"
+                                Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Canvas Width="{Binding MiniMapWidth}" Height="{Binding MiniMapHeight}">
+                                <ItemsControl ItemsSource="{Binding MiniMapRects}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <Canvas/>
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                            <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Width="{Binding Width}" Height="{Binding Height}"
+                                                    BorderThickness="0.5" BorderBrush="{DynamicResource BorderBrush}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Rotated}" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Canvas>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ═════════════════════════════════════════════════════
+                     ROW 1A: SINGLE SHEET CAD VISUALIZER WORKSPACE
+                     ═════════════════════════════════════════════════════ -->
+                <Grid Grid.Row="1" Visibility="{Binding IsSingleSheetMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <!-- Empty State -->
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                Visibility="{Binding HasPreview, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <Border Width="64" Height="64" CornerRadius="16" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                HorizontalAlignment="Center" Margin="0,0,0,14">
+                            <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="28"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                        </Border>
+                        <TextBlock Text="No layout to preview yet" FontSize="16" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Run Quick or Optimize, then inspect the 2D sheet cutting plan here."
+                                   FontSize="13" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"
+                                   HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Active CAD Sheet Layout + Piece Table -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                                  Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel Margin="8">
+                            <!-- ── TOP PLATE DIMENSION CALLOUT BAR ── -->
+                            <Grid HorizontalAlignment="Center" Width="{Binding RenderWidth}" Margin="0,0,0,4">
+                                <Border Height="1" Background="{DynamicResource BorderBrush}" VerticalAlignment="Center"/>
+                                <Border Background="{DynamicResource Surface.Primary.BackgroundBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="4" Padding="8,2" HorizontalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="↔ Plate Width: " FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                        <TextBlock Text="{Binding SheetDimensionsTop}" FontSize="11" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    </StackPanel>
+                                </Border>
                             </Grid>
 
-                            <!-- ── Footer: zoom + two-tone legend ── -->
-                            <Grid Grid.Row="2" Margin="0,12,0,0">
+                            <!-- ── MAIN CAD CANVAS WORKSPACE ── -->
+                            <Grid HorizontalAlignment="Center">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Button Content="−" Style="{StaticResource OutlinedPillButton}" Width="34" Height="34"
-                                            Command="{Binding PreviewZoomOutCommand}" Margin="0,0,6,0" ToolTip="Zoom out"/>
-                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfacePrimaryBrush}" Padding="10,3"
-                                            Margin="0,0,6,0" VerticalAlignment="Center" Style="{StaticResource SurfacePrimaryStyle}">
-                                        <TextBlock Text="{Binding PreviewScaleLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                   FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                    </Border>
-                                    <Button Content="+" Style="{StaticResource OutlinedPillButton}" Width="34" Height="34"
-                                            Command="{Binding PreviewZoomInCommand}" Margin="0,0,6,0" ToolTip="Zoom in"/>
-                                    <Button Content="100%" Style="{StaticResource OutlinedPillButton}"
-                                            Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%"/>
-                                </StackPanel>
+                                <!-- Left Dimension Callout -->
+                                <Border Grid.Column="0" Margin="0,0,6,0" VerticalAlignment="Center"
+                                        Background="{DynamicResource Surface.Primary.BackgroundBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="4" Padding="3,6">
+                                    <TextBlock Text="{Binding SheetDimensionsLeft}" FontSize="11" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               HorizontalAlignment="Center">
+                                        <TextBlock.LayoutTransform>
+                                            <RotateTransform Angle="-90"/>
+                                        </TextBlock.LayoutTransform>
+                                    </TextBlock>
+                                </Border>
 
-                                <TextBlock Grid.Column="1" Text="{Binding MarginZoneLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"
-                                           HorizontalAlignment="Center" Margin="12,0"/>
+                                <!-- Plate Canvas -->
+                                <Border Grid.Column="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2"
+                                        CornerRadius="4" Background="#FBFBFE" SnapsToDevicePixels="True">
+                                    <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
 
-                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Border Width="14" Height="14" Background="Transparent" BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="1.5" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                    <TextBlock Text="LM/RM/TM/BM margin" FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                    <Border Width="14" Height="14" Background="Transparent" BorderBrush="{DynamicResource WarningBrush}"
-                                            BorderThickness="1" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                    <TextBlock Text="min breakout" FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                    <Border Width="14" Height="14" Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                    <TextBlock Text="original" FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                                    <Border Width="14" Height="14" Background="{DynamicResource InfoBrush}" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Style="{StaticResource SurfacePrimaryStyle}"/>
-                                    <TextBlock Text="rotated 90°" FontSize="{DynamicResource FontSize.BodySmall}"
-                                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
-                                </StackPanel>
+                                        <!-- Usable Rect (Inside Margins) — Accent Dashed Line -->
+                                        <Rectangle Canvas.Left="{Binding UsableX}" Canvas.Top="{Binding UsableY}"
+                                                   Width="{Binding UsableW}" Height="{Binding UsableH}"
+                                                   Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.5"
+                                                   StrokeDashArray="6,3" Fill="Transparent" IsHitTestVisible="False"/>
+
+                                        <!-- Minimum-Breakout Margin — Amber Dashed Line -->
+                                        <Rectangle Canvas.Left="{Binding BreakoutX}" Canvas.Top="{Binding BreakoutY}"
+                                                   Width="{Binding BreakoutW}" Height="{Binding BreakoutH}"
+                                                   Stroke="{DynamicResource WarningBrush}" StrokeThickness="1"
+                                                   StrokeDashArray="3,2" Fill="Transparent" IsHitTestVisible="False"/>
+
+                                        <!-- Reusable Offcut Remnants -->
+                                        <ItemsControl ItemsSource="{Binding SheetOffcuts}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <Canvas/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemContainerStyle>
+                                                <Style TargetType="ContentPresenter">
+                                                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                                </Style>
+                                            </ItemsControl.ItemContainerStyle>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="{Binding Width}" Height="{Binding Height}"
+                                                            Background="{StaticResource OptOffcutBg}"
+                                                            BorderBrush="{StaticResource OptOffcutBorder}"
+                                                            BorderThickness="1.5" BorderDashArray="4,2"
+                                                            Padding="4">
+                                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                            <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                                                       Foreground="{StaticResource OptAccentInk}" HorizontalAlignment="Center"/>
+                                                            <TextBlock Text="{Binding Label}" FontSize="10" FontWeight="SemiBold"
+                                                                       Foreground="{StaticResource OptAccentInk}" HorizontalAlignment="Center"
+                                                                       Margin="0,2,0,0"/>
+                                                            <TextBlock Text="{Binding DimensionsText}" FontSize="10" FontWeight="Bold"
+                                                                       Foreground="{StaticResource OptAccentInk}" HorizontalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- Placed Cut Pieces with Cut Size Dimensions -->
+                                        <ItemsControl ItemsSource="{Binding SheetRects}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <Canvas/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemContainerStyle>
+                                                <Style TargetType="ContentPresenter">
+                                                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                                </Style>
+                                            </ItemsControl.ItemContainerStyle>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Width="{Binding Width}" Height="{Binding Height}"
+                                                            BorderThickness="1" BorderBrush="#2C2440"
+                                                            CornerRadius="2" SnapsToDevicePixels="True">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <!-- Normal Placement: Soft Porcelain Tint -->
+                                                                <Setter Property="Background" Value="#EBF3FE"/>
+                                                                <Style.Triggers>
+                                                                    <!-- Rotated 90°: Light Purple Tint -->
+                                                                    <DataTrigger Binding="{Binding Rotated}" Value="True">
+                                                                        <Setter Property="Background" Value="#F3EEFF"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+
+                                                        <Grid Margin="3">
+                                                            <!-- Cut Sequence Tag Badge (Top-Left) -->
+                                                            <Border HorizontalAlignment="Left" VerticalAlignment="Top"
+                                                                    Background="#443A86" CornerRadius="3" Padding="4,1"
+                                                                    Visibility="{Binding ShowSequence, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                <TextBlock Text="{Binding CutTag}" FontSize="9" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                            </Border>
+
+                                                            <!-- Rotation Tag (Top-Right) -->
+                                                            <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                                                                    Background="{StaticResource OptInfoBg}" CornerRadius="3" Padding="4,1"
+                                                                    Visibility="{Binding Rotated, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                <TextBlock Text="90° ⟳" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OptInfoInk}"/>
+                                                            </Border>
+
+                                                            <!-- Prominent Cut Size Dimensions (Center) -->
+                                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                        Visibility="{Binding ShowDimensions, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                <TextBlock Text="{Binding PieceRef}" FontSize="11" FontWeight="SemiBold"
+                                                                           Foreground="#2C2440" HorizontalAlignment="Center"
+                                                                           TextTrimming="CharacterEllipsis" MaxWidth="160"/>
+                                                                <!-- Exact Cut Dimensions -->
+                                                                <TextBlock Text="{Binding DimensionsText}" FontSize="12" FontWeight="Bold"
+                                                                           Foreground="#1E1B4B" HorizontalAlignment="Center"
+                                                                           Margin="0,1,0,0"/>
+                                                                <TextBlock Text="{Binding AreaM2Text}" FontSize="10"
+                                                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                                                           HorizontalAlignment="Center"
+                                                                           Visibility="{Binding ShowFullDetails, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                            </StackPanel>
+
+                                                            <!-- Compact label for smaller pieces -->
+                                                            <TextBlock Text="{Binding ShortDimensionsText}" FontSize="10" FontWeight="Bold"
+                                                                       Foreground="#2C2440" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                       Visibility="{Binding ShowDimensions, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Canvas>
+                                </Border>
                             </Grid>
-                        </Grid>
-                    </Border>
+
+                            <!-- ── PIECE CUTTING SCHEDULE MATRIX TABLE ── -->
+                            <Border Style="{StaticResource OptInnerCard}" Margin="0,18,0,0" HorizontalAlignment="Stretch">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="PIECE CUTTING SCHEDULE FOR THIS SHEET"
+                                                   Style="{StaticResource OptPanelTitle}" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="Total Sheet Pieces: " FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                            <TextBlock Text="{Binding PreviewPiecesCount}" FontSize="12" FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Table Header -->
+                                    <Grid Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                                          Height="32">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="140"/>
+                                            <ColumnDefinition Width="150"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="SEQ #" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                        <TextBlock Grid.Column="1" Text="CUT TAG" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="PIECE REF" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="DIMENSIONS (W×H)" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="ROTATED" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="AREA" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="6" Text="GLASS SPECIFICATION" Style="{StaticResource OptHeader}" VerticalAlignment="Center"/>
+                                    </Grid>
+
+                                    <!-- Table Rows -->
+                                    <ItemsControl ItemsSource="{Binding CurrentSheetPieces}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Padding="8,7" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="60"/>
+                                                            <ColumnDefinition Width="90"/>
+                                                            <ColumnDefinition Width="140"/>
+                                                            <ColumnDefinition Width="150"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="100"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="{Binding SequenceNumber}" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                        <Border Grid.Column="1" Background="#443A86" CornerRadius="4" Padding="6,1"
+                                                                HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding CutTag}" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                        </Border>
+                                                        <TextBlock Grid.Column="2" Text="{Binding PieceRef}" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Grid.Column="3" Text="{Binding DimensionsText}" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Grid.Column="4" Text="{Binding RotatedText}"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        <TextBlock Grid.Column="5" Text="{Binding AreaM2Text}"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Grid.Column="6" Text="{Binding GlassSpec}"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}" TextTrimming="CharacterEllipsis"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
                 </Grid>
+
+                <!-- ═════════════════════════════════════════════════════
+                     ROW 1B: MULTI-SHEET GALLERY GRID (8 / 12 PER PAGE)
+                     ═════════════════════════════════════════════════════ -->
+                <Grid Grid.Row="1" Visibility="{Binding IsGalleryMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="4">
+                            <ItemsControl ItemsSource="{Binding PagedGallerySheets}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- Miniature Sheet Bento Card -->
+                                        <Border Style="{StaticResource OptGalleryCard}" Width="276" Margin="0,0,14,14">
+                                            <Border.InputBindings>
+                                                <MouseBinding Gesture="LeftClick"
+                                                              Command="{Binding DataContext.FocusGallerySheetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                              CommandParameter="{Binding Index}"/>
+                                            </Border.InputBindings>
+                                            <StackPanel>
+                                                <!-- Card Header -->
+                                                <Grid Margin="0,0,0,8">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0">
+                                                        <TextBlock Text="{Binding SheetNoLabel}" FontWeight="Bold" FontSize="13"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding StockLabel}" FontSize="11"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                    </StackPanel>
+                                                    <!-- Yield Badge Pill -->
+                                                    <Border Grid.Column="1" Background="{StaticResource OptSuccessBg}"
+                                                            BorderBrush="{StaticResource OptSuccessBorder}" BorderThickness="1"
+                                                            CornerRadius="6" Padding="8,3" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding UtilizationLabel}" FontSize="11" FontWeight="Bold"
+                                                                   Foreground="{StaticResource OptSuccessInk}"/>
+                                                    </Border>
+                                                </Grid>
+
+                                                <!-- Miniature Sheet Vector Canvas -->
+                                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                                        CornerRadius="4" Background="#FBFBFE" Padding="2" Margin="0,0,0,8"
+                                                        HorizontalAlignment="Center">
+                                                    <Canvas Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}">
+                                                        <ItemsControl ItemsSource="{Binding Pieces}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <Canvas/>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemContainerStyle>
+                                                                <Style TargetType="ContentPresenter">
+                                                                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                                                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                                                </Style>
+                                                            </ItemsControl.ItemContainerStyle>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border Width="{Binding Width}" Height="{Binding Height}"
+                                                                            BorderThickness="0.8" BorderBrush="#2C2440"
+                                                                            Background="#EBF3FE">
+                                                                        <TextBlock Text="{Binding CutNumber}" FontSize="8" FontWeight="Bold"
+                                                                                   Foreground="#2C2440" HorizontalAlignment="Center"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Visibility="{Binding ShowSequence, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </Canvas>
+                                                </Border>
+
+                                                <!-- Card Footer: Stats & Action -->
+                                                <Grid Margin="0,2,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding PieceCountLabel}" FontSize="11" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding WasteLabel}" FontSize="10"
+                                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="1" Content="Inspect CAD →"
+                                                            Style="{StaticResource OutlinedPillButton}" FontSize="10" Padding="8,4"
+                                                            Command="{Binding DataContext.FocusGallerySheetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding Index}"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+
+                <!-- ═════════════════════════════════════════════════════
+                     ROW 2: FOOTER STATUS & TWO-TONE CAD LEGEND
+                     ═════════════════════════════════════════════════════ -->
+                <Grid Grid.Row="2" Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0" Text="{Binding MarginZoneLabel}" FontSize="11"
+                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+
+                    <!-- Studio Bento CAD Legend -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Margin Zone -->
+                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{DynamicResource AccentBrush}"
+                                BorderThickness="1.5" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Trim Margin" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                        <!-- Breakout allowance -->
+                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{DynamicResource WarningBrush}"
+                                BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Min Breakout" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                        <!-- Standard Cut Piece -->
+                        <Border Width="12" Height="12" Background="#EBF3FE" BorderBrush="#2C2440"
+                                BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Original (0°)" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                        <!-- Rotated Cut Piece -->
+                        <Border Width="12" Height="12" Background="#F3EEFF" BorderBrush="#2C2440"
+                                BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Rotated 90° ⟳" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                        <!-- Reusable Offcut -->
+                        <Border Width="12" Height="12" Background="{StaticResource OptOffcutBg}"
+                                BorderBrush="{StaticResource OptOffcutBorder}" BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Reusable Offcut" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>
