@@ -206,30 +206,94 @@
                                           Width="300" HorizontalAlignment="Left" Margin="0,2,0,4" Style="{StaticResource ComboBoxStyle}"/>
 
                                 <!-- Built-in theme scenes (live swatches) -->
-                                <TextBlock Text="{DynamicResource Settings.WallpaperBuiltin}"
-                                           FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap6Bottom2}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
-                                <ItemsControl ItemsSource="{Binding BuiltinSceneRows}">
+                                <DockPanel Margin="{StaticResource SettingsStackGap12Bottom2}">
+                                    <TextBlock Text="{DynamicResource Settings.WallpaperBuiltin}"
+                                               FontSize="{DynamicResource FontSize.Title}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Text="Code-drawn, 4K resolution-independent scenes paired per visual theme"
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               HorizontalAlignment="Right"
+                                               VerticalAlignment="Center"/>
+                                </DockPanel>
+
+                                <ItemsControl ItemsSource="{Binding BuiltinSceneRows}" Margin="0,6,0,14">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <WrapPanel/>
+                                            <UniformGrid Columns="4"/>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <!-- No Padding override: the pill template
-                                                 owns its metrics (2026-09-05 lesson —
-                                                 overrides collapsed the button text). -->
-                                            <Button Style="{StaticResource OutlinedPillButton}"
-                                                    Command="{Binding DataContext.ApplyBuiltinSceneCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            <Button Command="{Binding DataContext.ApplyBuiltinSceneCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding Key}"
-                                                    Margin="{StaticResource SettingsTileWrapMargin}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Rectangle Width="36" Height="20" RadiusX="5" RadiusY="5"
-                                                               Fill="{Binding Preview}"/>
-                                                    <TextBlock Text="{Binding Label}" Margin="{StaticResource SettingsInlineGap8}"
-                                                               VerticalAlignment="Center"/>
-                                                </StackPanel>
+                                                    Cursor="Hand"
+                                                    Margin="0,0,10,10"
+                                                    Padding="0"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    FocusVisualStyle="{x:Null}">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border x:Name="CardBd"
+                                                                Style="{StaticResource SettingsInnerTileStyle}"
+                                                                Padding="8"
+                                                                CornerRadius="{DynamicResource CardCornerRadius}">
+                                                            <StackPanel>
+                                                                <!-- Live Scene Gradient Viewport -->
+                                                                <Border Height="80"
+                                                                        CornerRadius="{DynamicResource Radius.Small}"
+                                                                        Background="{Binding Preview}"
+                                                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                                                        SnapsToDevicePixels="True">
+                                                                    <Grid Margin="6">
+                                                                        <Border HorizontalAlignment="Right"
+                                                                                VerticalAlignment="Top"
+                                                                                Background="#800F172A"
+                                                                                CornerRadius="4"
+                                                                                Padding="5,2">
+                                                                            <TextBlock Text="4K Scene"
+                                                                                       FontSize="9"
+                                                                                       FontWeight="SemiBold"
+                                                                                       Foreground="#FFFFFF"/>
+                                                                        </Border>
+                                                                    </Grid>
+                                                                </Border>
+                                                                <!-- Title and family label -->
+                                                                <DockPanel Margin="2,8,2,2" LastChildFill="True">
+                                                                    <TextBlock Text="{Binding Label}"
+                                                                               FontWeight="{DynamicResource Weight.Bold}"
+                                                                               FontSize="{DynamicResource FontSize.Body}"
+                                                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Text="&#xE73E;"
+                                                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                                                               FontSize="12"
+                                                                               Foreground="{DynamicResource AccentBrush}"
+                                                                               HorizontalAlignment="Right"
+                                                                               VerticalAlignment="Center"/>
+                                                                </DockPanel>
+                                                                <TextBlock Text="{Binding Key}"
+                                                                           FontSize="{DynamicResource FontSize.Caption}"
+                                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                           Margin="2,0,2,2"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="CardBd" Property="BorderBrush"
+                                                                        Value="{DynamicResource AccentBrush}"/>
+                                                                <Setter TargetName="CardBd" Property="Background"
+                                                                        Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsPressed" Value="True">
+                                                                <Setter TargetName="CardBd" Property="Opacity" Value="0.82"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Button.Template>
                                             </Button>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
