@@ -346,11 +346,37 @@
                  template root in SettingsPageTemplates.xaml now re-acquires
                  the shell VM via RelativeSource. See that file's header. -->
             <ContentControl Grid.Row="1"
-                            Content="{Binding SettingsPage}"
+                            Content="{Binding SettingsPage, NotifyOnTargetUpdated=True}"
                             ContentTemplateSelector="{StaticResource SettingsPageTemplateSelector}"
                             Focusable="False"
                             HorizontalContentAlignment="Stretch"
-                            VerticalContentAlignment="Stretch"/>
+                            VerticalContentAlignment="Stretch">
+                <ContentControl.RenderTransform>
+                    <TranslateTransform Y="0"/>
+                </ContentControl.RenderTransform>
+                <ContentControl.Triggers>
+                    <EventTrigger RoutedEvent="Binding.TargetUpdated">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                 From="0.85" To="1.0"
+                                                 Duration="0:0:0.12">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                                 From="5" To="0"
+                                                 Duration="0:0:0.12">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </ContentControl.Triggers>
+            </ContentControl>
         </Grid>
     </Grid>
 </UserControl>

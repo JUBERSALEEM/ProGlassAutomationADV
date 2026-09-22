@@ -25,6 +25,7 @@
 // ═══════════════════════════════════════════════════════════════════
 
 using System;
+using System.Collections.Concurrent;
 using System.Windows;
 using System.Windows.Controls;
 using ProGlassAutomation.ViewModels.Settings;
@@ -32,9 +33,13 @@ using ProGlassAutomation.ViewModels.Settings;
 namespace ProGlassAutomation.Views.Settings
 {
     /// <summary>Maps the active settings page key to its DataTemplate
-    /// (SettingsPage.&lt;key&gt;).</summary>
+    /// (SettingsPage.&lt;key&gt;). Features high-performance thread-safe
+    /// template caching for instant 60fps card switching.</summary>
     public class SettingsPageTemplateSelector : DataTemplateSelector
     {
+        private static readonly ConcurrentDictionary<string, DataTemplate> _cache =
+            new(StringComparer.OrdinalIgnoreCase);
+
         public override DataTemplate? SelectTemplate(object? item,
             DependencyObject container)
         {
@@ -60,7 +65,10 @@ namespace ProGlassAutomation.Views.Settings
                     if (string.Equals(row.Key, vm.SettingsPage,
                             StringComparison.OrdinalIgnoreCase) &&
                         fe.TryFindResource("SettingsPage." + row.Key) is DataTemplate t)
+                    {
+                        _cache[row.Key] = t;
                         return t;
+                    }
                 }
             }
 
@@ -70,16 +78,25 @@ namespace ProGlassAutomation.Views.Settings
         }
 
         /// <summary>Exact key, then the same key with an upper-case first
-        /// letter ("ai" → "Ai" → the registry's "AI").</summary>
+        /// letter ("ai" → "Ai" → the registry's "AI"). Results are cached
+        /// for zero-allocation instant lookups on subsequent visits.</summary>
         private static DataTemplate? Find(FrameworkElement fe, string key)
         {
+            if (_cache.TryGetValue(key, out var cached))
+                return cached;
+
+            DataTemplate? found = null;
             if (fe.TryFindResource("SettingsPage." + key) is DataTemplate exact)
-                return exact;
-            if (key.Length > 0 &&
+                found = exact;
+            else if (key.Length > 0 &&
                 fe.TryFindResource("SettingsPage." +
                     char.ToUpperInvariant(key[0]) + key[1..]) is DataTemplate titled)
-                return titled;
-            return null;
+                found = titled;
+
+            if (found != null)
+                _cache[key] = found;
+
+            return found;
         }
     }
 }

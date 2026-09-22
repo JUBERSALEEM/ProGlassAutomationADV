@@ -205,6 +205,11 @@
         <Setter Property="Padding" Value="{StaticResource SettingsCardPadding}"/>
         <Setter Property="Margin" Value="{StaticResource SettingsCardMargin}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
+        <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
         <Setter Property="Effect" Value="{DynamicResource SettingsCardShadow}"/>
     </Style>
 
@@ -238,6 +243,8 @@
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
         <Setter Property="Padding" Value="{StaticResource SettingsTilePadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
     </Style>
 
     <!-- Hover surface for an interactive tile / row (mockup: preset tiles,
