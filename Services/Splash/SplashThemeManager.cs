@@ -26,8 +26,8 @@ namespace ProGlassAutomation.Services.Splash
             new SplashStyleOption(6, "Cyber Industrial Monolith", "Pitch OLED dark monolith with technical guides and terminal diagnostic meter", "#06B6D4"),
             new SplashStyleOption(7, "Nordic Frosted Slate", "Matte frosted fjord slate surfaces with crisp electric blue accents", "#38BDF8"),
             new SplashStyleOption(8, "Dynamic Aurora Gradient", "Sweeping emerald, cyan, and indigo atmospheric light ribbons across the stage", "#34D399"),
-            new SplashStyleOption(9, "High-Density Operations", "Mission-critical glass plant operations chassis with real-time subsystem telemetry", "#F59E0B"),
-            new SplashStyleOption(10, "Glass Mural Chassis", "Optical beveled glass shields with realistic refractive highlights", "#A78BFA")
+            new SplashStyleOption(9, "Glass Prism Optical Bevel", "Thick architectural float glass plate with 3D optical bevels and multi-faceted light dispersions", "#0F172A"),
+            new SplashStyleOption(10, "Minimalist Indigo Monogram", "Ultra-clean modern silk canvas with centered indigo monogram squircle and circular arc", "#4F46E5")
         };
 
         /// <summary>
@@ -70,9 +70,9 @@ namespace ProGlassAutomation.Services.Splash
                 6 => (Color.FromRgb(4, 8, 14), Color.FromRgb(8, 14, 22), Color.FromRgb(10, 20, 30), Color.FromRgb(6, 182, 212)),
                 7 => (Color.FromRgb(15, 23, 30), Color.FromRgb(22, 33, 44), Color.FromRgb(30, 44, 58), Color.FromRgb(56, 189, 248)),
                 8 => (Color.FromRgb(6, 24, 28), Color.FromRgb(12, 36, 44), Color.FromRgb(20, 48, 54), Color.FromRgb(52, 211, 153)),
-                9 => (Color.FromRgb(18, 20, 26), Color.FromRgb(24, 28, 38), Color.FromRgb(32, 36, 48), Color.FromRgb(245, 158, 11)),
-                10 => (Color.FromRgb(20, 16, 32), Color.FromRgb(30, 24, 48), Color.FromRgb(42, 32, 66), Color.FromRgb(167, 139, 250)),
-                _ => (Color.FromRgb(11, 17, 30), Color.FromRgb(15, 23, 42), Color.FromRgb(30, 41, 59), Color.FromRgb(56, 189, 248))
+                9 => (Color.FromRgb(226, 232, 240), Color.FromRgb(241, 245, 249), Color.FromRgb(203, 213, 225), Color.FromRgb(15, 23, 42)),
+                10 => (Color.FromRgb(248, 250, 252), Color.FromRgb(241, 245, 249), Color.FromRgb(226, 232, 240), Color.FromRgb(79, 70, 229)),
+                _ => (Color.FromRgb(226, 232, 240), Color.FromRgb(241, 245, 249), Color.FromRgb(203, 213, 225), Color.FromRgb(15, 23, 42))
             };
         }
     }
