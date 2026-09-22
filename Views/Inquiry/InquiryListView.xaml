@@ -26,7 +26,7 @@
        / IconBadgeStyles. The previous module-local "InquiryTheme.xaml" is
        removed. No private vocabulary.
 ════════════════════════════════════════════════════════════════════ -->
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Inquiry.InquiryListView"
+<UserControl x:Class="ProGlassAutomation.Views.Inquiry.InquiryListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:inq="clr-namespace:ProGlassAutomation.Models.Inquiry"
@@ -36,22 +36,15 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
 
     <UserControl.Resources>
-        <!-- Status-tinted left bar on each row.
-             DataTrigger re-binds Background to a tinted brush per status. -->
-        
-
-        <!-- Status pill that picks its colour from the row's Status.
-             Used in both the row and the right rail. -->
-        
-
-        <!-- Compact initials tile for the customer cell.
-             Reads CustomerInitials from the row. -->
-        
-
-        
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <!-- Segmented status pill for the tab row above the list.
              Inactive = pale surface with grey text; active = accent surface.
@@ -123,6 +116,7 @@
 
         <!-- 4px state dot for a pipeline row -->
         
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">
@@ -144,41 +138,41 @@
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Inquiries" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="Inquiries" Style="{StaticResource Sl.Title}"/>
                     <Border Margin="12,4,0,0" VerticalAlignment="Center"
-                            Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="8,4" SnapsToDevicePixels="True">
-                        <TextBlock Text="REGISTER" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            Background="{DynamicResource Ov.Accent}"
+                            CornerRadius="6"
+                            Padding="8,3" SnapsToDevicePixels="True">
+                        <TextBlock Text="REGISTER" FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.OnAccent}"/>
                     </Border>
                 </StackPanel>
                 <TextBlock Text="Commercial intake — capture, prepare, send, confirm, convert, deliver, bill, collect."
-                           Style="{StaticResource ModulePageSubtitleStyle}"/>
+                           Style="{StaticResource Sl.Subtitle}" Margin="0,4,0,0"/>
             </StackPanel>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Margin="0,0,8,0" MinWidth="100"
-                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                <Button Margin="0,0,8,0"
+                        Style="{StaticResource Sl.Button}"
                         Command="{Binding RefreshCommand}"
                         Content="REFRESH" Tag="↻"/>
-                <Button Margin="0,0,8,0" MinWidth="92"
-                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                <Button Margin="0,0,8,0"
+                        Style="{StaticResource Sl.Button}"
                         Command="{Binding ImportCommand}"
                         Content="IMPORT" Tag="↧"/>
-                <Button Margin="0,0,8,0" MinWidth="92"
-                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                <Button Margin="0,0,8,0"
+                        Style="{StaticResource Sl.Button}"
                         Command="{Binding ExportCommand}"
                         Content="EXPORT" Tag="↥"/>
-                <Button Margin="0,0,8,0" MinWidth="92"
-                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                <Button Margin="0,0,8,0"
+                        Style="{StaticResource Sl.Button}"
                         Command="{Binding ShareCommand}"
                         Content="{DynamicResource Sharing.Share}" Tag="⇪"
                         ToolTip="{DynamicResource Sharing.Share}"/>
-                <Button MinWidth="140"
-                        Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
+                <Button Style="{StaticResource Sl.PrimaryButton}"
                         Command="{Binding NewInquiryCommand}"
-                        Content="＋ NEW INQUIRY" Tag="＋"/>
+                        Content="＋ NEW INQUIRY" Tag="＋"
+                        Padding="14,8"/>
             </StackPanel>
         </Grid>
 
@@ -451,78 +445,77 @@
             </Grid.ColumnDefinitions>
 
             <!-- ── Main list (takes full width when rail is closed) ── -->
-            <Grid Grid.Column="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <Border Grid.Column="0" Style="{StaticResource Sl.Shell}" CornerRadius="14" Padding="0" ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <!-- Sticky column header (module table band) -->
-                <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}" Padding="0,8">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="3"/>
-    <ColumnDefinition Width="1.3*" MinWidth="120"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.2*" MinWidth="100"/>
-    <ColumnDefinition Width="0.8*" MinWidth="85"/>
-    <ColumnDefinition Width="0.9*" MinWidth="95"/>
-    <ColumnDefinition Width="Auto"/>
-</Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="INQ#"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="12,0"/>
-                        <TextBlock Grid.Column="2" Text="STATUS"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="3" Text="CUSTOMER"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"/>
-                        <TextBlock Grid.Column="4" Text="PROJECT"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"/>
-                        <TextBlock Grid.Column="5" Text="VALUE" Margin="0,0,8,0"
-                                   HorizontalAlignment="Right"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="6" Text="RECEIVED"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"/>
-                        <TextBlock Grid.Column="7" Text="OWNER"
-                                   Style="{StaticResource ModuleListHeaderTextStyle}"
-                                   Margin="8,0"/>
-                    </Grid>
-                </Border>
+                    <!-- Sticky column header (module table band) -->
+                    <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Padding="0,10">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="3"/>
+                                <ColumnDefinition Width="1.3*" MinWidth="120"/>
+                                <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                                <ColumnDefinition Width="1.5*" MinWidth="130"/>
+                                <ColumnDefinition Width="1.2*" MinWidth="100"/>
+                                <ColumnDefinition Width="0.8*" MinWidth="85"/>
+                                <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="1" Text="INQ#"
+                                       Style="{StaticResource Sl.ColumnLabel}"
+                                       Margin="12,0"/>
+                            <TextBlock Grid.Column="2" Text="STATUS"
+                                       Style="{StaticResource Sl.ColumnLabel}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="CUSTOMER"
+                                       Style="{StaticResource Sl.ColumnLabel}"
+                                       Margin="8,0"/>
+                            <TextBlock Grid.Column="4" Text="PROJECT"
+                                       Style="{StaticResource Sl.ColumnLabel}"
+                                       Margin="8,0"/>
+                            <TextBlock Grid.Column="5" Text="VALUE" Margin="0,0,8,0"
+                                       HorizontalAlignment="Right"
+                                       Style="{StaticResource Sl.ColumnLabel}"/>
+                            <TextBlock Grid.Column="6" Text="RECEIVED"
+                                       Style="{StaticResource Sl.ColumnLabel}"
+                                       Margin="8,0"/>
+                            <TextBlock Grid.Column="7" Text="OWNER"
+                                       Style="{StaticResource Sl.ColumnLabel}"
+                                       Margin="8,0"/>
+                        </Grid>
+                    </Border>
 
-                <!-- Virtualized inquiry rows -->
-                <Border Grid.Row="1"
-                        Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource Border.BoxNoTopThickness}"
-                        CornerRadius="{DynamicResource Radius.Bottom.Medium}"
-                        SnapsToDevicePixels="True">
-                    <ListBox x:Name="InquiriesList"
-                             ItemsSource="{Binding Inquiries}"
-                             ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                             SelectedItem="{Binding SelectedInquiry, Mode=TwoWay}"
-                             BorderThickness="{DynamicResource Border.NoneThickness}"
-                             Background="Transparent"
-                             Padding="8,8,8,8"
-                             Focusable="False"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                             ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             VirtualizingStackPanel.IsVirtualizing="True"
-                             VirtualizingStackPanel.VirtualizationMode="Recycling"
-                             VirtualizingStackPanel.ScrollUnit="Pixel"
-                             VirtualizingStackPanel.CacheLength="400,800"
-                             VirtualizingStackPanel.CacheLengthUnit="Pixel"
-                             ScrollViewer.CanContentScroll="False"
-                             MouseDoubleClick="OnRowDoubleClick" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" behaviors:SmoothScrollBehavior.IsEnabled="True">
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel/>
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
+                    <!-- Virtualized inquiry rows -->
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource Ov.Surface}"
+                            BorderThickness="0"
+                            SnapsToDevicePixels="True">
+                        <ListBox x:Name="InquiriesList"
+                                 ItemsSource="{Binding Inquiries}"
+                                 ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
+                                 SelectedItem="{Binding SelectedInquiry, Mode=TwoWay}"
+                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 Background="Transparent"
+                                 Padding="0"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 VirtualizingStackPanel.CacheLength="400,800"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
+                                 ScrollViewer.CanContentScroll="False"
+                                 MouseDoubleClick="OnRowDoubleClick" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource ModuleListRowStyle}"
@@ -710,6 +703,7 @@
                     </ListBox>
                 </Border>
             </Grid>
+            </Border>
 
             <!-- ── Slide-in rail (right, ~376px) ── -->
             <Grid x:Name="DetailPanel" Grid.Column="1" Margin="16,0,0,0"
