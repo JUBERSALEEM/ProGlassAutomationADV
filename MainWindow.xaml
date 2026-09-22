@@ -903,7 +903,15 @@
                            IsHitTestVisible="False"
                            Panel.ZIndex="1"/>
 
-                <!-- Active Module Content Host -->
+                <!-- Active Module Content Host (with pale grey backdrop) -->
+                <TextBlock Text="Existing module unchanged"
+                           FontSize="11"
+                           Foreground="#A29CB4"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False"
+                           Panel.ZIndex="0"/>
+
                 <ContentControl Content="{Binding ProfessionalContent}"
                                 behaviors:ContentTransitionBehavior.IsEnabled="True"
                                 Margin="0">
