@@ -40,7 +40,7 @@
                 <!-- Language (15 shipped, live switch, en-US primary) -->
                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;" VerticalAlignment="Center"/>
                             <TextBlock Text="{DynamicResource Settings.LblLanguage}"
                                        Style="{StaticResource SettingsRowTitleStyle}"
@@ -60,7 +60,7 @@
                 <!-- Currency (live FX, offline = last fetched) -->
                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                             <TextBlock Text="&#xEAF1;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Body}"
@@ -83,7 +83,7 @@
                 <!-- Phone country (from IP, editable) -->
                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                             <TextBlock Text="&#xE717;"
                                        FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.Body}"
@@ -107,7 +107,7 @@
             <!-- ═══ ACCESSIBILITY — reduced motion ═══ -->
             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap12}">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                         <TextBlock Text="&#xE713;"
                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.Body}"

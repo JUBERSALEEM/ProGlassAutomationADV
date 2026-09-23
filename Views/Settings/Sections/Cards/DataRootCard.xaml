@@ -44,7 +44,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <StackPanel Grid.Column="0">
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE968;" VerticalAlignment="Center"/>
                                             <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{Binding DataRootModeDisplay}"/>
                                         </StackPanel>

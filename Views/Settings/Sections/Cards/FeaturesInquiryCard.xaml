@@ -70,8 +70,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.InquiryReference}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.ShortCustomerFacingReferenceLineInquiry}"/>
@@ -84,8 +84,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.CustomerLocation}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.EmirateCityCarriedProformaBillingAddress}"/>
@@ -98,8 +98,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ProjectDescription}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.LongerFreeTextDescriptionProjectScope}"/>
@@ -112,8 +112,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Salesman}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SalesRepresentativeWhoOwnsInquiry}"/>
@@ -126,8 +126,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Inquiry.Prepared2}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorWhoFirstTypedInquiry}"/>
@@ -140,8 +140,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Priority}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.UrgentHighNormalLowTriageBucket}"/>
@@ -154,8 +154,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EstimatedValue}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.RoughAEDEstimatePotentialOrder}"/>
@@ -168,8 +168,8 @@
                                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Common.Notes}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformNotesStoredInquiryRecord}"/>

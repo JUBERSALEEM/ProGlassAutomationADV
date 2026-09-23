@@ -218,7 +218,7 @@
                                                VerticalAlignment="Center"/>
                                 </DockPanel>
 
-                                <ItemsControl ItemsSource="{Binding BuiltinSceneRows}" Margin="0,6,0,14">
+                                <ItemsControl ItemsSource="{Binding BuiltinSceneRows}" Margin="{StaticResource SettingsCardMargin}">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <UniformGrid Columns="4"/>
@@ -229,7 +229,7 @@
                                             <Button Command="{Binding DataContext.ApplyBuiltinSceneCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding Key}"
                                                     Cursor="Hand"
-                                                    Margin="0,0,10,10"
+                                                    Margin="{StaticResource SettingsTileWrapMargin}"
                                                     Padding="0"
                                                     Background="Transparent"
                                                     BorderThickness="0"
@@ -248,7 +248,7 @@
                                                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                                         SnapsToDevicePixels="True">
-                                                                    <Grid Margin="6">
+                                                                    <Grid Margin="4">
                                                                         <Border HorizontalAlignment="Right"
                                                                                 VerticalAlignment="Top"
                                                                                 Background="{DynamicResource SurfaceGlassOverlayBrush}"
@@ -262,7 +262,7 @@
                                                                     </Grid>
                                                                 </Border>
                                                                 <!-- Title and family label -->
-                                                                <DockPanel Margin="2,8,2,2" LastChildFill="True">
+                                                                <DockPanel Margin="2,4,2,2" LastChildFill="True">
                                                                     <TextBlock Text="{Binding Label}"
                                                                                FontWeight="{DynamicResource Weight.Bold}"
                                                                                FontSize="{DynamicResource FontSize.Body}"

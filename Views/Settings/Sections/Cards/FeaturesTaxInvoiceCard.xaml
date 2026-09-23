@@ -70,8 +70,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.PaymentDueDatePrintedInvoice}"/>
@@ -84,8 +84,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.PaymentTerms}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.NetCreditTermsClientAgreed}"/>
@@ -98,8 +98,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Discount}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.PercentageDiscountInvoice}"/>
@@ -112,8 +112,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.IBAN}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.BankAccountNumberSettlement}"/>
@@ -126,8 +126,8 @@
                                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Swift}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.BankRoutingCodeInternationalTransfers}"/>

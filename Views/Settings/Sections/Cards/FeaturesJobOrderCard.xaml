@@ -70,8 +70,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource JobOrder.Assigned}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorRunningJobShopFloor}"/>
@@ -84,8 +84,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.SiteContact}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.SiteEngineerDriverReach}"/>
@@ -98,8 +98,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.SitePhone}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.DirectLineDeliveryCoordination}"/>
@@ -112,8 +112,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.SiteAddress}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FullDeliveryLocationDriver}"/>
@@ -126,8 +126,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource JobOrder.DrawingReference}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.LinksPhysicalShopDrawingJob}"/>
@@ -140,8 +140,8 @@
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource JobOrder.CuttingInstructions}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.OperatorCheatSheetCuttingBay}"/>
@@ -154,8 +154,8 @@
                                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource JobOrder.InternalNotes}" VerticalAlignment="Center"/>
 </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.FreeformNotesProductionTeam}"/>

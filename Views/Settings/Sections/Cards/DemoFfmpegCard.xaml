@@ -22,7 +22,7 @@
                             Converter={StaticResource BoolToVisibilityConverter},
                             FallbackValue=Collapsed}">
                     <StackPanel>
-                        <Grid Margin="0,0,0,8">
+                        <Grid Margin="{StaticResource SettingsStackBottom8}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>

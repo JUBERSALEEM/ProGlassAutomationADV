@@ -45,8 +45,8 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}" VerticalAlignment="Center"/>
 </StackPanel>
                                     <TextBlock Grid.Row="1"
@@ -69,8 +69,8 @@
                                         <RowDefinition Height="*"/>
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}" VerticalAlignment="Center"/>
 </StackPanel>
                                     <TextBlock Grid.Row="1"
@@ -87,8 +87,8 @@
                             <!-- Model readout -->
                             <Border Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ActiveModel}" VerticalAlignment="Center"/>
 </StackPanel>
                                     <TextBlock Text="{Binding AiModel}"
@@ -101,8 +101,8 @@
                             <!-- Max tokens -->
                             <Border Margin="{StaticResource SettingsTrailingGap}">
                                 <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.MaxTokens}" VerticalAlignment="Center"/>
 </StackPanel>
                                     <TextBlock Text="{Binding AiMaxTokens}"
@@ -115,8 +115,8 @@
                             <!-- Temperature -->
                             <Border>
                                 <StackPanel>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Temperature}" VerticalAlignment="Center"/>
 </StackPanel>
                                     <TextBlock Text="{Binding AiTemperature}"

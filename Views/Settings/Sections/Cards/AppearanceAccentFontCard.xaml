@@ -200,14 +200,14 @@
             </UniformGrid>
 
             <!-- ═══ LIVE TYPOGRAPHY PREVIEW TILE ═══ -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="0,10,0,6" Padding="16,14">
+            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsRowMargin}" Padding="16,14">
                 <StackPanel>
-                    <DockPanel LastChildFill="True" Margin="0,0,0,8">
+                    <DockPanel LastChildFill="True" Margin="{StaticResource SettingsStackBottom8}">
                         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.H3}"
                                        Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                       VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
                             <TextBlock Text="Live Typography Preview" FontWeight="Bold"
                                        FontSize="{DynamicResource FontSize.Title}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
@@ -222,7 +222,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="&#xE8FB;" FontFamily="{DynamicResource FontFamily.Icon}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                           VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6R}"/>
                                 <TextBlock Text="Apply Selected Font" FontWeight="SemiBold" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
