@@ -270,7 +270,7 @@
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBlock Text="&#xE73E;"
                                                                                FontFamily="{DynamicResource FontFamily.Icon}"
-                                                                               FontSize="12"
+                                                                               FontSize="{DynamicResource FontSize.Caption}"
                                                                                Foreground="{DynamicResource AccentBrush}"
                                                                                HorizontalAlignment="Right"
                                                                                VerticalAlignment="Center"/>

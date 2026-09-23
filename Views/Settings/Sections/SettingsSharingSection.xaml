@@ -40,7 +40,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — DOCUMENT SHARING & EXPORT ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -79,7 +79,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;" VerticalAlignment="Center"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                                Text="{DynamicResource Sharing.Providers}"/>

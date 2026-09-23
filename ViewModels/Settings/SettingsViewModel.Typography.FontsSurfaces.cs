@@ -32,13 +32,11 @@ using Microsoft.Win32;
 using ProGlassAutomation.Services.Localization;
 using ProGlassAutomation.Services.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
-
 namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed partial class SettingsViewModel : ViewModelBase, IDisposable
     {
         // ── Gradient surfaces (adaptive-theme depth option) ───────────
-
         /// <summary>
         /// Gradient support for Monet/adaptive surfaces. Off = flat
         /// palette, On = accent-derived gradients (richer depth).
@@ -48,25 +46,19 @@ namespace ProGlassAutomation.ViewModels.Settings
             get => _config?.Appearance?.UseGradientSurfaces ?? true;
             set
             {
-                if (_config?.Appearance == null) return;
-                if (_config.Appearance.UseGradientSurfaces == value) return;
-
+                if (_config?.Appearance == null || _config.Appearance.UseGradientSurfaces == value) return;
                 _config.Appearance.UseGradientSurfaces = value;
                 ThemeManager.ApplyGradientPreference(value);
-
                 // Rebuild the active visual family so surfaces restyle now.
                 ApplyVisualTheme();
                 SaveConfig();
-
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
                     "Gradient surfaces changed",
                     value ? "Gradients on" : "Gradients off");
-
                 OnPropertyChanged();
             }
         }
-
         /// <summary>Applies a named accent preset. Parameter = preset key.</summary>
         public void ApplyAccentPreset(string presetKey)
         {
@@ -76,12 +68,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ApplyCustomAccent();
                 return;
             }
-
             var color = ProGlassAutomation.Services.Theme.AccentPresets
                 .ColorFor(presetKey);
-
             ThemeManager.ApplyAccent(color);
-
             // Persist so the chosen colour survives app restarts.
             if (_config?.Appearance != null)
             {

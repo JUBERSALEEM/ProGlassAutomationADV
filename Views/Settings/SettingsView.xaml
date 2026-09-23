@@ -75,7 +75,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Background="Transparent">
+    <Grid Background="{DynamicResource BackgroundBrush}">
         <Grid.ColumnDefinitions>
             <!-- ERR-BEFC44 follow-up + 2026-09-05 drawer behaviour:
                  ERR-BEFC44: rail was a hard 232px, clipping long labels.

@@ -67,7 +67,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — AGENT & WORKFLOW ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>

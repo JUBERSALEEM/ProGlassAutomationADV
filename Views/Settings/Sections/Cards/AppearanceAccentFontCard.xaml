@@ -144,16 +144,19 @@
                         </Grid>
 
                         <!-- Bold, Italic, Underline Quick Toggles -->
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <CheckBox IsChecked="{Binding IsFontBold, Mode=TwoWay}" Margin="0,0,14,0" VerticalAlignment="Center"
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap10}">
+                            <CheckBox AutomationProperties.Name="Typography Bold"
+                                      IsChecked="{Binding IsFontBold, Mode=TwoWay}" Margin="{StaticResource SettingsTrailingGap}" VerticalAlignment="Center"
                                       ToolTip="Make typography bold (FontWeights.Bold)">
                                 <TextBlock Text="Bold" FontWeight="Bold"/>
                             </CheckBox>
-                            <CheckBox IsChecked="{Binding IsFontItalic, Mode=TwoWay}" Margin="0,0,14,0" VerticalAlignment="Center"
+                            <CheckBox AutomationProperties.Name="Typography Italic"
+                                      IsChecked="{Binding IsFontItalic, Mode=TwoWay}" Margin="{StaticResource SettingsTrailingGap}" VerticalAlignment="Center"
                                       ToolTip="Make typography italic (FontStyles.Italic)">
                                 <TextBlock Text="Italic" FontStyle="Italic"/>
                             </CheckBox>
-                            <CheckBox IsChecked="{Binding IsFontUnderline, Mode=TwoWay}" VerticalAlignment="Center"
+                            <CheckBox AutomationProperties.Name="Typography Underline"
+                                      IsChecked="{Binding IsFontUnderline, Mode=TwoWay}" VerticalAlignment="Center"
                                       ToolTip="Add underline decoration to typography (TextDecorations.Underline)">
                                 <TextBlock Text="Underline" TextDecorations="Underline"/>
                             </CheckBox>
@@ -237,7 +240,7 @@
                                        FontWeight="{Binding PreviewFontWeight}"
                                        FontStyle="{Binding PreviewFontStyle}"
                                        TextDecorations="{Binding PreviewTextDecorations}"
-                                       FontSize="16"
+                                       FontSize="{DynamicResource FontSize.H2}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"/>
                             <TextBlock Text="The quick brown fox jumps over the lazy dog. 0123456789 — AED 14,850.00 — 6mm Clear Float (Tempered &amp; Polished)"
@@ -245,9 +248,9 @@
                                        FontWeight="{Binding PreviewFontWeight}"
                                        FontStyle="{Binding PreviewFontStyle}"
                                        TextDecorations="{Binding PreviewTextDecorations}"
-                                       FontSize="13"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Margin="0,8,0,0"
+                                       Margin="{StaticResource SettingsStackGap8}"
                                        TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>

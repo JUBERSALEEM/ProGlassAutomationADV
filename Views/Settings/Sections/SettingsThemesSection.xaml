@@ -56,7 +56,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — THEMES & SURFACE TUNING ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="0,0,0,14">
+                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -127,7 +127,7 @@
                         </UniformGrid>
 
                         <!-- Brand Accent Palette Directly Inside Theme Studio -->
-                        <Border Margin="0,12,0,0" Style="{StaticResource SettingsInnerTileStyle}">
+                        <Border Margin="{StaticResource SettingsStackGap12}" Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -143,12 +143,12 @@
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                                         <Button AutomationProperties.AutomationId="Settings.ExportThemePackStudio"
                                                 Command="{Binding ExportThemeProfileCommand}"
-                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="0,0,6,0"
+                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
                                                 ToolTip="Export theme pack configuration to clipboard"
                                                 Content="Export Pack"/>
                                         <Button AutomationProperties.AutomationId="Settings.ImportThemePackStudio"
                                                 Command="{Binding ImportThemeProfileCommand}"
-                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="0,0,6,0"
+                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
                                                 ToolTip="Import theme pack configuration from clipboard"
                                                 Content="Import Pack"/>
                                         <Button AutomationProperties.AutomationId="Settings.ResetThemeFamilyStudio"
@@ -183,7 +183,7 @@
                                 </ItemsControl>
 
                                 <!-- Live Interactive Component Deck -->
-                                <Border Margin="0,12,0,0" Padding="14,12" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                <Border Margin="{StaticResource SettingsStackGap12}" Padding="14,12" Background="{DynamicResource SurfaceSecondaryBrush}"
                                         BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                         CornerRadius="{DynamicResource CardCornerRadius}">
                                     <Grid>
@@ -198,15 +198,15 @@
 
                                         <StackPanel Grid.Row="0" Grid.Column="0">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Border Width="10" Height="10" CornerRadius="5" Background="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
+                                                <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
                                                 <TextBlock Text="Live Studio Specimen" FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             </StackPanel>
                                             <TextBlock Text="Real-time theme engine tokens verified with automatic WCAG contrast derivation."
-                                                       FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="18,2,0,0"/>
+                                                       FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="2,2,0,0"/>
                                         </StackPanel>
 
                                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="0,0,6,0">
+                                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="{StaticResource SettingsInlineGap6R}">
                                                 <TextBlock Text="Active Accent" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                             </Border>
                                             <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4">
@@ -214,7 +214,7 @@
                                             </Border>
                                         </StackPanel>
 
-                                        <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,0" Padding="12,8"
+                                        <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource SettingsStackGap10}" Padding="12,8"
                                                 Background="{DynamicResource SurfacePrimaryBrush}"
                                                 BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                 CornerRadius="{DynamicResource Radius.Small}">
@@ -224,7 +224,7 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
                                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="13" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
                                                     <TextBlock Text="Tokens active across all sales, production, about, and settings views."
                                                                FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
                                                 </StackPanel>
@@ -259,7 +259,7 @@
                         </StackPanel>
                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="Wallpapers and background scenes are managed centrally in Appearance to keep your workspace streamlined."/>
-                        <Button Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" HorizontalAlignment="Left" Margin="0,8,0,0"
+                        <Button Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" HorizontalAlignment="Left" Margin="{StaticResource SettingsStackGap8}"
                                 Command="{Binding SwitchSettingsPageCommand}" CommandParameter="Appearance"
                                 Content="Open Wallpapers in Appearance"/>
                     </StackPanel>
@@ -270,7 +270,7 @@
                         Visibility="{Binding IsCrystalThemeActive,
                             Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;" VerticalAlignment="Center"/>
                             <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
                                    Text="{DynamicResource Settings.SecThemes}"/>

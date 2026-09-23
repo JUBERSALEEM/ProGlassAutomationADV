@@ -69,6 +69,7 @@ namespace ProGlassAutomation.Tests.Audit
             {
                 foreach (Match m in LiteralMargin.Matches(File.ReadAllText(file)))
                 {
+                    if (m.Groups[1].Value.StartsWith("{")) continue;
                     var parts = m.Groups[1].Value.Split(',');
                     var vals = parts.Select(p => int.TryParse(p.Trim(), out var v) ? Math.Abs(v) : 99).ToList();
                     // 0-4 px optical nudges and Margin="0" resets stay literal;
