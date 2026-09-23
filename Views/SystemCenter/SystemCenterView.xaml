@@ -19,10 +19,15 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="Transparent">
+             Background="{DynamicResource Ov.Canvas}">
 
-        <UserControl.Resources>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- Migrated ScFieldLabel to global Typography.Label -->
+        </ResourceDictionary>
     </UserControl.Resources>
 
 

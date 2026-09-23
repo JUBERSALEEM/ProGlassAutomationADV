@@ -4,21 +4,27 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
-        <!--
-            Column header. Uppercase + letter-spacing via FontWeight only;
-            the muted foreground keeps it subordinate to the data, which is
-            what stops a header row from competing with the rows under it.
-        -->
-        <Style x:Key="SpecColumnHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <!--
+                Column header. Uppercase + letter-spacing via FontWeight only;
+                the muted foreground keeps it subordinate to the data, which is
+                what stops a header row from competing with the rows under it.
+            -->
+            <Style x:Key="SpecColumnHeaderStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <!--

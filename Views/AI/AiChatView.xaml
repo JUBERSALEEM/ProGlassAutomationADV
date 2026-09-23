@@ -24,9 +24,14 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Focusable="False">
+             Focusable="False"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <LinearGradientBrush x:Key="ChatBrand"
                              StartPoint="0,0" EndPoint="1,1">
@@ -110,6 +115,7 @@
         </Style>
 
         <!-- Migrated UserBubble to global SurfacePrimaryStyle -->
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>

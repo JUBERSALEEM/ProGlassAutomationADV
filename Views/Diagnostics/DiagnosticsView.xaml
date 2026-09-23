@@ -24,10 +24,14 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="Transparent">
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
-        <conv:EmojiToGlyphConverter x:Key="EmojiToGlyph"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <conv:EmojiToGlyphConverter x:Key="EmojiToGlyph"/>
 
         <!-- Content routing: which panel renders each tab's VM -->
         <DataTemplate DataType="{x:Type sharedVm:SectionActivityViewModel}">
@@ -249,7 +253,7 @@
                 </Border>
             </Grid>
         </DataTemplate>
-
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════
