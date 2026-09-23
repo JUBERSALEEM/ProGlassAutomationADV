@@ -4,7 +4,8 @@
              xmlns:pgp="clr-namespace:ProGlassAutomation.Views.Production"
              xmlns:production="clr-namespace:ProGlassAutomation.Views.Production.Controls"
              FontFamily="{DynamicResource AppFontFamily}"
-             UseLayoutRounding="True" SnapsToDevicePixels="True">
+             UseLayoutRounding="True" SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

@@ -9,9 +9,11 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        
-        
-        
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Margin="10,8,10,16">

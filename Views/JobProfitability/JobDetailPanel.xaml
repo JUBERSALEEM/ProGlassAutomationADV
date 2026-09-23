@@ -19,8 +19,13 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-        <UserControl.Resources>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- Migrated DetailSectionLabel to global Typography.Label -->
+        </ResourceDictionary>
     </UserControl.Resources>
 
 

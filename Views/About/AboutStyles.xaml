@@ -31,6 +31,7 @@
 
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="AboutIos26Theme.xaml"/>
+        <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <!-- ═══ HERO PILLAR — soft chip: icon tile + value + label

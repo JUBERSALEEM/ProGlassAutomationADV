@@ -25,7 +25,8 @@
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
         <ResourceDictionary>
