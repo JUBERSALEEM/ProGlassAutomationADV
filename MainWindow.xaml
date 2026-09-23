@@ -242,6 +242,69 @@
                                     Converter={StaticResource BoolToVisibilityConverter}}"/>
 
         <!-- ═══════════════════════════════════════════════════════════════
+             SINGLE FLOATING BENTO HAMBURGER PILL (OFF / ZEN IMMERSION TRIGGER)
+             When shell is closed, this is the ONLY trigger button on screen.
+             Claims zero layout space (floats on top), toggles shell open/close.
+        ═══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="20,16,0,0"
+                Panel.ZIndex="600"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource AccentPrimaryBrush}"
+                BorderThickness="1.5"
+                CornerRadius="18"
+                Padding="10,5,14,5"
+                SnapsToDevicePixels="True">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#211D31" BlurRadius="16" ShadowDepth="3" Opacity="0.12"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <!-- Visible ONLY when shell is closed (IsMenuOpen == False) and in Professional mode -->
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMenuOpen}" Value="False"/>
+                                <Condition Binding="{Binding IsPersonalExperience}" Value="False"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <Button Command="{Binding ToggleMenuCommand}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    FocusVisualStyle="{x:Null}"
+                    ToolTip="{DynamicResource ToolTip.ToggleMenu}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE700;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AccentPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                    <Ellipse Width="4" Height="4" Margin="8,0,8,0"
+                             Fill="{DynamicResource BorderDefaultBrush}"
+                             VerticalAlignment="Center"/>
+                    <TextBlock Text="ProGlass"
+                               FontFamily="{StaticResource PrimaryFontFamily}"
+                               FontSize="12.5"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════════════════
              TOP HEADER — CONCEPT 30 PORCELAIN FLOW (Study 07 Editorial Wordmark)
              Continuous porcelain-white (#FCFCFE) surface
              Primary Top Row (52px) + Secondary Utility Ribbon (36px)
@@ -250,9 +313,20 @@
         <Border Grid.Row="0"
                 Style="{StaticResource PgTopBarStyle}"
                 Panel.ZIndex="300"
-                SnapsToDevicePixels="True"
-                Visibility="{Binding IsPersonalExperience,
-                          Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                SnapsToDevicePixels="True">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource PgTopBarStyle}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsPersonalExperience}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsMenuOpen}" Value="False">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Grid Background="{DynamicResource SurfacePrimaryBrush}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="52"/>
@@ -396,7 +470,7 @@
                         Padding="6,0"
                         SnapsToDevicePixels="True">
                     <DockPanel LastChildFill="False">
-                        <!-- Eight labeled actions -->
+                        <!-- Left-aligned actions: Operational AI & Activity -->
                         <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
                             <!-- 1. AI Chat -->
                             <Button x:Name="AiBotButton"
@@ -430,7 +504,10 @@
                                     <TextBlock Text="Activity" Style="{StaticResource PgRibbonLabelStyle}"/>
                                 </StackPanel>
                             </Button>
+                        </StackPanel>
 
+                        <!-- Right-aligned actions: System Utilities (Settings, Screenshot, Record, About, Experience) + Network status -->
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" VerticalAlignment="Center">
                             <!-- 4. Settings -->
                             <Button x:Name="SettingsButton"
                                     Style="{StaticResource PgRibbonActionStyle}"
@@ -487,17 +564,17 @@
                                     <TextBlock Text="Experience" Style="{StaticResource PgRibbonLabelStyle}"/>
                                 </StackPanel>
                             </Button>
-                        </StackPanel>
 
-                        <!-- Neutral grey network node glyph (no status color) -->
-                        <Border DockPanel.Dock="Right" VerticalAlignment="Center" Margin="0,0,8,0"
-                                ToolTip="{Binding ConnectivityLabel, FallbackValue='Network node'}">
-                            <TextBlock Text="&#xE701;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       VerticalAlignment="Center"/>
-                        </Border>
+                            <!-- Neutral grey network node glyph (no status color) -->
+                            <Border VerticalAlignment="Center" Margin="8,0,6,0"
+                                    ToolTip="{Binding ConnectivityLabel, FallbackValue='Network node'}">
+                                <TextBlock Text="&#xE701;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                        </StackPanel>
                     </DockPanel>
                 </Border>
 
@@ -1033,6 +1110,7 @@
         <Popup x:Name="SettingsPopup"
                PlacementTarget="{Binding ElementName=SettingsButton}"
                Placement="Bottom"
+               HorizontalOffset="-200"
                VerticalOffset="8"
                AllowsTransparency="True"
                StaysOpen="True"
@@ -1063,6 +1141,7 @@
         <Popup x:Name="ScreenshotPopup"
                PlacementTarget="{Binding ElementName=ScreenshotButton}"
                Placement="Bottom"
+               HorizontalOffset="-160"
                VerticalOffset="0"
                AllowsTransparency="True"
                StaysOpen="True"
@@ -1080,6 +1159,7 @@
         <Popup x:Name="ScreenRecordPopup"
                PlacementTarget="{Binding ElementName=RecordButton}"
                Placement="Bottom"
+               HorizontalOffset="-160"
                VerticalOffset="8"
                AllowsTransparency="True"
                StaysOpen="True"

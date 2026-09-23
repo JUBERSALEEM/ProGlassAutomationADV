@@ -309,7 +309,6 @@ namespace ProGlassAutomation.ViewModels
                     break;
             }
             ApplyModuleWallpaper(parameter?.ToString());
-            IsMenuOpen = false;
         }
 
         private void ApplyModuleWallpaper(string? navKey)

@@ -1150,8 +1150,8 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("ProformaInvoice");
                 try { ProformaInvoiceVM.TriggerNewInvoice(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] TriggerNewInvoice after navigation failed: " + ExceptionMessages.Deep(ex)); }
             });
-            ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; IsMenuOpen = false; });
-            ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; IsMenuOpen = false; });
+            ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; });
+            ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; });
             OpenLicenseSettingsCommand = new RelayCommand(_ => OpenSettingsPage("License"));
 
             // Senior-audit fix (Aug 2026): sign-out + forget-this-device
@@ -1189,8 +1189,9 @@ namespace ProGlassAutomation.ViewModels
                 _connectivity.ConnectivityChanged += _connectivityHandler;
             }
 
-            CurrentViewModel = ProformaInvoiceVM;
-            ApplyModuleWallpaper("ProformaInvoice");
+            CurrentModuleKey = "Dashboard";
+            CurrentViewModel = DashboardVM;
+            ApplyModuleWallpaper("Dashboard");
             StartClock();
             RefreshCurrentUser();
             RefreshStorage();
