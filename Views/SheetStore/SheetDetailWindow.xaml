@@ -22,28 +22,22 @@
         Width="1240" Height="860"
         MinWidth="980" MinHeight="640"
         ResizeMode="CanResizeWithGrip"
-        Background="{DynamicResource WindowBackgroundBrush}"
+        Background="{DynamicResource Ov.Canvas}"
         FontFamily="{DynamicResource AppFontFamily}"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True" SnapsToDevicePixels="True">
 
-    <!-- A modal dialog, not a screen takeover. The Window above used to be
-         WindowState="Maximized", which stretched a seven-tab sheet workspace
-         across every pixel of whatever monitor it landed on, and made
-         WindowStartupLocation meaningless — a maximised window has no position
-         to centre. It is now bounded, centred on its owner and resizable with a
-         grip, matching AddEditSheetView: big enough for the work deck, small
-         enough to read as a document. MinWidth and MinHeight are untouched, so
-         nothing that fit before can clip now. -->
-
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CloseCommand}"/>
     </Window.InputBindings>
 
-        <Window.Resources>
-        <!-- Migrated StatLabel to global Typography.Label -->
-        <!-- Migrated SpecCard to global SurfacePrimaryStyle -->
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
 
