@@ -1,18 +1,10 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsDataSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings v2 — DATA & BACKUP page (tile-grid redesign Aug 2026)
-     REDESIGN
-       Was: three giant full-width cards stacked vertically (Backup &
-       Restore, Sample Data, Database Health). Each card held its own
-       full-width list/grid, so on a wide monitor 60% of horizontal
-       space was empty and the page needed endless scrolling on a
-       laptop.
-       Now: the page is grouped into three labelled tile groups. Small,
-       independent actions (backup actions / restore) sit side-by-side
-       in 320-wide tiles; the backup set list lives in a wide tile; the
-       database health grid keeps a full-row tile because inspecting a
-       table needs the width. All 23 ViewModel bindings preserved.
+     MODULE: Settings v2 — DATA & BACKUP page (Full Light Studio Bento redesign)
+     Visual source of truth: mockups/v4-07-data.png
+     Preserves all bindings to SettingsViewModel while elevating the
+     layout hierarchy, card grammar, spacing, and typography ladder.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsDataSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -38,7 +30,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
@@ -74,14 +65,18 @@
                     </Grid>
                 </Border>
 
-                <!-- ═══ CARD — COMPANY LAN / WI-FI DATABASE ═══ -->
-                <cards:DataRootCard/>
+                <!-- ═══ BENTO ROW — COMPANY LAN & SAMPLE DATA ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <cards:DataRootCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                    <cards:DataSampleCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                </Grid>
 
                 <!-- ═══ CARD — BACKUP & RESTORE ═══ -->
                 <cards:DataBackupCard/>
-
-                <!-- ═══ CARD — SAMPLE DATA ═══ -->
-                <cards:DataSampleCard/>
 
                 <!-- ═══ CARD — DATABASE HEALTH ═══ -->
                 <cards:DataHealthCard/>

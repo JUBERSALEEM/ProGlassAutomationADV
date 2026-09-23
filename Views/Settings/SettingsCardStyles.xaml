@@ -179,6 +179,9 @@
     <Thickness x:Key="SettingsIconTextTightMargin">10,0,6,0</Thickness>
     <Thickness x:Key="SettingsInlineGap10Top2">10,2,0,0</Thickness>
     <Thickness x:Key="SettingsFlagGridMargin">32,4,32,0</Thickness>
+    <Thickness x:Key="SettingsBentoColLeft">0,0,8,0</Thickness>
+    <Thickness x:Key="SettingsBentoColRight">8,0,0,0</Thickness>
+    <Thickness x:Key="SettingsBentoRowMargin">0,0,0,16</Thickness>
 
     <!-- ═══ CARD — page-sized crystal glass (2026-09-17) ═══
 

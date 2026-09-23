@@ -65,94 +65,102 @@
                     </Grid>
                 </Border>
 
-                <!-- ═══ CARD — PROVIDERS ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Sharing.Providers}"
-                                   Style="{StaticResource SettingsCardHeaderStyle}"/>
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                <!-- ═══ BENTO ROW — PROVIDERS & DEFAULTS ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0">
-                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;" VerticalAlignment="Center"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
-                                               Text="{DynamicResource Sharing.Providers}"/>
+                    <!-- ═══ CARD — PROVIDERS ═══ -->
+                    <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Sharing.Providers}"
+                                       Style="{StaticResource SettingsCardHeaderStyle}"/>
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72D;" VerticalAlignment="Center"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
+                                                   Text="{DynamicResource Sharing.Providers}"/>
+                                        </StackPanel>
+                                        <CheckBox Content="{DynamicResource Sharing.ProviderWhatsApp}"
+                                        AutomationProperties.Name="{DynamicResource Sharing.ProviderWhatsApp}"
+                                                  IsChecked="{Binding SharingWhatsAppEnabled, Mode=TwoWay}"
+                                                  FontWeight="{DynamicResource Weight.SemiBold}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="{StaticResource SettingsStackGap8}"/>
+                                        <CheckBox Content="{DynamicResource Sharing.ProviderEmail}"
+                                        AutomationProperties.Name="{DynamicResource Sharing.ProviderEmail}"
+                                                  IsChecked="{Binding SharingEmailEnabled, Mode=TwoWay}"
+                                                  FontWeight="{DynamicResource Weight.SemiBold}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="{StaticResource SettingsStackGap8}"/>
+                                        <CheckBox Content="{DynamicResource Sharing.ProviderShowFile}"
+                                        AutomationProperties.Name="{DynamicResource Sharing.ProviderShowFile}"
+                                                  IsChecked="{Binding SharingSystemFileEnabled, Mode=TwoWay}"
+                                                  FontWeight="{DynamicResource Weight.SemiBold}"
+                                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                                  Margin="{StaticResource SettingsStackGap8}"/>
                                     </StackPanel>
-                                    <CheckBox Content="{DynamicResource Sharing.ProviderWhatsApp}"
-                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderWhatsApp}"
-                                              IsChecked="{Binding SharingWhatsAppEnabled, Mode=TwoWay}"
-                                              FontWeight="{DynamicResource Weight.SemiBold}"
-                                              Foreground="{DynamicResource TextPrimaryBrush}"
-                                              Margin="{StaticResource SettingsStackGap8}"/>
-                                    <CheckBox Content="{DynamicResource Sharing.ProviderEmail}"
-                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderEmail}"
-                                              IsChecked="{Binding SharingEmailEnabled, Mode=TwoWay}"
-                                              FontWeight="{DynamicResource Weight.SemiBold}"
-                                              Foreground="{DynamicResource TextPrimaryBrush}"
-                                              Margin="{StaticResource SettingsStackGap8}"/>
-                                    <CheckBox Content="{DynamicResource Sharing.ProviderShowFile}"
-                                    AutomationProperties.Name="{DynamicResource Sharing.ProviderShowFile}"
-                                              IsChecked="{Binding SharingSystemFileEnabled, Mode=TwoWay}"
-                                              FontWeight="{DynamicResource Weight.SemiBold}"
-                                              Foreground="{DynamicResource TextPrimaryBrush}"
-                                              Margin="{StaticResource SettingsStackGap8}"/>
-                                </StackPanel>
 
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="{DynamicResource Sharing.DefaultProvider}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                                    <ComboBox ItemsSource="{Binding SharingProviderOptions}"
-                                              SelectedItem="{Binding SharingDefaultProvider, Mode=TwoWay}"
-                                              Padding="10,7"
-                                              FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource ComboBoxStyle}"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="{DynamicResource Sharing.DefaultProvider}"
+                                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+                                        <ComboBox ItemsSource="{Binding SharingProviderOptions}"
+                                                  SelectedItem="{Binding SharingDefaultProvider, Mode=TwoWay}"
+                                                  Padding="10,7"
+                                                  FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource ComboBoxStyle}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
 
-                        <!-- ═══ DEFAULTS ═══ -->
-                    </StackPanel>
-                </Border>
+                            <!-- ═══ DEFAULTS ═══ -->
+                        </StackPanel>
+                    </Border>
 
-                <!-- ═══ CARD — DEFAULTS ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Sharing.Defaults}"
-                                   Style="{StaticResource SettingsCardHeaderStyle}"/>
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
-                            <UniformGrid Columns="2">
-                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
-                                    <TextBlock Text="{DynamicResource Sharing.DefaultCountryCode}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                                    <TextBox Text="{Binding SharingDefaultCountryCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="10,7"
-                                             FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
-                                </StackPanel>
-                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
-                                    <TextBlock Text="{DynamicResource Sharing.TempRetention}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                                    <TextBox Text="{Binding SharingTempRetentionHours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="10,7"
-                                             FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
-                                </StackPanel>
-                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
-                                    <TextBlock Text="{DynamicResource Sharing.EmailLargeMb}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                                    <TextBox Text="{Binding SharingEmailLargeMb, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Padding="10,7"
-                                             FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
-                                </StackPanel>
-                            </UniformGrid>
-                        </Border>
+                    <!-- ═══ CARD — DEFAULTS ═══ -->
+                    <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Sharing.Defaults}"
+                                       Style="{StaticResource SettingsCardHeaderStyle}"/>
+                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
+                                <UniformGrid Columns="2">
+                                    <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                        <TextBlock Text="{DynamicResource Sharing.DefaultCountryCode}"
+                                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+                                        <TextBox Text="{Binding SharingDefaultCountryCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="10,7"
+                                                 FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                        <TextBlock Text="{DynamicResource Sharing.TempRetention}"
+                                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+                                        <TextBox Text="{Binding SharingTempRetentionHours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="10,7"
+                                                 FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                        <TextBlock Text="{DynamicResource Sharing.EmailLargeMb}"
+                                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+                                        <TextBox Text="{Binding SharingEmailLargeMb, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                 Padding="10,7"
+                                                 FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
+                                    </StackPanel>
+                                </UniformGrid>
+                            </Border>
 
-                        <!-- ═══ DOCUMENT RULES ═══ -->
-                    </StackPanel>
-                </Border>
+                            <!-- ═══ DOCUMENT RULES ═══ -->
+                        </StackPanel>
+                    </Border>
+                </Grid>
 
                 <!-- ═══ CARD — DOCUMENT RULES ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">

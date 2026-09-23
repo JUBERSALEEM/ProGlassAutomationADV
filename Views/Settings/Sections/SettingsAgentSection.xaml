@@ -90,11 +90,18 @@
                     </Grid>
                 </Border>
 
-                <!-- ═══ CARD — PRIVACY ═══ -->
-                <cards:AgentCoreCard/>
+                <!-- ═══ BENTO ROW — PRIVACY & MEMORY / KNOWLEDGE ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- ═══ CARD — PRIVACY ═══ -->
+                    <cards:AgentCoreCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
 
-                <!-- ═══ CARD — MEMORY & KNOWLEDGE ═══ -->
-                <cards:AgentDataCard/>
+                    <!-- ═══ CARD — MEMORY & KNOWLEDGE ═══ -->
+                    <cards:AgentDataCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                </Grid>
 
             </StackPanel>
         </ScrollViewer>

@@ -64,11 +64,15 @@
             <!-- ═══ CARD — THEME & LAYOUT ═══ -->
             <cards:AppearanceThemeLayoutCard/>
 
-            <!-- ═══ CARD — MODE (sheet 02: the base colour mode) ═══ -->
-            <cards:AppearanceModeCard/>
-
-            <!-- ═══ CARD — DISPLAY DENSITY (sheet 03) ═══ -->
-            <cards:AppearanceDensityCard/>
+            <!-- ═══ BENTO ROW — MODE & DISPLAY DENSITY (SHEETS 02 & 03) ═══ -->
+            <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <cards:AppearanceModeCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                <cards:AppearanceDensityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+            </Grid>
 
             <!-- ═══ CARD — ACCENT & FONT ═══ -->
             <cards:AppearanceAccentFontCard/>
@@ -76,11 +80,15 @@
             <!-- ═══ CARD — WALLPAPERS ═══ -->
             <cards:AppearanceWallpapersCard/>
 
-            <!-- ═══ CARD — SPLASH SCREEN THEMES ═══ -->
-            <cards:AppearanceSplashCard/>
-
-            <!-- ═══ CARD — LANGUAGE &amp; CURRENCY ═══ -->
-            <cards:AppearanceLanguageCard/>
+            <!-- ═══ BENTO ROW — SPLASH SCREEN & LANGUAGE / CURRENCY ═══ -->
+            <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <cards:AppearanceSplashCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                <cards:AppearanceLanguageCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+            </Grid>
 
         </StackPanel>
     </ScrollViewer>

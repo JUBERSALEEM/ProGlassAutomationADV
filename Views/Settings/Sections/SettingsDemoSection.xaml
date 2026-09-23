@@ -1,20 +1,10 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsDemoSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings v2 — DEMO CENTER page (tile-grid redesign Aug 2026)
-     REDESIGN
-       Was: seven full-width cards stacked vertically. The RECORDING
-       card alone held Quality + Frame rate + Audio + Microphone as
-       four full-width rows, so two thirds of horizontal space was
-       wasted on a wide monitor.
-       Now: grouped into labelled tile groups. The four recording
-       settings each become their own 320-wide tile so they reflow
-       side-by-side; the FFMPEG troubleshooting card keeps a full row
-       (a dozen buttons need the width); STATUS becomes a compact
-       metric tile. All 46 ViewModel bindings preserved, including the
-       conditional FFMPEG visibility (card only shows while missing,
-       flips the inner ready/missing branches) and every
-       AutomationProperties.AutomationId test anchor.
+     MODULE: Settings v2 — DEMO CENTER page (Full Light Studio Bento redesign)
+     Visual source of truth: mockups/v4-08-demo.png
+     Preserves all bindings to SettingsViewModel while elevating the
+     layout hierarchy, card grammar, spacing, and typography ladder.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsDemoSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -40,7 +30,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-
 
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
@@ -79,22 +68,27 @@
 
                 <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
-                <!-- ═══ CARD — RECORD THIS SESSION ═══ -->
-                <cards:DemoRecordCard/>
+                <!-- ═══ BENTO ROW — RECORDING CONTROLS & SETTINGS ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <cards:DemoRecordCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                    <cards:DemoQualityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                </Grid>
 
-                <!-- ═══ CARD — RECORDING SETTINGS ═══ -->
-                <cards:DemoQualityCard/>
+                <!-- ═══ BENTO ROW — WORKFLOW & ISOLATION ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <cards:DemoWorkflowCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                    <cards:DemoIsolationCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                </Grid>
 
-                <!-- ═══ CARD — WORKFLOW ═══ -->
-                <cards:DemoWorkflowCard/>
-
-                <!-- ═══ CARD — ISOLATION ═══ -->
-                <cards:DemoIsolationCard/>
-
-                <!-- ═══ CARD — RESET DEMO DATA ═══
-                     The destructive action is its own red card instead of the
-                     third of three equal buttons (sheet 08): a destructive tap
-                     should not sit one slip away from "Enter demo mode". -->
+                <!-- ═══ CARD — RESET DEMO DATA ═══ -->
                 <Border Style="{StaticResource SettingsDangerCardStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Settings.ResetDEMOFolder}"
@@ -110,11 +104,15 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ═══ CARD — STATUS ═══ -->
-                <cards:DemoHistoryCard/>
-
-                <!-- ═══ CARD — HISTORY ═══ -->
-                <cards:DemoOutputCard/>
+                <!-- ═══ BENTO ROW — STATUS & OUTPUT HISTORY ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <cards:DemoHistoryCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                    <cards:DemoOutputCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                </Grid>
 
             </StackPanel>
         </ScrollViewer>

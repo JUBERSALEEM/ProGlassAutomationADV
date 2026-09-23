@@ -81,68 +81,75 @@
                     </Grid>
                 </Border>
 
-                <!-- ═══ CARD — WHISPER MODEL ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Settings.WhisperModel}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.PickModelSizeDownloadOnceLargerModelsMore}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                <!-- ═══ BENTO ROW — WHISPER MODEL PICKER & STATUS ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                        <!-- Row heading for the picker. The row title stays a row
-                             title: the card already owns the subject heading. -->
-                        <TextBlock Text="{DynamicResource Settings.ChooseModel}"
-                                   Style="{StaticResource SettingsRowTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.ClickCardSelectOneModelActiveTimeSwitch}"
-                                   Style="{StaticResource SettingsRowMetaStyle}"/>
+                    <!-- ═══ CARD — WHISPER MODEL ═══ -->
+                    <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Settings.WhisperModel}"
+                                       Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.PickModelSizeDownloadOnceLargerModelsMore}"
+                                       Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
 
-                        <ItemsControl ItemsSource="{Binding WhisperModelOptions}"
-                                      Margin="{StaticResource SettingsStackGap10}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <!-- The click handler + Tag are the code-behind
-                                         contract (SettingsVoiceSection.xaml.cs):
-                                         Tag carries the model key into
-                                         vm.SelectedWhisperModel. -->
-                                    <Border Margin="{StaticResource SettingsStackBottom8}"
-                                            MouseLeftButtonDown="ModelOption_MouseLeftButtonDown"
-                                            Tag="{Binding Key}">
-                                        <Border.Style>
-                                            <Style TargetType="Border"
-                                                   BasedOn="{StaticResource ModelOptionCardStyle}">
-                                                <Setter Property="Padding" Value="12,10"/>
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="BorderBrush"
-                                                                Value="{DynamicResource AccentBrush}"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
+                            <!-- Row heading for the picker. The row title stays a row
+                                 title: the card already owns the subject heading. -->
+                            <TextBlock Text="{DynamicResource Settings.ChooseModel}"
+                                       Style="{StaticResource SettingsRowTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.ClickCardSelectOneModelActiveTimeSwitch}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
 
-                                        <StackPanel IsHitTestVisible="False">
-                                            <TextBlock Text="{Binding DisplayName}"
-                                                       Style="{StaticResource SettingsRowTitleStyle}"/>
-                                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}">
-                                                <Run Text="{Binding SizeMB, Mode=OneWay}"/>
-                                                <Run Text="{DynamicResource Settings.MB}"/>
-                                                <Run Text="{Binding Accuracy, Mode=OneWay}"/>
-                                                <Run Text="{DynamicResource Settings.Accuracy}"/>
-                                                <Run Text="{Binding Speed, Mode=OneWay}"/>
-                                            </TextBlock>
-                                            <TextBlock Text="{Binding Description}"
-                                                       TextWrapping="Wrap"
-                                                       Style="{StaticResource SettingsRowMetaStyle}"/>
-                                        </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
+                            <ItemsControl ItemsSource="{Binding WhisperModelOptions}"
+                                          Margin="{StaticResource SettingsStackGap10}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!-- The click handler + Tag are the code-behind
+                                             contract (SettingsVoiceSection.xaml.cs):
+                                             Tag carries the model key into
+                                             vm.SelectedWhisperModel. -->
+                                        <Border Margin="{StaticResource SettingsStackBottom8}"
+                                                MouseLeftButtonDown="ModelOption_MouseLeftButtonDown"
+                                                Tag="{Binding Key}">
+                                            <Border.Style>
+                                                <Style TargetType="Border"
+                                                       BasedOn="{StaticResource ModelOptionCardStyle}">
+                                                    <Setter Property="Padding" Value="12,10"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="BorderBrush"
+                                                                    Value="{DynamicResource AccentBrush}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
 
-                <!-- ═══ CARD — MODEL STATUS ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}">
+                                            <StackPanel IsHitTestVisible="False">
+                                                <TextBlock Text="{Binding DisplayName}"
+                                                           Style="{StaticResource SettingsRowTitleStyle}"/>
+                                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}">
+                                                    <Run Text="{Binding SizeMB, Mode=OneWay}"/>
+                                                    <Run Text="{DynamicResource Settings.MB}"/>
+                                                    <Run Text="{Binding Accuracy, Mode=OneWay}"/>
+                                                    <Run Text="{DynamicResource Settings.Accuracy}"/>
+                                                    <Run Text="{Binding Speed, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding Description}"
+                                                           TextWrapping="Wrap"
+                                                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ═══ CARD — MODEL STATUS ═══ -->
+                    <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -336,6 +343,7 @@
                                         Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
                 </Border>
+                </Grid>
 
             </StackPanel>
         </ScrollViewer>

@@ -215,60 +215,67 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ═══ CARD — RELEASE NOTES ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Settings.ReleaseNotes}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.WhatReleaseChangesStraightPublisher}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                        <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource SurfaceTertiaryBrush}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
-                                <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasReleaseInfo}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="&#xE7B8;"
-                                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                                   FontSize="{DynamicResource FontSize.H3}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="{StaticResource SettingsInlineGap8R}"/>
-                                        <TextBlock Text="{Binding ReleaseNameDisplay}"
-                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                        <TextBlock FontSize="{DynamicResource FontSize.Body}"
-                                                   Margin="{StaticResource SettingsIconTextMargin}"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource TextTertiaryBrush}">
-                                            <Run Text="{DynamicResource Settings.Published}"/>
-                                            <Run Text="{Binding ReleasePublishedDisplay, Mode=OneWay}"/>
-                                        </TextBlock>
+                <!-- ═══ BENTO ROW — RELEASE NOTES & UPDATE HISTORY ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ═══ CARD — RELEASE NOTES ═══ -->
+                    <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Settings.ReleaseNotes}"
+                                       Style="{StaticResource SettingsCardTitleStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.WhatReleaseChangesStraightPublisher}"
+                                       Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
+                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource SurfaceTertiaryBrush}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasReleaseInfo}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE7B8;"
+                                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                                       FontSize="{DynamicResource FontSize.H3}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="{StaticResource SettingsInlineGap8R}"/>
+                                            <TextBlock Text="{Binding ReleaseNameDisplay}"
+                                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                                       Margin="{StaticResource SettingsIconTextMargin}"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource TextTertiaryBrush}">
+                                                <Run Text="{DynamicResource Settings.Published}"/>
+                                                <Run Text="{Binding ReleasePublishedDisplay, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding ReleaseNotesPreview}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   Margin="{StaticResource SettingsStackGap8}"
+                                                   TextWrapping="Wrap"
+                                                   MaxHeight="90"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </StackPanel>
-                                    <TextBlock Text="{Binding ReleaseNotesPreview}"
-                                               FontSize="{DynamicResource FontSize.Body}"
-                                               Margin="{StaticResource SettingsStackGap8}"
-                                               TextWrapping="Wrap"
-                                               MaxHeight="90"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                </StackPanel>
-                            </Border>
+                                </Border>
+                            </StackPanel>
+
+                            <Border/>
                         </StackPanel>
+                    </Border>
 
-                        <Border/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ═══ CARD — UPDATE HISTORY ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <!-- ═══ CARD — UPDATE HISTORY ═══ -->
+                    <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Settings.UpdateHistory}"
                                    Style="{StaticResource SettingsCardTitleStyle}"/>
@@ -367,6 +374,7 @@
                         </StackPanel>
                     </StackPanel>
                 </Border>
+                </Grid>
 
             </StackPanel>
         </ScrollViewer>

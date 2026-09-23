@@ -75,14 +75,20 @@
                     </Grid>
                 </Border>
 
-                <!-- ═══ CARD — SWITCHES & MODEL ═══ -->
-                <cards:AiAssistantCard/>
+                <!-- ═══ BENTO ROW — AI ASSISTANT & SECURITY ═══ -->
+                <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- ═══ CARD — SWITCHES & MODEL ═══ -->
+                    <cards:AiAssistantCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                    <!-- ═══ CARD — SECURITY ═══ -->
+                    <cards:AiSecurityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                </Grid>
 
                 <!-- ═══ CARD — PROVIDERS ═══ -->
                 <cards:AiProvidersCard/>
-
-                <!-- ═══ CARD — SECURITY ═══ -->
-                <cards:AiSecurityCard/>
 
             </StackPanel>
         </ScrollViewer>
