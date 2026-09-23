@@ -14,7 +14,16 @@
              xmlns:loc="clr-namespace:ProGlassAutomation.Services.Localization"
              mc:Ignorable="d"
              d:DesignHeight="36" d:DesignWidth="320"
-             FontFamily="{DynamicResource AppFontFamily}">
+             FontFamily="{DynamicResource AppFontFamily}"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>

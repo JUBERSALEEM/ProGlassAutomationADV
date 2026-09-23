@@ -22,11 +22,13 @@
              SnapsToDevicePixels="True"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch"
-             Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+             Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Views/Production/Controls/ProductionUnitDetailTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

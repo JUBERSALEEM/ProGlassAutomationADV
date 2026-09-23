@@ -17,15 +17,21 @@
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <DataTemplate DataType="{x:Type vmList:OrderReportListViewModel}">
             <vList:OrderReportListView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmList:OrderReportGeneratorViewModel}">
             <vList:OrderReportGeneratorView/>
         </DataTemplate>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">

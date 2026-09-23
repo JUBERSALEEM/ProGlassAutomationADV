@@ -20,6 +20,10 @@
         SnapsToDevicePixels="True">
 
     <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- Matches the app's rounded action buttons: CardCornerRadius (12). -->
         <!-- Compact HUD buttons (Aug 2026 senior audit: user asked to
              make the recorder smaller). Was 38x38; shrunk to 28x28
@@ -58,6 +62,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+            </ResourceDictionary>
     </Window.Resources>
 
     <!--

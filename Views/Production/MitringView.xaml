@@ -6,6 +6,13 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              Background="{DynamicResource Ov.Canvas}">
+    <pgp:ProductionStagePageBase.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </pgp:ProductionStagePageBase.Resources>
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
