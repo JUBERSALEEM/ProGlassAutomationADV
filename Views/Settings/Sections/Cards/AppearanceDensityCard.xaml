@@ -52,46 +52,44 @@
                      SelectedItem="{Binding DisplayDensity, Mode=TwoWay}"
                      AutomationProperties.AutomationId="Settings.DisplayDensity"/>
 
-            <!-- UI Scale slider row matching approved mockup Sheet 02/03 -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap10}">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+            <!-- UI Scale slider row directly on card canvas -->
+            <Grid Margin="{StaticResource SettingsStackGap12}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE71E;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
-                        <TextBlock Text="{DynamicResource Settings.UIScale}"
-                                   Style="{StaticResource SettingsRowTitleStyle}" VerticalAlignment="Center"/>
-                        <TextBlock Text=" — " Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center">
-                            <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="% native display DPI"/>
-                        </TextBlock>
-                    </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE71E;" FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
+                               Foreground="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
+                    <TextBlock Text="{DynamicResource Settings.UIScale}"
+                               Style="{StaticResource SettingsRowTitleStyle}" VerticalAlignment="Center"/>
+                    <TextBlock Text=" — " Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center">
+                        <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="% native display DPI"/>
+                    </TextBlock>
+                </StackPanel>
 
-                    <Button Grid.Row="0" Grid.Column="1"
-                            Style="{StaticResource RowOutlinedButton}"
-                            Height="24" Padding="10,0"
-                            Content="{DynamicResource Settings.Reset}"
-                            Command="{Binding ResetUiScaleCommand}"
-                            VerticalAlignment="Center"/>
+                <Button Grid.Row="0" Grid.Column="1"
+                        Style="{StaticResource RowOutlinedButton}"
+                        Height="24" Padding="10,0"
+                        Content="{DynamicResource Settings.Reset}"
+                        Command="{Binding ResetUiScaleCommand}"
+                        VerticalAlignment="Center"/>
 
-                    <Slider Grid.Row="1" Grid.ColumnSpan="2"
-                            Style="{StaticResource ModernSliderStyle}"
-                            Margin="{StaticResource SettingsStackGap8}"
-                            Minimum="0.75" Maximum="1.50"
-                            SmallChange="0.05" LargeChange="0.10"
-                            Value="{Binding UiScale, Mode=TwoWay}"
-                            AutomationProperties.Name="{DynamicResource Settings.UIScale}"/>
-                </Grid>
-            </Border>
+                <Slider Grid.Row="1" Grid.ColumnSpan="2"
+                        Style="{StaticResource ModernSliderStyle}"
+                        Margin="{StaticResource SettingsStackGap8}"
+                        Minimum="0.75" Maximum="1.50"
+                        SmallChange="0.05" LargeChange="0.10"
+                        Value="{Binding UiScale, Mode=TwoWay}"
+                        AutomationProperties.Name="{DynamicResource Settings.UIScale}"/>
+            </Grid>
         </StackPanel>
     </Border>
 </UserControl>

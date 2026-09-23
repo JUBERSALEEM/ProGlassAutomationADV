@@ -256,23 +256,21 @@
 
                         </UniformGrid>
 
-                        <!-- Config path (full-row tile) -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.KeysFile}"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                                    <TextBlock Text="{Binding ConfigFilePath}"
-                                               FontSize="{DynamicResource FontSize.Body}"
-                                               FontFamily="{DynamicResource FontFamily.Code}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextTrimming="CharacterEllipsis"
-                                               IsHitTestVisible="False"/>
-                                </StackPanel>
-                            </Border>
+                        <!-- Config path directly on card canvas -->
+                        <StackPanel Margin="{StaticResource SettingsStackTop12}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;"/>
+                                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.KeysFile}"/>
+                            </StackPanel>
+                            <TextBlock Text="{DynamicResource Settings.ProviderKeysEncryptedRestWindowsDpapiStored}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+                            <TextBlock Text="{Binding ConfigFilePath}"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       FontFamily="{DynamicResource FontFamily.Code}"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       TextTrimming="CharacterEllipsis"
+                                       IsHitTestVisible="False"/>
+                        </StackPanel>
 
                         <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>

@@ -37,30 +37,24 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── SHORT CARD / SMART BENTO INNER TILE ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap10}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7EB;"/>
-                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.DemoMode}"/>
-                    </StackPanel>
-                    <TextBlock Text="{Binding IsolationText}"
-                               Margin="{StaticResource SettingsStackGap4}"
-                               Style="{StaticResource SettingsRowMetaStyle}"/>
+            <!-- ── DEMO SANDBOX CONTROLS DIRECTLY ON CARD ── -->
+            <StackPanel Margin="{StaticResource SettingsStackGap12}">
+                <TextBlock Text="{Binding IsolationText}"
+                           Margin="{StaticResource SettingsStackGap4}"
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
-                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
-                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                Content="{DynamicResource Settings.EnterDEMOMODE}"
-                                Command="{Binding EnterDemoCommand}"
-                                HorizontalAlignment="Stretch"/>
-                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                Content="{DynamicResource Settings.EXITDEMOMODE}"
-                                Command="{Binding ExitDemoCommand}"
-                                HorizontalAlignment="Stretch"
-                                Margin="0"/>
-                    </UniformGrid>
-                </StackPanel>
-            </Border>
+                <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
+                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                            Content="{DynamicResource Settings.EnterDEMOMODE}"
+                            Command="{Binding EnterDemoCommand}"
+                            HorizontalAlignment="Stretch"/>
+                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                            Content="{DynamicResource Settings.EXITDEMOMODE}"
+                            Command="{Binding ExitDemoCommand}"
+                            HorizontalAlignment="Stretch"
+                            Margin="0"/>
+                </UniformGrid>
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>

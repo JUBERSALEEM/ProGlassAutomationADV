@@ -35,66 +35,52 @@
                             </StackPanel>
                         </Grid>
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Module}"/>
-                                    </StackPanel>
-                                    <!-- 2026-08-25 senior fix: the dropdown showed
-                                         "ProGlassAutomation.Agent.Demo.DemoWorkflow"
-                                         type names. DisplayMemberPath alone proved
-                                         fragile, so an explicit ItemTemplate renders
-                                         the Title. NOTE: DisplayMemberPath and
-                                         ItemTemplate must NOT both be set — WPF
-                                         throws InvalidOperationException at item
-                                         generation when they are, which killed the
-                                         whole Settings page (blank screen). -->
-                                    <ComboBox ItemsSource="{Binding Modules}"
-                                              SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
-                                              IsSynchronizedWithCurrentItem="False"
-                                              MinWidth="260"
-                                              Padding="10,7"
-                                              FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Title}"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                    <TextBlock Text="{Binding SelectedPurpose}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                                    <TextBlock Text="{Binding WorkflowHint}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                                    <!-- Full-width action row: buttons stretch evenly. -->
-                                    <UniformGrid Columns="5" Margin="{StaticResource SettingsStackGap12}">
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                            Content="{DynamicResource Settings.GenerateSelected}"
-                                            Command="{Binding GenerateSelectedCommand}"
-                                            AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
-                                            HorizontalAlignment="Stretch"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                            Content="{DynamicResource Settings.GenerateModules}"
-                                            Command="{Binding GenerateAllCommand}"
-                                            AutomationProperties.AutomationId="DemoCenter.GenerateAll"
-                                            HorizontalAlignment="Stretch"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                            Content="{DynamicResource Settings.RetryLAST}"
-                                            Command="{Binding RetryCommand}"
-                                            HorizontalAlignment="Stretch"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                            Content="{DynamicResource Action.Cancel}"
-                                            Command="{Binding CancelCommand}"
-                                            HorizontalAlignment="Stretch"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                            Content="{DynamicResource Settings.OPENOutput}"
-                                            Command="{Binding OpenOutputCommand}"
-                                            HorizontalAlignment="Stretch"
-                                            Margin="0"/>
-                                    </UniformGrid>
-                                </StackPanel>
-                            </Border>
+                            <!-- 2026-08-25 senior fix: the dropdown showed
+                                 "ProGlassAutomation.Agent.Demo.DemoWorkflow"
+                                 type names. DisplayMemberPath alone proved
+                                 fragile, so an explicit ItemTemplate renders
+                                 the Title. NOTE: DisplayMemberPath and
+                                 ItemTemplate must NOT both be set — WPF
+                                 throws InvalidOperationException at item
+                                 generation when they are, which killed the
+                                 whole Settings page (blank screen). -->
+                            <ComboBox ItemsSource="{Binding Modules}"
+                                      SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
+                                      IsSynchronizedWithCurrentItem="False"
+                                      MinWidth="260"
+                                      Padding="10,7"
+                                      FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                            <TextBlock Text="{Binding SelectedPurpose}"
+                                       Margin="{StaticResource SettingsStackTop6}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+                            <TextBlock Text="{Binding WorkflowHint}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+                            <!-- Full-width action row: buttons stretch evenly. -->
+                            <UniformGrid Columns="5" Margin="{StaticResource SettingsStackGap12}">
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                    Content="{DynamicResource Settings.GenerateSelected}"
+                                    Command="{Binding GenerateSelectedCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
+                                    HorizontalAlignment="Stretch"/>
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                    Content="{DynamicResource Settings.GenerateModules}"
+                                    Command="{Binding GenerateAllCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.GenerateAll"
+                                    HorizontalAlignment="Stretch"/>
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                    Content="{DynamicResource Settings.RetryLAST}"
+                                    Command="{Binding RetryCommand}"
+                                    HorizontalAlignment="Stretch"/>
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                    Content="{DynamicResource Action.Cancel}"
+                                    Command="{Binding CancelCommand}"
+                                    HorizontalAlignment="Stretch"/>
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                    Content="{DynamicResource Settings.OPENOutput}"
+                                    Command="{Binding OpenOutputCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0"/>
+                            </UniformGrid>
                         </StackPanel>
                     </StackPanel>
                 </Border>

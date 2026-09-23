@@ -127,114 +127,112 @@
                         </UniformGrid>
 
                         <!-- Brand Accent Palette Directly Inside Theme Studio -->
-                        <Border Margin="{StaticResource SettingsStackGap12}" Style="{StaticResource SettingsInnerTileStyle}">
-                            <StackPanel>
+                        <StackPanel Margin="{StaticResource SettingsStackGap14}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
+                                               Text="{DynamicResource Settings.LblAccent}"/>
+                                </StackPanel>
+                                <!-- Action Strip: Theme Reset, Export & Import Theme Pack -->
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button AutomationProperties.AutomationId="Settings.ExportThemePackStudio"
+                                            Command="{Binding ExportThemeProfileCommand}"
+                                            Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
+                                            ToolTip="Export theme pack configuration to clipboard"
+                                            Content="Export Pack"/>
+                                    <Button AutomationProperties.AutomationId="Settings.ImportThemePackStudio"
+                                            Command="{Binding ImportThemeProfileCommand}"
+                                            Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
+                                            ToolTip="Import theme pack configuration from clipboard"
+                                            Content="Import Pack"/>
+                                    <Button AutomationProperties.AutomationId="Settings.ResetThemeFamilyStudio"
+                                            Command="{Binding ResetThemeFamilyCommand}"
+                                            Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0"
+                                            Content="{DynamicResource Settings.ResetThemeFamily}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                       Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>
+
+                            <ItemsControl ItemsSource="{Binding AccentPalette}" Margin="{StaticResource SettingsStackGap4}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.ApplyAccentCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding Key}"
+                                                Style="{StaticResource AccentChipStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                                         VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Live Interactive Component Deck -->
+                            <Border Margin="{StaticResource SettingsStackGap12}" Padding="14,12" Background="{DynamicResource SurfaceSecondaryBrush}"
+                                    BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                    CornerRadius="{DynamicResource CardCornerRadius}">
                                 <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
-                                                   Text="{DynamicResource Settings.LblAccent}"/>
-                                    </StackPanel>
-                                    <!-- Action Strip: Theme Reset, Export & Import Theme Pack -->
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Button AutomationProperties.AutomationId="Settings.ExportThemePackStudio"
-                                                Command="{Binding ExportThemeProfileCommand}"
-                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
-                                                ToolTip="Export theme pack configuration to clipboard"
-                                                Content="Export Pack"/>
-                                        <Button AutomationProperties.AutomationId="Settings.ImportThemePackStudio"
-                                                Command="{Binding ImportThemeProfileCommand}"
-                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0" Margin="{StaticResource SettingsInlineGap6R}"
-                                                ToolTip="Import theme pack configuration from clipboard"
-                                                Content="Import Pack"/>
-                                        <Button AutomationProperties.AutomationId="Settings.ResetThemeFamilyStudio"
-                                                Command="{Binding ResetThemeFamilyCommand}"
-                                                Style="{StaticResource RowOutlinedButton}" Height="28" Padding="10,0"
-                                                Content="{DynamicResource Settings.ResetThemeFamily}"/>
-                                    </StackPanel>
-                                </Grid>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                           Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>
 
-                                <ItemsControl ItemsSource="{Binding AccentPalette}" Margin="{StaticResource SettingsStackGap4}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Button Command="{Binding DataContext.ApplyAccentCommand,
-                                                              RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding Key}"
-                                                    Style="{StaticResource AccentChipStyle}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
-                                                             VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                                    <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                            </Button>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                                <!-- Live Interactive Component Deck -->
-                                <Border Margin="{StaticResource SettingsStackGap12}" Padding="14,12" Background="{DynamicResource SurfaceSecondaryBrush}"
-                                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                        CornerRadius="{DynamicResource CardCornerRadius}">
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-
-                                        <StackPanel Grid.Row="0" Grid.Column="0">
-                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                                <TextBlock Text="Live Studio Specimen" FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                            </StackPanel>
-                                            <TextBlock Text="Real-time theme engine tokens verified with automatic WCAG contrast derivation."
-                                                       FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="{StaticResource SettingsStackGap4}"/>
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <Border Width="10" Height="10" CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                            <TextBlock Text="Live Studio Specimen" FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </StackPanel>
+                                        <TextBlock Text="Real-time theme engine tokens verified with automatic WCAG contrast derivation."
+                                                   FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="{StaticResource SettingsStackGap4}"/>
+                                    </StackPanel>
 
-                                        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="{StaticResource SettingsInlineGap6R}">
-                                                <TextBlock Text="Active Accent" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                            </Border>
-                                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4">
-                                                <TextBlock Text="WCAG AAA" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
-                                            </Border>
-                                        </StackPanel>
-
-                                        <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource SettingsStackGap10}" Padding="12,8"
-                                                Background="{DynamicResource SurfacePrimaryBrush}"
-                                                BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                                CornerRadius="{DynamicResource Radius.Small}">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                                    <TextBlock Text="Tokens active across all sales, production, about, and settings views."
-                                                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
-                                                </StackPanel>
-                                                <Button Grid.Column="1" Style="{StaticResource PrimaryPillButton}" Height="26" Padding="14,0" Content="Test State" VerticalAlignment="Center"/>
-                                            </Grid>
+                                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="{StaticResource SettingsInlineGap6R}">
+                                            <TextBlock Text="Active Accent" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
-                                    </Grid>
-                                </Border>
-                            </StackPanel>
-                        </Border>
+                                        <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4">
+                                            <TextBlock Text="WCAG AAA" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="{StaticResource SettingsStackGap10}" Padding="12,8"
+                                            Background="{DynamicResource SurfacePrimaryBrush}"
+                                            BorderBrush="{DynamicResource DividerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                            CornerRadius="{DynamicResource Radius.Small}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                                <TextBlock Text="Tokens active across all sales, production, about, and settings views."
+                                                           FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <Button Grid.Column="1" Style="{StaticResource PrimaryPillButton}" Height="26" Padding="14,0" Content="Test State" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 

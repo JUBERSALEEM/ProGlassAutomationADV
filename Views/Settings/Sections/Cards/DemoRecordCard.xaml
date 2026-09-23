@@ -37,55 +37,48 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── SHORT CARD / SMART BENTO INNER TILE ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap10}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE714;"/>
-                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.RecordSession}"/>
-                    </StackPanel>
-                    <TextBlock Text="{Binding SessionRecordHint}"
-                               Margin="{StaticResource SettingsStackGap4}"
-                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                    <TextBlock Text="{Binding SessionRecordStatus}"
-                               FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource AccentBrush}"
-                               Margin="{StaticResource SettingsStackGap4}"
-                               Style="{StaticResource SettingsRowMetaStyle}"/>
+            <!-- ── SESSION RECORDING CONTROLS DIRECTLY ON CARD ── -->
+            <StackPanel Margin="{StaticResource SettingsStackGap12}">
+                <TextBlock Text="{Binding SessionRecordHint}"
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                <TextBlock Text="{Binding SessionRecordStatus}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           Foreground="{DynamicResource AccentBrush}"
+                           Margin="{StaticResource SettingsStackGap4}"
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
 
-                    <!-- Primary action row: clean button layout -->
-                    <Grid Margin="{StaticResource SettingsStackGap10}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0"
-                                Style="{StaticResource SettingsActionButtonStyle}"
-                                Content="{DynamicResource Settings.StartRecording}"
-                                Command="{Binding StartSessionRecordCommand}"
-                                AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
-                                Visibility="{Binding IsSessionIdle,
-                                    Converter={StaticResource BoolToVisibilityConverter}}"
-                                HorizontalAlignment="Stretch"/>
-                        <Button Grid.Column="1"
-                                Style="{StaticResource SettingsActionButtonStyle}"
-                                Content="{DynamicResource Settings.STOPSAVE}"
-                                Command="{Binding StopSessionRecordCommand}"
-                                AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
-                                Visibility="{Binding IsSessionRecording,
-                                    Converter={StaticResource BoolToVisibilityConverter}}"
-                                Margin="{StaticResource SettingsIconTextMargin}"
-                                HorizontalAlignment="Stretch"/>
-                        <Button Grid.Column="2"
-                                Style="{StaticResource SettingsActionButtonStyle}"
-                                Content="{DynamicResource Settings.OPENRecordings}"
-                                Command="{Binding OpenRecordingsCommand}"
-                                Margin="{StaticResource SettingsIconTextMargin}"
-                                HorizontalAlignment="Stretch"/>
-                    </Grid>
-                </StackPanel>
-            </Border>
+                <!-- Primary action row: clean button layout -->
+                <Grid Margin="{StaticResource SettingsStackGap10}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Style="{StaticResource SettingsActionButtonStyle}"
+                            Content="{DynamicResource Settings.StartRecording}"
+                            Command="{Binding StartSessionRecordCommand}"
+                            AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
+                            Visibility="{Binding IsSessionIdle,
+                                Converter={StaticResource BoolToVisibilityConverter}}"
+                            HorizontalAlignment="Stretch"/>
+                    <Button Grid.Column="1"
+                            Style="{StaticResource SettingsActionButtonStyle}"
+                            Content="{DynamicResource Settings.STOPSAVE}"
+                            Command="{Binding StopSessionRecordCommand}"
+                            AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
+                            Visibility="{Binding IsSessionRecording,
+                                Converter={StaticResource BoolToVisibilityConverter}}"
+                            Margin="{StaticResource SettingsIconTextMargin}"
+                            HorizontalAlignment="Stretch"/>
+                    <Button Grid.Column="2"
+                            Style="{StaticResource SettingsActionButtonStyle}"
+                            Content="{DynamicResource Settings.OPENRecordings}"
+                            Command="{Binding OpenRecordingsCommand}"
+                            Margin="{StaticResource SettingsIconTextMargin}"
+                            HorizontalAlignment="Stretch"/>
+                </Grid>
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>

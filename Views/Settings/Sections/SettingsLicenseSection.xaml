@@ -97,32 +97,29 @@
                     <TextBlock Text="{Binding StatusDescription}"
                                Style="{StaticResource SettingsCardNoteStyle}"/>
 
-                    <Border Style="{StaticResource SettingsInnerTileStyle}"
-                            Margin="{StaticResource SettingsCardContentMargin}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+                    <Grid Margin="{StaticResource SettingsCardContentMargin}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="{DynamicResource Settings.Remaining}"
-                                           Style="{StaticResource SettingsFieldLabelStyle}"/>
-                                <TextBlock Text="{DynamicResource Settings.AutoUpdatesLicenseserviceStatuschanged}"
-                                           Style="{StaticResource SettingsRowMetaStyle}"
-                                           TextWrapping="Wrap"/>
-                            </StackPanel>
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource Settings.Remaining}"
+                                       Style="{StaticResource SettingsFieldLabelStyle}"/>
+                            <TextBlock Text="{DynamicResource Settings.AutoUpdatesLicenseserviceStatuschanged}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
 
-                            <Border Grid.Column="1"
-                                    Style="{StaticResource SettingsValuePillStyle}"
-                                    Margin="{StaticResource SettingsInlineGap12}"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="{Binding DaysRemainingDisplay}"
-                                           Style="{StaticResource SettingsValuePillTextStyle}"
-                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}"/>
-                            </Border>
-                        </Grid>
-                    </Border>
+                        <Border Grid.Column="1"
+                                Style="{StaticResource SettingsValuePillStyle}"
+                                Margin="{StaticResource SettingsInlineGap12}"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DaysRemainingDisplay}"
+                                       Style="{StaticResource SettingsValuePillTextStyle}"
+                                       FontSize="{DynamicResource Ios26FontSizeSubtitle}"/>
+                        </Border>
+                    </Grid>
                 </StackPanel>
             </Border>
 

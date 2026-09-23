@@ -37,31 +37,24 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── SHORT CARD / SMART BENTO INNER TILE ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap10}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;"/>
-                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.SessionSecurity}"/>
-                    </StackPanel>
-                    <TextBlock Text="Manage active terminal credentials and shift handovers"
-                               Margin="{StaticResource SettingsStackGap4}"
-                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
-                        <Button Content="{DynamicResource Settings.ForgetDevice}"
-                                Command="{Binding DataContext.ForgetThisDeviceCommand,
-                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                Style="{StaticResource SettingsActionButtonStyle}"
-                                Margin="{StaticResource SettingsInlineGap6R}"
-                                ToolTip="{DynamicResource Settings.ClearSkipLoginVaultEntryMachineWithout}"/>
-                        <Button Content="{DynamicResource Login.SignOut}"
-                                Command="{Binding DataContext.SignOutCommand,
-                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                Style="{StaticResource SettingsActionButtonStyle}"
-                                ToolTip="{DynamicResource Settings.EndSessionClearSkipLoginVaultEntryReturn}"/>
-                    </UniformGrid>
-                </StackPanel>
-            </Border>
+            <!-- ── SESSION SECURITY CONTROLS ── -->
+            <StackPanel Margin="{StaticResource SettingsStackGap12}">
+                <TextBlock Text="Manage active terminal credentials and shift handovers"
+                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
+                    <Button Content="{DynamicResource Settings.ForgetDevice}"
+                            Command="{Binding DataContext.ForgetThisDeviceCommand,
+                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Style="{StaticResource SettingsActionButtonStyle}"
+                            Margin="{StaticResource SettingsInlineGap6R}"
+                            ToolTip="{DynamicResource Settings.ClearSkipLoginVaultEntryMachineWithout}"/>
+                    <Button Content="{DynamicResource Login.SignOut}"
+                            Command="{Binding DataContext.SignOutCommand,
+                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            Style="{StaticResource SettingsActionButtonStyle}"
+                            ToolTip="{DynamicResource Settings.EndSessionClearSkipLoginVaultEntryReturn}"/>
+                </UniformGrid>
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>
