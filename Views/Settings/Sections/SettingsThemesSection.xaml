@@ -202,7 +202,7 @@
                                                 <TextBlock Text="Live Studio Specimen" FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             </StackPanel>
                                             <TextBlock Text="Real-time theme engine tokens verified with automatic WCAG contrast derivation."
-                                                       FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="2,2,0,0"/>
+                                                       FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="{StaticResource SettingsStackGap4}"/>
                                         </StackPanel>
 
                                         <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">

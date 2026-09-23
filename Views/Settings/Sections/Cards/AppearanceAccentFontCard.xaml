@@ -114,7 +114,7 @@
                                    Text="{Binding FontStatus}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap6}"/>
                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                    Text="Preview your changes below before clicking 'Apply Font'."
-                                   Foreground="{DynamicResource AccentBrush}" Margin="0,4,0,0"/>
+                                   Foreground="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsStackGap4}"/>
                     </StackPanel>
                 </Border>
 

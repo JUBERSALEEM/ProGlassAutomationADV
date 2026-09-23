@@ -102,7 +102,7 @@
                                              Background="{DynamicResource SurfaceTertiaryBrush}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" Margin="2">
+                                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsInset2}">
                                                     <TextBlock Text="&#xE968;"
                                                                FontFamily="{DynamicResource FontFamily.Icon}"
                                                                FontSize="{DynamicResource FontSize.Body}"

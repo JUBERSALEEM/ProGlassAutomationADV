@@ -88,7 +88,7 @@
                                         <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
                                     </TextBlock>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="0,3,0,0"
+                                               Margin="{StaticResource SettingsNoteTightMargin}"
                                                TextTrimming="CharacterEllipsis"
                                                ToolTip="{Binding SettingsFilePath, Mode=OneWay}">
                                         <Run Text="{DynamicResource Settings.AgentSettings}"/>

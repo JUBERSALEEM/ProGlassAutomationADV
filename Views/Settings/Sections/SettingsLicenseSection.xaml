@@ -80,7 +80,7 @@
                                        Style="{StaticResource SettingsCardTitleStyle}"/>
                             <TextBlock Text="{Binding EditionDisplay}"
                                        Style="{StaticResource SettingsRowTitleStyle}"
-                                       Margin="0,2,0,0"/>
+                                       Margin="{StaticResource SettingsStackGap2}"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="2" Orientation="Horizontal"

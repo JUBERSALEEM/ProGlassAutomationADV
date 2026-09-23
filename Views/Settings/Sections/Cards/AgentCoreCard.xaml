@@ -303,7 +303,7 @@
                                                                        Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                             <TextBlock Text="{Binding StatusDisplay}"
                                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                                       Margin="0,3,0,0">
+                                                                       Margin="{StaticResource SettingsNoteTightMargin}">
                                                                 <TextBlock.Style>
                                                                     <Style TargetType="TextBlock">
                                                                         <Setter Property="Foreground"

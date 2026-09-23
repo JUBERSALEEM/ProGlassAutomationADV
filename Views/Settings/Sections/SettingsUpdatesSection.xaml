@@ -103,7 +103,7 @@
                                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                 <TextBlock FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                                           Margin="0,3,0,0"
+                                                           Margin="{StaticResource SettingsNoteTightMargin}"
                                                            Foreground="{DynamicResource TextPrimaryBrush}">
                                                     <Run Text="{DynamicResource Settings.V}"/>
                                                     <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"/>
@@ -116,7 +116,7 @@
                                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
                                                 <TextBlock FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                                           Margin="0,3,0,0"
+                                                           Margin="{StaticResource SettingsNoteTightMargin}"
                                                            Foreground="{DynamicResource AccentBrush}"
                                                            Text="{Binding LatestVersionDisplay}"/>
                                             </StackPanel>

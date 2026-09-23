@@ -203,7 +203,7 @@
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                 <ComboBox ItemsSource="{Binding WallpaperModeOptions}"
                                           SelectedItem="{Binding SelectedWallpaperMode, Mode=TwoWay}"
-                                          Width="300" HorizontalAlignment="Left" Margin="0,2,0,4" Style="{StaticResource ComboBoxStyle}"/>
+                                          Width="300" HorizontalAlignment="Left" Margin="{StaticResource SettingsStackGap6Bottom2}" Style="{StaticResource ComboBoxStyle}"/>
 
                                 <!-- Built-in theme scenes (live swatches) -->
                                 <DockPanel Margin="{StaticResource SettingsStackGap12Bottom2}">
@@ -248,7 +248,7 @@
                                                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                                                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                                         SnapsToDevicePixels="True">
-                                                                    <Grid Margin="4">
+                                                                    <Grid Margin="{StaticResource SettingsInset4}">
                                                                         <Border HorizontalAlignment="Right"
                                                                                 VerticalAlignment="Top"
                                                                                 Background="{DynamicResource SurfaceGlassOverlayBrush}"
@@ -262,7 +262,7 @@
                                                                     </Grid>
                                                                 </Border>
                                                                 <!-- Title and family label -->
-                                                                <DockPanel Margin="2,4,2,2" LastChildFill="True">
+                                                                <DockPanel Margin="{StaticResource SettingsDockTextMargin}" LastChildFill="True">
                                                                     <TextBlock Text="{Binding Label}"
                                                                                FontWeight="{DynamicResource Weight.Bold}"
                                                                                FontSize="{DynamicResource FontSize.Body}"
@@ -278,7 +278,7 @@
                                                                 <TextBlock Text="{Binding Key}"
                                                                            FontSize="{DynamicResource FontSize.Caption}"
                                                                            Foreground="{DynamicResource TextSecondaryBrush}"
-                                                                           Margin="2,0,2,2"/>
+                                                                           Margin="{StaticResource SettingsDockCaptionMargin}"/>
                                                             </StackPanel>
                                                         </Border>
                                                         <ControlTemplate.Triggers>
@@ -303,7 +303,7 @@
                                 <TextBlock Text="{DynamicResource Settings.WallpaperOnline}"
                                            FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}" Margin="{StaticResource SettingsStackGap6Bottom2}"
                                            Foreground="{DynamicResource AccentBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom4}">
                                     <ComboBox ItemsSource="{Binding OnlineCategoryRows}"
                                               DisplayMemberPath="Label" SelectedValuePath="Key"
                                               SelectedValue="{Binding SelectedOnlineCategoryKey, Mode=TwoWay}"
@@ -342,7 +342,7 @@
                                 </TextBlock>
 
                                 <!-- Downloaded library (offline reuse) + management -->
-                                <DockPanel Margin="0,4,0,2">
+                                <DockPanel Margin="{StaticResource SettingsStackGap4Bottom2}">
                                     <TextBlock Text="{DynamicResource Settings.WallpaperLibrary}"
                                                FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource AccentBrush}"
@@ -360,13 +360,13 @@
                                 <TextBlock Text="{Binding WallpaperLibrarySummary}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
-                                           Margin="0,0,0,4"/>
+                                           Margin="{StaticResource SettingsStackBottom4}"/>
                                 <ScrollViewer MaxHeight="170" VerticalScrollBarVisibility="Auto"
                                               HorizontalScrollBarVisibility="Disabled">
                                     <ItemsControl ItemsSource="{Binding CachedWallpapers}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <DockPanel Margin="0,1,0,1">
+                                                <DockPanel Margin="{StaticResource SettingsStackGap2}">
                                                     <Button DockPanel.Dock="Right"
                                                             Style="{StaticResource DangerButton}"
                                                             Command="{Binding DataContext.DeleteCachedWallpaperCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -415,7 +415,7 @@
                                 <TextBlock Text="{DynamicResource Settings.WallpaperBackdropCaption}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource TextSecondaryBrush}"
-                                           TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                           TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap2}"/>
                             </StackPanel>
                         </Border>
 

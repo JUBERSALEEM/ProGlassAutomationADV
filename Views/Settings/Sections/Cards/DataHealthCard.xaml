@@ -63,7 +63,7 @@
                                                 <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}"
                                                            TextWrapping="Wrap"
-                                                           Margin="0,2,0,0"
+                                                           Margin="{StaticResource SettingsStackGap2}"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             </StackPanel>
                                         </Grid>
@@ -97,7 +97,7 @@
                                              Background="{DynamicResource SurfaceTertiaryBrush}">
                                         <ListBox.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid Margin="2">
+                                                <Grid Margin="{StaticResource SettingsInset2}">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="220"/>
                                                         <ColumnDefinition Width="80"/>

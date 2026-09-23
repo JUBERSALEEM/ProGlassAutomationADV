@@ -45,7 +45,7 @@
                                                 <TextBlock Text="Live Token Specimen" FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             </StackPanel>
                                             <TextBlock Text="All cards, inputs, and controls adapt dynamically in real-time."
-                                                       FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="2,2,0,0"/>
+                                                       FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="{StaticResource SettingsStackGap4}"/>
                                         </StackPanel>
 
                                         <!-- Live Accent & Status Pills -->

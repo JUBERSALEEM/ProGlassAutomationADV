@@ -182,6 +182,13 @@
     <Thickness x:Key="SettingsBentoColLeft">0,0,8,0</Thickness>
     <Thickness x:Key="SettingsBentoColRight">8,0,0,0</Thickness>
     <Thickness x:Key="SettingsBentoRowMargin">0,0,0,16</Thickness>
+    <Thickness x:Key="SettingsInset4">4</Thickness>
+    <Thickness x:Key="SettingsInset2">2</Thickness>
+    <Thickness x:Key="SettingsStackGap2">0,2,0,0</Thickness>
+    <Thickness x:Key="SettingsStackBottom4">0,0,0,4</Thickness>
+    <Thickness x:Key="SettingsStackGap4Bottom2">0,4,0,2</Thickness>
+    <Thickness x:Key="SettingsDockTextMargin">2,4,2,2</Thickness>
+    <Thickness x:Key="SettingsDockCaptionMargin">2,0,2,2</Thickness>
 
     <!-- ═══ CARD — page-sized crystal glass (2026-09-17) ═══
 

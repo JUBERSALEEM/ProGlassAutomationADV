@@ -35,7 +35,7 @@
                         <TextBlock Text="SPLASH SCREEN STAGE &amp; THEMES" Style="{StaticResource SettingsCardTitleStyle}"/>
                     </StackPanel>
                     <TextBlock Text="Select between 10 corporate glass architectures or automatically cycle on every system boot."
-                               Style="{StaticResource SettingsCardHeaderNoteStyle}" Margin="0,4,0,0"/>
+                               Style="{StaticResource SettingsCardHeaderNoteStyle}" Margin="{StaticResource SettingsStackGap4}"/>
                 </StackPanel>
                 <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" VerticalAlignment="Top">
                     <TextBlock Text="10 Corporate Presets" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
@@ -65,7 +65,7 @@
                         <TextBlock Text="{Binding SelectedSplashStyleName}" FontSize="{DynamicResource FontSize.Body}"
                                    FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         <TextBlock Text="{Binding SelectedSplashStyleDescription}" FontSize="{DynamicResource FontSize.Caption}"
-                                   Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                   Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -81,7 +81,7 @@
                     <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="{StaticResource SettingsTrailingGapWide}">
                         <TextBlock Text="REBOOT TO PREVIEW ACTIVE SPLASH" Style="{StaticResource SettingsRowTitleStyle}"/>
                         <TextBlock Text="Relaunches ProGlass immediately to view your active boot splash theme in action and reload all modules."
-                                   FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                   FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
                     </StackPanel>
 
                     <Button Grid.Column="1" Command="{Binding RestartAppCommand}"
