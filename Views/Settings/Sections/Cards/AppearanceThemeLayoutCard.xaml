@@ -217,9 +217,13 @@
                                         </StackPanel>
                                     </UniformGrid>
 
-                                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap4}">
+                                    <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap4}">
 
-                                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsInlineGap8R}">
+                                        <Border CornerRadius="{DynamicResource Radius.Small}"
+                                                Background="{DynamicResource SurfaceElevatedBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                                Padding="12,10" Margin="{StaticResource SettingsInlineGap6R}">
                                             <StackPanel>
                                                 <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Major page/module card" Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -238,7 +242,11 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="{StaticResource SettingsInlineGap8}">
+                                        <Border CornerRadius="{DynamicResource Radius.Small}"
+                                                Background="{DynamicResource SurfaceElevatedBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                                Padding="12,10" Margin="{StaticResource SettingsInlineGap6}">
                                             <StackPanel>
                                                 <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -257,7 +265,11 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsInlineGap8R}">
+                                        <Border CornerRadius="{DynamicResource Radius.Small}"
+                                                Background="{DynamicResource SurfaceElevatedBrush}"
+                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                                Padding="12,10" Margin="{StaticResource SettingsInlineGap6}">
                                             <StackPanel>
                                                 <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsRowMetaStyle}"/>

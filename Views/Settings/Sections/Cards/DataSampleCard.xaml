@@ -37,37 +37,30 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── SHORT CARD / SMART BENTO INNER TILE ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap10}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
-                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.ExploreSampleData}"/>
-                    </StackPanel>
-                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                               Margin="{StaticResource SettingsStackGap4}"
-                               Text="{DynamicResource Settings.6Sheets3Proformas2JobOrders2DeliveryNotes3}"/>
+            <!-- ── COMPACT ACTIONS & SEED CONTROLS ── -->
+            <StackPanel Margin="{StaticResource SettingsStackGap12}">
+                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                           Text="{DynamicResource Settings.6Sheets3Proformas2JobOrders2DeliveryNotes3}"/>
 
-                    <!-- Compact action buttons side by side -->
-                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
-                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                Content="{DynamicResource Settings.LOADSampleDATA}"
-                                Command="{Binding LoadSampleDataCommand}"
-                                HorizontalAlignment="Stretch"
-                                ToolTip="{DynamicResource Settings.SeedDemoDatasetEmptyDatabase}"/>
-                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                Content="{DynamicResource Settings.ClearDATA}"
-                                Command="{Binding ClearAllDataCommand}"
-                                HorizontalAlignment="Stretch"
-                                Margin="0"
-                                ToolTip="{DynamicResource Settings.PermanentlyDeleteRecordModulesEGAfterTesting}"/>
-                    </UniformGrid>
+                <!-- Compact action buttons side by side -->
+                <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
+                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                            Content="{DynamicResource Settings.LOADSampleDATA}"
+                            Command="{Binding LoadSampleDataCommand}"
+                            HorizontalAlignment="Stretch"
+                            ToolTip="{DynamicResource Settings.SeedDemoDatasetEmptyDatabase}"/>
+                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                            Content="{DynamicResource Settings.ClearDATA}"
+                            Command="{Binding ClearAllDataCommand}"
+                            HorizontalAlignment="Stretch"
+                            Margin="0"
+                            ToolTip="{DynamicResource Settings.PermanentlyDeleteRecordModulesEGAfterTesting}"/>
+                </UniformGrid>
 
-                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                               Margin="{StaticResource SettingsStackGap6}"
-                               Text="{DynamicResource Settings.DoneTestingUseClearDATAWipeDemoDatasetOne}"/>
-                </StackPanel>
-            </Border>
+                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                           Margin="{StaticResource SettingsStackGap6}"
+                           Text="{DynamicResource Settings.DoneTestingUseClearDATAWipeDemoDatasetOne}"/>
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>

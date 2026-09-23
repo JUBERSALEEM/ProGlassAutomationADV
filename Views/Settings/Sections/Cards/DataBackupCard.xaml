@@ -90,47 +90,45 @@
             </UniformGrid>
 
             <!-- ── SMART BENTO ROW 2: FULL-WIDTH BACKUP SETS LEDGER ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap10}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
-                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupSets}"/>
-                    </StackPanel>
-                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                               Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
-                    <ListBox ItemsSource="{Binding BackupSets}"
-                             AutomationProperties.Name="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"
-                             SelectedItem="{Binding SelectedBackup}"
-                             Margin="{StaticResource SettingsStackGap8}"
-                             MaxHeight="170"
-                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                             BorderBrush="{DynamicResource BorderDefaultBrush}"
-                             Background="{DynamicResource SurfaceTertiaryBrush}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsInset2}">
-                                    <TextBlock Text="&#xE968;"
-                                               FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}"
-                                               Margin="{StaticResource SettingsInlineGap8R}"
-                                               VerticalAlignment="Center"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               IsHitTestVisible="False"/>
-                                    <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
-                                               IsHitTestVisible="False">
-                                        <Run Text="{Binding CreatedAt, Mode=OneWay,
-                                                     StringFormat='dd MMM yyyy  HH:mm'}"/>
-                                        <Run Text="  •  "/>
-                                        <Run Text="{Binding FileCount, Mode=OneWay}"/>
-                                        <Run Text="{DynamicResource Settings.Files}"/>
-                                        <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+            <StackPanel Margin="{StaticResource SettingsStackGap14}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
+                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupSets}"/>
                 </StackPanel>
-            </Border>
+                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                           Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
+                <ListBox ItemsSource="{Binding BackupSets}"
+                         AutomationProperties.Name="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"
+                         SelectedItem="{Binding SelectedBackup}"
+                         Margin="{StaticResource SettingsStackGap8}"
+                         MaxHeight="180"
+                         BorderThickness="{DynamicResource Border.HairlineThickness}"
+                         BorderBrush="{DynamicResource BorderDefaultBrush}"
+                         Background="{DynamicResource SurfaceTertiaryBrush}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsInset2}">
+                                <TextBlock Text="&#xE968;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}"
+                                           Margin="{StaticResource SettingsInlineGap8R}"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                           IsHitTestVisible="False">
+                                    <Run Text="{Binding CreatedAt, Mode=OneWay,
+                                                 StringFormat='dd MMM yyyy  HH:mm'}"/>
+                                    <Run Text="  •  "/>
+                                    <Run Text="{Binding FileCount, Mode=OneWay}"/>
+                                    <Run Text="{DynamicResource Settings.Files}"/>
+                                    <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>

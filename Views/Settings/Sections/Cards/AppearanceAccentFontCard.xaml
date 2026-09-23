@@ -37,10 +37,15 @@
                 </StackPanel>
             </Grid>
             
-            <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
+            <!-- ── 2-COLUMN BALANCED STUDIO: ACCENT & TYPOGRAPHY ── -->
+            <Grid Margin="{StaticResource SettingsRowMargin}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- Accent palette (wide) -->
-                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
+                <!-- Left Column: Accent Palette -->
+                <Border Grid.Column="0" Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsBentoColLeft}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
@@ -95,8 +100,8 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Font family selection -->
-                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
+                <!-- Right Column: Typography Studio -->
+                <Border Grid.Column="1" Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsBentoColRight}">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
@@ -111,23 +116,10 @@
                                   Padding="10,7" FontSize="{DynamicResource FontSize.Title}"
                                   MaxDropDownHeight="320" Style="{StaticResource ComboBoxStyle}"/>
                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{Binding FontStatus}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap6}"/>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="Preview your changes below before clicking 'Apply Font'."
-                                   Foreground="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsStackGap4}"/>
-                    </StackPanel>
-                </Border>
+                                   Text="{Binding FontStatus}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
 
-                <!-- Weight + Style + Formatting Controls -->
-                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D2;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.FontWeightStyle}"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.TuneWeightStyleWithinSelectedFamily}"/>
-                        <Grid>
+                        <!-- Weight + Style Sub-controls -->
+                        <Grid Margin="{StaticResource SettingsStackTop8}">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="12"/>
@@ -144,7 +136,7 @@
                         </Grid>
 
                         <!-- Bold, Italic, Underline Quick Toggles -->
-                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap10}">
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap8}">
                             <CheckBox AutomationProperties.Name="Typography Bold"
                                       IsChecked="{Binding IsFontBold, Mode=TwoWay}" Margin="{StaticResource SettingsTrailingGap}" VerticalAlignment="Center"
                                       ToolTip="Make typography bold (FontWeights.Bold)">
@@ -163,7 +155,7 @@
                         </StackPanel>
 
                         <!-- Actions: Import, Reset, Apply -->
-                        <WrapPanel Margin="{StaticResource SettingsStackGap12}">
+                        <WrapPanel Margin="{StaticResource SettingsStackGap8}">
                             <Button Command="{Binding ApplyFontCommand}"
                                     Style="{StaticResource AccentChipStyle}"
                                     Background="{DynamicResource AccentBrush}"
@@ -196,66 +188,63 @@
                         </WrapPanel>
                     </StackPanel>
                 </Border>
+            </Grid>
 
-            </UniformGrid>
-
-            <!-- ═══ LIVE TYPOGRAPHY PREVIEW TILE ═══ -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsRowMargin}" Padding="16,14">
-                <StackPanel>
-                    <DockPanel LastChildFill="True" Margin="{StaticResource SettingsStackBottom8}">
-                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H3}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                            <TextBlock Text="Live Typography Preview" FontWeight="Bold"
-                                       FontSize="{DynamicResource FontSize.Title}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <Button DockPanel.Dock="Right"
-                                Command="{Binding ApplyFontCommand}"
-                                Style="{StaticResource AccentChipStyle}"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                ToolTip="Click to apply this previewed typography to all shop floor and office screens">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xE8FB;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6R}"/>
-                                <TextBlock Text="Apply Selected Font" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                    </DockPanel>
-
-                    <!-- Preview container with smooth rounded corners -->
-                    <Border CornerRadius="{DynamicResource Radius.Small}"
-                            Background="{DynamicResource SurfaceElevatedBrush}"
-                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                            BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="16,12">
-                        <StackPanel>
-                            <TextBlock Text="ProGlass Industrial Studio — 3210 × 2250 mm Glass Fabrication &amp; 2D Cutting"
-                                       FontFamily="{Binding PreviewFontFamily}"
-                                       FontWeight="{Binding PreviewFontWeight}"
-                                       FontStyle="{Binding PreviewFontStyle}"
-                                       TextDecorations="{Binding PreviewTextDecorations}"
-                                       FontSize="{DynamicResource FontSize.H2}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       TextWrapping="Wrap"/>
-                            <TextBlock Text="The quick brown fox jumps over the lazy dog. 0123456789 — AED 14,850.00 — 6mm Clear Float (Tempered &amp; Polished)"
-                                       FontFamily="{Binding PreviewFontFamily}"
-                                       FontWeight="{Binding PreviewFontWeight}"
-                                       FontStyle="{Binding PreviewFontStyle}"
-                                       TextDecorations="{Binding PreviewTextDecorations}"
+            <!-- ═══ LIVE TYPOGRAPHY PREVIEW STRIP ═══ -->
+            <StackPanel Margin="{StaticResource SettingsRowMargin}">
+                <DockPanel LastChildFill="True" Margin="{StaticResource SettingsStackBottom8}">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.H3}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                        <TextBlock Text="Live Typography Preview" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Title}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding ApplyFontCommand}"
+                            Style="{StaticResource AccentChipStyle}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            ToolTip="Click to apply this previewed typography to all shop floor and office screens">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8FB;" FontFamily="{DynamicResource FontFamily.Icon}"
                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Margin="{StaticResource SettingsStackGap8}"
-                                       TextWrapping="Wrap"/>
+                                       VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6R}"/>
+                            <TextBlock Text="Apply Selected Font" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
+                    </Button>
+                </DockPanel>
+
+                <!-- Preview container with smooth rounded corners directly on card surface -->
+                <Border CornerRadius="{DynamicResource Radius.Small}"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"
+                        Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="ProGlass Industrial Studio — 3210 × 2250 mm Glass Fabrication &amp; 2D Cutting"
+                                   FontFamily="{Binding PreviewFontFamily}"
+                                   FontWeight="{Binding PreviewFontWeight}"
+                                   FontStyle="{Binding PreviewFontStyle}"
+                                   TextDecorations="{Binding PreviewTextDecorations}"
+                                   FontSize="{DynamicResource FontSize.H2}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="The quick brown fox jumps over the lazy dog. 0123456789 — AED 14,850.00 — 6mm Clear Float (Tempered &amp; Polished)"
+                                   FontFamily="{Binding PreviewFontFamily}"
+                                   FontWeight="{Binding PreviewFontWeight}"
+                                   FontStyle="{Binding PreviewFontStyle}"
+                                   TextDecorations="{Binding PreviewTextDecorations}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="{StaticResource SettingsStackGap8}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>

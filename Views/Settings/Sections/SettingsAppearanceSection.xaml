@@ -61,10 +61,7 @@
                 </Grid>
             </Border>
 
-            <!-- ═══ CARD — THEME & LAYOUT ═══ -->
-            <cards:AppearanceThemeLayoutCard/>
-
-            <!-- ═══ BENTO ROW — MODE & DISPLAY DENSITY (SHEETS 02 & 03) ═══ -->
+            <!-- ═══ 1. BENTO ROW — BASE COLOR MODE & DISPLAY DENSITY ═══ -->
             <Grid Margin="{StaticResource SettingsBentoRowMargin}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -74,13 +71,16 @@
                 <cards:AppearanceDensityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
             </Grid>
 
-            <!-- ═══ CARD — ACCENT & FONT ═══ -->
+            <!-- ═══ 2. CARD — THEME & SURFACE ARCHITECTURE ═══ -->
+            <cards:AppearanceThemeLayoutCard/>
+
+            <!-- ═══ 3. CARD — BRAND ACCENT & TYPOGRAPHY STUDIO ═══ -->
             <cards:AppearanceAccentFontCard/>
 
-            <!-- ═══ CARD — WALLPAPERS ═══ -->
+            <!-- ═══ 4. CARD — STUDIO WALLPAPERS & ATMOSPHERIC DEPTH ═══ -->
             <cards:AppearanceWallpapersCard/>
 
-            <!-- ═══ BENTO ROW — SPLASH SCREEN & LANGUAGE / CURRENCY ═══ -->
+            <!-- ═══ 5. BENTO ROW — SPLASH SCREEN & REGIONAL LOCALIZATION ═══ -->
             <Grid Margin="{StaticResource SettingsBentoRowMargin}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
