@@ -184,14 +184,14 @@
                              Dynamic theme-linked scenes (code-drawn, accent-aware),
                              six built-in designs, one-tap 4K downloads with a
                              persistent local library. -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                        <StackPanel Margin="{StaticResource SettingsStackGap14}">
                             <StackPanel>
-                                <StackPanel>
-                                    <TextBlock
-                                               Text="{DynamicResource Settings.WallpaperStudio}"/>
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{DynamicResource Settings.WallpaperStudioCaption}"/>
-                                </StackPanel>
+                                <TextBlock
+                                           Text="{DynamicResource Settings.WallpaperStudio}"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Text="{DynamicResource Settings.WallpaperStudioCaption}"/>
+                            </StackPanel>
 
                                 <!-- Mode: dynamic / file / pinned scene -->
                                 <TextBlock Text="{DynamicResource Settings.WallpaperMode}"
@@ -412,11 +412,6 @@
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap2}"/>
                             </StackPanel>
-                        </Border>
-
-
-                        
-
 
                     </StackPanel>
                 </Border>

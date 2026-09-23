@@ -17,7 +17,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsPageCardStyle}">
+    <Border Style="{StaticResource SettingsCompactCardStyle}">
         <StackPanel>
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -36,9 +36,11 @@
                 </StackPanel>
                 <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
                         Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                    <TextBlock Style="{StaticResource SettingsChipTextStyle}" Foreground="{DynamicResource AccentBrush}">
-                        <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="%"/>
-                    </TextBlock>
+                    <Viewbox MaxHeight="20">
+                        <TextBlock Style="{StaticResource SettingsChipTextStyle}" Foreground="{DynamicResource AccentBrush}">
+                            <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="%"/>
+                        </TextBlock>
+                    </Viewbox>
                 </Border>
             </Grid>
 

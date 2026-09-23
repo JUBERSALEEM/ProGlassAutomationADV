@@ -103,6 +103,8 @@
          inset starts clipping them below 1280. -->
     <Thickness x:Key="SettingsPagePadding">24,20,24,24</Thickness>
     <Thickness x:Key="SettingsCardPadding">22,20</Thickness>
+    <Thickness x:Key="SettingsCompactCardPadding">16,14</Thickness>
+    <Thickness x:Key="SettingsMicroCardPadding">14,12</Thickness>
     <!-- Crystal-axis rows (Themes): label sits above the track, 6px air,
          then 22px to the next row — matches the approved mockup rhythm. -->
     <Thickness x:Key="SettingsAxisLabelMargin">0,0,0,6</Thickness>
@@ -241,6 +243,18 @@
                 </BeginStoryboard>
             </EventTrigger>
         </Style.Triggers>
+    </Style>
+
+    <!-- Bento Compact Card primitive (Rule 2: Small forms, toggle pairs, compact options) -->
+    <Style x:Key="SettingsCompactCardStyle" TargetType="Border" BasedOn="{StaticResource SettingsPageCardStyle}">
+        <Setter Property="Padding" Value="{StaticResource SettingsCompactCardPadding}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
+    </Style>
+
+    <!-- Bento Micro Card primitive (Rule 2: Single KPI metrics, compact counters) -->
+    <Style x:Key="SettingsMicroCardStyle" TargetType="Border" BasedOn="{StaticResource SettingsPageCardStyle}">
+        <Setter Property="Padding" Value="{StaticResource SettingsMicroCardPadding}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Small}"/>
     </Style>
 
     <!-- ═══ OVERVIEW HERO BENTO CARD (Signature purple hero masthead) ═══ -->

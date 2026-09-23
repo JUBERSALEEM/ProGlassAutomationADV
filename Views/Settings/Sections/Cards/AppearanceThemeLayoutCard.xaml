@@ -292,12 +292,13 @@
                                     <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;" VerticalAlignment="Center"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.UIScale}"/>
-                                        <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
-                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource AccentBrush}">
-                                            <Run Text="{Binding UiScalePercent, Mode=OneWay}"/>
-                                            <Run Text="%"/>
-                                        </TextBlock>
+                                        <Viewbox MaxHeight="18" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
+                                            <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource AccentBrush}">
+                                                <Run Text="{Binding UiScalePercent, Mode=OneWay}"/>
+                                                <Run Text="%"/>
+                                            </TextBlock>
+                                        </Viewbox>
                                         <Button Content="{DynamicResource Action.Reset}"
                                             Style="{StaticResource OutlinedPillButton}"
                                             Command="{Binding ResetUiScaleCommand}"

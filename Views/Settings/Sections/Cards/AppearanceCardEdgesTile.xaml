@@ -23,12 +23,13 @@
             <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE71B;" VerticalAlignment="Center"/>
                 <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.DefinedCardEdges}"/>
-                <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
-                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource AccentBrush}">
-                    <Run Text="{Binding CardEdgeThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
-                    <Run Text="{DynamicResource Settings.DIP}"/>
-                </TextBlock>
+                <Viewbox MaxHeight="18" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
+                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource AccentBrush}">
+                        <Run Text="{Binding CardEdgeThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
+                        <Run Text="{DynamicResource Settings.DIP}"/>
+                    </TextBlock>
+                </Viewbox>
             </StackPanel>
             <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                        Text="{DynamicResource Settings.AddsStrongDarkOutlineRoundedCardsPillButtons}"/>

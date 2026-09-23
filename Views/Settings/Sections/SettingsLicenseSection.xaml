@@ -115,9 +115,11 @@
                                 Style="{StaticResource SettingsValuePillStyle}"
                                 Margin="{StaticResource SettingsInlineGap12}"
                                 VerticalAlignment="Center">
-                            <TextBlock Text="{Binding DaysRemainingDisplay}"
-                                       Style="{StaticResource SettingsValuePillTextStyle}"
-                                       FontSize="{DynamicResource Ios26FontSizeSubtitle}"/>
+                            <Viewbox MaxHeight="24">
+                                <TextBlock Text="{Binding DaysRemainingDisplay}"
+                                           Style="{StaticResource SettingsValuePillTextStyle}"
+                                           FontSize="{DynamicResource Ios26FontSizeSubtitle}"/>
+                            </Viewbox>
                         </Border>
                     </Grid>
                 </StackPanel>

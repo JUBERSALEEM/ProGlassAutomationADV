@@ -89,41 +89,37 @@
                         <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
-                                                   Text="{DynamicResource Settings.LblThemeFamily}"/>
-                                    </StackPanel>
-                                    <ComboBox AutomationProperties.AutomationId="Settings.VisualTheme"
-                                              ItemsSource="{Binding VisualThemeOptions}"
-                                              DisplayMemberPath="Display"
-                                              SelectedValuePath="Key"
-                                              SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
-                                              HorizontalAlignment="Stretch"
-                                              Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
+                                               Text="{DynamicResource Settings.LblThemeFamily}"/>
                                 </StackPanel>
-                            </Border>
+                                <ComboBox AutomationProperties.AutomationId="Settings.VisualTheme"
+                                          ItemsSource="{Binding VisualThemeOptions}"
+                                          DisplayMemberPath="Display"
+                                          SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
+                                          HorizontalAlignment="Stretch"
+                                          Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                            </StackPanel>
 
                             <!-- Base Light / Dark Mode Toggle -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
-                                                   Text="{DynamicResource Settings.Mode}"/>
-                                    </StackPanel>
-                                    <ListBox Style="{StaticResource SettingsSegmentTrackFillStyle}"
-                                             AutomationProperties.Name="{DynamicResource Settings.Mode}"
-                                             SelectedValuePath="Tag"
-                                             SelectedValue="{Binding ThemeMode, Mode=TwoWay}"
-                                             AutomationProperties.AutomationId="Settings.ThemeModeStudio">
-                                        <ListBoxItem Tag="Light" Content="{DynamicResource Settings.ModeLight}" Style="{StaticResource SettingsSegmentItemStyle}"/>
-                                        <ListBoxItem Tag="Dark" Content="{DynamicResource Settings.ModeDark}" Style="{StaticResource SettingsSegmentItemStyle}"/>
-                                    </ListBox>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
+                                               Text="{DynamicResource Settings.Mode}"/>
                                 </StackPanel>
-                            </Border>
+                                <ListBox Style="{StaticResource SettingsSegmentTrackFillStyle}"
+                                         AutomationProperties.Name="{DynamicResource Settings.Mode}"
+                                         SelectedValuePath="Tag"
+                                         SelectedValue="{Binding ThemeMode, Mode=TwoWay}"
+                                         AutomationProperties.AutomationId="Settings.ThemeModeStudio">
+                                    <ListBoxItem Tag="Light" Content="{DynamicResource Settings.ModeLight}" Style="{StaticResource SettingsSegmentItemStyle}"/>
+                                    <ListBoxItem Tag="Dark" Content="{DynamicResource Settings.ModeDark}" Style="{StaticResource SettingsSegmentItemStyle}"/>
+                                </ListBox>
+                            </StackPanel>
                         </UniformGrid>
 
                         <!-- Brand Accent Palette Directly Inside Theme Studio -->

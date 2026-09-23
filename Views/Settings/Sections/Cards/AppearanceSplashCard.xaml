@@ -22,9 +22,9 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsPageCardStyle}">
+    <Border Style="{StaticResource SettingsCompactCardStyle}">
         <StackPanel>
-            <Grid Margin="{StaticResource SettingsStackGap12}">
+            <Grid Margin="{StaticResource SettingsStackBottom8}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
@@ -42,59 +42,59 @@
                 </Border>
             </Grid>
 
+            <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+
             <!-- ── ACTIVE STYLE SELECTION ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="16,14">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="14"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+            <Grid Margin="{StaticResource SettingsStackGap10}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="ACTIVE STYLE" Style="{StaticResource SettingsRowTitleStyle}"/>
-                        <ComboBox ItemsSource="{Binding SplashStyleOptions}"
-                                  SelectedValuePath="Id"
-                                  DisplayMemberPath="Name"
-                                  SelectedValue="{Binding SelectedSplashStyle, Mode=TwoWay}"
-                                  Width="280" Height="36" Margin="{StaticResource SettingsStackGap6}"
-                                  Style="{StaticResource ComboBoxStyle}"/>
-                    </StackPanel>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="ACTIVE STYLE" Style="{StaticResource SettingsRowTitleStyle}"/>
+                    <ComboBox ItemsSource="{Binding SplashStyleOptions}"
+                              SelectedValuePath="Id"
+                              DisplayMemberPath="Name"
+                              SelectedValue="{Binding SelectedSplashStyle, Mode=TwoWay}"
+                              Width="280" Height="36" Margin="{StaticResource SettingsStackGap6}"
+                              Style="{StaticResource ComboBoxStyle}"/>
+                </StackPanel>
 
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding SelectedSplashStyleName}" FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="{Binding SelectedSplashStyleDescription}" FontSize="{DynamicResource FontSize.Caption}"
-                                   Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedSplashStyleName}" FontSize="{DynamicResource FontSize.Body}"
+                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedSplashStyleDescription}" FontSize="{DynamicResource FontSize.Caption}"
+                               Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
             <!-- ── REBOOT / RESTART APPLICATION ACTION ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="16,14" Margin="{StaticResource SettingsStackGap10}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+            <Grid Margin="{StaticResource SettingsStackGap10}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="{StaticResource SettingsTrailingGapWide}">
-                        <TextBlock Text="REBOOT TO PREVIEW ACTIVE SPLASH" Style="{StaticResource SettingsRowTitleStyle}"/>
-                        <TextBlock Text="Relaunches ProGlass immediately to view your active boot splash theme in action and reload all modules."
-                                   FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="{StaticResource SettingsTrailingGapWide}">
+                    <TextBlock Text="REBOOT TO PREVIEW ACTIVE SPLASH" Style="{StaticResource SettingsRowTitleStyle}"/>
+                    <TextBlock Text="Relaunches ProGlass immediately to view your active boot splash theme in action and reload all modules."
+                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Command="{Binding RestartAppCommand}"
+                        Style="{StaticResource SettingsPrimaryButtonStyle}"
+                        Height="36" Padding="18,0" VerticalAlignment="Center"
+                        ToolTip="Restart ProGlass Automation now">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Text="Restart Application" FontWeight="{DynamicResource Weight.Bold}" VerticalAlignment="Center"/>
                     </StackPanel>
-
-                    <Button Grid.Column="1" Command="{Binding RestartAppCommand}"
-                            Style="{StaticResource SettingsPrimaryButtonStyle}"
-                            Height="36" Padding="18,0" VerticalAlignment="Center"
-                            ToolTip="Restart ProGlass Automation now">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE777;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-                            <TextBlock Text="Restart Application" FontWeight="{DynamicResource Weight.Bold}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                </Grid>
-            </Border>
+                </Button>
+            </Grid>
         </StackPanel>
     </Border>
 </UserControl>
