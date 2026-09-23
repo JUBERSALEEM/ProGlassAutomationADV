@@ -114,31 +114,37 @@
                     <TextBlock Text="{DynamicResource Specifications.TotalSpecs}"
                                FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
-                    <TextBlock Text="{Binding TotalSpecs, Mode=OneWay}"
-                               FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
-                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                    <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalSpecs, Mode=OneWay}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
-
 
             <Border Style="{StaticResource InteractiveStatCardStyle}" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Specifications.TotalUses}"
                                FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
-                    <TextBlock Text="{Binding TotalUses, Mode=OneWay}"
-                               FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                    <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalUses, Mode=OneWay}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
+
             <Border Style="{StaticResource InteractiveStatCardStyle}" Margin="0,0,12,0">
                 <StackPanel>
                     <TextBlock Text="{DynamicResource Specifications.AvgRate}"
                                FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
-                    <TextBlock Text="{Binding AveragePricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                               FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
-                                Foreground="{DynamicResource SuccessBrush}" TextWrapping="Wrap"/>
+                    <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding AveragePricePerSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource SuccessBrush}"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
 
@@ -147,9 +153,11 @@
                     <TextBlock Text="{DynamicResource Specifications.SheetLinked}"
                                FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource TextTertiaryBrush}"/>
-                    <TextBlock Text="{Binding LinkedSheetCount, Mode=OneWay}"
-                               FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
-                                Foreground="{DynamicResource InfoBrush}" TextWrapping="Wrap"/>
+                    <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding LinkedSheetCount, Mode=OneWay}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="Bold"
+                                   Foreground="{DynamicResource InfoBrush}"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
 
@@ -161,7 +169,7 @@
                     <TextBlock Text="{Binding MostUsedSpecName, Mode=OneWay}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
                 </StackPanel>
             </Border>
 
@@ -178,7 +186,7 @@
                     <TextBlock Text="{Binding LastActivitySpec, Mode=OneWay}"
                                FontSize="{DynamicResource FontSize.Body}" FontWeight="SemiBold"
                                TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"/>
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2,0,0"/>
                     <TextBlock Text="{Binding LastActivityInvoice, Mode=OneWay}"
                                FontSize="{DynamicResource FontSize.Body}"
                                TextTrimming="CharacterEllipsis"

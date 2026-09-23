@@ -103,7 +103,7 @@ PHASES = {
     },
     3: {
         'name': 'System Centers, Diagnostics, About & System Hubs',
-        'status': 'PENDING',
+        'status': 'COMPLETED',
         'files': [
             'Views/CompanyCenter/CompanyCenterView.xaml',
             'Views/UserCenter/UserCenterView.xaml',
