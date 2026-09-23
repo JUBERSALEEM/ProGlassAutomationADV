@@ -84,49 +84,49 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Backup sets list (wide tile) -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupSets}"/>
-                                    </StackPanel>
-                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
-                                    <ListBox ItemsSource="{Binding BackupSets}"
-                                    AutomationProperties.Name="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"
-                                             SelectedItem="{Binding SelectedBackup}"
-                                             MaxHeight="170"
-                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                             Background="{DynamicResource SurfaceTertiaryBrush}">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsInset2}">
-                                                    <TextBlock Text="&#xE968;"
-                                                               FontFamily="{DynamicResource FontFamily.Icon}"
-                                                               FontSize="{DynamicResource FontSize.Body}"
-                                                               Margin="{StaticResource SettingsInlineGap8R}"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               IsHitTestVisible="False"/>
-                                                    <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
-                                                               IsHitTestVisible="False">
-                                                        <Run Text="{Binding CreatedAt, Mode=OneWay,
-                                                                     StringFormat='dd MMM yyyy  HH:mm'}"/>
-                                                        <Run Text="  •  "/>
-                                                        <Run Text="{Binding FileCount, Mode=OneWay}"/>
-                                                        <Run Text="{DynamicResource Settings.Files}"/>
-                                                        <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
-                                                    </TextBlock>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-                                </StackPanel>
-                            </Border>
-
                         </UniformGrid>
+
+                        <!-- Backup sets list (wide tile) -->
+                        <Border Margin="{StaticResource SettingsStackGap12}" Style="{StaticResource SettingsInnerTileStyle}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupSets}"/>
+                                </StackPanel>
+                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"/>
+                                <ListBox ItemsSource="{Binding BackupSets}"
+                                AutomationProperties.Name="{DynamicResource Settings.PickSetRestoreSelectingEnoughRestoreButton}"
+                                         SelectedItem="{Binding SelectedBackup}"
+                                         MaxHeight="170"
+                                         BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                         BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                         Background="{DynamicResource SurfaceTertiaryBrush}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsInset2}">
+                                                <TextBlock Text="&#xE968;"
+                                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                                           FontSize="{DynamicResource FontSize.Body}"
+                                                           Margin="{StaticResource SettingsInlineGap8R}"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           IsHitTestVisible="False"/>
+                                                <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                                           IsHitTestVisible="False">
+                                                    <Run Text="{Binding CreatedAt, Mode=OneWay,
+                                                                 StringFormat='dd MMM yyyy  HH:mm'}"/>
+                                                    <Run Text="  •  "/>
+                                                    <Run Text="{Binding FileCount, Mode=OneWay}"/>
+                                                    <Run Text="{DynamicResource Settings.Files}"/>
+                                                    <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </StackPanel>
+                        </Border>
 
                         <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>

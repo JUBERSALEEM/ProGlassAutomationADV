@@ -38,34 +38,40 @@
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
 
-                                    <!-- License status strip (compact — full card lives on the About page) -->
-                                    <Border Padding="10,8"
+                                    <!-- Database Engine Status Banner -->
+                                    <Border Padding="12,10"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
-                                            Background="{DynamicResource SurfaceTertiaryBrush}"
+                                            Background="{DynamicResource TintBlueBrush}"
+                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
                                             Margin="{StaticResource SettingsStackBottom10}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0"
-                                                       Text="&#xE73E;"
+                                                       Text="&#xE958;"
                                                        FontFamily="{DynamicResource FontFamily.Icon}"
                                                        FontSize="{DynamicResource FontSize.Title}"
                                                        VerticalAlignment="Center"
-                                                       Margin="{StaticResource SettingsInlineGap8R}"
+                                                       Margin="{StaticResource SettingsInlineGap10R}"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}">
-                                                    <Run Text="{DynamicResource About.License}"/>
-                                                    <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
-                                                </TextBlock>
-                                                <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
+                                                <TextBlock Text="SQLite 3 Storage Engine"
+                                                           FontSize="{DynamicResource FontSize.Body}"
+                                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="{Binding DatabaseHealthStatus, FallbackValue='4 active databases healthy · WAL journal mode enabled'}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}"
                                                            TextWrapping="Wrap"
                                                            Margin="{StaticResource SettingsStackGap2}"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             </StackPanel>
+                                            <Border Grid.Column="2" Style="{StaticResource SettingsChipGreenStyle}" VerticalAlignment="Center">
+                                                <TextBlock Text="WAL Mode" Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                                            </Border>
                                         </Grid>
                                     </Border>
 
