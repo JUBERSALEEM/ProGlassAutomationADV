@@ -16,7 +16,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+    <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>

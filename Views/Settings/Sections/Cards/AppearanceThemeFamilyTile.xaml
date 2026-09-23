@@ -18,7 +18,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
+    <Border Style="{StaticResource SettingsInnerTileStyle}">
         <StackPanel>
             <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                 <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;" VerticalAlignment="Center"/>

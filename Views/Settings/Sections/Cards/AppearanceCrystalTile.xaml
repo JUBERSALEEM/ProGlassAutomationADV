@@ -15,9 +15,12 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-                        <Border Style="{StaticResource SettingsInnerTileStyle}"
-                                Margin="{StaticResource SettingsStackBottom10}"
-                                Visibility="{DynamicResource CrystalPreviewHostVisibility}">
+    <Border CornerRadius="{DynamicResource CardCornerRadius}"
+            Background="{DynamicResource SurfaceSecondaryBrush}"
+            BorderBrush="{DynamicResource DividerBrush}"
+            BorderThickness="{DynamicResource Border.HairlineThickness}"
+            Margin="{StaticResource SettingsStackBottom10}"
+            Visibility="{DynamicResource CrystalPreviewHostVisibility}">
                             <Grid UseLayoutRounding="True" SnapsToDevicePixels="True"
                                   MinHeight="330" ClipToBounds="True">
 
