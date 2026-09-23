@@ -217,14 +217,9 @@
                                         </StackPanel>
                                     </UniformGrid>
 
-                                    <Grid Margin="{StaticResource SettingsStackGap4}">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
+                                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap4}">
 
-                                        <Border Grid.Column="0" Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsInlineGap8R}">
+                                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsInlineGap8R}">
                                             <StackPanel>
                                                 <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Major page/module card" Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -243,7 +238,7 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Grid.Column="1" Style="{StaticResource SurfaceSecondaryStyle}" Margin="4,0">
+                                        <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="{StaticResource SettingsInlineGap8}">
                                             <StackPanel>
                                                 <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -262,7 +257,7 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border Grid.Column="2" Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsInlineGap8}">
+                                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsInlineGap8R}">
                                             <StackPanel>
                                                 <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                 <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -280,7 +275,7 @@
                                                 />
                                             </StackPanel>
                                         </Border>
-                                    </Grid>
+                                    </UniformGrid>
                                 </StackPanel>
                             </Border>
 

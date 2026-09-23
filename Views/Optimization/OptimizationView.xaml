@@ -217,7 +217,7 @@
 
         <!-- ══ IN-FLIGHT PROGRESS MODAL OVERLAY (MOCKUP 06) ═══════════ -->
         <Grid Visibility="{Binding IsRunProgressVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Border Background="#201C30" Opacity="0.80"/>
+            <Border Background="{DynamicResource LiquidOverlayBrush}"/>
 
             <Border HorizontalAlignment="Center" VerticalAlignment="Center" Width="520"
                     Padding="28,26" CornerRadius="16"

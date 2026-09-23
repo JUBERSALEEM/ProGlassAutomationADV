@@ -45,7 +45,7 @@
                                                Text="{DynamicResource Settings.FlipTaxInvoiceFieldOnce}"/>
                                         <Border 
                 Style="{StaticResource SurfacePanelTileStyle}">
-                                            <UniformGrid Columns="3">
+                                            <UniformGrid Columns="2">
                                                 <Button Content="{DynamicResource Settings.Enable}"
                                                 Command="{Binding EnableAllCommand}"
                                                 Style="{StaticResource SettingsActionButtonStyle}"/>

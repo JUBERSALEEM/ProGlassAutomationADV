@@ -125,37 +125,29 @@
                         <TextBlock Text="{DynamicResource Sharing.Defaults}"
                                    Style="{StaticResource SettingsCardHeaderStyle}"/>
                         <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
+                            <UniformGrid Columns="2">
+                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                     <TextBlock Text="{DynamicResource Sharing.DefaultCountryCode}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                     <TextBox Text="{Binding SharingDefaultCountryCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Padding="10,7"
                                              FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="2">
+                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                     <TextBlock Text="{DynamicResource Sharing.TempRetention}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                     <TextBox Text="{Binding SharingTempRetentionHours, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Padding="10,7"
                                              FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="4">
+                                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                     <TextBlock Text="{DynamicResource Sharing.EmailLargeMb}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                     <TextBox Text="{Binding SharingEmailLargeMb, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Padding="10,7"
                                              FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
                                 </StackPanel>
-                            </Grid>
+                            </UniformGrid>
                         </Border>
 
                         <!-- ═══ DOCUMENT RULES ═══ -->

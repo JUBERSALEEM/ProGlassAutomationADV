@@ -10,36 +10,36 @@
          ═════════════════════════════════════════════════════════════ -->
 
     <!-- Bento Color Palette Tokens -->
-    <SolidColorBrush x:Key="OptBentoHeroBg" Color="#443A86"/>
-    <SolidColorBrush x:Key="OptBentoHeroBorder" Color="#372D73"/>
-    <SolidColorBrush x:Key="OptBentoSurface" Color="#FFFEFC"/>
+    <SolidColorBrush x:Key="OptBentoHeroBg" Color="#4F46E5"/>
+    <SolidColorBrush x:Key="OptBentoHeroBorder" Color="#4338CA"/>
+    <SolidColorBrush x:Key="OptBentoSurface" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="OptBentoCardBg" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="OptBentoCardSubtleBg" Color="#F9F8FD"/>
-    <SolidColorBrush x:Key="OptBentoBorder" Color="#E2DBEF"/>
-    <SolidColorBrush x:Key="OptBentoKeyline" Color="#D9D5E6"/>
-    <SolidColorBrush x:Key="OptBentoInk" Color="#2C2440"/>
-    <SolidColorBrush x:Key="OptBentoMuted" Color="#6B6078"/>
-    <SolidColorBrush x:Key="OptBentoSubtleText" Color="#8C829E"/>
+    <SolidColorBrush x:Key="OptBentoCardSubtleBg" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="OptBentoBorder" Color="#E2E8F0"/>
+    <SolidColorBrush x:Key="OptBentoKeyline" Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="OptBentoInk" Color="#0F172A"/>
+    <SolidColorBrush x:Key="OptBentoMuted" Color="#64748B"/>
+    <SolidColorBrush x:Key="OptBentoSubtleText" Color="#94A3B8"/>
 
     <!-- Semantic Pill Brushes -->
-    <SolidColorBrush x:Key="OptSuccessBg" Color="#DCFCE7"/>
-    <SolidColorBrush x:Key="OptSuccessBorder" Color="#86EFAC"/>
-    <SolidColorBrush x:Key="OptSuccessInk" Color="#15803D"/>
+    <SolidColorBrush x:Key="OptSuccessBg" Color="#ECFDF5"/>
+    <SolidColorBrush x:Key="OptSuccessBorder" Color="#A7F3D0"/>
+    <SolidColorBrush x:Key="OptSuccessInk" Color="#065F46"/>
 
-    <SolidColorBrush x:Key="OptWarningBg" Color="#FEF3C7"/>
+    <SolidColorBrush x:Key="OptWarningBg" Color="#FFFBEB"/>
     <SolidColorBrush x:Key="OptWarningBorder" Color="#FDE68A"/>
-    <SolidColorBrush x:Key="OptWarningInk" Color="#B45309"/>
+    <SolidColorBrush x:Key="OptWarningInk" Color="#92400E"/>
 
-    <SolidColorBrush x:Key="OptInfoBg" Color="#E0E7FF"/>
-    <SolidColorBrush x:Key="OptInfoBorder" Color="#C7D2FE"/>
-    <SolidColorBrush x:Key="OptInfoInk" Color="#3730A3"/>
+    <SolidColorBrush x:Key="OptInfoBg" Color="#EFF6FF"/>
+    <SolidColorBrush x:Key="OptInfoBorder" Color="#BFDBFE"/>
+    <SolidColorBrush x:Key="OptInfoInk" Color="#1E40AF"/>
 
-    <SolidColorBrush x:Key="OptAccentBg" Color="#EDE9FE"/>
-    <SolidColorBrush x:Key="OptAccentBorder" Color="#DDD6FE"/>
-    <SolidColorBrush x:Key="OptAccentInk" Color="#5B21B6"/>
+    <SolidColorBrush x:Key="OptAccentBg" Color="#EEF2FF"/>
+    <SolidColorBrush x:Key="OptAccentBorder" Color="#C7D2FE"/>
+    <SolidColorBrush x:Key="OptAccentInk" Color="#4F46E5"/>
 
-    <SolidColorBrush x:Key="OptOffcutBg" Color="#F5F3FF"/>
-    <SolidColorBrush x:Key="OptOffcutBorder" Color="#C4B5FD"/>
+    <SolidColorBrush x:Key="OptOffcutBg" Color="#F8FAFC"/>
+    <SolidColorBrush x:Key="OptOffcutBorder" Color="#CBD5E1"/>
 
     <!-- Corner Radius Tokens -->
     <CornerRadius x:Key="OptCardRadius">14</CornerRadius>
@@ -76,7 +76,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="16" ShadowDepth="4" Direction="270" Color="#443A86" Opacity="0.25"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="4" Direction="270" Color="#4F46E5" Opacity="0.18"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -133,8 +133,9 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="Root" CornerRadius="{DynamicResource OptPillRadius}"
-                            Background="Transparent" BorderBrush="{DynamicResource BorderBrush}"
+                    <Border x:Name="Root" CornerRadius="8"
+                            Background="{DynamicResource SurfaceSecondaryBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="1" Padding="14,8" SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock x:Name="Icon" FontFamily="Segoe MDL2 Assets" FontSize="14"
@@ -146,12 +147,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Root" Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
-                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource OptBentoHeroBg}"/>
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="Icon" Property="Foreground" Value="#FFFFFF"/>
                             <Setter TargetName="Label" Property="TextElement.Foreground" Value="#FFFFFF"/>
                             <Setter TargetName="Label" Property="TextElement.FontWeight" Value="Bold"/>

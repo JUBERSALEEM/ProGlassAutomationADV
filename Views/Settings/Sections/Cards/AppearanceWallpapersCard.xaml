@@ -251,13 +251,13 @@
                                                                     <Grid Margin="6">
                                                                         <Border HorizontalAlignment="Right"
                                                                                 VerticalAlignment="Top"
-                                                                                Background="#800F172A"
-                                                                                CornerRadius="4"
+                                                                                Background="{DynamicResource SurfaceGlassOverlayBrush}"
+                                                                                CornerRadius="{DynamicResource Radius.XSmall}"
                                                                                 Padding="5,2">
                                                                             <TextBlock Text="4K Scene"
-                                                                                       FontSize="9"
-                                                                                       FontWeight="SemiBold"
-                                                                                       Foreground="#FFFFFF"/>
+                                                                                       FontSize="{DynamicResource FontSize.Caption}"
+                                                                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                                                                         </Border>
                                                                     </Grid>
                                                                 </Border>

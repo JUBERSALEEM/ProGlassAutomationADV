@@ -33,7 +33,7 @@
                                 <StackPanel Margin="{StaticResource SettingsUniformGap}" VerticalAlignment="Stretch">
 
                                     <!-- KPI strip with water (file-20 rows) -->
-                                    <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleed}">
+                                    <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                                         <crystal:CrystalKpiCard Title="Proforma"
                                                 Value="128 KP"
                                                 WaterLevel="0.42" BubbleCount="3"
@@ -66,7 +66,7 @@
                                     <!-- authored nav (reference styles, demo group) -->
                                     <TextBlock Style="{StaticResource CrystalNavLabelStyle}"
                                                Text="IOS-17PM"/>
-                                    <UniformGrid Columns="3" Rows="1" Margin="{StaticResource SettingsStackBottom10}">
+                                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackBottom10}">
                                         <RadioButton Style="{StaticResource CrystalNavButtonStyle}"
                                                      Content="Dashboard" IsChecked="True" Margin="{StaticResource SettingsInlineGap6R}"/>
                                         <RadioButton Style="{StaticResource CrystalNavButtonStyle}"

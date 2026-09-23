@@ -84,7 +84,7 @@
 
                                         <Border Margin="{StaticResource SettingsStackGap10}"
                 Style="{StaticResource SurfacePanelTileStyle}">
-                                            <UniformGrid Columns="3">
+                                            <UniformGrid Columns="2">
                                                 <Button Style="{StaticResource SettingsActionButtonStyle}"
                                                     Content="Test Connection"
                                                     Command="{Binding TestSharedDataRootCommand}"
