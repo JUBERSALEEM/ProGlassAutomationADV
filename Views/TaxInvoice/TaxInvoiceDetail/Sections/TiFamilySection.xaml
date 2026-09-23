@@ -251,12 +251,14 @@
                             <TextBlock Text="{DynamicResource Common.Balance}"
                                        FontSize="{DynamicResource FontSize.Body}"
                                        FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{Binding FamilyBalanceTotalDisplay}"
-                                       FontSize="{DynamicResource FontSize.Title}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       HorizontalAlignment="Right"
-                                       Foreground="{DynamicResource WarningBrush}"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Right">
+                                <TextBlock Text="{Binding FamilyBalanceTotalDisplay}"
+                                           FontSize="{DynamicResource FontSize.Title}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                            </Viewbox>
                         </Grid>
                     </Border>
                 </StackPanel>

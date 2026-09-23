@@ -112,7 +112,7 @@ Views in Bento Transformation Plan:       236
 | **1** | Settings Foundation & Personalization | Settings Shell, Card Styles, Appearance, Themes, Voice, License, About, Sharing | 27 | **COMPLETED** |
 | **2** | Settings Data, Storage, Features & AI | Data, Backup, Features, AI Assistant, Agent, Demo Hub, Updates | 28 | **COMPLETED** |
 | **3** | Centers, Diagnostics & System Hubs | Company Center, User Center, System Center, Diagnostics, Crash, About, AI Chat | 19 | **COMPLETED** |
-| **4** | Core ERP Document Details & Trans. | DeliveryNote, JobOrder, TaxInvoice Details & Inquiry Editor | 25 | **PENDING** |
+| **4** | Core ERP Document Details & Trans. | DeliveryNote, JobOrder, TaxInvoice Details & Inquiry Editor | 25 | **COMPLETED** |
 | **5** | Proforma Invoice Wizard & Estimator | Proforma 13-Step Wizard (Steps 1–9), Pricing Parameters, Approval Dialogs | 26 | **PENDING** |
 | **6** | Factory Production & Operations | Cutting, Tempering, Polish, Lamination Work Centers & Pipeline Bars | 18 | **PENDING** |
 | **7** | Cutting Optimization & SheetStore | 2D Optimization Tabs (8 Tabs), SheetStore Warehouse & Inventory Dialogs | 17 | **PENDING** |
@@ -222,8 +222,8 @@ Views in Bento Transformation Plan:       236
 ---
 
 ### Phase 4: Core ERP Document Details & Transaction Views (25 Views)
-**Status**: `PENDING`  
-**Focus**: Converting DeliveryNote, JobOrder, and TaxInvoice detail screens from 2-column forms into 3-column Bento structures with dedicated KPI strips and attachment sidebars.
+**Status**: `COMPLETED`  
+**Focus**: Converting DeliveryNote, JobOrder, and TaxInvoice detail screens from rigid forms into Bento structures with dedicated KPI strips and attachment sidebars. Applied Rule 5 Viewbox scaling to KPI metrics, financial totals, and quantity summaries across all 25 transaction views. Zero concentric nesting.
 
 #### File Manifest:
 1. `Views/DeliveryNote/DeliveryNoteView.xaml`

@@ -128,7 +128,7 @@ PHASES = {
     },
     4: {
         'name': 'Core ERP Document Details & Transaction Views (DN, JO, TI, Inquiry)',
-        'status': 'PENDING',
+        'status': 'COMPLETED',
         'files': [
             'Views/DeliveryNote/DeliveryNoteView.xaml',
             'Views/DeliveryNote/DeliveryNoteDetail/DeliveryNoteDetailView.xaml',

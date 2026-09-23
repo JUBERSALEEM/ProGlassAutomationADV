@@ -128,10 +128,12 @@
 
                             <StackPanel Grid.Column="6" VerticalAlignment="Center" MinWidth="120">
                                 <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}" Style="{StaticResource Field.Label}"/>
-                                <TextBlock Text="{Binding GrandTotalDisplay}"
-                                           FontSize="{DynamicResource FontSize.Kpi}"
-                                           FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="32" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding GrandTotalDisplay}"
+                                               FontSize="{DynamicResource FontSize.Kpi}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Grid>
                     </Border>
