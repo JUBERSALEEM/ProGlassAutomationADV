@@ -221,8 +221,6 @@
 
                                         <Border CornerRadius="{DynamicResource Radius.Small}"
                                                 Background="{DynamicResource SurfaceElevatedBrush}"
-                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                 Padding="12,10" Margin="{StaticResource SettingsInlineGap6R}">
                                             <StackPanel>
                                                 <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -244,8 +242,6 @@
 
                                         <Border CornerRadius="{DynamicResource Radius.Small}"
                                                 Background="{DynamicResource SurfaceElevatedBrush}"
-                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                 Padding="12,10" Margin="{StaticResource SettingsInlineGap6}">
                                             <StackPanel>
                                                 <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -267,8 +263,6 @@
 
                                         <Border CornerRadius="{DynamicResource Radius.Small}"
                                                 Background="{DynamicResource SurfaceElevatedBrush}"
-                                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                 Padding="12,10" Margin="{StaticResource SettingsInlineGap6}">
                                             <StackPanel>
                                                 <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>

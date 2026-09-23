@@ -36,7 +36,7 @@ ALREADY_BENTO_CORE = [
 PHASES = {
     1: {
         'name': 'Settings Foundation & Personalization Suite',
-        'status': 'IN_PROGRESS',
+        'status': 'COMPLETED',
         'files': [
             'Views/Settings/SettingsView.xaml',
             'Views/Settings/SettingsCardStyles.xaml',
@@ -69,7 +69,7 @@ PHASES = {
     },
     2: {
         'name': 'Settings Data, Storage, Features, AI & Demo Suite',
-        'status': 'READY_TO_START',
+        'status': 'IN_PROGRESS',
         'files': [
             'Views/Settings/Sections/SettingsDataSection.xaml',
             'Views/Settings/Sections/SettingsFeaturesSection.xaml',

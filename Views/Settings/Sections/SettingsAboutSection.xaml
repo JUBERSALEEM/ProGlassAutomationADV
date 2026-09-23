@@ -145,92 +145,84 @@
                     <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
                         <!-- About the Theme System -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                    <Border Style="{StaticResource SettingsIconTileStyle}"
-                                            Width="26" Height="26"
-                                            Background="{DynamicResource Ios26ValuePillBrush}">
-                                        <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Settings.AboutThemeSystem}"
-                                               Style="{StaticResource SettingsRowTitleStyle}"
-                                               Margin="{StaticResource SettingsIconTextMargin}"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
-                                    <Run Text="{DynamicResource Settings.ProglassAutomationShips}"/><Run Text="{DynamicResource Settings.TwoHandCraftedThemes}"/><Run Text="{DynamicResource Settings.LightDefaultDark}"/>
-                                </TextBlock>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutLightTheme}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutDarkTheme}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutInstantSwap}"/>
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsIconTileStyle}"
+                                        Width="26" Height="26"
+                                        Background="{DynamicResource Ios26ValuePillBrush}">
+                                    <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Settings.AboutThemeSystem}"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           Margin="{StaticResource SettingsIconTextMargin}"/>
                             </StackPanel>
-                        </Border>
+                            <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
+                                <Run Text="{DynamicResource Settings.ProglassAutomationShips}"/><Run Text="{DynamicResource Settings.TwoHandCraftedThemes}"/><Run Text="{DynamicResource Settings.LightDefaultDark}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutLightTheme}"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutDarkTheme}"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutInstantSwap}"/>
+                        </StackPanel>
 
                         <!-- About the AI Assistant -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                    <Border Style="{StaticResource SettingsIconTileStyle}"
-                                            Width="26" Height="26"
-                                            Background="{DynamicResource Ios26ValuePillBrush}">
-                                        <TextBlock Text="&#xE8F2;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Settings.AboutAIAssistant}"
-                                               Style="{StaticResource SettingsRowTitleStyle}"
-                                               Margin="{StaticResource SettingsIconTextMargin}"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
-                                    <Run Text="{DynamicResource Settings.OptionalAIAssistantSupports}"/><Run Text="{DynamicResource Settings.GoogleGeminiGroqCohere}"/><Run Text="{DynamicResource Settings.FreeTiersTailoredUAEGlassManufacturing}"/>
-                                </TextBlock>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutOptIn}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutContextAware}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutVoiceInput}"/>
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsIconTileStyle}"
+                                        Width="26" Height="26"
+                                        Background="{DynamicResource Ios26ValuePillBrush}">
+                                    <TextBlock Text="&#xE8F2;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Settings.AboutAIAssistant}"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           Margin="{StaticResource SettingsIconTextMargin}"/>
                             </StackPanel>
-                        </Border>
+                            <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
+                                <Run Text="{DynamicResource Settings.OptionalAIAssistantSupports}"/><Run Text="{DynamicResource Settings.GoogleGeminiGroqCohere}"/><Run Text="{DynamicResource Settings.FreeTiersTailoredUAEGlassManufacturing}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutOptIn}"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutContextAware}"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutVoiceInput}"/>
+                        </StackPanel>
 
                         <!-- About Your API Key & Privacy -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                    <Border Style="{StaticResource SettingsIconTileStyle}"
-                                            Width="26" Height="26"
-                                            Background="{DynamicResource Ios26ValuePillBrush}">
-                                        <TextBlock Text="&#xE72E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Settings.AboutAPIKeyPrivacy}"
-                                               Style="{StaticResource SettingsRowTitleStyle}"
-                                               Margin="{StaticResource SettingsIconTextMargin}"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
-                                    <Run Text="{DynamicResource Settings.APIKeyStored}"/><Run Text="{DynamicResource Settings.LocalMachine}"/><Run Text="{DynamicResource Settings.AppdataNeverLeavesPCExceptDirectHttps}"/>
-                                </TextBlock>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutStoredAt}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutNoTelemetry}"/>
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsIconTileStyle}"
+                                        Width="26" Height="26"
+                                        Background="{DynamicResource Ios26ValuePillBrush}">
+                                    <TextBlock Text="&#xE72E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Settings.AboutAPIKeyPrivacy}"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           Margin="{StaticResource SettingsIconTextMargin}"/>
                             </StackPanel>
-                        </Border>
+                            <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
+                                <Run Text="{DynamicResource Settings.APIKeyStored}"/><Run Text="{DynamicResource Settings.LocalMachine}"/><Run Text="{DynamicResource Settings.AppdataNeverLeavesPCExceptDirectHttps}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutStoredAt}"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutNoTelemetry}"/>
+                        </StackPanel>
 
                         <!-- About Voice Models -->
-                        <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                    <Border Style="{StaticResource SettingsIconTileStyle}"
-                                            Width="26" Height="26"
-                                            Background="{DynamicResource Ios26ValuePillBrush}">
-                                        <TextBlock Text="&#xE720;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Settings.AboutVoiceModels}"
-                                               Style="{StaticResource SettingsRowTitleStyle}"
-                                               Margin="{StaticResource SettingsIconTextMargin}"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
-                                    <Run Text="{DynamicResource Settings.ThreeWhisperModelSizesAvailable}"/><Run Text="{DynamicResource Settings.BaseRecommended}"/><Run Text="{DynamicResource Settings.MostUsersFastAccurate142MB}"/>
-                                </TextBlock>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelBase}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelMedium}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelLarge}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelsOffline}"/>
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+                                <Border Style="{StaticResource SettingsIconTileStyle}"
+                                        Width="26" Height="26"
+                                        Background="{DynamicResource Ios26ValuePillBrush}">
+                                    <TextBlock Text="&#xE720;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <TextBlock Text="{DynamicResource Settings.AboutVoiceModels}"
+                                           Style="{StaticResource SettingsRowTitleStyle}"
+                                           Margin="{StaticResource SettingsIconTextMargin}"/>
                             </StackPanel>
-                        </Border>
+                            <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
+                                <Run Text="{DynamicResource Settings.ThreeWhisperModelSizesAvailable}"/><Run Text="{DynamicResource Settings.BaseRecommended}"/><Run Text="{DynamicResource Settings.MostUsersFastAccurate142MB}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelBase}"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelMedium}"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelLarge}"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelsOffline}"/>
+                        </StackPanel>
 
                     </UniformGrid>
                 </StackPanel>

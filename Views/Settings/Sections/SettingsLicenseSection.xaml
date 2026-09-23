@@ -141,45 +141,37 @@
                     </Grid>
 
                     <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="2D Guillotine Optimization Engine" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
-                                    <TextBlock Text="High-yield layout calculation &amp; offcut management" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                </StackPanel>
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="2D Guillotine Optimization Engine" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                <TextBlock Text="High-yield layout calculation &amp; offcut management" Style="{StaticResource SettingsRowMetaStyle}"/>
                             </StackPanel>
-                        </Border>
+                        </StackPanel>
 
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="CNC Machine Output (Lisec, Bottero)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
-                                    <TextBlock Text="Direct G-Code export to industrial cutting bridges" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                </StackPanel>
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="CNC Machine Output (Lisec, Bottero)" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                <TextBlock Text="Direct G-Code export to industrial cutting bridges" Style="{StaticResource SettingsRowMetaStyle}"/>
                             </StackPanel>
-                        </Border>
+                        </StackPanel>
 
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="Multi-Currency &amp; VAT Submissions" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
-                                    <TextBlock Text="Live exchange rates &amp; UAE Federal Tax Authority VAT export" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                </StackPanel>
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Multi-Currency &amp; VAT Submissions" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                <TextBlock Text="Live exchange rates &amp; UAE Federal Tax Authority VAT export" Style="{StaticResource SettingsRowMetaStyle}"/>
                             </StackPanel>
-                        </Border>
+                        </StackPanel>
 
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="AI Estimator &amp; Whisper Voice Input" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
-                                    <TextBlock Text="Local on-device transcription &amp; cost analysis" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                </StackPanel>
+                        <StackPanel Margin="{StaticResource SettingsTileGridMargin}" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}" Foreground="{DynamicResource SuccessBrush}" FontSize="{DynamicResource FontSize.Body}" Margin="{StaticResource SettingsInlineGap10R}" VerticalAlignment="Center"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="AI Estimator &amp; Whisper Voice Input" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+                                <TextBlock Text="Local on-device transcription &amp; cost analysis" Style="{StaticResource SettingsRowMetaStyle}"/>
                             </StackPanel>
-                        </Border>
+                        </StackPanel>
                     </UniformGrid>
                 </StackPanel>
             </Border>
