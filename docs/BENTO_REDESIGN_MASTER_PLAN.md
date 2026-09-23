@@ -113,7 +113,7 @@ Views in Bento Transformation Plan:       236
 | **2** | Settings Data, Storage, Features & AI | Data, Backup, Features, AI Assistant, Agent, Demo Hub, Updates | 28 | **COMPLETED** |
 | **3** | Centers, Diagnostics & System Hubs | Company Center, User Center, System Center, Diagnostics, Crash, About, AI Chat | 19 | **COMPLETED** |
 | **4** | Core ERP Document Details & Trans. | DeliveryNote, JobOrder, TaxInvoice Details & Inquiry Editor | 25 | **COMPLETED** |
-| **5** | Proforma Invoice Wizard & Estimator | Proforma 13-Step Wizard (Steps 1–9), Pricing Parameters, Approval Dialogs | 26 | **PENDING** |
+| **5** | Proforma Invoice Wizard & Estimator | Proforma 13-Step Wizard (Steps 1–9), Pricing Parameters, Approval Dialogs | 26 | **COMPLETED** |
 | **6** | Factory Production & Operations | Cutting, Tempering, Polish, Lamination Work Centers & Pipeline Bars | 18 | **PENDING** |
 | **7** | Cutting Optimization & SheetStore | 2D Optimization Tabs (8 Tabs), SheetStore Warehouse & Inventory Dialogs | 17 | **PENDING** |
 | **8** | Reports Hub & Statement Generators | Executive & Domain Reports (14), Order Report Pipeline, Statement Generator | 32 | **PENDING** |
@@ -255,8 +255,8 @@ Views in Bento Transformation Plan:       236
 ---
 
 ### Phase 5: Proforma Invoice 13-Step Wizard & Pricing Suite (26 Views)
-**Status**: `PENDING`  
-**Focus**: Redesigning estimation parameters (DGU, SGU, Laminated), DataGrid summary rows, and profit/loss calculation cards into high-density 4-column Bento card layouts.
+**Status**: `COMPLETED`  
+**Focus**: Redesigning estimation parameters (DGU, SGU, Laminated), DataGrid summary rows, and profit/loss calculation cards into high-density Bento card layouts. Standardized Rule 5 Viewbox scaling across Step 4 Pricing Estimator, Step 5 GrandTotalSummary, and Step 9 ProfitLoss cards. Zero concentric nesting.
 
 #### File Manifest:
 1. `Views/ProformaInvoice/ProformaInvoiceView.xaml`

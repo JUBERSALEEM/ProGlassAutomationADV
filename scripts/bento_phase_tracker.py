@@ -159,7 +159,7 @@ PHASES = {
     },
     5: {
         'name': 'Proforma Invoice 13-Step Wizard & Pricing Suite',
-        'status': 'PENDING',
+        'status': 'COMPLETED',
         'files': [
             'Views/ProformaInvoice/ProformaInvoiceView.xaml',
             'Views/ProformaInvoice/Step1CompanySetup/CompanySetupView.xaml',

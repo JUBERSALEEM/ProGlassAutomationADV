@@ -213,10 +213,11 @@
                     <Border Grid.Column="0">
                         <StackPanel>
                             <TextBlock Text="REQUIRED TARGET PRICE"/>
-                            <TextBlock Text="{Binding RequiredTargetPriceDisplay}"
-                                       FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       Margin="0,2,0,10"/>
+                            <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="0,2,0,10">
+                                <TextBlock Text="{Binding RequiredTargetPriceDisplay}"
+                                           FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
                             <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,0,0,10"/>
                             <StackPanel>
                                 <Grid>
@@ -278,10 +279,11 @@
                     <Border Grid.Column="2">
                         <StackPanel>
                             <TextBlock Text="EXPECTED PROFIT MARGIN"/>
-                            <TextBlock Text="{Binding ExpectedProfitMarginDisplay}"
-                                       FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       Margin="0,2,0,10"/>
+                            <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="0,2,0,10">
+                                <TextBlock Text="{Binding ExpectedProfitMarginDisplay}"
+                                           FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
                             <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,0,0,10"/>
                             <StackPanel>
                                 <Grid>
@@ -359,41 +361,45 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="BASE"/>
-                                    <TextBlock Text="{Binding BaseMarginPercentDisplay}"
-                                               FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}" TextWrapping="Wrap">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsBaseMarginBelow}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                    <Viewbox MaxHeight="32" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding BaseMarginPercentDisplay}"
+                                                   FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsBaseMarginBelow}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Viewbox>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="TARGET"/>
-                                    <TextBlock Text="{Binding TargetMarginPercentDisplay}"
-                                               FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}" TextWrapping="Wrap">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsTargetMarginBelow}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                    <Viewbox MaxHeight="32" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding TargetMarginPercentDisplay}"
+                                                   FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsTargetMarginBelow}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsTargetIncomplete}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Viewbox>
                                 </StackPanel>
                             </Grid>
                             <Border Height="1" Background="{DynamicResource BorderDefaultBrush}" Margin="0,0,0,10"/>

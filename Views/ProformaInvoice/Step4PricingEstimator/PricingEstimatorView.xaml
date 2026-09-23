@@ -248,9 +248,11 @@
                                FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Bottom" Margin="0,0,6,4"/>
-                    <TextBlock Text="{Binding EstimatedRatePerSqm, Converter={StaticResource CurrencyConverter}}"
-                               FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <Viewbox MaxHeight="36" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding EstimatedRatePerSqm, Converter={StaticResource CurrencyConverter}}"
+                                   FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Viewbox>
                     <TextBlock Text="{DynamicResource ProformaInvoice.Sqm}"
                                FontSize="{DynamicResource FontSize.Title}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
