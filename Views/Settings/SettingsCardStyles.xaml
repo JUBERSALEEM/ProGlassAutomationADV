@@ -684,9 +684,6 @@
                             <Setter TargetName="Bd" Property="Background"
                                     Value="{DynamicResource Ios26HoverBrush}"/>
                         </MultiTrigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
-                        </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
                         </Trigger>

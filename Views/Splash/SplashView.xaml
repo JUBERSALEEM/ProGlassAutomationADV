@@ -268,7 +268,7 @@
                 <Line X1="48" Y1="0" X2="82" Y2="38" Stroke="#CCFFFFFF" StrokeThickness="1.2"/>
                 <Line X1="472" Y1="0" X2="438" Y2="38" Stroke="#99FFFFFF" StrokeThickness="1.2"/>
                 <Line X1="520" Y1="48" X2="482" Y2="82" Stroke="#80CBD5E1" StrokeThickness="1.2"/>
-                <Line X1="520" Y1="472" x2="482" Y2="438" Stroke="#6694A3B8" StrokeThickness="1.2"/>
+                <Line X1="520" Y1="472" X2="482" Y2="438" Stroke="#6694A3B8" StrokeThickness="1.2"/>
                 <Line X1="472" Y1="520" X2="438" Y2="482" Stroke="#6694A3B8" StrokeThickness="1.2"/>
                 <Line X1="48" Y1="520" X2="82" Y2="482" Stroke="#80CBD5E1" StrokeThickness="1.2"/>
                 <Line X1="0" Y1="472" X2="38" Y2="438" Stroke="#99CBD5E1" StrokeThickness="1.2"/>

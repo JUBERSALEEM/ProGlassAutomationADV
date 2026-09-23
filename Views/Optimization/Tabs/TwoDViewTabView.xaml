@@ -345,7 +345,7 @@
                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
                                                             Background="{StaticResource OptOffcutBg}"
                                                             BorderBrush="{StaticResource OptOffcutBorder}"
-                                                            BorderThickness="1.5" BorderDashArray="4,2"
+                                                            BorderThickness="1.5"
                                                             Padding="4">
                                                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                                             <TextBlock Text="&#xE71B;" FontFamily="Segoe MDL2 Assets" FontSize="12"
