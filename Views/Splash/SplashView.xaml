@@ -331,9 +331,9 @@
                             <Line X1="22" Y1="0" X2="22" Y2="82" Stroke="#FFFFFF" StrokeThickness="1" Opacity="0.8"/>
                         </Grid>
 
-                        <!-- ═══ ELEGANT SERIF TITLE: ProGlass ═══ -->
+                        <!-- ═══ ELEGANT DISPLAY TITLE: ProGlass ═══ -->
                         <TextBlock x:Name="BrandTitleText"
-                                   FontFamily="Georgia, 'Times New Roman', Cambria, serif"
+                                   FontFamily="Segoe UI Variable Display, Segoe UI, -apple-system, sans-serif"
                                    FontSize="48" FontWeight="Normal"
                                    Foreground="{StaticResource BrandDarkBrush}"
                                    HorizontalAlignment="Center"

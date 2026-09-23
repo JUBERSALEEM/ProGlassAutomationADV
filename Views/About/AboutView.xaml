@@ -43,11 +43,12 @@
             </Grid.CacheMode>
             <Border Background="{DynamicResource Ios26CanvasBrush}"/>
 
-            <!-- Ambient Orbs (Imperative animation targets preserved) -->
+            <!-- Ambient Orbs (Soft subtle studio illumination) -->
             <Ellipse Width="560" Height="560"
                      HorizontalAlignment="Right" VerticalAlignment="Top"
                      Margin="0,-180,-140,0"
                      Fill="{DynamicResource Ios26OrbTealBrush}"
+                     Opacity="0.08"
                      RenderTransformOrigin="0.5,0.5">
                 <Ellipse.RenderTransform>
                     <TransformGroup>
@@ -60,6 +61,7 @@
                      HorizontalAlignment="Left" VerticalAlignment="Bottom"
                      Margin="-120,0,0,-120"
                      Fill="{DynamicResource Ios26OrbBlueBrush}"
+                     Opacity="0.08"
                      RenderTransformOrigin="0.5,0.5">
                 <Ellipse.RenderTransform>
                     <TransformGroup>
@@ -71,10 +73,12 @@
             <Ellipse Width="480" Height="480"
                      HorizontalAlignment="Left" VerticalAlignment="Top"
                      Margin="-170,-170,0,0"
+                     Opacity="0.06"
                      Fill="{DynamicResource Ios26OrbLavenderBrush}"/>
             <Ellipse Width="400" Height="400"
                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
                      Margin="0,-150,-150,0"
+                     Opacity="0.06"
                      Fill="{DynamicResource Ios26OrbGreenBrush}"/>
         </Grid>
 
@@ -97,7 +101,8 @@
             </Grid.ColumnDefinitions>
 
             <!-- ═══ LEFT NAV RAIL (Screen 1–6 Studio Bento) ═══ -->
-            <Border Grid.Column="0" SnapsToDevicePixels="True">
+            <Border Grid.Column="0" SnapsToDevicePixels="True"
+                    BorderThickness="0,0,1,0" BorderBrush="{DynamicResource Ios26HairlineBrush}">
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Background" Value="{DynamicResource Ios26RailBrush}"/>
@@ -369,7 +374,7 @@
 
                                 <!-- Title & Subtitle -->
                                 <TextBlock Text="{Binding AppName}"
-                                           FontFamily="Georgia, 'Times New Roman', Cambria, serif"
+                                           FontFamily="{DynamicResource AppFontFamily}"
                                            FontSize="{DynamicResource Ios26FontSizeDisplay}"
                                            FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource Ios26TextTitleBrush}"
