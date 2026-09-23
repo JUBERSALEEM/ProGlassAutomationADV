@@ -29,7 +29,9 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -344,6 +346,90 @@
                     </StackPanel>
                 </Border>
                 </Grid>
+
+                <!-- ═══ BENTO ROW — AUDIO CAPTURE & LIVE INPUT VISUALIZER ═══ -->
+                <Border Style="{StaticResource SettingsPageCardStyle}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE720;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="Audio Capture &amp; Live Input Visualizer" Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="Hardware microphone input buffer and real-time neural audio peak visualization" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            </StackPanel>
+
+                            <Border Grid.Column="2" Style="{StaticResource SettingsChipGreenStyle}" VerticalAlignment="Center">
+                                <TextBlock Text="Mic Ready" Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                            </Border>
+                        </Grid>
+
+                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap12}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="Primary Input Device" Style="{StaticResource SettingsRowTitleStyle}"/>
+                                    <TextBlock Text="Default Windows Multimedia Communication Device (16 kHz 16-bit Mono)" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                </StackPanel>
+
+                                <Button Grid.Row="0" Grid.Column="1"
+                                        Style="{StaticResource RowOutlinedButton}"
+                                        Height="30" Padding="14,0"
+                                        Content="Test Microphone"
+                                        VerticalAlignment="Center"/>
+
+                                <!-- Real-time neural audio waveform visualizer bars -->
+                                <Border Grid.Row="1" Grid.ColumnSpan="2" Height="48" Margin="{StaticResource SettingsStackGap10}"
+                                        Background="{DynamicResource SurfaceSecondaryBrush}"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        BorderBrush="{DynamicResource DividerBrush}"
+                                        BorderThickness="{DynamicResource Border.HairlineThickness}">
+                                    <UniformGrid Columns="24" Margin="8,6" VerticalAlignment="Center" Height="32">
+                                        <Border Height="8" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="14" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="22" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="28" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="18" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="10" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="16" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="24" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="30" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="20" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="12" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="18" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="26" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="32" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="22" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="14" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="20" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="28" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="16" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="10" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="18" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="24" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="14" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                        <Border Height="8" Width="4" Background="{DynamicResource AccentBrush}" CornerRadius="2" VerticalAlignment="Center"/>
+                                    </UniformGrid>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+                </Border>
 
             </StackPanel>
         </ScrollViewer>

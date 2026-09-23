@@ -28,7 +28,9 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             RenderOptions.ClearTypeHint="Enabled"
+             RenderOptions.EdgeMode="Aliased">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -139,7 +141,7 @@
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
                                         <Button Grid.Column="0"
-                                       
+                                                Style="{StaticResource SettingsActionButtonStyle}"
                                                 Tag="&#xE72C;" Content="{DynamicResource About.Update}"
                                                 Command="{Binding CheckForUpdatesCommand}"
                                                 HorizontalAlignment="Stretch"/>
