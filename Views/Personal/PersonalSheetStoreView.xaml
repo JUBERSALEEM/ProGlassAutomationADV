@@ -125,11 +125,13 @@
                     <TextBlock Text="Total Sheets"
                                FontSize="{DynamicResource GlassBlush.FontCaption}"
                                Foreground="{DynamicResource GlassBlush.TextMuted}"/>
-                    <TextBlock Text="{Binding TotalStock}"
-                               FontSize="{DynamicResource GlassBlush.FontKpi}"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource GlassBlush.Text}"
-                               Margin="0,6,0,0"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,6,0,0">
+                        <TextBlock Text="{Binding TotalStock}"
+                                   FontSize="{DynamicResource GlassBlush.FontKpi}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
                 </StackPanel>
             </ContentControl>
             <ContentControl Style="{StaticResource GlassBlush.KpiCard}" Width="180" Margin="0,0,16,0">
@@ -137,11 +139,13 @@
                     <TextBlock Text="Value"
                                FontSize="{DynamicResource GlassBlush.FontCaption}"
                                Foreground="{DynamicResource GlassBlush.TextMuted}"/>
-                    <TextBlock Text="{Binding TotalSellingValue, StringFormat=AED {0:N0}}"
-                               FontSize="{DynamicResource GlassBlush.FontKpi}"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource GlassBlush.Text}"
-                               Margin="0,6,0,0"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,6,0,0">
+                        <TextBlock Text="{Binding TotalSellingValue, StringFormat=AED {0:N0}}"
+                                   FontSize="{DynamicResource GlassBlush.FontKpi}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource GlassBlush.Text}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
                 </StackPanel>
             </ContentControl>
             <ContentControl Style="{StaticResource GlassBlush.KpiCard}" Width="180">
@@ -149,11 +153,13 @@
                     <TextBlock Text="Low Stock"
                                FontSize="{DynamicResource GlassBlush.FontCaption}"
                                Foreground="{DynamicResource GlassBlush.TextMuted}"/>
-                    <TextBlock Text="{Binding LowStockCount}"
-                               FontSize="{DynamicResource GlassBlush.FontKpi}"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource GlassBlush.Danger}"
-                               Margin="0,6,0,0"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,6,0,0">
+                        <TextBlock Text="{Binding LowStockCount}"
+                                   FontSize="{DynamicResource GlassBlush.FontKpi}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource GlassBlush.Danger}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
                 </StackPanel>
             </ContentControl>
         </StackPanel>

@@ -194,12 +194,14 @@
                                                            FontWeight="Bold"
                                                            Foreground="{Binding BrushKey,
                                                                  Converter={StaticResource BrushKeyConverter}}"/>
-                                                <TextBlock Text="{Binding Value}"
-                                                           FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource GlassBlush.Text}"
-                                                           Margin="0,6,0,2"
-                                                           TextTrimming="CharacterEllipsis"/>
+                                                <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,6,0,2">
+                                                    <TextBlock Text="{Binding Value}"
+                                                               FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource GlassBlush.Text}"
+                                                               Typography.NumeralAlignment="Tabular"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </Viewbox>
                                                 <TextBlock Text="{Binding Subtitle}"
                                                            FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                            Foreground="{DynamicResource GlassBlush.TextMuted}"
@@ -305,12 +307,14 @@
                                                            FontWeight="Bold"
                                                            Foreground="{Binding BrushKey,
                                                                  Converter={StaticResource BrushKeyConverter}}"/>
-                                                <TextBlock Text="{Binding Value}"
-                                                           FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource GlassBlush.Text}"
-                                                           Margin="0,6,0,2"
-                                                           TextTrimming="CharacterEllipsis"/>
+                                                <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,6,0,2">
+                                                    <TextBlock Text="{Binding Value}"
+                                                               FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource GlassBlush.Text}"
+                                                               Typography.NumeralAlignment="Tabular"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                </Viewbox>
                                                 <TextBlock Text="{Binding Subtitle}"
                                                            FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                            Foreground="{DynamicResource GlassBlush.TextMuted}"

@@ -139,7 +139,9 @@
                 <Border Grid.Column="0">
                     <StackPanel>
                         <TextBlock Text="NET REVENUE"/>
-                        <TextBlock Text="{Binding NetRevenueDisplay}"/>
+                        <Viewbox MaxHeight="30" HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding NetRevenueDisplay}"/>
+                        </Viewbox>
                         <TextBlock Text="ex-VAT · Step 9 snapshot"/>
                     </StackPanel>
                 </Border>
@@ -147,7 +149,9 @@
                 <Border Grid.Column="2">
                     <StackPanel>
                         <TextBlock Text="TOTAL COST"/>
-                        <TextBlock Text="{Binding TotalCostDisplay}"/>
+                        <Viewbox MaxHeight="30" HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding TotalCostDisplay}"/>
+                        </Viewbox>
                         <TextBlock Text="glass + production"/>
                     </StackPanel>
                 </Border>
@@ -165,18 +169,20 @@
                     </Border.Style>
                     <StackPanel>
                         <TextBlock Text="{Binding ProfitLabel}"/>
-                        <TextBlock Text="{Binding ProfitDisplay}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource FullKpiValue}">
-                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                        <Viewbox MaxHeight="30" HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding ProfitDisplay}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource FullKpiValue}">
+                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Viewbox>
                         <TextBlock Text="revenue − total cost"/>
                     </StackPanel>
                 </Border>
@@ -184,18 +190,20 @@
                 <Border Grid.Column="6" Style="{StaticResource SurfacePrimaryStyle}">
                     <StackPanel>
                         <TextBlock Text="OVERALL MARGIN"/>
-                        <TextBlock Text="{Binding OverallMarginDisplay}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource FullKpiValue}">
-                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                        <Viewbox MaxHeight="30" HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding OverallMarginDisplay}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource FullKpiValue}">
+                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Viewbox>
                         <TextBlock Text="with U-insert · (Revenue − Total Cost) ÷ Total Cost"/>
                     </StackPanel>
                 </Border>

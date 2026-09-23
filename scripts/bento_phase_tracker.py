@@ -276,7 +276,7 @@ PHASES = {
     },
     9: {
         'name': 'Job Profitability Analytics & Personal Glass Workspace',
-        'status': 'PENDING',
+        'status': 'COMPLETED',
         'files': [
             'Views/JobProfitability/JobDetailPanel.xaml',
             'Views/JobProfitability/JobFullDetailView.xaml',
