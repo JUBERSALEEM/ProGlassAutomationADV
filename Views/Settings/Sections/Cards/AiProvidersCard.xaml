@@ -43,9 +43,9 @@
                         <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
                             <!-- ── Gemini tile ─────────────────────────── -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                    <Style TargetType="Border" BasedOn="{StaticResource SettingsInnerTileStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -114,9 +114,9 @@
                             </Border>
 
                             <!-- ── Groq tile ───────────────────────────── -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                    <Style TargetType="Border" BasedOn="{StaticResource SettingsInnerTileStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -185,9 +185,9 @@
                             </Border>
 
                             <!-- ── Cohere tile ─────────────────────────── -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
+                            <Border Margin="{StaticResource SettingsTileGridMargin}">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                    <Style TargetType="Border" BasedOn="{StaticResource SettingsInnerTileStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsCohereActive}" Value="True">
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
