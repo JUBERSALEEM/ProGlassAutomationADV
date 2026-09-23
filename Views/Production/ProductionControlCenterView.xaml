@@ -6,20 +6,25 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              FontFamily="{DynamicResource AppFontFamily}"
-             Background="{DynamicResource Surface.Primary.BackgroundBrush}">
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        <!-- P3 redesign: one column of flat crystal cards. The old right-hand
-             scroll stack of six fixed-height grids became a tabbed analytics
-             card; the shouting titles became plain card names; every binding
-             and command is preserved (IsActive column removed — the model
-             has no such member). -->
-        <Style x:Key="PccFieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <!-- P3 redesign: one column of flat crystal cards. The old right-hand
+                 scroll stack of six fixed-height grids became a tabbed analytics
+                 card; the shouting titles became plain card names; every binding
+                 and command is preserved (IsActive column removed — the model
+                 has no such member). -->
+            <Style x:Key="PccFieldLabel" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+                <Setter Property="Margin" Value="0,0,0,4"/>
+            </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <!-- SCROLL FIX (2026-09-17 owner report: "mouse scrolling not working,

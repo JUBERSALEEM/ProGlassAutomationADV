@@ -16,6 +16,7 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}"
              Focusable="True">
 
     <UserControl.InputBindings>
@@ -23,6 +24,10 @@
     </UserControl.InputBindings>
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
 
         <!-- Consumable editor panel field chrome -->
@@ -91,6 +96,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <!-- ══════════════════════════════════════════════════════════════

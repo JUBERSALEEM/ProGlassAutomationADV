@@ -6,9 +6,18 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              FontFamily="{DynamicResource AppFontFamily}"
-             Background="Transparent"
+             Background="{DynamicResource Ov.Canvas}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
-    <Grid Background="{DynamicResource AppBackgroundBrush}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>

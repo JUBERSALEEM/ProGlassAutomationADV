@@ -6,8 +6,16 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              FontFamily="{DynamicResource AppFontFamily}"
-             Background="Transparent"
+             Background="{DynamicResource Ov.Canvas}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <!-- P3 redesign: flat crystal cards, equal-width columns, no industrial
          chrome. One page flow: header → KPI strip → filters → executions →
          lineage pair (pairings/assemblies) → traceability notes. -->
