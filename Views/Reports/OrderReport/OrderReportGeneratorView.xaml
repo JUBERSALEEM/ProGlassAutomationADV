@@ -27,9 +27,14 @@
     TextOptions.TextFormattingMode="Ideal"
     TextOptions.TextRenderingMode="ClearType"
     UseLayoutRounding="True"
-    SnapsToDevicePixels="True">
+    SnapsToDevicePixels="True"
+    Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <!-- Clickable step badge (theme-agnostic hover/pressed). -->
         <Style x:Key="StepBadgeButtonStyle" TargetType="Button">
@@ -68,7 +73,7 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">
