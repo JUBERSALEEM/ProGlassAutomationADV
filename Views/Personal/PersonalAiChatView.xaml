@@ -154,6 +154,7 @@
                                                 <TextBlock Text="{Binding TimeLabel}"
                                                            FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                            Foreground="{DynamicResource GlassBlush.TextFaint}"
+                                                           Typography.NumeralAlignment="Tabular"
                                                            HorizontalAlignment="Right"
                                                            Margin="0,6,0,0"/>
                                             </StackPanel>
@@ -171,6 +172,7 @@
                                                            Foreground="{DynamicResource GlassBlush.Text}"/>
                                                 <TextBlock FontSize="{DynamicResource GlassBlush.FontMeta}"
                                                            Foreground="{DynamicResource GlassBlush.TextFaint}"
+                                                           Typography.NumeralAlignment="Tabular"
                                                            Margin="0,6,0,0">
                                                     <Run Text="{Binding ProviderIcon, Mode=OneWay}"/><Run Text="  "/><Run Text="{DynamicResource AI.Via}"/><Run Text="  "/><Run Text="{Binding ProviderName, Mode=OneWay}"/><Run Text="  ·  "/><Run Text="{Binding TimeLabel, Mode=OneWay}"/>
                                                 </TextBlock>

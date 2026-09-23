@@ -91,13 +91,15 @@
                                     <TextBlock Text="{Binding StorageCountDisplay, FallbackValue='0'}"
                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"
                                                Margin="6,1,0,0"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding StorageTotalDisplay, FallbackValue='—'}"
                                            HorizontalAlignment="Right"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Typography.NumeralAlignment="Tabular"/>
                             </Grid>
 
                             <TextBlock Text="{DynamicResource Storage.Refreshing}"
@@ -126,6 +128,7 @@
                                                            Text="{Binding DisplayName}"/>
                                                 <TextBlock Grid.Column="2"
                                                            Style="{StaticResource Typography.BodySmall}"
+                                                           Typography.NumeralAlignment="Tabular"
                                                            Text="{Binding SizeDisplay}"/>
                                             </Grid>
                                             <Border Height="5"

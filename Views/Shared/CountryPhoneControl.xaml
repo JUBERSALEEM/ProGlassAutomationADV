@@ -37,6 +37,7 @@
                                    TextTrimming="CharacterEllipsis" MaxWidth="86"/>
                         <TextBlock Text="{Binding DialCode}" VerticalAlignment="Center"
                                    Margin="6,0,0,0" Opacity="0.72"
+                                   Typography.NumeralAlignment="Tabular"
                                    TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </DataTemplate>

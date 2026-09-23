@@ -212,7 +212,8 @@
                                                            Text="{Binding AmountDisplay}"
                                                            FontSize="{DynamicResource GlassBlush.FontBody}"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource GlassBlush.Text}"/>
+                                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                                           Typography.NumeralAlignment="Tabular"/>
                                             </Grid>
                                             <ProgressBar Margin="0,7,0,0"
                                                          Minimum="0" Maximum="1"
@@ -320,6 +321,7 @@
                                                            FontSize="{DynamicResource GlassBlush.FontBody}"
                                                            FontWeight="SemiBold"
                                                            Foreground="{DynamicResource GlassBlush.Text}"
+                                                           Typography.NumeralAlignment="Tabular"
                                                            VerticalAlignment="Center"
                                                            Margin="0,0,16,0"/>
                                                 <Border Grid.Column="3"

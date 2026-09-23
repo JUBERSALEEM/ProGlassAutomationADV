@@ -158,10 +158,12 @@
                                             <TextBlock Text="{Binding TimeDisplay}"
                                                        FontSize="{DynamicResource FontSize.Body}"
                                                        FontWeight="{DynamicResource Weight.SemiBold}"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                             <TextBlock Text="{Binding UtcTimeDisplay}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                         </StackPanel>
 
                                         <!-- WHO -->

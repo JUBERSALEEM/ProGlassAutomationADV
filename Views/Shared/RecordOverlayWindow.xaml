@@ -100,6 +100,7 @@
                 <TextBlock DockPanel.Dock="Left"
                            Text="{Binding TimeText}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource OnAccentForegroundBrush}" VerticalAlignment="Center"
+                           Typography.NumeralAlignment="Tabular"
                            MinWidth="52" TextAlignment="Right"/>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
