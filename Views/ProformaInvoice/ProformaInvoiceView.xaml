@@ -3,7 +3,7 @@
     Bindings, commands and AutomationIds preserved.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.ProformaInvoiceView"
-             Style="{StaticResource ErpPageRootStyle}"
+             Background="{DynamicResource Ov.Canvas}"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -27,6 +27,14 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IndigoStudioTokens.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid Background="Transparent">
 
@@ -104,8 +112,10 @@
                 <RowDefinition Height="56"/>
             </Grid.RowDefinitions>
 
+            <!-- Sticky Wizard Station Header -->
             <Border Grid.Row="0"
-                    Style="{StaticResource DocumentHeaderBandStyle}">
+                    Margin="20,14,20,8"
+                    Style="{StaticResource Ov.CardCompact}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -116,11 +126,24 @@
                     </Grid.ColumnDefinitions>
 
                     <Button Command="{Binding BackToListCommand}"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Content="{DynamicResource ProformaInvoice.Invoices}"
+                            Style="{StaticResource Ov.Button}"
                             Tag="&#xE72B;"
+                            Padding="14,0"
+                            Height="36"
                             VerticalAlignment="Center"
-                            ToolTip="{DynamicResource ProformaInvoice.BackInvoiceList}"/>
+                            ToolTip="{DynamicResource ProformaInvoice.BackInvoiceList}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72B;"
+                                       Style="{StaticResource Ov.Glyph}"
+                                       FontSize="13"
+                                       Margin="0,0,8,0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource ProformaInvoice.Invoices}"
+                                       Style="{StaticResource Ov.Text}"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
 
                     <ItemsControl Grid.Column="2"
                                   ItemsSource="{Binding WizardSteps}"
@@ -204,8 +227,8 @@
 
                     <TextBlock Grid.Column="4"
                                Text="{Binding StepProgressText}"
-                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               Style="{StaticResource Ov.Meta}"
+                               FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
                 </Grid>
             </Border>
@@ -348,11 +371,11 @@
                 </ContentControl>
             </Grid>
 
+            <!-- Command Footer Deck -->
             <Border Grid.Row="2"
-                    Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                    BorderThickness="{DynamicResource Border.TopHairlineThickness}"
-                    Padding="20,0">
+                    Margin="20,8,20,14"
+                    Padding="20,10"
+                    Style="{StaticResource Ov.CardCompact}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -360,20 +383,24 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Button Command="{Binding PreviousStepCommand}"
-                            Style="{StaticResource OutlinedPillButton}"
+                            Style="{StaticResource Ov.Button}"
+                            Padding="20,0"
+                            Height="38"
                             Content="{DynamicResource Action.Back}"
                             AutomationProperties.AutomationId="ProformaInvoice.BackButton"
                             AutomationProperties.Name="Back"/>
                     <ProgressBar Grid.Column="1"
-                                 Height="4" Maximum="1" Minimum="0"
+                                 Height="6" Maximum="1" Minimum="0"
                                  Value="{Binding ProgressPercent, Mode=OneWay}"
                                  Margin="28,0"
-                                 Foreground="{DynamicResource AccentBrush}"
-                                 Background="{DynamicResource SurfaceTertiaryBrush}"
-                                 BorderThickness="{DynamicResource Border.NoneThickness}"/>
+                                 Foreground="{DynamicResource Ov.Accent}"
+                                 Background="{DynamicResource Ov.Soft}"
+                                 BorderThickness="0"/>
                     <Button Grid.Column="2"
                             Command="{Binding NextStepCommand}"
-                            Style="{StaticResource PrimaryPillButton}"
+                            Style="{StaticResource Ov.PrimaryButton}"
+                            Padding="26,0"
+                            Height="38"
                             Content="{DynamicResource ProformaInvoice.Continue}"
                             AutomationProperties.AutomationId="ProformaInvoice.ContinueButton"
                             AutomationProperties.Name="Continue"/>

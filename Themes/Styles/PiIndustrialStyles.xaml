@@ -15,10 +15,12 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- One steel work surface — replaces nested stripe cards. -->
-    <Style x:Key="PiWorkSurfaceStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-
-        <Setter Property="Padding"         Value="12,8"/>
-        <Setter Property="Effect"          Value="{StaticResource ShadowSoft}"/>
+    <Style x:Key="PiWorkSurfaceStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource Ov.Surface}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="14"/>
+        <Setter Property="Padding"         Value="16,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -685,35 +687,35 @@
         </Setter>
     </Style>
 
-    <Style x:Key="PiStationIdentityStyle" TargetType="Border" BasedOn="{StaticResource SurfaceSecondaryStyle}">
-        <Setter Property="Background"      Value="{DynamicResource SurfaceTertiaryBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource BorderSubtleBrush}"/>
-        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="CornerRadius"    Value="8,8,0,0"/>
-        <Setter Property="Padding"         Value="8,6,8,6"/>
-        <Setter Property="Margin"          Value="0,0,0,6"/>
+    <Style x:Key="PiStationIdentityStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource Ov.Soft}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="10"/>
+        <Setter Property="Padding"         Value="12,8"/>
+        <Setter Property="Margin"          Value="0,0,0,10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="PiStationCodeStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="Consolas"/>
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+        <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI, Consolas"/>
+        <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="0,0,10,0"/>
     </Style>
 
     <Style x:Key="PiStationTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style x:Key="PiStationHintStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="12,0,0,0"/>
     </Style>
