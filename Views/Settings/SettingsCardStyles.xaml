@@ -78,6 +78,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IndigoStudioTokens.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <!-- ═══ SPACING SCALE — the only gaps a settings page may use ═══
          Density-derived where density exists (CardPadding follows the
          profile); the rest are composition gaps, deliberately fixed so a
@@ -101,7 +105,7 @@
          goes 18 → 24 horizontally rather than About's 32: About is a
          read-only page, these carry dense label+control rows and a 32 px
          inset starts clipping them below 1280. -->
-    <Thickness x:Key="SettingsPagePadding">24,20,24,24</Thickness>
+    <Thickness x:Key="SettingsPagePadding">28,26,28,30</Thickness>
     <Thickness x:Key="SettingsCardPadding">22,20</Thickness>
     <!-- Crystal-axis rows (Themes): label sits above the track, 6px air,
          then 22px to the next row — matches the approved mockup rhythm. -->

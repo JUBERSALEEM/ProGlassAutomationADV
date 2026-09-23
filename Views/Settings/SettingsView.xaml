@@ -75,7 +75,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource BackgroundBrush}">
+    <Grid Background="{DynamicResource Ov.Canvas}">
         <Grid.ColumnDefinitions>
             <!-- ERR-BEFC44 follow-up + 2026-09-05 drawer behaviour:
                  ERR-BEFC44: rail was a hard 232px, clipping long labels.
@@ -89,11 +89,11 @@
         </Grid.ColumnDefinitions>
 
         <!-- ══════════════════════════════════════════════════════════
-             LEFT — NAVIGATION RAIL (rounded floating card, clearly visible)
+             LEFT — NAVIGATION RAIL (Indigo Studio Bento card)
              Visibility = IsSettingsRailOpen (drawer: closes on page pick,
              re-opens via the floating menu button).
         ══════════════════════════════════════════════════════════════ -->
-        <!-- Rail — shares SettingsPageCardStyle crystal material with the
+        <!-- Rail — shares Ov.Card styling with the
              page cards; exactly 232px wide matching approved design specification. -->
         <Border Grid.Column="0"
                 Margin="18,14,6,18"
@@ -102,7 +102,7 @@
                     Converter={StaticResource BoolToVisibilityConverter}}"
                 RenderOptions.EdgeMode="Aliased"
                 SnapsToDevicePixels="True"
-                Style="{StaticResource SettingsPageCardStyle}">
+                Style="{StaticResource Ov.Card}">
             <Border.Resources>
                 <!-- Rail instance: no inherited card margin. -->
                 <Thickness x:Key="SettingsCardMargin">0</Thickness>
@@ -118,9 +118,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
                                Text="Menu"
-                               FontSize="{DynamicResource FontSize.Title}"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               Style="{StaticResource Ov.CardTitle}"
                                VerticalAlignment="Center"
                                Margin="4,0,0,0"/>
                     <Button Grid.Column="1"
@@ -262,8 +260,8 @@
                  edge as the rail (14), and an 8 + 14 = 22 gap to the first card,
                  which is exactly the card-to-card rhythm.
             ══════════════════════════════════════════════════════════ -->
-            <Border Grid.Row="0" Margin="18,14,18,8" Padding="14,12"
-                    Style="{StaticResource SettingsPageCardStyle}">
+            <Border Grid.Row="0" Margin="18,14,18,8"
+                    Style="{StaticResource Ov.CardCompact}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

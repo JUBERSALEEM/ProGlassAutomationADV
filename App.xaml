@@ -125,6 +125,7 @@
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/OptimizationStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IndigoStudioTokens.xaml"/>
 
                 <!-- Phase 8/9: shared theme-adaptive input styles (TextBox /
                      PasswordBox / ComboBox). Adopted incrementally by views
