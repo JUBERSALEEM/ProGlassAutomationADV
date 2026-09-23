@@ -238,6 +238,75 @@
         </Style.Triggers>
     </Style>
 
+    <!-- ═══ OVERVIEW HERO BENTO CARD (Signature purple hero masthead) ═══ -->
+    <LinearGradientBrush x:Key="SettingsHeroBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#6744B9" Offset="0"/>
+        <GradientStop Color="#493080" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="SettingsOnAccentBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SettingsOnAccentMutedBrush" Color="#E3DAF7"/>
+
+    <Style x:Key="SettingsHeroCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource SettingsHeroBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
+        <Setter Property="Padding" Value="{StaticResource SettingsCardPadding}"/>
+        <Setter Property="Margin" Value="{StaticResource SettingsCardMargin}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Effect" Value="{DynamicResource SettingsCardShadow}"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroIconTileStyle" TargetType="Border">
+        <Setter Property="Width" Value="38"/>
+        <Setter Property="Height" Value="38"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Background" Value="#33FFFFFF"/>
+        <Setter Property="BorderBrush" Value="#44FFFFFF"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroIconGlyphStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH2}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH2}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroNoteStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentMutedBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="{StaticResource SettingsStackGap4}"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroBadgeStyle" TargetType="Border">
+        <Setter Property="Background" Value="#33FFFFFF"/>
+        <Setter Property="BorderBrush" Value="#44FFFFFF"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Padding" Value="12,5"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeCaption}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
+    </Style>
+
     <!-- Card frames that need no shadow: the action bar and any card the
          page already sits inside another surface for. -->
     <Style x:Key="SettingsFlatCardStyle" TargetType="Border"

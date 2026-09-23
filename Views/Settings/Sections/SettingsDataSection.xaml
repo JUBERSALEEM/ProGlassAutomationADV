@@ -44,7 +44,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — DATA & BACKUP ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -52,17 +52,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE8B7;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE8B7;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Data Management &amp; Automated Backups" Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="SQLite transaction logging, automated backup rotation, and schema integrity validation" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            <TextBlock Text="Data Management &amp; Automated Backups" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="SQLite transaction logging, automated backup rotation, and schema integrity validation" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
-                        <Border Grid.Column="2" Style="{StaticResource SettingsChipGreenStyle}" VerticalAlignment="Center">
-                            <TextBlock Text="Verified Storage" Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Verified Storage" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                         </Border>
                     </Grid>
                 </Border>

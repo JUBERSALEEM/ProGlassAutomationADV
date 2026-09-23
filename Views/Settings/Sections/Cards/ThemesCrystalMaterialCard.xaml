@@ -20,10 +20,21 @@
 
     <Border Style="{StaticResource SettingsPageCardStyle}">
         <StackPanel>
-            <TextBlock Text="{DynamicResource Settings.GrpCrystalMaterial}"
-                       Style="{StaticResource SettingsCardTitleStyle}"/>
-            <TextBlock Text="{DynamicResource Settings.CrystalMaterialHint}"
-                       Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                    <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Settings.GrpCrystalMaterial}"
+                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource Settings.CrystalMaterialHint}"
+                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                </StackPanel>
+            </Grid>
 
             <!-- Quick presets (Default / Calm / Intense) -->
             <Border Style="{StaticResource SettingsInnerTileStyle}">

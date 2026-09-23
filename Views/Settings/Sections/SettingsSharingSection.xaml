@@ -42,7 +42,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — DOCUMENT SHARING & EXPORT ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -50,19 +50,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE72D;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE72D;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Export &amp; Document Sharing Hub" Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="WhatsApp Business API, SMTP email delivery, and multi-format document templates" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            <TextBlock Text="Export &amp; Document Sharing Hub" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="WhatsApp Business API, SMTP email delivery, and multi-format document templates" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
-                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
-                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                            <TextBlock Text="Active Hub" Style="{StaticResource SettingsChipTextStyle}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Active Hub" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                         </Border>
                     </Grid>
                 </Border>

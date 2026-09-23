@@ -155,7 +155,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — FEATURE FLAGS & MODULE CUSTOMIZATION ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -163,19 +163,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE73E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE73E;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Feature Flags &amp; Field Customization" Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="Granular quotation field toggles, workflow step visibility, and session state" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            <TextBlock Text="Feature Flags &amp; Field Customization" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Granular quotation field toggles, workflow step visibility, and session state" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
-                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
-                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                            <TextBlock Text="5 Workflow Modules" Style="{StaticResource SettingsChipTextStyle}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="5 Workflow Modules" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                         </Border>
                     </Grid>
                 </Border>

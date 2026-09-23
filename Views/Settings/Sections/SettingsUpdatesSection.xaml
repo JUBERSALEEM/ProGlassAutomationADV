@@ -26,7 +26,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — UPDATES & RELEASE ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -34,19 +34,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE777;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE777;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Updates &amp; Release Management" Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="Over-the-air Velopack delivery, delta patch packages, and update audit log" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            <TextBlock Text="Updates &amp; Release Management" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Over-the-air Velopack delivery, delta patch packages, and update audit log" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
-                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
-                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                            <TextBlock Text="OTA Channel" Style="{StaticResource SettingsChipTextStyle}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="OTA Channel" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                         </Border>
                     </Grid>
                 </Border>

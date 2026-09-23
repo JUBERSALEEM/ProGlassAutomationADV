@@ -77,6 +77,7 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Weight.SemiBold": "grammar type roles carry the weights",
     },
     "SettingsUpdatesSection.xaml": {
+        "TintIndigoBrush": "replaced by SettingsHeroBadgeStyle",
         # staticres
         "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         # staticres
@@ -133,6 +134,7 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.ProtectProductionDataExploreSampleData": "text of the removed duplicate page subtitle",
     },
     "SettingsDemoSection.xaml": {
+        "TintIndigoBrush": "replaced by SettingsHeroBadgeStyle",
         # staticres
         "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
@@ -158,6 +160,7 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.ThemeColoursWallpapersMotionModule": "text of the removed duplicate page subtitle",
     },
     "SettingsFeaturesSection.xaml": {
+        "TintIndigoBrush": "replaced by SettingsHeroBadgeStyle",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
         "Typography.BodySmall": "replaced by SettingsRowMetaStyle",
         "Typography.H1": "duplicate page title removed — the shell header strip owns it",
@@ -167,6 +170,8 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.TurnIndividualFieldsWithoutTouchingCode": "text of the removed duplicate page subtitle",
     },
     "SettingsSharingSection.xaml": {
+        "AccentBrush": "replaced by SettingsHeroBadgeTextStyle",
+        "TintIndigoBrush": "replaced by SettingsHeroBadgeStyle",
         # staticres
         "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
@@ -205,6 +210,7 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Weight.Bold": "grammar type roles carry the weights",
     },
     "SettingsThemesSection.xaml": {
+        "TintIndigoBrush": "replaced by SettingsHeroBadgeStyle",
         "SettingsAxisRowMargin": "crystal axes are in a responsive 2-column bento tile grid with SettingsTileGridMargin",
         # staticres
         "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
@@ -216,6 +222,8 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Settings.ThemesSubtitle": "text of the removed duplicate page subtitle",
     },
     "SettingsAboutSection.xaml": {
+        "AccentBrush": "replaced by SettingsHeroBadgeTextStyle",
+        "TintIndigoBrush": "replaced by SettingsHeroBadgeStyle",
         # staticres
         "InfoGlyphBadgeStyle": "replaced by SettingsIconTileStyle",
         "InfoGlyphTextStyle": "replaced by SettingsIconGlyphStyle",
@@ -318,7 +326,8 @@ def main() -> int:
                 # report only keys that vanished without a replacement of the
                 # same shape (i.e. still referenced nowhere at all).
                 surface_only = {k for k in missing
-                                if k.startswith(("Surface", "SettingsCard",
+                                if k.startswith(("Surface", "SettingsCard", "SettingsChip",
+                                                 "SettingsHero", "SettingsIcon",
                                                  "Ios26", "SettingsPage",
                                                  "SettingsInner", "SettingsFlat",
                                                  "SettingsBare", "SettingsInteractive"))}

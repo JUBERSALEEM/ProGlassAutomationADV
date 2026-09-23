@@ -38,7 +38,7 @@
         <StackPanel DataContext="{x:Static vmLicensing:LicenseStatusViewModel.Instance}">
 
             <!-- ═══ BENTO HERO BANNER — LICENSE & WORKSTATION ACTIVATION ═══ -->
-            <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+            <Border Style="{StaticResource SettingsHeroCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -46,17 +46,17 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                        <TextBlock Text="&#xE762;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                    <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                        <TextBlock Text="&#xE762;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                     </Border>
 
                     <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                        <TextBlock Text="License &amp; Workstation Activation" Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="Perpetual commercial activation, hardware PC-ID fingerprint, and licensed CNC capabilities" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        <TextBlock Text="License &amp; Workstation Activation" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                        <TextBlock Text="Perpetual commercial activation, hardware PC-ID fingerprint, and licensed CNC capabilities" Style="{StaticResource SettingsHeroNoteStyle}"/>
                     </StackPanel>
 
-                    <Border Grid.Column="2" Style="{StaticResource SettingsChipGreenStyle}" VerticalAlignment="Center">
-                        <TextBlock Text="Perpetual Active" Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                    <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                        <TextBlock Text="Perpetual Active" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                     </Border>
                 </Grid>
             </Border>

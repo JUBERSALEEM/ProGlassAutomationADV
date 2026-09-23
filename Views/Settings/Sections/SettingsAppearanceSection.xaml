@@ -38,7 +38,7 @@
         <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
             <!-- ═══ BENTO HERO BANNER — APPEARANCE & WORKSPACE ═══ -->
-            <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+            <Border Style="{StaticResource SettingsHeroCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -46,19 +46,17 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                        <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                    <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                        <TextBlock Text="&#xE790;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                     </Border>
 
                     <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                        <TextBlock Text="Appearance &amp; Studio Workspace" Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="Full Light Studio Bento visual system, typography ladder, and color accents" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        <TextBlock Text="Appearance &amp; Studio Workspace" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                        <TextBlock Text="Full Light Studio Bento visual system, typography ladder, and color accents" Style="{StaticResource SettingsHeroNoteStyle}"/>
                     </StackPanel>
 
-                    <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
-                            Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                        <TextBlock Text="Active Studio" Style="{StaticResource SettingsChipTextStyle}"
-                                   Foreground="{DynamicResource AccentBrush}"/>
+                    <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                        <TextBlock Text="Active Studio" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                     </Border>
                 </Grid>
             </Border>

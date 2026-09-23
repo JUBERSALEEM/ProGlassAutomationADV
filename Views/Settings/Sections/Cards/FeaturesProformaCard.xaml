@@ -377,12 +377,17 @@
                              Literal text on purpose — the value travels through
                              AppConfig.ProformaInvoiceFields.ExpectedProfitMarginPercent
                              and the live mirror Step9PricingDefaults. -->
-                            <TextBlock Text="STEP 9 · TARGET PRICING"
+                            <TextBlock Text="STEP 9 · TARGET PRICING &amp; BULK CONTROLS"
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
                                    Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}">
+                            <Grid Margin="{StaticResource SettingsRowMargin}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.Column="0" Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsBentoColLeft}">
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -391,9 +396,9 @@
                                             <RowDefinition Height="Auto"/>
                                         </Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8FD;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="Profit margin % — global default" VerticalAlignment="Center"/>
-</StackPanel>
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8FD;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="Profit margin % — global default" VerticalAlignment="Center"/>
+                                        </StackPanel>
                                         <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="Global default expected profit margin applied to every NEW invoice: Step 9's required-target formula adds it (15% default → ×1.15) and Step 4 margin boxes seed from it. Job Profitability judges every job against this base."/>
                                         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="{StaticResource SettingsStackGap8}">
@@ -407,36 +412,39 @@
                                         </StackPanel>
                                     </Grid>
                                 </Border>
-                            </UniformGrid>
 
-                            <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                    <StackPanel>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
-                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
+                                <Border Grid.Column="1" Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsBentoColRight}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
                                         </StackPanel>
-                                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                        <TextBlock Grid.Row="1" Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipOptionalFieldOnceRestoreBoxLayout}"/>
-                                    <!-- Full-width action row: buttons stretch evenly across the whole card. -->
-                                    <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap10}">
-                                        <Button Content="{DynamicResource Settings.Enable}"
-                                        Command="{Binding EnableAllCommand}"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        ToolTip="{DynamicResource Settings.ShowOptionalFieldWizard}"/>
-                                        <Button Content="{DynamicResource Settings.HideOptional}"
-                                        Command="{Binding DisableAllOptionalCommand}"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        ToolTip="{DynamicResource Settings.CollapseOptionalFieldThreeDBRequiredFields}"/>
-                                        <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
-                                        Command="{Binding ResetToDefaultsCommand}"
-                                        Style="{StaticResource SettingsActionButtonStyle}"
-                                        Margin="0"
-                                        ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
-                                    </UniformGrid>
-                                    </StackPanel>
+                                        <UniformGrid Grid.Row="3" Columns="3" Margin="{StaticResource SettingsStackGap10}">
+                                            <Button Content="{DynamicResource Settings.Enable}"
+                                                    Command="{Binding EnableAllCommand}"
+                                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                                    ToolTip="{DynamicResource Settings.ShowOptionalFieldWizard}"/>
+                                            <Button Content="{DynamicResource Settings.HideOptional}"
+                                                    Command="{Binding DisableAllOptionalCommand}"
+                                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                                    ToolTip="{DynamicResource Settings.CollapseOptionalFieldThreeDBRequiredFields}"/>
+                                            <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
+                                                    Command="{Binding ResetToDefaultsCommand}"
+                                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                                    Margin="0"
+                                                    ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
+                                        </UniformGrid>
+                                    </Grid>
                                 </Border>
-                            </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
 </UserControl>

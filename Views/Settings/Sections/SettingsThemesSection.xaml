@@ -58,7 +58,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — THEMES & SURFACE TUNING ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -66,19 +66,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE790;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Themes &amp; Surface Tuning" Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="Bounded material precision tuning, porcelain contrast, and real-time fluid refraction" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            <TextBlock Text="Themes &amp; Surface Tuning" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Bounded material precision tuning, porcelain contrast, and real-time fluid refraction" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
-                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
-                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                            <TextBlock Text="Studio Engine" Style="{StaticResource SettingsChipTextStyle}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Studio Engine" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                         </Border>
                     </Grid>
                 </Border>
