@@ -15,9 +15,15 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
         <!-- Bento card container style matching Overview Dashboard aesthetic -->
         <Style x:Key="UserCenterCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
@@ -48,6 +54,7 @@
             <Setter Property="Background" Value="{DynamicResource BorderDefaultBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
