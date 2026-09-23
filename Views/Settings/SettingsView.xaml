@@ -94,10 +94,10 @@
              re-opens via the floating menu button).
         ══════════════════════════════════════════════════════════════ -->
         <!-- Rail — shares SettingsPageCardStyle crystal material with the
-             page cards; own margin lives on the instance below. -->
+             page cards; exactly 232px wide matching approved design specification. -->
         <Border Grid.Column="0"
                 Margin="18,14,6,18"
-                MinWidth="232" MaxWidth="420"
+                Width="232"
                 Visibility="{Binding IsSettingsRailOpen,
                     Converter={StaticResource BoolToVisibilityConverter}}"
                 RenderOptions.EdgeMode="Aliased"
@@ -118,7 +118,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
                                Text="Menu"
-                               FontSize="16"
+                               FontSize="{DynamicResource FontSize.Title}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource TextPrimaryBrush}"
                                VerticalAlignment="Center"
@@ -141,7 +141,7 @@
                                         Width="28" Height="28">
                                     <TextBlock Text="&#xE711;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="12"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextSecondaryBrush}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
