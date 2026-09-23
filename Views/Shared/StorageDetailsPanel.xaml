@@ -36,7 +36,7 @@
 
                     <!-- Header -->
                     <Border Grid.Row="0"
-                            Background="{DynamicResource AccentBrush}"
+                            Background="{DynamicResource Ov.Hero}"
                             CornerRadius="{DynamicResource Radius.Top.Medium}"
                             Padding="18,12">
                         <Grid>

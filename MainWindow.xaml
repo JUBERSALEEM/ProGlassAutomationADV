@@ -961,7 +961,7 @@
                     </viewsAi:AiChatView.Style>
                 </viewsAi:AiChatView>
 
-                <!-- AGENT CHAT FLOATING CARD -->
+                <!-- AGENT CHAT FLOATING CARD (Bento Indigo Surface) -->
                 <Border x:Name="ProAgentChatHost"
                         Panel.ZIndex="210"
                         Width="560"
@@ -973,11 +973,15 @@
                         Margin="0,16,24,24"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom"
-                        CornerRadius="12"
+                        CornerRadius="14"
                         ClipToBounds="False"
-                        BorderBrush="{DynamicResource AccentBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="1"
-                        Background="#FFFFFF">
+                        Background="{DynamicResource SurfacePrimaryBrush}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24" ShadowDepth="4"
+                                          Opacity="0.14" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
+                    </Border.Effect>
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Collapsed"/>

@@ -61,11 +61,11 @@
          SECTION 2 — SEMANTIC COLORS
          Accent, Status, and Tint color tokens.
     ═══════════════════════════════════════════════════════════════ -->
-    <Color x:Key="AccentColor">#0F6FA8</Color>
-    <Color x:Key="AccentHoverColor">#1287C8</Color>
-    <Color x:Key="AccentDarkColor">#0B5D89</Color>
-    <Color x:Key="AccentLightColor">#47B6E8</Color>
-    <Color x:Key="AccentBlueColor">#28BEFF</Color>
+    <Color x:Key="AccentColor">#6546B5</Color>
+    <Color x:Key="AccentHoverColor">#54389E</Color>
+    <Color x:Key="AccentDarkColor">#452D83</Color>
+    <Color x:Key="AccentLightColor">#8568CF</Color>
+    <Color x:Key="AccentBlueColor">#6546B5</Color>
     <Color x:Key="SuccessColor">#059669</Color>
     <Color x:Key="WarningColor">#D97706</Color>
     <Color x:Key="DangerColor">#DC2626</Color>
@@ -96,7 +96,7 @@
          SECTION 4 — SURFACE BRUSHES
          Module, Elevated, Sidebar, Menu, Overlay surfaces.
     ═══════════════════════════════════════════════════════════════ -->
-    <SolidColorBrush x:Key="BackgroundBrush" Color="#FFF8FAFC" po:Freeze="True"/>
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#FFF3F0FA" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#00FFFFFF" po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -687,18 +687,12 @@
          locally_frozen (About must never re-declare these).
          ═══════════════════════════════════════════════════════════════ -->
 
-    <SolidColorBrush x:Key="Ios26CardBrush"               Color="#CCFFFFFF" po:Freeze="True"/>
-    <!-- 2026-09-16: a 60 % WHITE edge is invisible on a white card, so card
-         outlines could not be seen in Light mode at all (owner report: "no
-         border lines on cards"). The edge now wears the theme hairline tone —
-         the same value the light DividerBrush uses — which is visible on both
-         the white card and the pastel stage, and visibly changes on a Dark
-         switch because it is theme-owned. Revert to #99FFFFFF here if the pure
-         specular edge is preferred; nothing else has to change. -->
-    <SolidColorBrush x:Key="Ios26CardBorderBrush"         Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26RailBrush"               Color="#99FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TileBrush"               Color="#FFFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TileBorderBrush"         Color="#E8EDF3" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26CardBrush"               Color="#FFFFFFFF" po:Freeze="True"/>
+    <!-- 2026-09-23: Full Light Studio Bento solid white card surface and hairline keyline. -->
+    <SolidColorBrush x:Key="Ios26CardBorderBrush"         Color="#FFE2DBEF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26RailBrush"               Color="#FFFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TileBrush"               Color="#FFF8F6FC" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TileBorderBrush"         Color="#FFE2DBEF" po:Freeze="True"/>
 
     <!-- ═══ SETTINGS — CRYSTAL LIQUID SURFACE (2026-09-17) ═══════════════
          Owner directive: "Generate the new mockup with crystal liquid ios 26
@@ -792,26 +786,26 @@
                       BlurRadius="8" ShadowDepth="2" Direction="270"
                       RenderingBias="Performance"
                       po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26HairlineBrush"           Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TrackBrush"              Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26HoverBrush"              Color="#E6ECF3" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextTitleBrush"          Color="#0F172A" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextBodyBrush"           Color="#1E293B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextSecondaryBrush"      Color="#475569" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextMutedBrush"          Color="#64748B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26TextFaintBrush"          Color="#94A3B8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26HairlineBrush"           Color="#FFE2DBEF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TrackBrush"              Color="#FFE2DBEF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26HoverBrush"              Color="#FFEE8F8"  po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextTitleBrush"          Color="#FF2C2440" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextBodyBrush"           Color="#FF2C2440" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextSecondaryBrush"      Color="#FF6B6078" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextMutedBrush"          Color="#FF6B6078" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TextFaintBrush"          Color="#FF968CA5" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26OnAccentBrush"           Color="#FFFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26OnAccentChipBrush"       Color="#40FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26AccentBrush"             Color="#0369A1" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26AccentDeepBrush"         Color="#075985" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26AccentSoftBrush"         Color="#DBEAFE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26AccentSoftTextBrush"     Color="#1D4ED8" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26SuccessBrush"            Color="#16A34A" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26SuccessSoftBrush"        Color="#DCFCE7" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26ValuePillBrush"          Color="#F1F5F9" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26SearchBrush"             Color="#EDF1F7" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26NumberBrush"             Color="#93C5FD" po:Freeze="True"/>
-    <SolidColorBrush x:Key="Ios26DangerDotBrush"          Color="#FB7185" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26AccentBrush"             Color="#FF6546B5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26AccentDeepBrush"         Color="#FF493080" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26AccentSoftBrush"         Color="#FFEE8F8"  po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26AccentSoftTextBrush"     Color="#FF6546B5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26SuccessBrush"            Color="#FF22714E" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26SuccessSoftBrush"        Color="#FFEAF4EF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26ValuePillBrush"          Color="#FFEE8F8"  po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26SearchBrush"             Color="#FFF8F6FC" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26NumberBrush"             Color="#FFB4A1E1" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26DangerDotBrush"          Color="#FFB83E50" po:Freeze="True"/>
 
 
 
@@ -823,12 +817,8 @@
          module buttons out. Now a rich warm-cream frost — still glass
          (the crystal border + sheen carry the edge), but the nav items
          stay legible. Liquid/Monet/Ultra override this at runtime. -->
-    <LinearGradientBrush x:Key="ShellLiquidBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#E6F6F1E6" Offset="0"/>
-        <GradientStop Color="#D9FFFCF5" Offset="0.5"/>
-        <GradientStop Color="#E0F1EBDE" Offset="1"/>
-    </LinearGradientBrush>
-    <SolidColorBrush x:Key="ShellLiquidBorderBrush" Color="#24000000" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ShellLiquidBrush" Color="#FFFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ShellLiquidBorderBrush" Color="#FFE2DBEF" po:Freeze="True"/>
     <SolidColorBrush x:Key="ShellSheenBrush" Color="#B3FFFFFF" po:Freeze="True"/>
 
 

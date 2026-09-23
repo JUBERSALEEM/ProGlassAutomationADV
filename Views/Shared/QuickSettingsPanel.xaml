@@ -93,7 +93,7 @@
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0"
-                            Background="{DynamicResource AccentBrush}"
+                            Background="{DynamicResource Ov.Hero}"
                             CornerRadius="{DynamicResource Radius.Top.Medium}"
                             Padding="18,12">
                         <StackPanel>
@@ -108,18 +108,18 @@
                     </Border>
 
                     <!-- 🎨 THEME STUDIO QUICK ACCESS BANNER -->
-                    <Border Grid.Row="1" Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="14,10">
+                    <Border Grid.Row="1" Background="{DynamicResource Ov.Soft}" BorderBrush="{DynamicResource Ov.Line}" BorderThickness="0,0,0,1" Padding="14,10">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Width="30" Height="30" CornerRadius="15" Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
+                            <Border Grid.Column="0" Width="30" Height="30" CornerRadius="15" Background="{DynamicResource Ov.Accent}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE790;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="13" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
-                                <TextBlock Text="THEME STUDIO" FontSize="{DynamicResource FontSize.Label}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="THEME STUDIO" FontSize="{DynamicResource FontSize.Label}" FontWeight="Bold" Foreground="{DynamicResource Ov.Accent}"/>
                                 <TextBlock Text="Family, light/dark, and crystal glass" FontSize="{DynamicResource FontSize.Badge}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </StackPanel>
                             <Button Grid.Column="2" Style="{StaticResource PrimaryPillButton}" Height="28" Padding="12,0"

@@ -33,8 +33,8 @@
             <ControlTemplate TargetType="Button">
                 <Border x:Name="Card"
                         CornerRadius="8"
-                        Background="#E6E1F4"
-                        BorderBrush="#D9D5E6"
+                        Background="{DynamicResource Ov.Soft}"
+                        BorderBrush="{DynamicResource Ov.Line}"
                         BorderThickness="1"
                         Padding="12,9"
                         SnapsToDevicePixels="True">
@@ -42,11 +42,11 @@
                 </Border>
                 <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter TargetName="Card" Property="Background" Value="#DDD8EE"/>
-                        <Setter TargetName="Card" Property="BorderBrush" Value="#8E82D8"/>
+                        <Setter TargetName="Card" Property="Background" Value="{DynamicResource Ov.AccentSoftBorder}"/>
+                        <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
                     </Trigger>
                     <Trigger Property="IsPressed" Value="True">
-                        <Setter TargetName="Card" Property="Background" Value="#D0C9E8"/>
+                        <Setter TargetName="Card" Property="Background" Value="{DynamicResource Ov.Soft}"/>
                     </Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate>
@@ -58,12 +58,12 @@
                     <TextBlock Text="Local storage —"
                                FontSize="11"
                                FontWeight="SemiBold"
-                               Foreground="#211D31"
+                               Foreground="{DynamicResource Ov.Ink}"
                                VerticalAlignment="Center"/>
                     <TextBlock Text="{Binding StorageDisplay, FallbackValue='—'}"
                                FontSize="11"
                                FontWeight="Bold"
-                               Foreground="#443A86"
+                               Foreground="{DynamicResource Ov.Accent}"
                                Typography.NumeralAlignment="Tabular"
                                Margin="4,0,0,0"
                                VerticalAlignment="Center"/>
@@ -72,7 +72,7 @@
             <TextBlock Text="View breakdown"
                        FontSize="10"
                        FontWeight="Medium"
-                       Foreground="#6B6580"
+                       Foreground="{DynamicResource Ov.Muted}"
                        Margin="0,3,0,0"/>
         </StackPanel>
     </Button>
