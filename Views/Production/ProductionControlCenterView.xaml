@@ -132,7 +132,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="TOTAL SCHEDULED" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding TotalScheduledPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding TotalScheduledPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding TotalScheduledSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Grid>
@@ -153,7 +155,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="COMPLETED / DONE" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding CompletedDonePcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding CompletedDonePcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding CompletedDoneSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Grid>
@@ -174,7 +178,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="BALANCE PENDING" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding BalancePendingPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding BalancePendingPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding BalancePendingSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Grid>
@@ -194,9 +200,10 @@
                             <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding StageCompletionPct, Mode=OneWay}"
                                          Margin="0,8,0,0" Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
-                        <TextBlock Grid.Column="1" Text="{Binding StageCompletionPct, StringFormat={}{0:F1}%}"
-                                   FontSize="{DynamicResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
-                                   VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        <Viewbox MaxHeight="32" Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                            <TextBlock Text="{Binding StageCompletionPct, StringFormat={}{0:F1}%}"
+                                       FontSize="{DynamicResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                        </Viewbox>
                     </Grid>
                 </Border>
             </Grid>

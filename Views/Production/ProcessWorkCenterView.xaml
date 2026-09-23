@@ -128,7 +128,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="TOTAL SCHEDULED" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding TotalScheduledPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding TotalScheduledPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding TotalScheduledSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Grid>
@@ -149,7 +151,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="COMPLETED / DONE" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding CompletedDonePcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding CompletedDonePcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding CompletedDoneSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Grid>
@@ -170,7 +174,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="BALANCE PENDING" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding BalancePendingPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding BalancePendingPcs, StringFormat={}{0:N0} Pcs}" FontSize="{DynamicResource TextTitleLarge}" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding BalancePendingSqm, StringFormat={}{0:N1} m²}" FontSize="{DynamicResource FontSize.Label}" Foreground="{DynamicResource TextTertiaryBrush}"/>
                         </StackPanel>
                     </Grid>
@@ -190,9 +196,10 @@
                             <ProgressBar Height="8" Minimum="0" Maximum="100" Value="{Binding StageCompletionPct, Mode=OneWay}"
                                          Margin="0,8,0,0" Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
-                        <TextBlock Grid.Column="1" Text="{Binding StageCompletionPct, StringFormat={}{0:F1}%}"
-                                   FontSize="{DynamicResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
-                                   VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        <Viewbox MaxHeight="32" Grid.Column="1" VerticalAlignment="Center" Margin="12,0,0,0">
+                            <TextBlock Text="{Binding StageCompletionPct, StringFormat={}{0:F1}%}"
+                                       FontSize="{DynamicResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                        </Viewbox>
                     </Grid>
                 </Border>
             </Grid>
@@ -206,22 +213,22 @@
                                Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap" Margin="0,0,0,8"/>
                     <UniformGrid Columns="6">
                         <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="Pending " FontWeight="{DynamicResource Weight.SemiBold}"/><TextBlock Text="{Binding PendingCount}" Foreground="{DynamicResource AccentBrush}" FontWeight="{DynamicResource Weight.Bold}"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="Pending " FontWeight="{DynamicResource Weight.SemiBold}"/><Viewbox MaxHeight="18"><TextBlock Text="{Binding PendingCount}" Foreground="{DynamicResource AccentBrush}" FontWeight="{DynamicResource Weight.Bold}"/></Viewbox></StackPanel>
                         </Border>
                         <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="In Progress " FontWeight="{DynamicResource Weight.SemiBold}"/><TextBlock Text="{Binding InProgressCount}" Foreground="{DynamicResource InfoBrush}" FontWeight="{DynamicResource Weight.Bold}"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="In Progress " FontWeight="{DynamicResource Weight.SemiBold}"/><Viewbox MaxHeight="18"><TextBlock Text="{Binding InProgressCount}" Foreground="{DynamicResource InfoBrush}" FontWeight="{DynamicResource Weight.Bold}"/></Viewbox></StackPanel>
                         </Border>
                         <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="Completed " FontWeight="{DynamicResource Weight.SemiBold}"/><TextBlock Text="{Binding CompletedCount}" Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.Bold}"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="Completed " FontWeight="{DynamicResource Weight.SemiBold}"/><Viewbox MaxHeight="18"><TextBlock Text="{Binding CompletedCount}" Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.Bold}"/></Viewbox></StackPanel>
                         </Border>
                         <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="Rework " FontWeight="{DynamicResource Weight.SemiBold}"/><TextBlock Text="{Binding ReworkCount}" Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.Bold}"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="Rework " FontWeight="{DynamicResource Weight.SemiBold}"/><Viewbox MaxHeight="18"><TextBlock Text="{Binding ReworkCount}" Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.Bold}"/></Viewbox></StackPanel>
                         </Border>
                         <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="QC Pending " FontWeight="{DynamicResource Weight.SemiBold}"/><TextBlock Text="{Binding QcPendingCount}" Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.Bold}"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="QC Pending " FontWeight="{DynamicResource Weight.SemiBold}"/><Viewbox MaxHeight="18"><TextBlock Text="{Binding QcPendingCount}" Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.Bold}"/></Viewbox></StackPanel>
                         </Border>
                         <Border Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
-                            <StackPanel Orientation="Horizontal"><TextBlock Text="Ready " FontWeight="{DynamicResource Weight.SemiBold}"/><TextBlock Text="{Binding ReadyCount}" Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.Bold}"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock Text="Ready " FontWeight="{DynamicResource Weight.SemiBold}"/><Viewbox MaxHeight="18"><TextBlock Text="{Binding ReadyCount}" Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.Bold}"/></Viewbox></StackPanel>
                         </Border>
                     </UniformGrid>
                 </StackPanel>

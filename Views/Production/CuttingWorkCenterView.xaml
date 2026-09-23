@@ -55,37 +55,49 @@
                     <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Pending" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,6,0"/>
-                            <TextBlock Text="{Binding PendingCount}" Foreground="{DynamicResource AccentBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            <Viewbox MaxHeight="18">
+                                <TextBlock Text="{Binding PendingCount}" Foreground="{DynamicResource AccentBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="In Progress" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,6,0"/>
-                            <TextBlock Text="{Binding InProgressCount}" Foreground="{DynamicResource InfoBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            <Viewbox MaxHeight="18">
+                                <TextBlock Text="{Binding InProgressCount}" Foreground="{DynamicResource InfoBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Completed" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,6,0"/>
-                            <TextBlock Text="{Binding CompletedCount}" Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            <Viewbox MaxHeight="18">
+                                <TextBlock Text="{Binding CompletedCount}" Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Rework" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,6,0"/>
-                            <TextBlock Text="{Binding ReworkCount}" Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            <Viewbox MaxHeight="18">
+                                <TextBlock Text="{Binding ReworkCount}" Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Margin="0,0,8,0" Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="QC Pending" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,6,0"/>
-                            <TextBlock Text="{Binding QcPendingCount}" Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            <Viewbox MaxHeight="18">
+                                <TextBlock Text="{Binding QcPendingCount}" Foreground="{DynamicResource WarningBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Padding="10,6" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource SurfaceSecondaryBrush}" Style="{StaticResource SurfaceSecondaryStyle}">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Ready" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,6,0"/>
-                            <TextBlock Text="{Binding ReadyCount}" Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            <Viewbox MaxHeight="18">
+                                <TextBlock Text="{Binding ReadyCount}" Foreground="{DynamicResource SuccessBrush}" FontWeight="{DynamicResource Weight.Bold}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                 </StackPanel>

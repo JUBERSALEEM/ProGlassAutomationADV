@@ -118,8 +118,10 @@
                                 Padding="12,8" Margin="0,0,6,8" MinHeight="72">
                             <StackPanel>
                                 <TextBlock Text="TOTAL" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding SelectedUnitTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Viewbox>
                                 <TextBlock Text="{Binding HeroMetricCaption}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
@@ -130,8 +132,10 @@
                                 Padding="12,8" Margin="6,0,0,8" MinHeight="72">
                             <StackPanel>
                                 <TextBlock Text="DONE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding SelectedUnitDoneLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitDoneLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                                 <TextBlock Text="marked completed" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
@@ -142,8 +146,10 @@
                                 Padding="12,8" Margin="0,0,6,0" MinHeight="72">
                             <StackPanel>
                                 <TextBlock Text="BALANCE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding SelectedUnitBalanceLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitBalanceLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Viewbox>
                                 <TextBlock Text="remaining at this stage" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
@@ -154,8 +160,10 @@
                                 Padding="12,8" Margin="6,0,0,0" MinHeight="72">
                             <StackPanel>
                                 <TextBlock Text="COMPLETED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding SelectedUnitCompletedPctLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitCompletedPctLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Viewbox>
                                 <TextBlock Text="of job progress" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
@@ -301,10 +309,14 @@
                                 <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
-                                <TextBlock Grid.Column="4" Text="{Binding CompletedTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Grid.Column="5" Text="{Binding CompletedDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox Grid.Column="4" MaxHeight="18">
+                                    <TextBlock Text="{Binding CompletedTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Viewbox>
+                                <Viewbox Grid.Column="5" MaxHeight="18">
+                                    <TextBlock Text="{Binding CompletedDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </Grid>
                         </Border>
                     </StackPanel>

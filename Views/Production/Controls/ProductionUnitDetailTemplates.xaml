@@ -108,13 +108,21 @@
                             <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
                                        VerticalAlignment="Center" Margin="6,0,0,0"/>
-                            <TextBlock Grid.Column="4" Text="{Binding OuterTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Grid.Column="5" Text="{Binding OuterQtySum}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                            <TextBlock Grid.Column="6" Text="{Binding OuterDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
-                            <TextBlock Grid.Column="7" Text="{Binding OuterBalanceSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                            <Viewbox Grid.Column="4" MaxHeight="18">
+                                <TextBlock Text="{Binding OuterTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
+                            <Viewbox Grid.Column="5" MaxHeight="18">
+                                <TextBlock Text="{Binding OuterQtySum}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                            </Viewbox>
+                            <Viewbox Grid.Column="6" MaxHeight="18">
+                                <TextBlock Text="{Binding OuterDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                            </Viewbox>
+                            <Viewbox Grid.Column="7" MaxHeight="18">
+                                <TextBlock Text="{Binding OuterBalanceSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                            </Viewbox>
                         </Grid>
                     </Border>
                 </StackPanel>
@@ -217,13 +225,21 @@
                             <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
                                        VerticalAlignment="Center" Margin="6,0,0,0"/>
-                            <TextBlock Grid.Column="4" Text="{Binding InnerTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Grid.Column="5" Text="{Binding InnerQtySum}" Style="{StaticResource LineItemsReadonlyStyle}"/>
-                            <TextBlock Grid.Column="6" Text="{Binding InnerDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
-                            <TextBlock Grid.Column="7" Text="{Binding InnerBalanceSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                            <Viewbox Grid.Column="4" MaxHeight="18">
+                                <TextBlock Text="{Binding InnerTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </Viewbox>
+                            <Viewbox Grid.Column="5" MaxHeight="18">
+                                <TextBlock Text="{Binding InnerQtySum}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                            </Viewbox>
+                            <Viewbox Grid.Column="6" MaxHeight="18">
+                                <TextBlock Text="{Binding InnerDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                            </Viewbox>
+                            <Viewbox Grid.Column="7" MaxHeight="18">
+                                <TextBlock Text="{Binding InnerBalanceSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                            </Viewbox>
                         </Grid>
                     </Border>
                 </StackPanel>

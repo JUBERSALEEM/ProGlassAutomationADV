@@ -39,7 +39,9 @@
                 </Border>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="In queue" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                    <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    </Viewbox>
                 </StackPanel>
             </StackPanel>
 
@@ -54,7 +56,9 @@
                 </Border>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="Pending" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                    <TextBlock Text="{Binding PendingCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding PendingCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    </Viewbox>
                     <TextBlock Text="{Binding PendingPiecesHint}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </StackPanel>
@@ -70,7 +74,9 @@
                 </Border>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="In progress" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                    <TextBlock Text="{Binding InProgressCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding InProgressCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    </Viewbox>
                     <TextBlock Text="{Binding InProgressPiecesHint}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </StackPanel>
@@ -86,7 +92,9 @@
                 </Border>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="Completed" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                    <TextBlock Text="{Binding CompletedCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding CompletedCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    </Viewbox>
                     <TextBlock Text="{Binding CompletedPiecesHint}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </StackPanel>
@@ -102,7 +110,9 @@
                 </Border>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="Load" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                    <TextBlock Text="{Binding AreaTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding AreaTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    </Viewbox>
                     <TextBlock Text="{Binding MetricTotalLabel}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                 </StackPanel>
             </StackPanel>
@@ -120,7 +130,9 @@
                 </Border>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="Ready for dispatch" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                    <TextBlock Text="{Binding UnitsReadyLabel}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                        <TextBlock Text="{Binding UnitsReadyLabel}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                    </Viewbox>
                 </StackPanel>
             </StackPanel>
         </Grid>

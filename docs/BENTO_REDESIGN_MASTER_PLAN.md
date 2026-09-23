@@ -114,7 +114,7 @@ Views in Bento Transformation Plan:       236
 | **3** | Centers, Diagnostics & System Hubs | Company Center, User Center, System Center, Diagnostics, Crash, About, AI Chat | 19 | **COMPLETED** |
 | **4** | Core ERP Document Details & Trans. | DeliveryNote, JobOrder, TaxInvoice Details & Inquiry Editor | 25 | **COMPLETED** |
 | **5** | Proforma Invoice Wizard & Estimator | Proforma 13-Step Wizard (Steps 1–9), Pricing Parameters, Approval Dialogs | 26 | **COMPLETED** |
-| **6** | Factory Production & Operations | Cutting, Tempering, Polish, Lamination Work Centers & Pipeline Bars | 18 | **PENDING** |
+| **6** | Factory Production & Operations | Cutting, Tempering, Polish, Lamination Work Centers & Pipeline Bars | 18 | **COMPLETED** |
 | **7** | Cutting Optimization & SheetStore | 2D Optimization Tabs (8 Tabs), SheetStore Warehouse & Inventory Dialogs | 17 | **PENDING** |
 | **8** | Reports Hub & Statement Generators | Executive & Domain Reports (14), Order Report Pipeline, Statement Generator | 32 | **PENDING** |
 | **9** | Job Profitability & Personal Glass | Job Profitability Analytics (6), Personal Glass Workspace (13 views) | 19 | **PENDING** |
@@ -289,8 +289,8 @@ Views in Bento Transformation Plan:       236
 ---
 
 ### Phase 6: Factory Floor Production Work Centers & Controls (18 Views)
-**Status**: `PENDING`  
-**Focus**: Industrial work center screens (Cutting, Tempering, Polish, Mitring, Doubling) converted into Bento live-status decks with `Ov.CardMicro` metrics and state indicators.
+**Status**: `COMPLETED`  
+**Focus**: Industrial work center screens (Cutting, Tempering, Polish, Mitring, Doubling) converted into Bento live-status decks with `Ov.CardMicro` metrics, responsive Viewbox tabular KPIs across `ProductionKpiStrip`, `CuttingWorkCenterView`, `ProcessWorkCenterView`, `ProductionControlCenterView`, and `ProductionUnitDetailControl`. Zero concentric nesting.
 
 #### File Manifest:
 1. `Views/Production/CuttingView.xaml`

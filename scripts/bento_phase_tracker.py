@@ -191,7 +191,7 @@ PHASES = {
     },
     6: {
         'name': 'Factory Floor Production Work Centers & Controls',
-        'status': 'PENDING',
+        'status': 'COMPLETED',
         'files': [
             'Views/Production/CuttingView.xaml',
             'Views/Production/CuttingWorkCenterView.xaml',
