@@ -48,12 +48,13 @@
                         <TextBlock Text="{DynamicResource Common.Delivered}"
                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Margin="0,4,0,0">
-                            <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
-                            <Run Text=" pcs"/>
-                        </TextBlock>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
+                                <Run Text=" pcs"/>
+                            </TextBlock>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
 
@@ -66,12 +67,13 @@
                         <TextBlock Text="{DynamicResource Common.Invoiced}"
                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Margin="0,4,0,0">
-                            <Run Text="{Binding InvoicedQty, Mode=OneWay}"/>
-                            <Run Text=" pcs"/>
-                        </TextBlock>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                <Run Text="{Binding InvoicedQty, Mode=OneWay}"/>
+                                <Run Text=" pcs"/>
+                            </TextBlock>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
 
@@ -84,12 +86,13 @@
                         <TextBlock Text="{DynamicResource Reports.Missing}"
                                    FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Margin="0,4,0,0">
-                            <Run Text="{Binding UninvoicedDeliveredQty, Mode=OneWay}"/>
-                            <Run Text=" pcs"/>
-                        </TextBlock>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}">
+                                <Run Text="{Binding UninvoicedDeliveredQty, Mode=OneWay}"/>
+                                <Run Text=" pcs"/>
+                            </TextBlock>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
             </Grid>

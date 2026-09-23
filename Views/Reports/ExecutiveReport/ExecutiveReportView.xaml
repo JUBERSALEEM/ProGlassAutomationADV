@@ -92,7 +92,9 @@
                                     <Border Style="{StaticResource ModuleListRowStyle}" Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Margin="0,0,8,0">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                            <TextBlock Text="{Binding Value}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{Binding BrushKey, Converter={StaticResource BrushKeyConverter}}" Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/>
+                                            <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,6,0,0">
+                                                <TextBlock Text="{Binding Value}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{Binding BrushKey, Converter={StaticResource BrushKeyConverter}}" TextTrimming="CharacterEllipsis"/>
+                                            </Viewbox>
                                             <TextBlock Text="{Binding Subtitle}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>
@@ -180,7 +182,9 @@
                                     <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource Radius.Large}" Padding="16,14" Margin="0,0,8,0">
                                         <StackPanel>
                                             <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                            <TextBlock Text="{Binding Value}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{Binding BrushKey, Converter={StaticResource BrushKeyConverter}}" Margin="0,6,0,0"/>
+                                            <Viewbox MaxHeight="28" HorizontalAlignment="Left" Margin="0,6,0,0">
+                                                <TextBlock Text="{Binding Value}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{Binding BrushKey, Converter={StaticResource BrushKeyConverter}}"/>
+                                            </Viewbox>
                                             <TextBlock Text="{Binding Subtitle}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </Border>

@@ -191,35 +191,45 @@
                     <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="Ordered (pcs)" Style="{StaticResource KpiLabel}"/>
-                            <TextBlock Text="{Binding LastBundle.TotalOrderedQty}" Style="{StaticResource KpiValue}"/>
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding LastBundle.TotalOrderedQty}" Style="{StaticResource KpiValue}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="Delivered (pcs)" Style="{StaticResource KpiLabel}"/>
-                            <TextBlock Text="{Binding LastBundle.TotalDeliveredQty}" Style="{StaticResource KpiValue}"
-                                       Foreground="{DynamicResource SuccessBrush}"/>
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding LastBundle.TotalDeliveredQty}" Style="{StaticResource KpiValue}"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="4" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="Invoiced (pcs)" Style="{StaticResource KpiLabel}"/>
-                            <TextBlock Text="{Binding LastBundle.TotalInvoicedQty}" Style="{StaticResource KpiValue}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding LastBundle.TotalInvoicedQty}" Style="{StaticResource KpiValue}"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="6" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="Invoiced Value" Style="{StaticResource KpiLabel}"/>
-                            <TextBlock Text="{Binding LastBundle.TotalInvoicedValue, StringFormat=AED {0:N2}}"
-                                       Style="{StaticResource KpiValue}"/>
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding LastBundle.TotalInvoicedValue, StringFormat=AED {0:N2}}"
+                                           Style="{StaticResource KpiValue}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="8" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <TextBlock Text="Missing Documents" Style="{StaticResource KpiLabel}"/>
-                            <TextBlock Text="{Binding LastBundle.TotalMissingDocuments}" Style="{StaticResource KpiValue}"
-                                       Foreground="{DynamicResource DangerBrush}"/>
+                            <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding LastBundle.TotalMissingDocuments}" Style="{StaticResource KpiValue}"
+                                           Foreground="{DynamicResource DangerBrush}"/>
+                            </Viewbox>
                         </StackPanel>
                     </Border>
                 </Grid>

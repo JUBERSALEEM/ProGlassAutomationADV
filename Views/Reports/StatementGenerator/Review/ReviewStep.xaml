@@ -247,46 +247,58 @@
                 <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Invoiced}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.TotalInvoiced, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.TotalInvoiced, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="VAT" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentDarkBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.TotalVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.TotalVat, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="4" Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource SuccessBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="PAID" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.TotalPaid, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.TotalPaid, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="6" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Outstanding}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.TotalOutstanding, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.TotalOutstanding, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="8" Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="{Binding LastFinancial.OverdueAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding LastFinancial.OverdueAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="10" Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.TotalQTYSQM}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                        <TextBlock FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,4,0,0">
-                            <Run Text="{Binding LastFinancial.TotalQty, Mode=OneWay}"/>
-                            <Run Text="{DynamicResource Reports.StatementGenerator.Pcs}"/>
-                            <!-- AREA FIX: an area ran through the CURRENCY converter, so this KPI
-                                 read "AED 45.70 m²". ConverterParameter=area renders the
-                                 number with its unit and no token (the converter header
-                                 documents exactly this trap; JoReport/PiReport/TaxInvoice
-                                 already use it), so the literal " m²" Run goes. -->
-                            <Run Text="{Binding LastFinancial.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"/>
-                        </TextBlock>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}">
+                                <Run Text="{Binding LastFinancial.TotalQty, Mode=OneWay}"/>
+                                <Run Text="{DynamicResource Reports.StatementGenerator.Pcs}"/>
+                                <!-- AREA FIX: an area ran through the CURRENCY converter, so this KPI
+                                     read "AED 45.70 m²". ConverterParameter=area renders the
+                                     number with its unit and no token (the converter header
+                                     documents exactly this trap; JoReport/PiReport/TaxInvoice
+                                     already use it), so the literal " m²" Run goes. -->
+                                <Run Text="{Binding LastFinancial.TotalSqm, Mode=OneWay, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"/>
+                            </TextBlock>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
             </Grid>

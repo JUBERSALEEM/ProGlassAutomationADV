@@ -73,7 +73,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.DeliveryReport.TotalQTY}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalOrderedQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalOrderedQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{Binding OrderedText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -87,7 +89,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Common.Delivered}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalDeliveredQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalDeliveredQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{Binding DeliveredText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -101,7 +105,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Common.Balance}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalRemainingQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalRemainingQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{Binding BalanceText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -115,7 +121,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.DeliveryReport.Completion}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.CompletionPct, StringFormat={}{0:0.0}%}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.CompletionPct, StringFormat={}{0:0.0}%}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{Binding CompletionText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -588,21 +596,27 @@
                                                 Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                             <StackPanel>
                                                 <TextBlock Text="TOTAL" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
-                                                <TextBlock Text="{Binding SelectedRow.TotalQty}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2,0,0"/>
+                                                <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,2,0,0">
+                                                    <TextBlock Text="{Binding SelectedRow.TotalQty}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                </Viewbox>
                                             </StackPanel>
                                         </Border>
                                         <Border Grid.Column="1" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10" Margin="4,0,4,10"
                                                 Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Common.Delivered}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
-                                                <TextBlock Text="{Binding SelectedRow.DeliveredQty}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
+                                                <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,2,0,0">
+                                                    <TextBlock Text="{Binding SelectedRow.DeliveredQty}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                                </Viewbox>
                                             </StackPanel>
                                         </Border>
                                         <Border Grid.Column="2" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10" Margin="4,0,0,10"
                                                 Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}">
                                             <StackPanel>
                                                 <TextBlock Text="{DynamicResource Common.Balance}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
-                                                <TextBlock Text="{Binding SelectedRow.BalanceQty}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}" Margin="0,2,0,0"/>
+                                                <Viewbox MaxHeight="26" HorizontalAlignment="Left" Margin="0,2,0,0">
+                                                    <TextBlock Text="{Binding SelectedRow.BalanceQty}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                                                </Viewbox>
                                             </StackPanel>
                                         </Border>
                                     </Grid>

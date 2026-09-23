@@ -60,7 +60,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="SALESMEN" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalSalesmen}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalSalesmen}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="{Binding TotalConfirmedPi, Mode=OneWay}"/><Run Text=" confirmed PIs"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
@@ -74,7 +76,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="CONFIRMED REVENUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalRevenue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalRevenue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Text="approved / issued quotes" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -88,7 +92,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="TOP PERFORMER" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TopPerformer}" Style="{StaticResource ModuleListKpiValueStyle}" TextTrimming="CharacterEllipsis"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TopPerformer}" Style="{StaticResource ModuleListKpiValueStyle}" TextTrimming="CharacterEllipsis"/>
+                                </Viewbox>
                                 <TextBlock Text="by confirmed revenue" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -102,7 +108,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="RECORDS" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{Binding PageDisplay}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>

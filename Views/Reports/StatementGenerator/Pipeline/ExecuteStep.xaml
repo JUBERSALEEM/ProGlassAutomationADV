@@ -210,10 +210,12 @@
 
                     <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding OrderedQtyDisplay}"
-                                       FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource MetricOrdered}"
-                                       HorizontalAlignment="Center"/>
+                            <Viewbox MaxHeight="32" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding OrderedQtyDisplay}"
+                                           FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource MetricOrdered}"
+                                           HorizontalAlignment="Center"/>
+                            </Viewbox>
                             <TextBlock Text="{DynamicResource Common.Ordered}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextSecondary}"
@@ -224,10 +226,12 @@
 
                     <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding DeliveredQtyDisplay}"
-                                       FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource MetricDelivered}"
-                                       HorizontalAlignment="Center"/>
+                            <Viewbox MaxHeight="32" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding DeliveredQtyDisplay}"
+                                           FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource MetricDelivered}"
+                                           HorizontalAlignment="Center"/>
+                            </Viewbox>
                             <TextBlock Text="{DynamicResource Common.Delivered}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextSecondary}"
@@ -238,10 +242,12 @@
 
                     <Border Grid.Column="4" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding BalanceQtyDisplay}"
-                                       FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource MetricBalance}"
-                                       HorizontalAlignment="Center"/>
+                            <Viewbox MaxHeight="32" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding BalanceQtyDisplay}"
+                                           FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource MetricBalance}"
+                                           HorizontalAlignment="Center"/>
+                            </Viewbox>
                             <TextBlock Text="{DynamicResource Common.Balance}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextSecondary}"
@@ -252,10 +258,12 @@
 
                     <Border Grid.Column="6" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding DeliveryRateDisplay}"
-                                       FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource MetricRate}"
-                                       HorizontalAlignment="Center"/>
+                            <Viewbox MaxHeight="32" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding DeliveryRateDisplay}"
+                                           FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource MetricRate}"
+                                           HorizontalAlignment="Center"/>
+                            </Viewbox>
                             <TextBlock Text="{DynamicResource Common.Rate}"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextSecondary}"

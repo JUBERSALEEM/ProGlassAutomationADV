@@ -57,7 +57,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="PROJECTS" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalProjects}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalProjects}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="{Binding SavedProjectCount, Mode=OneWay}"/><Run Text=" on file"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
@@ -70,7 +72,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="OUTSTANDING" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalOutstanding, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalOutstanding, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Text="balance due" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -83,7 +87,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="PI VALUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalPiValue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalPiValue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Text="quoted" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -96,7 +102,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="INVOICED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalInvoiced, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalInvoiced, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Text="{Binding PageDisplay}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>

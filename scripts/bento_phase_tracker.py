@@ -238,7 +238,7 @@ PHASES = {
     },
     8: {
         'name': 'Reports Hub, Executive Analytics & Statement Generators',
-        'status': 'PENDING',
+        'status': 'COMPLETED',
         'files': [
             'Views/Reports/SalesReportView.xaml',
             'Views/Reports/CompanyReport/CompanyReportView.xaml',

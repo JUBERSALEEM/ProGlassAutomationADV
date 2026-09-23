@@ -184,10 +184,11 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Invoiced}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="{Binding PreviewVM.TotalInvoicedDisplay}"
-                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding PreviewVM.TotalInvoicedDisplay}"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2"
@@ -199,10 +200,11 @@
                     <StackPanel>
                         <TextBlock Text="VAT" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentDarkBrush}"/>
-                        <TextBlock Text="{Binding PreviewVM.TotalVatDisplay}"
-                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding PreviewVM.TotalVatDisplay}"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="4"
@@ -214,10 +216,11 @@
                     <StackPanel>
                         <TextBlock Text="PAID" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource SuccessBrush}"/>
-                        <TextBlock Text="{Binding PreviewVM.TotalPaidDisplay}"
-                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding PreviewVM.TotalPaidDisplay}"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="6"
@@ -229,10 +232,11 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Outstanding}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text="{Binding PreviewVM.TotalOutstandingDisplay}"
-                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding PreviewVM.TotalOutstandingDisplay}"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="8"
@@ -244,10 +248,11 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource Common.Overdue}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="{Binding PreviewVM.OverdueAmountDisplay}"
-                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   Margin="0,4,0,0"/>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding PreviewVM.OverdueAmountDisplay}"
+                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="10"
@@ -259,15 +264,17 @@
                     <StackPanel>
                         <TextBlock Text="{DynamicResource DeliveryNote.Attachments}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource AccentBrush}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding PreviewVM.SelectedAttachmentCount}"
-                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="{DynamicResource Reports.StatementGenerator.Files}" FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="4,2,0,0"/>
-                        </StackPanel>
+                        <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding PreviewVM.SelectedAttachmentCount}"
+                                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Reports.StatementGenerator.Files}" FontSize="{DynamicResource FontSize.Body}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="4,2,0,0"/>
+                            </StackPanel>
+                        </Viewbox>
                     </StackPanel>
                 </Border>
             </Grid>
