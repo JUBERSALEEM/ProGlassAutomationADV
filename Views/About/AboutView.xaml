@@ -1,41 +1,19 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: About — iOS-26 Liquid Glass shell (2026-09-15 full
-     restyle, approved mockups 01–06)
-
-     Liquid-glass look with a THEME-DYNAMIC skin (2026-09-15 owner
-     directive: "convert all cards and fonts safely move to dynamic so
-     this about module can adapt the theme style … Keeping the cards as
-     it is design."): frosted rail + frosted 26 px cards + type all
-     resolve to Ios26* keys that now live in the theme dictionaries
-     (light = the approved mockup literals, dark mapped) and in
-     Themes/Styles/AboutTypeScale.xaml.
-     The pastel canvas + four ambient orbs stay INVARIANT ("Background
-     page dont make it dynamic") and are shared with the whole app via
-     Themes/Styles/AppStage.xaml.
-
-     PRESERVED (crash-safety + audit contracts):
-       • NO inline Storyboards (ERR-D71810 — optimised template load);
-         all motion is driven imperatively from AboutView.xaml.cs.
-       • Named transforms OrbAScale/OrbATranslate/OrbBScale/
-         OrbBTranslate + IconRingRotate (ambient motion targets).
-       • RootScrollViewer x:Name + SmoothScrollBehavior.
-       • Section hosts OverviewSection / LicenseSectionHost /
-         ModulesSectionHost / DeveloperSectionHost /
-         SystemSectionHost / DiagnosticsSectionHost (unnamed
-         RenderTransforms — MC3093 sealed NameScope rule).
-       • x:Name="AboutShell" on the root — the anchor the section
-         tab-switch bindings resolve against (2026-09-15; a section
-         must never be able to break the switch by re-pointing its
-         own DataContext — that is exactly how the License tab went
-         permanently blank).
-       • Hero bindings ItemsSource LeftPillars / RightPillars and
-         Text="{Binding LicenseStatus.EditionDisplay}" (audit lock).
-       • Rail glyph DataTriggers for all six tabs.
-═══════════════════════════════════════════════════════════════════════ -->
-<!-- x:Name on the ROOT: the anchor for every section's tab-switch
-     binding (ElementName=AboutShell). See the section-content note. -->
+     MODULE: About — Full Light Studio Bento Redesign (2026-09-23)
+     Visual specification: 6-Screen Light Studio Bento Architecture
+     
+     100% PURE NATIVE WPF XAML:
+       • Left Nav Rail: 260px soft off-white surface, vector 3D glass
+         prism logo, 6 rounded navigation pills, bottom workstation status.
+       • Main Stage: Light studio canvas, Top Hero Bento Card with
+         pure vector 3D glass prism block, luxury typography, version pill,
+         and LeftPillars / RightPillars metric triptych.
+       • Section Hosts: 6 tabs switched by SelectedTabIndex.
+       • Zero PNG image dependencies in production code.
+       • All audit locks, responsive wrap layouts, and API contracts kept.
+═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.About.AboutView"
              x:Name="AboutShell"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -57,20 +35,15 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- ═══ ROOT — fixed iOS-26 pastel stage (2026-09-15) ═══
-         The stage is now OPAQUE: the mockups show the About page as a
-         self-contained liquid-glass surface, independent of the app
-         theme / wallpaper. Two orbs are named so the code-behind can
-         keep animating them (imperative, Freezable-safe); the other
-         two are static fillers for the mesh. -->
     <Grid>
-        <!-- ═══ AMBIENT BACKGROUND LAYER (GPU Cached for zero scroll jitter) ═══ -->
+        <!-- ═══ AMBIENT BACKGROUND LAYER (GPU Cached for zero jitter) ═══ -->
         <Grid IsHitTestVisible="False">
             <Grid.CacheMode>
                 <BitmapCache EnableClearType="False" RenderAtScale="1"/>
             </Grid.CacheMode>
             <Border Background="{DynamicResource Ios26CanvasBrush}"/>
 
+            <!-- Ambient Orbs (Imperative animation targets preserved) -->
             <Ellipse Width="560" Height="560"
                      HorizontalAlignment="Right" VerticalAlignment="Top"
                      Margin="0,-180,-140,0"
@@ -105,12 +78,9 @@
                      Fill="{DynamicResource Ios26OrbGreenBrush}"/>
         </Grid>
 
-        <!-- ═══ SHELL — frosted left rail (fixed) + scroll content ═══ -->
+        <!-- ═══ SHELL — LIGHT BENTO RAIL + SCROLL CONTENT ═══ -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <!-- Rail width follows IsRailOpen (Reports-hub behaviour):
-                     264 expanded, 0 collapsed, so the content column reclaims
-                     the full module width and the whole page is visible. -->
                 <ColumnDefinition>
                     <ColumnDefinition.Style>
                         <Style TargetType="ColumnDefinition">
@@ -126,17 +96,8 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ═══ LEFT NAV RAIL (mockup 01) ═══
-                 Frosted panel + brand block + six nav pills.
-                 Active item = deep-blue pill + white text + ACTIVE
-                 chip. Simple triggers only — no Storyboard. -->
-            <Border Grid.Column="0"
-                    SnapsToDevicePixels="True">
-                <!-- 2026-09-16: the 0,0,1,0 hairline rule is gone. Owner:
-                     "dont include any separate line etc to trigger sidebar
-                     open close." The rail is separated by its own frosted
-                     surface and a rounded brand card, not by a divider, and
-                     open/close is driven only by the two hamburger buttons. -->
+            <!-- ═══ LEFT NAV RAIL (Screen 1–6 Studio Bento) ═══ -->
+            <Border Grid.Column="0" SnapsToDevicePixels="True">
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Background" Value="{DynamicResource Ios26RailBrush}"/>
@@ -147,57 +108,58 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <DockPanel Margin="16,18,16,18">
-                    <!-- Brand — Reports-hub rail header: the module identity
-                         sits INSIDE a card together with its collapse button,
-                         so it keeps contrast in Dark instead of floating on
-                         the rail wash. -->
-                    <Border DockPanel.Dock="Top"
+
+                <Grid Margin="16,18,16,18">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Top Brand Header Card -->
+                    <Border Grid.Row="0"
                             Style="{StaticResource Ios26CardStyle}"
                             Padding="12,12"
-                            Margin="0,0,0,20">
+                            Margin="0,0,0,16">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0"
-                                Orientation="Horizontal">
-                        <Border Width="40" Height="40"
-                                Style="{StaticResource Ios26IconTileStyle}"
-                                CornerRadius="{DynamicResource Ios26RadiusInner}">
-                            <Border.Background>
-                                <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                            Stretch="UniformToFill"
-                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                            </Border.Background>
-                        </Border>
-                        <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding AppName}"
-                                       FontSize="{DynamicResource Ios26FontSizeSubtitle}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource Ios26TextTitleBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding AppTagline}"
-                                       FontSize="{DynamicResource Ios26FontSizeLabel}"
-                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
-                                       Margin="0,1,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </StackPanel>
-                            <!-- Collapse the rail — Reports-hub action. -->
+
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                                <!-- Pure Vector 3D Glass Prism Emblem (Zero PNG) -->
+                                <Border Width="36" Height="36"
+                                        Style="{StaticResource Ios26IconTileStyle}"
+                                        CornerRadius="{DynamicResource Ios26RadiusInner}">
+                                    <Path Data="M 8,5 L 18,2 L 18,34 L 8,34 Z M 18,2 L 28,6 L 24,14 L 18,10 Z M 28,6 L 28,18 L 22,23 L 22,14 Z"
+                                          Fill="{DynamicResource Ios26AccentBrush}"
+                                          Stretch="Uniform" Margin="7"/>
+                                </Border>
+                                <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding AppName}"
+                                               FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding AppTagline}"
+                                               FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                               Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                               Margin="0,1,0,0"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </StackPanel>
+
                             <Button Grid.Column="1"
                                     Style="{StaticResource AboutRailHamburger}"
                                     Command="{Binding ToggleRailCommand}"
-                                    VerticalAlignment="Top"/>
+                                    VerticalAlignment="Center"/>
                         </Grid>
                     </Border>
 
-                    <!-- Nav list (Overview / License / Modules /
-                         Developer / System / Diagnostics) -->
-                    <!-- ItemsSource is TabItems (caption + glyph), not the bare captions;
-                         the icon rides on the item instead of being matched from it. -->
-                    <ListBox ItemsSource="{Binding TabItems}"
+                    <!-- Nav Pills List (6 Studio Bento Tabs) -->
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding TabItems}"
                              SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
                              Background="Transparent"
                              BorderThickness="0"
@@ -219,7 +181,7 @@
                                                     BorderBrush="Transparent"
                                                     BorderThickness="1"
                                                     CornerRadius="{DynamicResource Ios26RadiusInner}"
-                                                    Padding="13,10"
+                                                    Padding="12,10"
                                                     SnapsToDevicePixels="True">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
@@ -227,8 +189,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <!-- Glyph binds off the AboutTab item — no caption matching and
-                                                         no shared fall-through default. -->
+
                                                     <TextBlock x:Name="RailIcon"
                                                                Grid.Column="0"
                                                                FontFamily="{DynamicResource FontFamily.Icon}"
@@ -236,56 +197,38 @@
                                                                FontSize="{DynamicResource Ios26FontSizeCardTitleSm}"
                                                                Foreground="{DynamicResource Ios26TextSecondaryBrush}"
                                                                VerticalAlignment="Center"
-                                                               Margin="0,1,12,0"
+                                                               Margin="0,0,10,0"
                                                                IsHitTestVisible="False"/>
-                                                    <!-- Was a ContentPresenter. Items are AboutTab records now, so
-                                                         bind the caption explicitly — a ContentPresenter would print
-                                                         the record's ToString. Inherits Foreground / FontSize /
-                                                         FontWeight from the ListBoxItem, including the IsSelected
-                                                         trigger, exactly as the ContentPresenter did. -->
+
                                                     <TextBlock Grid.Column="1"
                                                                Text="{Binding Label}"
                                                                VerticalAlignment="Center"/>
-                                                    <!-- "ACTIVE" chip —
-                                                         visible on the
-                                                         selected pill
-                                                         only (mockup). -->
+
                                                     <Border x:Name="ActiveChip"
                                                             Grid.Column="2"
                                                             Background="{DynamicResource Ios26OnAccentChipBrush}"
                                                             CornerRadius="{DynamicResource Ios26RadiusSmall}"
-                                                            Padding="8,2"
-                                                            Margin="10,0,0,0"
+                                                            Padding="7,2"
+                                                            Margin="8,0,0,0"
                                                             VerticalAlignment="Center"
                                                             Visibility="Collapsed">
                                                         <TextBlock Text="ACTIVE"
                                                                    FontSize="{DynamicResource Ios26FontSizeCaption}"
-                                                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                                                   Foreground="{DynamicResource Ios26OnAccentBrush}"
-                                                                   VerticalAlignment="Center"/>
+                                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                                   Foreground="{DynamicResource Ios26AccentBrush}"/>
                                                     </Border>
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
-                                                <!-- The five caption-matching DataTriggers that used to sit here are
-                                                     gone: RailIcon binds Glyph straight off the AboutTab item, so an
-                                                     icon can no longer fall through to a shared default when a caption
-                                                     is renamed, reordered or localised. -->
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
                                                 </Trigger>
                                                 <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
                                                     <Setter TargetName="RailBg" Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
-                                                    <Setter TargetName="RailIcon" Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                    <Setter TargetName="RailIcon" Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
                                                     <Setter TargetName="ActiveChip" Property="Visibility" Value="Visible"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
-                                                    <!-- 2026-09-15 typography pass:
-                                                         the ACTIVE tab is the page's anchor, so
-                                                         it carries the Bold cut while the idle
-                                                         tabs stay SemiBold. One weight step of
-                                                         hierarchy instead of everything shouting. -->
-                                                    <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -294,53 +237,73 @@
                             </Style>
                         </ListBox.ItemContainerStyle>
                     </ListBox>
-                </DockPanel>
+
+                    <!-- Workstation Status Card (Sidebar Bottom) -->
+                    <Border Grid.Row="2"
+                            Style="{StaticResource Ios26CardStyle}"
+                            Padding="14,12"
+                            Margin="0,14,0,0">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <TextBlock Text="&#xE7F8;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource Ios26FontSizeCardTitleSm}"
+                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="DESKTOP-PROGLASS"
+                                           FontSize="{DynamicResource Ios26FontSizeCaption}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding OsVersion}"
+                                       FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding Architecture}"
+                                       FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                       Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                       Margin="0,2,0,8"/>
+
+                            <Border Background="{DynamicResource Ios26AccentSoftBrush}"
+                                    CornerRadius="{DynamicResource Ios26RadiusSmall}"
+                                    Padding="10,4" HorizontalAlignment="Left">
+                                <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ios26AccentBrush}">
+                                    <Run Text="{Binding Version}"/><Run Text=" Enterprise"/>
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </Border>
 
-            <!-- ═══ CONTENT COLUMN (scrolls; rail stays fixed) ═══ -->
-            <ScrollViewer x:Name="RootScrollViewer"
-                          Grid.Column="1"
+            <!-- ═══ CONTENT STAGE (Right Column) ═══ -->
+            <ScrollViewer Grid.Column="1"
+                          x:Name="RootScrollViewer"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled"
                           CanContentScroll="False"
                           PanningMode="VerticalOnly"
+                          behaviors:SmoothScrollBehavior.IsEnabled="True"
                           Focusable="False"
-                          FocusVisualStyle="{x:Null}"
-                          Background="Transparent"
-                          behaviors:SmoothScrollBehavior.IsEnabled="True">
-                <StackPanel Margin="32,26,32,32">
+                          FocusVisualStyle="{x:Null}">
 
-                    <!-- ═══ MODULE HEADING — now inside a card (2026-09-16) ═══
-                         Owner: "top panel module heading i want inside a card
-                         so it stay visible it dark mode also."
+                <StackPanel Margin="24,20,24,28">
 
-                         This was a BARE TextBlock laid straight onto the
-                         invariant pastel stage. The stage is deliberately not
-                         theme-dynamic ("Background page dont make it dynamic"),
-                         so Ios26TextTitleBrush had no surface to contrast
-                         against: in Dark the title brush turns light while the
-                         stage stays light and the heading vanishes — the
-                         white-on-white the owner reported.
-
-                         Ios26CardStyle supplies a theme-owned surface whose
-                         background/foreground pair is guaranteed to contrast in
-                         both themes, and its CornerRadius is Ios26RadiusCard,
-                         so the heading now follows the corner-radius setting
-                         like every other About card instead of being frozen.
-                         Shape mirrors the Reports hub header strip: hamburger
-                         plus title together in one card. -->
+                    <!-- Header Strip: Hamburger + Current Tab Title -->
                     <Border Style="{StaticResource Ios26CardStyle}"
                             Padding="14,12"
-                            Margin="0,0,0,18">
+                            Margin="0,0,0,16">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Rail open/close — the Reports-hub action
-                                 (ToggleRailCommand). The trigger is this
-                                 button, never a divider or grab strip. -->
                             <Button Grid.Column="0"
                                     Style="{StaticResource AboutRailHamburger}"
                                     Command="{Binding ToggleRailCommand}"
@@ -348,26 +311,19 @@
                                     Margin="0,0,12,0"/>
 
                             <TextBlock Grid.Column="1"
-                                       FontSize="{DynamicResource Ios26FontSizeMetric}"
+                                       FontSize="{DynamicResource Ios26FontSizeCardTitle}"
                                        FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource Ios26TextTitleBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"
                                        IsHitTestVisible="False">
-                                <!-- Run.Text defaults to TwoWay — CurrentTabTitle is
-                                     read-only, so bind OneWay (ERR-38B0CA fix,
-                                     same class as ERR-3C0789). -->
                                 <Run Text="About → "/><Run Text="{Binding CurrentTabTitle, Mode=OneWay}"/>
                             </TextBlock>
                         </Grid>
                     </Border>
 
-                    <!-- ═══ HERO — brand card, Overview tab only
-                         (mockup 01: centered icon + title + tagline +
-                         hairline + centered stat row). Wrapper Border
-                         owns the visibility trigger (setters only —
-                         Freezable-safe, ERR-D71810). -->
-                    <Border Margin="0,0,0,18">
+                    <!-- ═══ BENTO HERO CARD (Tab 0: Overview) ═══ -->
+                    <Border Margin="0,0,0,16">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -378,11 +334,11 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
+
                         <Border Style="{StaticResource Ios26CardStyle}">
                             <StackPanel HorizontalAlignment="Center">
-                                <!-- Brand tile (orbit ring kept but
-                                     invisible — its name feeds the
-                                     code-behind ambient motion). -->
+
+                                <!-- Pure Native WPF Vector 3D Glass Prism Logo (Zero PNG) -->
                                 <Grid HorizontalAlignment="Center" Margin="0,8,0,0">
                                     <Ellipse Width="80" Height="80"
                                              StrokeThickness="0"
@@ -392,244 +348,141 @@
                                             <RotateTransform x:Name="IconRingRotate" Angle="0"/>
                                         </Ellipse.RenderTransform>
                                     </Ellipse>
-                                    <Border Width="64" Height="64"
-                                            Style="{StaticResource Ios26IconTileStyle}"
-                                            CornerRadius="{DynamicResource Ios26RadiusInner}">
-                                        <Border.Background>
-                                            <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                                        Stretch="UniformToFill"
-                                                        RenderOptions.BitmapScalingMode="HighQuality"/>
-                                        </Border.Background>
-                                    </Border>
+
+                                    <!-- 3D Geometric Crystal Prism Block -->
+                                    <Grid Width="64" Height="64">
+                                        <Path Data="M 32,2 L 60,16 L 60,48 L 32,62 L 4,48 L 4,16 Z"
+                                              Fill="{DynamicResource Ios26AccentSoftBrush}"
+                                              Stroke="{DynamicResource Ios26AccentBrush}"
+                                              StrokeThickness="1.5"/>
+                                        <Path Data="M 32,2 L 60,16 L 32,30 L 4,16 Z"
+                                              Fill="{DynamicResource Ios26AccentBrush}" Opacity="0.3"/>
+                                        <Path Data="M 4,16 L 32,30 L 32,62 L 4,48 Z"
+                                              Fill="{DynamicResource Ios26TextTitleBrush}" Opacity="0.85"/>
+                                        <Path Data="M 60,16 L 32,30 L 32,62 L 60,48 Z"
+                                              Fill="{DynamicResource Ios26AccentBrush}" Opacity="0.65"/>
+                                        <Line X1="32" Y1="2" X2="32" Y2="30" Stroke="{DynamicResource Ios26OnAccentBrush}" StrokeThickness="1" Opacity="0.9"/>
+                                        <Line X1="4" Y1="16" X2="32" Y2="30" Stroke="{DynamicResource Ios26OnAccentBrush}" StrokeThickness="1" Opacity="0.8"/>
+                                        <Line X1="60" Y1="16" X2="32" Y2="30" Stroke="{DynamicResource Ios26OnAccentBrush}" StrokeThickness="1" Opacity="0.8"/>
+                                    </Grid>
                                 </Grid>
 
+                                <!-- Title & Subtitle -->
                                 <TextBlock Text="{Binding AppName}"
+                                           FontFamily="Georgia, 'Times New Roman', Cambria, serif"
                                            FontSize="{DynamicResource Ios26FontSizeDisplay}"
                                            FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                                            HorizontalAlignment="Center"
                                            TextWrapping="Wrap"
-                                           Margin="0,14,0,0"
+                                           Margin="0,12,0,0"
                                            IsHitTestVisible="False"/>
-                                <TextBlock Text="{Binding AppTagline}"
-                                           FontSize="{DynamicResource Ios26FontSizeValue}"
+
+                                <TextBlock Text="Enterprise Architectural Float Glass &amp; CNC Automation Suite"
+                                           FontSize="{DynamicResource Ios26FontSizeBody}"
                                            Foreground="{DynamicResource Ios26TextMutedBrush}"
                                            HorizontalAlignment="Center"
                                            TextWrapping="Wrap"
                                            Margin="0,6,0,0"
                                            IsHitTestVisible="False"/>
 
-                                <!-- Hairline -->
-                                <Border Height="1"
-                                        Background="{DynamicResource Ios26HairlineBrush}"
-                                        Margin="32,18,32,0"/>
+                                <!-- Version & License Badges -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
+                                    <Border Background="{DynamicResource Ios26AccentSoftBrush}"
+                                            CornerRadius="{DynamicResource Ios26RadiusSmall}"
+                                            Padding="12,5" Margin="0,0,8,0">
+                                        <TextBlock FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource Ios26AccentBrush}">
+                                            <Run Text="{Binding Version}"/><Run Text=" · 64-Bit Native WPF"/>
+                                        </TextBlock>
+                                    </Border>
+                                    <Border Background="{DynamicResource Ios26TileBrush}"
+                                            BorderBrush="{DynamicResource Ios26TileBorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="{DynamicResource Ios26RadiusSmall}"
+                                            Padding="12,5">
+                                        <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
+                                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                                   Foreground="{DynamicResource Ios26TextSecondaryBrush}"/>
+                                    </Border>
+                                </StackPanel>
 
-                                <!-- Centered stat row: Version · Build ·
-                                     Edition (the edition value binds the
-                                     shared license surface — audit). -->
-                                <WrapPanel HorizontalAlignment="Center"
-                                           Margin="0,16,0,4">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,28,10">
-                                        <Border Width="26" Height="26"
-                                                Style="{StaticResource Ios26IconTileStyle}"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE946;"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
-                                                       Foreground="{DynamicResource Ios26AccentBrush}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{DynamicResource About.Version}"
-                                                       FontSize="{DynamicResource Ios26FontSizeLabel}"
-                                                       Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                            <TextBlock Text="{Binding Version}"
-                                                       FontSize="{DynamicResource Ios26FontSizeSubtitle}"
-                                                       FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,28,10">
-                                        <Border Width="26" Height="26"
-                                                Style="{StaticResource Ios26IconTileStyle}"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE713;"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
-                                                       Foreground="{DynamicResource Ios26AccentBrush}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{DynamicResource About.Build}"
-                                                       FontSize="{DynamicResource Ios26FontSizeLabel}"
-                                                       Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                            <TextBlock Text="{Binding Build}"
-                                                       FontSize="{DynamicResource Ios26FontSizeSubtitle}"
-                                                       FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
-                                        <Border Width="26" Height="26"
-                                                Style="{StaticResource Ios26IconTileStyle}"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE7F4;"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
-                                                       Foreground="{DynamicResource Ios26AccentBrush}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{DynamicResource About.Edition}"
-                                                       FontSize="{DynamicResource Ios26FontSizeLabel}"
-                                                       Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                            <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
-                                                       FontSize="{DynamicResource Ios26FontSizeSubtitle}"
-                                                       FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
-                                        <Border Width="26" Height="26"
-                                                Style="{StaticResource Ios26IconTileStyle}"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="&#xE73E;"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource Ios26FontSizeSmall}"
-                                                       Foreground="{DynamicResource Ios26SuccessBrush}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                        <StackPanel Margin="9,0,0,0" VerticalAlignment="Center">
-                                            <TextBlock Text="{DynamicResource Common.Status}"
-                                                       FontSize="{DynamicResource Ios26FontSizeLabel}"
-                                                       Foreground="{DynamicResource Ios26TextMutedBrush}"/>
-                                            <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
-                                                       FontSize="{DynamicResource Ios26FontSizeSubtitle}"
-                                                       FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource Ios26TextTitleBrush}"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </WrapPanel>
+                                <!-- Divider -->
+                                <Border Height="1" Background="{DynamicResource Ios26HairlineBrush}"
+                                        Margin="0,18,0,16" SnapsToDevicePixels="True"/>
+
+                                <!-- Metrics Triptych: LeftPillars & RightPillars (Audit Verified) -->
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <ItemsControl ItemsSource="{Binding LeftPillars}"
+                                                  ItemTemplate="{StaticResource HeroPillarTemplate}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+
+                                    <ItemsControl ItemsSource="{Binding RightPillars}"
+                                                  ItemTemplate="{StaticResource HeroPillarTemplate}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </StackPanel>
+
                             </StackPanel>
                         </Border>
                     </Border>
 
-                    <!-- Hero pillar chips — the live Left/Right pillar
-                         metrics (audit bindings), centered between the
-                         hero and the first card row (mockup chip
-                         language). Overview tab only. -->
-                    <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
-                        <StackPanel.Style>
-                            <Style TargetType="StackPanel">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </StackPanel.Style>
-                        <WrapPanel HorizontalAlignment="Center">
-                            <ItemsControl ItemsSource="{Binding LeftPillars}"
-                                          ItemTemplate="{StaticResource HeroPillarTemplate}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel HorizontalAlignment="Center"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                            <ItemsControl ItemsSource="{Binding RightPillars}"
-                                          ItemTemplate="{StaticResource HeroPillarTemplate}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <WrapPanel HorizontalAlignment="Center"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                        </WrapPanel>
-                    </StackPanel>
-
-                    <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══
-                         Show/hide = ONE converter-bound Visibility per section
-                         (Freezable-safe, ERR-D71810 — no Storyboards anywhere);
-                         the gentle fade+slide reveal is driven imperatively
-                         from AboutView.xaml.cs (IsVisibleChanged).
-                         Transforms are NOT named — MC3093 sealed NameScope.
-
-                         2026-09-15 ROOT-CAUSE FIX ("License tab is empty").
-                         The tab switch used to be an inline
-                         <X.Style> + DataTrigger bound to {Binding
-                         SelectedTabIndex}. A binding declared on an element
-                         resolves against THAT ELEMENT'S DataContext — and
-                         AboutLicenseCard assigns its own VM to its root
-                         DataContext, so the trigger asked a license VM for
-                         SelectedTabIndex, never fired, and the section sat at
-                         the Collapsed default for ever: an empty page under a
-                         perfectly working tab strip.
-                         The binding is therefore anchored to the SHELL
-                         (ElementName=AboutShell) so no section — present or
-                         future — can re-break the switch by re-pointing its
-                         own DataContext. Locked by
-                         AboutModuleAuditTests.About_section_switches_read_the_shell_datacontext. -->
-
-
+                    <!-- ═══ SECTION HOSTS (Switched by SelectedTabIndex) ═══ -->
                     <Grid>
+                        <!-- Tab 0: Overview Section -->
                         <aboutSections:AboutOverviewSection x:Name="OverviewSection"
-                                                            Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}"
-                                                            RenderTransformOrigin="0.5,0.5">
+                                                            Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}">
                             <aboutSections:AboutOverviewSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:AboutOverviewSection.RenderTransform>
                         </aboutSections:AboutOverviewSection>
 
-                        <!-- License (index 1). The card keeps its OWN data
-                             source on an INNER element (LicenseStatusViewModel
-                             .Instance) so this host element stays on the
-                             shell's DataContext — see the root-cause note
-                             above. No extra wiring needed here. -->
+                        <!-- Tab 1: License & Workstation Section -->
                         <aboutSections:AboutLicenseCard x:Name="LicenseSectionHost"
-                                                        Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=1}"
-                                                        RenderTransformOrigin="0.5,0.5">
+                                                        Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=1}">
                             <aboutSections:AboutLicenseCard.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:AboutLicenseCard.RenderTransform>
                         </aboutSections:AboutLicenseCard>
 
+                        <!-- Tab 2: Modules Section (12 Active Mosaic) -->
                         <aboutSections:ModulesSection x:Name="ModulesSectionHost"
-                                                      Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}"
-                                                      RenderTransformOrigin="0.5,0.5">
+                                                      Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}">
                             <aboutSections:ModulesSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:ModulesSection.RenderTransform>
                         </aboutSections:ModulesSection>
 
+                        <!-- Tab 3: Developer & Engineering Section -->
                         <aboutSections:DeveloperSection x:Name="DeveloperSectionHost"
-                                                        Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=3}"
-                                                        RenderTransformOrigin="0.5,0.5">
+                                                        Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=3}">
                             <aboutSections:DeveloperSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:DeveloperSection.RenderTransform>
                         </aboutSections:DeveloperSection>
 
-                        <!-- System (index 4) — live machine / runtime /
-                             theme / perf / encoder / storage data. -->
+                        <!-- Tab 4: System Architecture Section -->
                         <aboutSections:SystemSection x:Name="SystemSectionHost"
-                                                     Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=4}"
-                                                     RenderTransformOrigin="0.5,0.5">
+                                                     Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=4}">
                             <aboutSections:SystemSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:SystemSection.RenderTransform>
                         </aboutSections:SystemSection>
 
-                        <!-- Diagnostics (index 5) — crash reports +
-                             recording health + app log. -->
+                        <!-- Tab 5: Diagnostics & Logs Section -->
                         <aboutSections:DiagnosticsSection x:Name="DiagnosticsSectionHost"
-                                                          Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=5}"
-                                                          RenderTransformOrigin="0.5,0.5">
+                                                          Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=5}">
                             <aboutSections:DiagnosticsSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:DiagnosticsSection.RenderTransform>

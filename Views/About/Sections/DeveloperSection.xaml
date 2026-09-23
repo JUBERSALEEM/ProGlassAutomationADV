@@ -79,11 +79,18 @@
                                 Style="{StaticResource Ios26IconTileStyle}"
                                 CornerRadius="{DynamicResource Ios26RadiusCard}"
                                 VerticalAlignment="Center">
-                            <Border.Background>
-                                <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                            Stretch="UniformToFill"
-                                            RenderOptions.BitmapScalingMode="HighQuality"/>
-                            </Border.Background>
+                            <Grid>
+                                <Border Background="{DynamicResource Ios26AccentSoftBrush}"
+                                        CornerRadius="{DynamicResource Ios26RadiusInner}"
+                                        BorderBrush="{DynamicResource Ios26AccentBrush}"
+                                        BorderThickness="1"/>
+                                <TextBlock Text="&#xE943;"
+                                           FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource Ios26FontSizeH2}"
+                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
                         </Border>
 
                         <StackPanel Grid.Column="2" VerticalAlignment="Center">
@@ -268,7 +275,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Width="38" Height="38" CornerRadius="19"
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource Ios26RadiusInner}"
                                     Background="{DynamicResource Ios26TileBadgeBrush}"
                                     BorderBrush="{DynamicResource Ios26TileBorderBrush}" BorderThickness="1"
                                     VerticalAlignment="Center">
@@ -294,7 +301,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Width="38" Height="38" CornerRadius="19"
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource Ios26RadiusInner}"
                                     Background="{DynamicResource Ios26TileBadgeBrush}"
                                     BorderBrush="{DynamicResource Ios26TileBorderBrush}" BorderThickness="1"
                                     VerticalAlignment="Center">
@@ -320,7 +327,7 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Width="38" Height="38" CornerRadius="19"
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource Ios26RadiusInner}"
                                     Background="{DynamicResource Ios26TileBadgeBrush}"
                                     BorderBrush="{DynamicResource Ios26TileBorderBrush}" BorderThickness="1"
                                     VerticalAlignment="Center">
