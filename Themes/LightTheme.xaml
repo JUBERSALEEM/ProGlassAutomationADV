@@ -733,16 +733,13 @@
                   po:Freeze="True">
         <DrawingBrush.Drawing>
             <DrawingGroup>
-                <!-- L2 · frosted base: 72 % → 38 % white over the live stage. -->
+                <!-- L2 · frosted base: 100% opaque white for Full Light Studio Bento -->
                 <GeometryDrawing>
                     <GeometryDrawing.Geometry>
                         <RectangleGeometry Rect="0,0,1,1"/>
                     </GeometryDrawing.Geometry>
                     <GeometryDrawing.Brush>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#B8FFFFFF" Offset="0"/>
-                            <GradientStop Color="#61FFFFFF" Offset="1"/>
-                        </LinearGradientBrush>
+                        <SolidColorBrush Color="#FFFFFFFF"/>
                     </GeometryDrawing.Brush>
                 </GeometryDrawing>
                 <!-- L3 · specular rim: bright top edge, gone by 20 % -->
@@ -785,25 +782,10 @@
         </DrawingBrush.Drawing>
     </DrawingBrush>
 
-    <!-- L1 · crystal edge. The mid stop is the same hairline tone the card
-         edge used before, so the outline the owner asked for ("no border
-         lines on cards") stays visible in the middle of every side while the
-         top and bottom corners catch the light. -->
-    <LinearGradientBrush x:Key="SettingsCardEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#F2FFFFFF" Offset="0"/>
-        <GradientStop Color="#8CB9C6D8" Offset="0.45"/>
-        <GradientStop Color="#D9FFFFFF" Offset="1"/>
-    </LinearGradientBrush>
-
-    <LinearGradientBrush x:Key="SettingsInnerFaceBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#8CFFFFFF" Offset="0"/>
-        <GradientStop Color="#66FFFFFF" Offset="1"/>
-    </LinearGradientBrush>
-
-    <LinearGradientBrush x:Key="SettingsInnerEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#D9FFFFFF" Offset="0"/>
-        <GradientStop Color="#B3FFFFFF" Offset="1"/>
-    </LinearGradientBrush>
+    <!-- Full Light Studio Bento Card Edges and Inner Surfaces -->
+    <SolidColorBrush x:Key="SettingsCardEdgeBrush" Color="#E2E8F0" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SettingsInnerFaceBrush" Color="#F8FAFC" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SettingsInnerEdgeBrush" Color="#E2E8F0" po:Freeze="True"/>
 
     <DropShadowEffect x:Key="SettingsCardShadow"
                       Color="#0F172A" Opacity="0.05"
