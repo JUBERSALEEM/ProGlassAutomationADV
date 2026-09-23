@@ -301,7 +301,7 @@ PHASES = {
     },
     10: {
         'name': 'Authentication, Splash & Global Shared Dialogs',
-        'status': 'PENDING',
+        'status': 'COMPLETED',
         'files': [
             'Views/Login/AuthSurfaceStyles.xaml',
             'Views/Login/FirstRunSetupPanel.xaml',
