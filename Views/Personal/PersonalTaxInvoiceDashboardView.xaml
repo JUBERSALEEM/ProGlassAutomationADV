@@ -6,7 +6,8 @@
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P10 — GLASS BLUSH TAX INVOICE / INVOICE AGING PAGE (glass-07)
@@ -35,6 +36,10 @@
     ═══════════════════════════════════════════════════════════════════ -->
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- skeleton (page-level, glass) -->
         <Style x:Key="GbSkeletonBlock" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
@@ -48,6 +53,7 @@
             <Setter Property="Effect" Value="{StaticResource GlassBlush.CardShadowFx}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"

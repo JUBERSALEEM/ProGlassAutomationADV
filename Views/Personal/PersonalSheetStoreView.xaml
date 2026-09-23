@@ -8,7 +8,8 @@
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P8 — GLASS BLUSH SHEET STORE (glass-05 reference)
@@ -25,6 +26,10 @@
     ═══════════════════════════════════════════════════════════════════ -->
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <conv:StockLevelBrushConverter x:Key="GbStockLevelBrush"/>
 
         <!-- Sheet card — glass card + selected-glow trigger -->
@@ -51,6 +56,7 @@
             <Setter Property="Margin" Value="0,0,8,0"/>
             <Setter Property="Padding" Value="18,8"/>
         </Style>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>

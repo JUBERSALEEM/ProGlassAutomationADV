@@ -20,7 +20,8 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.InputBindings>
         <KeyBinding Modifiers="Control+Shift" Key="N" Command="{Binding AddSpecGroupCommand}"/>
@@ -29,6 +30,10 @@
     </UserControl.InputBindings>
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         
         
         
@@ -76,6 +81,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>

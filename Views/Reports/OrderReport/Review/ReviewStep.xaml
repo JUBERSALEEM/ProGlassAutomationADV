@@ -28,6 +28,10 @@
     SnapsToDevicePixels="True">
 
         <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- Migrated KpiCard to global SurfacePrimaryStyle -->
 
         <!-- Local table cell styles (referenced throughout this view;
@@ -45,6 +49,7 @@
             <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
             <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         </Style>
+            </ResourceDictionary>
     </UserControl.Resources>
 
 

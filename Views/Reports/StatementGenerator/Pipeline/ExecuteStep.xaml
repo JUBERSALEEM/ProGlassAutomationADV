@@ -40,6 +40,10 @@
     SnapsToDevicePixels="True">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <!-- ══════════════════════════════════════════════════════════
              THEME-ALIASED BRUSHES (no hardcoded hex)
@@ -90,6 +94,7 @@
         <!-- KPI metric tile -->
         
 
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════
