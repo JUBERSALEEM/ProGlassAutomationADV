@@ -81,12 +81,87 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1.15*"/>
-            <ColumnDefinition Width="14"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
+    <StackPanel>
+
+        <!-- ═══ HERO · SYSTEM ARCHITECTURE & HOST ENVIRONMENT (Screen 05) ═══ -->
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="48" Height="48"
+                            Style="{StaticResource Ios26IconTileStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="&#xE7F4;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="System Architecture &amp; Diagnostics"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                        <TextBlock Text="Hardware-accelerated rendering, WAL persistence, and hardware encoder pipeline"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="3" Style="{StaticResource Ios26ChipGreenStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="Engine Online"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource Ios26SuccessBrush}"/>
+                    </Border>
+                </Grid>
+
+                <WrapPanel>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE790;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding RenderTierDisplay}" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="SQLite WAL Isolated" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE950;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26SuccessBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="NVENC / QSV Ready" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.15*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
 
         <!-- ═══ LEFT COLUMN ═══ -->
         <StackPanel Grid.Column="0">
@@ -335,4 +410,5 @@
 
         </StackPanel>
     </Grid>
+    </StackPanel>
 </UserControl>

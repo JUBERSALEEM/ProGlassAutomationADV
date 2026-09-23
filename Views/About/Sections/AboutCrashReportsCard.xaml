@@ -36,18 +36,35 @@
         <StackPanel>
             <Grid Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="12"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0"
-                           Text="{DynamicResource About.Crash}"
-                           FontSize="{DynamicResource Ios26FontSizeCardTitle}"
-                           FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource Ios26TextTitleBrush}"
-                           VerticalAlignment="Center"/>
+                <Border Grid.Column="0" Width="36" Height="36"
+                        Style="{StaticResource Ios26IconTileStyle}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="&#xE7BA;"
+                               FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="{DynamicResource Ios26FontSizeSubtitle}"
+                               Foreground="{DynamicResource Ios26AccentBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
-                <StackPanel Grid.Column="1"
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource About.Crash}"
+                               FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ios26TextTitleBrush}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="{DynamicResource About.Last10LocallyStoredCrashFilesShareErrorID}"
+                               FontSize="{DynamicResource Ios26FontSizeSmall}"
+                               Foreground="{DynamicResource Ios26TextMutedBrush}"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3"
                             Orientation="Horizontal"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center">

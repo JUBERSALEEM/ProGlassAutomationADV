@@ -62,7 +62,6 @@ namespace ProGlassAutomation.ViewModels
         private readonly IDialogService _dialogs = null!;
 
         private ViewModelBase _currentViewModel;
-        private bool _isMenuOpen;
 
         // Phase 4: Named handlers for static events — detachable
         private EventHandler<bool>? _connectivityHandler;

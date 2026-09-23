@@ -214,6 +214,79 @@
 
     <StackPanel>
 
+        <!-- ═══ HERO · INTEGRATED GLASS MANUFACTURING SUITE (Screen 03) ═══ -->
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="48" Height="48"
+                            Style="{StaticResource Ios26IconTileStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="&#xE74C;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="Integrated Glass Manufacturing Suite"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                        <TextBlock Text="Continuous end-to-end traceability across 12 production &amp; optimization modules"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="3" Style="{StaticResource Ios26ChipGreenStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="12 / 12 Active"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{DynamicResource Ios26SuccessBrush}"/>
+                    </Border>
+                </Grid>
+
+                <WrapPanel>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE7F4;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Full Traceability" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE8B7;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Zero Latency SQLite" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26SuccessBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Offline Certified" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
         <!-- ═══ PRODUCTION MODULES (mockup 03: one card) ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>

@@ -102,6 +102,81 @@
                        Text="License data is temporarily unavailable — the license service did not respond in time. This card fills in automatically once it does. The exact incident is written to the app log (Help → Diagnostics)."/>
         </Border>
 
+        <!-- ═══ HERO · LICENSE & WORKSTATION ENTITLEMENTS (Screen 02) ═══ -->
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+            <StackPanel>
+                <Grid Margin="0,0,0,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="14"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Width="48" Height="48"
+                            Style="{StaticResource Ios26IconTileStyle}"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="&#xE7BA;"
+                                   FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="License &amp; Workstation Entitlements"
+                                   FontSize="{DynamicResource Ios26FontSizeCardTitle}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                        <TextBlock Text="Cryptographically verified offline workstation authorization"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="3" Background="{DynamicResource Ios26AccentSoftBrush}"
+                            BorderBrush="{DynamicResource Ios26AccentBrush}" BorderThickness="1"
+                            CornerRadius="{DynamicResource Ios26RadiusSmall}"
+                            Padding="10,5" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding EditionDisplay}"
+                                   FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ios26AccentBrush}"/>
+                    </Border>
+                </Grid>
+
+                <WrapPanel>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE7F8;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Unlimited Workstations" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE787;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26SuccessBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Perpetual Validity" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Ios26InnerTileStyle}" Padding="12,8" Margin="0,0,8,6">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE74C;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource Ios26FontSizeBody}"
+                                       Foreground="{DynamicResource Ios26AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="All 12 Modules Unlocked" FontSize="{DynamicResource Ios26FontSizeSmall}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}" Foreground="{DynamicResource Ios26TextTitleBrush}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+            </StackPanel>
+        </Border>
+
         <!-- ═══ 1 · STATUS ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <Grid>
