@@ -286,7 +286,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             var style = string.Equals(_selectedFontStyle, "Italic", StringComparison.OrdinalIgnoreCase)
                 ? FontStyles.Italic : FontStyles.Normal;
 
-            FontService.ApplyFont(_selectedFont.Name, weight, style, _isFontUnderline);
+            FontService.ApplyFont(_selectedFont.Name, weight, style, underline: _isFontUnderline, persist: true);
             OnPropertyChanged(nameof(FontStatus));
             OnPropertyChanged(nameof(CanApplyFont));
 

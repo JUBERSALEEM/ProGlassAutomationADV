@@ -646,6 +646,7 @@
          keeps travelling to the page. ═══ -->
     <Style x:Key="SettingsSegmentItemStyle" TargetType="ListBoxItem">
         <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="MinHeight" Value="{DynamicResource ControlHeightMedium}"/>
         <Setter Property="Padding" Value="16,6"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
@@ -653,8 +654,6 @@
         <Setter Property="Foreground" Value="{DynamicResource Ios26TextSecondaryBrush}"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
@@ -670,20 +669,16 @@
                             TextElement.Foreground="{TemplateBinding Foreground}"/>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource Ios26HoverBrush}"/>
+                        </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="Bd" Property="Background"
                                     Value="{DynamicResource Ios26AccentBrush}"/>
                             <Setter Property="Foreground"
                                     Value="{DynamicResource OnAccentForegroundBrush}"/>
                         </Trigger>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="IsMouseOver" Value="True"/>
-                                <Condition Property="IsSelected" Value="False"/>
-                            </MultiTrigger.Conditions>
-                            <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource Ios26HoverBrush}"/>
-                        </MultiTrigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.5"/>
                         </Trigger>

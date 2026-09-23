@@ -112,7 +112,7 @@ namespace ProGlassAutomation.Views.Splash
 
             try
             {
-                var cfg = ConfigService.Current ?? ConfigService.Load();
+                var cfg = App.Config ?? ConfigService.Load();
                 int activeStyle = ProGlassAutomation.Services.Splash.SplashThemeManager.ResolveActiveStyle(cfg);
                 ApplySplashStyle(activeStyle);
             }
