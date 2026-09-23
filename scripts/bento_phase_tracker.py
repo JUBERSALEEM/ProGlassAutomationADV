@@ -215,7 +215,7 @@ PHASES = {
     },
     7: {
         'name': 'Glass Optimization Engine & SheetStore Warehouse',
-        'status': 'PENDING',
+        'status': 'COMPLETED',
         'files': [
             'Views/Optimization/OptimizationView.xaml',
             'Views/Optimization/Tabs/CutListTabView.xaml',

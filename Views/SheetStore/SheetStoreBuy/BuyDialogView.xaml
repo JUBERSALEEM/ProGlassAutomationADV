@@ -182,9 +182,11 @@
                     <DockPanel Margin="0,8,0,0">
                         <TextBlock Text="{DynamicResource JobProfitability.TotalCOST}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="{Binding TotalCost, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
-                                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Right"/>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Right">
+                            <TextBlock Text="{Binding TotalCost, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
+                                       FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource DangerBrush}"/>
+                        </Viewbox>
                     </DockPanel>
                 </StackPanel>
             </Border>

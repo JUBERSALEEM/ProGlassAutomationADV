@@ -318,28 +318,36 @@
                         <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="STOCK" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding Sheet.Stock}" Style="{StaticResource PiKpiValueStyle}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Sheet.Stock}" Style="{StaticResource PiKpiValueStyle}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="USED" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding Sheet.Used}" Style="{StaticResource PiKpiValueStyle}"
-                                           Foreground="{DynamicResource DangerBrush}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Sheet.Used}" Style="{StaticResource PiKpiValueStyle}"
+                                               Foreground="{DynamicResource DangerBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding Sheet.Balance}" Style="{StaticResource PiKpiValueStyle}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Sheet.Balance}" Style="{StaticResource PiKpiValueStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="SQM AVAILABLE" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
-                                           Style="{StaticResource PiKpiValueStyle}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
+                                               Style="{StaticResource PiKpiValueStyle}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -446,30 +454,38 @@
                         <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="QUANTITY" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
-                                           Style="{StaticResource PiKpiValueStyle}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
+                                               Style="{StaticResource PiKpiValueStyle}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL COST" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource PiKpiValueStyle}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
+                                               Style="{StaticResource PiKpiValueStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AFTER" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding NewBalanceAfterBuy}"
-                                           Style="{StaticResource PiKpiValueStyle}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding NewBalanceAfterBuy}"
+                                               Style="{StaticResource PiKpiValueStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -573,30 +589,38 @@
                         <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="QUANTITY" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Quantity}" Style="{StaticResource PiKpiValueStyle}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL SQM" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
-                                           Style="{StaticResource PiKpiValueStyle}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
+                                               Style="{StaticResource PiKpiValueStyle}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL VALUE" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}"
-                                           Style="{StaticResource PiKpiValueStyle}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}"
+                                               Style="{StaticResource PiKpiValueStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="3" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AFTER" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                <TextBlock Text="{Binding RemainingBalance}"
-                                           Style="{StaticResource PiKpiValueStyle}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding RemainingBalance}"
+                                               Style="{StaticResource PiKpiValueStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -1135,23 +1159,29 @@
                         <Border Grid.Column="0" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AT COST"/>
-                                <TextBlock Text="{Binding BalanceValueAtCost, StringFormat={}{0:N2} AED}"
-                                          />
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding BalanceValueAtCost, StringFormat={}{0:N2} AED}"
+                                              />
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="1" Style="{StaticResource InventoryKpiCell}">
                             <StackPanel>
                                 <TextBlock Text="BALANCE AT SELL"/>
-                                <TextBlock Text="{Binding BalanceValueAtSell, StringFormat={}{0:N2} AED}"
-                                          />
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding BalanceValueAtSell, StringFormat={}{0:N2} AED}"
+                                              />
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Style="{StaticResource InventoryKpiCell}" Margin="0">
                             <StackPanel>
                                 <TextBlock Text="POTENTIAL PROFIT"/>
-                                <TextBlock Text="{Binding PotentialProfit, StringFormat={}{0:N2} AED}"
-                                          
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="26" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding PotentialProfit, StringFormat={}{0:N2} AED}"
+                                              
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -1159,9 +1189,11 @@
                     <Border Style="{StaticResource SectionCard}">
                         <StackPanel>
                             <TextBlock Text="MARGIN" Margin="0,0,0,10"/>
-                            <TextBlock Text="{Binding MarginDisplay}"
-                                       FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <Viewbox MaxHeight="36" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding MarginDisplay}"
+                                           FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                            </Viewbox>
                             <!-- "No cost basis" rather than a fake 0%: sheets
                                  are routinely entered before a purchase price
                                  is known, and 0% would read as a real loss. -->

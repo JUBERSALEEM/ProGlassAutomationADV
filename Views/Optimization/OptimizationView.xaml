@@ -164,7 +164,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiJobs}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding KpiJobs}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
+                            </Viewbox>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -183,7 +185,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiPieces}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding KpiPieces}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
+                            </Viewbox>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -202,7 +206,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="TOTAL GLASS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiGlass}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding KpiGlass}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
+                            </Viewbox>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -221,7 +227,9 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="CUTTING GROUPS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiGroups}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
+                            <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                <TextBlock Text="{Binding KpiGroups}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
+                            </Viewbox>
                         </StackPanel>
                     </Grid>
                 </Border>
