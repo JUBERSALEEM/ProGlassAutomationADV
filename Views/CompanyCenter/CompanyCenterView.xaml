@@ -248,9 +248,9 @@
                                                FontSize="{DynamicResource FontSize.Body}"
                                                Foreground="{DynamicResource TextSecondaryBrush}"
                                                TextTrimming="CharacterEllipsis">
-                                        <Run Text="{Binding CompanyTrn}"/>
+                                        <Run Text="{Binding CompanyTrn, Mode=OneWay}"/>
                                         <Run Text="  ·  "/>
-                                        <Run Text="{Binding CompanyLocation}"/>
+                                        <Run Text="{Binding CompanyLocation, Mode=OneWay}"/>
                                     </TextBlock>
                                     <TextBlock Margin="0,4,0,0"
                                                FontSize="{DynamicResource FontSize.BodySmall}"

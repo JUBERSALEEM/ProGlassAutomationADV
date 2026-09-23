@@ -156,7 +156,7 @@
                              ═══════════════════════════════════════════════════ -->
                         <cards:AppearanceCrystalTile/>
 
-                        <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleed}">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
 
                             <!-- Visual theme -->
                             <cards:AppearanceThemeFamilyTile Margin="{StaticResource SettingsTileGridMargin}"/>

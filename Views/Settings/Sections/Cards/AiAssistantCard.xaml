@@ -34,7 +34,7 @@
                                            Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                             </StackPanel>
                         </Grid>
-                        <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
 
                             <!-- Master toggle -->
                             <Border Margin="{StaticResource SettingsTrailingGap}">

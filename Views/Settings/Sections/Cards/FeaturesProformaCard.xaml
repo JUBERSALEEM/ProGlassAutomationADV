@@ -295,7 +295,7 @@
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
                                    Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleed}">
+                            <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
                                     <Grid>
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -381,7 +381,7 @@
                                    Style="{StaticResource SettingsGroupCaptionStyle}"
                                    Margin="{StaticResource SettingsStackGap18}"/>
 
-                            <UniformGrid Columns="3" Margin="{StaticResource SettingsRowMargin}">
+                            <UniformGrid Columns="2" Margin="{StaticResource SettingsRowMargin}">
                                 <Border Style="{StaticResource SettingsInnerTileStyle}">
                                     <Grid>
                                         <Grid.RowDefinitions>

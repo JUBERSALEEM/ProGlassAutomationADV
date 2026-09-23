@@ -154,9 +154,9 @@
                                        FontSize="{DynamicResource Print.Font.MetaValue}"
                                        Foreground="{DynamicResource Print.AccentSoft}"
                                        TextWrapping="Wrap">
-                                <Run Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates}"/>
+                                <Run Text="{Binding Company.CompanyLocation, Mode=OneWay, TargetNullValue=United Arab Emirates}"/>
                                 <Run Text="  &#183;  TRN  "/>
-                                <Run Text="{Binding Company.CompanyTrn, TargetNullValue=—}"/>
+                                <Run Text="{Binding Company.CompanyTrn, Mode=OneWay, TargetNullValue=—}"/>
                             </TextBlock>
                         </StackPanel>
 
@@ -261,7 +261,7 @@
                                Foreground="{DynamicResource Print.Muted}"
                                Margin="0,2,0,0"
                                TextWrapping="Wrap">
-                        <Run Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates}"/>
+                        <Run Text="{Binding Company.CompanyLocation, Mode=OneWay, TargetNullValue=United Arab Emirates}"/>
                         <Run Text="{DynamicResource ProformaInvoice.WwwProglassAutomationCom}"/>
                     </TextBlock>
                     <TextBlock FontSize="{DynamicResource Print.Font.MetaValue}" FontWeight="SemiBold"
@@ -269,7 +269,7 @@
                                TextWrapping="Wrap">
                         <Run Text="{DynamicResource CompanyCenter.TRN}"
                              Foreground="{DynamicResource Print.Muted}"/>
-                        <Run Text="{Binding Company.CompanyTrn, TargetNullValue=—}"
+                        <Run Text="{Binding Company.CompanyTrn, Mode=OneWay, TargetNullValue=—}"
                              Foreground="{DynamicResource Print.Text}"/>
                     </TextBlock>
                     </StackPanel>

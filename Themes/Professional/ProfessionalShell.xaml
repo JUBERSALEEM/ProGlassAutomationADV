@@ -25,17 +25,17 @@
     <sys:Double x:Key="PgTopFontCap">9.5</sys:Double>
     <sys:Double x:Key="PgTopFontBtn">13</sys:Double>
 
-    <!-- ═══ CONCEPT 30 PORCELAIN FLOW PALETTE BRUSHES ═══ -->
-    <SolidColorBrush x:Key="PgPorcelainSurfaceBrush" Color="#FCFCFE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgModuleBgBrush"          Color="#F5F5F8" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderRibbonBrush"    Color="#E6E1F4" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderHoverBrush"     Color="#DDD8EE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderPressedBrush"   Color="#D0C9E8" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgKeylineBrush"           Color="#D9D5E6" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgVioletInkBrush"         Color="#211D31" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgSelectedRowBrush"       Color="#443A86" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgFocusRimBrush"          Color="#8E82D8" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgTextMutedBrush"         Color="#6B6580" po:Freeze="True"/>
+    <!-- ═══ FULL LIGHT STUDIO BENTO PALETTE BRUSHES ═══ -->
+    <SolidColorBrush x:Key="PgPorcelainSurfaceBrush" Color="#FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgModuleBgBrush"          Color="#F8FAFC" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderRibbonBrush"    Color="#F1F5F9" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderHoverBrush"     Color="#E2E8F0" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderPressedBrush"   Color="#CBD5E1" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgKeylineBrush"           Color="#E2E8F0" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgVioletInkBrush"         Color="#0F172A" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgSelectedRowBrush"       Color="#4F46E5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgFocusRimBrush"          Color="#4F46E5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgTextMutedBrush"         Color="#64748B" po:Freeze="True"/>
     <SolidColorBrush x:Key="PgWhiteBrush"             Color="#FFFFFF" po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -214,11 +214,11 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
-    <!-- Oversized elegant serif-display wordmark "ProGlass" -->
+    <!-- Modern clean display wordmark "ProGlass" -->
     <Style x:Key="PgBrandTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="Georgia, 'Times New Roman', serif"/>
-        <Setter Property="FontSize" Value="24"/>
-        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontFamily" Value="Segoe UI Variable Display, Segoe UI, sans-serif"/>
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>

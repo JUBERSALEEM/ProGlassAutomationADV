@@ -114,7 +114,7 @@
         FontWeight="{DynamicResource AppFontWeight}"
         FontStyle="{DynamicResource AppFontStyle}"
         Icon="pack://application:,,,/favicon.ico"
-        Background="#F5F5F8"
+        Background="{DynamicResource BackgroundBrush}"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         TextOptions.TextHintingMode="Auto"
@@ -224,7 +224,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          ROOT LAYOUT (Row 0: Top Header, Row 1: Sidebar + Module)
     ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="#F5F5F8">
+    <Grid Background="{DynamicResource BackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -232,7 +232,7 @@
 
         <!-- Base stage background -->
         <Border Grid.Row="0" Grid.RowSpan="2"
-                Background="#F5F5F8"
+                Background="{DynamicResource BackgroundBrush}"
                 IsHitTestVisible="False"/>
 
         <!-- Glass Blush Personal shell (visible only when IsPersonalExperience is true) -->
@@ -253,7 +253,7 @@
                 SnapsToDevicePixels="True"
                 Visibility="{Binding IsPersonalExperience,
                           Converter={StaticResource InverseBoolToVisibilityConverter}}">
-            <Grid Background="#FCFCFE">
+            <Grid Background="{DynamicResource SurfacePrimaryBrush}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="52"/>
                     <RowDefinition Height="Auto"/>
@@ -318,16 +318,16 @@
                                 <TextBlock Text="{Binding CurrentDateText, FallbackValue='22 Sep 2026'}"
                                            FontSize="12"
                                            FontWeight="SemiBold"
-                                           Foreground="#211D31"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Text=" / "
                                            FontSize="12"
-                                           Foreground="#6B6580"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Text="{Binding CurrentTimeText, FallbackValue='10:30'}"
                                            FontSize="12"
                                            FontWeight="SemiBold"
-                                           Foreground="#211D31"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
@@ -343,7 +343,7 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
                                             <Setter Property="Content" Value="&#xE706;"/>
-                                            <Setter Property="Foreground" Value="#8E82D8"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -361,7 +361,7 @@
                                     <TextBlock Text="{Binding CurrentUserInitials, FallbackValue='U'}"
                                                FontSize="11"
                                                FontWeight="Bold"
-                                               Foreground="#443A86"
+                                               Foreground="{DynamicResource AccentBrush}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
                                 </Border>
@@ -369,13 +369,13 @@
                                     <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue='User'}"
                                                FontSize="11"
                                                FontWeight="SemiBold"
-                                               Foreground="#211D31"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"
                                                TextTrimming="CharacterEllipsis"
                                                MaxWidth="100"/>
                                     <TextBlock Text="{Binding CurrentUserRole, FallbackValue='Role'}"
                                                FontSize="9.5"
                                                FontWeight="Normal"
-                                               Foreground="#6B6580"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                                TextTrimming="CharacterEllipsis"
                                                MaxWidth="100"/>
                                 </StackPanel>
@@ -389,8 +389,8 @@
                 <Border Grid.Row="1"
                         Height="34"
                         Margin="12,0,14,6"
-                        Background="#E6E1F4"
-                        BorderBrush="#D9D5E6"
+                        Background="{DynamicResource SurfaceSecondaryBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="1"
                         CornerRadius="7"
                         Padding="6,0"
@@ -495,7 +495,7 @@
                             <TextBlock Text="&#xE701;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="12"
-                                       Foreground="#7C7690"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"/>
                         </Border>
                     </DockPanel>
@@ -503,8 +503,8 @@
 
                 <!-- NESTED DOUBLE KEYLINES along bottom of Top Header (#D9D5E6) -->
                 <Grid Grid.Row="2" VerticalAlignment="Bottom" Height="3">
-                    <Border Height="1" VerticalAlignment="Top" Background="#D9D5E6" SnapsToDevicePixels="True"/>
-                    <Border Height="1" VerticalAlignment="Bottom" Background="#D9D5E6" SnapsToDevicePixels="True"/>
+                    <Border Height="1" VerticalAlignment="Top" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
+                    <Border Height="1" VerticalAlignment="Bottom" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
                 </Grid>
             </Grid>
         </Border>
@@ -529,7 +529,7 @@
             ═══════════════════════════════════════════════════════════════ -->
             <Border Grid.Column="0"
                     Width="260"
-                    Background="#FCFCFE"
+                    Background="{DynamicResource SurfacePrimaryBrush}"
                     Panel.ZIndex="10"
                     SnapsToDevicePixels="True">
                 <Border.Style>
@@ -542,11 +542,11 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <Grid Background="#FCFCFE">
+                <Grid Background="{DynamicResource SurfacePrimaryBrush}">
                     <!-- Right edge nested double keylines -->
                     <Grid Width="3" HorizontalAlignment="Right" Panel.ZIndex="15">
-                        <Border Width="1" HorizontalAlignment="Left" Background="#D9D5E6" SnapsToDevicePixels="True"/>
-                        <Border Width="1" HorizontalAlignment="Right" Background="#D9D5E6" SnapsToDevicePixels="True"/>
+                        <Border Width="1" HorizontalAlignment="Left" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
+                        <Border Width="1" HorizontalAlignment="Right" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
                     </Grid>
 
                     <Grid>
@@ -559,10 +559,10 @@
                         <!-- Sidebar header — "Menu" + one X close icon only (NO LOGO) -->
                         <Grid Grid.Row="0" Margin="16,14,12,8">
                             <TextBlock Text="{DynamicResource Shell.Menu}"
-                                       FontFamily="Georgia, 'Times New Roman', serif"
+                                       FontFamily="{DynamicResource AppFontFamily}"
                                        FontSize="16"
                                        FontWeight="SemiBold"
-                                       Foreground="#211D31"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"/>
                             <Button Style="{StaticResource PgTopIconButtonStyle}"
                                     Content="&#xE711;"
@@ -852,64 +852,9 @@
 
             <!-- ═══════════════════════════════════════════════════════════
                  MODULE REGION (Column 1)
-                 Blank very pale grey (#F5F5F8)
-                 Large rounded INNER elbow fillet at top-left
-                 Bottom-right small caption "30 / PORCELAIN FLOW"
+                 Full Light Studio Bento Workspace
             ═══════════════════════════════════════════════════════════════ -->
-            <Grid Grid.Column="1" Background="#F5F5F8">
-
-                <!-- INNER ELBOW FILLET (smooth concave fillet joining header and sidebar) -->
-                <Grid HorizontalAlignment="Left"
-                      VerticalAlignment="Top"
-                      Width="28"
-                      Height="28"
-                      Panel.ZIndex="25"
-                      IsHitTestVisible="False">
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsMenuOpen}" Value="False">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-
-                    <!-- Porcelain fill bridging header bottom and sidebar right -->
-                    <Path Data="M 0,0 L 28,0 A 28,28 0 0,0 0,28 Z"
-                          Fill="#FCFCFE"/>
-
-                    <!-- Nested double keylines following the inner elbow concave arc -->
-                    <Path Data="M 28,0 A 28,28 0 0,0 0,28"
-                          Stroke="#D9D5E6"
-                          StrokeThickness="1"
-                          SnapsToDevicePixels="True"/>
-                    <Path Data="M 25.5,0 A 25.5,25.5 0 0,0 0,25.5"
-                          Stroke="#D9D5E6"
-                          StrokeThickness="1"
-                          SnapsToDevicePixels="True"/>
-                </Grid>
-
-                <!-- BOTTOM-RIGHT SMALL CAPTION "30 / PORCELAIN FLOW" -->
-                <TextBlock Text="30 / PORCELAIN FLOW"
-                           FontSize="10"
-                           FontWeight="SemiBold"
-                           Foreground="#A29CB4"
-                           HorizontalAlignment="Right"
-                           VerticalAlignment="Bottom"
-                           Margin="0,0,24,14"
-                           IsHitTestVisible="False"
-                           Panel.ZIndex="1"/>
-
-                <!-- Active Module Content Host (with pale grey backdrop) -->
-                <TextBlock Text="Existing module unchanged"
-                           FontSize="11"
-                           Foreground="#A29CB4"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           IsHitTestVisible="False"
-                           Panel.ZIndex="0"/>
+            <Grid Grid.Column="1" Background="{DynamicResource BackgroundBrush}">
 
                 <ContentControl Content="{Binding ProfessionalContent}"
                                 behaviors:ContentTransitionBehavior.IsEnabled="True"
@@ -946,16 +891,16 @@
                                    Text="&#xE7BA;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="20"
-                                   Foreground="#211D31"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,12,0"/>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <TextBlock Text="{DynamicResource Shell.ReadOnly}"
                                        FontSize="14" FontWeight="Bold"
-                                       Foreground="#211D31"/>
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
                             <TextBlock FontSize="12"
-                                       Foreground="#211D31"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        TextWrapping="Wrap"
                                        Text="{Binding StatusDescription,
                                               Source={x:Static vmLicensing:LicenseStatusViewModel.Instance}}"/>
@@ -979,7 +924,7 @@
                         Margin="16"
                         CornerRadius="10"
                         Background="#FFFFFF"
-                        BorderBrush="#443A86"
+                        BorderBrush="{DynamicResource AccentBrush}"
                         BorderThickness="2"
                         SnapsToDevicePixels="True"
                         Visibility="{Binding IsLicenseRequired,
@@ -1030,7 +975,7 @@
                         VerticalAlignment="Bottom"
                         CornerRadius="12"
                         ClipToBounds="False"
-                        BorderBrush="#8E82D8"
+                        BorderBrush="{DynamicResource AccentBrush}"
                         BorderThickness="1"
                         Background="#FFFFFF">
                     <Border.Style>

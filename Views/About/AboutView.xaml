@@ -273,7 +273,7 @@
                                 <TextBlock FontSize="{DynamicResource Ios26FontSizeLabel}"
                                            FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource Ios26AccentBrush}">
-                                    <Run Text="{Binding Version}"/><Run Text=" Enterprise"/>
+                                    <Run Text="{Binding Version, Mode=OneWay}"/><Run Text=" Enterprise"/>
                                 </TextBlock>
                             </Border>
                         </StackPanel>
@@ -394,7 +394,7 @@
                                         <TextBlock FontSize="{DynamicResource Ios26FontSizeSmall}"
                                                    FontWeight="{DynamicResource Weight.Bold}"
                                                    Foreground="{DynamicResource Ios26AccentBrush}">
-                                            <Run Text="{Binding Version}"/><Run Text=" · 64-Bit Native WPF"/>
+                                            <Run Text="{Binding Version, Mode=OneWay}"/><Run Text=" · 64-Bit Native WPF"/>
                                         </TextBlock>
                                     </Border>
                                     <Border Background="{DynamicResource Ios26TileBrush}"

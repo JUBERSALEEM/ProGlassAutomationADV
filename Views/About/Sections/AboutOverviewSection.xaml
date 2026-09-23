@@ -150,7 +150,7 @@
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <TextBlock Text="Framework &amp; Runtime" FontSize="{DynamicResource Ios26FontSizeCaption}" Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                                 <TextBlock FontSize="{DynamicResource Ios26FontSizeSmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}">
-                                    <Run Text=".NET "/><Run Text="{Binding DotNetVersion}"/><Run Text=" (x64 Native)"/>
+                                    <Run Text=".NET "/><Run Text="{Binding DotNetVersion, Mode=OneWay}"/><Run Text=" (x64 Native)"/>
                                 </TextBlock>
                             </StackPanel>
                         </Grid>
@@ -190,7 +190,7 @@
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <TextBlock Text="UI Performance Tier" FontSize="{DynamicResource Ios26FontSizeCaption}" Foreground="{DynamicResource Ios26TextMutedBrush}"/>
                                 <TextBlock FontSize="{DynamicResource Ios26FontSizeSmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ios26TextTitleBrush}">
-                                    <Run Text="{Binding RenderTierDisplay}"/><Run Text=" (Direct3D Hardware Accelerated)"/>
+                                    <Run Text="{Binding RenderTierDisplay, Mode=OneWay}"/><Run Text=" (Direct3D Hardware Accelerated)"/>
                                 </TextBlock>
                             </StackPanel>
                         </Grid>

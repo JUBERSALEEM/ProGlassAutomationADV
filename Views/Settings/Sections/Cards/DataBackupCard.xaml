@@ -34,7 +34,7 @@
                                            Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                             </StackPanel>
                         </Grid>
-                        <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleed}">
+                        <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
 
                             <!-- Backup actions tile -->
                             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">

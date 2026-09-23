@@ -35,7 +35,7 @@
                 </StackPanel>
             </Grid>
 
-            <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
+            <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
                 <!-- Language (15 shipped, live switch, en-US primary) -->
                 <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">

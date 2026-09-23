@@ -101,7 +101,7 @@
                                     <ItemsControl ItemsSource="{Binding ModuleWallpaperRows}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <UniformGrid Columns="3"/>
+                                                <UniformGrid Columns="2"/>
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>
