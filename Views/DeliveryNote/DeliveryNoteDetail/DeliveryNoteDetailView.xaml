@@ -15,12 +15,21 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Sections/DnSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <UserControl.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding BackCommand}"/>
     </UserControl.InputBindings>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled">
+                  HorizontalScrollBarVisibility="Disabled"
+                  Background="{DynamicResource Ov.Canvas}">
         <Grid Background="Transparent">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

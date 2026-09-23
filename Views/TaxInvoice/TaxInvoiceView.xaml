@@ -41,6 +41,7 @@
              xmlns:detailVm="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail"
              xmlns:godview="clr-namespace:ProGlassAutomation.Views.TaxInvoice.GodView"
              xmlns:sharedViews="clr-namespace:ProGlassAutomation.Views.Shared"
+             Background="{DynamicResource Ov.Canvas}"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -49,15 +50,21 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <!--
-            DataTemplate: when Content = TaxInvoiceDetailViewModel,
-            WPF renders TaxInvoiceDetailView with DataContext set automatically.
-            Instantiated LAZILY — only when DetailVM becomes non-null.
-            Same pattern as DeliveryNoteView.xaml.
-        -->
-        <DataTemplate DataType="{x:Type detailVm:TaxInvoiceDetailViewModel}">
-            <detail:TaxInvoiceDetailView/>
-        </DataTemplate>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!--
+                DataTemplate: when Content = TaxInvoiceDetailViewModel,
+                WPF renders TaxInvoiceDetailView with DataContext set automatically.
+                Instantiated LAZILY — only when DetailVM becomes non-null.
+                Same pattern as DeliveryNoteView.xaml.
+            -->
+            <DataTemplate DataType="{x:Type detailVm:TaxInvoiceDetailViewModel}">
+                <detail:TaxInvoiceDetailView/>
+            </DataTemplate>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">

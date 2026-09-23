@@ -7,6 +7,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
+             Background="{DynamicResource Ov.Canvas}"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
