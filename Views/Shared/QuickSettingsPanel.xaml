@@ -80,8 +80,8 @@
                                   Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
             </Border.Effect>
             <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    Background="{DynamicResource ShellLiquidBrush}"
-                    BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
+                    Background="{DynamicResource Ov.Surface}"
+                    BorderBrush="{DynamicResource Ov.Line}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     ClipToBounds="True">
 
