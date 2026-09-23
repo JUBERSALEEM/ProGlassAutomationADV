@@ -77,8 +77,21 @@
                     <!-- ═══ CARD — PROVIDERS ═══ -->
                     <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Sharing.Providers}"
-                                       Style="{StaticResource SettingsCardHeaderStyle}"/>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE72D;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Sharing.Providers}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="Delivery channels and default dispatch service"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
                             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -131,10 +144,23 @@
                     <!-- ═══ CARD — DEFAULTS ═══ -->
                     <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Sharing.Defaults}"
-                                       Style="{StaticResource SettingsCardHeaderStyle}"/>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE713;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Sharing.Defaults}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="Regional prefix and temporary artifact retention"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
                             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
-                                <UniformGrid Columns="2">
+                                <UniformGrid Columns="3">
                                     <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                         <TextBlock Text="{DynamicResource Sharing.DefaultCountryCode}"
                                                    Style="{StaticResource SettingsRowMetaStyle}"/>
@@ -158,8 +184,6 @@
                                     </StackPanel>
                                 </UniformGrid>
                             </Border>
-
-                            <!-- ═══ DOCUMENT RULES ═══ -->
                         </StackPanel>
                     </Border>
                 </Grid>
@@ -167,8 +191,21 @@
                 <!-- ═══ CARD — DOCUMENT RULES ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Sharing.DocumentRules}"
-                                   Style="{StaticResource SettingsCardHeaderStyle}"/>
+                        <Grid Margin="{StaticResource SettingsStackBottom8}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE8A5;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Sharing.DocumentRules}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="Format, provider, and edit permissions per document type"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
                             <StackPanel>
                                 <Grid Margin="{StaticResource SettingsRowMargin}">
@@ -241,8 +278,21 @@
                 <!-- ═══ CARD — TEMPLATES ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Sharing.Templates}"
-                                   Style="{StaticResource SettingsCardHeaderStyle}"/>
+                        <Grid Margin="{StaticResource SettingsStackBottom8}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE8BD;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Sharing.Templates}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="Customizable message wording with dynamic tokens"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <Border Style="{StaticResource SettingsInnerTileStyle}">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Sharing.TemplateKey}"
@@ -258,19 +308,16 @@
                                          AcceptsReturn="True" TextWrapping="Wrap"
                                          VerticalScrollBarVisibility="Auto"
                                          FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
-                                <Border Margin="{StaticResource SettingsStackGap10}"
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                    <UniformGrid Columns="2">
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                            Content="{DynamicResource Sharing.SaveTemplate}"
-                                            Command="{Binding SaveSharingTemplateCommand}"
-                                            HorizontalAlignment="Stretch"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                            Content="{DynamicResource Sharing.ResetTemplate}"
-                                            Command="{Binding ResetSharingTemplateCommand}"
-                                            HorizontalAlignment="Stretch"/>
-                                    </UniformGrid>
-                                </Border>
+                                <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
+                                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                        Content="{DynamicResource Sharing.SaveTemplate}"
+                                        Command="{Binding SaveSharingTemplateCommand}"
+                                        HorizontalAlignment="Stretch"/>
+                                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                        Content="{DynamicResource Sharing.ResetTemplate}"
+                                        Command="{Binding ResetSharingTemplateCommand}"
+                                        HorizontalAlignment="Stretch"/>
+                                </UniformGrid>
                                 <TextBlock Text="{DynamicResource Sharing.Variables}"
                                            Style="{StaticResource SettingsRowMetaStyle}"
                                            TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap8}"/>

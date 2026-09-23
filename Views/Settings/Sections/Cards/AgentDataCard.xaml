@@ -47,38 +47,31 @@
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
                                     </StackPanel>
-                                    <Border 
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                        <UniformGrid Columns="2">
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE78C;"
-                                                Content="{DynamicResource Settings.ExportKnowledge}"
-                                                HorizontalAlignment="Stretch"
-                                                Command="{Binding ExportKnowledgeCommand}"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE896;"
-                                                Content="{DynamicResource Settings.ImportKnowledge}"
-                                                HorizontalAlignment="Stretch"
-                                                Margin="0"
-                                                Command="{Binding ImportKnowledgeCommand}"/>
-                                        </UniformGrid>
-                                    </Border>
-                                    <Border Margin="{StaticResource SettingsStackGap4}"
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                        <UniformGrid Columns="2">
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE74D;"
-                                                Content="{DynamicResource Settings.ClearMemory}"
-                                                HorizontalAlignment="Stretch"
-                                                Command="{Binding ClearMemoryCommand}"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE74D;"
-                                                Content="{DynamicResource Settings.ClearKnowledge}"
-                                                HorizontalAlignment="Stretch"
-                                                Margin="0"
-                                                Command="{Binding ClearKnowledgeCommand}"/>
-                                        </UniformGrid>
-                                    </Border>
+                                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Tag="&#xE78C;"
+                                            Content="{DynamicResource Settings.ExportKnowledge}"
+                                            HorizontalAlignment="Stretch"
+                                            Command="{Binding ExportKnowledgeCommand}"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Tag="&#xE896;"
+                                            Content="{DynamicResource Settings.ImportKnowledge}"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="0"
+                                            Command="{Binding ImportKnowledgeCommand}"/>
+                                        <Button Style="{StaticResource DangerButton}"
+                                            Tag="&#xE74D;"
+                                            Content="{DynamicResource Settings.ClearMemory}"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="{StaticResource SettingsStackGap6}"
+                                            Command="{Binding ClearMemoryCommand}"/>
+                                        <Button Style="{StaticResource DangerButton}"
+                                            Tag="&#xE74D;"
+                                            Content="{DynamicResource Settings.ClearKnowledge}"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="{StaticResource SettingsStackGap6}"
+                                            Command="{Binding ClearKnowledgeCommand}"/>
+                                    </UniformGrid>
 
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Margin="{StaticResource SettingsStackGap12}"

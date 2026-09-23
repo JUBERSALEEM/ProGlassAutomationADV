@@ -205,59 +205,63 @@
 
                         <!-- ═══════ GROUP: PROVIDER CREDENTIALS ═══════ -->
                         <TextBlock Text="{DynamicResource Settings.ProviderCredentials}"
-                                  />
+                                   Style="{StaticResource SettingsCardTitleStyle}"
+                                   Margin="{StaticResource SettingsStackGap14}"/>
                         <TextBlock Text="{DynamicResource Settings.KeysEncryptedWindowsDpapiUserAccountNever}"
-                                  />
+                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
 
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border Style="{StaticResource SettingsInnerTileStyle}">
                                 <StackPanel>
-                                    <StackPanel>
+                                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
                                         <TextBlock Text="&#xE8B7;"
                                                    FontFamily="{DynamicResource FontFamily.Icon}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    Margin="{StaticResource SettingsInlineGap6R}"/>
-                                        <TextBlock Text="{DynamicResource Settings.StoreAPIKey}"/>
+                                        <TextBlock Text="{DynamicResource Settings.StoreAPIKey}"
+                                                   Style="{StaticResource SettingsRowTitleStyle}"/>
                                     </StackPanel>
-                                    <Grid>
+                                    <Grid Margin="{StaticResource SettingsStackGap8}">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" MinWidth="150"/>
                                             <ColumnDefinition Width="14"/>
                                             <ColumnDefinition Width="*" MinWidth="160"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{DynamicResource Settings.Provider}"/>
+                                            <TextBlock Text="{DynamicResource Settings.Provider}"
+                                                       Style="{StaticResource SettingsFieldLabelStyle}"/>
                                             <ComboBox ItemsSource="{Binding ProviderOptions}"
                                                       SelectedItem="{Binding SelectedProvider}"
                                                       Height="38"
+                                                      Margin="{StaticResource SettingsStackGap4}"
                                                       FontSize="{DynamicResource FontSize.Title}"
                                                       VerticalContentAlignment="Center" Style="{StaticResource ComboBoxStyle}"/>
                                         </StackPanel>
                                         <StackPanel Grid.Column="2">
-                                            <TextBlock Text="{DynamicResource Settings.APIKEY}"/>
+                                            <TextBlock Text="{DynamicResource Settings.APIKEY}"
+                                                       Style="{StaticResource SettingsFieldLabelStyle}"/>
                                             <PasswordBox x:Name="AgentKeyBox"
+                                                         Margin="{StaticResource SettingsStackGap4}"
                                                          Style="{StaticResource RoundedPasswordBoxStyle}"/>
                                         </StackPanel>
                                     </Grid>
                                     <TextBlock Text="{Binding KeyStatus}"
-                                              />
-                                    <!-- Full-width action row: buttons stretch evenly
-                                         across the whole card. -->
-                                    <Border Margin="{StaticResource SettingsStackGap10}"
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                        <UniformGrid Columns="2">
-                                            <Button Style="{StaticResource SuccessPillButton}"
-                                                Tag="&#xE74E;"
-                                                Content="{DynamicResource Settings.StoreKEY}"
-                                                HorizontalAlignment="Stretch"
-                                                Click="StoreKey_Click"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE74D;"
-                                                Content="{DynamicResource Settings.RemoveKEY}"
-                                                Margin="0"
-                                                Command="{Binding RemoveKeyCommand}"/>
-                                        </UniformGrid>
-                                    </Border>
+                                               Style="{StaticResource SettingsRowMetaStyle}"
+                                               Margin="{StaticResource SettingsStackGap4}"/>
+                                    <!-- Full-width action row: buttons stretch evenly across the whole card. -->
+                                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
+                                        <Button Style="{StaticResource SuccessPillButton}"
+                                            Tag="&#xE74E;"
+                                            Content="{DynamicResource Settings.StoreKEY}"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="{StaticResource SettingsInlineGap6R}"
+                                            Click="StoreKey_Click"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Tag="&#xE74D;"
+                                            Content="{DynamicResource Settings.RemoveKEY}"
+                                            Margin="0"
+                                            Command="{Binding RemoveKeyCommand}"/>
+                                    </UniformGrid>
                                 </StackPanel>
                             </Border>
                         </StackPanel>

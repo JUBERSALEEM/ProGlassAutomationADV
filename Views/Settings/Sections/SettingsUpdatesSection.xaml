@@ -1,36 +1,10 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Settings/Sections/SettingsUpdatesSection.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Settings v2 — UPDATES page (OTA) — tile-grid redesign Aug 2026
-
-     REDESIGN
-       Was: one giant full-width card that held the version grid, the
-       Check/Download buttons, the progress bar, the ready-state block,
-       the release-notes border and the update-history ledger all in a
-       single stacked surface. That read as one long monolithic wall.
-
-       Now: split into three labelled full-row tiles — OVERVIEW (version
-       comparison + status), RELEASE NOTES, and UPDATE HISTORY — so the
-       page breathes and the user can scan each part on its own. Every
-       conditional visibility trigger (IsUpdateAvailable / IsUpdateReady /
-       IsDownloadingUpdate / HasReleaseInfo / HasUpdateHistory) and all
-       22 ViewModel bindings preserved.
-
-       Check → download → install & restart. Installed builds use the
-       Velopack path (SettingsViewModel routes); dev builds keep the
-       classic GitHub-release + installer flow.
-═══════════════════════════════════════════════════════════════════════ -->
+<!-- FILE: Views/Settings/Sections/SettingsUpdatesSection.xaml — UPDATES page (OTA Studio Bento) -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsUpdatesSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-             FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Ideal"
-             TextOptions.TextRenderingMode="ClearType"
-             UseLayoutRounding="True"
-             SnapsToDevicePixels="True"
-             RenderOptions.ClearTypeHint="Enabled"
-             RenderOptions.EdgeMode="Aliased">
+             FontFamily="{DynamicResource AppFontFamily}" TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType" UseLayoutRounding="True" SnapsToDevicePixels="True">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -46,15 +20,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-
-        <ScrollViewer Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      CanContentScroll="False"
-                      PanningMode="VerticalOnly"
-                      behaviors:SmoothScrollBehavior.IsEnabled="True"
-                      Focusable="False"
-                      FocusVisualStyle="{x:Null}">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False" PanningMode="VerticalOnly" behaviors:SmoothScrollBehavior.IsEnabled="True"
+                      Focusable="False" FocusVisualStyle="{x:Null}">
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — UPDATES & RELEASE ═══ -->
@@ -86,10 +54,21 @@
                 <!-- ═══ CARD — OVERVIEW ═══ -->
                 <Border Style="{StaticResource SettingsPageCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="{DynamicResource Nav.Overview}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.RunningVersionAgainstLatestPublishedRelease}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <Grid Margin="{StaticResource SettingsStackBottom8}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE777;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Nav.Overview}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.RunningVersionAgainstLatestPublishedRelease}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border>
                                 <StackPanel>
@@ -212,8 +191,6 @@
                                 </StackPanel>
                             </Border>
                         </StackPanel>
-
-                        <Border/>
                     </StackPanel>
                 </Border>
 
@@ -227,10 +204,21 @@
                     <!-- ═══ CARD — RELEASE NOTES ═══ -->
                     <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="{DynamicResource Settings.ReleaseNotes}"
-                                       Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings.WhatReleaseChangesStraightPublisher}"
-                                       Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE7BA;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Settings.ReleaseNotes}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.WhatReleaseChangesStraightPublisher}"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
                             <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource SurfaceTertiaryBrush}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12">
                                     <Border.Style>
@@ -271,18 +259,27 @@
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
-
-                            <Border/>
                         </StackPanel>
                     </Border>
 
                     <!-- ═══ CARD — UPDATE HISTORY ═══ -->
                     <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource Settings.UpdateHistory}"
-                                   Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="{DynamicResource Settings.CheckDownloadFailureRecordedMachine}"
-                                   Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                        <StackPanel>
+                            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                    <TextBlock Text="&#xE81C;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Settings.UpdateHistory}"
+                                               Style="{StaticResource SettingsCardTitleStyle}"/>
+                                    <TextBlock Text="{DynamicResource Settings.CheckDownloadFailureRecordedMachine}"
+                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                                </StackPanel>
+                            </Grid>
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <Border>
                                 <StackPanel>

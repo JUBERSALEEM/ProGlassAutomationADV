@@ -63,8 +63,6 @@
                                 </StackPanel>
                             </Border>
                         </UniformGrid>
-
-                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>
                 </Border>
 </UserControl>

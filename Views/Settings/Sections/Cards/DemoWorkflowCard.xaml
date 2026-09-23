@@ -68,39 +68,34 @@
                                     <TextBlock Text="{Binding WorkflowHint}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                     <!-- Full-width action row: buttons stretch evenly. -->
-                                    <Border Margin="{StaticResource SettingsStackGap12}"
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                        <UniformGrid Columns="5">
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Settings.GenerateSelected}"
-                                                Command="{Binding GenerateSelectedCommand}"
-                                                AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
-                                                HorizontalAlignment="Stretch"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Settings.GenerateModules}"
-                                                Command="{Binding GenerateAllCommand}"
-                                                AutomationProperties.AutomationId="DemoCenter.GenerateAll"
-                                                HorizontalAlignment="Stretch"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Settings.RetryLAST}"
-                                                Command="{Binding RetryCommand}"
-                                                HorizontalAlignment="Stretch"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Action.Cancel}"
-                                                Command="{Binding CancelCommand}"
-                                                HorizontalAlignment="Stretch"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Settings.OPENOutput}"
-                                                Command="{Binding OpenOutputCommand}"
-                                                HorizontalAlignment="Stretch"
-                                                Margin="0"/>
-                                        </UniformGrid>
-                                    </Border>
+                                    <UniformGrid Columns="5" Margin="{StaticResource SettingsStackGap12}">
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Content="{DynamicResource Settings.GenerateSelected}"
+                                            Command="{Binding GenerateSelectedCommand}"
+                                            AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
+                                            HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Content="{DynamicResource Settings.GenerateModules}"
+                                            Command="{Binding GenerateAllCommand}"
+                                            AutomationProperties.AutomationId="DemoCenter.GenerateAll"
+                                            HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Content="{DynamicResource Settings.RetryLAST}"
+                                            Command="{Binding RetryCommand}"
+                                            HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Content="{DynamicResource Action.Cancel}"
+                                            Command="{Binding CancelCommand}"
+                                            HorizontalAlignment="Stretch"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Content="{DynamicResource Settings.OPENOutput}"
+                                            Command="{Binding OpenOutputCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="0"/>
+                                    </UniformGrid>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
-
-                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>
                 </Border>
 </UserControl>

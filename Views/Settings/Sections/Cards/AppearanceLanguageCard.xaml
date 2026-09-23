@@ -102,31 +102,31 @@
                                   MinWidth="180" Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource ComboBoxStyle}"/>
                     </StackPanel>
                 </Border>
-            </UniformGrid>
 
-            <!-- ═══ ACCESSIBILITY — reduced motion ═══ -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap12}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                        <TextBlock Text="&#xE713;"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   Margin="{StaticResource SettingsInlineGap6R}"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{DynamicResource Settings.ReducedMotion}"
-                                   Style="{StaticResource SettingsRowTitleStyle}"
-                                   VerticalAlignment="Center"/>
+                <!-- Reduced motion accessibility -->
+                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+                            <TextBlock Text="&#xE713;"
+                                       FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Body}"
+                                       Margin="{StaticResource SettingsInlineGap6R}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Settings.ReducedMotion}"
+                                       Style="{StaticResource SettingsRowTitleStyle}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{DynamicResource Settings.ReducedMotionTip}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                   TextWrapping="Wrap"/>
+                        <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
+                                  AutomationProperties.Name="{DynamicResource Settings.ReducedMotion}"
+                                  Content="{DynamicResource Settings.ReducedMotion}"
+                                  IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
+                                  Margin="{StaticResource SettingsStackGap8}"/>
                     </StackPanel>
-                    <TextBlock Text="{DynamicResource Settings.ReducedMotionTip}"
-                               Style="{StaticResource SettingsRowMetaStyle}"
-                               TextWrapping="Wrap"/>
-                    <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
-                              AutomationProperties.Name="{DynamicResource Settings.ReducedMotion}"
-                              Content="{DynamicResource Settings.ReducedMotion}"
-                              IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
-                              Margin="{StaticResource SettingsStackGap8}"/>
-                </StackPanel>
-            </Border>
+                </Border>
+            </UniformGrid>
 
             <!-- Auto-detect + currency status -->
             <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackGap12}">

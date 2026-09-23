@@ -82,23 +82,20 @@
                                                  Padding="10,7"
                                                  FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
 
-                                        <Border Margin="{StaticResource SettingsStackGap10}"
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                            <UniformGrid Columns="2">
-                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                    Content="Test Connection"
-                                                    Command="{Binding TestSharedDataRootCommand}"
-                                                    HorizontalAlignment="Stretch"/>
-                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                    Content="Prepare Folder"
-                                                    Command="{Binding PrepareSharedDataRootCommand}"
-                                                    HorizontalAlignment="Stretch"/>
-                                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                    Content="Save + Restart Required"
-                                                    Command="{Binding ApplySharedDataRootCommand}"
-                                                    HorizontalAlignment="Stretch"/>
-                                            </UniformGrid>
-                                        </Border>
+                                        <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="Test Connection"
+                                                Command="{Binding TestSharedDataRootCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="Prepare Folder"
+                                                Command="{Binding PrepareSharedDataRootCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                                Content="Save + Restart Required"
+                                                Command="{Binding ApplySharedDataRootCommand}"
+                                                HorizontalAlignment="Stretch"/>
+                                        </UniformGrid>
                                     </StackPanel>
                                 </Grid>
 
@@ -116,8 +113,6 @@
                                 </Border>
                             </StackPanel>
                         </Border>
-
-                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>
                 </Border>
 </UserControl>

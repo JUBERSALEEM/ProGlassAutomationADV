@@ -123,8 +123,6 @@
                         <TextBlock Text="{Binding RecordHint}"
                                    Style="{StaticResource SettingsRowMetaStyle}"
                                    Margin="{StaticResource SettingsRowMargin}"/>
-
-                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>
                 </Border>
 </UserControl>

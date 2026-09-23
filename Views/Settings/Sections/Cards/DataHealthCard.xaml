@@ -69,24 +69,20 @@
                                         </Grid>
                                     </Border>
 
-                                    <!-- Full-width action row: buttons stretch evenly
-                                         across the whole card. -->
-                                    <Border 
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                        <UniformGrid Columns="2">
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Action.Refresh}"
-                                                Command="{Binding RefreshDatabaseHealthCommand}"
-                                                HorizontalAlignment="Stretch"
-                                                ToolTip="{DynamicResource Settings.ProbeDatabaseRefreshRowCountTable}"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Settings.RebuildDatabasesEmergency}"
-                                                Command="{Binding RebuildAllDatabasesCommand}"
-                                                HorizontalAlignment="Stretch"
-                                                Margin="0"
-                                                ToolTip="{DynamicResource Settings.MoveDbFileMigrationbackupsRecreateCurrent}"/>
-                                        </UniformGrid>
-                                    </Border>
+                                    <!-- Full-width action row: buttons stretch evenly across the whole card. -->
+                                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Content="{DynamicResource Action.Refresh}"
+                                            Command="{Binding RefreshDatabaseHealthCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            ToolTip="{DynamicResource Settings.ProbeDatabaseRefreshRowCountTable}"/>
+                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                            Content="{DynamicResource Settings.RebuildDatabasesEmergency}"
+                                            Command="{Binding RebuildAllDatabasesCommand}"
+                                            HorizontalAlignment="Stretch"
+                                            Margin="0"
+                                            ToolTip="{DynamicResource Settings.MoveDbFileMigrationbackupsRecreateCurrent}"/>
+                                    </UniformGrid>
 
                                     <ListBox ItemsSource="{Binding DatabaseHealthRows}"
                                     AutomationProperties.Name="{DynamicResource Settings.RebuildDatabasesEmergency}"

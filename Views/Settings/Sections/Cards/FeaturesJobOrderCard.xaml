@@ -43,21 +43,19 @@
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipJobOrderFieldOnce}"/>
-                                        <Border 
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                            <UniformGrid Columns="2">
-                                                <Button Content="{DynamicResource Settings.Enable}"
-                                                Command="{Binding EnableAllCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"/>
-                                                <Button Content="{DynamicResource Settings.HideOptional}"
-                                                Command="{Binding DisableAllOptionalCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"/>
-                                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
-                                                Command="{Binding ResetToDefaultsCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"
-                                                Margin="0"/>
-                                            </UniformGrid>
-                                        </Border>
+                                        <!-- Full-width action row: 3 buttons side-by-side -->
+                                        <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap10}">
+                                            <Button Content="{DynamicResource Settings.Enable}"
+                                            Command="{Binding EnableAllCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"/>
+                                            <Button Content="{DynamicResource Settings.HideOptional}"
+                                            Command="{Binding DisableAllOptionalCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"/>
+                                            <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
+                                            Command="{Binding ResetToDefaultsCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"
+                                            Margin="0"/>
+                                        </UniformGrid>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

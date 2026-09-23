@@ -418,26 +418,22 @@
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipOptionalFieldOnceRestoreBoxLayout}"/>
-                                    <!-- Full-width action row: buttons stretch evenly
-                                         across the whole card (no left-cramped gap). -->
-                                        <Border 
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                            <UniformGrid Columns="2">
-                                                <Button Content="{DynamicResource Settings.Enable}"
-                                                Command="{Binding EnableAllCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"
-                                                ToolTip="{DynamicResource Settings.ShowOptionalFieldWizard}"/>
-                                                <Button Content="{DynamicResource Settings.HideOptional}"
-                                                Command="{Binding DisableAllOptionalCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"
-                                                ToolTip="{DynamicResource Settings.CollapseOptionalFieldThreeDBRequiredFields}"/>
-                                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
-                                                Command="{Binding ResetToDefaultsCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"
-                                                Margin="0"
-                                                ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
-                                            </UniformGrid>
-                                        </Border>
+                                    <!-- Full-width action row: buttons stretch evenly across the whole card. -->
+                                    <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap10}">
+                                        <Button Content="{DynamicResource Settings.Enable}"
+                                        Command="{Binding EnableAllCommand}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        ToolTip="{DynamicResource Settings.ShowOptionalFieldWizard}"/>
+                                        <Button Content="{DynamicResource Settings.HideOptional}"
+                                        Command="{Binding DisableAllOptionalCommand}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        ToolTip="{DynamicResource Settings.CollapseOptionalFieldThreeDBRequiredFields}"/>
+                                        <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
+                                        Command="{Binding ResetToDefaultsCommand}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        Margin="0"
+                                        ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
+                                    </UniformGrid>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

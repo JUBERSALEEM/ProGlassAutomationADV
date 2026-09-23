@@ -205,6 +205,7 @@ JUSTIFIED: dict[str, dict[str, str]] = {
         "Weight.Bold": "grammar type roles carry the weights",
     },
     "SettingsThemesSection.xaml": {
+        "SettingsAxisRowMargin": "crystal axes are in a responsive 2-column bento tile grid with SettingsTileGridMargin",
         # staticres
         "SettingsGroupCaptionStyle": "group bands are card headers now — title + helper line, per the approved mockup",
         "SettingsGroupHeaderTextStyle": "group captions use SettingsGroupCaptionStyle",
@@ -272,6 +273,15 @@ def committed(path: Path, rev: str) -> str | None:
         return None
 
 
+def read_section_text(path: Path) -> str:
+    text = path.read_text(encoding="utf-8")
+    for card_name in re.findall(r"<cards:(\w+)", text):
+        card_file = path.parent / "Cards" / f"{card_name}.xaml"
+        if card_file.exists():
+            text += "\n" + card_file.read_text(encoding="utf-8")
+    return text
+
+
 def main() -> int:
     _check_no_duplicate_pages(Path(__file__).read_text(encoding="utf-8"))
     ap = argparse.ArgumentParser()
@@ -295,7 +305,7 @@ def main() -> int:
             print(f"new   {path.name}: not in {args.against}, nothing to compare")
             continue
 
-        old, new = collect(before), collect(path.read_text(encoding="utf-8"))
+        old, new = collect(before), collect(read_section_text(path))
 
         lost: list[str] = []
         for kind in PATTERNS:

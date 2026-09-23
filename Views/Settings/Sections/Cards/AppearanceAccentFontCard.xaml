@@ -256,10 +256,6 @@
                     </Border>
                 </StackPanel>
             </Border>
-
-            <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-            <!-- ═════════ GROUP: WALLPAPERS ═════════ -->
         </StackPanel>
     </Border>
 </UserControl>
