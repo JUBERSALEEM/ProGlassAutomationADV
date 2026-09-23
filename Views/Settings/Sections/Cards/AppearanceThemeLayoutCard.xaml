@@ -178,7 +178,7 @@
                             <cards:AppearanceFrostTile Margin="{StaticResource SettingsTileGridMargin}"/>
 
                             <!-- Semantic ERP surfaces: Primary / Secondary / Detail customization -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE771;"/>
@@ -219,75 +219,63 @@
 
                                     <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap4}">
 
-                                        <Border CornerRadius="{DynamicResource Radius.Small}"
-                                                Background="{DynamicResource SurfaceElevatedBrush}"
-                                                Padding="12,10" Margin="{StaticResource SettingsInlineGap6R}">
-                                            <StackPanel>
-                                                <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                <TextBlock Text="Major page/module card" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                                <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.3" Maximum="1" Value="{Binding SurfacePrimaryOpacity, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfacePrimaryRadius, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfacePrimaryBorderThickness, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Margin="{StaticResource SettingsInlineGap6R}">
+                                            <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="Major page/module card" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                            <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.3" Maximum="1" Value="{Binding SurfacePrimaryOpacity, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfacePrimaryRadius, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfacePrimaryBorderThickness, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                        </StackPanel>
 
-                                        <Border CornerRadius="{DynamicResource Radius.Small}"
-                                                Background="{DynamicResource SurfaceElevatedBrush}"
-                                                Padding="12,10" Margin="{StaticResource SettingsInlineGap6}">
-                                            <StackPanel>
-                                                <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                                <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.25" Maximum="1" Value="{Binding SurfaceSecondaryOpacity, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceSecondaryRadius, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceSecondaryBorderThickness, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Margin="{StaticResource SettingsInlineGap6}">
+                                            <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                            <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.25" Maximum="1" Value="{Binding SurfaceSecondaryOpacity, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceSecondaryRadius, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceSecondaryBorderThickness, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                        </StackPanel>
 
-                                        <Border CornerRadius="{DynamicResource Radius.Small}"
-                                                Background="{DynamicResource SurfaceElevatedBrush}"
-                                                Padding="12,10" Margin="{StaticResource SettingsInlineGap6}">
-                                            <StackPanel>
-                                                <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                                <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.15" Maximum="1" Value="{Binding SurfaceDetailOpacity, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceDetailRadius, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
-                                                <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceDetailBorderThickness, Mode=TwoWay}"
-                                                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                                                />
-                                            </StackPanel>
-                                        </Border>
+                                        <StackPanel Margin="{StaticResource SettingsInlineGap6}">
+                                            <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                            <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                            <TextBlock Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource SettingsRowMetaStyle}" Text="Opacity"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0.15" Maximum="1" Value="{Binding SurfaceDetailOpacity, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Radius"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48" Value="{Binding SurfaceDetailRadius, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Border"/>
+                                            <Slider Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24" Value="{Binding SurfaceDetailBorderThickness, Mode=TwoWay}"
+                                            AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                                            />
+                                        </StackPanel>
                                     </UniformGrid>
                                 </StackPanel>
-                            </Border>
+                            </StackPanel>
 
 
                             <!-- UI scale -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;" VerticalAlignment="Center"/>
@@ -316,10 +304,10 @@
                                             Value="{Binding UiScale, Mode=TwoWay}"
                                             VerticalAlignment="Center"/>
                                 </StackPanel>
-                            </Border>
+                            </StackPanel>
 
                             <!-- PDF layout -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"/>
@@ -334,10 +322,10 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.AppliesPIJODNTaxInvoiceStatementSheetStore}"/>
                                 </StackPanel>
-                            </Border>
+                            </StackPanel>
 
                             <!-- Motion & performance -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                 <StackPanel>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"/>
@@ -348,7 +336,7 @@
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.AnimationsAdaptDisplayRefreshRate6090120144}"/>
                                 </StackPanel>
-                            </Border>
+                            </StackPanel>
 
                         </UniformGrid>
 

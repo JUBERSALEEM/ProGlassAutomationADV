@@ -18,21 +18,19 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsInnerTileStyle}">
-        <StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;" VerticalAlignment="Center"/>
-                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LblThemeFamily}"/>
-            </StackPanel>
-            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                       Text="{DynamicResource Settings.NormalMonetIos17pm}"/>
-            <ComboBox ItemsSource="{Binding VisualThemeOptions}"
-                      DisplayMemberPath="Display"
-                      SelectedValuePath="Key"
-                      SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch"
-                      Margin="{StaticResource SettingsStackGap6}"
-                      Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+    <StackPanel Margin="{StaticResource SettingsStackGap8}">
+        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LblThemeFamily}"/>
         </StackPanel>
-    </Border>
+        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="{DynamicResource Settings.NormalMonetIos17pm}"/>
+        <ComboBox ItemsSource="{Binding VisualThemeOptions}"
+                  DisplayMemberPath="Display"
+                  SelectedValuePath="Key"
+                  SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
+                  HorizontalAlignment="Stretch"
+                  Margin="{StaticResource SettingsStackGap6}"
+                  Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+    </StackPanel>
 </UserControl>

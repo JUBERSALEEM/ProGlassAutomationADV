@@ -232,7 +232,9 @@
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
                                                         <Border x:Name="CardBd"
-                                                                Style="{StaticResource SettingsInnerTileStyle}"
+                                                                Background="{DynamicResource SurfaceSecondaryBrush}"
+                                                                BorderBrush="{DynamicResource DividerBrush}"
+                                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
                                                                 Padding="8"
                                                                 CornerRadius="{DynamicResource CardCornerRadius}">
                                                             <StackPanel>

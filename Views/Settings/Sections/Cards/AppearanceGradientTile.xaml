@@ -16,26 +16,24 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;" VerticalAlignment="Center"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.GradientSurfaces}"/>
-                                    </StackPanel>
-                                    <TextBlock Grid.Row="1"
-                                               Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
-                                    <ToggleButton Grid.Row="3"
-                                    AutomationProperties.Name="{DynamicResource Settings.GradientSurfaces}"
-                                                  HorizontalAlignment="Left"
-                                                  IsChecked="{Binding UseGradientSurfaces, Mode=TwoWay}"
-                                                  Style="{StaticResource ModernToggleSwitch}"/>
-                                </Grid>
-                            </Border>
+    <Grid Margin="{StaticResource SettingsStackGap8}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.GradientSurfaces}"/>
+        </StackPanel>
+        <TextBlock Grid.Row="1"
+                   Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
+        <ToggleButton Grid.Row="3"
+                      AutomationProperties.Name="{DynamicResource Settings.GradientSurfaces}"
+                      HorizontalAlignment="Left"
+                      IsChecked="{Binding UseGradientSurfaces, Mode=TwoWay}"
+                      Style="{StaticResource ModernToggleSwitch}"/>
+    </Grid>
 </UserControl>

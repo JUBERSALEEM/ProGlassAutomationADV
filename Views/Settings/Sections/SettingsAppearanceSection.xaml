@@ -3,8 +3,8 @@
      PROJECT: ProGlassAutomation
      MODULE: Settings — APPEARANCE (Full Light Studio Bento redesign)
      Visual source of truth: mockups/v4-01-appearance.png
-     Preserves all bindings to SettingsViewModel while elevating the
-     layout hierarchy, card grammar, spacing, and typography ladder.
+     Smart 5-card Bento placement for compact preference controls,
+     followed by dedicated full-width studios for Typography & Wallpapers.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAppearanceSection"
              xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
@@ -61,34 +61,35 @@
                 </Grid>
             </Border>
 
-            <!-- ═══ 1. BENTO ROW — BASE COLOR MODE & DISPLAY DENSITY ═══ -->
+            <!-- ═══ 5-CARD SMART BENTO DECK: COMPACT PREFERENCE CONTROLS ═══ -->
+            <!-- Row 1: 3-column Bento grid (Mode, Density & Scale, Splash Screen) -->
             <Grid Margin="{StaticResource SettingsBentoRowMargin}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1.3*"/>
+                    <ColumnDefinition Width="1.3*"/>
                 </Grid.ColumnDefinitions>
-                <cards:AppearanceModeCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
-                <cards:AppearanceDensityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                <cards:AppearanceModeCard Grid.Column="0" Margin="{StaticResource SettingsBentoCol3Left}"/>
+                <cards:AppearanceDensityCard Grid.Column="1" Margin="{StaticResource SettingsBentoCol3Mid}"/>
+                <cards:AppearanceSplashCard Grid.Column="2" Margin="{StaticResource SettingsBentoCol3Right}"/>
             </Grid>
 
-            <!-- ═══ 2. CARD — THEME & SURFACE ARCHITECTURE ═══ -->
-            <cards:AppearanceThemeLayoutCard/>
-
-            <!-- ═══ 3. CARD — BRAND ACCENT & TYPOGRAPHY STUDIO ═══ -->
-            <cards:AppearanceAccentFontCard/>
-
-            <!-- ═══ 4. CARD — STUDIO WALLPAPERS & ATMOSPHERIC DEPTH ═══ -->
-            <cards:AppearanceWallpapersCard/>
-
-            <!-- ═══ 5. BENTO ROW — SPLASH SCREEN & REGIONAL LOCALIZATION ═══ -->
+            <!-- Row 2: 2-column balanced Bento grid (Surface Architecture & Regional Localization) -->
             <Grid Margin="{StaticResource SettingsBentoRowMargin}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1.55*"/>
+                    <ColumnDefinition Width="1.45*"/>
                 </Grid.ColumnDefinitions>
-                <cards:AppearanceSplashCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                <cards:AppearanceThemeLayoutCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
                 <cards:AppearanceLanguageCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
             </Grid>
+
+            <!-- ═══ MAJOR STUDIO CARDS ═══ -->
+            <!-- 1. Brand Accent Palette & Typography Studio -->
+            <cards:AppearanceAccentFontCard Margin="{StaticResource SettingsCardMargin}"/>
+
+            <!-- 2. Studio Wallpapers & Atmospheric Depth -->
+            <cards:AppearanceWallpapersCard Margin="{StaticResource SettingsCardMargin}"/>
 
         </StackPanel>
     </ScrollViewer>

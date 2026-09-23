@@ -3,6 +3,7 @@
      PROJECT: ProGlassAutomation
      MODULE: Settings — Themes: Crystal Fluid Material (Ios-17pm only)
      Studio Bento layout with responsive 2-column slider grid and live water preview.
+     Zero concentric card nesting; numbers in Viewbox with tabular format.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.ThemesCrystalMaterialCard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -124,11 +125,13 @@
                                     Maximum="{Binding CrystalWaterOpacityMax}"
                                     Value="{Binding CrystalWaterOpacity, Mode=TwoWay}"
                                     VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" TextAlignment="Right"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding CrystalWaterOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            <Viewbox Grid.Column="1" MaxHeight="18" HorizontalAlignment="Right">
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding CrystalWaterOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            </Viewbox>
                         </Grid>
                     </StackPanel>
 
@@ -149,11 +152,13 @@
                                     Maximum="{Binding CrystalWaterSpeedMax}"
                                     Value="{Binding CrystalWaterSpeed, Mode=TwoWay}"
                                     VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" TextAlignment="Right"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding CrystalWaterSpeed, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            <Viewbox Grid.Column="1" MaxHeight="18" HorizontalAlignment="Right">
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding CrystalWaterSpeed, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            </Viewbox>
                         </Grid>
                     </StackPanel>
 
@@ -174,11 +179,13 @@
                                     Maximum="{Binding CrystalWaveAmplitudeMax}"
                                     Value="{Binding CrystalWaveAmplitude, Mode=TwoWay}"
                                     VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" TextAlignment="Right"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding CrystalWaveAmplitude, Mode=OneWay, StringFormat={}{0:0.0}}"/>
+                            <Viewbox Grid.Column="1" MaxHeight="18" HorizontalAlignment="Right">
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding CrystalWaveAmplitude, Mode=OneWay, StringFormat={}{0:0.0}}"/>
+                            </Viewbox>
                         </Grid>
                     </StackPanel>
 
@@ -199,11 +206,13 @@
                                     Maximum="{Binding CrystalCausticIntensityMax}"
                                     Value="{Binding CrystalCausticIntensity, Mode=TwoWay}"
                                     VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" TextAlignment="Right"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding CrystalCausticIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            <Viewbox Grid.Column="1" MaxHeight="18" HorizontalAlignment="Right">
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding CrystalCausticIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            </Viewbox>
                         </Grid>
                     </StackPanel>
 
@@ -224,11 +233,13 @@
                                     Maximum="{Binding CrystalBubbleIntensityMax}"
                                     Value="{Binding CrystalBubbleIntensity, Mode=TwoWay}"
                                     VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" TextAlignment="Right"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding CrystalBubbleIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            <Viewbox Grid.Column="1" MaxHeight="18" HorizontalAlignment="Right">
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding CrystalBubbleIntensity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            </Viewbox>
                         </Grid>
                     </StackPanel>
 
@@ -249,11 +260,13 @@
                                     Maximum="{Binding CrystalReflectionOpacityMax}"
                                     Value="{Binding CrystalReflectionOpacity, Mode=TwoWay}"
                                     VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" TextAlignment="Right"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding CrystalReflectionOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            <Viewbox Grid.Column="1" MaxHeight="18" HorizontalAlignment="Right">
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           VerticalAlignment="Center"
+                                           Text="{Binding CrystalReflectionOpacity, Mode=OneWay, StringFormat={}{0:0.00}}"/>
+                            </Viewbox>
                         </Grid>
                     </StackPanel>
                 </UniformGrid>

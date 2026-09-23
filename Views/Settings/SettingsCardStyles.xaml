@@ -188,6 +188,9 @@
     <Thickness x:Key="SettingsFlagGridMargin">32,4,32,0</Thickness>
     <Thickness x:Key="SettingsBentoColLeft">0,0,8,0</Thickness>
     <Thickness x:Key="SettingsBentoColRight">8,0,0,0</Thickness>
+    <Thickness x:Key="SettingsBentoCol3Left">0,0,8,0</Thickness>
+    <Thickness x:Key="SettingsBentoCol3Mid">4,0,4,0</Thickness>
+    <Thickness x:Key="SettingsBentoCol3Right">8,0,0,0</Thickness>
     <Thickness x:Key="SettingsBentoRowMargin">0,0,0,16</Thickness>
     <Thickness x:Key="SettingsInset4">4</Thickness>
     <Thickness x:Key="SettingsInset2">2</Thickness>
