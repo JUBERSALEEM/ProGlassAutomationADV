@@ -258,7 +258,7 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                     <Button Command="{Binding SaveCutListSpecCommand}"
                                             Content="SAVE TO CATALOGUE"
-                                            Style="{StaticResource PrimaryPillButton}"
+                                            Style="{StaticResource OptPrimaryButton}"
                                             IsEnabled="{Binding CanSaveCutListSpec}"
                                             ToolTip="Writes this specification to the shared catalogue, so it is in the autocomplete in Step 4 and Step 5 too. Needs proforma edit rights — a refusal is reported on the status line below, not swallowed."/>
                                     <TextBlock Text="Saves glass type, name, price, colour, thickness and sheet size. The cut list reads the specification back immediately."
@@ -307,12 +307,12 @@
                                          ToolTip="How many blank rows GENERATE adds"/>
                                 <Button Command="{Binding GenerateCutListRowsCommand}"
                                         Content="{DynamicResource Dg.Generate}"
-                                        Style="{StaticResource OutlinedPillButton}"
+                                        Style="{StaticResource OptOutlinedButton}"
                                         Height="32" Margin="8,0,0,0"
                                         VerticalAlignment="Center"/>
                                 <Button Command="{Binding ManualCutList.AddRowCommand}"
                                         Content="{DynamicResource Dg.AddRowShort}"
-                                        Style="{StaticResource OutlinedPillButton}"
+                                        Style="{StaticResource OptOutlinedButton}"
                                         Height="32" Margin="8,0,0,0"
                                         VerticalAlignment="Center"/>
                                 <Button Command="{Binding ClearCutListCommand}"
@@ -330,7 +330,7 @@
                             <Button Grid.Column="2"
                                     Command="{Binding SendCutListToEngineCommand}"
                                     Content="SEND TO ENGINE"
-                                    Style="{StaticResource PrimaryPillButton}"
+                                    Style="{StaticResource OptPrimaryButton}"
                                     Height="34" MinWidth="170"
                                     VerticalAlignment="Center"
                                     ToolTip="Rebuilds the engine's piece list from this cut list — W1×H1 as the outer pane, W2×H2 as the inner. Replaces whatever the JOBS import put there, so sending twice cannot double the pieces. Racks on STOCKS are left as you set them."/>
@@ -642,13 +642,13 @@
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                     <Button Command="{Binding RefreshCutListResultsCommand}"
                                             Content="RE-READ RUN"
-                                            Style="{StaticResource OutlinedPillButton}"
+                                            Style="{StaticResource OptOutlinedButton}"
                                             Height="32" Margin="0,0,8,0"
                                             VerticalAlignment="Center"
                                             ToolTip="Reads the run on screen back into the grid's QTY USED and OPT % columns. Runs do this themselves; this is for after hand-editing sizes."/>
                                     <Button Command="{Binding JumpToOptimizationTabCommand}" CommandParameter="4"
                                             Content="OPEN FULL SUMMARY"
-                                            Style="{StaticResource PrimaryPillButton}"
+                                            Style="{StaticResource OptPrimaryButton}"
                                             Height="32"
                                             VerticalAlignment="Center"
                                             ToolTip="The module's SUMMARY tab: the same run, with the full costing breakdown."/>

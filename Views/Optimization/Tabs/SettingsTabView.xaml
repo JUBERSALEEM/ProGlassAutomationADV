@@ -1,17 +1,20 @@
 <!-- ═══════════════════════════════════════════════════════════════
      FILE: Views/Optimization/Tabs/SettingsTabView.xaml
-     MODULE: Optimization — Settings tab (hosted by OptimizationView).
+     MODULE: Optimization — Settings Tab (Studio Bento Redesign)
      DataContext = OptimizationViewModel (inherited from the shell).
 
-     STUDIO BENTO REDESIGN (MOCKUP 05):
-     Guillotine plate margins, kerf score width, breakout rules,
-     0°/90° rotation toggle, and 5-stage search effort strategies.
+     Studio Bento layout:
+     Left: Plate Geometry & Trim Margins (LM, RM, TM, BM, Thickness).
+     Right: Blade Kerf, Breakout Boundaries, Rotation, and 5-Stage Effort.
+     Bottom: House Defaults Controller & Engine Margin Hint Diagnostics.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.SettingsTabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}">
@@ -19,44 +22,59 @@
     <Grid>
         <Border Style="{StaticResource OptPanelCard}">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel MaxWidth="880" HorizontalAlignment="Left">
-                    <TextBlock Text="OPTIMIZATION ENGINE CONFIGURATION" Style="{StaticResource OptPanelTitle}" Margin="0,0,0,4"/>
-                    <TextBlock Text="Configure guillotine cut allowances, trim safety margins, kerf blade width and search intensity."
-                               FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,16"/>
+                <StackPanel>
+                    <!-- Header -->
+                    <StackPanel Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="28" Height="28" CornerRadius="6"
+                                    Background="{DynamicResource AccentSoftBrush}"
+                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                    Margin="0,0,10,0" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="OPTIMIZATION ENGINE CONFIGURATION" Style="{StaticResource OptPanelTitle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="Configure guillotine cut allowances, trim safety margins, kerf blade width and search intensity."
+                                   FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" Margin="38,3,0,0"/>
+                    </StackPanel>
 
+                    <!-- Balanced 2-Column Bento Grid -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- LEFT BENTO CARD: Plate Trims & Margins -->
-                        <Border Grid.Column="0" Style="{StaticResource OptInnerCard}" Margin="0,0,12,0">
+                        <!-- ══ LEFT BENTO CARD: Plate Geometry & Trim Margins ══ -->
+                        <Border Grid.Column="0" Style="{StaticResource OptInnerCard}" Margin="0,0,12,0" Padding="18,16">
                             <StackPanel>
-                                <Grid Margin="0,0,0,12">
+                                <Grid Margin="0,0,0,14">
                                     <TextBlock Text="PLATE GEOMETRY &amp; TRIM MARGINS" Style="{StaticResource OptHeader}"
                                                FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <Border HorizontalAlignment="Right" Background="{StaticResource OptAccentBg}"
-                                            CornerRadius="4" Padding="6,2">
-                                        <TextBlock Text="SAFETY EDGES" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OptAccentInk}"/>
+                                    <Border HorizontalAlignment="Right" Background="{DynamicResource AccentSoftBrush}"
+                                            BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                            CornerRadius="4" Padding="8,2">
+                                        <TextBlock Text="SAFETY EDGES" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                     </Border>
                                 </Grid>
 
                                 <TextBlock Text="GLASS THICKNESS (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
 
                                 <TextBlock Text="LEFT MARGIN LM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding LeftMarginText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
 
                                 <TextBlock Text="RIGHT MARGIN RM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding RightMarginText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
 
                                 <TextBlock Text="TOP MARGIN TM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding TopMarginText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
 
                                 <TextBlock Text="BOTTOM MARGIN BM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding BottomMarginText, UpdateSourceTrigger=PropertyChanged}"
@@ -64,41 +82,42 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- RIGHT BENTO CARD: Blade Kerf & Search Strategy -->
-                        <Border Grid.Column="1" Style="{StaticResource OptInnerCard}" Margin="0,0,0,0">
+                        <!-- ══ RIGHT BENTO CARD: Cut Rules & Search Effort ══ -->
+                        <Border Grid.Column="1" Style="{StaticResource OptInnerCard}" Padding="18,16">
                             <StackPanel>
-                                <Grid Margin="0,0,0,12">
+                                <Grid Margin="0,0,0,14">
                                     <TextBlock Text="CUT RULES &amp; SEARCH EFFORT" Style="{StaticResource OptHeader}"
                                                FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     <Border HorizontalAlignment="Right" Background="{StaticResource OptInfoBg}"
-                                            CornerRadius="4" Padding="6,2">
+                                            BorderBrush="{StaticResource OptInfoBorder}" BorderThickness="1"
+                                            CornerRadius="4" Padding="8,2">
                                         <TextBlock Text="GUILLOTINE 2D" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OptInfoInk}"/>
                                     </Border>
                                 </Grid>
 
                                 <TextBlock Text="KERF / BLADE GAP (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding KerfText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
 
                                 <TextBlock Text="MINIMUM BREAKOUT (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding MinBreakoutText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,12"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
 
                                 <StackPanel Visibility="{Binding HasBreakoutChoice, Converter={StaticResource BoolToVisibilityConverter}}"
-                                            Margin="0,0,0,12">
+                                            Margin="0,0,0,14">
                                     <TextBlock Text="BREAKOUT CHOICE (9MM AND ABOVE)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                     <ComboBox ItemsSource="{Binding BreakoutOptions}"
                                               SelectedItem="{Binding SelectedBreakoutOption}"
-                                              Style="{StaticResource OptComboStyle}" Width="160" HorizontalAlignment="Left"/>
+                                              Style="{StaticResource OptComboStyle}" Width="180" HorizontalAlignment="Left"/>
                                     <TextBlock Text="{Binding BreakoutHint}"
                                                FontSize="11" TextWrapping="Wrap"
                                                Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
                                 </StackPanel>
 
-                                <!-- Rotation Permission Checkbox -->
-                                <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                                <!-- Rotation Permission Card -->
+                                <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                                        CornerRadius="6" Padding="10,8" Margin="0,0,0,12">
+                                        CornerRadius="8" Padding="12,10" Margin="0,0,0,14">
                                     <CheckBox IsChecked="{Binding RotationEnabled}"
                                               Style="{StaticResource LiquidGlassCheckBox}">
                                         <TextBlock Text="Allow rotation (0° / 90° mix) — piece turns adaptively to maximize sheet yield"
@@ -115,16 +134,16 @@
                         </Border>
                     </Grid>
 
-                    <!-- Bottom Action & Hints Strip -->
-                    <Border Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                    <!-- ══ BOTTOM BENTO STRIP: House Defaults & Diagnostics ══ -->
+                    <Border Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                            CornerRadius="8" Padding="14,12" Margin="0,16,0,0">
+                            CornerRadius="10" Padding="16,14" Margin="0,18,0,0">
                         <StackPanel>
                             <Grid>
-                                <Button Content="Load House Defaults" Style="{StaticResource OutlinedPillButton}"
+                                <Button Content="Load House Defaults" Style="{StaticResource OptOutlinedButton}"
                                         Command="{Binding LoadHouseDefaultsCommand}" HorizontalAlignment="Left"/>
                                 <TextBlock Text="{Binding ThicknessSourceHint}" HorizontalAlignment="Right" VerticalAlignment="Center"
-                                           FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                           FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </Grid>
                             <TextBlock Text="{Binding MarginHint}"
                                        FontSize="11" TextWrapping="Wrap"

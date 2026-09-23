@@ -1,17 +1,19 @@
 <!-- ═══════════════════════════════════════════════════════════════
      FILE: Views/Optimization/Tabs/StocksTabView.xaml
-     MODULE: Optimization — Stocks tab (hosted by OptimizationView).
+     MODULE: Optimization — Stocks Tab (Studio Bento Redesign)
      DataContext = OptimizationViewModel (inherited from the shell).
 
-     STUDIO BENTO REDESIGN (MOCKUP 04):
-     Raw jumbo stock plates and remnants inventory ledger,
-     add-stock inputs, Step 4 import, and active run allocation.
+     Studio Bento layout:
+     Top: Raw Jumbo Plates & Stock Pool Controller + Add Stock / Import Step 4 Toolbar.
+     Main: Master Stock Rack Matrix with usage toggles, dimension badges, and pool status.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Optimization.Tabs.StocksTabView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}">
@@ -26,21 +28,33 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
+                <!-- ══ 1. HEADER BLOCK ══ -->
                 <StackPanel Grid.Row="0" Margin="0,0,0,10">
-                    <TextBlock Text="RAW JUMBO PLATES &amp; STOCK INVENTORY" Style="{StaticResource OptPanelTitle}"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="28" Height="28" CornerRadius="6"
+                                Background="{DynamicResource AccentSoftBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                Margin="0,0,10,0" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="RAW JUMBO PLATES &amp; STOCK INVENTORY" Style="{StaticResource OptPanelTitle}" VerticalAlignment="Center"/>
+                    </StackPanel>
                     <TextBlock Text="Stock pool for the run — tick the racks each specification may draw from; unticked racks stay listed but are excluded from the optimizer."
                                FontSize="12" TextWrapping="Wrap"
-                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,3,0,0"/>
+                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="38,3,0,0"/>
                 </StackPanel>
 
+                <!-- Status Line -->
                 <TextBlock Grid.Row="1" Text="{Binding StocksStatusText}"
                            FontSize="12" FontWeight="SemiBold"
-                           Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                           Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" Margin="38,0,0,14"/>
 
-                <!-- Add Stock Toolbar -->
-                <Border Grid.Row="2" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                <!-- ══ 2. ADD STOCK TOOLBAR BENTO CARD ══ -->
+                <Border Grid.Row="2" Background="{DynamicResource SurfaceSecondaryBrush}"
                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                        CornerRadius="8" Padding="14,10" Margin="0,0,0,16">
+                        CornerRadius="10" Padding="16,12" Margin="0,0,0,16">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -66,16 +80,16 @@
                         <TextBox Grid.Column="5" Text="{Binding NewStock.AvailableText, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource OptIntInput}" Margin="0,0,16,0"/>
 
-                        <Button Grid.Column="6" Content="+ Add Stock" Style="{StaticResource PrimaryPillButton}"
+                        <Button Grid.Column="6" Content="+ Add Stock" Style="{StaticResource OptPrimaryButton}"
                                 Command="{Binding AddStockCommand}" Margin="0,0,8,0"/>
 
-                        <Button Grid.Column="7" Content="Import Step 4 Sheets" Style="{StaticResource OutlinedPillButton}"
+                        <Button Grid.Column="7" Content="Import Step 4 Sheets" Style="{StaticResource OptOutlinedButton}"
                                 Command="{Binding ImportStockFromStep4Command}"
                                 ToolTip="Populate the pool from the selected Job Orders' quoted sheet sizes"/>
                     </Grid>
                 </Border>
 
-                <!-- Stock Inventory Matrix -->
+                <!-- ══ 3. STOCK INVENTORY MATRIX ══ -->
                 <Grid Grid.Row="3">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -83,16 +97,16 @@
                     </Grid.RowDefinitions>
 
                     <!-- Table Header -->
-                    <Border Grid.Row="0" Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+                    <Border Grid.Row="0" Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                            CornerRadius="6" Padding="10,8" Margin="0,0,0,6">
+                            CornerRadius="6" Padding="12,8" Margin="0,0,0,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50"/>
-                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="170"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="100"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="110"/>
                                 <ColumnDefinition Width="180"/>
                                 <ColumnDefinition Width="70"/>
                             </Grid.ColumnDefinitions>
@@ -115,10 +129,10 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="50"/>
-                                                <ColumnDefinition Width="160"/>
+                                                <ColumnDefinition Width="170"/>
                                                 <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="110"/>
+                                                <ColumnDefinition Width="110"/>
                                                 <ColumnDefinition Width="180"/>
                                                 <ColumnDefinition Width="70"/>
                                             </Grid.ColumnDefinitions>
@@ -128,7 +142,7 @@
                                                       ToolTip="Tick to allow the optimizer to cut from this plate"/>
                                             <Border Grid.Column="1" Background="{DynamicResource AccentSoftBrush}"
                                                     BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
-                                                    CornerRadius="4" Padding="6,2"
+                                                    CornerRadius="4" Padding="8,2"
                                                     HorizontalAlignment="Left" VerticalAlignment="Center">
                                                 <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
                                                     <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding HeightText, Mode=OneWay}"/><Run Text=" mm"/>
@@ -142,7 +156,8 @@
                                                 <Run Text="{Binding AvailableText, Mode=OneWay}"/>
                                             </TextBlock>
                                             <Border Grid.Column="4" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                                    Background="{StaticResource OptSuccessBg}" CornerRadius="4" Padding="6,2"
+                                                    Background="{StaticResource OptSuccessBg}" BorderBrush="{StaticResource OptSuccessBorder}"
+                                                    BorderThickness="1" CornerRadius="4" Padding="6,2"
                                                     Visibility="{Binding HasUsed, Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <TextBlock Text="{Binding UsedLabel}" FontSize="11" FontWeight="Bold"
                                                            Foreground="{StaticResource OptSuccessInk}"/>
