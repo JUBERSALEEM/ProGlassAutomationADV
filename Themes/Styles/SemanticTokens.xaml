@@ -52,6 +52,7 @@
            Industrial → solid slate/white material
            Monet      → Monet-tinted material
            Crystal    → crystal glass material                            -->
+    <SolidColorBrush x:Key="BackgroundBrush"       Color="#FFF8FAFC"/>
     <SolidColorBrush x:Key="SurfaceWindowBrush"    Color="#FFF5F7FA"/>
     <SolidColorBrush x:Key="SurfaceWorkspaceBrush" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="SurfaceCardBrush"      Color="#F8FFFFFF"/>

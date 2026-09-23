@@ -212,6 +212,7 @@ namespace ProGlassAutomation.Services.Theme
                 // grey, which is what makes them read as cards.
                 // NOTE 2026-09-15: AppBackgroundBrush stays out of this table —
                 // the page background is the invariant About stage.
+                ["BackgroundBrush"]         = Ios26Lin2("#F2F2F7", "#EDEDF2", null),
                 ["WindowBackgroundBrush"]   = Ios26Lin2("#F2F2F7", "#EDEDF2", null),
                 ["ModuleBackgroundBrush"]   = Ios26Sol(false, "#F2F2F7", null),
                 ["SideMenuBackgroundBrush"] = Ios26Sol(false, "#F7F7FA", null),
@@ -309,6 +310,7 @@ namespace ProGlassAutomation.Services.Theme
             new()
             {
                 // 2026-09-15: AppBackgroundBrush removed — see the light table.
+                ["BackgroundBrush"]         = Ios26Lin2("#17181D", "#101116", null),
                 ["WindowBackgroundBrush"]   = Ios26Lin2("#17181D", "#101116", null),
                 ["ModuleBackgroundBrush"]   = Ios26Sol(true, "#1B1C22", null),
                 ["SideMenuBackgroundBrush"] = Ios26Sol(true, "#131418", null),

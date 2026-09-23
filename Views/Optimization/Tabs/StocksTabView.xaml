@@ -126,9 +126,11 @@
                                                       VerticalAlignment="Center"
                                                       Style="{StaticResource LiquidGlassCheckBox}"
                                                       ToolTip="Tick to allow the optimizer to cut from this plate"/>
-                                            <Border Grid.Column="1" Background="#443A86" CornerRadius="4" Padding="6,2"
+                                            <Border Grid.Column="1" Background="{DynamicResource AccentSoftBrush}"
+                                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                                    CornerRadius="4" Padding="6,2"
                                                     HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                <TextBlock FontSize="12" FontWeight="Bold" Foreground="#FFFFFF">
+                                                <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
                                                     <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding HeightText, Mode=OneWay}"/><Run Text=" mm"/>
                                                 </TextBlock>
                                             </Border>

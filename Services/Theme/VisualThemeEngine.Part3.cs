@@ -69,6 +69,7 @@ namespace ProGlassAutomation.Services.Theme
             };
             stage.Freeze();
             resources["WindowBackgroundBrush"] = stage;
+            resources["BackgroundBrush"] = stage;
 
             // ── 2) SHADOWS — water-weight shadows flow from the theme
             // XAML via ClearOverrides (unchanged mechanism).
@@ -253,6 +254,7 @@ namespace ProGlassAutomation.Services.Theme
             resources["WindowBackgroundBrush"] = FrozenSolid(dark
                 ? Color.FromRgb(0x0A, 0x12, 0x26)
                 : Color.FromRgb(0xF6, 0xF1, 0xE6));
+            resources["BackgroundBrush"] = resources["WindowBackgroundBrush"];
 
             Color surface = dark
                 ? Color.FromRgb(0x10, 0x1A, 0x2E)

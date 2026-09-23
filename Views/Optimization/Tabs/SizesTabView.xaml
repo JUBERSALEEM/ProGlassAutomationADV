@@ -137,9 +137,11 @@
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="160"/>
                                             </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="0" Background="#443A86" CornerRadius="4" Padding="6,2"
+                                            <Border Grid.Column="0" Background="{DynamicResource AccentSoftBrush}"
+                                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                                    CornerRadius="4" Padding="6,2"
                                                     HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Number}" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                <TextBlock Text="{Binding Number}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                             </Border>
                                             <TextBlock Grid.Column="1" Text="{Binding Ref}" FontSize="12"
                                                        FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"

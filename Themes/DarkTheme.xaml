@@ -73,6 +73,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          SECTION 4 — SURFACE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#FF0F172A" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#00000000" po:Freeze="True"/>
 
     <!-- Opaque popup surface. See the note in LightTheme.xaml: a Popup

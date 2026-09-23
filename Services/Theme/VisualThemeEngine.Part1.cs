@@ -97,6 +97,7 @@ namespace ProGlassAutomation.Services.Theme
         /// <summary>Keys the engine may override (removed on Normal).</summary>
         private static readonly string[] ManagedKeys =
         {
+            "BackgroundBrush",
             "WindowBackgroundBrush", "ModuleBackgroundBrush",
             "ElevatedSurfaceBrush", "SideMenuBackgroundBrush",
             "MenuHoverBrush",
@@ -902,6 +903,7 @@ namespace ProGlassAutomation.Services.Theme
 
             foreach (var (key, color) in new (string, Color)[]
                      {
+                         ("BackgroundBrush", windowColor),
                          ("WindowBackgroundBrush", windowColor),
                          ("ModuleBackgroundBrush", moduleColor),
                          ("ElevatedSurfaceBrush", elevatedColor),
@@ -1131,6 +1133,8 @@ namespace ProGlassAutomation.Services.Theme
                     resources["WindowBackgroundBrush"] = flat;
                 }
             }
+            if (resources.Contains("WindowBackgroundBrush"))
+                resources["BackgroundBrush"] = resources["WindowBackgroundBrush"];
 
             // Frosted surfaces — the active base theme's colours tinted
             // toward the accent hue, then made translucent so the

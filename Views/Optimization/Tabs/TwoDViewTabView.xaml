@@ -56,7 +56,7 @@
                                         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSingleSheetMode}" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
+                                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -83,7 +83,7 @@
                                         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsGalleryMode}" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
+                                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -114,8 +114,8 @@
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
                                     Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
                             <!-- Sheet Number Pill -->
-                            <Border Background="{StaticResource OptBentoHeroBg}" CornerRadius="6" Padding="10,5" Margin="0,0,8,0">
-                                <TextBlock Text="{Binding PreviewSheetCounter}" FontSize="12" FontWeight="Bold" Foreground="#FFFFFF"/>
+                            <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,8,0">
+                                <TextBlock Text="{Binding PreviewSheetCounter}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
 
                             <!-- Stock Dimensions Pill -->
@@ -395,7 +395,7 @@
                                                         <Grid Margin="3">
                                                             <!-- Cut Sequence Tag Badge (Top-Left) -->
                                                             <Border HorizontalAlignment="Left" VerticalAlignment="Top"
-                                                                    Background="#443A86" CornerRadius="3" Padding="4,1"
+                                                                    Background="{DynamicResource AccentBrush}" CornerRadius="3" Padding="4,1"
                                                                     Visibility="{Binding ShowSequence, Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock Text="{Binding CutTag}" FontSize="9" FontWeight="Bold" Foreground="#FFFFFF"/>
                                                             </Border>
@@ -492,9 +492,11 @@
                                                         </Grid.ColumnDefinitions>
                                                         <TextBlock Grid.Column="0" Text="{Binding SequenceNumber}" FontWeight="SemiBold"
                                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                                        <Border Grid.Column="1" Background="#443A86" CornerRadius="4" Padding="6,1"
+                                                        <Border Grid.Column="1" Background="{DynamicResource AccentSoftBrush}"
+                                                                BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                                                CornerRadius="4" Padding="6,1"
                                                                 HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding CutTag}" FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                            <TextBlock Text="{Binding CutTag}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                                         </Border>
                                                         <TextBlock Grid.Column="2" Text="{Binding PieceRef}" FontWeight="SemiBold"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>

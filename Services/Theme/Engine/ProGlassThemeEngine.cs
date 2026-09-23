@@ -202,6 +202,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
         /// </summary>
         private static void DualWriteSemanticAliases(ResourceDictionary resources)
         {
+            CopyBrush(resources, "BackgroundBrush", "WindowBackgroundBrush", "WindowBackgroundBrush");
             CopyBrush(resources, "SurfaceWindowBrush", "WindowBackgroundBrush", "WindowBackgroundBrush");
             CopyBrush(resources, "SurfaceWorkspaceBrush", "ModuleBackgroundBrush", "SurfacePrimaryBrush");
             CopyBrush(resources, "SurfaceCardBrush", "GlassUltraClearBrush", "SurfacePrimaryBrush");
@@ -246,6 +247,7 @@ namespace ProGlassAutomation.Services.Theme.Engine
             EnsureSolid(resources, "BorderDefaultBrush", p.Border);
             EnsureSolid(resources, "InputBorderBrush", p.Border);
             EnsureSolid(resources, "AccentBrush", p.Accent);
+            EnsureSolid(resources, "BackgroundBrush", p.Window);
             EnsureSolid(resources, "WindowBackgroundBrush", p.Window);
             EnsureSolid(resources, "ModuleBackgroundBrush", p.Surface);
             EnsureSolid(resources, "ElevatedSurfaceBrush", p.Elevated);

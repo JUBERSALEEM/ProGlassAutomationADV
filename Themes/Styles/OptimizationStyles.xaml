@@ -3,15 +3,14 @@
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
 
     <!-- ═════════════════════════════════════════════════════════════
-         STUDIO BENTO + CONCEPT 30 PORCELAIN FLOW — OPTIMIZATION MODULE
-         Solid indigo hero cards (#443A86), porcelain surfaces,
-         refined 14-DIP Bento cards, semantic yield badges,
-         and CAD-grade 2D cutting visualizer styling.
+         STUDIO BENTO FULL LIGHT SYSTEM — OPTIMIZATION MODULE
+         Porcelain surfaces, refined 14-DIP Bento cards,
+         semantic yield badges, and CAD-grade 2D cutting visualizer styling.
          ═════════════════════════════════════════════════════════════ -->
 
     <!-- Bento Color Palette Tokens -->
-    <SolidColorBrush x:Key="OptBentoHeroBg" Color="#4F46E5"/>
-    <SolidColorBrush x:Key="OptBentoHeroBorder" Color="#4338CA"/>
+    <SolidColorBrush x:Key="OptBentoHeroBg" Color="#0284C7"/>
+    <SolidColorBrush x:Key="OptBentoHeroBorder" Color="#0369A1"/>
     <SolidColorBrush x:Key="OptBentoSurface" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="OptBentoCardBg" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="OptBentoCardSubtleBg" Color="#F8FAFC"/>
@@ -34,9 +33,9 @@
     <SolidColorBrush x:Key="OptInfoBorder" Color="#BFDBFE"/>
     <SolidColorBrush x:Key="OptInfoInk" Color="#1E40AF"/>
 
-    <SolidColorBrush x:Key="OptAccentBg" Color="#EEF2FF"/>
-    <SolidColorBrush x:Key="OptAccentBorder" Color="#C7D2FE"/>
-    <SolidColorBrush x:Key="OptAccentInk" Color="#4F46E5"/>
+    <SolidColorBrush x:Key="OptAccentBg" Color="#F0F9FF"/>
+    <SolidColorBrush x:Key="OptAccentBorder" Color="#BAE6FD"/>
+    <SolidColorBrush x:Key="OptAccentInk" Color="#0284C7"/>
 
     <SolidColorBrush x:Key="OptOffcutBg" Color="#F8FAFC"/>
     <SolidColorBrush x:Key="OptOffcutBorder" Color="#CBD5E1"/>
@@ -66,17 +65,17 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <!-- ══ Solid Indigo Hero Card (Primary Yield & Engine Status) ══ -->
+    <!-- ══ Light Studio Bento Hero Card (Primary Yield & Engine Status) ══ -->
     <Style x:Key="OptHeroCard" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource OptBentoHeroBorder}"/>
+        <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource OptCardRadius}"/>
         <Setter Property="Padding" Value="20,18"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="16" ShadowDepth="4" Direction="270" Color="#4F46E5" Opacity="0.18"/>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Direction="270" Color="#000000" Opacity="0.04"/>
             </Setter.Value>
         </Setter>
     </Style>

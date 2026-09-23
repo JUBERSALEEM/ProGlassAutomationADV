@@ -85,18 +85,18 @@
                                 <TextBlock Grid.Column="0" Text="CNC MACHINE PROTOCOLS:" Style="{StaticResource OptHeader}"
                                            VerticalAlignment="Center" Margin="0,0,12,0"/>
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Border Background="#201C30" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
-                                        <TextBlock Text="Bottero .OPT" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
+                                        <TextBlock Text="Bottero .OPT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     </Border>
-                                    <Border Background="#443A86" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
-                                        <TextBlock Text="Lisec .DAT" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
+                                        <TextBlock Text="Lisec .DAT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                     </Border>
-                                    <Border Background="#201C30" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
-                                        <TextBlock Text="Intermac .ISO" FontSize="11" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="1" CornerRadius="6" Padding="8,4" Margin="0,0,8,0">
+                                        <TextBlock Text="Intermac .ISO" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     </Border>
-                                    <Border Background="#F1F5F9" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                    <Border Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="1"
                                             CornerRadius="6" Padding="8,4">
-                                        <TextBlock Text="Generic DXF" FontSize="11" FontWeight="Bold" Foreground="#334155"/>
+                                        <TextBlock Text="Generic DXF" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                     </Border>
                                 </StackPanel>
                             </Grid>
@@ -332,10 +332,11 @@
                                                     <ColumnDefinition Width="110"/>
                                                     <ColumnDefinition Width="110"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Grid.Column="0" Background="#443A86" CornerRadius="4"
-                                                        Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                <Border Grid.Column="0" Background="{DynamicResource AccentSoftBrush}"
+                                                        BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                                        CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding SheetNo, StringFormat='Sheet #{0}'}"
-                                                               FontSize="10" FontWeight="Bold" Foreground="#FFFFFF"/>
+                                                               FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                                 </Border>
                                                 <TextBlock Grid.Column="1" Text="{Binding Composition}" FontSize="12"
                                                            FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -489,9 +490,11 @@
                                                     <ColumnDefinition Width="120"/>
                                                     <ColumnDefinition Width="190"/>
                                                 </Grid.ColumnDefinitions>
-                                                <Border Grid.Column="0" Background="#443A86" CornerRadius="4" Padding="6,2"
+                                                <Border Grid.Column="0" Background="{DynamicResource AccentSoftBrush}"
+                                                        BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
+                                                        CornerRadius="4" Padding="6,2"
                                                         HorizontalAlignment="Left" VerticalAlignment="Center">
-                                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="#FFFFFF">
+                                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
                                                         <Run Text="{Binding WidthText, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding HeightText, Mode=OneWay}"/><Run Text=" mm"/>
                                                     </TextBlock>
                                                 </Border>

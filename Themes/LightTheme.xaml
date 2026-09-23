@@ -96,6 +96,7 @@
          SECTION 4 — SURFACE BRUSHES
          Module, Elevated, Sidebar, Menu, Overlay surfaces.
     ═══════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="BackgroundBrush" Color="#FFF8FAFC" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#00FFFFFF" po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
