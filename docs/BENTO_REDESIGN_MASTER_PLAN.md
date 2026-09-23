@@ -110,7 +110,7 @@ Views in Bento Transformation Plan:       236
 | Phase | Category | Target Modules | View Count | Status |
 | :---: | :--- | :--- | :---: | :---: |
 | **1** | Settings Foundation & Personalization | Settings Shell, Card Styles, Appearance, Themes, Voice, License, About, Sharing | 27 | **COMPLETED** |
-| **2** | Settings Data, Storage, Features & AI | Data, Backup, Features, AI Assistant, Agent, Demo Hub, Updates | 28 | **IN_PROGRESS** |
+| **2** | Settings Data, Storage, Features & AI | Data, Backup, Features, AI Assistant, Agent, Demo Hub, Updates | 28 | **COMPLETED** |
 | **3** | Centers, Diagnostics & System Hubs | Company Center, User Center, System Center, Diagnostics, Crash, About, AI Chat | 19 | **PENDING** |
 | **4** | Core ERP Document Details & Trans. | DeliveryNote, JobOrder, TaxInvoice Details & Inquiry Editor | 25 | **PENDING** |
 | **5** | Proforma Invoice Wizard & Estimator | Proforma 13-Step Wizard (Steps 1–9), Pricing Parameters, Approval Dialogs | 26 | **PENDING** |
@@ -159,8 +159,8 @@ Views in Bento Transformation Plan:       236
 ---
 
 ### Phase 2: Settings Data, Storage, Features, AI & Demo Suite (28 Views)
-**Status**: `IN_PROGRESS`  
-**Focus**: Data backup and health cards (fixing crowded concentric cards), multi-column feature toggles, AI/Agent provider cards, and Demo Hub recording controls.
+**Status**: `COMPLETED`  
+**Focus**: Data backup and health cards (fixing crowded concentric cards), multi-column feature toggles, AI/Agent provider cards, and Demo Hub recording controls. Concentric card nesting eliminated across all 28 views. Numbers wrapped in Viewbox for tabular responsive scaling. Single-action rows and clean Bento stack grids standardized.
 
 #### File Manifest:
 1. `Views/Settings/Sections/SettingsDataSection.xaml`

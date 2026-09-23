@@ -41,109 +41,101 @@
             <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
                 <!-- Master toggle -->
-                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Grid.Row="1"
-                                   Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
-                        <ToggleButton Grid.Row="3"
-                                      AutomationProperties.Name="{DynamicResource Settings.EnableAIAssistant}"
-                                      HorizontalAlignment="Left"
-                                      Margin="{StaticResource SettingsStackGap8}"
-                                      IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
-                                      Style="{StaticResource ModernToggleSwitch}"/>
-                    </Grid>
-                </Border>
+                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F2;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.EnableAIAssistant}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1"
+                               Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.MasterSwitchWhenChatButtonHiddenNoAPICalls}"/>
+                    <ToggleButton Grid.Row="3"
+                                  AutomationProperties.Name="{DynamicResource Settings.EnableAIAssistant}"
+                                  HorizontalAlignment="Left"
+                                  Margin="{StaticResource SettingsStackGap8}"
+                                  IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
+                                  Style="{StaticResource ModernToggleSwitch}"/>
+                </Grid>
 
                 <!-- Real business data toggle -->
-                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Grid.Row="1"
-                                   Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
-                        <ToggleButton Grid.Row="3"
-                                      AutomationProperties.Name="{DynamicResource Settings.UseRealBusinessData}"
-                                      HorizontalAlignment="Left"
-                                      Margin="{StaticResource SettingsStackGap8}"
-                                      IsChecked="{Binding UseRealData, Mode=TwoWay}"
-                                      Style="{StaticResource ModernToggleSwitch}"/>
-                    </Grid>
-                </Border>
+                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F9;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.UseRealBusinessData}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1"
+                               Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.WhenLiveInvoiceJobDeliveryBalanceDataSent}"/>
+                    <ToggleButton Grid.Row="3"
+                                  AutomationProperties.Name="{DynamicResource Settings.UseRealBusinessData}"
+                                  HorizontalAlignment="Left"
+                                  Margin="{StaticResource SettingsStackGap8}"
+                                  IsChecked="{Binding UseRealData, Mode=TwoWay}"
+                                  Style="{StaticResource ModernToggleSwitch}"/>
+                </Grid>
             </UniformGrid>
 
             <!-- ── SHORT CARDS / SMART BENTO ROW 2: ACTIVE PARAMETERS ── -->
             <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleed}">
 
                 <!-- Model readout -->
-                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ActiveModel}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding AiModel}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Margin="{StaticResource SettingsStackGap4}"
-                                   Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.ActiveModel}" VerticalAlignment="Center"/>
                     </StackPanel>
-                </Border>
+                    <TextBlock Text="{Binding AiModel}"
+                               FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource AccentBrush}"
+                               TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Margin="{StaticResource SettingsStackGap4}"
+                               Text="{DynamicResource Settings.ModelIdentifierCurrentlySelectedProvider}"/>
+                </StackPanel>
 
                 <!-- Max tokens -->
-                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.MaxTokens}" VerticalAlignment="Center"/>
-                        </StackPanel>
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE762;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.MaxTokens}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Viewbox MaxHeight="22" HorizontalAlignment="Left">
                         <TextBlock Text="{Binding AiMaxTokens}"
                                    FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   TextWrapping="Wrap"/>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Margin="{StaticResource SettingsStackGap4}"
-                                   Text="{DynamicResource Settings.ResponseLengthCeilingCallAdjustConfigJsonNow}"/>
-                    </StackPanel>
-                </Border>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Viewbox>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Margin="{StaticResource SettingsStackGap4}"
+                               Text="{DynamicResource Settings.ResponseLengthCeilingCallAdjustConfigJsonNow}"/>
+                </StackPanel>
 
                 <!-- Temperature -->
-                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Temperature}" VerticalAlignment="Center"/>
-                        </StackPanel>
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE706;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Temperature}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Viewbox MaxHeight="22" HorizontalAlignment="Left">
                         <TextBlock Text="{Binding AiTemperature}"
                                    FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   TextWrapping="Wrap"/>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Margin="{StaticResource SettingsStackGap4}"
-                                   Text="{DynamicResource Settings.HigherMoreCreativeLowerMoreDeterministicRead}"/>
-                    </StackPanel>
-                </Border>
+                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    </Viewbox>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Margin="{StaticResource SettingsStackGap4}"
+                               Text="{DynamicResource Settings.HigherMoreCreativeLowerMoreDeterministicRead}"/>
+                </StackPanel>
             </UniformGrid>
         </StackPanel>
     </Border>

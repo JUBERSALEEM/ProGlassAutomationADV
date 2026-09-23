@@ -36,8 +36,7 @@
                         </Grid>
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                             <!-- Local only -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{Binding LocalOnlyLabel}" TextWrapping="Wrap"/>
@@ -49,11 +48,9 @@
                                             Tag="&#xE72E;"
                                             Content="{DynamicResource Settings.Toggle}"/>
                                 </StackPanel>
-                            </Border>
 
                             <!-- Cloud consent -->
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{Binding CloudConsentLabel}" TextWrapping="Wrap"/>
@@ -65,13 +62,11 @@
                                             Tag="&#xE72E;"
                                             Content="{DynamicResource Settings.Toggle}"/>
                                 </StackPanel>
-                            </Border>
                         </UniformGrid>
 
                         <!-- 2-Column Bento: Privacy Summary & Hardware Advice -->
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                <StackPanel>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE946;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.WhatMeans}"/>
@@ -83,10 +78,8 @@
                                         <Run Text="{Binding AllowedHostsDisplay, Mode=OneWay}"/>
                                     </TextBlock>
                                 </StackPanel>
-                            </Border>
 
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                <StackPanel>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE90F;"/>
                                         <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LocalModelAdvice}"/>
@@ -94,7 +87,6 @@
                                     <TextBlock Text="{Binding HardwareAdvice}"
                                                Style="{StaticResource SettingsRowMetaStyle}"/>
                                 </StackPanel>
-                            </Border>
                         </UniformGrid>
 
                         <!-- ═══════ ONE-CLICK LOCAL MODEL (offline brain) ═══════
@@ -102,8 +94,7 @@
                              licences), download on click only, integrity record kept,
                              deletes fully on uninstall. Literal text on purpose —
                              this card ships new UI before the 15 locale packs add keys. -->
-                        <Border Margin="{StaticResource SettingsStackGap14}" Style="{StaticResource SettingsInnerTileStyle}">
-                            <StackPanel>
+                        <StackPanel Margin="{StaticResource SettingsStackGap14}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE896;"/>
                                     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="Offline AI model (install once, works without internet)"/>
@@ -200,7 +191,6 @@
                                 <TextBlock TextWrapping="Wrap"
                                            Text="Nothing is uploaded — inference is local. Enabling only switches the agent's recognizer for future chat turns."/>
                             </StackPanel>
-                        </Border>
 
                         <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
 
@@ -212,8 +202,7 @@
                                    Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
 
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
+                            <StackPanel Margin="{StaticResource SettingsStackGap8}">
                                     <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
                                         <TextBlock Text="&#xE8B7;"
                                                    FontFamily="{DynamicResource FontFamily.Icon}"
@@ -264,7 +253,6 @@
                                             Command="{Binding RemoveKeyCommand}"/>
                                     </UniformGrid>
                                 </StackPanel>
-                            </Border>
                         </StackPanel>
 
                         <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>

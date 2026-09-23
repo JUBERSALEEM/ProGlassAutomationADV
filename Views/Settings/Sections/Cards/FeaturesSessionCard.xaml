@@ -19,7 +19,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsPageCardStyle}">
+    <Border Style="{StaticResource SettingsCompactCardStyle}">
         <StackPanel>
             <Grid>
                 <Grid.ColumnDefinitions>

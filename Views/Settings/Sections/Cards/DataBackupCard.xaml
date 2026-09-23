@@ -40,53 +40,49 @@
             <!-- ── SHORT CARDS / SMART BENTO ROW 1: BACKUP & RESTORE ACTIONS ── -->
             <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
-                <!-- Backup actions tile -->
-                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupActions}"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.CreateBackupSetNowRefreshListOpenFolderWhere}"/>
-                        <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap8}">
-                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="{DynamicResource Settings.CreateBackupNOW}"
-                                    Command="{Binding CreateBackupNowCommand}"
-                                    HorizontalAlignment="Stretch"/>
-                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="{DynamicResource Action.Refresh}"
-                                    Command="{Binding RefreshBackupsCommand}"
-                                    HorizontalAlignment="Stretch"/>
-                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="{DynamicResource About.OPENFolder}"
-                                    Command="{Binding OpenBackupsFolderCommand}"
-                                    HorizontalAlignment="Stretch"
-                                    Margin="0"/>
-                        </UniformGrid>
+                <!-- Backup actions column directly on card canvas -->
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74E;"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BackupActions}"/>
                     </StackPanel>
-                </Border>
-
-                <!-- Restore tile -->
-                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE895;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource ProformaInvoice.Restore}"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
-                        <Button Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE895;" Content="{DynamicResource Settings.RestoreSelectedBackup}"
-                                Command="{Binding RestoreSelectedBackupCommand}"
-                                Margin="{StaticResource SettingsStackGap8}"
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.CreateBackupSetNowRefreshListOpenFolderWhere}"/>
+                    <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap8}">
+                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Settings.CreateBackupNOW}"
+                                Command="{Binding CreateBackupNowCommand}"
                                 HorizontalAlignment="Stretch"/>
-                        <TextBlock Text="{Binding BackupStatus}"
-                                   Style="{StaticResource SettingsRowMetaStyle}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Action.Refresh}"
+                                Command="{Binding RefreshBackupsCommand}"
+                                HorizontalAlignment="Stretch"/>
+                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource About.OPENFolder}"
+                                Command="{Binding OpenBackupsFolderCommand}"
+                                HorizontalAlignment="Stretch"
+                                Margin="0"/>
+                    </UniformGrid>
+                </StackPanel>
+
+                <!-- Restore column directly on card canvas -->
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE895;"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource ProformaInvoice.Restore}"/>
                     </StackPanel>
-                </Border>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
+                    <Button Style="{StaticResource SuccessPillButton}"
+                            Tag="&#xE895;" Content="{DynamicResource Settings.RestoreSelectedBackup}"
+                            Command="{Binding RestoreSelectedBackupCommand}"
+                            Margin="{StaticResource SettingsStackGap8}"
+                            HorizontalAlignment="Stretch"/>
+                    <TextBlock Text="{Binding BackupStatus}"
+                               Style="{StaticResource SettingsRowMetaStyle}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                </StackPanel>
             </UniformGrid>
 
             <!-- ── SMART BENTO ROW 2: FULL-WIDTH BACKUP SETS LEDGER ── -->

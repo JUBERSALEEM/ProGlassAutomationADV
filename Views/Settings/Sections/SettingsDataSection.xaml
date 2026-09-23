@@ -70,8 +70,8 @@
                 <!-- ═══ BENTO ROW — COMPANY LAN & SAMPLE DATA ═══ -->
                 <Grid Margin="{StaticResource SettingsBentoRowMargin}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.65*"/>
+                        <ColumnDefinition Width="1.35*"/>
                     </Grid.ColumnDefinitions>
                     <cards:DataRootCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
                     <cards:DataSampleCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>

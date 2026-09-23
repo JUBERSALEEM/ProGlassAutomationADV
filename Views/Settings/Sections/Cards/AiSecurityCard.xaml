@@ -41,52 +41,48 @@
             <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
                 <!-- Left Column: Keep API keys saved -->
-                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Grid.Row="1"
-                                   Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>
-                        <ToggleButton Grid.Row="3"
-                                      AutomationProperties.Name="{DynamicResource Settings.KeepKeysSaved}"
-                                      HorizontalAlignment="Left"
-                                      Margin="{StaticResource SettingsStackGap8}"
-                                      IsChecked="{Binding KeepApiKeysSaved, Mode=TwoWay}"
-                                      Style="{StaticResource ModernToggleSwitch}"/>
-                    </Grid>
-                </Border>
+                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE72E;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.KeepKeysSaved}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Grid.Row="1"
+                               Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.KeysHeldSessionKeysAlwaysEncryptedWindows}"/>
+                    <ToggleButton Grid.Row="3"
+                                  AutomationProperties.Name="{DynamicResource Settings.KeepKeysSaved}"
+                                  HorizontalAlignment="Left"
+                                  Margin="{StaticResource SettingsStackGap8}"
+                                  IsChecked="{Binding KeepApiKeysSaved, Mode=TwoWay}"
+                                  Style="{StaticResource ModernToggleSwitch}"/>
+                </Grid>
 
                 <!-- Right Column: Vault Actions (Remove keys & Clear memory) -->
-                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom4}">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="Vault Management" VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
-                        <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap8}">
-                            <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="{DynamicResource Settings.RemoveKEYS}"
-                                    Command="{Binding RemoveSavedKeysCommand}"
-                                    Margin="{StaticResource SettingsInlineGap6R}"
-                                    HorizontalAlignment="Stretch"/>
-                            <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE81C;" Content="{DynamicResource Settings.ClearMemory}"
-                                    Command="{Binding ClearAiMemoryCommand}"
-                                    HorizontalAlignment="Stretch"/>
-                        </UniformGrid>
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom4}">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE74D;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="Vault Management" VerticalAlignment="Center"/>
                     </StackPanel>
-                </Border>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
+                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap8}">
+                        <Button Style="{StaticResource DangerButton}"
+                                Tag="&#xE74D;" Content="{DynamicResource Settings.RemoveKEYS}"
+                                Command="{Binding RemoveSavedKeysCommand}"
+                                Margin="{StaticResource SettingsInlineGap6R}"
+                                HorizontalAlignment="Stretch"/>
+                        <Button Style="{StaticResource DangerButton}"
+                                Tag="&#xE81C;" Content="{DynamicResource Settings.ClearMemory}"
+                                Command="{Binding ClearAiMemoryCommand}"
+                                HorizontalAlignment="Stretch"/>
+                    </UniformGrid>
+                </StackPanel>
 
             </UniformGrid>
         </StackPanel>

@@ -36,9 +36,7 @@
                         </Grid>
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
                             <!-- License status strip (compact — full card lives on the About page) -->
-                            <Border Padding="10,8"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Background="{DynamicResource SurfaceTertiaryBrush}"
+                            <Border Style="{StaticResource SettingsWashTileStyle}"
                                     Margin="{StaticResource SettingsStackBottom10}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -104,13 +102,19 @@
                                             <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        Text="{Binding Status}"/>
-                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
-                                                       Text="{Binding TotalRowsDisplay}"
-                                                       TextAlignment="Right"/>
-                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       Text="{Binding FileSizeDisplay}"
-                                                       TextAlignment="Right"/>
+                                            <Viewbox Grid.Column="2" MaxHeight="18" HorizontalAlignment="Right">
+                                                <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           Text="{Binding TotalRowsDisplay}"
+                                                           TextAlignment="Right"/>
+                                            </Viewbox>
+                                            <Viewbox Grid.Column="3" MaxHeight="18" HorizontalAlignment="Right">
+                                                <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           Text="{Binding FileSizeDisplay}"
+                                                           TextAlignment="Right"/>
+                                            </Viewbox>
                                             <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.BodySmall}"
                                                        TextWrapping="Wrap"
                                                        Margin="{StaticResource SettingsInlineGap8}"

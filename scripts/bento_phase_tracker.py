@@ -69,7 +69,7 @@ PHASES = {
     },
     2: {
         'name': 'Settings Data, Storage, Features, AI & Demo Suite',
-        'status': 'IN_PROGRESS',
+        'status': 'COMPLETED',
         'files': [
             'Views/Settings/Sections/SettingsDataSection.xaml',
             'Views/Settings/Sections/SettingsFeaturesSection.xaml',

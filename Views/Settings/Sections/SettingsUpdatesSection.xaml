@@ -81,12 +81,13 @@
                                                 <TextBlock Text="{DynamicResource Settings.CurrentVersion}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                                <TextBlock FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                                           Margin="{StaticResource SettingsNoteTightMargin}"
-                                                           Foreground="{DynamicResource TextPrimaryBrush}">
-                                                    <Run Text="{DynamicResource Settings.V}"/>
-                                                    <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"/>
-                                                </TextBlock>
+                                                <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="{StaticResource SettingsNoteTightMargin}">
+                                                    <TextBlock FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               Foreground="{DynamicResource TextPrimaryBrush}">
+                                                        <Run Text="{DynamicResource Settings.V}"/>
+                                                        <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </Viewbox>
                                             </StackPanel>
                                         </Border>
                                         <Border Style="{StaticResource SettingsInfoTileStyle}" Grid.Column="1" Margin="{StaticResource SettingsInlineGap6}">
@@ -94,10 +95,11 @@
                                                 <TextBlock Text="{DynamicResource Settings.LatestRelease}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource TextTertiaryBrush}"/>
-                                                <TextBlock FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                                           Margin="{StaticResource SettingsNoteTightMargin}"
-                                                           Foreground="{DynamicResource AccentBrush}"
-                                                           Text="{Binding LatestVersionDisplay}"/>
+                                                <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="{StaticResource SettingsNoteTightMargin}">
+                                                    <TextBlock FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               Foreground="{DynamicResource AccentBrush}"
+                                                               Text="{Binding LatestVersionDisplay}"/>
+                                                </Viewbox>
                                             </StackPanel>
                                         </Border>
                                     </Grid>

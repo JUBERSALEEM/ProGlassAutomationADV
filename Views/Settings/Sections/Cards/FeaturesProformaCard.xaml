@@ -42,8 +42,7 @@
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
 
                             <UniformGrid Columns="4" Margin="{StaticResource SettingsTileGridBleed}">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -54,10 +53,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.FederalTRN}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -68,10 +65,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.Headquarters}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -82,10 +77,8 @@
                                         AutomationProperties.Name="{DynamicResource CompanyCenter.Representative}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -96,10 +89,8 @@
                                         AutomationProperties.Name="{DynamicResource Settings.RepresentativeMobile}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -110,10 +101,8 @@
                                         AutomationProperties.Name="{DynamicResource CompanyCenter.CompanyEMAIL}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -124,10 +113,8 @@
                                         AutomationProperties.Name="{DynamicResource CompanyCenter.BANKNAME}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -138,10 +125,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.AccountIBAN}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -152,10 +137,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.IssueDATE}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -166,10 +149,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.ValidUntil}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -180,7 +161,6 @@
                                         AutomationProperties.Name="{DynamicResource Common.Status}"
                                         />
                                     </Grid>
-                                </Border>
                             </UniformGrid>
 
                         <!-- ── STEP 2 · CLIENT ─────────────────────── -->
@@ -191,8 +171,7 @@
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
 
                             <UniformGrid Columns="4" Margin="{StaticResource SettingsTileGridBleed}">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -203,10 +182,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.CustomerTRN}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -217,10 +194,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.ReferenceCODE}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -231,10 +206,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.SalesRepresentative}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -245,10 +218,8 @@
                                         AutomationProperties.Name="{DynamicResource Inquiry.Prepared2}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -259,10 +230,8 @@
                                         AutomationProperties.Name="{DynamicResource Settings.AttentionKindAttn}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -273,10 +242,8 @@
                                         AutomationProperties.Name="{DynamicResource Settings.ClientPhone}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE716;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -287,7 +254,6 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.BillingAddress}"
                                         />
                                     </Grid>
-                                </Border>
                             </UniformGrid>
 
                         <!-- ── STEP 3 · PROJECT ─────────────────────── -->
@@ -296,8 +262,7 @@
                                    Margin="{StaticResource SettingsStackGap18}"/>
 
                             <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -308,10 +273,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.ProjectNAME}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -322,10 +285,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.ProjectReference}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -336,10 +297,8 @@
                                         AutomationProperties.Name="{DynamicResource Settings.ContractNumber}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -350,10 +309,8 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.LPOPONumber}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                    <Grid>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B7;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
@@ -364,7 +321,6 @@
                                         AutomationProperties.Name="{DynamicResource ProformaInvoice.SITEDeliveryLocation}"
                                         />
                                     </Grid>
-                                </Border>
                             </UniformGrid>
 
 
@@ -387,8 +343,7 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Border Grid.Column="0" Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsBentoColLeft}">
-                                    <Grid>
+                                <Grid Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
@@ -411,10 +366,8 @@
                                                    VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6}"/>
                                         </StackPanel>
                                     </Grid>
-                                </Border>
 
-                                <Border Grid.Column="1" Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsBentoColRight}">
-                                    <Grid>
+                                <Grid Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}">
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
                                             <RowDefinition Height="Auto"/>
@@ -443,7 +396,6 @@
                                                     ToolTip="{DynamicResource Settings.RestoreBoxLayoutFieldVisible}"/>
                                         </UniformGrid>
                                     </Grid>
-                                </Border>
                             </Grid>
                         </StackPanel>
                     </Border>

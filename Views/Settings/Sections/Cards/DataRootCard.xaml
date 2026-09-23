@@ -98,10 +98,8 @@
                                 </StackPanel>
                             </Grid>
 
-                            <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                            <Border Style="{StaticResource SettingsWashTileStyle}"
                                     Background="{DynamicResource TintAmberBrush}"
-                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                    BorderThickness="{DynamicResource CardBorderThickness}"
                                     Padding="10,8"
                                     Margin="{StaticResource SettingsStackGap12}">
                                 <TextBlock Text="{Binding NetworkDataRootStatus}"

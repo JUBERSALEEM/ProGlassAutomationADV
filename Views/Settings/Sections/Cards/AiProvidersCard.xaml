@@ -45,7 +45,12 @@
                             <!-- ── Gemini tile ─────────────────────────── -->
                             <Border Margin="{StaticResource SettingsTileGridMargin}">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SettingsInnerTileStyle}">
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+                                        <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
+                                        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+                                        <Setter Property="Padding" Value="{StaticResource SettingsTilePadding}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsGeminiActive}" Value="True">
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -116,7 +121,12 @@
                             <!-- ── Groq tile ───────────────────────────── -->
                             <Border Margin="{StaticResource SettingsTileGridMargin}">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SettingsInnerTileStyle}">
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+                                        <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
+                                        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+                                        <Setter Property="Padding" Value="{StaticResource SettingsTilePadding}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsGroqActive}" Value="True">
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
@@ -187,7 +197,12 @@
                             <!-- ── Cohere tile ─────────────────────────── -->
                             <Border Margin="{StaticResource SettingsTileGridMargin}">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SettingsInnerTileStyle}">
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+                                        <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
+                                        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+                                        <Setter Property="Padding" Value="{StaticResource SettingsTilePadding}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsCohereActive}" Value="True">
                                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>

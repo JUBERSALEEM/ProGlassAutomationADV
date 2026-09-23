@@ -68,13 +68,12 @@
                                          Value="{Binding FfmpegDownloadPercent, Mode=OneWay}"
                                          Foreground="{DynamicResource AccentBrush}"
                                          VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1"
-                                       Margin="{StaticResource SettingsIconTextMargin}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding FfmpegDownloadPercent, Mode=OneWay,
-                                           StringFormat={}{0:0}%}"/>
+                            <Viewbox Grid.Column="1" MaxHeight="20" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Text="{Binding FfmpegDownloadPercent, Mode=OneWay,
+                                               StringFormat={}{0:0}%}"/>
+                            </Viewbox>
                         </Grid>
                         <TextBlock Text="{Binding FfmpegInstallHint}"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
