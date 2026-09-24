@@ -117,6 +117,7 @@ namespace ProGlassAutomation.Services.Database
                 AppLogService.Error(
                     "Shared data root enabled in config but path is empty or invalid — " +
                     "this workstation runs on local AppData (SPLIT-BRAIN RISK).",
+                    null,
                     new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
                 return;
             }
@@ -146,6 +147,7 @@ namespace ProGlassAutomation.Services.Database
                 AppLogService.Error(
                     "Shared company database root unreachable at startup — fell back to " +
                     $"local AppData (SPLIT-BRAIN RISK). Path: {normalized}. {failure}",
+                    null,
                     new LogContext { Module = "Database", Operation = "ConfigureSharedRoot" });
             }
         }

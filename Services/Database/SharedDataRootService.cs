@@ -164,7 +164,7 @@ namespace ProGlassAutomation.Services.Database
         {
             config.DataConnectivity ??= new DataConnectivitySettings();
 
-            if (enabled && !TryNormalizeSharedRoot(path, out var normalized))
+            if (enabled && !AppDataRoot.TryNormalizeSharedRoot(path, out var normalized))
             {
                 return (false, "✗ Enter a valid shared folder path first " +
                     "(for example \\\\SERVER\\ProGlassData) — shared mode is not saved with a missing path.");
