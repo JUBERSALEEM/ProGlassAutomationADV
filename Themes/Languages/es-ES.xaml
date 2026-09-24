@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Solo guardar la factura. La confirmación ocurre mediante los adjuntos del paso 8.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">GUARDADO</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">Todas las PIs guardadas</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Cotizaciones guardadas listas para convertir en órdenes de trabajo</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Cotizaciones guardadas. El estado en vivo sigue el pedido, la entrega y la factura fiscal.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Buscar ref, empresa, cliente, proyecto</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">SECCIONES</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">COLOR DETECTADO ▾</sys:String>

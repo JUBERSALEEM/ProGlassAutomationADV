@@ -63,7 +63,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <DockPanel Margin="16,10,16,8" LastChildFill="False">
-                <StackPanel Visibility="Collapsed">
+                <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
                     <TextBlock Text="{DynamicResource ProformaInvoice.ProformaInvoices}" Style="{StaticResource Sl.Title}"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.SavedQuotationsReadyConvertJobOrders}"
                                Style="{StaticResource Sl.Subtitle}"/>

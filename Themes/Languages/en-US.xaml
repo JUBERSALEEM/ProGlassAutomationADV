@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Save invoice only. Confirmation happens through Step 8 attachments.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">SAVED</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">All saved PIs</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Saved quotations ready to convert into job orders</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Saved quotations. Live status follows the job, delivery, and tax invoice.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Search ref, company, customer, project</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">SECTIONS</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">DETECTED COLOUR ▾</sys:String>

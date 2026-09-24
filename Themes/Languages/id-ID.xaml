@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Simpan faktur saja. Konfirmasi terjadi melalui lampiran langkah 8.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">TERSIMPAN</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">Semua PI tersimpan</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Penawaran tersimpan siap dikonversi menjadi order kerja</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Kutipan tersimpan. Status langsung mengikuti perintah kerja, pengiriman, dan faktur pajak.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Cari ref, perusahaan, pelanggan, proyek</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">BAGIAN</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">WARNA TERDETEKSI ▾</sys:String>

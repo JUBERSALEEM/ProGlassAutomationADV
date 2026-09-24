@@ -1002,6 +1002,15 @@ namespace ProGlassAutomation.ViewModels
                 _ = OptimizationVM.ShowLatestRunAsync(documentKey);
             };
 
+            // Saved-invoice next step "Open job order". Navigate applies the
+            // license gate; open the job only if that navigation landed.
+            ProformaInvoiceVM.SavedInvoicesListVM.OnOpenJobRequested = jobId =>
+            {
+                Navigate("JobOrder");
+                if (CurrentModuleKey == "JobOrder")
+                    _ = JobOrderVM.OpenJobOrderAsync(jobId);
+            };
+
             // Cross-check hardening: the stock-ledger → Step 4 refresh
             // subscription is wired lazily in Navigate("SheetStore") so the
             // module VM keeps its deferred creation semantics.

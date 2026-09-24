@@ -12,6 +12,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" MaxHeight="{Binding ActualHeight, RelativeSource={RelativeSource AncestorType=Border}, Converter={StaticResource Sl.ToolbarHeight}}" Grid.Row="0" x:Name="ToolbarViewport">
@@ -197,7 +198,72 @@
                         </Border>
                     </StackPanel>
                 </ScrollViewer>
-                <Border Style="{StaticResource Sl.Card}" Padding="0" Grid.Row="1">
+                <Border Grid.Row="1" Style="{StaticResource Sl.Card}" Padding="14,10" Margin="0,0,0,8">
+                    <StackPanel>
+                        <DockPanel LastChildFill="True" Margin="0,0,0,8">
+                            <TextBlock
+                                DockPanel.Dock="Right"
+                                Text="{Binding LastSyncedDisplay}"
+                                Style="{StaticResource Sl.Subtitle}"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center"
+                                TextWrapping="Wrap" />
+                            <TextBlock
+                                Text="{Binding SyncStatus}"
+                                Style="{StaticResource Sl.Subtitle}"
+                                VerticalAlignment="Center"
+                                TextWrapping="Wrap" />
+                        </DockPanel>
+                        <ItemsControl ItemsSource="{Binding StageChips}" Margin="0,0,0,8">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button
+                                        Margin="0,0,8,8"
+                                        Padding="10,6"
+                                        Command="{Binding DataContext.SelectStageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding Key}"
+                                        ToolTip="{Binding Tip}">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                                <Setter Property="Padding" Value="10,6" />
+                                                <Setter Property="MinHeight" Value="32" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Soft}" />
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Accent}" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource Ov.Accent}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                        <TextBlock Text="{Binding Label}" />
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <DockPanel LastChildFill="True">
+                            <Button
+                                DockPanel.Dock="Right"
+                                Style="{StaticResource Sl.PrimaryButton}"
+                                Command="{Binding NextActionCommand}"
+                                IsEnabled="{Binding IsNextActionEnabled}"
+                                Content="{Binding NextActionLabel}"
+                                MinWidth="148"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center" />
+                            <StackPanel>
+                                <TextBlock Text="{Binding WorkflowTitle}" Style="{StaticResource Sl.Label}" TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding WorkflowHint}" Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </DockPanel>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Sl.Card}" Padding="0" Grid.Row="2">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" CanContentScroll="False" x:Name="RegisterViewport">
                         <Grid MinWidth="1350" Width="{Binding ViewportWidth, ElementName=RegisterViewport, Converter={StaticResource Sl.Extent}}" Height="{Binding ViewportHeight, ElementName=RegisterViewport, Converter={StaticResource Sl.Extent}}">
                             <Grid.RowDefinitions>
@@ -284,10 +350,10 @@
                                     </Border.Style>
                                     <emptyState:EmptyStateControl
                                         Icon="&#xE7C3;"
-                                        Title="{DynamicResource ProformaInvoice.NoSavedInvoicesFound}"
-                                        Message="Add your first invoice from the toolbar above." />
+                                        Title="{Binding EmptyTitle}"
+                                        Message="{Binding EmptyMessage}" />
                                 </Border>
-                                <ListBox Panel.ZIndex="0" ItemsSource="{Binding FilteredItems}" ItemContainerStyle="{StaticResource Sl.ListItem}" BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Focusable="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.ScrollUnit="Pixel" VirtualizingStackPanel.CacheLength="200,400" VirtualizingStackPanel.CacheLengthUnit="Pixel" behaviors:SmoothScrollBehavior.IsEnabled="True" Padding="0">
+                                <ListBox Panel.ZIndex="0" ItemsSource="{Binding FilteredItems}" SelectedItem="{Binding SelectedItem}" ItemContainerStyle="{StaticResource Sl.ListItem}" BorderThickness="{DynamicResource Border.NoneThickness}" Background="Transparent" Focusable="True" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible" ScrollViewer.CanContentScroll="True" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" VirtualizingStackPanel.IsVirtualizing="True" VirtualizingStackPanel.VirtualizationMode="Recycling" VirtualizingStackPanel.ScrollUnit="Pixel" VirtualizingStackPanel.CacheLength="200,400" VirtualizingStackPanel.CacheLengthUnit="Pixel" behaviors:SmoothScrollBehavior.IsEnabled="True" Padding="0">
                                     <ListBox.ItemsPanel>
                                         <ItemsPanelTemplate>
                                             <VirtualizingStackPanel />
@@ -295,7 +361,7 @@
                                     </ListBox.ItemsPanel>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Border MouseRightButtonUp="OnRowRightClick" MinHeight="48" Style="{StaticResource Sl.Row}">
+                                            <Border MouseRightButtonUp="OnRowRightClick" MouseDoubleClick="OnRowDoubleClick" MinHeight="48" Style="{StaticResource Sl.Row}">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="3" />

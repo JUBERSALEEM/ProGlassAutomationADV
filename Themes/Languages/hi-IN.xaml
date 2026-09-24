@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">केवल इनवॉइस सहेजें। पुष्टि चरण 8 अटैचमेंट के माध्यम से होती है।</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">सहेजा गया</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">सभी सहेजी गई प्रोफ़ॉर्मा</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">सहेजे गए उद्धरण जॉब ऑर्डर में बदलने के लिए तैयार</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">सहेजे गए कोटेशन। लाइव स्थिति जॉब ऑर्डर, डिलीवरी और टैक्स इनवॉइस का अनुसरण करती है।</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">संदर्भ, कंपनी, ग्राहक, प्रोजेक्ट खोजें</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">अनुभाग</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">पहचाना गया रंग ▾</sys:String>

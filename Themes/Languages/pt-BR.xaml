@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Somente salvar a fatura. A confirmação acontece pelos anexos da etapa 8.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">SALVO</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">Todas as PIs salvas</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Cotações salvas prontas para converter em ordens de serviço</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Cotações salvas. O status ao vivo segue a ordem de serviço, a entrega e a fatura fiscal.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Pesquisar ref, empresa, cliente, projeto</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">SEÇÕES</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">COR DETECTADA ▾</sys:String>

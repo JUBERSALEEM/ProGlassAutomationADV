@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Enregistrer uniquement la facture. La confirmation se fait via les pièces jointes de l&#x27;étape 8.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">ENREGISTRÉ</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">Toutes les PI enregistrées</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Cotations enregistrées prêtes à être converties en ordres de travail</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Devis enregistrés. Le statut en direct suit l'ordre, la livraison et la facture fiscale.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Rechercher réf, entreprise, client, projet</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">SECTIONS</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">COULEUR DÉTECTÉE ▾</sys:String>

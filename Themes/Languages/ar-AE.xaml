@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">حفظ الفاتورة فقط. التأكيد يتم عبر مرفقات الخطوة 8.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">محفوظ</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">جميع الفواتير الأولية المحفوظة</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">عروض محفوظة جاهزة للتحويل إلى أوامر عمل</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">عروض الأسعار المحفوظة. الحالة المباشرة تتبع أمر العمل والتسليم والفاتورة الضريبية.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">ابحث بالمرجع أو الشركة أو العميل أو المشروع</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">الأقسام</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">اللون المكتشف ▾</sys:String>

@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">請求書を保存するだけ。確認はステップ8の添付ファイルで行われます。</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">保存済み</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">保存済みのすべてのPI</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">保存済みの見積は作業指示書への変換準備完了</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">保存済み見積。ライブ状態は作業指示、納品、税務請求に従います。</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">参照、会社、顧客、プロジェクトを検索</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">セクション</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">検出された色 ▾</sys:String>

@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Yalnızca faturayı kaydet. Onay, adım 8&#x27;deki eklerle gerçekleşir.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">KAYDEDİLDİ</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">Kaydedilmiş tüm PI&#x27;lar</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">İş emrine dönüştürülmeye hazır kayıtlı teklifler</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Kayıtlı teklifler. Canlı durum iş emri, teslimat ve vergi faturasını izler.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Ref, şirket, müşteri, proje ara</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">BÖLÜMLER</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">ALGILANAN RENK ▾</sys:String>

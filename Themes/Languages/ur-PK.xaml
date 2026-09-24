@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">صرف انوائس محفوظ کریں۔ تصدیق مرحلہ 8 منسلکات کے ذریعے ہوتی ہے۔</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">محفوظ شدہ</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">تمام محفوظ شدہ PIs</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">محفوظ شدہ کوٹیشنز جاب آرڈرز میں تبدیل کرنے کے لیے تیار</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">محفوظ کوٹیشنز۔ لائیو اسٹیٹس جاب آرڈر، ڈیلیوری اور ٹیکس انوائس کے ساتھ چلتا ہے۔</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">حوالہ، کمپنی، کسٹمر، پروجیکٹ تلاش کریں</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">حصے</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">شناخت شدہ رنگ ▾</sys:String>

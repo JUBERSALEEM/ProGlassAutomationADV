@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Только сохранить счёт. Подтверждение происходит через вложения шага 8.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">СОХРАНЕНО</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">Все сохранённые PI</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Сохранённые котировки, готовые к конвертации в заказы на работу</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Сохранённые предложения. Живой статус следует за заказом, поставкой и счётом-фактурой.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Поиск по ссылке, компании, клиенту, проекту</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">РАЗДЕЛЫ</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">ОБНАРУЖЕННЫЙ ЦВЕТ ▾</sys:String>

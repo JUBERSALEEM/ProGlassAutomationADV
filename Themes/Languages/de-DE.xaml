@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Nur Rechnung speichern. Die Bestätigung erfolgt über Schritt-8-Anhänge.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">GESPEICHERT</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">Alle gespeicherten PIs</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Gespeicherte Angebote, bereit zur Umwandlung in Aufträge</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Gespeicherte Angebote. Der Live-Status folgt Auftrag, Lieferung und Steuerrechnung.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Ref, Unternehmen, Kunde, Projekt suchen</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">ABSCHNITTE</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">ERKANNTE FARBE ▾</sys:String>

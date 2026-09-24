@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">শুধু ইনভয়েস সংরক্ষণ করুন। নিশ্চিতকরণ ধাপ ৮ অ্যাটাচমেন্টের মাধ্যমে হয়।</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">সংরক্ষিত</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">সব সংরক্ষিত PI</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">সংরক্ষিত কোটা জব অর্ডারে রূপান্তরের জন্য প্রস্তুত</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">সংরক্ষিত কোটেশন। লাইভ অবস্থা কাজের আদেশ, ডেলিভারি ও ট্যাক্স ইনভয়েস অনুসরণ করে।</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">রেফারেন্স, কোম্পানি, গ্রাহক, প্রজেক্ট খুঁজুন</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">অনুচ্ছেদ</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">শনাক্ত রং ▾</sys:String>

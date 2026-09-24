@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">仅保存发票。确认通过第 8 步的附件进行。</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">已保存</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">所有已保存的形式发票</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">已保存的报价准备转换为工单</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">已保存报价。实时状态跟随工单、送货和税务发票。</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">搜索参考、公司、客户、项目</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">部分</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">检测到的颜色 ▾</sys:String>

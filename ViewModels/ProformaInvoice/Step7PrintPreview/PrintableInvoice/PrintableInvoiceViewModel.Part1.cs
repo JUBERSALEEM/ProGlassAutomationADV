@@ -236,7 +236,7 @@ public PrintableInvoiceViewModel(
             // BUG-60: all handlers now wrapped safely
             PrintCommand = new RelayCommand(_ => ExecutePrint());
             ExportPdfCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteExportPdfAsync, "PI Step7"));
-            SaveInvoiceCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteSaveInvoiceAsync, "PI Step7"));
+            SaveInvoiceCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(async () => { await ExecuteSaveInvoiceAsync(); }, "PI Step7"));
             LoadInvoiceCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteLoadInvoiceAsync, "PI Step7"));
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
             ExportExcelCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteExportExcelAsync, "PI Step7"));
@@ -466,14 +466,14 @@ public PrintableInvoiceViewModel(
             return true;
         }
 
-        private async Task ExecuteSaveInvoiceAsync()
+        private async Task<bool> ExecuteSaveInvoiceAsync()
         {
             if (_invoices == null)
             {
                 _dialogs.Show(
                     LocalizationService.Instance.T("Msg.InvoiceDatabaseIsNotInitialized"),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
+                return false;
             }
 
             if (string.IsNullOrWhiteSpace(Company.ProformaId))
@@ -481,7 +481,7 @@ public PrintableInvoiceViewModel(
                 _dialogs.Show(
                     LocalizationService.Instance.T("Msg.CannotSaveProformaIDIs"),
                     LocalizationService.Instance.T("Msg.CapSaveFailed"), MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
+                return false;
             }
 
             // ERP hardening (Phase 2): a posted proforma (Approved) — or a
@@ -500,7 +500,7 @@ public PrintableInvoiceViewModel(
                         LocalizationService.Instance.T("Lock.PostedBodyLocked"),
                         LocalizationService.Instance.T("Lock.PostedBodyLockedShort"),
                         MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
+                    return false;
                 }
             }
             catch (Exception lockEx)
@@ -528,7 +528,7 @@ public PrintableInvoiceViewModel(
                         "Validation Failed",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
-                    return;
+                    return false;
                 }
 
                 if (validationResult.HasWarnings)
@@ -542,7 +542,7 @@ public PrintableInvoiceViewModel(
                         MessageBoxImage.Question);
 
                     if (proceed != MessageBoxResult.Yes)
-                        return;
+                        return false;
                 }
             }
             catch (Exception valEx)
@@ -558,7 +558,7 @@ public PrintableInvoiceViewModel(
                     "Validation Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
-                return;
+                return false;
             }
             // ── END CROSS-STEP VALIDATION ──────────────────────────
 
@@ -619,7 +619,7 @@ public PrintableInvoiceViewModel(
                             MessageBoxImage.Question);
 
                         if (proceedWithDuplicates != MessageBoxResult.Yes)
-                            return;
+                            return false;
                     }
                 }
             }
@@ -636,7 +636,7 @@ public PrintableInvoiceViewModel(
             if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
                 ProGlassAutomation.Services.Audit.AppPermissions.ProformaCreate,
                 "save a proforma invoice"))
-                return;
+                return false;
 
             // CHAT 15: BuildEntityFromWizard now expects (company, client, project, ...)
             var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
@@ -661,20 +661,20 @@ public PrintableInvoiceViewModel(
                     MessageBoxButton.YesNoCancel,
                     MessageBoxImage.Question);
 
-                if (result == MessageBoxResult.Cancel) return;
+                if (result == MessageBoxResult.Cancel) return false;
 
                 if (result == MessageBoxResult.Yes)
                 {
                     if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
                         ProGlassAutomation.Services.Audit.AppPermissions.ProformaEdit,
                         "update an existing invoice"))
-                        return;
+                        return false;
 
                     await _invoices.UpdateAsync(entity);
                     AdoptAllocatedProformaId(entity);
                     await StampSaveArtifactsAsync(entity, isUpdate: true);
                     ShowSaveSuccess(entity.ProformaId, isUpdate: true);
-                    return;
+                    return true;
                 }
 
                 entity.ProformaId = suggestedId;
@@ -686,13 +686,14 @@ public PrintableInvoiceViewModel(
                 AdoptAllocatedProformaId(entity);
                 await StampSaveArtifactsAsync(entity, isUpdate: false);
                 ShowSaveSuccess(entity.ProformaId, isUpdate: false);
-                return;
+                return true;
             }
 
             await _invoices.InsertAsync(entity);
             AdoptAllocatedProformaId(entity);
             await StampSaveArtifactsAsync(entity, isUpdate: false);
             ShowSaveSuccess(entity.ProformaId, isUpdate: false);
+            return true;
         }
 
         /// <summary>
@@ -810,7 +811,14 @@ public PrintableInvoiceViewModel(
 
                 if (choice == MessageBoxResult.Cancel) return;
                 if (choice == MessageBoxResult.Yes)
-                    await ExecuteSaveInvoiceAsync();
+                {
+                    // A failed, cancelled, or blocked save must not open the
+                    // picker. ExecuteSaveInvoiceAsync used to return void, so
+                    // the load continued and replaced the invoice the user
+                    // had just failed to keep.
+                    bool saved = await ExecuteSaveInvoiceAsync();
+                    if (!saved) return;
+                }
             }
 
             var dialog = _dialogs.Create<SavedInvoicesListDialog>();

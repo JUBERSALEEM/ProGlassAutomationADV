@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">청구서만 저장하세요. 확인은 8단계 첨부 파일로 이루어집니다.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">저장됨</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">저장된 모든 PI</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">저장된 견적은 작업 지시서로 변환할 준비가 되었습니다</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">저장된 견적. 실시간 상태는 작업 지시, 납품, 세금계산서를 따릅니다.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">참조, 회사, 고객, 프로젝트 검색</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">섹션</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">감지된 색상 ▾</sys:String>
