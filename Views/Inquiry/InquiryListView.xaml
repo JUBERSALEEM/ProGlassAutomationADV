@@ -1,36 +1,14 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Inquiry/InquiryListView.xaml
-     MODULE: Inquiry register — Clean list + slide-in lifecycle rail
-                                              (SheetStore pattern, applied)
-     LAYOUT
-     ──────
-       Row 0   Header bar      title + subtitle + search + actions
-       Row 1   KPI strip       4 cards: pipeline / open / awaiting / confirmed
-       Row 2   Status tabs + filter row
-       Row 3   Main list       dense single-line rows; no pipeline noise
-       Row 4   Footer          result count + pagination
-     SLIDE-IN RAIL (right, ~376px)
-     ─────────────────────────────
-       Hidden by default. Opens when a row is clicked; clicking the same
-       row again closes it. Animation: ColumnDefinition.Width 0→376 plus
-       TranslateTransform slide. Contains:
-         • Title + status pill + priority chip
-         • PIPELINE — vertical 6-stage list (INQ → PI → JO → DN → TI → STMT)
-             with state dot, document number, status, "Open / Create" action
-         • MONEY — total billed + outstanding
-         • ACTIVITY — last 5 communications
-         • ACTIONS — Open workspace, workflow transitions, Convert to PI
-     DESIGN SYSTEM
-     ─────────────
-       Only shared primitives from DesignTokens / ListPageStyles / PillStyles
-       / IconBadgeStyles. The previous module-local "InquiryTheme.xaml" is
-       removed. No private vocabulary.
-════════════════════════════════════════════════════════════════════ -->
+<!-- Inquiry register — Studio Bento list, same visual contract as the
+     Proforma Invoice list (SavedInvoicesListView): Sl.* hero/KPI band,
+     filter card, soft table header, virtualized rows and slide-in rail.
+     All data contracts, workflows and code-behind wiring retained. -->
 <UserControl x:Class="ProGlassAutomation.Views.Inquiry.InquiryListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:inq="clr-namespace:ProGlassAutomation.Models.Inquiry"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:layout="clr-namespace:ProGlassAutomation.Views.Dashboard"
              x:Name="Root"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
@@ -46,147 +24,150 @@
                 <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-        <!-- Segmented status pill for the tab row above the list.
-             Inactive = pale surface with grey text; active = accent surface.
-
-             Note: this style is used inside a 7-column Grid that gives each
-             tab 1/7 of the available width. The Margin / Padding below are
-             tuned for that: a small vertical + horizontal pad, no right
-             margin (the grid spacing handles the gap), and the content
-             is centred horizontally so the label and count pill are
-             visually balanced inside the cell. Count is hidden when 0 so
-             the tab isn't a noisy "All 0" pill before any data lands. -->
-        <Style x:Key="InquiryStatusTabStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="6,8"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="FontSize" Value="{DynamicResource FontSize.Body}"/>
-            <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{DynamicResource SurfaceTertiaryBrush}"
-                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                <Border x:Name="CountPill" Margin="8,0,0,0" Padding="8,4" CornerRadius="{DynamicResource Radius.Large}"
-                                        Background="{DynamicResource SurfacePrimaryBrush}">
-                                    <TextBlock Text="{Binding Count, Mode=OneWay}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                               FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource TintBlueBrush}"/>
-                            </Trigger>
-                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource AccentBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                            </DataTrigger>
-                            <!-- Hide the count pill when there are zero rows
-                                 in this bucket. Showing "0" is noise. -->
-                            <DataTrigger Binding="{Binding Count}" Value="0">
-                                <Setter TargetName="CountPill" Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- One cell in the right-rail PIPELINE list.
-             Has a 4px state dot on the left, a stage name, a document
-             number, a status text, a relative date and an action button. -->
-        
-
-        
-
-        
-
-        
-
-        <!-- 4px state dot for a pipeline row -->
-        
+            <!-- Segmented status/pipeline tab. One ControlTemplate keeps
+                 the count pill and the selected state inside the chrome,
+                 matching Sl.* radii and brushes. -->
+            <Style x:Key="InquiryTabButtonStyle" TargetType="Button">
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="10,8"/>
+                <Setter Property="Margin" Value="0,0,6,4"/>
+                <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
+                <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="TabChrome" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Background="{DynamicResource Ov.Surface}"
+                                    BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                    <Border x:Name="TabCountPill" Grid.Column="1" Margin="8,0,0,0" Padding="7,2"
+                                            CornerRadius="{DynamicResource Radius.Small}"
+                                            Background="{DynamicResource Ov.Soft}">
+                                        <TextBlock Text="{Binding Count, Mode=OneWay}"
+                                                   FontSize="{DynamicResource FontSize.Caption}"
+                                                   FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource Ov.Muted}"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                </Trigger>
+                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                    <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                                    <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource Ov.OnAccent}"/>
+                                    <Setter TargetName="TabCountPill" Property="Background" Value="{DynamicResource Ov.AccentHover}"/>
+                                </DataTrigger>
+                                <!-- Zero rows in the bucket: hide the pill, keep the tab. -->
+                                <DataTrigger Binding="{Binding Count}" Value="0">
+                                    <Setter TargetName="TabCountPill" Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/> <!-- toolbar: hero + KPIs + actions -->
+            <RowDefinition Height="Auto"/> <!-- new-PI-from-inquiry banner -->
+            <RowDefinition Height="Auto"/> <!-- status + pipeline tabs -->
+            <RowDefinition Height="Auto"/> <!-- filter card -->
+            <RowDefinition Height="*"/>    <!-- list + slide-in rail -->
+            <RowDefinition Height="Auto"/> <!-- footer / pagination -->
         </Grid.RowDefinitions>
 
-        <!-- ══ 1 · HEADER BAR ═══════════════════════════════════════ -->
-        <Grid Grid.Row="0" Margin="16,8,16,6">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <!-- ══ 1 · BENTO TOOLBAR ═════════════════════════════════════ -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False" Focusable="False" Margin="16,10,16,0">
+            <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="270" Gap="14">
+                <!-- Hero: pipeline value -->
+                <Border Style="{StaticResource Sl.Hero}">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="Filtered pipeline value" Style="{StaticResource Sl.Label}"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource Ov.OnAccent}"/>
+                        <TextBlock Text="{Binding PipelineValueText}" Style="{StaticResource Sl.Value}"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource Ov.OnAccent}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                        <TextBlock Text="Cancelled inquiries excluded" Style="{StaticResource Sl.Subtitle}"
+                                   TextWrapping="Wrap" Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+                    </StackPanel>
+                </Border>
 
-            <StackPanel Grid.Column="0" VerticalAlignment="Center" Visibility="Collapsed">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Inquiries" Style="{StaticResource Sl.Title}"/>
-                    <Border Margin="12,4,0,0" VerticalAlignment="Center"
-                            Background="{DynamicResource Ov.Accent}"
-                            CornerRadius="6"
-                            Padding="8,3" SnapsToDevicePixels="True">
-                        <TextBlock Text="REGISTER" FontSize="11" FontWeight="Bold"
-                                   Foreground="{DynamicResource Ov.OnAccent}"/>
+                <!-- KPI trio -->
+                <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="120" Gap="10">
+                    <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                        <StackPanel>
+                            <TextBlock Text="Open" Style="{StaticResource Sl.Label}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding OpenCount, Mode=OneWay, StringFormat=N0}" Style="{StaticResource Sl.Value}"
+                                       Typography.NumeralAlignment="Tabular" TextWrapping="Wrap"/>
+                            <TextBlock Text="Received + prepared" Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap"/>
+                        </StackPanel>
                     </Border>
-                </StackPanel>
-                <TextBlock Text="Commercial intake — capture, prepare, send, confirm, convert, deliver, bill, collect."
-                           Style="{StaticResource Sl.Subtitle}" Margin="0,4,0,0"/>
-            </StackPanel>
+                    <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                        <StackPanel>
+                            <TextBlock Text="Awaiting customer" Style="{StaticResource Sl.Label}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding AwaitingCount, Mode=OneWay, StringFormat=N0}" Style="{StaticResource Sl.Value}"
+                                       Typography.NumeralAlignment="Tabular" TextWrapping="Wrap"/>
+                            <TextBlock Text="Sent, waiting confirmation" Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                        <StackPanel>
+                            <TextBlock Text="Confirmed" Style="{StaticResource Sl.Label}" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding ConfirmedCount, Mode=OneWay, StringFormat=N0}" Style="{StaticResource Sl.Value}"
+                                       Typography.NumeralAlignment="Tabular" TextWrapping="Wrap"/>
+                            <TextBlock Text="Ready to convert to PI" Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </layout:IndigoDashboardPanel>
 
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Margin="0,0,8,0"
-                        Style="{StaticResource Sl.Button}"
-                        Command="{Binding RefreshCommand}"
-                        Content="REFRESH" Tag="↻"/>
-                <Button Margin="0,0,8,0"
-                        Style="{StaticResource Sl.Button}"
-                        Command="{Binding ImportCommand}"
-                        Content="IMPORT" Tag="↧"/>
-                <Button Margin="0,0,8,0"
-                        Style="{StaticResource Sl.Button}"
-                        Command="{Binding ExportCommand}"
-                        Content="EXPORT" Tag="↥"/>
-                <Button Margin="0,0,8,0"
-                        Style="{StaticResource Sl.Button}"
-                        Command="{Binding ShareCommand}"
-                        Content="{DynamicResource Sharing.Share}" Tag="⇪"
-                        ToolTip="{DynamicResource Sharing.Share}"/>
-                <Button Style="{StaticResource Sl.PrimaryButton}"
-                        Command="{Binding NewInquiryCommand}"
-                        Content="＋ NEW INQUIRY" Tag="＋"
-                        Padding="14,8"/>
-            </StackPanel>
-        </Grid>
+                <!-- Actions -->
+                <Border Style="{StaticResource Sl.Card}">
+                    <StackPanel>
+                        <TextBlock Text="{DynamicResource Common.Actions}" Style="{StaticResource Sl.Label}"/>
+                        <Button Style="{StaticResource Sl.PrimaryButton}" Margin="0,8,0,0" HorizontalAlignment="Stretch"
+                                Command="{Binding NewInquiryCommand}"
+                                Tag="&#xE710;" Content="{DynamicResource Inquiry.NEWInquiry}"
+                                ToolTip="{DynamicResource Inquiry.NEWInquiry}"/>
+                        <WrapPanel Margin="0,8,0,0">
+                            <Button Style="{StaticResource Sl.Button}" Command="{Binding RefreshCommand}"
+                                    Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}" Margin="0,0,6,4"/>
+                            <Button Style="{StaticResource Sl.Button}" Command="{Binding ImportCommand}"
+                                    Tag="&#xE896;" Content="{DynamicResource Inquiry.Import}" Margin="0,0,6,4"/>
+                            <Button Style="{StaticResource Sl.Button}" Command="{Binding ExportCommand}"
+                                    Tag="&#xE72D;" Content="{DynamicResource Action.Export}" Margin="0,0,6,4"/>
+                            <Button Style="{StaticResource Sl.Button}" Command="{Binding ShareCommand}"
+                                    Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
+                                    ToolTip="{DynamicResource Sharing.Share}" Margin="0,0,0,4"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </layout:IndigoDashboardPanel>
+        </ScrollViewer>
 
-        <!-- ══ 1.5 · NEW-PI-FROM-INQUIRY BANNER ═════════════════════
-             Visible only when the user was sent here from the PI
-             module's "Start from Inquiry" prompt. Tells them to pick
-             a Confirmed inquiry (right-click → Convert) or cancel
-             the round-trip. Cleared automatically on selection /
-             cancel. -->
-        <Border Grid.Row="1" Margin="16,0,16,0"
-                Background="{DynamicResource TintAmberBrush}"
-                BorderBrush="{DynamicResource WarningBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                Padding="12,8" SnapsToDevicePixels="True"
+        <!-- ══ 2 · NEW-PI-FROM-INQUIRY BANNER ════════════════════════ -->
+        <Border Grid.Row="1" Margin="16,10,16,0"
+                Background="{DynamicResource Ov.WarningSoft}"
+                BorderBrush="{DynamicResource Ov.Warning}"
+                BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
+                Padding="14,10" SnapsToDevicePixels="True"
                 Visibility="{Binding IsAwaitingNewPiSelection, Converter={StaticResource BoolToVis}}">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -194,314 +175,162 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="⤴" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource WarningBrush}"
+                <TextBlock Grid.Column="0" Text="&#xE8AB;" FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Title}"
+                           Foreground="{DynamicResource Ov.Warning}"
                            VerticalAlignment="Center" Margin="0,0,12,0"/>
                 <TextBlock Grid.Column="1" Text="{Binding AwaitingNewPiBannerText}"
-                           FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}"
+                           FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Ink}"
                            TextWrapping="Wrap" VerticalAlignment="Center"/>
-                <Button Grid.Column="2" Content="Cancel"
-                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                <Button Grid.Column="2" Content="{DynamicResource Action.Cancel}"
+                        Style="{StaticResource Sl.Button}"
                         Command="{Binding CancelNewPiFromInquiryCommand}"
                         Margin="10,0,0,0" VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
-        <!-- ══ 2 · KPI STRIP ═══════════════════════════════════════ -->
-        <Border Grid.Row="2" Style="{StaticResource ModuleListKpiStripStyle}" Margin="16,0,16,12">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <!-- ══ 3 · STATUS + PIPELINE TABS ════════════════════════════ -->
+        <StackPanel Grid.Row="2" Margin="16,10,16,0">
+            <ItemsControl ItemsSource="{Binding StatusTabs}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="1" Columns="7"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content="{Binding Label}"
+                                Command="{Binding ElementName=Root, Path=DataContext.SelectStatusTabCommand}"
+                                CommandParameter="{Binding Key}"
+                                Style="{StaticResource InquiryTabButtonStyle}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <ItemsControl ItemsSource="{Binding PipelineTabs}" Margin="0,2,0,0">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Rows="1" Columns="6"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Content="{Binding Label}"
+                                Command="{Binding ElementName=Root, Path=DataContext.SelectPipelineTabCommand}"
+                                CommandParameter="{Binding Kind}"
+                                Style="{StaticResource InquiryTabButtonStyle}"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Style="{StaticResource ModuleListKpiIconStyle}"
-                            Background="{DynamicResource TintGreenBrush}">
-                        <TextBlock Text="AED" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource SuccessBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Pipeline value" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                        <TextBlock Text="{Binding PipelineValueText}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                        <TextBlock Text="Cancelled excluded" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                    </StackPanel>
-                </StackPanel>
-                <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Style="{StaticResource ModuleListKpiIconStyle}"
-                            Background="{DynamicResource TintBlueBrush}">
-                        <TextBlock Text="●" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Open" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                        <TextBlock Text="{Binding OpenCount, Mode=OneWay, StringFormat=N0}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                        <TextBlock Text="Received + prepared" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                    </StackPanel>
-                </StackPanel>
-                <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Style="{StaticResource ModuleListKpiIconStyle}"
-                            Background="{DynamicResource TintAmberBrush}">
-                        <TextBlock Text="◐" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource WarningBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Awaiting customer" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                        <TextBlock Text="{Binding AwaitingCount, Mode=OneWay, StringFormat=N0}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                        <TextBlock Text="Sent, waiting confirmation" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                    </StackPanel>
-                </StackPanel>
-                <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Style="{StaticResource ModuleListKpiIconStyle}"
-                            Background="{DynamicResource TintGreenBrush}">
-                        <TextBlock Text="✓" FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource SuccessBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Confirmed" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                        <TextBlock Text="{Binding ConfirmedCount, Mode=OneWay, StringFormat=N0}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                        <TextBlock Text="Ready to convert to PI" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- ══ 3 · STATUS TABS + PIPELINE TABS + FILTER ROW ═══════ -->
-        <Grid Grid.Row="3" Margin="16,0,16,12">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!-- Status tabs (All / Received / Prepared / Sent / Confirmed / Hold / Cancelled).
-                 Implemented as a 7-column Grid (not a StackPanel) so each
-                 tab gets an equal 1/7 of the available width. The previous
-                 StackPanel layout was collapsing on narrow windows and the
-                 "Cancel inquiry" label was clipping into the next tab. -->
-            <Border Grid.Row="0" Margin="0,0,0,8">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <ItemsControl ItemsSource="{Binding StatusTabs}" Grid.ColumnSpan="7">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Rows="1" Columns="7"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Content="{Binding Label}"
-                                        Command="{Binding ElementName=Root, Path=DataContext.SelectStatusTabCommand}"
-                                        CommandParameter="{Binding Key}"
-                                        Style="{StaticResource Tab.InactiveControl}"
-                                        HorizontalContentAlignment="Stretch"
-                                        HorizontalAlignment="Stretch"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
-            </Border>
-
-            <!-- Pipeline tabs (INQ / PI / JO / DN / TI / STMT).
-                 Same full-width pattern as the status tabs above. This row
-                 was wired in the VM (PipelineTabs collection, the
-                 SelectPipelineTabCommand, the in-memory pipeline filter
-                 in LoadAsync) but never bound to the UI — fixed now. The
-                 "Inquiry" tab maps to the default (no filter); the rest
-                 filter to inquiries that have reached that downstream
-                 stage. -->
-            <Border Grid.Row="1" Margin="0,0,0,8">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <ItemsControl ItemsSource="{Binding PipelineTabs}" Grid.ColumnSpan="6">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <UniformGrid Rows="1" Columns="6"/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Content="{Binding Label}"
-                                        Command="{Binding ElementName=Root, Path=DataContext.SelectPipelineTabCommand}"
-                                        CommandParameter="{Binding Kind}"
-                                        Style="{StaticResource Tab.InactiveControl}"
-                                        HorizontalContentAlignment="Stretch"
-                                        HorizontalAlignment="Stretch"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </Grid>
-            </Border>
-
-            <!-- Filter row — six inputs (search / date / salesman / prepared-by / priority / sort)
-                 plus a "Has attachments" checkbox and the RESET button.
-                 All controls span the row evenly; the checkbox sits next to
-                 RESET so it doesn't crowd the date / sort combos. -->
-            <Border Grid.Row="2" Style="{StaticResource ModuleListFilterBarStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*" MinWidth="160"/>
-                        <ColumnDefinition Width="*" MinWidth="120"/>
-                        <ColumnDefinition Width="*" MinWidth="120"/>
-                        <ColumnDefinition Width="*" MinWidth="120"/>
-                        <ColumnDefinition Width="*" MinWidth="120"/>
-                        <ColumnDefinition Width="*" MinWidth="120"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0"
-                             Margin="0,0,8,0"
+        <!-- ══ 4 · FILTER CARD ═══════════════════════════════════════ -->
+        <Border Grid.Row="3" Style="{StaticResource Sl.FilterBar}" Margin="16,10,16,10">
+            <WrapPanel>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Action.Search}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <TextBox Margin="0,0,8,4" Width="260"
                              Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                             Style="{StaticResource ModuleListFilterInputStyle}"
+                             Style="{StaticResource Sl.Input}"
                              ToolTip="Search inquiry number, customer, project, salesman or prepared by"/>
-                    <ComboBox Grid.Column="1"
-                              Margin="0,0,8,0"
-                              MinWidth="120"
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Common.Date}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <ComboBox Margin="0,0,8,4" MinWidth="120" Width="160"
                               ItemsSource="{Binding DateRanges}"
                               SelectedItem="{Binding SelectedDateRange}"
-                              Style="{StaticResource ModuleListFilterComboStyle}"
+                              Style="{StaticResource Sl.Combo}"
                               ToolTip="Received date range"/>
-                    <ComboBox Grid.Column="2"
-                              Margin="0,0,8,0"
-                              MinWidth="120"
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Common.Salesman}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <ComboBox Margin="0,0,8,4" MinWidth="110" Width="150"
                               ItemsSource="{Binding Salesmen}"
                               SelectedItem="{Binding SelectedSalesman}"
-                              Style="{StaticResource ModuleListFilterComboStyle}"
+                              Style="{StaticResource Sl.Combo}"
                               ToolTip="Salesman"/>
-                    <ComboBox Grid.Column="3"
-                              Margin="0,0,8,0"
-                              MinWidth="120"
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Inquiry.Prepared2}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <ComboBox Margin="0,0,8,4" MinWidth="110" Width="150"
                               ItemsSource="{Binding PreparedByUsers}"
                               SelectedItem="{Binding SelectedPreparedBy}"
-                              Style="{StaticResource ModuleListFilterComboStyle}"
+                              Style="{StaticResource Sl.Combo}"
                               ToolTip="Prepared by"/>
-                    <ComboBox Grid.Column="4"
-                              Margin="0,0,8,0"
-                              MinWidth="120"
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Common.Priority}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <ComboBox Margin="0,0,8,4" MinWidth="100" Width="130"
                               ItemsSource="{Binding Priorities}"
                               SelectedItem="{Binding SelectedPriority}"
-                              Style="{StaticResource ModuleListFilterComboStyle}"
+                              Style="{StaticResource Sl.Combo}"
                               ToolTip="Priority"/>
-                    <ComboBox Grid.Column="5"
-                              Margin="0,0,8,0"
-                              MinWidth="120"
+                </StackPanel>
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Inquiry.SortOrder}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                    <ComboBox Margin="0,0,8,4" MinWidth="110" Width="150"
                               ItemsSource="{Binding SortOptions}"
                               SelectedItem="{Binding SelectedSort}"
-                              Style="{StaticResource ModuleListFilterComboStyle}"
+                              Style="{StaticResource Sl.Combo}"
                               ToolTip="Sort order"/>
-                    <ScrollViewer Grid.Column="6"
-                                  VerticalScrollBarVisibility="Disabled"
-                                  HorizontalScrollBarVisibility="Auto">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <CheckBox Content="Has attachments"
-                                      VerticalAlignment="Center"
-                                      Margin="0,0,12,0"
-                                      IsChecked="{Binding HasAttachmentsOnly}"
-                                      ToolTip="Show only inquiries that have at least one attachment"/>
-                            <Button MinWidth="92"
-                                    Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                    Command="{Binding ResetFiltersCommand}"
-                                    Content="RESET" Tag="↺"/>
-                        </StackPanel>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-        </Grid>
+                </StackPanel>
+                <CheckBox VerticalAlignment="Bottom" Margin="0,0,8,12"
+                          Content="{DynamicResource Dashboard.Attachments}"
+                          IsChecked="{Binding HasAttachmentsOnly}"
+                          ToolTip="Show only inquiries that have at least one attachment"/>
+                <Button Style="{StaticResource Sl.Button}" VerticalAlignment="Bottom" Margin="0,0,0,4"
+                        Command="{Binding ResetFiltersCommand}"
+                        Tag="&#xE711;" Content="{DynamicResource Action.Reset}" MinWidth="92"
+                        ToolTip="{DynamicResource Action.Reset}"/>
+            </WrapPanel>
+        </Border>
 
-        <!-- ══ 4 · MAIN LIST + SLIDE-IN RAIL ═════════════════════════ -->
-        <Grid Grid.Row="4" Margin="16,0,16,12">
+        <!-- ══ 5 · LIST + SLIDE-IN RAIL ══════════════════════════════ -->
+        <Grid Grid.Row="4" Margin="16,0,16,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition x:Name="DetailColumn" Width="0"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ── Main list (takes full width when rail is closed) ── -->
-            <Border Grid.Column="0" Style="{StaticResource Sl.Shell}" CornerRadius="14" Padding="0" ClipToBounds="True">
+            <Border Grid.Column="0" Style="{StaticResource Sl.Card}" Padding="0" ClipToBounds="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Sticky column header (module table band) -->
-                    <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Padding="0,10">
+                    <!-- Table header (soft band like the PI list) -->
+                    <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Margin="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="3"/>
-                                <ColumnDefinition Width="1.3*" MinWidth="120"/>
-                                <ColumnDefinition Width="1.5*" MinWidth="130"/>
-                                <ColumnDefinition Width="1.5*" MinWidth="130"/>
-                                <ColumnDefinition Width="1.2*" MinWidth="100"/>
-                                <ColumnDefinition Width="0.8*" MinWidth="85"/>
+                                <ColumnDefinition Width="1.2*" MinWidth="110"/>
+                                <ColumnDefinition Width="1.1*" MinWidth="110"/>
+                                <ColumnDefinition Width="1.6*" MinWidth="140"/>
+                                <ColumnDefinition Width="1.4*" MinWidth="110"/>
                                 <ColumnDefinition Width="0.9*" MinWidth="95"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                                <ColumnDefinition Width="0.9*" MinWidth="90"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="1" Text="INQ#"
-                                       Style="{StaticResource Sl.ColumnLabel}"
-                                       Margin="12,0"/>
-                            <TextBlock Grid.Column="2" Text="STATUS"
-                                       Style="{StaticResource Sl.ColumnLabel}"
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" Text="CUSTOMER"
-                                       Style="{StaticResource Sl.ColumnLabel}"
-                                       Margin="8,0"/>
-                            <TextBlock Grid.Column="4" Text="PROJECT"
-                                       Style="{StaticResource Sl.ColumnLabel}"
-                                       Margin="8,0"/>
-                            <TextBlock Grid.Column="5" Text="VALUE" Margin="0,0,8,0"
-                                       HorizontalAlignment="Right"
-                                       Style="{StaticResource Sl.ColumnLabel}"/>
-                            <TextBlock Grid.Column="6" Text="RECEIVED"
-                                       Style="{StaticResource Sl.ColumnLabel}"
-                                       Margin="8,0"/>
-                            <TextBlock Grid.Column="7" Text="OWNER"
-                                       Style="{StaticResource Sl.ColumnLabel}"
-                                       Margin="8,0"/>
+                            <TextBlock Grid.Column="1" Text="INQ#" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Status}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Common.Customer}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
+                            <TextBlock Grid.Column="4" Text="{DynamicResource Common.Project}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
+                            <TextBlock Grid.Column="5" Text="{DynamicResource Dg.Value}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                            <TextBlock Grid.Column="6" Text="{DynamicResource Inquiry.Received}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
+                            <TextBlock Grid.Column="7" Text="{DynamicResource Inquiry.Owner}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0"/>
                         </Grid>
                     </Border>
 
                     <!-- Virtualized inquiry rows -->
-                    <Border Grid.Row="1"
-                            Background="{DynamicResource Ov.Surface}"
-                            BorderThickness="0"
-                            SnapsToDevicePixels="True">
+                    <Grid Grid.Row="1" Background="{DynamicResource Ov.Surface}">
                         <ListBox x:Name="InquiriesList"
                                  ItemsSource="{Binding Inquiries}"
-                                 ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
+                                 ItemContainerStyle="{StaticResource Sl.ListItem}"
                                  SelectedItem="{Binding SelectedInquiry, Mode=TwoWay}"
-                                 BorderThickness="{DynamicResource Border.NoneThickness}"
+                                 BorderThickness="0"
                                  Background="Transparent"
                                  Padding="0"
-                                 Focusable="False"
+                                 Focusable="True"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                                  VirtualizingStackPanel.IsVirtualizing="True"
@@ -510,223 +339,226 @@
                                  VirtualizingStackPanel.CacheLength="400,800"
                                  VirtualizingStackPanel.CacheLengthUnit="Pixel"
                                  ScrollViewer.CanContentScroll="False"
-                                 MouseDoubleClick="OnRowDoubleClick" ScrollViewer.IsDeferredScrollingEnabled="False" ScrollViewer.PanningMode="None" behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                 MouseDoubleClick="OnRowDoubleClick"
+                                 ScrollViewer.IsDeferredScrollingEnabled="False"
+                                 ScrollViewer.PanningMode="None"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <ListBox.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <VirtualizingStackPanel/>
                                 </ItemsPanelTemplate>
                             </ListBox.ItemsPanel>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource ModuleListRowStyle}"
-                                        Cursor="Hand"
-                                        Tag="{Binding DataContext, ElementName=Root}"
-                                        MouseLeftButtonUp="OnRowClick">
-                                    <!-- Right-click row context menu.
-                                         Senior fix: ContextMenu lives in a Popup,
-                                         outside the normal visual tree, so it does
-                                         NOT reliably see ElementName=Root command
-                                         bindings. We therefore bind the menu's
-                                         DataContext to its PlacementTarget row and
-                                         stash the InquiryListViewModel on the row
-                                         Border.Tag. Every command below resolves
-                                         through PlacementTarget.Tag, which is the
-                                         real VM instance, while CommandParameter
-                                         stays the right-clicked row. -->
-                                    <Border.ContextMenu>
-                                        <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
-                                                     DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                                            <!-- Edit / Convert / Change status — the
-                                                 three primary table actions. Edit
-                                                 opens the inquiry editor; Convert
-                                                 hands off to the Proforma Invoice
-                                                 module; Change status is a submenu
-                                                 gated by the workflow state machine. -->
-                                            <MenuItem Header="Edit inquiry…"
-                                                      Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding PlacementTarget.Tag.EditInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                      CommandParameter="{Binding}"/>
-                                            <MenuItem Header="Convert to Proforma Invoice"
-                                                      Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding PlacementTarget.Tag.ConvertToPiRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                      CommandParameter="{Binding}"
-                                                      IsEnabled="{Binding CanConvert}"/>
-                                            <MenuItem Header="Change status"
-                                                      Style="{DynamicResource ModernMenuItemStyle}">
-                                                <MenuItem Header="Prepare"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          IsEnabled="{Binding CanPrepareWorkflow}"
-                                                          Command="{Binding PlacementTarget.Tag.PrepareRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Sl.Row}"
+                                            Cursor="Hand"
+                                            Tag="{Binding DataContext, ElementName=Root}"
+                                            MouseLeftButtonUp="OnRowClick">
+                                        <!-- Right-click row context menu. The menu lives in a
+                                             Popup outside the visual tree, so commands resolve
+                                             through PlacementTarget.Tag (the page VM) while the
+                                             CommandParameter stays the right-clicked row. -->
+                                        <Border.ContextMenu>
+                                            <ContextMenu Style="{StaticResource Sl.ContextMenu}"
+                                                         DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                                <MenuItem Header="Edit inquiry…"
+                                                          Style="{StaticResource Sl.MenuItem}"
+                                                          Command="{Binding PlacementTarget.Tag.EditInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Send"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          IsEnabled="{Binding CanSendWorkflow}"
-                                                          Command="{Binding PlacementTarget.Tag.SendRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                <MenuItem Header="Convert to Proforma Invoice"
+                                                          Style="{StaticResource Sl.MenuItem}"
+                                                          Command="{Binding PlacementTarget.Tag.ConvertToPiRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                          CommandParameter="{Binding}"
+                                                          IsEnabled="{Binding CanConvert}"/>
+                                                <MenuItem Header="Change status"
+                                                          Style="{StaticResource Sl.MenuItem}">
+                                                    <MenuItem Header="Prepare"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              IsEnabled="{Binding CanPrepareWorkflow}"
+                                                              Command="{Binding PlacementTarget.Tag.PrepareRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Send"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              IsEnabled="{Binding CanSendWorkflow}"
+                                                              Command="{Binding PlacementTarget.Tag.SendRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Confirm"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              IsEnabled="{Binding CanConfirmWorkflow}"
+                                                              Command="{Binding PlacementTarget.Tag.ConfirmRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Hold"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              IsEnabled="{Binding CanHoldWorkflow}"
+                                                              Command="{Binding PlacementTarget.Tag.HoldRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Cancel inquiry"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              IsEnabled="{Binding CanCancelWorkflow}"
+                                                              Command="{Binding PlacementTarget.Tag.CancelRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                </MenuItem>
+                                                <MenuItem Header="Change priority"
+                                                          Style="{StaticResource Sl.MenuItem}">
+                                                    <MenuItem Header="Urgent"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              Command="{Binding PlacementTarget.Tag.SetUrgentPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="High"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              Command="{Binding PlacementTarget.Tag.SetHighPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Normal"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              Command="{Binding PlacementTarget.Tag.SetNormalPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Low"
+                                                              Style="{StaticResource Sl.MenuItem}"
+                                                              Command="{Binding PlacementTarget.Tag.SetLowPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                </MenuItem>
+                                                <Separator Style="{StaticResource Sl.MenuSeparator}"/>
+                                                <MenuItem Header="Duplicate inquiry"
+                                                          Style="{StaticResource Sl.MenuItem}"
+                                                          Command="{Binding PlacementTarget.Tag.DuplicateInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Confirm"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          IsEnabled="{Binding CanConfirmWorkflow}"
-                                                          Command="{Binding PlacementTarget.Tag.ConfirmRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                <MenuItem Header="Delete inquiry"
+                                                          Style="{StaticResource Sl.MenuItem}"
+                                                          Foreground="{DynamicResource Ov.Danger}"
+                                                          Command="{Binding PlacementTarget.Tag.DeleteInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Hold"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          IsEnabled="{Binding CanHoldWorkflow}"
-                                                          Command="{Binding PlacementTarget.Tag.HoldRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                <Separator Style="{StaticResource Sl.MenuSeparator}"/>
+                                                <MenuItem Header="Copy inquiry number"
+                                                          Style="{StaticResource Sl.MenuItem}"
+                                                          Command="{Binding PlacementTarget.Tag.CopyInquiryNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Cancel inquiry"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          IsEnabled="{Binding CanCancelWorkflow}"
-                                                          Command="{Binding PlacementTarget.Tag.CancelRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                <MenuItem Header="Copy summary"
+                                                          Style="{StaticResource Sl.MenuItem}"
+                                                          Command="{Binding PlacementTarget.Tag.CopySummaryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                            </MenuItem>
-                                            <MenuItem Header="Change priority"
-                                                      Style="{DynamicResource ModernMenuItemStyle}">
-                                                <MenuItem Header="Urgent"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          Command="{Binding PlacementTarget.Tag.SetUrgentPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                <MenuItem Header="Open attachments folder"
+                                                          Style="{StaticResource Sl.MenuItem}"
+                                                          IsEnabled="{Binding HasAttachments}"
+                                                          Command="{Binding PlacementTarget.Tag.OpenAttachmentsFolderCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
-                                                <MenuItem Header="High"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          Command="{Binding PlacementTarget.Tag.SetHighPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                          CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Normal"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          Command="{Binding PlacementTarget.Tag.SetNormalPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                          CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Low"
-                                                          Style="{DynamicResource ModernMenuItemStyle}"
-                                                          Command="{Binding PlacementTarget.Tag.SetLowPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                          CommandParameter="{Binding}"/>
-                                            </MenuItem>
-                                            <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                            <!-- Structural row actions. Duplicate is a
-                                                 non-destructive copy; Delete is
-                                                 destructive and the VM gates it
-                                                 with a confirmation dialog wired by
-                                                 the view plus the workflow service
-                                                 permission check. -->
-                                            <MenuItem Header="Duplicate inquiry"
-                                                      Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding PlacementTarget.Tag.DuplicateInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                      CommandParameter="{Binding}"/>
-                                            <MenuItem Header="Delete inquiry"
-                                                      Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Foreground="{DynamicResource DangerBrush}"
-                                                      Command="{Binding PlacementTarget.Tag.DeleteInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                      CommandParameter="{Binding}"/>
-                                            <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                            <MenuItem Header="Copy inquiry number"
-                                                      Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding PlacementTarget.Tag.CopyInquiryNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                          CommandParameter="{Binding}"/>
-                                            <MenuItem Header="Copy summary"
-                                                      Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding PlacementTarget.Tag.CopySummaryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                          CommandParameter="{Binding}"/>
-                                            <MenuItem Header="Open attachments folder"
-                                                      Style="{DynamicResource ModernMenuItemStyle}"
-                                                      IsEnabled="{Binding HasAttachments}"
-                                                      Command="{Binding PlacementTarget.Tag.OpenAttachmentsFolderCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                          CommandParameter="{Binding}"/>
-                                        </ContextMenu>
-                                    </Border.ContextMenu>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="3"/>
-    <ColumnDefinition Width="1.3*" MinWidth="120"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.5*" MinWidth="130"/>
-    <ColumnDefinition Width="1.2*" MinWidth="100"/>
-    <ColumnDefinition Width="0.8*" MinWidth="85"/>
-    <ColumnDefinition Width="0.9*" MinWidth="95"/>
-    <ColumnDefinition Width="Auto"/>
-</Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Style="{StaticResource SurfaceDetailStyle}"/>
-                                        <TextBlock Grid.Column="1" Margin="12,0,0,0"
-                                                   Text="{Binding InquiryNumber}"
-                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTip="{Binding InquiryNumber}"/>
-                                        <Border Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                Style="{StaticResource Chip.Primary}">
-                                            <TextBlock Text="{Binding Status}"
-                                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                        </Border>
-                                        <StackPanel Grid.Column="3" Orientation="Horizontal"
-                                                    VerticalAlignment="Center" Margin="8,0,0,0">
-                                            <Border Style="{StaticResource SurfaceSecondaryStyle}"
-                                                    Margin="0,0,8,0">
-                                                <TextBlock Text="{Binding CustomerInitials, Mode=OneWay}"
-                                                           Style="{StaticResource Typography.Title}"/>
-                                            </Border>
-                                            <TextBlock Text="{Binding CustomerName}"
-                                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                            </ContextMenu>
+                                        </Border.ContextMenu>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3"/>
+                                                <ColumnDefinition Width="1.2*" MinWidth="110"/>
+                                                <ColumnDefinition Width="1.1*" MinWidth="110"/>
+                                                <ColumnDefinition Width="1.6*" MinWidth="140"/>
+                                                <ColumnDefinition Width="1.4*" MinWidth="110"/>
+                                                <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                                                <ColumnDefinition Width="0.9*" MinWidth="95"/>
+                                                <ColumnDefinition Width="0.9*" MinWidth="90"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Border Grid.Column="0" Background="{DynamicResource Ov.Accent}"/>
+                                            <TextBlock Grid.Column="1" Margin="12,0,0,0"
+                                                       Text="{Binding InquiryNumber}"
+                                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource Ov.Accent}"
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
-                                                       ToolTip="{Binding CustomerName}"/>
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="4" Margin="8,0,8,0"
-                                                   Text="{Binding Project}"
-                                                   FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTip="{Binding Project}"/>
-                                        <TextBlock Grid.Column="5" Margin="0,0,8,0"
-                                                   Text="{Binding ValueText, Mode=OneWay}"
-                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis" ToolTip="{Binding ValueText, Mode=OneWay}"/>
-                                        <TextBlock Grid.Column="6" Margin="8,0,0,0"
-                                                   Text="{Binding ReceivedDateText, Mode=OneWay}"
-                                                   FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="7" Margin="8,0,0,0"
-                                                   Text="{Binding Salesman, Mode=OneWay}"
-                                                   FontSize="{DynamicResource FontSize.Body}"
-                                                   Foreground="{DynamicResource TextTertiaryBrush}"
-                                                   VerticalAlignment="Center"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   MaxWidth="250"
-                                                   ToolTip="{Binding Salesman}"/>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
-                </Border>
-            </Grid>
+                                                       ToolTip="{Binding InquiryNumber}"
+                                                       Typography.NumeralAlignment="Tabular"/>
+                                            <Border Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,4"
+                                                    Background="{DynamicResource Ov.Soft}">
+                                                <TextBlock Text="{Binding Status}"
+                                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                           Foreground="{DynamicResource Ov.Accent}"
+                                                           TextTrimming="CharacterEllipsis" ToolTip="{Binding Status}"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                                        VerticalAlignment="Center" Margin="12,0,8,0">
+                                                <Border Width="30" Height="30" CornerRadius="{DynamicResource Radius.Medium}"
+                                                        Background="{DynamicResource Ov.Soft}" Margin="0,0,8,0"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding CustomerInitials, Mode=OneWay}"
+                                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               Foreground="{DynamicResource Ov.Accent}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="{Binding CustomerName}"
+                                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                           Foreground="{DynamicResource Ov.Ink}"
+                                                           VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding CustomerName}"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="4" Margin="12,0,8,0"
+                                                       Text="{Binding Project}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource Ov.Muted}"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Project}"/>
+                                            <TextBlock Grid.Column="5" Margin="0,0,12,0"
+                                                       Text="{Binding ValueText, Mode=OneWay}"
+                                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource Ov.Ink}"
+                                                       HorizontalAlignment="Right"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding ValueText, Mode=OneWay}"
+                                                       Typography.NumeralAlignment="Tabular"/>
+                                            <TextBlock Grid.Column="6" Margin="12,0,0,0"
+                                                       Text="{Binding ReceivedDateText, Mode=OneWay}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource Ov.Muted}"
+                                                       VerticalAlignment="Center"
+                                                       Typography.NumeralAlignment="Tabular"/>
+                                            <TextBlock Grid.Column="7" Margin="12,0,12,0"
+                                                       Text="{Binding Salesman, Mode=OneWay}"
+                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource Ov.Muted}"
+                                                       VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Salesman}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <!-- Empty state -->
+                        <Border HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Inquiries.Count}" Value="0"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE7C3;"
+                                Title="No inquiries match the current filters"
+                                Message="Adjust the filters or create a new inquiry from the toolbar above."/>
+                        </Border>
+                    </Grid>
+                </Grid>
             </Border>
 
-            <!-- ── Slide-in rail (right, ~376px) ── -->
+            <!-- ── Slide-in lifecycle rail (right, ~376px) ── -->
             <Grid x:Name="DetailPanel" Grid.Column="1" Margin="16,0,0,0"
                   Visibility="Collapsed">
                 <Grid.RenderTransform>
                     <TranslateTransform x:Name="PanelSlide" X="0"/>
                 </Grid.RenderTransform>
 
-                <Border Width="360"
-                        VerticalAlignment="Stretch"
-                        Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="20"
+                <Border Width="360" VerticalAlignment="Stretch"
+                        Style="{StaticResource Sl.Card}" Padding="20"
                         SnapsToDevicePixels="True">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="22" ShadowDepth="5"
-                                          Direction="270" Opacity="0.18"
-                                          Color="{DynamicResource LiquidShadowColor}"/>
-                    </Border.Effect>
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <StackPanel>
                             <!-- Header -->
                             <Grid>
@@ -735,146 +567,80 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Width="40" Height="40"
-                                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                        Background="{DynamicResource AccentBrush}"
-                                        Grid.Column="0">
+                                <Border Width="40" Height="40" CornerRadius="{DynamicResource Radius.Large}"
+                                        Background="{DynamicResource Ov.Accent}" Grid.Column="0">
                                     <TextBlock Text="INQ"
-                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
+                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.OnAccent}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
                                     <TextBlock Text="LIFECYCLE"
-                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource AccentBrush}"/>
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Accent}"/>
                                     <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}"
-                                               FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Ink}"
                                                TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedInquiry.InquiryNumber}"/>
                                 </StackPanel>
                                 <Button Grid.Column="2"
-                                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                                        Style="{StaticResource Sl.Button}"
                                         Command="{Binding CloseDetailsCommand}"
                                         VerticalAlignment="Top"
-                                        Padding="8,4" FontSize="{DynamicResource FontSize.Body}"
+                                        Width="32" Height="32" Padding="0"
                                         Content="✕"/>
                             </Grid>
 
                             <!-- Selected inquiry summary -->
                             <TextBlock Text="{Binding SelectedInquiry.CustomerName}"
                                        FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       Margin="0,10,0,0"
-                                       TextWrapping="Wrap"/>
+                                       Foreground="{DynamicResource Ov.Ink}"
+                                       Margin="0,12,0,0" TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding SelectedInquiry.Project}"
                                        FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Margin="0,2,0,0"
-                                       TextWrapping="Wrap"/>
+                                       Foreground="{DynamicResource Ov.Muted}"
+                                       Margin="0,2,0,0" TextWrapping="Wrap"/>
 
-                            <!-- PIPELINE — the killer section: 6 stages, each with
-                                 a state dot, name, document number, status, action. -->
+                            <!-- PIPELINE — six lifecycle stages -->
                             <TextBlock Text="PIPELINE"
-                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ov.Muted}"
                                        Margin="0,18,0,8"/>
 
-                            <!-- Stage 1 · INQUIRY (always exists) -->
-                            <Border>
+                            <!-- Stage 1 · INQUIRY (always active) -->
+                            <Border Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="10,8" Margin="0,0,0,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0"
-                                            Background="{DynamicResource AccentBrush}"
-                                            Margin="0,0,12,0"/>
+                                    <Border Grid.Column="0" Width="10" Height="10"
+                                            CornerRadius="{DynamicResource Radius.Small}"
+                                            Background="{DynamicResource Ov.Accent}"
+                                            Margin="0,0,12,0" VerticalAlignment="Center"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="INQUIRY"/>
+                                        <TextBlock Text="INQUIRY" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}"
-                                                   Style="{StaticResource Typography.Body}"/>
+                                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}"/>
                                         <TextBlock Text="{Binding SelectedInquiry.Status}"
-                                                  />
+                                                   FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource Ov.Accent}"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="2" Text="active"
-                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               VerticalAlignment="Center"/>
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Accent}" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
 
                             <!-- Stage 2 · PI -->
-                            <Border>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Margin="0,0,12,0"
-                                            VerticalAlignment="Center">
-                                        <Border.Style>
-                                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
-                                                        <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.Draft}">
-                                                        <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.Active}">
-                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.Skipped}">
-                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                    </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="PROFORMA INVOICE"
-                                                  />
-                                        <TextBlock Text="{Binding SelectedInquiry.ProformaCellText}"
-                                                   Style="{StaticResource Typography.Body}"/>
-                                    </StackPanel>
-                                    <Button Grid.Column="2"
-                                            Content="Open"
-                                            FontSize="{DynamicResource FontSize.BodySmall}" Padding="8,4"
-                                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasProforma}"
-                                            Command="{Binding ElementName=Root, Path=DataContext.OpenProformaForRowCommand}"
-                                            CommandParameter="{Binding SelectedInquiry}"/>
-                                </Grid>
-                                <!-- Right-click context menu on the PI stage. -->
-                                <Border.ContextMenu>
-                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
-                                                 DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Proforma Invoice"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasProforma}"
-                                                  Command="{Binding PlacementTarget.DataContext.OpenProformaForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                  CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Copy PI number"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasProforma}"
-                                                  Command="{Binding PlacementTarget.DataContext.CopyProformaNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                  CommandParameter="{Binding}"/>
-                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                                        <MenuItem Header="View inquiry workspace"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                  CommandParameter="{Binding}"/>
-                                    </ContextMenu>
-                                </Border.ContextMenu>
+                            <Border Background="{DynamicResource Ov.Surface}" BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="10,8" Margin="0,0,0,6">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                    <Style TargetType="Border">
+                                        <Setter Property="Opacity" Value="1"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}"
                                                          Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
@@ -883,76 +649,78 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
-                            </Border>
-
-                            <!-- Stage 3 · JO -->
-                            <Border>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Margin="0,0,12,0"
-                                            VerticalAlignment="Center">
+                                    <Border Grid.Column="0" Width="10" Height="10" Margin="0,0,12,0"
+                                            CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center">
                                         <Border.Style>
-                                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
-                                                        <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.Draft}">
-                                                        <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.Draft}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.Active}">
-                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.Active}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Warning}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Success}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.Skipped}">
-                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.ProformaState}" Value="{x:Static inq:InquiryLifecycleState.Skipped}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Danger}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="JOB ORDER"
-                                                  />
-                                        <TextBlock Text="{Binding SelectedInquiry.JobOrderCellText}"
-                                                   Style="{StaticResource Typography.Body}"/>
+                                        <TextBlock Text="PROFORMA INVOICE" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"/>
+                                        <TextBlock Text="{Binding SelectedInquiry.ProformaCellText}"
+                                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="2"
-                                            Content="Open"
-                                            FontSize="{DynamicResource FontSize.BodySmall}" Padding="8,4"
-                                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasJobOrder}"
-                                            Command="{Binding ElementName=Root, Path=DataContext.OpenJobOrderForRowCommand}"
+                                    <Button Grid.Column="2" Content="Open"
+                                            Style="{StaticResource Sl.Button}" Padding="10,4" MinHeight="28"
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasProforma}"
+                                            Command="{Binding ElementName=Root, Path=DataContext.OpenProformaForRowCommand}"
                                             CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
                                 <Border.ContextMenu>
-                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                    <ContextMenu Style="{StaticResource Sl.ContextMenu}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Job Order"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasJobOrder}"
-                                                  Command="{Binding PlacementTarget.DataContext.OpenJobOrderForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        <MenuItem Header="Open Proforma Invoice"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasProforma}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenProformaForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Copy JO number"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasJobOrder}"
-                                                  Command="{Binding PlacementTarget.DataContext.CopyJobOrderNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        <MenuItem Header="Copy PI number"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasProforma}"
+                                                  Command="{Binding PlacementTarget.DataContext.CopyProformaNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <Separator Style="{StaticResource Sl.MenuSeparator}"/>
                                         <MenuItem Header="View inquiry workspace"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Style="{StaticResource Sl.MenuItem}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
+                            </Border>
+
+                            <!-- Stage 3 · JO -->
+                            <Border Background="{DynamicResource Ov.Surface}" BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="10,8" Margin="0,0,0,6">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                    <Style TargetType="Border">
+                                        <Setter Property="Opacity" Value="1"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}"
                                                          Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
@@ -961,76 +729,78 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
-                            </Border>
-
-                            <!-- Stage 4 · DN -->
-                            <Border>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Margin="0,0,12,0"
-                                            VerticalAlignment="Center">
+                                    <Border Grid.Column="0" Width="10" Height="10" Margin="0,0,12,0"
+                                            CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center">
                                         <Border.Style>
-                                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
-                                                        <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.Draft}">
-                                                        <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.Draft}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.Active}">
-                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.Active}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Warning}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Success}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.Skipped}">
-                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.JobOrderState}" Value="{x:Static inq:InquiryLifecycleState.Skipped}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Danger}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="DELIVERY NOTE"
-                                                  />
-                                        <TextBlock Text="{Binding SelectedInquiry.DeliveryNoteCellText}"
-                                                   Style="{StaticResource Typography.Body}"/>
+                                        <TextBlock Text="JOB ORDER" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"/>
+                                        <TextBlock Text="{Binding SelectedInquiry.JobOrderCellText}"
+                                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="2"
-                                            Content="Open"
-                                            FontSize="{DynamicResource FontSize.BodySmall}" Padding="8,4"
-                                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasDeliveryNote}"
-                                            Command="{Binding ElementName=Root, Path=DataContext.OpenDeliveryNoteForRowCommand}"
+                                    <Button Grid.Column="2" Content="Open"
+                                            Style="{StaticResource Sl.Button}" Padding="10,4" MinHeight="28"
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasJobOrder}"
+                                            Command="{Binding ElementName=Root, Path=DataContext.OpenJobOrderForRowCommand}"
                                             CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
                                 <Border.ContextMenu>
-                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                    <ContextMenu Style="{StaticResource Sl.ContextMenu}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Delivery Note"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
-                                                  Command="{Binding PlacementTarget.DataContext.OpenDeliveryNoteForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        <MenuItem Header="Open Job Order"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasJobOrder}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenJobOrderForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Copy DN number"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
-                                                  Command="{Binding PlacementTarget.DataContext.CopyDeliveryNoteNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        <MenuItem Header="Copy JO number"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasJobOrder}"
+                                                  Command="{Binding PlacementTarget.DataContext.CopyJobOrderNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <Separator Style="{StaticResource Sl.MenuSeparator}"/>
                                         <MenuItem Header="View inquiry workspace"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Style="{StaticResource Sl.MenuItem}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
+                            </Border>
+
+                            <!-- Stage 4 · DN -->
+                            <Border Background="{DynamicResource Ov.Surface}" BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="10,8" Margin="0,0,0,6">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                    <Style TargetType="Border">
+                                        <Setter Property="Opacity" Value="1"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}"
                                                          Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
@@ -1039,76 +809,78 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
-                            </Border>
-
-                            <!-- Stage 5 · TI -->
-                            <Border>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Margin="0,0,12,0"
-                                            VerticalAlignment="Center">
+                                    <Border Grid.Column="0" Width="10" Height="10" Margin="0,0,12,0"
+                                            CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center">
                                         <Border.Style>
-                                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
-                                                        <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.Draft}">
-                                                        <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.Draft}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.Active}">
-                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.Active}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Warning}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Success}"/>
                                                     </DataTrigger>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.Skipped}">
-                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.DeliveryNoteState}" Value="{x:Static inq:InquiryLifecycleState.Skipped}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Danger}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="TAX INVOICE"
-                                                  />
-                                        <TextBlock Text="{Binding SelectedInquiry.TaxInvoiceCellText}"
-                                                   Style="{StaticResource Typography.Body}"/>
+                                        <TextBlock Text="DELIVERY NOTE" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"/>
+                                        <TextBlock Text="{Binding SelectedInquiry.DeliveryNoteCellText}"
+                                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="2"
-                                            Content="Open"
-                                            FontSize="{DynamicResource FontSize.BodySmall}" Padding="8,4"
-                                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasTaxInvoice}"
-                                            Command="{Binding ElementName=Root, Path=DataContext.OpenTaxInvoiceForRowCommand}"
+                                    <Button Grid.Column="2" Content="Open"
+                                            Style="{StaticResource Sl.Button}" Padding="10,4" MinHeight="28"
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasDeliveryNote}"
+                                            Command="{Binding ElementName=Root, Path=DataContext.OpenDeliveryNoteForRowCommand}"
                                             CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
                                 <Border.ContextMenu>
-                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                    <ContextMenu Style="{StaticResource Sl.ContextMenu}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Tax Invoice"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
-                                                  Command="{Binding PlacementTarget.DataContext.OpenTaxInvoiceForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        <MenuItem Header="Open Delivery Note"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenDeliveryNoteForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Copy TI number"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
-                                                  Command="{Binding PlacementTarget.DataContext.CopyTaxInvoiceNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        <MenuItem Header="Copy DN number"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
+                                                  Command="{Binding PlacementTarget.DataContext.CopyDeliveryNoteNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <Separator Style="{StaticResource Sl.MenuSeparator}"/>
                                         <MenuItem Header="View inquiry workspace"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Style="{StaticResource Sl.MenuItem}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
+                            </Border>
+
+                            <!-- Stage 5 · TI -->
+                            <Border Background="{DynamicResource Ov.Surface}" BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="10,8" Margin="0,0,0,6">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                    <Style TargetType="Border">
+                                        <Setter Property="Opacity" Value="1"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}"
                                                          Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
@@ -1117,63 +889,78 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
-                            </Border>
-
-                            <!-- Stage 6 · STMT -->
-                            <Border>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Margin="0,0,12,0"
-                                            VerticalAlignment="Center">
+                                    <Border Grid.Column="0" Width="10" Height="10" Margin="0,0,12,0"
+                                            CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center">
                                         <Border.Style>
-                                            <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SelectedInquiry.StatementState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.Draft}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.Active}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Warning}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Success}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.TaxInvoiceState}" Value="{x:Static inq:InquiryLifecycleState.Skipped}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Danger}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="STATEMENT"
-                                                  />
-                                        <TextBlock Text="Generated from Tax Invoices"
-                                                  />
+                                        <TextBlock Text="TAX INVOICE" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"/>
+                                        <TextBlock Text="{Binding SelectedInquiry.TaxInvoiceCellText}"
+                                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="2"
-                                            Content="Open"
-                                            FontSize="{DynamicResource FontSize.BodySmall}" Padding="8,4"
-                                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasStatement}"
-                                            Command="{Binding ElementName=Root, Path=DataContext.OpenStatementForRowCommand}"
+                                    <Button Grid.Column="2" Content="Open"
+                                            Style="{StaticResource Sl.Button}" Padding="10,4" MinHeight="28"
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasTaxInvoice}"
+                                            Command="{Binding ElementName=Root, Path=DataContext.OpenTaxInvoiceForRowCommand}"
                                             CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
                                 <Border.ContextMenu>
-                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                    <ContextMenu Style="{StaticResource Sl.ContextMenu}"
                                                  DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
-                                        <MenuItem Header="Open Statement"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  IsEnabled="{Binding Lifecycle.HasStatement}"
-                                                  Command="{Binding PlacementTarget.DataContext.OpenStatementForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        <MenuItem Header="Open Tax Invoice"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenTaxInvoiceForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Open statement module"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
-                                                  Command="{Binding PlacementTarget.DataContext.OpenStatementForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                        <MenuItem Header="Copy TI number"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
+                                                  Command="{Binding PlacementTarget.DataContext.CopyTaxInvoiceNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
-                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <Separator Style="{StaticResource Sl.MenuSeparator}"/>
                                         <MenuItem Header="View inquiry workspace"
-                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Style="{StaticResource Sl.MenuItem}"
                                                   Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
+                            </Border>
+
+                            <!-- Stage 6 · STMT -->
+                            <Border Background="{DynamicResource Ov.Surface}" BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="10,8" Margin="0,0,0,6">
                                 <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
+                                    <Style TargetType="Border">
+                                        <Setter Property="Opacity" Value="1"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding SelectedInquiry.StatementState}"
                                                          Value="{x:Static inq:InquiryLifecycleState.NotStarted}">
@@ -1182,82 +969,116 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Border Grid.Column="0" Width="10" Height="10" Margin="0,0,12,0"
+                                            CornerRadius="{DynamicResource Radius.Small}" VerticalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource Ov.Muted}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SelectedInquiry.StatementState}" Value="{x:Static inq:InquiryLifecycleState.Completed}">
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Success}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="STATEMENT" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"/>
+                                        <TextBlock Text="Generated from Tax Invoices"
+                                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Muted}"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="2" Content="Open"
+                                            Style="{StaticResource Sl.Button}" Padding="10,4" MinHeight="28"
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasStatement}"
+                                            Command="{Binding ElementName=Root, Path=DataContext.OpenStatementForRowCommand}"
+                                            CommandParameter="{Binding SelectedInquiry}"/>
+                                </Grid>
+                                <Border.ContextMenu>
+                                    <ContextMenu Style="{StaticResource Sl.ContextMenu}"
+                                                 DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
+                                        <MenuItem Header="Open Statement"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  IsEnabled="{Binding Lifecycle.HasStatement}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenStatementForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <Separator Style="{StaticResource Sl.MenuSeparator}"/>
+                                        <MenuItem Header="View inquiry workspace"
+                                                  Style="{StaticResource Sl.MenuItem}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                  CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
                             </Border>
 
                             <!-- MONEY — total billed + outstanding -->
                             <TextBlock Text="MONEY"
-                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ov.Muted}"
                                        Margin="0,16,0,8"/>
-                            <Border CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Background="{DynamicResource TintBlueBrush}"
-                                    BorderBrush="{DynamicResource AccentBrush}"
-                                    BorderThickness="{DynamicResource Border.HairlineThickness}" Padding="12,8"
+                            <Border CornerRadius="{DynamicResource Radius.Medium}"
+                                    Background="{DynamicResource Ov.Soft}"
+                                    BorderBrush="{DynamicResource Ov.Accent}"
+                                    BorderThickness="1" Padding="12,10"
                                     Margin="0,0,0,8" SnapsToDevicePixels="True">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock Text="TOTAL BILLED"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource AccentBrush}"/>
-                                        <TextBlock Text="{Binding SelectedInquiry.TotalBilledText}"
-                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </Grid>
+                                <StackPanel>
+                                    <TextBlock Text="TOTAL BILLED"
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Accent}"/>
+                                    <TextBlock Text="{Binding SelectedInquiry.TotalBilledText}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Ink}"
+                                               Margin="0,2,0,0" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
                             </Border>
-                            <Border CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Background="{DynamicResource TintRedBrush}"
-                                    BorderBrush="{DynamicResource DangerBrush}"
-                                    BorderThickness="{DynamicResource Border.HairlineThickness}" Padding="12,8"
+                            <Border CornerRadius="{DynamicResource Radius.Medium}"
+                                    Background="{DynamicResource Ov.DangerSoft}"
+                                    BorderBrush="{DynamicResource Ov.Danger}"
+                                    BorderThickness="1" Padding="12,10"
                                     SnapsToDevicePixels="True">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock Text="OUTSTANDING"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource DangerBrush}"/>
-                                        <TextBlock Text="{Binding SelectedInquiry.TotalOutstandingText}"
-                                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                                   Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </Grid>
+                                <StackPanel>
+                                    <TextBlock Text="OUTSTANDING"
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Danger}"/>
+                                    <TextBlock Text="{Binding SelectedInquiry.TotalOutstandingText}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Ink}"
+                                               Margin="0,2,0,0" Typography.NumeralAlignment="Tabular"/>
+                                </StackPanel>
                             </Border>
 
-                            <!-- ACTIVITY — last 5 communications -->
+                            <!-- ACTIVITY — last communications -->
                             <TextBlock Text="ACTIVITY"
-                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ov.Muted}"
                                        Margin="0,16,0,8"/>
                             <ItemsControl ItemsSource="{Binding SelectedInquiry.RecentActivity}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid Margin="0,0,0,8">
+                                        <Grid Margin="0,0,0,10">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
                                             <Border Width="8" Height="8" CornerRadius="{DynamicResource Radius.XSmall}"
-                                                    Background="{DynamicResource AccentBrush}"
-                                                    VerticalAlignment="Top" Margin="0,5,8,0"/>
+                                                    Background="{DynamicResource Ov.Accent}"
+                                                    VerticalAlignment="Top" Margin="0,5,10,0"/>
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="{Binding Title}"
                                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                           Foreground="{DynamicResource Ov.Ink}"/>
                                                 <TextBlock Text="{Binding OccurredText}"
                                                            FontSize="{DynamicResource FontSize.Caption}"
-                                                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                           Foreground="{DynamicResource Ov.Muted}"/>
                                                 <TextBlock Text="{Binding Description}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                           Foreground="{DynamicResource Ov.Muted}"
                                                            TextWrapping="Wrap"
                                                            Margin="0,2,0,0"/>
                                             </StackPanel>
@@ -1268,52 +1089,38 @@
 
                             <!-- ACTIONS -->
                             <TextBlock Text="ACTIONS"
-                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextTertiaryBrush}"
-                                       Margin="0,16,0,8"/>
-                            <Button Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
-                                    Content="OPEN WORKSPACE"
-                                    Margin="0,0,0,8"
-                                    HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Center"
+                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ov.Muted}"
+                                       Margin="0,14,0,8"/>
+                            <Button Style="{StaticResource Sl.PrimaryButton}"
+                                    Content="Open workspace" Tag="&#xE8A7;"
+                                    Margin="0,0,0,8" HorizontalAlignment="Stretch"
                                     Command="{Binding OpenWorkspaceCommand}"/>
-                            <WrapPanel>
-                                <Button Content="Prepare" Margin="0,0,8,8"
-                                        FontSize="{DynamicResource FontSize.Body}" Padding="8,4"
-                                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                        Command="{Binding ChangeStatusCommand}"
-                                        CommandParameter="Prepared"
+                            <WrapPanel Margin="0,0,0,8">
+                                <Button Content="Prepare" Margin="0,0,6,6" Padding="10,6" MinHeight="30"
+                                        Style="{StaticResource Sl.Button}"
+                                        Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
                                         IsEnabled="{Binding SelectedInquiry.CanPrepareWorkflow}"/>
-                                <Button Content="Send" Margin="0,0,8,8"
-                                        FontSize="{DynamicResource FontSize.Body}" Padding="8,4"
-                                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                        Command="{Binding ChangeStatusCommand}"
-                                        CommandParameter="Sent"
+                                <Button Content="Send" Margin="0,0,6,6" Padding="10,6" MinHeight="30"
+                                        Style="{StaticResource Sl.Button}"
+                                        Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
                                         IsEnabled="{Binding SelectedInquiry.CanSendWorkflow}"/>
-                                <Button Content="Confirm" Margin="0,0,8,8"
-                                        FontSize="{DynamicResource FontSize.Body}" Padding="8,4"
-                                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                        Command="{Binding ChangeStatusCommand}"
-                                        CommandParameter="Confirmed"
+                                <Button Content="Confirm" Margin="0,0,6,6" Padding="10,6" MinHeight="30"
+                                        Style="{StaticResource Sl.Button}"
+                                        Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
                                         IsEnabled="{Binding SelectedInquiry.CanConfirmWorkflow}"/>
-                                <Button Content="Hold" Margin="0,0,8,8"
-                                        FontSize="{DynamicResource FontSize.Body}" Padding="8,4"
-                                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                        Command="{Binding ChangeStatusCommand}"
-                                        CommandParameter="Hold"
+                                <Button Content="Hold" Margin="0,0,6,6" Padding="10,6" MinHeight="30"
+                                        Style="{StaticResource Sl.Button}"
+                                        Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
                                         IsEnabled="{Binding SelectedInquiry.CanHoldWorkflow}"/>
-                                <Button Content="Cancel" Margin="0,0,0,8"
-                                        FontSize="{DynamicResource FontSize.Body}" Padding="8,4"
-                                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                        Command="{Binding ChangeStatusCommand}"
-                                        CommandParameter="Cancelled"
+                                <Button Content="Cancel" Margin="0,0,0,6" Padding="10,6" MinHeight="30"
+                                        Style="{StaticResource Sl.DangerButton}"
+                                        Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
                                         IsEnabled="{Binding SelectedInquiry.CanCancelWorkflow}"/>
                             </WrapPanel>
-                            <Button Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                    Content="CONVERT TO PROFORMA INVOICE"
-                                    Margin="0,6,0,0"
+                            <Button Style="{StaticResource Sl.SuccessButton}"
+                                    Content="Convert to Proforma Invoice" Tag="&#xE8AB;"
                                     HorizontalAlignment="Stretch"
-                                    HorizontalContentAlignment="Center"
                                     Command="{Binding ConvertToPiCommand}"/>
                         </StackPanel>
                     </ScrollViewer>
@@ -1321,33 +1128,31 @@
             </Grid>
         </Grid>
 
-        <!-- ══ 5 · FOOTER ═══════════════════════════════════════════ -->
-        <Grid Grid.Row="5" Margin="16,0,16,16">
+        <!-- ══ 6 · FOOTER / PAGINATION ═══════════════════════════════ -->
+        <Grid Grid.Row="5" Margin="16,0,16,14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{Binding PageStatus}" FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource TextSecondaryBrush}"
-                           VerticalAlignment="Center"/>
-            </StackPanel>
+            <TextBlock Text="{Binding PageStatus}" FontSize="{DynamicResource FontSize.Body}"
+                       Foreground="{DynamicResource Ov.Muted}"
+                       VerticalAlignment="Center"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button MinWidth="80" Margin="0,0,8,0"
-                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                <Button MinWidth="84" Margin="0,0,8,0"
+                        Style="{StaticResource Sl.Button}"
                         Command="{Binding PreviousPageCommand}"
-                        Content="◀ PREV"/>
+                        Tag="&#xE76B;" Content="Prev"/>
                 <TextBlock VerticalAlignment="Center" Margin="0,0,8,0" FontSize="{DynamicResource FontSize.Body}"
-                           Foreground="{DynamicResource TextSecondaryBrush}">
+                           Foreground="{DynamicResource Ov.Muted}">
                     <Run Text="Page "/>
                     <Run Text="{Binding CurrentPage, Mode=OneWay}"/>
                     <Run Text=" of "/>
                     <Run Text="{Binding TotalPages, Mode=OneWay}"/>
                 </TextBlock>
-                <Button MinWidth="80"
-                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                <Button MinWidth="84"
+                        Style="{StaticResource Sl.Button}"
                         Command="{Binding NextPageCommand}"
-                        Content="NEXT ▶"/>
+                        Tag="&#xE76C;" Content="Next"/>
             </StackPanel>
         </Grid>
     </Grid>

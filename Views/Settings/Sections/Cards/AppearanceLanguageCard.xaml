@@ -2,13 +2,20 @@
      FILE: Views/Settings/Sections/Cards/AppearanceLanguageCard.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v3 — Appearance: Language, Currency & Localization
-     Redesigned to compact Bento Studio layout matching AppearanceThemeLayoutCard
-     with zero blank space and balanced visual rhythm.
-═══════════════════════════════════════════════════════════════════ -->
+
+     Spacing overhaul (2026-09-24):
+       • The three regional pickers and the three preference features now
+         sit in IndigoDashboardPanel flow grids. Tiles wrap to 2 or 1
+         column when the settings pane narrows instead of overlapping.
+       • Every tile has a 12px corner radius (Radius.Large), generous
+         internal padding and a consistent title → hint → control rhythm,
+         so text and inputs never crowd each other.
+═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceLanguageCard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:layout="clr-namespace:ProGlassAutomation.Views.Dashboard">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -20,7 +27,7 @@
 
     <Border Style="{StaticResource SettingsCompactCardStyle}">
         <StackPanel>
-            <!-- ── CARD HEADER ── -->
+            <!-- ── CARD HEADER ─────────────────────────────────────── -->
             <Grid Margin="{StaticResource SettingsStackBottom8}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -37,8 +44,10 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── SECTION 1: REGIONAL STANDARDS (3-COLUMN BENTO) ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="10,8">
+            <!-- ── SECTION 1: REGIONAL STANDARDS ─────────────────────
+                 Language / Currency / Phone country tiles flow across
+                 the card and wrap when space runs out — no overlap. -->
+            <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10">
                 <StackPanel>
                     <Grid Margin="{StaticResource SettingsStackBottom4}">
                         <Grid.ColumnDefinitions>
@@ -51,144 +60,195 @@
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsInlineGap6}">
                             <TextBlock Text="Regional Standards" Style="{StaticResource SettingsRowTitleStyle}"/>
                             <TextBlock Text="System language, accounting currency symbol, and dialing code"
-                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       TextWrapping="Wrap"/>
                         </StackPanel>
                     </Grid>
 
-                    <Grid Margin="{StaticResource SettingsStackTop4}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="168" Gap="12"
+                                                 Margin="{StaticResource SettingsStackTop4}">
 
                         <!-- Language -->
-                        <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}"
+                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                                CornerRadius="{DynamicResource Radius.Large}" Padding="12,10">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Settings.LblLanguage}"
                                            FontWeight="{DynamicResource Weight.Bold}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="{DynamicResource Settings.HintLanguage}" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,2"/>
+                                <TextBlock Text="{DynamicResource Settings.HintLanguage}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
                                 <ComboBox AutomationProperties.AutomationId="Settings.Language"
                                           ItemsSource="{Binding Languages}"
                                           SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
                                           DisplayMemberPath="DisplayName"
                                           Height="32" Padding="8,5"
-                                          Margin="{StaticResource SettingsStackTop4}"
                                           Style="{StaticResource ComboBoxStyle}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Currency -->
-                        <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}"
+                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                                CornerRadius="{DynamicResource Radius.Large}" Padding="12,10">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Settings.LblCurrency}"
                                            FontWeight="{DynamicResource Weight.Bold}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="{DynamicResource Settings.HintCurrency}" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,2"/>
+                                <TextBlock Text="{DynamicResource Settings.HintCurrency}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
                                 <ComboBox AutomationProperties.AutomationId="Settings.Currency"
                                           ItemsSource="{Binding Currencies}"
                                           SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
                                           DisplayMemberPath="DisplayName"
                                           Height="32" Padding="8,5"
-                                          Margin="{StaticResource SettingsStackTop4}"
                                           Style="{StaticResource ComboBoxStyle}"/>
                             </StackPanel>
                         </Border>
 
                         <!-- Phone Country -->
-                        <Border Grid.Column="4" Background="{DynamicResource SurfacePrimaryBrush}"
+                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                                CornerRadius="{DynamicResource Radius.Large}" Padding="12,10">
                             <StackPanel>
                                 <TextBlock Text="{DynamicResource Settings.LblPhoneCountry}"
                                            FontWeight="{DynamicResource Weight.Bold}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="{DynamicResource Settings.HintPhoneCountry}" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,2"/>
+                                <TextBlock Text="{DynamicResource Settings.HintPhoneCountry}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
                                 <ComboBox AutomationProperties.AutomationId="Settings.PhoneCountry"
                                           ItemsSource="{Binding PhoneCountries}"
                                           SelectedItem="{Binding PhoneCountry, Mode=TwoWay}"
                                           DisplayMemberPath="DisplayName"
                                           Height="32" Padding="8,5"
-                                          Margin="{StaticResource SettingsStackTop4}"
                                           Style="{StaticResource ComboBoxStyle}"/>
                             </StackPanel>
                         </Border>
-                    </Grid>
+                    </layout:IndigoDashboardPanel>
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource SettingsRowSeparatorStyle}" Margin="{StaticResource SettingsStackGap6}"/>
 
-            <!-- ── SECTION 2: AUTO-DETECTION, FALLBACK & MOTION ACCESSIBILITY ── -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.5*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
+            <!-- ── SECTION 2: PREFERENCE FEATURES ─────────────────────
+                 Auto-suggest country · Reset to English · Reduced motion.
+                 Each feature is its own rounded tile (Radius.Large) with
+                 icon, title, description and control, breathing evenly. -->
+            <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="168" Gap="12">
 
-                <!-- Left: Auto-detect & Currency Live Status -->
-                <StackPanel Grid.Column="0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0">
-                            <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
-                                      AutomationProperties.Name="{DynamicResource Settings.LblAutoDetect}"
-                                      IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
-                                      FontWeight="{DynamicResource Weight.SemiBold}"
-                                      FontSize="{DynamicResource FontSize.BodySmall}"
-                                      Foreground="{DynamicResource TextPrimaryBrush}"
-                                      VerticalContentAlignment="Center"
-                                      AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
-                            <TextBlock Text="{Binding FxStatusText}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       Margin="{StaticResource SettingsStackTop2}"/>
-                        </StackPanel>
-                        <Button Grid.Column="1"
-                                Style="{StaticResource OutlinedPillButton}"
+                <!-- Auto-suggest by country -->
+                <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
+                        CornerRadius="{DynamicResource Radius.Large}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="&#xE774;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Settings.LblAutoDetect}"
+                                       Style="{StaticResource SettingsRowTitleStyle}"
+                                       Margin="{StaticResource SettingsInlineGap6}"
+                                       VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </Grid>
+                        <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
+                                  AutomationProperties.Name="{DynamicResource Settings.LblAutoDetect}"
+                                  IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
+                                  FontWeight="{DynamicResource Weight.SemiBold}"
+                                  FontSize="{DynamicResource FontSize.BodySmall}"
+                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                  VerticalContentAlignment="Center"
+                                  Margin="0,0,0,6"
+                                  AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
+                        <TextBlock Text="{Binding FxStatusText}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                   Text="{DynamicResource Settings.LocaleFallbackCaption}"
+                                   TextWrapping="Wrap"
+                                   Margin="{StaticResource SettingsStackTop2}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Reset to English -->
+                <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
+                        CornerRadius="{DynamicResource Radius.Large}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="&#xE77C;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Settings.ResetToEnglish}"
+                                       Style="{StaticResource SettingsRowTitleStyle}"
+                                       Margin="{StaticResource SettingsInlineGap6}"
+                                       VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </Grid>
+                        <TextBlock Text="Restore English labels, date and currency formats in one tap."
+                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,10"/>
+                        <Button Style="{StaticResource OutlinedPillButton}"
                                 Content="{DynamicResource Settings.ResetToEnglish}"
                                 Command="{Binding ResetToEnglishCommand}"
                                 AutomationProperties.AutomationId="Settings.ResetLocale"
-                                Height="28" Padding="10,0"
+                                Height="30" Padding="12,0"
                                 FontSize="{DynamicResource FontSize.BodySmall}"
-                                VerticalAlignment="Center"/>
-                    </Grid>
-                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                               Text="{DynamicResource Settings.LocaleFallbackCaption}"
-                               Margin="{StaticResource SettingsStackTop2}"/>
-                </StackPanel>
+                                HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </Border>
 
-                <!-- Right: Reduced Motion Accessibility -->
-                <StackPanel Grid.Column="2">
-                    <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
-                              AutomationProperties.Name="{DynamicResource Settings.ReducedMotion}"
-                              Content="{DynamicResource Settings.ReducedMotion}"
-                              FontWeight="{DynamicResource Weight.SemiBold}"
-                              FontSize="{DynamicResource FontSize.BodySmall}"
-                              IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
-                              Foreground="{DynamicResource TextPrimaryBrush}"/>
-                    <TextBlock Text="{DynamicResource Settings.ReducedMotionTip}"
-                               Style="{StaticResource SettingsRowMetaStyle}"
-                               TextWrapping="Wrap"
-                               Margin="{StaticResource SettingsStackTop2}"/>
-                </StackPanel>
-            </Grid>
+                <!-- Reduced motion -->
+                <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
+                        CornerRadius="{DynamicResource Radius.Large}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="&#xE9F5;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource Settings.ReducedMotion}"
+                                       Style="{StaticResource SettingsRowTitleStyle}"
+                                       Margin="{StaticResource SettingsInlineGap6}"
+                                       VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </Grid>
+                        <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
+                                  AutomationProperties.Name="{DynamicResource Settings.ReducedMotion}"
+                                  Content="{DynamicResource Settings.ReducedMotion}"
+                                  FontWeight="{DynamicResource Weight.SemiBold}"
+                                  FontSize="{DynamicResource FontSize.BodySmall}"
+                                  IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
+                                  Foreground="{DynamicResource TextPrimaryBrush}"
+                                  Margin="0,0,0,6"/>
+                        <TextBlock Text="{DynamicResource Settings.ReducedMotionTip}"
+                                   Style="{StaticResource SettingsRowMetaStyle}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </layout:IndigoDashboardPanel>
         </StackPanel>
     </Border>
 </UserControl>

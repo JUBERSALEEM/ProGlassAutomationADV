@@ -2,14 +2,24 @@
      FILE: Views/Settings/Sections/Cards/AppearanceThemeLayoutCard.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v3 — Appearance: Theme, Layout & Surface Studio
-     Redesigned to compact Bento Studio layout eliminating empty space
-     and aligning with AppearanceLanguageCard.
-═══════════════════════════════════════════════════════════════════ -->
+
+     Spacing overhaul (2026-09-24):
+       • Surface Architecture tiles (Primary / Secondary / Detail) now
+         flow in an IndigoDashboardPanel instead of a rigid 3-column
+         grid — they wrap to 2 or 1 column on narrow panes, so labels,
+         sliders and captions can never overlap again.
+       • Inside every surface card the vertical rhythm is explicit:
+         name → description → slider rows separated by even 10px gaps,
+         label column widened to 52px so "Opacity / Radius / Border"
+         never collides with the slider track.
+       • UI Scale / PDF Layout / Motion cards follow the same rhythm.
+═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceThemeLayoutCard"
              xmlns:crystal="clr-namespace:ProGlassAutomation.Controls.CrystalFluid"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:cards="clr-namespace:ProGlassAutomation.Views.Settings.Sections.Cards"
+             xmlns:layout="clr-namespace:ProGlassAutomation.Views.Dashboard"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -22,7 +32,7 @@
 
     <Border Style="{StaticResource SettingsCompactCardStyle}">
         <StackPanel>
-            <!-- ── CARD HEADER & ONE-TAP RESET ── -->
+            <!-- ── CARD HEADER & ONE-TAP RESET ─────────────────────── -->
             <Grid Margin="{StaticResource SettingsStackBottom8}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -99,8 +109,11 @@
                 </StackPanel>
             </Border>
 
-            <!-- ── SECTION 1: SURFACE ARCHITECTURE (COMPACT 3-COLUMN BENTO) ── -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="10,8">
+            <!-- ── SECTION 1: SURFACE ARCHITECTURE ───────────────────
+                 Primary / Secondary / Detail surface cards. Flowing
+                 panel: 3 columns wide, wraps to 2 then 1 as the pane
+                 narrows — captions and sliders keep their spacing. -->
+            <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10">
                 <StackPanel>
                     <Grid Margin="{StaticResource SettingsStackBottom4}">
                         <Grid.ColumnDefinitions>
@@ -113,57 +126,59 @@
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsInlineGap6}">
                             <TextBlock Text="Surface Architecture" Style="{StaticResource SettingsRowTitleStyle}"/>
                             <TextBlock Text="Opacity, corner radius, and hairline borders for surface levels"
-                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       TextWrapping="Wrap"/>
                         </StackPanel>
                     </Grid>
 
-                    <Grid Margin="{StaticResource SettingsStackTop4}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="176" Gap="12"
+                                                 Margin="{StaticResource SettingsStackTop4}">
 
                         <!-- Primary Surface -->
-                        <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}"
+                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                                CornerRadius="{DynamicResource Radius.Large}" Padding="12,10">
                             <StackPanel>
                                 <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="Canvases &amp; main cards" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                
-                                <Grid Margin="{StaticResource SettingsStackTop4}">
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,2"/>
+                                <TextBlock Text="Canvases &amp; main cards"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
+
+                                <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Opacity" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Opacity" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0.5" Maximum="1"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfacePrimaryOpacity, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
-                                <Grid Margin="{StaticResource SettingsStackTop2}">
+                                <Grid Margin="0,10,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Radius" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Radius" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfacePrimaryRadius, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
-                                <Grid Margin="{StaticResource SettingsStackTop2}">
+                                <Grid Margin="0,10,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Border" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Border" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfacePrimaryBorderThickness, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
@@ -171,43 +186,50 @@
                         </Border>
 
                         <!-- Secondary Surface -->
-                        <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}"
+                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                                CornerRadius="{DynamicResource Radius.Large}" Padding="12,10">
                             <StackPanel>
                                 <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="Groups, filters, KPI cards" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                
-                                <Grid Margin="{StaticResource SettingsStackTop4}">
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,2"/>
+                                <TextBlock Text="Groups, filters, KPI cards"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
+
+                                <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Opacity" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Opacity" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0.25" Maximum="1"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfaceSecondaryOpacity, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
-                                <Grid Margin="{StaticResource SettingsStackTop2}">
+                                <Grid Margin="0,10,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Radius" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Radius" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfaceSecondaryRadius, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
-                                <Grid Margin="{StaticResource SettingsStackTop2}">
+                                <Grid Margin="0,10,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Border" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Border" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfaceSecondaryBorderThickness, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
@@ -215,134 +237,171 @@
                         </Border>
 
                         <!-- Detail Surface -->
-                        <Border Grid.Column="4" Background="{DynamicResource SurfacePrimaryBrush}"
+                        <Border Background="{DynamicResource SurfacePrimaryBrush}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                                CornerRadius="{DynamicResource Radius.Large}" Padding="12,10">
                             <StackPanel>
                                 <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="Chips, badges, facts" Style="{StaticResource SettingsRowMetaStyle}"/>
-                                
-                                <Grid Margin="{StaticResource SettingsStackTop4}">
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Margin="0,0,0,2"/>
+                                <TextBlock Text="Chips, badges, facts"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,10"/>
+
+                                <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Opacity" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Opacity" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0.15" Maximum="1"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfaceDetailOpacity, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
-                                <Grid Margin="{StaticResource SettingsStackTop2}">
+                                <Grid Margin="0,10,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Radius" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Radius" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="48"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfaceDetailRadius, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
-                                <Grid Margin="{StaticResource SettingsStackTop2}">
+                                <Grid Margin="0,10,0,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="Border" Style="{StaticResource SettingsRowMetaStyle}" Width="44" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="Border" Style="{StaticResource SettingsRowMetaStyle}" VerticalAlignment="Center"/>
                                     <Slider Grid.Column="1" Style="{StaticResource ModernSliderStyle}" Minimum="0" Maximum="24"
+                                            VerticalAlignment="Center"
                                             Value="{Binding SurfaceDetailBorderThickness, Mode=TwoWay}"
                                             AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"/>
                                 </Grid>
                             </StackPanel>
                         </Border>
-                    </Grid>
+                    </layout:IndigoDashboardPanel>
                 </StackPanel>
             </Border>
 
             <Border Style="{StaticResource SettingsRowSeparatorStyle}" Margin="{StaticResource SettingsStackGap6}"/>
 
-            <!-- ── SECTION 2: SYSTEM & RENDERING PREFERENCES (3-COLUMN BALANCED) ── -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.1*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="0.9*"/>
-                </Grid.ColumnDefinitions>
+            <!-- ── SECTION 2: SYSTEM & RENDERING PREFERENCES ─────────
+                 UI Scale / PDF Layout / Motion cards use the same
+                 flowing panel and tile rhythm as section 1. -->
+            <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="176" Gap="12">
 
                 <!-- UI Scale -->
-                <StackPanel Grid.Column="0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A3;" FontSize="{DynamicResource FontSize.BodySmall}" VerticalAlignment="Center"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsInlineGap6}" VerticalAlignment="Center" Text="{DynamicResource Settings.UIScale}"/>
-                            <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6}">
+                <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
+                        CornerRadius="{DynamicResource Radius.Large}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource Typography.Icon}" Text="&#xE8A3;"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Grid.Column="1" Style="{StaticResource SettingsRowTitleStyle}"
+                                       Margin="{StaticResource SettingsInlineGap6}" VerticalAlignment="Center"
+                                       Text="{DynamicResource Settings.UIScale}" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Column="2" FontSize="{DynamicResource FontSize.BodySmall}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
+                                       Margin="{StaticResource SettingsInlineGap6}">
                                 <Run Text="{Binding UiScalePercent, Mode=OneWay}"/><Run Text="%"/>
                             </TextBlock>
-                        </StackPanel>
-                        <Button Grid.Column="1" Content="{DynamicResource Action.Reset}"
+                        </Grid>
+                        <Slider Style="{StaticResource ModernSliderStyle}"
+                                AutomationProperties.Name="{DynamicResource Settings.UIScale}"
+                                Minimum="0.8" Maximum="1.25"
+                                TickFrequency="0.05"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding UiScale, Mode=TwoWay}"
+                                Margin="0,2,0,8"/>
+                        <Button Content="{DynamicResource Action.Reset}"
                                 Style="{StaticResource OutlinedPillButton}"
                                 Command="{Binding ResetUiScaleCommand}"
-                                Height="26" MinWidth="48" Padding="8,0"
+                                Height="26" MinWidth="56" Padding="10,0"
                                 FontSize="{DynamicResource FontSize.BodySmall}"
-                                VerticalAlignment="Center"/>
-                    </Grid>
-                    <Slider Style="{StaticResource ModernSliderStyle}"
-                            AutomationProperties.Name="{DynamicResource Settings.UIScale}"
-                            Minimum="0.8" Maximum="1.25"
-                            TickFrequency="0.05"
-                            IsSnapToTickEnabled="True"
-                            Value="{Binding UiScale, Mode=TwoWay}"
-                            Margin="{StaticResource SettingsStackGap2}"/>
-                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                               Text="{DynamicResource Settings.CtrlMouseWheelZoomsAppCtrl0Resets100}"/>
-                </StackPanel>
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,8"/>
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                   Text="{DynamicResource Settings.CtrlMouseWheelZoomsAppCtrl0Resets100}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
 
                 <!-- PDF Layout -->
-                <StackPanel Grid.Column="2">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8A5;" FontSize="{DynamicResource FontSize.BodySmall}" VerticalAlignment="Center"/>
-                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsInlineGap6}" VerticalAlignment="Center" Text="{DynamicResource Settings.PDFLayout}"/>
+                <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
+                        CornerRadius="{DynamicResource Radius.Large}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource Typography.Icon}" Text="&#xE8A5;"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Grid.Column="1" Style="{StaticResource SettingsRowTitleStyle}"
+                                       Margin="{StaticResource SettingsInlineGap6}" VerticalAlignment="Center"
+                                       Text="{DynamicResource Settings.PDFLayout}" TextWrapping="Wrap"/>
+                        </Grid>
+                        <ComboBox ItemsSource="{Binding PdfLayoutOptions}"
+                                  SelectedItem="{Binding PdfLayout}"
+                                  HorizontalAlignment="Stretch"
+                                  Padding="8,5" Height="32"
+                                  FontSize="{DynamicResource FontSize.Body}"
+                                  Style="{StaticResource ComboBoxStyle}"
+                                  Margin="0,2,0,8"/>
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                   Text="{DynamicResource Settings.AppliesPIJODNTaxInvoiceStatementSheetStore}"
+                                   TextWrapping="Wrap"/>
                     </StackPanel>
-                    <ComboBox ItemsSource="{Binding PdfLayoutOptions}"
-                              SelectedItem="{Binding PdfLayout}"
-                              HorizontalAlignment="Stretch"
-                              Padding="8,5" Height="32"
-                              FontSize="{DynamicResource FontSize.Body}"
-                              Style="{StaticResource ComboBoxStyle}"
-                              Margin="{StaticResource SettingsStackGap2}"/>
-                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                               Text="{DynamicResource Settings.AppliesPIJODNTaxInvoiceStatementSheetStore}"/>
-                </StackPanel>
+                </Border>
 
                 <!-- Motion & Display Performance -->
-                <StackPanel Grid.Column="4">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9F5;" FontSize="{DynamicResource FontSize.BodySmall}" VerticalAlignment="Center"/>
-                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsInlineGap6}" VerticalAlignment="Center" Text="{DynamicResource Settings.MotionPerformance}"/>
+                <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
+                        CornerRadius="{DynamicResource Radius.Large}">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource Typography.Icon}" Text="&#xE9F5;"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Grid.Column="1" Style="{StaticResource SettingsRowTitleStyle}"
+                                       Margin="{StaticResource SettingsInlineGap6}" VerticalAlignment="Center"
+                                       Text="{DynamicResource Settings.MotionPerformance}" TextWrapping="Wrap"/>
+                        </Grid>
+                        <Border Background="{DynamicResource SurfaceTertiaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                CornerRadius="{DynamicResource Radius.Small}"
+                                Padding="10,7" Margin="0,2,0,8">
+                            <TextBlock Text="{Binding PerformanceTierDisplay}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       TextWrapping="Wrap"/>
+                        </Border>
+                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                   Text="{DynamicResource Settings.AnimationsAdaptDisplayRefreshRate6090120144}"
+                                   TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Border Background="{DynamicResource SurfaceTertiaryBrush}"
-                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                            BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            CornerRadius="{DynamicResource Radius.Small}"
-                            Padding="8,6" Margin="{StaticResource SettingsStackGap2}">
-                        <TextBlock Text="{Binding PerformanceTierDisplay}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"/>
-                    </Border>
-                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                               Text="{DynamicResource Settings.AnimationsAdaptDisplayRefreshRate6090120144}"/>
-                </StackPanel>
-            </Grid>
+                </Border>
+            </layout:IndigoDashboardPanel>
         </StackPanel>
     </Border>
 </UserControl>
