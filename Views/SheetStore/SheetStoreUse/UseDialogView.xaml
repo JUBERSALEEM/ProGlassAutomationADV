@@ -33,13 +33,13 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{DynamicResource Ov.WarningSoft}" CornerRadius="8" Padding="8,6" Margin="0,0,4,0">
+                    <Border Grid.Column="0" Background="{DynamicResource Ov.WarningSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.Available}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource WarningBrush}"/>
                             <TextBlock Text="{Binding Sheet.Balance, StringFormat={}{0} Sheets}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="8,6" Margin="4,0,0,0">
+                    <Border Grid.Column="1" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
                         <StackPanel>
                             <TextBlock Text="Total Area Available" Style="{StaticResource Ov.Meta}"/>
                             <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2} SQM}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -126,7 +126,7 @@
                         <ColumnDefinition Width="48"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                            Height="40" Content="−" FontSize="18"
+                            Height="40" Content="−" FontSize="{DynamicResource FontSize.H3}"
                             ToolTip="{DynamicResource SheetStore.DecreaseQuantity}"
                             Command="{Binding DecreaseCommand}"/>
                     <TextBox Grid.Column="1"
@@ -152,7 +152,7 @@
                         </TextBox.Style>
                     </TextBox>
                     <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                            Height="40" Content="+" FontSize="18"
+                            Height="40" Content="+" FontSize="{DynamicResource FontSize.H3}"
                             ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"
                             Command="{Binding IncreaseCommand}"/>
                 </Grid>
@@ -200,7 +200,7 @@
 
         <!-- Error Banner -->
         <Border Background="{DynamicResource Ov.DangerSoft}" BorderBrush="{DynamicResource DangerBrush}"
-                BorderThickness="1" CornerRadius="8" Padding="10,8" Margin="0,6,0,0"
+                BorderThickness="1" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,8" Margin="0,6,0,0"
                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
             <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Body}"/>
         </Border>

@@ -31,7 +31,7 @@
         <Border Style="{StaticResource Ov.CardMicro}" Padding="12,8" Margin="0,0,0,10">
             <TextBlock Text="{Binding SheetLabel}"
                        Style="{StaticResource Ov.CardTitle}"
-                       FontSize="16"/>
+                       FontSize="{DynamicResource FontSize.H3}"/>
         </Border>
 
         <!-- Bento Comparison Grid -->
@@ -54,7 +54,7 @@
                 <!-- Headers -->
                 <Border Grid.Row="0" Grid.Column="0"
                         Background="{DynamicResource Ov.Soft}"
-                        Padding="12,10" CornerRadius="10,0,0,0">
+                        Padding="12,10">
                     <TextBlock Text="{DynamicResource SheetStore.Field}" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"/>
                 </Border>
                 <Border Grid.Row="0" Grid.Column="1"
@@ -66,7 +66,7 @@
                 </Border>
                 <Border Grid.Row="0" Grid.Column="2"
                         Background="{DynamicResource WarningBrush}"
-                        Padding="12,10" CornerRadius="0,10,0,0">
+                        Padding="12,10">
                     <TextBlock Text="{DynamicResource SheetStore.IncomingCSV}"
                                FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>

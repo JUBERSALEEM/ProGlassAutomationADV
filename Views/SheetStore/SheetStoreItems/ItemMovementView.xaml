@@ -32,19 +32,19 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="8,6" Margin="0,0,4,0">
+                    <Border Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
                         <StackPanel>
                             <TextBlock Text="Stock" Style="{StaticResource Ov.Meta}"/>
                             <TextBlock Text="{Binding Item.Stock, StringFormat={}{0:N2}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Background="{DynamicResource Ov.DangerSoft}" CornerRadius="8" Padding="8,6" Margin="2,0">
+                    <Border Grid.Column="1" Background="{DynamicResource Ov.DangerSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="2,0">
                         <StackPanel>
                             <TextBlock Text="Used" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
                             <TextBlock Text="{Binding Item.Used, StringFormat={}{0:N2}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="8" Padding="8,6" Margin="4,0,0,0">
+                    <Border Grid.Column="2" Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
                         <StackPanel>
                             <TextBlock Text="Balance" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
                             <TextBlock Text="{Binding Item.BalanceDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
@@ -163,7 +163,7 @@
 
         <!-- Reorder Warning -->
         <Border Background="{DynamicResource Ov.WarningSoft}" BorderBrush="{DynamicResource WarningBrush}"
-                BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+                BorderThickness="1" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,8" Margin="0,0,0,6">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Visibility" Value="Collapsed"/>

@@ -197,7 +197,7 @@
                     </ListBox.ItemsPanel>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border CornerRadius="8" Padding="10,6" Margin="0,0,0,4"
+                            <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="10,6" Margin="0,0,0,4"
                                     Background="{DynamicResource Ov.Surface}"
                                     BorderBrush="{DynamicResource Ov.Line}"
                                     BorderThickness="1"
@@ -220,7 +220,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Action Badge -->
-                                    <Border Grid.Column="0" CornerRadius="6" Padding="6,2"
+                                    <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Small}" Padding="6,2"
                                             VerticalAlignment="Center" HorizontalAlignment="Left">
                                         <Border.Background>
                                             <SolidColorBrush Color="{Binding ActionColor, Converter={StaticResource ColorStringConverter}}"/>
@@ -249,11 +249,11 @@
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    ToolTip="{Binding Details}"/>
                                         <Border Margin="0,3,0,0" Padding="6,1"
-                                                HorizontalAlignment="Left" CornerRadius="4"
+                                                HorizontalAlignment="Left" CornerRadius="{DynamicResource Radius.Small}"
                                                 Background="{DynamicResource Ov.WarningSoft}"
                                                 Visibility="{Binding IsReversed, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <TextBlock Text="{DynamicResource SheetStore.ReversedBadge}"
-                                                       FontSize="10" FontWeight="{DynamicResource Weight.Bold}"
+                                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
                                                        Foreground="{DynamicResource WarningBrush}"/>
                                         </Border>
                                     </StackPanel>
@@ -285,7 +285,7 @@
                                                    HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="{Binding TimeDisplay}"
-                                                   FontSize="10"
+                                                   FontSize="{DynamicResource FontSize.Caption}"
                                                    HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     </StackPanel>

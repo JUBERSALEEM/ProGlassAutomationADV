@@ -54,7 +54,7 @@
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="{Binding HeaderTitle}"
-                               Style="{StaticResource Ov.CardTitle}" FontSize="20"/>
+                               Style="{StaticResource Ov.CardTitle}" FontSize="{DynamicResource FontSize.H2}"/>
                     <TextBlock Text="{Binding HeaderSubtitle}"
                                Style="{StaticResource Ov.Meta}"
                                Margin="0,2,0,0"/>
@@ -363,42 +363,42 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="12,10">
+                                    <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
                                             <TextBlock Text="CATEGORY" Style="{StaticResource Ov.Meta}"/>
                                             <TextBlock Text="{Binding Sheet.Category}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="12,10">
+                                    <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
                                             <TextBlock Text="THICKNESS" Style="{StaticResource Ov.Meta}"/>
                                             <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource AccentBrush}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="0" Grid.Column="4" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="12,10">
+                                    <Border Grid.Row="0" Grid.Column="4" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
                                             <TextBlock Text="COLOUR" Style="{StaticResource Ov.Meta}"/>
                                             <TextBlock Text="{Binding Sheet.Color}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="12,10">
+                                    <Border Grid.Row="2" Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
                                             <TextBlock Text="SIZE (mm)" Style="{StaticResource Ov.Meta}"/>
                                             <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="2" Grid.Column="2" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="12,10">
+                                    <Border Grid.Row="2" Grid.Column="2" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
                                             <TextBlock Text="SQM PER SHEET" Style="{StaticResource Ov.Meta}"/>
                                             <TextBlock Text="{Binding Sheet.SqmPerSheet, StringFormat={}{0:N4}}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <Border Grid.Row="2" Grid.Column="4" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="12,10">
+                                    <Border Grid.Row="2" Grid.Column="4" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10">
                                         <StackPanel>
                                             <TextBlock Text="SUPPLIER" Style="{StaticResource Ov.Meta}"/>
                                             <TextBlock Text="{Binding Sheet.Supplier}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}" TextTrimming="CharacterEllipsis"/>
@@ -470,7 +470,7 @@
                                         <ColumnDefinition Width="48"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                                            Height="40" Content="−" FontSize="18"
+                                            Height="40" Content="−" FontSize="{DynamicResource FontSize.H3}"
                                             Command="{Binding DecreaseCommand}"/>
                                     <TextBox Grid.Column="1" Margin="8,0"
                                              Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
@@ -483,7 +483,7 @@
                                              Foreground="{DynamicResource TextPrimaryBrush}"
                                              BorderThickness="0"/>
                                     <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                                            Height="40" Content="+" FontSize="18"
+                                            Height="40" Content="+" FontSize="{DynamicResource FontSize.H3}"
                                             Command="{Binding IncreaseCommand}"/>
                                 </Grid>
 
@@ -556,7 +556,7 @@
 
                         <!-- Error Blocker -->
                         <Border Background="{DynamicResource Ov.DangerSoft}" BorderBrush="{DynamicResource DangerBrush}"
-                                BorderThickness="1" Padding="12,10" Margin="0,0,0,14" CornerRadius="8"
+                                BorderThickness="1" Padding="12,10" Margin="0,0,0,14" CornerRadius="{DynamicResource Radius.Medium}"
                                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="{Binding ErrorMessage}" TextWrapping="Wrap"
                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -574,7 +574,7 @@
                                         <ColumnDefinition Width="48"/>
                                     </Grid.ColumnDefinitions>
                                     <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                                            Height="40" Content="−" FontSize="18"
+                                            Height="40" Content="−" FontSize="{DynamicResource FontSize.H3}"
                                             Command="{Binding DecreaseCommand}"/>
                                     <TextBox Grid.Column="1" Margin="8,0"
                                              Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
@@ -587,7 +587,7 @@
                                              Foreground="{DynamicResource TextPrimaryBrush}"
                                              BorderThickness="0"/>
                                     <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                                            Height="40" Content="+" FontSize="18"
+                                            Height="40" Content="+" FontSize="{DynamicResource FontSize.H3}"
                                             Command="{Binding IncreaseCommand}"/>
                                 </Grid>
 
@@ -691,7 +691,7 @@
                                                   Style="{StaticResource DetailCombo}"
                                                   IsEditable="True" IsTextSearchEnabled="True"/>
                                         <TextBlock Text="{Binding CategoryError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasCategoryError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
 
@@ -702,7 +702,7 @@
                                                   Style="{StaticResource DetailCombo}"
                                                   IsEditable="True" IsTextSearchEnabled="True"/>
                                         <TextBlock Text="{Binding ThicknessError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasThicknessError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
 
@@ -713,7 +713,7 @@
                                                   Style="{StaticResource DetailCombo}"
                                                   IsEditable="True" IsTextSearchEnabled="True"/>
                                         <TextBlock Text="{Binding ColorError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasColorError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </Grid>
@@ -740,7 +740,7 @@
                                                   Style="{StaticResource DetailCombo}"
                                                   IsEditable="True" IsTextSearchEnabled="True"/>
                                         <TextBlock Text="{Binding WidthError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasWidthError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
 
@@ -751,7 +751,7 @@
                                                   Style="{StaticResource DetailCombo}"
                                                   IsEditable="True" IsTextSearchEnabled="True"/>
                                         <TextBlock Text="{Binding HeightError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasHeightError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
 
@@ -762,7 +762,7 @@
                                                   Style="{StaticResource DetailCombo}"
                                                   IsEditable="True" IsTextSearchEnabled="True"/>
                                         <TextBlock Text="{Binding SupplierError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasSupplierError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </Grid>
@@ -789,7 +789,7 @@
                                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                                  Style="{StaticResource DetailEntry}"/>
                                         <TextBlock Text="{Binding PurchasePriceError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasPurchasePriceError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
 
@@ -800,7 +800,7 @@
                                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                                  Style="{StaticResource DetailEntry}"/>
                                         <TextBlock Text="{Binding SellPriceError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasSellPriceError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
 
@@ -811,7 +811,7 @@
                                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                                                  Style="{StaticResource DetailEntry}"/>
                                         <TextBlock Text="{Binding StockError}"
-                                                   Foreground="{DynamicResource DangerBrush}" FontSize="11" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Label}" Margin="0,4,0,0"
                                                    Visibility="{Binding HasStockError, Converter={StaticResource BoolToVisibilityConverter}}"/>
                                     </StackPanel>
                                 </Grid>
@@ -920,7 +920,7 @@
                                       behaviors:SmoothScrollBehavior.IsEnabled="True">
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="8" Padding="10,6" Margin="0,0,0,4"
+                                        <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="10,6" Margin="0,0,0,4"
                                                 Background="{DynamicResource Ov.Surface}"
                                                 BorderBrush="{DynamicResource Ov.Line}"
                                                 BorderThickness="1" SnapsToDevicePixels="True">
@@ -940,7 +940,7 @@
                                                            FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}"/>
 
                                                 <Border Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center"
-                                                        CornerRadius="6" Padding="8,2" SnapsToDevicePixels="True">
+                                                        CornerRadius="{DynamicResource Radius.Small}" Padding="8,2" SnapsToDevicePixels="True">
                                                     <Border.Background>
                                                         <SolidColorBrush Color="{Binding ActionColor, Converter={StaticResource ColorStringConverter}}"/>
                                                     </Border.Background>

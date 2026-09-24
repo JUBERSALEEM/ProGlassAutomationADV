@@ -47,7 +47,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{TemplateBinding Tag}"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="15"
+                                               FontSize="{DynamicResource FontSize.Icon}"
                                                Foreground="{DynamicResource AccentBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
@@ -111,7 +111,7 @@
                                Style="{StaticResource Ov.Title}"
                                VerticalAlignment="Center" Margin="0,0,12,0"/>
                     <Border Background="{DynamicResource Ov.Soft}"
-                            CornerRadius="8" Padding="10,4"
+                            CornerRadius="{DynamicResource Radius.Medium}" Padding="10,4"
                             VerticalAlignment="Center" Margin="0,0,16,0">
                         <TextBlock Text="{DynamicResource Nav.GroupInventory}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
@@ -464,10 +464,10 @@
                     <!-- Fast Live Search Bar -->
                     <Border BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
                             Background="{DynamicResource Ov.Soft}"
-                            CornerRadius="8" Padding="10,6" Margin="0,8,0,0"
+                            CornerRadius="{DynamicResource Radius.Medium}" Padding="10,6" Margin="0,8,0,0"
                             SnapsToDevicePixels="True">
                         <DockPanel>
-                            <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="15"
+                            <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Icon}"
                                        Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                      behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
@@ -568,7 +568,7 @@
                                     <Border behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                             behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
                                             Padding="10,8"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource Radius.Medium}"
                                             BorderThickness="1"
                                             Background="Transparent"
                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
@@ -667,7 +667,7 @@
                                             <!-- Stock Pill -->
                                             <Border Grid.Column="8" Margin="4,0"
                                                     Background="{DynamicResource Ov.SuccessSoft}"
-                                                    CornerRadius="6" Padding="6,2"
+                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="6,2"
                                                     HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Stock}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                            FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
@@ -676,7 +676,7 @@
                                             <!-- Used Pill -->
                                             <Border Grid.Column="9" Margin="4,0"
                                                     Background="{DynamicResource Ov.DangerSoft}"
-                                                    CornerRadius="6" Padding="6,2"
+                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="6,2"
                                                     HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Used}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                            FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
@@ -685,7 +685,7 @@
                                             <!-- Balance Pill -->
                                             <Border Grid.Column="10" Margin="4,0"
                                                     Background="{DynamicResource Ov.WarningSoft}"
-                                                    CornerRadius="6" Padding="6,2"
+                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="6,2"
                                                     HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Balance}" FontSize="{DynamicResource FontSize.BodySmall}"
                                                            FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
@@ -773,7 +773,7 @@
                                     <Border behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                             behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
                                             Padding="12,8"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource Radius.Medium}"
                                             BorderThickness="1"
                                             SnapsToDevicePixels="True">
                                         <Border.Style>
@@ -918,7 +918,7 @@
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
                                     <TextBlock Text="{DynamicResource SheetStore.SheetDetails}"
                                                Style="{StaticResource Ov.CardTitle}"
-                                               FontSize="16"/>
+                                               FontSize="{DynamicResource FontSize.H3}"/>
                                     <TextBlock Text="{Binding SelectionLabel}"
                                                Style="{StaticResource Ov.Meta}"
                                                TextTrimming="CharacterEllipsis"/>
@@ -937,7 +937,7 @@
                                        Margin="2,0,0,6"/>
 
                             <!-- Buying Value Card -->
-                            <Border CornerRadius="10" Padding="12,10" Margin="0,0,0,8"
+                            <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10" Margin="0,0,0,8"
                                     Background="{DynamicResource Ov.DangerSoft}"
                                     BorderBrush="{DynamicResource DangerBrush}"
                                     BorderThickness="1" SnapsToDevicePixels="True">
@@ -952,7 +952,7 @@
                             </Border>
 
                             <!-- Selling Value Card -->
-                            <Border CornerRadius="10" Padding="12,10" Margin="0,0,0,8"
+                            <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10" Margin="0,0,0,8"
                                     Background="{DynamicResource Ov.SuccessSoft}"
                                     BorderBrush="{DynamicResource SuccessBrush}"
                                     BorderThickness="1" SnapsToDevicePixels="True">
@@ -967,7 +967,7 @@
                             </Border>
 
                             <!-- Expected Profit Card -->
-                            <Border CornerRadius="10" Padding="12,10" Margin="0,0,0,12"
+                            <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10" Margin="0,0,0,12"
                                     Background="{DynamicResource Ov.Soft}"
                                     BorderBrush="{DynamicResource AccentBrush}"
                                     BorderThickness="1" SnapsToDevicePixels="True">
@@ -996,7 +996,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Stock -->
-                                <Border Grid.Column="0" CornerRadius="8" Padding="8,8"
+                                <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
                                         Background="{DynamicResource Ov.SuccessSoft}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
                                         BorderThickness="1">
@@ -1009,7 +1009,7 @@
                                 </Border>
 
                                 <!-- Used -->
-                                <Border Grid.Column="2" CornerRadius="8" Padding="8,8"
+                                <Border Grid.Column="2" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
                                         Background="{DynamicResource Ov.DangerSoft}"
                                         BorderBrush="{DynamicResource DangerBrush}"
                                         BorderThickness="1">
@@ -1022,7 +1022,7 @@
                                 </Border>
 
                                 <!-- Balance -->
-                                <Border Grid.Column="4" CornerRadius="8" Padding="8,8"
+                                <Border Grid.Column="4" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
                                         Background="{DynamicResource Ov.WarningSoft}"
                                         BorderBrush="{DynamicResource WarningBrush}"
                                         BorderThickness="1">
@@ -1044,32 +1044,32 @@
                                         <ColumnDefinition Width="6"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" CornerRadius="8" Padding="8,8"
+                                    <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
                                             Background="{DynamicResource Ov.Soft}"
                                             BorderBrush="{DynamicResource AccentBrush}"
                                             BorderThickness="1">
                                         <StackPanel>
                                             <TextBlock Text="SQM/SHEET" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource AccentBrush}"/>
-                                            <TextBlock Text="{Binding DisplaySqmPerSheet, StringFormat={}{0:0.####}}" Style="{StaticResource Ov.Value}" FontSize="15" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
+                                            <TextBlock Text="{Binding DisplaySqmPerSheet, StringFormat={}{0:0.####}}" Style="{StaticResource Ov.Value}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </Border>
-                                    <Border Grid.Column="2" CornerRadius="8" Padding="8,8"
+                                    <Border Grid.Column="2" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
                                             Background="{DynamicResource Ov.DangerSoft}"
                                             BorderBrush="{DynamicResource DangerBrush}"
                                             BorderThickness="1">
                                         <StackPanel>
                                             <TextBlock Text="{DynamicResource SheetStore.BUYSQM}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
-                                            <TextBlock Text="{Binding DisplayBuyPricePerSqm, StringFormat={}{0:0.##} AED}" Style="{StaticResource Ov.Value}" FontSize="15" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
+                                            <TextBlock Text="{Binding DisplayBuyPricePerSqm, StringFormat={}{0:0.##} AED}" Style="{StaticResource Ov.Value}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
                                         </StackPanel>
                                     </Border>
                                 </Grid>
-                                <Border CornerRadius="8" Padding="8,8"
+                                <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
                                         Background="{DynamicResource Ov.SuccessSoft}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
                                         BorderThickness="1">
                                     <StackPanel>
                                         <TextBlock Text="{DynamicResource SheetStore.SELLSQM}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
-                                        <TextBlock Text="{Binding DisplaySellPricePerSqm, StringFormat={}{0:0.##} AED}" Style="{StaticResource Ov.Value}" FontSize="15" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
+                                        <TextBlock Text="{Binding DisplaySellPricePerSqm, StringFormat={}{0:0.##} AED}" Style="{StaticResource Ov.Value}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

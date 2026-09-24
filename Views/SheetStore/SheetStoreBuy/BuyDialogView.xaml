@@ -35,19 +35,19 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="8" Padding="8,6" Margin="0,0,4,0">
+                    <Border Grid.Column="0" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.TotalStock}" Style="{StaticResource Ov.Meta}"/>
                             <TextBlock Text="{Binding Sheet.Stock}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Background="{DynamicResource Ov.DangerSoft}" CornerRadius="8" Padding="8,6" Margin="2,0">
+                    <Border Grid.Column="1" Background="{DynamicResource Ov.DangerSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="2,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.Used}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
                             <TextBlock Text="{Binding Sheet.Used}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="8" Padding="8,6" Margin="4,0,0,0">
+                    <Border Grid.Column="2" Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource SheetStore.Balance}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
                             <TextBlock Text="{Binding Sheet.Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
@@ -70,7 +70,7 @@
                         <ColumnDefinition Width="48"/>
                     </Grid.ColumnDefinitions>
                     <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                            Height="40" Content="−" FontSize="18"
+                            Height="40" Content="−" FontSize="{DynamicResource FontSize.H3}"
                             ToolTip="{DynamicResource SheetStore.DecreaseQuantity}"
                             Command="{Binding DecreaseCommand}"/>
                     <TextBox Grid.Column="1"
@@ -96,7 +96,7 @@
                         </TextBox.Style>
                     </TextBox>
                     <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                            Height="40" Content="+" FontSize="18"
+                            Height="40" Content="+" FontSize="{DynamicResource FontSize.H3}"
                             ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"
                             Command="{Binding IncreaseCommand}"/>
                 </Grid>

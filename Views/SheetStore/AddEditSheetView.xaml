@@ -55,7 +55,7 @@
             </Border>
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <TextBlock Text="{Binding DialogTitle}"
-                           Style="{StaticResource Ov.CardTitle}" FontSize="20"/>
+                           Style="{StaticResource Ov.CardTitle}" FontSize="{DynamicResource FontSize.H2}"/>
                 <TextBlock Text="{DynamicResource SheetStore.EnterGlassSheetInventoryDetails}"
                            Style="{StaticResource Ov.Meta}" Margin="0,2,0,0"/>
             </StackPanel>
@@ -203,14 +203,14 @@
                 Background="{DynamicResource Ov.DangerSoft}"
                 BorderBrush="{DynamicResource DangerBrush}"
                 BorderThickness="1"
-                CornerRadius="8"
+                CornerRadius="{DynamicResource Radius.Medium}"
                 Padding="12,10"
                 Margin="0,12,0,0"
                 SnapsToDevicePixels="True"
                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
-                           FontSize="16"
+                           FontSize="{DynamicResource FontSize.Icon}"
                            FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource DangerBrush}"
                            VerticalAlignment="Center"
