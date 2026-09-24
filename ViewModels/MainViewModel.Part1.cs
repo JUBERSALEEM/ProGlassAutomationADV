@@ -281,6 +281,8 @@ namespace ProGlassAutomation.ViewModels
                 _currentViewModel = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentModuleTitle));
+                OnPropertyChanged(nameof(CurrentModuleHeaderTitle));
+                OnPropertyChanged(nameof(CurrentModuleSubText));
                 UpdateAiScreenContext();
                 // GB-P14: republish the experience-scoped content hosts
                 // (ProfessionalContent/PersonalContent) so module
@@ -297,6 +299,80 @@ namespace ProGlassAutomation.ViewModels
                 var raw = _currentViewModel?.GetType().Name.Replace("ViewModel", "") ?? "";
                 var pretty = PrettyModuleName(raw);
                 return string.IsNullOrWhiteSpace(pretty) ? "MODULE" : pretty.ToUpperInvariant();
+            }
+        }
+
+        public string CurrentModuleHeaderTitle
+        {
+            get
+            {
+                if (_currentViewModel is DashboardViewModel db)
+                {
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.Overview.OverviewDashboardViewModel) return "Plant Operations Overview";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.SheetStore.SheetStoreDashboardViewModel) return "Sheet Store Warehouse";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.ProformaInvoice.PiDashboardViewModel) return "Proforma Invoice Ledger";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard.JoDashboardViewModel) return "Job Order Production";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard.DnDashboardViewModel) return "Delivery Note Logistics";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard.TiDashboardViewModel) return "Tax Invoice Billing";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.Statement.StDashboardViewModel) return "Account Statements";
+                    return "Plant Operations Overview";
+                }
+                if (_currentViewModel is ProformaInvoiceViewModel) return "Proforma Invoice Operations";
+                if (_currentViewModel is InquiryListViewModel) return "Inquiry Management";
+                if (_currentViewModel is JobOrderViewModel) return "Job Order Operations";
+                if (_currentViewModel is DeliveryNoteViewModel) return "Delivery Note Logistics";
+                if (_currentViewModel is TaxInvoiceViewModel) return "Tax Invoice Accounting";
+                if (_currentViewModel is SheetStoreViewModel) return "Sheet Store Warehouse";
+                if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Glass Specifications";
+                if (_currentViewModel is OptimizationViewModel) return "Glass Cutting Optimization";
+                if (_currentViewModel is ProductionViewModel) return "Factory Floor Control";
+                if (_currentViewModel is SalesReportViewModel || _currentViewModel is ReportsViewModel) return "Executive Reports & Analytics";
+                if (_currentViewModel is Reports.StatementModule.StatementModuleViewModel) return "Customer Statement Module";
+                if (_currentViewModel is SettingsViewModel) return "System Configuration";
+                if (_currentViewModel is AboutViewModel) return "About ProGlass Automation";
+                if (_currentViewModel is SystemCenterViewModel) return "System Diagnostic Center";
+                if (_currentViewModel is CompanyCenterViewModel) return "Company Profile & Identity";
+                if (_currentViewModel is UserCenterViewModel) return "User Management Center";
+
+                var raw = _currentViewModel?.GetType().Name.Replace("ViewModel", "") ?? "";
+                var pretty = PrettyModuleName(raw);
+                return string.IsNullOrWhiteSpace(pretty) ? "Plant Operations Overview" : pretty;
+            }
+        }
+
+        public string CurrentModuleSubText
+        {
+            get
+            {
+                if (_currentViewModel is DashboardViewModel db)
+                {
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.Overview.OverviewDashboardViewModel) return "Real-time production metrics, live dispatch schedules & glass inventory yield";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.SheetStore.SheetStoreDashboardViewModel) return "Stock levels, inventory valuation & glass pack movements";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.ProformaInvoice.PiDashboardViewModel) return "Commercial quotations, conversion pipeline & pricing schedules";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard.JoDashboardViewModel) return "Live shop floor routing, machine work centers & tempering queue";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard.DnDashboardViewModel) return "Gate passes, site deliveries & driver dispatch schedules";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard.TiDashboardViewModel) return "FTA VAT 5% compliant invoices, collections & revenue ledger";
+                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.Statement.StDashboardViewModel) return "Client balances, ageing analysis & payment reconciliation";
+                    return "Real-time production metrics, live dispatch schedules & glass inventory yield";
+                }
+                if (_currentViewModel is ProformaInvoiceViewModel) return "Commercial glass cutting, tempering, laminating & billing schedules";
+                if (_currentViewModel is InquiryListViewModel) return "Customer inquiries, architectural specifications & quotation intake";
+                if (_currentViewModel is JobOrderViewModel) return "Shop floor routing, cutting schedules & work center queue";
+                if (_currentViewModel is DeliveryNoteViewModel) return "Fleet dispatch, site deliveries & customer proof of receipt";
+                if (_currentViewModel is TaxInvoiceViewModel) return "FTA VAT 5% compliant invoicing, settlements & ledger";
+                if (_currentViewModel is SheetStoreViewModel) return "Raw glass inventory, stock replenishment & yield analysis";
+                if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Technical glass definitions, tints & processing rules";
+                if (_currentViewModel is OptimizationViewModel) return "2D Nesting algorithms, scrap minimization & sheet yield";
+                if (_currentViewModel is ProductionViewModel) return "Work center scheduling, tempering furnaces & autoclave lines";
+                if (_currentViewModel is SalesReportViewModel || _currentViewModel is ReportsViewModel) return "Executive summaries, order book analysis & financial statements";
+                if (_currentViewModel is Reports.StatementModule.StatementModuleViewModel) return "Client ledger statements, balance summaries & credit audits";
+                if (_currentViewModel is SettingsViewModel) return "Personalization, localization, storage & preferences";
+                if (_currentViewModel is AboutViewModel) return "Platform telemetry, version status & system diagnostics";
+                if (_currentViewModel is SystemCenterViewModel) return "System logs, database health & engine diagnostics";
+                if (_currentViewModel is CompanyCenterViewModel) return "Corporate details, tax registration & branch information";
+                if (_currentViewModel is UserCenterViewModel) return "Role-based access control, operator profiles & credentials";
+
+                return "Integrated Enterprise Glass Processing & Automation Platform";
             }
         }
 
@@ -736,6 +812,14 @@ namespace ProGlassAutomation.ViewModels
             // file rather than assumed.
             // Each GetService falls back to `new` if not registered (migration safety)
             DashboardVM = ResolveOrNew<DashboardViewModel>();
+            DashboardVM.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(DashboardVM.ActivePage))
+                {
+                    OnPropertyChanged(nameof(CurrentModuleHeaderTitle));
+                    OnPropertyChanged(nameof(CurrentModuleSubText));
+                }
+            };
             InquiryVM = ResolveOrNew<InquiryListViewModel>();
             ProformaInvoiceVM = ResolveOrNew<ProformaInvoiceViewModel>();
             SettingsVM = ResolveOrNew<SettingsViewModel>();

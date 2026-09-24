@@ -339,8 +339,9 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/><!-- 1. Hamburger -->
                         <ColumnDefinition Width="Auto"/><!-- 2. Oversized serif wordmark ProGlass + AUTOMATION SUITE -->
-                        <ColumnDefinition Width="*"/><!-- 3. Search island (rounded outline dropdown + purple-rimmed field) -->
-                        <ColumnDefinition Width="Auto"/><!-- 4. Right cluster: Date/time + Crescent moon + User initials chip -->
+                        <ColumnDefinition Width="*"/><!-- 3. Module main heading & sub text (Centered in hamburger row) -->
+                        <ColumnDefinition Width="Auto"/><!-- 4. Search island -->
+                        <ColumnDefinition Width="Auto"/><!-- 5. Right cluster: Date/time + Crescent moon + User initials chip -->
                     </Grid.ColumnDefinitions>
 
                     <!-- 1. THIN HAMBURGER ICON -->
@@ -360,7 +361,7 @@
                                 Grid.Column="1"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center"
-                                Margin="0,0,20,0"
+                                Margin="0,0,18,0"
                                 Cursor="Hand"
                                 behaviors:ClickToCommandBehavior.Command="{Binding LogoClickCommand}"
                                 ToolTip="{DynamicResource ToolTip.About}">
@@ -370,20 +371,57 @@
                                    Style="{StaticResource PgBrandSubStyle}"/>
                     </StackPanel>
 
-                    <!-- 3. SEARCH ISLAND — wide rounded white inset with fine purple (#8E82D8) focus rim and "All Modules" dropdown -->
-                    <globalSearch:GlobalSearchBar Grid.Column="2"
-                                                   MinWidth="240"
-                                                   MaxWidth="560"
-                                                   HorizontalAlignment="Stretch"
-                                                   Margin="12,0"
+                    <!-- 3. MODULE MAIN HEADING & SUB TEXT (Centered in the Hamburger Row) -->
+                    <StackPanel Grid.Column="2"
+                                Orientation="Vertical"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="12,0">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentModuleHeaderTitle, FallbackValue='Plant Operations Overview'}"
+                                       FontFamily="{StaticResource PrimaryFontFamily}"
+                                       FontSize="14.5"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                       VerticalAlignment="Center"/>
+                            <Border Margin="10,0,0,0"
+                                    Background="{DynamicResource SurfaceSecondaryBrush}"
+                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    Padding="7,2"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="Live Active"
+                                           FontSize="9"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="{Binding CurrentModuleSubText, FallbackValue='Real-time production metrics, live dispatch schedules &amp; glass inventory yield'}"
+                                   FontFamily="{StaticResource PrimaryFontFamily}"
+                                   FontSize="10"
+                                   FontWeight="Normal"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,2,0,0"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxWidth="520"/>
+                    </StackPanel>
+
+                    <!-- 4. SEARCH ISLAND — wide rounded white inset with fine purple (#8E82D8) focus rim and "All Modules" dropdown -->
+                    <globalSearch:GlobalSearchBar Grid.Column="3"
+                                                   MinWidth="180"
+                                                   MaxWidth="260"
+                                                   HorizontalAlignment="Right"
+                                                   Margin="10,0,16,0"
                                                    VerticalAlignment="Center"
                                                    DataContext="{Binding GlobalSearchVM}"/>
 
-                    <!-- 4. RIGHT CLUSTER: "22 Sep 2026 / 10:30", Crescent Moon, User Chip Circle "U" -->
-                    <StackPanel Grid.Column="3"
+                    <!-- 5. RIGHT CLUSTER: "22 Sep 2026 / 10:30", Crescent Moon, User Chip Circle "U" -->
+                    <StackPanel Grid.Column="4"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center"
-                                Margin="16,0,0,0">
+                                Margin="0,0,0,0">
 
                         <!-- Exact text: "22 Sep 2026 / 10:30" -->
                         <Border Margin="0,0,14,0" VerticalAlignment="Center"
