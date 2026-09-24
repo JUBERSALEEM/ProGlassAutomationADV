@@ -42,10 +42,24 @@ namespace ProGlassAutomation.ViewModels.Settings
         private void InitializeLanWifiCommands()
         {
             // ── LAN / Wi-Fi shared database commands ──────────────────
+            // Surface any startup split-brain state on the Data card.
+            RefreshSharedRootWarning();
+
+            // Reflect the live mode in the status line at page open, so the
+            // card never claims "local mode" while the company is actually
+            // on a shared root (2026-09-24).
+            if (AppDataRoot.IsSharedDataRootEnabled)
+                NetworkDataRootStatus = "✓ Shared company database is active: " + AppDataRoot.SharedDataRoot;
+            else if (AppDataRoot.SharedRootFallbackActive)
+                NetworkDataRootStatus = "⚠ This workstation is on LOCAL data — the shared folder was unreachable at startup.";
+            else
+                NetworkDataRootStatus = "Local database mode. Use this only after creating a reliable shared Windows folder on the same LAN/Wi-Fi.";
+
             TestSharedDataRootCommand = new RelayCommand(_ =>
             {
                 var result = SharedDataRootService.Probe(SharedDataRootPath);
                 NetworkDataRootStatus = result.Message;
+                RefreshSharedRootWarning();
             });
 
             PrepareSharedDataRootCommand = new RelayCommand(_ =>
@@ -72,10 +86,19 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (ok)
                 {
                     UseSharedDataRoot = true;
-                    SharedDataRootService.ApplyToConfig(_config, true,
+                    var applied = SharedDataRootService.ApplyToConfig(_config, true,
                         SharedDataRootPath, CopyLocalDataOnEnable);
+                    if (!applied.Ok)
+                    {
+                        NetworkDataRootStatus = applied.Message;
+                        RefreshSharedRootWarning();
+                        return;
+                    }
                     ConfigService.Save(_config);
+                    NetworkDataRootStatus = applied.Message
+                        + " Restart ProGlass on every workstation so all modules open the same database root.";
                     OnPropertyChanged(nameof(CurrentDataRootDisplay));
+                    RefreshSharedRootWarning();
                 }
             });
 
@@ -85,11 +108,22 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (UseSharedDataRoot && !probe.Ok)
                 {
                     NetworkDataRootStatus = probe.Message;
+                    RefreshSharedRootWarning();
                     return;
                 }
 
-                SharedDataRootService.ApplyToConfig(_config, UseSharedDataRoot,
+                var applied = SharedDataRootService.ApplyToConfig(_config, UseSharedDataRoot,
                     SharedDataRootPath, CopyLocalDataOnEnable);
+                if (!applied.Ok)
+                {
+                    // Never report success on a half-configured shared mode
+                    // (2026-09-24) — that state used to persist and then
+                    // silently fall back to local on the next start.
+                    NetworkDataRootStatus = applied.Message;
+                    RefreshSharedRootWarning();
+                    return;
+                }
+
                 ConfigService.Save(_config);
                 Services.Audit.AuditService.Log(
                     Services.Audit.AuditSections.Settings,
@@ -100,10 +134,50 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Settings",
                     "DataConnectivity",
                     "Company LAN/Wi-Fi database connectivity setting changed.");
-                NetworkDataRootStatus = "✓ Connectivity settings saved. Restart ProGlass on every workstation so all modules open the same database root.";
+                NetworkDataRootStatus = applied.Message
+                    + " Restart ProGlass on every workstation so all modules open the same database root.";
 
                 var restart = _dialogs.Show(
                     "Connectivity settings were saved. ProGlass must restart before any module opens the new database root.\n\nRestart this workstation now?",
+                    "Restart required",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+                if (restart == System.Windows.MessageBoxResult.Yes)
+                    RestartApplication();
+            });
+
+            RevertToLocalDataRootCommand = new RelayCommand(_ =>
+            {
+                var confirm = _dialogs.Show(
+                    "This workstation will stop using the shared company database and return to its own local AppData database after restart.\n\n" +
+                    "Other workstations stay on the shared folder. Continue?",
+                    "Revert to local database",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+                if (confirm != System.Windows.MessageBoxResult.Yes) return;
+
+                UseSharedDataRoot = false;
+                var applied = SharedDataRootService.ApplyToConfig(_config, false,
+                    SharedDataRootPath, CopyLocalDataOnEnable);
+                if (!applied.Ok)
+                {
+                    NetworkDataRootStatus = applied.Message;
+                    RefreshSharedRootWarning();
+                    return;
+                }
+
+                ConfigService.Save(_config);
+                Services.Audit.AuditService.Log(
+                    Services.Audit.AuditSections.Settings,
+                    "Shared database disabled (revert to local)",
+                    "Workstation will use local AppData database root after restart.",
+                    "Settings",
+                    "DataConnectivity",
+                    "Company LAN/Wi-Fi shared database was reverted to local on this workstation.");
+                NetworkDataRootStatus = "✓ Saved. Restart ProGlass to return this workstation to its local database.";
+
+                var restart = _dialogs.Show(
+                    "Settings were saved. Restart ProGlass now to switch this workstation back to its local database?",
                     "Restart required",
                     System.Windows.MessageBoxButton.YesNo,
                     System.Windows.MessageBoxImage.Question);

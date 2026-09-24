@@ -1,9 +1,11 @@
+using Microsoft.Data.Sqlite;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 
 namespace ProGlassAutomation.Services.Database
 {
@@ -19,6 +21,24 @@ namespace ProGlassAutomation.Services.Database
     /// Professional LAN/Wi-Fi data-root helper. This does not turn SQLite
     /// into a database server; it safely points all company workstations at
     /// the same shared folder and verifies read/write/delete access first.
+    ///
+    /// SENIOR AUDIT (2026-09-24) — the shared folder preparation used to
+    /// corrupt the company database in three quiet ways:
+    ///   1. It copied the live -wal and -shm sidecars of the running app.
+    ///      -shm is per-process shared-memory state (SQLite documentation:
+    ///      never copy it), and WAL frames captured mid-transaction leave
+    ///      the copied .db inconsistent.
+    ///   2. It left the copied databases in WAL journal mode. WAL across
+    ///      an SMB/NAS redirector is unsafe — the -shm coordination file
+    ///      is not reliable over a network share, and two workstations can
+    ///      diverge silently.
+    ///   3. ApplyToConfig persisted UseSharedDataRoot=true with an empty
+    ///      path when validation failed, so the next startup silently ran
+    ///      on local AppData while Settings still claimed "shared".
+    /// All three are fixed here: checkpoint the local databases first,
+    /// copy only the .db files, convert every shared database to
+    /// rollback-journal (DELETE) mode — persisted in the SQLite header —
+    /// and refuse to save a half-configured shared mode.
     /// </summary>
     public static class SharedDataRootService
     {
@@ -33,10 +53,12 @@ namespace ProGlassAutomation.Services.Database
                 return new SharedDataRootProbeResult
                 {
                     Ok = false,
-                    Message = "Enter a shared folder different from the local ProGlass AppData folder. Recommended: \\SERVER\\ProGlassData or a mapped drive on the same LAN/Wi-Fi.",
+                    Message = "Enter a shared folder different from the local ProGlass AppData folder. Recommended: \\\\SERVER\\\\ProGlassData or a mapped drive on the same LAN/Wi-Fi.",
                     NormalizedPath = folder ?? ""
                 };
             }
+
+            bool network = LooksNetworkBased(normalized);
 
             try
             {
@@ -46,7 +68,8 @@ namespace ProGlassAutomation.Services.Database
                 File.WriteAllText(testFile,
                     "ProGlass shared database write test " + DateTime.UtcNow.ToString("o"));
                 _ = File.ReadAllText(testFile);
-                File.Delete(testFile);
+                try { File.Delete(testFile); }
+                catch { /* an orphaned .tmp test file is harmless */ }
 
                 int dbCount = Directory.GetFiles(normalized, "*.db", SearchOption.TopDirectoryOnly).Length;
                 bool hasManifest = File.Exists(Path.Combine(normalized, ManifestFileName));
@@ -61,10 +84,10 @@ namespace ProGlassAutomation.Services.Database
                 {
                     Ok = true,
                     NormalizedPath = normalized,
-                    LooksLikeNetworkPath = LooksNetworkBased(normalized),
-                    Message = (LooksNetworkBased(normalized)
+                    LooksLikeNetworkPath = network,
+                    Message = (network
                         ? "✓ Shared data folder is reachable and writable on the network."
-                        : "✓ Folder is writable. It is not a UNC path; confirm this mapped/local drive is shared to all workstations before using it company-wide.")
+                        : "✓ Folder is writable. It is a local path — make sure this exact folder is shared to all workstations before using it company-wide.")
                         + dataHint + manifestHint + " Restart ProGlass on each workstation after enabling."
                 };
             }
@@ -74,15 +97,21 @@ namespace ProGlassAutomation.Services.Database
                 {
                     Ok = false,
                     NormalizedPath = normalized,
-                    LooksLikeNetworkPath = LooksNetworkBased(normalized),
-                    Message = "✗ Shared folder is not ready: " + ex.Message
+                    LooksLikeNetworkPath = network,
+                    Message = "✗ Shared folder is not ready: " + AppDataRoot.DescribeShareFailure(ex)
                 };
             }
         }
 
+        /// <summary>
+        /// A folder is "network based" when it is a UNC path or a local
+        /// drive letter the Windows redirector reports as a network drive
+        /// (a mapped LAN/Wi-Fi share).
+        /// </summary>
         public static bool LooksNetworkBased(string path) =>
             !string.IsNullOrWhiteSpace(path)
-            && path.Trim().StartsWith(@"\\", StringComparison.Ordinal);
+            && (path.Trim().StartsWith(@"\\", StringComparison.Ordinal)
+                || !string.IsNullOrEmpty(AppDataRoot.GetMappedNetworkPath(path)));
 
         public static (bool Ok, string Message) PrepareSharedFolder(
             string sharedFolder,
@@ -93,17 +122,29 @@ namespace ProGlassAutomation.Services.Database
 
             try
             {
+                // Checkpoint every local WAL database BEFORE copying, so
+                // the .db files contain everything and no sidecars are
+                // needed (see class header).
+                int checkpointed = CheckpointLocalDatabases();
+
                 Directory.CreateDirectory(probe.NormalizedPath);
                 int copied = 0;
 
                 if (copyLocalData && IsFolderEmptyOfProGlassData(probe.NormalizedPath))
                     copied = CopyLocalDatasetTo(probe.NormalizedPath);
 
+                // Convert every database now living on the share to
+                // rollback-journal (DELETE) mode. The mode is persisted in
+                // the SQLite file header, so from this moment every
+                // workstation opens the shared databases SMB-safe.
+                int converted = ConvertDatabasesToRollbackJournal(probe.NormalizedPath);
+
                 WriteManifest(probe.NormalizedPath);
 
-                return (true, copied > 0
-                    ? $"✓ Shared folder prepared and {copied} local data item(s) copied. Save settings and restart all workstations."
-                    : "✓ Shared folder prepared. Save settings and restart all workstations.");
+                return (true, "✓ Shared folder prepared"
+                    + (copied > 0 ? $" and {copied} local data item(s) copied" : "")
+                    + $", {checkpointed} local database(s) checkpointed, {converted} shared database(s) set to rollback-journal mode."
+                    + " Save settings and restart all workstations.");
             }
             catch (Exception ex)
             {
@@ -113,18 +154,115 @@ namespace ProGlassAutomation.Services.Database
             }
         }
 
-        public static void ApplyToConfig(AppConfig config, bool enabled, string path, bool copyLocalData)
+        /// <summary>
+        /// Writes the shared-mode decision into config. Returns (Ok,
+        /// Message) instead of void: the caller must not report success —
+        /// or persist anything — when the enabled state is invalid.
+        /// </summary>
+        public static (bool Ok, string Message) ApplyToConfig(
+            AppConfig config, bool enabled, string path, bool copyLocalData)
         {
             config.DataConnectivity ??= new DataConnectivitySettings();
+
+            if (enabled && !TryNormalizeSharedRoot(path, out var normalized))
+            {
+                return (false, "✗ Enter a valid shared folder path first " +
+                    "(for example \\\\SERVER\\ProGlassData) — shared mode is not saved with a missing path.");
+            }
+
             config.DataConnectivity.UseSharedDataRoot = enabled;
-            config.DataConnectivity.SharedDataRootPath = enabled && AppDataRoot.TryNormalizeSharedRoot(path, out var normalized)
-                ? normalized
-                : "";
+            config.DataConnectivity.SharedDataRootPath = enabled ? normalized : "";
             config.DataConnectivity.CopyLocalDataOnEnable = copyLocalData;
             if (string.IsNullOrWhiteSpace(config.DataConnectivity.WorkstationName))
                 config.DataConnectivity.WorkstationName = Environment.MachineName;
+
+            return (true, enabled
+                ? "✓ Shared company database connectivity saved."
+                : "✓ Workstation will use its local AppData database root after restart.");
         }
 
+        // ── Preparation internals ────────────────────────────────────────
+
+        /// <summary>
+        /// Forces every local SQLite database to checkpoint its WAL into
+        /// the main .db file. Best-effort: a database that refuses
+        /// (writer busy) is logged and skipped — copying an already-
+        /// consistent .db without its sidecars is still safe, it just
+        /// misses the last in-flight transaction.
+        /// </summary>
+        private static int CheckpointLocalDatabases()
+        {
+            var sourceRoot = AppDataRoot.ProductionFolder;
+            if (!Directory.Exists(sourceRoot)) return 0;
+
+            int done = 0;
+            foreach (var db in Directory.GetFiles(sourceRoot, "*.db", SearchOption.TopDirectoryOnly))
+            {
+                try
+                {
+                    using var conn = new SqliteConnection("Data Source=" + db);
+                    conn.Open();
+                    for (int attempt = 0; attempt < 5; attempt++)
+                    {
+                        using var cmd = conn.CreateCommand();
+                        cmd.CommandText = "PRAGMA wal_checkpoint(TRUNCATE);";
+                        using var reader = cmd.ExecuteReader();
+                        if (reader.Read() && reader.GetInt32(0) == 0)
+                        {
+                            done++;
+                            break;
+                        }
+                        Thread.Sleep(250);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Warning(
+                        $"WAL checkpoint skipped for {Path.GetFileName(db)}: {ex.Message}",
+                        new LogContext { Module = "Database", Operation = "CheckpointLocalDatabases" });
+                }
+            }
+            return done;
+        }
+
+        /// <summary>
+        /// Sets rollback-journal mode on every .db now on the shared root.
+        /// The mode is stored in the database header, so one conversion
+        /// here protects every workstation from WAL-over-SMB for the life
+        /// of the file.
+        /// </summary>
+        private static int ConvertDatabasesToRollbackJournal(string root)
+        {
+            if (!Directory.Exists(root)) return 0;
+
+            int converted = 0;
+            foreach (var db in Directory.GetFiles(root, "*.db", SearchOption.TopDirectoryOnly))
+            {
+                try
+                {
+                    using var conn = new SqliteConnection("Data Source=" + db);
+                    conn.Open();
+                    using var cmd = conn.CreateCommand();
+                    cmd.CommandText = "PRAGMA journal_mode = DELETE;";
+                    using var reader = cmd.ExecuteReader();
+                    if (reader.Read()
+                        && string.Equals(reader.GetString(0), "delete", StringComparison.OrdinalIgnoreCase))
+                        converted++;
+                }
+                catch (Exception ex)
+                {
+                    // A conversion that needs exclusive access can lose to
+                    // a workstation that is currently running. Logged here;
+                    // SqliteResilience's journal-mode verification will fail
+                    // any affected connection loudly instead of running WAL
+                    // over the share.
+                    AppLogService.Warning(
+                        $"Could not set rollback journal on shared {Path.GetFileName(db)}: {ex.Message}",
+                        new LogContext { Module = "Database", Operation = "ConvertSharedDatabases" });
+                }
+            }
+            return converted;
+        }
 
         private static void WriteManifest(string root)
         {
@@ -137,6 +275,7 @@ namespace ProGlassAutomation.Services.Database
                     CreatedOrUpdatedAtUtc = DateTime.UtcNow,
                     Workstation = Environment.MachineName,
                     AppVersion = typeof(SharedDataRootService).Assembly.GetName().Version?.ToString() ?? "",
+                    JournalMode = "DELETE (rollback journal — WAL is unsafe over SMB/NAS)",
                     Warning = "Do not edit database files manually. Do not use cloud-sync folders for live database files."
                 };
                 File.WriteAllText(Path.Combine(root, ManifestFileName),
@@ -164,7 +303,13 @@ namespace ProGlassAutomation.Services.Database
 
             foreach (var file in Directory.GetFiles(sourceRoot, "*.db", SearchOption.TopDirectoryOnly))
             {
-                copied += CopySqliteFileSet(file, targetRoot);
+                // Only the .db file is copied. The WAL was absorbed into it
+                // by CheckpointLocalDatabases, and -shm is per-process
+                // shared-memory state that must never be copied.
+                var target = Path.Combine(targetRoot, Path.GetFileName(file));
+                if (File.Exists(target)) continue;
+                File.Copy(file, target, overwrite: false);
+                copied++;
             }
 
             foreach (var sub in ExtraDataSubfolders)
@@ -176,21 +321,6 @@ namespace ProGlassAutomation.Services.Database
                 copied++;
             }
 
-            return copied;
-        }
-
-
-        private static int CopySqliteFileSet(string dbPath, string targetRoot)
-        {
-            int copied = 0;
-            foreach (var path in new[] { dbPath, dbPath + "-wal", dbPath + "-shm" })
-            {
-                if (!File.Exists(path)) continue;
-                var target = Path.Combine(targetRoot, Path.GetFileName(path));
-                if (File.Exists(target)) continue;
-                File.Copy(path, target, overwrite: false);
-                copied++;
-            }
             return copied;
         }
 

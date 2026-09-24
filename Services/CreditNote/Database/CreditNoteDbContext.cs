@@ -37,9 +37,8 @@ namespace ProGlassAutomation.Services.CreditNote.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            var folder = Path.GetDirectoryName(DbPath)!;
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            // Shared-aware folder ensure (2026-09-24) — see AppDataRoot.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
 
             ProGlassAutomation.Services.Database.SqliteResilience
                 .ConfigureFor(options, DbPath);

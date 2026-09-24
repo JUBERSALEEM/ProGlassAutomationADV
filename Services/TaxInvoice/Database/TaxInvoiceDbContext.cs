@@ -65,9 +65,8 @@ namespace ProGlassAutomation.Services.TaxInvoice.Database
         {
             // Directory creation here — runs once per context creation,
             // not on every DbPath access (BUG-12 pattern from DN).
-            var folder = Path.GetDirectoryName(DbPath)!;
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            // Shared-aware (2026-09-24): see AppDataRoot.EnsureCurrentFolder.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
 
             // Senior audit (Aug 2026): WAL + busy_timeout + foreign_keys=ON
             // via SqliteResilience. See SqliteResilience.cs.

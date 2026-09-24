@@ -37,9 +37,8 @@ namespace ProGlassAutomation.Services.AI.AIMemory
         protected override void OnConfiguring(
             DbContextOptionsBuilder optionsBuilder)
         {
-            var folder = Path.GetDirectoryName(DatabaseFilePath)!;
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            // Shared-aware folder ensure (2026-09-24) — see AppDataRoot.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
 
             // Senior audit (Aug 2026): route through SqliteResilience for WAL,
             // busy_timeout, foreign_keys=ON. See SqliteResilience.cs.

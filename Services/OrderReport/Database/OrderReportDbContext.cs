@@ -19,22 +19,18 @@ namespace ProGlassAutomation.Services.OrderReport.Database
     {
         public DbSet<SavedOrderReport> OrderReports { get; set; } = null!;
 
-        private static string DbPath
-        {
-            get
-            {
-                Directory.CreateDirectory(
-                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder);
-                return Path.Combine(
-                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
-                    "orderreports.db");
-            }
-        }
+        // Pure path computation — no side effects (2026-09-24): folder
+        // creation lives in OnConfiguring via AppDataRoot.EnsureCurrentFolder.
+        private static string DbPath => Path.Combine(
+            ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+            "orderreports.db");
 
         public static string DatabaseFilePath => DbPath;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            // Shared-aware folder ensure (2026-09-24) — see AppDataRoot.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
             ProGlassAutomation.Services.Database.SqliteResilience
                 .ConfigureFor(optionsBuilder, DbPath);
             optionsBuilder.EnableSensitiveDataLogging(false);
