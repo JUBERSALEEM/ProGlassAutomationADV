@@ -46,31 +46,6 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Window.Resources>
-
-        <!-- Field label — 11 SemiBold UPPERCASE per spec -->
-        
-
-        <!-- Base text input — industrial chrome. Height 40 so glyphs
-             are not clipped the way 38 + Padding 10,6 was. -->
-        
-
-        <!-- Integer-only input (Width, Height, Stock) -->
-        <!-- Migrated IntInputStyle to global SurfacePrimaryStyle / Typography -->
-
-        <!-- Decimal input (prices) -->
-        <!-- Migrated DecimalInputStyle to global SurfacePrimaryStyle / Typography -->
-
-        <!-- Editable combo. Without BasedOn this keyed style dropped the
-             industrial template and SizeToContent+* made the form collapse. -->
-        <!-- Migrated ComboStyle to global SurfacePrimaryStyle / Typography -->
-
-        <!-- Cancel button — subtle secondary -->
-
-        <!-- Save button — primary indigo -->
-
-    </Window.Resources>
-
     <Grid Margin="28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

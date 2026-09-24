@@ -252,7 +252,7 @@
                 Margin="20,16,0,0"
                 Panel.ZIndex="600"
                 Background="{DynamicResource SurfacePrimaryBrush}"
-                BorderBrush="{DynamicResource AccentPrimaryBrush}"
+                BorderBrush="{DynamicResource AccentBrush}"
                 BorderThickness="1.5"
                 CornerRadius="18"
                 Padding="10,5,14,5"
@@ -289,13 +289,13 @@
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="15"
                                FontWeight="SemiBold"
-                               Foreground="{DynamicResource AccentPrimaryBrush}"
+                               Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"/>
                     <Ellipse Width="4" Height="4" Margin="8,0,8,0"
                              Fill="{DynamicResource BorderDefaultBrush}"
                              VerticalAlignment="Center"/>
                     <TextBlock Text="ProGlass"
-                               FontFamily="{StaticResource PrimaryFontFamily}"
+                               FontFamily="{DynamicResource AppFontFamily}"
                                FontSize="12.5"
                                FontWeight="Bold"
                                Foreground="{DynamicResource TextPrimaryBrush}"
@@ -311,7 +311,6 @@
              + Nested double keylines along bottom edge (#D9D5E6)
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Style="{StaticResource PgTopBarStyle}"
                 Panel.ZIndex="300"
                 SnapsToDevicePixels="True">
             <Border.Style>
@@ -379,7 +378,7 @@
                                 Margin="12,0">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <TextBlock Text="{Binding CurrentModuleHeaderTitle, FallbackValue='Plant Operations Overview'}"
-                                       FontFamily="{StaticResource PrimaryFontFamily}"
+                                       FontFamily="{DynamicResource AppFontFamily}"
                                        FontSize="14.5"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
@@ -394,11 +393,11 @@
                                 <TextBlock Text="Live Active"
                                            FontSize="9"
                                            FontWeight="SemiBold"
-                                           Foreground="{DynamicResource AccentPrimaryBrush}"/>
+                                           Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
                         </StackPanel>
                         <TextBlock Text="{Binding CurrentModuleSubText, FallbackValue='Real-time production metrics, live dispatch schedules &amp; glass inventory yield'}"
-                                   FontFamily="{StaticResource PrimaryFontFamily}"
+                                   FontFamily="{DynamicResource AppFontFamily}"
                                    FontSize="10"
                                    FontWeight="Normal"
                                    Foreground="{DynamicResource TextSecondaryBrush}"
