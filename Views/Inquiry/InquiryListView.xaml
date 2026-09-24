@@ -130,13 +130,13 @@
         </Grid.RowDefinitions>
 
         <!-- ══ 1 · HEADER BAR ═══════════════════════════════════════ -->
-        <Grid Grid.Row="0" Margin="16,16,16,8">
+        <Grid Grid.Row="0" Margin="16,8,16,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+            <StackPanel Grid.Column="0" VerticalAlignment="Center" Visibility="Collapsed">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="Inquiries" Style="{StaticResource Sl.Title}"/>
                     <Border Margin="12,4,0,0" VerticalAlignment="Center"

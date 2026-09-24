@@ -113,12 +113,12 @@
         <!-- ═══════════════════════════════════════════════════════════
              STICKY HEADER (compact)
         ═══════════════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="0" Margin="24,20,24,0">
+        <StackPanel Grid.Row="0" Margin="24,12,24,0">
 
             <!-- HEADER + ACTION MENU — 16px below, 12px between ACTIONS and ADD -->
-            <DockPanel Margin="0,0,0,16">
+            <DockPanel Margin="0,0,0,12">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Visibility="Collapsed">
                         <TextBlock Text="{DynamicResource Module.SheetStore}"
                                    Style="{StaticResource ModulePageTitleStyle}"/>
                         <Border Background="{DynamicResource AccentBrush}"
@@ -130,11 +130,12 @@
                     </StackPanel>
                     <TextBlock Text="{DynamicResource SheetStore.StockManagementPricingSystem}"
                                Style="{StaticResource ModulePageSubtitleStyle}"
-                               Margin="0,4,0,0"/>
+                               Margin="0,4,0,0"
+                               Visibility="Collapsed"/>
 
                     <!-- STEP D tab pair — same Outlined/Primary pills as
                          Job Order and Delivery Note. TabPillButton clips. -->
-                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
                         <Button Command="{Binding ShowGlassCommand}"
                                 Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,10,0">
                             <Button.Style>
