@@ -1,226 +1,212 @@
 <dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreItems.ItemMovementView"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-        xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
-        Title="{Binding DialogTitle}"
-        Width="480"
-        DialogIcon="&#xE7B8;"
-        DialogSubtitle="{Binding AvailableLabel}"
-             FontFamily="{DynamicResource AppFontFamily}">
+                            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                            xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+                            xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+                            Title="{Binding DialogTitle}"
+                            Width="500"
+                            DialogIcon="&#xE7B8;"
+                            DialogSubtitle="{Binding AvailableLabel}"
+                            FontFamily="{DynamicResource AppFontFamily}">
 
-        <Window.Resources>
-        <!-- Migrated FieldLabelStyle to global SurfacePrimaryStyle / Typography -->
-        <!-- Migrated ErrorAwareEntry to global Input.TextBox -->
-    </Window.Resources>
+    <dialogs:ThemedDialogWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </dialogs:ThemedDialogWindow.Resources>
 
-
-    <!-- 2026-09 dialog audit: chrome (card/header/footer) comes from
-         ThemedDialogWindow; this file keeps only the form body. -->
     <StackPanel>
+        <!-- 1. Item Info Bento Card -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12" Background="{DynamicResource Ov.Soft}">
+            <StackPanel>
+                <TextBlock Text="{Binding Item.CategoryDisplay}" Style="{StaticResource Ov.CardTitle}"
+                           Foreground="{DynamicResource Ov.Accent}"/>
+                <TextBlock Text="{Binding ItemLabel}" Style="{StaticResource Ov.Text}"
+                           FontWeight="{DynamicResource Weight.Bold}" Margin="0,4,0,8"/>
 
-                <!-- Item info card -->
-                <Border Background="{DynamicResource DialogInsetBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,10" Margin="0,0,0,10"
-                        SnapsToDevicePixels="True">
-                    <StackPanel>
-                        <TextBlock Text="{Binding Item.CategoryDisplay}"
-                                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="{Binding ItemLabel}" FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}" TextWrapping="Wrap" Margin="0,6,0,0"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                            <TextBlock Text="Stock " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding Item.Stock, StringFormat={}{0:N2}}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <TextBlock Text="  Used " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding Item.Used, StringFormat={}{0:N2}}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBlock Text="  Balance " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding Item.BalanceDisplay}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource SuccessBrush}"/>
+                <!-- Inner tint groups (zero concentric card styles) -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Background="{DynamicResource Ov.Surface}" CornerRadius="8" Padding="10,8">
+                        <StackPanel>
+                            <TextBlock Text="Stock" Style="{StaticResource Ov.Meta}"/>
+                            <TextBlock Text="{Binding Item.Stock, StringFormat={}{0:N2}}" Style="{StaticResource Ov.Text}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,2,0,0"/>
                         </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- Quantity — DECIMAL, unlike the glass dialogs: you
-                     genuinely receive 45.55 LM of spacer bar. -->
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,10" Margin="0,0,0,10"
-                        SnapsToDevicePixels="True">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                            <TextBlock Text="QUANTITY"/>
-                            <TextBlock Text="{Binding UomLabel}" Margin="6,0,0,0"
-                                      
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                    <Border Grid.Column="2" Background="{DynamicResource Ov.DangerSoft}" CornerRadius="8" Padding="10,8">
+                        <StackPanel>
+                            <TextBlock Text="Used" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource Ov.Danger}"/>
+                            <TextBlock Text="{Binding Item.Used, StringFormat={}{0:N2}}" Style="{StaticResource Ov.Text}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Danger}" Margin="0,2,0,0"/>
                         </StackPanel>
+                    </Border>
 
-                        <!-- Bound to RAW TEXT, not the decimal. A decimal
-                             binding cannot observe an empty box: conversion
-                             fails, the setter never runs, and the stale
-                             value survives behind an empty control. -->
-                        <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
-                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
-                                 behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                 FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}"
-                                 TextAlignment="Center">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox" BasedOn="{StaticResource ErrorAwareEntry}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
-                                            <Setter Property="BorderThickness" Value="2"/>
-                                            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
+                    <Border Grid.Column="4" Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="8" Padding="10,8">
+                        <StackPanel>
+                            <TextBlock Text="Balance" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource Ov.Success}"/>
+                            <TextBlock Text="{Binding Item.BalanceDisplay}" Style="{StaticResource Ov.Text}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Success}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
 
-                        <TextBlock Text="{Binding QuantityError}"
-                                   Foreground="{DynamicResource DangerBrush}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}"
-                                   TextWrapping="Wrap"
-                                   Margin="0,8,0,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
+        <!-- 2. Quantity Bento Card -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="QUANTITY" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"/>
+                    <TextBlock Text="{Binding UomLabel, StringFormat={}  ({0})}" Style="{StaticResource Ov.Meta}"
+                               Foreground="{DynamicResource Ov.Accent}" FontWeight="{DynamicResource Weight.Bold}"/>
+                </StackPanel>
 
-                <!-- Unit price — receipts only. Prefilled with the current
-                     price because the common case is a repeat order; still
-                     editable because a delivery often reprices. -->
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,10" Margin="0,0,0,10"
-                        SnapsToDevicePixels="True">
-                    <Border.Style>
-                        <Style TargetType="Border">
+                <TextBox Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                         behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                         FontSize="22" FontWeight="{DynamicResource Weight.Bold}"
+                         TextAlignment="Center" Height="44" VerticalContentAlignment="Center"
+                         Background="{DynamicResource Ov.Soft}"
+                         Foreground="{DynamicResource Ov.Ink}"
+                         BorderThickness="0">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
+                                    <Setter Property="BorderThickness" Value="2"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource Ov.Danger}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <TextBlock Text="{Binding QuantityError}"
+                           Foreground="{DynamicResource Ov.Danger}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           TextWrapping="Wrap"
+                           Margin="0,8,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ShowUnitPrice}" Value="True">
+                                <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
                                     <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                    <StackPanel>
-                        <TextBlock Text="UNIT PRICE (AED)"
-                                   Margin="0,0,0,8"/>
-                        <TextBox Text="{Binding UnitPriceText, UpdateSourceTrigger=PropertyChanged}"
-                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
-                                 behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                 FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox" BasedOn="{StaticResource ErrorAwareEntry}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasUnitPriceError}" Value="True">
-                                            <Setter Property="BorderThickness" Value="2"/>
-                                            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-                        <TextBlock Text="{Binding UnitPriceError}"
-                                   Foreground="{DynamicResource DangerBrush}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                   FontWeight="{DynamicResource Weight.SemiBold}" TextWrapping="Wrap" Margin="0,8,0,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasUnitPriceError}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </Border>
 
-                <!-- Resulting balance. Shown only once the entry parses,
-                     so it never displays a figure derived from junk. -->
-                <Border Background="{DynamicResource DialogInsetBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,8" Margin="0,0,0,8"
-                        SnapsToDevicePixels="True">
-                    <Border.Style>
-                        <Style TargetType="Border">
+        <!-- 3. Unit Price Bento Card -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource Ov.CardCompact}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowUnitPrice}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel>
+                <TextBlock Text="UNIT PRICE (AED)" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,8"/>
+                <TextBox Text="{Binding UnitPriceText, UpdateSourceTrigger=PropertyChanged}"
+                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                         behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                         Height="38" Padding="10,0" VerticalContentAlignment="Center"
+                         Background="{DynamicResource Ov.Soft}" BorderThickness="0"
+                         FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasUnitPriceError}" Value="True">
+                                    <Setter Property="BorderThickness" Value="2"/>
+                                    <Setter Property="BorderBrush" Value="{DynamicResource Ov.Danger}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+                <TextBlock Text="{Binding UnitPriceError}"
+                           Foreground="{DynamicResource Ov.Danger}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           TextWrapping="Wrap" Margin="0,6,0,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ShowPreview}" Value="True">
+                                <DataTrigger Binding="{Binding HasUnitPriceError}" Value="True">
                                     <Setter Property="Visibility" Value="Visible"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Border.Style>
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Balance after " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding BalanceAfterDisplay}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="Movement value " FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
-                            <TextBlock Text="{Binding MovementValue, StringFormat={}{0:N2} AED}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </Border>
 
-                <!-- Reorder warning — advisory, never blocking. Running low
-                     is allowed; being surprised by it is the problem. -->
-                <Border Background="{DynamicResource DialogInsetBrush}"
-                        BorderBrush="{DynamicResource WarningBrush}"
-                        BorderThickness="1"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,10" Margin="0,0,0,12"
-                        SnapsToDevicePixels="True">
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding HasReorderWarning}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <TextBlock Text="{Binding ReorderWarning}" TextWrapping="Wrap"
-                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource WarningBrush}"/>
-                </Border>
+        <!-- 4. Resulting Balance Preview -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,8">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource Ov.CardCompact}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowPreview}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel>
+                <DockPanel Margin="0,0,0,6">
+                    <TextBlock Text="Balance after movement" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{Binding BalanceAfterDisplay}" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ov.Success}" HorizontalAlignment="Right"/>
+                </DockPanel>
+                <DockPanel>
+                    <TextBlock Text="Movement transaction value" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{Binding MovementValue, StringFormat={}{0:N2} AED}" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource Ov.Accent}" HorizontalAlignment="Right"/>
+                </DockPanel>
+            </StackPanel>
+        </Border>
 
+        <!-- Reorder Warning -->
+        <Border Background="{DynamicResource Ov.WarningSoft}"
+                BorderBrush="{DynamicResource Ov.Warning}"
+                BorderThickness="1" CornerRadius="8"
+                Padding="12,10" Margin="0,0,0,8">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasReorderWarning}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding ReorderWarning}" TextWrapping="Wrap"
+                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                       Foreground="{DynamicResource Ov.Warning}"/>
+        </Border>
     </StackPanel>
 
+    <!-- Standardized 36px Footer Buttons -->
     <dialogs:ThemedDialogWindow.FooterContent>
         <Grid Margin="0,4,0,0">
             <Grid.ColumnDefinitions>
@@ -229,10 +215,12 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                    Height="36" Padding="16,0"
                     Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
                     Command="{Binding CancelCommand}"
                     IsCancel="True"/>
             <Button Grid.Column="2" Style="{StaticResource PrimaryPillButton}"
+                    Height="36" Padding="16,0"
                     Tag="&#xE73E;" Content="{Binding ActionLabel}"
                     Command="{Binding ConfirmCommand}"
                     IsDefault="True"/>
