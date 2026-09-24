@@ -37,12 +37,14 @@
     TextOptions.TextRenderingMode="ClearType"
     RenderOptions.BitmapScalingMode="HighQuality"
     UseLayoutRounding="True"
-    SnapsToDevicePixels="True">
+    SnapsToDevicePixels="True"
+    Background="{DynamicResource Ov.Canvas}"
+    Foreground="{DynamicResource Ov.Ink}">
 
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+                <ResourceDictionary Source="../../Shared/GeneratorStudio.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
         <!-- ══════════════════════════════════════════════════════════
@@ -106,97 +108,48 @@
                       HorizontalScrollBarVisibility="Disabled"
                       IsDeferredScrollingEnabled="False"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="40,32,40,40">
+            <StackPanel Margin="16,14,16,18">
 
-                <!-- ═══════════════════════════════════════════════════
-                     PAGE HEADER
-                ═══════════════════════════════════════════════════ -->
-                <StackPanel VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Width="6" Height="6"
-                                Background="{DynamicResource IndigoPrimary}"
-                                CornerRadius="{DynamicResource Radius.XSmall}"
-                                VerticalAlignment="Center"
-                                Margin="0,0,12,0"/>
+                <Border Style="{StaticResource Sl.Hero}">
+                    <StackPanel>
                         <TextBlock Text="{DynamicResource Reports.StatementGenerator.STEP34}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource IndigoPrimary}"
-                                   VerticalAlignment="Center"/>
+                                   Style="{StaticResource Sl.Label}"
+                                   Foreground="{DynamicResource Ov.OnAccent}"/>
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.ExecutePipeline}"
+                                   Style="{StaticResource Sl.Value}"
+                                   FontSize="26"
+                                   Foreground="{DynamicResource Ov.OnAccent}"/>
+                        <TextBlock Text="{DynamicResource Reports.StatementGenerator.8StepWorkflowProcessingDataRealTimeWatchStep}"
+                                   Style="{StaticResource Sl.Subtitle}"
+                                   Foreground="{DynamicResource Ov.OnAccentMuted}"/>
                     </StackPanel>
-                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.ExecutePipeline}"
-                               FontSize="{DynamicResource FontSize.Display}"
-                               FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimary}"/>
-                    <TextBlock Text="{DynamicResource Reports.StatementGenerator.8StepWorkflowProcessingDataRealTimeWatchStep}"
-                               FontSize="{DynamicResource FontSize.H3}"
-                               Foreground="{DynamicResource TextSecondary}"
-                               TextWrapping="Wrap"
-                               Margin="0,8,0,0"/>
-                </StackPanel>
+                </Border>
 
-                <!-- ═══════════════════════════════════════════════════
-                     PROGRESS STRIP (slim)
-                ═══════════════════════════════════════════════════ -->
-                <Border Margin="0,24,0,0"
-                        Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="20,16"
-                        Effect="{StaticResource ProgressCardShadow}"
-                        SnapsToDevicePixels="True">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="12"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <StackPanel Grid.Row="0" Grid.Column="0"
-                                    Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                            <Border Width="12" Height="12"
-                                    CornerRadius="{DynamicResource Radius.Small}"
-                                    Background="{DynamicResource GreenLed}"
-                                    Effect="{StaticResource GreenLedGlow}"
-                                    VerticalAlignment="Center"
-                                    Margin="0,0,12,0"/>
-                            <TextBlock Text="{Binding LastWorkflowStatusText}"
-                                       FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimary}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-
-                        <TextBlock Grid.Row="0" Grid.Column="2"
-                                   Text="{Binding LastWorkflowProgressDisplay}"
-                                   FontSize="{DynamicResource FontSize.Kpi}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource VioletAccent}"
-                                   VerticalAlignment="Center"/>
-
-                        <Border Grid.Row="2" Grid.ColumnSpan="3"
-                                Height="8" CornerRadius="{DynamicResource Radius.XSmall}"
-                                Background="{DynamicResource ProgressTrack}"
-                                ClipToBounds="True"
-                                SnapsToDevicePixels="True">
-                            <Border HorizontalAlignment="Left"
-                                    CornerRadius="{DynamicResource Radius.XSmall}"
-                                    Background="{DynamicResource ProgressGradient}">
-                                <Border.Width>
-                                    <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
-                                        <Binding Path="LastWorkflowProgressPercent"/>
-                                        <Binding Path="ActualWidth"
-                                                 RelativeSource="{RelativeSource AncestorType=Border}"/>
-                                    </MultiBinding>
-                                </Border.Width>
-                            </Border>
-                        </Border>
-                    </Grid>
+                <Border Style="{StaticResource Sl.Card}" Margin="0,12,0,0">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding LastWorkflowStatusText}" Style="{StaticResource Sl.Value}" FontSize="20"/>
+                            <TextBlock Grid.Column="1" Text="{Binding LastWorkflowProgressDisplay}"
+                                       Style="{StaticResource Sl.Value}" Foreground="{DynamicResource Ov.Accent}"/>
+                        </Grid>
+                        <ProgressBar Margin="0,10,0,0">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar" BasedOn="{StaticResource Gen.Track}">
+                                    <Setter Property="Value" Value="{Binding LastWorkflowProgressPercent}"/>
+                                    <Setter Property="IsIndeterminate" Value="False"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsGenerating}" Value="True">
+                                            <Setter Property="IsIndeterminate" Value="False"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
+                    </StackPanel>
                 </Border>
 
                 <!-- ═══════════════════════════════════════════════════
@@ -213,7 +166,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Grid.Column="0" Style="{StaticResource Sl.Card}" Padding="14,10">
                         <StackPanel HorizontalAlignment="Center">
                             <Viewbox MaxHeight="32" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding OrderedQtyDisplay}"
@@ -229,7 +182,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="2" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Grid.Column="2" Style="{StaticResource Sl.Card}" Padding="14,10">
                         <StackPanel HorizontalAlignment="Center">
                             <Viewbox MaxHeight="32" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding DeliveredQtyDisplay}"
@@ -245,7 +198,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="4" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Grid.Column="4" Style="{StaticResource Sl.Card}" Padding="14,10">
                         <StackPanel HorizontalAlignment="Center">
                             <Viewbox MaxHeight="32" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding BalanceQtyDisplay}"
@@ -261,7 +214,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="6" Style="{StaticResource SurfacePrimaryStyle}">
+                    <Border Grid.Column="6" Style="{StaticResource Sl.Card}" Padding="14,10">
                         <StackPanel HorizontalAlignment="Center">
                             <Viewbox MaxHeight="32" HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding DeliveryRateDisplay}"
@@ -307,7 +260,7 @@
                         <ItemsControl ItemsSource="{Binding LastWorkflowSteps}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Style="{StaticResource SurfacePrimaryStyle}">
+                                    <Border Style="{StaticResource Sl.Card}" Padding="14,10">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto"/>
@@ -315,7 +268,11 @@
                                             </Grid.ColumnDefinitions>
 
                                             <Border Grid.Column="0"
-                                                    Style="{StaticResource SurfacePrimaryStyle}">
+                                                    Width="36" Height="36"
+                                                    CornerRadius="10"
+                                                    Margin="0,0,12,0"
+                                                    Background="{DynamicResource Ov.Soft}"
+                                                    VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding StatusIcon}"
                                                            FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
