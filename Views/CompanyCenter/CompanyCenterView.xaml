@@ -56,7 +56,7 @@
         <StackPanel Margin="28,24,28,32">
 
             <!-- ═══ BENTO HERO HEADER STRIP ═══ -->
-            <Border Style="{StaticResource CompanyCenterCardStyle}">
+            <Border Style="{StaticResource CompanyCenterCardStyle}" Padding="16,8" Margin="0,0,0,12">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -65,13 +65,14 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Width="44" Height="44" CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center" Margin="0,0,16,0">
+                            Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center" Margin="0,0,16,0"
+                            Visibility="Collapsed">
                         <TextBlock Text="&#xE821;" FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
 
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Visibility="Collapsed">
                         <TextBlock Text="{DynamicResource Module.CompanyCenter}"
                                    FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextPrimaryBrush}"/>

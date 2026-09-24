@@ -36,7 +36,7 @@
             </Grid.RowDefinitions>
 
             <!-- ══ 1. BENTO HERO BANNER: Title, Diagnostics & Engine Controls ══ -->
-            <Border Grid.Row="0" Style="{StaticResource OptPanelCard}" Margin="0,0,0,14" Padding="20,16">
+            <Border Grid.Row="0" Style="{StaticResource OptPanelCard}" Margin="0,0,0,10" Padding="16,8">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -45,7 +45,7 @@
 
                     <!-- Left: Identity, Subtitle, and In-Flight Messages -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
                             <Border Width="36" Height="36" CornerRadius="8"
                                     Background="{DynamicResource AccentSoftBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
@@ -68,21 +68,22 @@
 
                         <TextBlock Text="Industrial cutting plans that minimize waste — pieces in, sheets out, verified layouts."
                                    FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"
-                                   Margin="48,3,0,0"/>
+                                   Margin="0,0,0,0"
+                                   Visibility="Collapsed"/>
 
                         <!-- Diagnostic and Upgrade Messages -->
                         <TextBlock Text="{Binding RunMessage}" FontSize="12"
                                    FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"
-                                   TextWrapping="Wrap" Margin="48,4,0,0"
+                                   TextWrapping="Wrap" Margin="0,0,0,0"
                                    Visibility="{Binding HasRunMessage, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                         <TextBlock Text="{Binding ResultEffortLabel}" FontSize="11"
-                                   Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="48,3,0,0"
+                                   Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"
                                    Visibility="{Binding HasResultEffort, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                         <TextBlock Text="{Binding UpgradeSummaryLabel}" FontSize="11"
                                    FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"
-                                   TextWrapping="Wrap" Margin="48,2,0,0"
+                                   TextWrapping="Wrap" Margin="0,2,0,0"
                                    Visibility="{Binding HasUpgradeSummary, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
 
