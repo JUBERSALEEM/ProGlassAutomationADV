@@ -94,17 +94,8 @@
         </Border>
 
         <!-- Card 3: Unit Price (Receipts Only) -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ShowUnitPrice}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10"
+                Visibility="{Binding ShowUnitPrice, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <TextBlock Text="UNIT PRICE (AED)" Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,6"/>
                 <TextBox Text="{Binding UnitPriceText, UpdateSourceTrigger=PropertyChanged}"
@@ -134,17 +125,8 @@
         </Border>
 
         <!-- Card 4: Movement Preview -->
-        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding ShowPreview}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10"
+                Visibility="{Binding ShowPreview, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel>
                 <DockPanel Margin="0,0,0,4">
                     <TextBlock Text="Balance After" Style="{StaticResource Ov.Meta}"/>
@@ -163,17 +145,8 @@
 
         <!-- Reorder Warning -->
         <Border Background="{DynamicResource Ov.WarningSoft}" BorderBrush="{DynamicResource WarningBrush}"
-                BorderThickness="1" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,8" Margin="0,0,0,6">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding HasReorderWarning}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
+                BorderThickness="1" CornerRadius="{DynamicResource Radius.Medium}" Padding="12,8" Margin="0,0,0,6"
+                Visibility="{Binding HasReorderWarning, Converter={StaticResource BoolToVisibilityConverter}}">
             <TextBlock Text="{Binding ReorderWarning}" TextWrapping="Wrap"
                        FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
                        Foreground="{DynamicResource WarningBrush}"/>

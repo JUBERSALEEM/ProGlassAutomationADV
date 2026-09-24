@@ -401,6 +401,7 @@ def audit_xaml_integrity(phase_id=None):
 
     xml_errors = []
     concentric_card_issues = []
+    duplicate_prop_errors = []
 
     # regex patterns
     card_pattern = re.compile(r'Style="\{StaticResource (SettingsCard|SettingsCompactCard|Ov\.Card|Ov\.CardCompact|Ov\.CardMicro)\}"')
@@ -410,10 +411,29 @@ def audit_xaml_integrity(phase_id=None):
         try:
             with open(full_path, 'r', encoding='utf-8') as f:
                 content = f.read()
-            ET.fromstring(content)
+            tree = ET.fromstring(content)
         except Exception as e:
             xml_errors.append((rel_path, str(e)))
             continue
+
+        # Check for duplicate property setting (MC3024 / XLS0501 / XDG0039)
+        for elem in tree.iter():
+            elem_tag = elem.tag.split('}')[-1]
+            elem_name = elem_tag.split(':')[-1]
+            child_props = {}
+            for child in elem:
+                child_tag = child.tag.split('}')[-1]
+                child_name = child_tag.split(':')[-1]
+                if '.' in child_name:
+                    _, prop_part = child_name.split('.', 1)
+                    child_props[prop_part] = child_props.get(prop_part, 0) + 1
+                    if child_props[prop_part] > 1:
+                        duplicate_prop_errors.append((rel_path, f"<{child_tag}> property element declared multiple times on <{elem_tag}>"))
+            for attr in elem.attrib:
+                attr_name = attr.split('}')[-1].split(':')[-1]
+                attr_prop = attr_name.split('.', 1)[1] if '.' in attr_name else attr_name
+                if attr_prop in child_props:
+                    duplicate_prop_errors.append((rel_path, f"Property '{attr_prop}' set more than once on <{elem_tag}> ({attr_name}=\"...\" attribute AND <{elem_name}.{attr_prop}> child element)"))
 
         # Check for concentric card nesting: card immediately inside card without content
         lines = content.splitlines()
@@ -435,6 +455,13 @@ def audit_xaml_integrity(phase_id=None):
     else:
         print("PASS: All target views are valid, well-formed XAML.")
 
+    if duplicate_prop_errors:
+        print(f"FAIL: {len(duplicate_prop_errors)} duplicate property setting errors (MC3024/XLS0501):")
+        for p, err in duplicate_prop_errors:
+            print(f"  - {p}: {err}")
+    else:
+        print("PASS: Zero duplicate property settings (MC3024 / XLS0501 / XDG0039 clean).")
+
     if concentric_card_issues:
         print(f"WARNING: {len(concentric_card_issues)} concentric card nesting instances:")
         for p, issue in concentric_card_issues:
@@ -442,7 +469,7 @@ def audit_xaml_integrity(phase_id=None):
     else:
         print("PASS: Zero concentric card nesting found in checked views.")
 
-    return len(xml_errors) == 0
+    return len(xml_errors) == 0 and len(duplicate_prop_errors) == 0
 
 def print_summary_table():
     print("=" * 80)
