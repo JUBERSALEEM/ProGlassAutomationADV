@@ -139,7 +139,7 @@
                         <ProgressBar Margin="0,10,0,0">
                             <ProgressBar.Style>
                                 <Style TargetType="ProgressBar" BasedOn="{StaticResource Gen.Track}">
-                                    <Setter Property="Value" Value="{Binding LastWorkflowProgressPercent}"/>
+                                    <Setter Property="Value" Value="{Binding LastWorkflowProgressPercent, Mode=OneWay}"/>
                                     <Setter Property="IsIndeterminate" Value="False"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsGenerating}" Value="True">

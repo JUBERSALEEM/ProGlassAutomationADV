@@ -74,7 +74,7 @@
                                 <ProgressBar.Style>
                                     <Style TargetType="ProgressBar" BasedOn="{StaticResource Gen.Track}">
                                         <Setter Property="IsIndeterminate" Value="False"/>
-                                        <Setter Property="Value" Value="{Binding LastWorkflowProgressPercent}"/>
+                                        <Setter Property="Value" Value="{Binding LastWorkflowProgressPercent, Mode=OneWay}"/>
                                         <Style.Triggers>
                                             <MultiDataTrigger>
                                                 <MultiDataTrigger.Conditions>

@@ -42,7 +42,7 @@
                     <ProgressBar>
                         <ProgressBar.Style>
                             <Style TargetType="ProgressBar" BasedOn="{StaticResource Gen.Track}">
-                                <Setter Property="Value" Value="{Binding GenerationProgress}"/>
+                                <Setter Property="Value" Value="{Binding GenerationProgress, Mode=OneWay}"/>
                                 <Setter Property="IsIndeterminate" Value="False"/>
                                 <Style.Triggers>
                                     <MultiDataTrigger>
