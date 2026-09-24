@@ -1008,8 +1008,7 @@ namespace ProGlassAutomation.Services.Production
             {
                 exec.QtyRequired = row.Qty;
                 exec.QtyDone = row.QtyDone;
-                bool frozen = exec.Status == (int)WorkItemStatus.Paused
-                    || exec.Status == (int)WorkItemStatus.Rework
+                bool frozen = exec.Status == (int)WorkItemStatus.Rework
                     || exec.Status == (int)WorkItemStatus.Rejected
                     || exec.Status == (int)WorkItemStatus.QcFailed
                     || exec.Status == (int)WorkItemStatus.Cancelled;
@@ -1017,6 +1016,11 @@ namespace ProGlassAutomation.Services.Production
                     && row.Status == (int)WorkItemStatus.Pending;
                 if (!frozen && !startedEmpty)
                     exec.Status = row.Status;
+                if (exec.Status == (int)WorkItemStatus.InProgress && exec.StartedAt == null)
+                {
+                    exec.StartedAt = DateTime.Now;
+                    exec.StartedBy = AuditService.CurrentUsername;
+                }
                 if (row.Status == (int)WorkItemStatus.Completed)
                 {
                     exec.CompletedAt = row.CompletedAt;
@@ -1025,6 +1029,13 @@ namespace ProGlassAutomation.Services.Production
                 exec.UpdatedAt = DateTime.Now;
             }
         }
+
+        /// <summary>
+        /// Control Center changes status without a quantity save. Mirror that
+        /// onto the process row in the same context. Does not SaveChanges.
+        /// </summary>
+        public static void SyncLinkedExecutionStatus(ProductionDbContext db, SavedProductionWorkItem row)
+            => SyncLinkedExecutionQty(db, row);
 
         /// <summary>
         /// Batch version of <see cref="SetDoneQtyAsync"/> — saves many row
