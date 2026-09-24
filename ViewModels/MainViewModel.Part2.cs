@@ -57,6 +57,7 @@ namespace ProGlassAutomation.ViewModels
                 "UserSwitch" => IsUserSwitchOpen,
                 "Screenshot" => IsScreenshotOpen,
                 "ScreenRecord" => IsScreenRecordOpen,
+                "More" => IsShellMoreOpen,
                 _ => false
             };
 
@@ -69,10 +70,12 @@ namespace ProGlassAutomation.ViewModels
                     case "UserSwitch": IsUserSwitchOpen = false; break;
                     case "Screenshot": IsScreenshotOpen = false; break;
                     case "ScreenRecord": IsScreenRecordOpen = false; break;
+                    case "More": IsShellMoreOpen = false; break;
                 }
             }
             else
             {
+                IsShellMoreOpen = which == "More";
                 IsSettingsOpen = which == "Settings";
                 IsNotificationsOpen = which == "Notifications";
                 IsUserSwitchOpen = which == "UserSwitch";
@@ -100,6 +103,7 @@ namespace ProGlassAutomation.ViewModels
             IsUserSwitchOpen = false;
             IsScreenRecordOpen = false;
             IsStorageOpen = false;
+            IsShellMoreOpen = false;
             // SENIOR FIX 2026-09-19: include AI overlays in the global
             // close — clicking the dim overlay or hamburger must not leave
             // a chat floating over the next module. They are still only

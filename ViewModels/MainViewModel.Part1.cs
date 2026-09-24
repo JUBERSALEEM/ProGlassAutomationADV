@@ -230,6 +230,7 @@ namespace ProGlassAutomation.ViewModels
                     IsUserSwitchOpen = false;
                     IsScreenRecordOpen = false;
                     IsStorageOpen = false;
+                    IsShellMoreOpen = false;
                 }
             }
         }
@@ -267,6 +268,30 @@ namespace ProGlassAutomation.ViewModels
         {
             get => _isScreenRecordOpen;
             set { if (_isScreenRecordOpen == value) return; _isScreenRecordOpen = value; OnPropertyChanged(); }
+        }
+
+        // More holds Screenshot, Record, About and Experience so the
+        // professional bar can stay one row. Opening it closes the other
+        // shell popups; closing it does not reopen them.
+        private bool _isShellMoreOpen;
+        public bool IsShellMoreOpen
+        {
+            get => _isShellMoreOpen;
+            set
+            {
+                if (_isShellMoreOpen == value) return;
+                _isShellMoreOpen = value;
+                OnPropertyChanged();
+                if (!value) return;
+                IsSettingsOpen = false;
+                IsNotificationsOpen = false;
+                IsScreenshotOpen = false;
+                IsUserSwitchOpen = false;
+                IsScreenRecordOpen = false;
+                IsStorageOpen = false;
+                IsAgentChatOpen = false;
+                try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
+            }
         }
 
         public ScreenRecordPanelViewModel ScreenRecordVM => ScreenRecordPanelViewModel.Shared;
@@ -873,6 +898,7 @@ namespace ProGlassAutomation.ViewModels
                     IsUserSwitchOpen = false;
                     IsScreenRecordOpen = false;
                     IsStorageOpen = false;
+                    IsShellMoreOpen = false;
                     try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
                 }
                 IsAgentChatOpen = willOpen;
@@ -902,6 +928,7 @@ namespace ProGlassAutomation.ViewModels
                             IsUserSwitchOpen = false;
                             IsScreenRecordOpen = false;
                             IsStorageOpen = false;
+                            IsShellMoreOpen = false;
                         }
                     };
                 }
@@ -1211,6 +1238,13 @@ namespace ProGlassAutomation.ViewModels
                 if (string.IsNullOrWhiteSpace(proformaId) || _invoices == null) return;
                 var pi = await _invoices.GetByProformaIdAsync(proformaId);
                 if (pi == null) return;
+       ;
+            };
+            StatementModuleVM.OnOpenProformaByNumber = async proformaId =>
+            {
+                if (string.IsNullOrWhiteSpace(proformaId) || _invoices == null) return;
+                var pi = await _invoices.GetByProformaIdAsync(proformaId);
+                if (pi == null) return;
                 Navigate("ProformaInvoice");
                 await ProformaInvoiceVM.OpenSavedInvoiceAsync(pi.Id);
             };
@@ -1247,7 +1281,12 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("ProformaInvoice");
                 try { ProformaInvoiceVM.TriggerNewInvoice(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] TriggerNewInvoice after navigation failed: " + ExceptionMessages.Deep(ex)); }
             });
-            ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; });
+            ShowAboutCommand = new RelayCommand(_ =>
+            {
+                CloseAllPopups();
+                CurrentModuleKey = "About";
+                CurrentViewModel = AboutVM;
+            });
             ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; });
             OpenLicenseSettingsCommand = new RelayCommand(_ => OpenSettingsPage("License"));
 
@@ -1306,6 +1345,11 @@ namespace ProGlassAutomation.ViewModels
             {
                 AppLogService.Warning($"[MainViewModel] agent wiring failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Main", Operation = "AgentWiring" });
+            }
+        }
+    }
+}
+xt { Module = "Main", Operation = "AgentWiring" });
             }
         }
     }

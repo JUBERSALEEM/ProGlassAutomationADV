@@ -114,6 +114,38 @@
             </Setter>
         </Style>
 
+        <Style x:Key="AiSuggestionChip" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="14"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- Migrated UserBubble to global SurfacePrimaryStyle -->
         </ResourceDictionary>
     </UserControl.Resources>
@@ -199,23 +231,27 @@
                                        FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        IsHitTestVisible="False"/>
+                            <TextBlock Text="{DynamicResource Shell.AiAnswersOnly}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       Opacity="0.95"
+                                       TextWrapping="Wrap"
+                                       IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding ActiveProviderSubtitle}"
                                        FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       Opacity="0.9"
+                                       Opacity="0.75"
                                        IsHitTestVisible="False"/>
                         </StackPanel>
 
                         <Button Grid.Column="2"
-                                Style="{StaticResource Button.Ghost}"
-                                FontFamily="{DynamicResource FontFamily.Icon}"
+                                Style="{StaticResource ChatIconBtn}"
                                 Content="&#xE74D;"
                                 ToolTip="{DynamicResource AI.ClearChat}"
                                 Command="{Binding ClearChatCommand}"/>
 
                         <Button Grid.Column="3"
-                                Style="{StaticResource Button.Ghost}"
-                                FontFamily="{DynamicResource FontFamily.Icon}"
+                                Style="{StaticResource ChatIconBtn}"
                                 Content="&#xE711;"
                                 ToolTip="{DynamicResource Action.Close}"
                                 Margin="6,0,0,0"
@@ -278,18 +314,18 @@
                                    Opacity="0.7"
                                    IsHitTestVisible="False"/>
 
-                        <ItemsControl ItemsSource="{Binding Suggestions}">
+                        <ItemsControl ItemsSource="{Binding Suggestions}" HorizontalAlignment="Center">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border
-                                            Tag="{Binding}"
-                                            behaviors:ClickToCommandBehavior.Command="{Binding SuggestionCommand}"
-                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding Tag, RelativeSource={RelativeSource Self}}">
+                                    <Button Style="{StaticResource AiSuggestionChip}"
+                                            Command="{Binding DataContext.SuggestionCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
                                         <TextBlock Text="{Binding}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    IsHitTestVisible="False"/>
-                                    </Border>
+                                    </Button>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

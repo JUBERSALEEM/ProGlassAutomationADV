@@ -1,6 +1,6 @@
-<!-- Shared recent-activity panel — Studio Bento style, matching the
-     Proforma Invoice list system (Sl.* / Ov.*). The code-behind appends
-     generated rows to the x:Name="ActivityList" StackPanel. -->
+<!-- Shared recent-activity panel. Rows are built in code-behind from the
+     last 20 audit entries. Today / All filters that list; there is no
+     unread store and no logs link. -->
 <UserControl x:Class="ProGlassAutomation.Views.Shared.ActivityPanel"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -17,10 +17,38 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="ActivityFilterChip" TargetType="Button">
+                <Setter Property="Height" Value="26"/>
+                <Setter Property="MinWidth" Value="64"/>
+                <Setter Property="Padding" Value="10,0"/>
+                <Setter Property="Margin" Value="0,0,6,0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="13"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="10,8,10,16">
+    <Grid Margin="8">
         <Border Width="400" CornerRadius="{DynamicResource Radius.Large}"
                 Background="{DynamicResource Ov.Surface}"
                 BorderBrush="{DynamicResource Ov.Line}"
@@ -36,6 +64,7 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -47,10 +76,21 @@
                                    Foreground="{DynamicResource Ov.OnAccent}"/>
                     </Border>
 
-                    <ScrollViewer Grid.Row="1" MaxHeight="320"
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="12,10,12,0">
+                        <Button x:Name="TodayFilter"
+                                Style="{StaticResource ActivityFilterChip}"
+                                Content="{DynamicResource Shell.ActivityToday}"
+                                Click="TodayFilter_Click"/>
+                        <Button x:Name="AllFilter"
+                                Style="{StaticResource ActivityFilterChip}"
+                                Content="{DynamicResource Shell.ActivityAll}"
+                                Click="AllFilter_Click"/>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="2" MaxHeight="320"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel x:Name="ActivityList" Margin="12,10,12,12"/>
+                        <StackPanel x:Name="ActivityList" Margin="12,8,12,12"/>
                     </ScrollViewer>
                 </Grid>
             </Border>

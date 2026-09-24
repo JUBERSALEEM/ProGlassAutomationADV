@@ -2689,6 +2689,14 @@
     <sys:String x:Key="ToolTip.SwitchUser">Switch user — click to open, click again to close</sys:String>
     <sys:String x:Key="ToolTip.ToggleMenu">Toggle menu</sys:String>
     <sys:String x:Key="ToolTip.ToggleTheme">Toggle Light / Dark theme</sys:String>
+    <sys:String x:Key="Shell.AiAnswersOnly">Answers questions. Does not change records.</sys:String>
+    <sys:String x:Key="Shell.AgentAsksFirst">Reads your ERP data. Asks before it writes.</sys:String>
+    <sys:String x:Key="Shell.More">More</sys:String>
+    <sys:String x:Key="Shell.OpenFullSettings">Open full settings</sys:String>
+    <sys:String x:Key="Shell.ActivityToday">Today</sys:String>
+    <sys:String x:Key="Shell.ActivityAll">All</sys:String>
+    <sys:String x:Key="Shell.NoActivityToday">No activity today.</sys:String>
+    <sys:String x:Key="Shell.ThemeStudioHint">Family, light or dark</sys:String>
     <sys:String x:Key="UserCenter.ActivateDeactivate">Activate / deactivate</sys:String>
     <sys:String x:Key="UserCenter.ActiveUserSignsAuditEntriesFillsDocument">— the active user signs audit entries and fills &#x27;Document Prepared By&#x27;.</sys:String>
     <sys:String x:Key="UserCenter.ChangePassword">CHANGE PASSWORD</sys:String>

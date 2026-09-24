@@ -15,8 +15,8 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ═══ GEOMETRY & SIZING TOKENS ═══ -->
-    <sys:Double x:Key="PgTopBarHeight">92</sys:Double>
-    <sys:Double x:Key="PgTopRowHeight">52</sys:Double>
+    <sys:Double x:Key="PgTopBarHeight">56</sys:Double>
+    <sys:Double x:Key="PgTopRowHeight">56</sys:Double>
     <sys:Double x:Key="PgTopCtrlHeight">32</sys:Double>
     <sys:Double x:Key="PgSidebarWidth">260</sys:Double>
     <sys:Double x:Key="PgSidebarItemHeight">38</sys:Double>
@@ -318,6 +318,39 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Row inside the professional More menu. Left-aligned, no min-width. -->
+    <Style x:Key="PgShellMenuRowStyle" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Margin" Value="4,1"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource PgLavenderHoverBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════

@@ -78,6 +78,7 @@ namespace ProGlassAutomation.ViewModels
                     IsUserSwitchOpen = false;
                     IsScreenRecordOpen = false;
                     IsStorageOpen = false;
+                    IsShellMoreOpen = false;
                     if (AiChatVM != null) AiChatVM.IsOpen = false;
                 }
                 catch { }
