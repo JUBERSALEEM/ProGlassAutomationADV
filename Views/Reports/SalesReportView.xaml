@@ -437,7 +437,7 @@
                 <StackPanel HorizontalAlignment="Stretch">
 
                     <!-- Overview Header Banner -->
-                    <Border Style="{StaticResource DocumentHeaderBandStyle}" Padding="20,18" Margin="0,0,0,14">
+                    <Border Style="{StaticResource DocumentHeaderBandStyle}" Padding="20,18" Margin="0,0,0,14" Visibility="Collapsed">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>

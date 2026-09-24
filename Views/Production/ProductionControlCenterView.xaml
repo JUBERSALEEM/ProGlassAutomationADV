@@ -46,14 +46,14 @@
         <StackPanel Margin="24,20,24,16">
 
             <!-- Header -->
-            <Border Padding="18,16" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Margin="0,0,0,14"
+            <Border Padding="16,8" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Margin="0,0,0,12"
                     Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
+                    <StackPanel Visibility="Collapsed">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.TitleLarge}"
                                        FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
@@ -64,9 +64,9 @@
                         <TextBlock Text="{Binding Subtitle}" FontSize="{DynamicResource FontSize.BodySmall}"
                                    Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top">
-                        <Button Content="Load / Refresh" Command="{Binding LoadCommand}" Style="{StaticResource PrimaryPillButton}" Height="36" Padding="18,0" Margin="0,0,8,0"/>
-                        <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource OutlinedPillButton}" Height="36" Padding="14,0"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="Load / Refresh" Command="{Binding LoadCommand}" Style="{StaticResource PrimaryPillButton}" Height="32" Padding="18,0" Margin="0,0,8,0"/>
+                        <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource OutlinedPillButton}" Height="32" Padding="14,0"/>
                     </StackPanel>
                 </Grid>
             </Border>
