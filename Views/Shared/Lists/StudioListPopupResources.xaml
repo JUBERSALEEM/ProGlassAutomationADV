@@ -1,8 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Popup roots are detached from the page's visual tree. Install this palette
-         in the consuming STYLE's resources, not only in the page. This also covers
-         the inherited menu templates' highlighted/checked/submenu states. -->
+    <!-- Studio Bento popup palette: detached visual tree resource contract. -->
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
     </ResourceDictionary.MergedDictionaries>
