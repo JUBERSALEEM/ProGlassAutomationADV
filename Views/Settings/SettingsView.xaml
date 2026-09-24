@@ -45,8 +45,8 @@
                 <!-- The module design system: cards, tiles, chips, pills,
                      type roles, spacing scale. Declared before the section
                      styles so both are resolvable by the sections. -->
-                <ResourceDictionary Source="SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
                 <!-- v3 lazy host: one DataTemplate per page (SettingsPageTemplates.xaml) -->
                 <ResourceDictionary Source="SettingsPageTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>

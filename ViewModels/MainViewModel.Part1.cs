@@ -9,6 +9,10 @@ using ProGlassAutomation.ViewModels.CompanyCenter;
 using ProGlassAutomation.ViewModels.UserCenter;
 using ProGlassAutomation.ViewModels.AI;
 using ProGlassAutomation.ViewModels.Dashboard;
+using ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard;
+using ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard;
+using ProGlassAutomation.ViewModels.Dashboard.Statement;
+using ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard;
 using ProGlassAutomation.ViewModels.DeliveryNote;
 using ProGlassAutomation.ViewModels.JobOrder;
 using ProGlassAutomation.ViewModels.Inquiry;
@@ -311,10 +315,10 @@ namespace ProGlassAutomation.ViewModels
                     if (db.ActivePage is OverviewDashboardViewModel) return "Plant Operations Overview";
                     if (db.ActivePage is SheetStoreDashboardViewModel) return "Sheet Store Warehouse";
                     if (db.ActivePage is PiDashboardViewModel) return "Proforma Invoice Ledger";
-                    if (db.ActivePage is JobOrder.JoDashboard.JoDashboardViewModel) return "Job Order Production";
-                    if (db.ActivePage is DeliveryNote.DnDashboard.DnDashboardViewModel) return "Delivery Note Logistics";
-                    if (db.ActivePage is TaxInvoice.TiDashboard.TiDashboardViewModel) return "Tax Invoice Billing";
-                    if (db.ActivePage is Statement.StDashboardViewModel) return "Account Statements";
+                    if (db.ActivePage is JoDashboardViewModel) return "Job Order Production";
+                    if (db.ActivePage is DnDashboardViewModel) return "Delivery Note Logistics";
+                    if (db.ActivePage is TiDashboardViewModel) return "Tax Invoice Billing";
+                    if (db.ActivePage is StDashboardViewModel) return "Account Statements";
                     return "Plant Operations Overview";
                 }
                 if (_currentViewModel is ProformaInvoiceViewModel) return "Proforma Invoice Operations";
@@ -349,10 +353,10 @@ namespace ProGlassAutomation.ViewModels
                     if (db.ActivePage is OverviewDashboardViewModel) return "Real-time production metrics, live dispatch schedules & glass inventory yield";
                     if (db.ActivePage is SheetStoreDashboardViewModel) return "Stock levels, inventory valuation & glass pack movements";
                     if (db.ActivePage is PiDashboardViewModel) return "Commercial quotations, conversion pipeline & pricing schedules";
-                    if (db.ActivePage is JobOrder.JoDashboard.JoDashboardViewModel) return "Live shop floor routing, machine work centers & tempering queue";
-                    if (db.ActivePage is DeliveryNote.DnDashboard.DnDashboardViewModel) return "Gate passes, site deliveries & driver dispatch schedules";
-                    if (db.ActivePage is TaxInvoice.TiDashboard.TiDashboardViewModel) return "FTA VAT 5% compliant invoices, collections & revenue ledger";
-                    if (db.ActivePage is Statement.StDashboardViewModel) return "Client balances, ageing analysis & payment reconciliation";
+                    if (db.ActivePage is JoDashboardViewModel) return "Live shop floor routing, machine work centers & tempering queue";
+                    if (db.ActivePage is DnDashboardViewModel) return "Gate passes, site deliveries & driver dispatch schedules";
+                    if (db.ActivePage is TiDashboardViewModel) return "FTA VAT 5% compliant invoices, collections & revenue ledger";
+                    if (db.ActivePage is StDashboardViewModel) return "Client balances, ageing analysis & payment reconciliation";
                     return "Real-time production metrics, live dispatch schedules & glass inventory yield";
                 }
                 if (_currentViewModel is ProformaInvoiceViewModel) return "Commercial glass cutting, tempering, laminating & billing schedules";
