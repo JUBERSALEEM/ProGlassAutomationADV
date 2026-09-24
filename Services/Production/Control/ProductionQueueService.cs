@@ -35,6 +35,7 @@ namespace ProGlassAutomation.Services.Production.Control
             ProductionPriority? priorityFilter = null,
             string? workstationFilter = null,
             string? search = null,
+            string? customerFilter = null,
             bool includeCompleted = false,
             bool includeCancelled = false,
             int take = 200,
@@ -66,6 +67,12 @@ namespace ProGlassAutomation.Services.Production.Control
                     w.SpecName.Contains(term) ||
                     w.GlassRef.Contains(term) ||
                     w.SourceProformaId.Contains(term));
+            }
+
+            if (!string.IsNullOrWhiteSpace(customerFilter))
+            {
+                var customer = customerFilter.Trim();
+                workItemsQuery = workItemsQuery.Where(w => w.CustomerName.Contains(customer));
             }
 
             var workItems = await workItemsQuery
