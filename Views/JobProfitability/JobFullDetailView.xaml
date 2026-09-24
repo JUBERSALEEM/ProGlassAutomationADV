@@ -47,11 +47,11 @@
                   CanContentScroll="False"
                   PanningMode="VerticalOnly"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <StackPanel Margin="20,0,20,24">
+        <StackPanel Margin="16,0,16,20">
 
             <!-- ═══ ACCENT HEADER — PI identity + target status ═══ -->
             <Border Background="{DynamicResource AccentBrush}"
-                    CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="18,14">
+                    CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,10">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

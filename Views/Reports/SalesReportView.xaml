@@ -370,7 +370,7 @@
                     Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource DividerBrush}"
                     BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                    Padding="14,10">
+                    Padding="14,6">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -385,16 +385,19 @@
                             Command="{Binding ToggleRailCommand}"
                             ToolTip="{DynamicResource Reports.ToggleReportsNavigation}"
                             VerticalAlignment="Center"
-                            Margin="0,0,12,0"/>
+                            Margin="0,0,10,0"/>
 
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="{Binding CurrentReportTitle}"
-                                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text=" · "
+                                   FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center" Margin="4,0"/>
                         <TextBlock Style="{StaticResource ReportHeaderTextStyle}" Text="{DynamicResource Reports.CentralReporting}"
-                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                    Foreground="{DynamicResource TextTertiaryBrush}"
-                                   Margin="0,1,0,0"/>
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
 
                     <!-- Data-layer live indicator -->

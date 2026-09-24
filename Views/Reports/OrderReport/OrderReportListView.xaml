@@ -34,18 +34,18 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Page Header -->
-        <Grid Grid.Row="0" Margin="16,16,16,8">
+        <!-- Page Action / Status Header -->
+        <Grid Grid.Row="0" Margin="16,6,16,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="Overall Order Reports" Style="{StaticResource Sl.Title}"/>
-                <TextBlock Text="Enterprise Order Fulfillment &amp; Traceability" Style="{StaticResource Sl.Subtitle}"/>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Overall Order Reports" Style="{StaticResource Sl.Title}" Visibility="Collapsed"/>
+                <TextBlock Text="Enterprise Order Fulfillment &amp; Traceability" Style="{StaticResource Sl.Subtitle}" Visibility="Collapsed"/>
                 <TextBlock Text="{Binding StatusMessage}"
                            Style="{StaticResource Sl.Subtitle}"
-                           Margin="0,4,0,0"
+                           Margin="0"
                            Typography.NumeralAlignment="Tabular"/>
             </StackPanel>
             <Button Grid.Column="1"
@@ -53,7 +53,7 @@
                     Style="{StaticResource Sl.PrimaryButton}"
                     Tag="&#xE710;"
                     Content="New Report"
-                    MinWidth="140"
+                    MinWidth="130"
                     VerticalAlignment="Center"/>
         </Grid>
 

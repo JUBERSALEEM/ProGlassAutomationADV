@@ -50,7 +50,7 @@
                     <!-- ═══ HEADER ═══ -->
                     <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
                             CornerRadius="{DynamicResource Radius.Top.Medium}"
-                            Padding="18,12">
+                            Padding="16,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>

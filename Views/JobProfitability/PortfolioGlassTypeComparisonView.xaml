@@ -34,20 +34,11 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══════ HEADER ═══════ -->
-        <Border Grid.Row="0" Margin="16,16,16,0" Padding="16,14"
-                Style="{StaticResource Sl.Card}">
-            <StackPanel>
-                <TextBlock Text="Glass Type Comparison — All Confirmed Jobs"
-                           Style="{StaticResource Sl.Title}"/>
-                <TextBlock Text="Which glass types (DGU, SGU, LAM, DGU+LAM) are most profitable? Compare revenue, cost, profit and margin across all confirmed PIs."
-                           Style="{StaticResource Sl.Subtitle}"
-                           Margin="0,4,0,0"/>
-            </StackPanel>
-        </Border>
+        <!-- ═══════ HEADER (reclaimed vertical space; tab context in parent) ═══════ -->
+        <Border Grid.Row="0" Visibility="Collapsed"/>
 
         <!-- ═══════ SUMMARY KPIs ═══════ -->
-        <Grid Grid.Row="1" Margin="16,12,16,0">
+        <Grid Grid.Row="1" Margin="16,8,16,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="12"/>

@@ -218,16 +218,8 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="16,16,16,8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="{DynamicResource Dnl.Title}" Style="{StaticResource Sl.Title}" />
-                <TextBlock Text="{DynamicResource Dnl.Subtitle}" Style="{StaticResource Sl.Subtitle}" />
-            </StackPanel>
-        </Grid>
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header -->
+        <Grid Grid.Row="0" Visibility="Collapsed"/>
         <Border Grid.Row="1" Margin="16,0,16,8" Style="{StaticResource Sl.Error}" Visibility="{Binding HasError,                              Converter={StaticResource BoolToVisibilityConverter}}">
             <TextBlock
                 Text="{Binding ErrorMessage}"

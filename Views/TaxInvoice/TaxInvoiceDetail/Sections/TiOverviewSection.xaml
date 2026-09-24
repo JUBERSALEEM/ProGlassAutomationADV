@@ -28,10 +28,10 @@
         <StackPanel>
 
         <!-- ══ INVOICE DOCUMENT ══════════════════════════════════════ -->
-        <Border Padding="16,14" Margin="0,0,0,10">
+        <Border Padding="16,8" Margin="0,0,0,6">
             <StackPanel>
                 <!-- Title + totals -->
-                <Grid Margin="0,0,0,14">
+                <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>

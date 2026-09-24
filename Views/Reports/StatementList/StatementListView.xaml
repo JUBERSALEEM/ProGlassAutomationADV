@@ -45,18 +45,19 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="16,16,16,8">
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header; StatusMessage preserved -->
+        <Grid Grid.Row="0" Margin="16,4,16,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
-                <TextBlock Text="{DynamicResource Reports.AccountStatements}" Style="{StaticResource Sl.Title}" />
-                <TextBlock Text="{DynamicResource Nav.StatementGenerator}" Style="{StaticResource Sl.Subtitle}" />
+                <TextBlock Text="{DynamicResource Reports.AccountStatements}" Style="{StaticResource Sl.Title}" Visibility="Collapsed" />
+                <TextBlock Text="{DynamicResource Nav.StatementGenerator}" Style="{StaticResource Sl.Subtitle}" Visibility="Collapsed" />
                 <TextBlock
                     Text="{Binding StatusMessage}"
                     Style="{StaticResource Sl.Subtitle}"
-                    Margin="0,4,0,0"
+                    Margin="0"
                     Typography.NumeralAlignment="Tabular" />
             </StackPanel>
         </Grid>

@@ -113,10 +113,10 @@
         <!-- ═══════════════════════════════════════════════════════════
              STICKY HEADER (compact)
         ═══════════════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="0" Margin="24,12,24,0">
+        <StackPanel Grid.Row="0" Margin="16,6,16,0">
 
-            <!-- HEADER + ACTION MENU — 16px below, 12px between ACTIONS and ADD -->
-            <DockPanel Margin="0,0,0,12">
+            <!-- HEADER + ACTION MENU — compact -->
+            <DockPanel Margin="0,0,0,8">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Visibility="Collapsed">
                         <TextBlock Text="{DynamicResource Module.SheetStore}"
@@ -278,7 +278,7 @@
             <Border Background="{DynamicResource SurfacePrimaryBrush}"
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16"
+                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,10" Margin="0,0,0,10"
                     SnapsToDevicePixels="True">
                 <StackPanel>
                     <Grid Visibility="{Binding IsGlassView, Converter={StaticResource BoolToVisibilityConverter}}">
