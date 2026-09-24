@@ -40,7 +40,7 @@
         <!-- ══ FILTER / TOOLBAR ══════════════════════════════════════ -->
         <Border Grid.Row="0"
                 Style="{StaticResource DialogSectionCardStyle}"
-                Margin="0,0,0,12">
+                Margin="0,0,0,8">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="168"/>
@@ -232,7 +232,7 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="12,8">
+                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="8,5">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="92"/>

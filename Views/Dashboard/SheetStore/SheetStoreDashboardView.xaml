@@ -33,7 +33,7 @@
             Background="Transparent"
             behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="{DynamicResource Ds.PageMargin}">
-                <layout:IndigoDashboardPanel Margin="0,0,0,18" MaxColumns="2" MinimumColumnWidth="390" FirstColumnWeight="1" Gap="20">
+                <layout:IndigoDashboardPanel Margin="0,0,0,8" MaxColumns="2" MinimumColumnWidth="390" FirstColumnWeight="1" Gap="20">
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource Module.SheetStore}" Style="{StaticResource Ds.HeroTitleStyle}" TextWrapping="Wrap" />
                         <TextBlock
@@ -155,7 +155,7 @@
                 </StackPanel>
                 <StackPanel Style="{StaticResource Ds.Content}">
                     <Border
-                        Margin="0,0,0,18"
+                        Margin="0,0,0,10"
                         Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                         Background="Transparent"
                         BorderThickness="0"
@@ -169,7 +169,7 @@
                             <TextBlock
                                 Text="{DynamicResource Dashboard.TypesValueCoverageAlerts}"
                                 Style="{StaticResource Ds.CardSubStyle}"
-                                Margin="0,2,0,12"
+                                Margin="0,1,0,6"
                                 TextWrapping="Wrap" />
                             <ItemsControl
                                 Style="{StaticResource Ds.KpiBandStyle}"
@@ -183,21 +183,21 @@
                         MaxColumns="2"
                         MinimumColumnWidth="340"
                         FirstColumnWeight="1.45"
-                        Margin="0,0,0,18">
+                        Margin="0,0,0,10">
                         <Border Style="{StaticResource Ds.CardStyle}">
                             <DockPanel>
-                                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                                     <TextBlock
                                         Text="{DynamicResource Dashboard.AvailableSQMCategory}"
                                         Style="{StaticResource Ds.CardTitleStyle}"
                                         TextWrapping="Wrap"
-                                        Margin="0,0,16,8" />
+                                        Margin="0,0,16,6" />
                                     <TextBlock
                                         Text="{DynamicResource Dashboard.BalanceSheets}"
                                         Style="{StaticResource Ds.MetaStyle}"
                                         HorizontalAlignment="Right"
                                         TextWrapping="Wrap"
-                                        Margin="0,0,16,8" />
+                                        Margin="0,0,16,6" />
                                 </WrapPanel>
                                 <Grid>
                                     <Border

@@ -215,9 +215,9 @@
     <StackPanel>
 
         <!-- ═══ HERO · INTEGRATED GLASS MANUFACTURING SUITE (Screen 03) ═══ -->
-        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,8">
             <StackPanel>
-                <Grid Margin="0,0,0,14">
+                <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="14"/>
@@ -288,9 +288,9 @@
         </Border>
 
         <!-- ═══ PRODUCTION MODULES (mockup 03: one card) ═══ -->
-        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,8">
             <StackPanel>
-                <Grid Margin="0,0,0,12">
+                <Grid Margin="0,0,0,6">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
