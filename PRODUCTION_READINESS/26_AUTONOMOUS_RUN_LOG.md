@@ -30,4 +30,13 @@ Start HEAD: `98622ca`
 - Finding: release evidence must not ship.
 - Fix: csproj item removal plus publish-folder delete in `scripts/build-installer.ps1`.
 
-Push status for this cycle: recorded after the commit.
+## Commit
+
+`3e3aeff` fix: restore print and shell resources that the live UI already binds
+
+Push: SUCCESS to `origin/arena/01a0ce09-proglassautomationadv`.
+
+End HEAD after that push: `3e3aeff`.
+Worktree after push: clean.
+
+This log update is a follow-up so the evidence matches the commit that already shipped.
