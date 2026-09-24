@@ -29,7 +29,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
-                <ResourceDictionary Source="ProductionUnitDetailTemplates.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Production/Controls/ProductionUnitDetailTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>

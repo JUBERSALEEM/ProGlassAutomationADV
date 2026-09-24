@@ -308,13 +308,13 @@ namespace ProGlassAutomation.ViewModels
             {
                 if (_currentViewModel is DashboardViewModel db)
                 {
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.Overview.OverviewDashboardViewModel) return "Plant Operations Overview";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.SheetStore.SheetStoreDashboardViewModel) return "Sheet Store Warehouse";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.ProformaInvoice.PiDashboardViewModel) return "Proforma Invoice Ledger";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard.JoDashboardViewModel) return "Job Order Production";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard.DnDashboardViewModel) return "Delivery Note Logistics";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard.TiDashboardViewModel) return "Tax Invoice Billing";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.Statement.StDashboardViewModel) return "Account Statements";
+                    if (db.ActivePage is OverviewDashboardViewModel) return "Plant Operations Overview";
+                    if (db.ActivePage is SheetStoreDashboardViewModel) return "Sheet Store Warehouse";
+                    if (db.ActivePage is PiDashboardViewModel) return "Proforma Invoice Ledger";
+                    if (db.ActivePage is JobOrder.JoDashboard.JoDashboardViewModel) return "Job Order Production";
+                    if (db.ActivePage is DeliveryNote.DnDashboard.DnDashboardViewModel) return "Delivery Note Logistics";
+                    if (db.ActivePage is TaxInvoice.TiDashboard.TiDashboardViewModel) return "Tax Invoice Billing";
+                    if (db.ActivePage is Statement.StDashboardViewModel) return "Account Statements";
                     return "Plant Operations Overview";
                 }
                 if (_currentViewModel is ProformaInvoiceViewModel) return "Proforma Invoice Operations";
@@ -325,9 +325,9 @@ namespace ProGlassAutomation.ViewModels
                 if (_currentViewModel is SheetStoreViewModel) return "Sheet Store Warehouse";
                 if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Glass Specifications";
                 if (_currentViewModel is OptimizationViewModel) return "Glass Cutting Optimization";
-                if (_currentViewModel is ProductionViewModel) return "Factory Floor Control";
-                if (_currentViewModel is SalesReportViewModel || _currentViewModel is ReportsViewModel) return "Executive Reports & Analytics";
-                if (_currentViewModel is Reports.StatementModule.StatementModuleViewModel) return "Customer Statement Module";
+                if (_currentViewModel is ProductionControlCenterViewModel || _currentViewModel is ProductionStageViewModelBase) return "Factory Floor Control";
+                if (_currentViewModel is SalesReportViewModel) return "Executive Reports & Analytics";
+                if (_currentViewModel is StatementModuleViewModel) return "Customer Statement Module";
                 if (_currentViewModel is SettingsViewModel) return "System Configuration";
                 if (_currentViewModel is AboutViewModel) return "About ProGlass Automation";
                 if (_currentViewModel is SystemCenterViewModel) return "System Diagnostic Center";
@@ -346,13 +346,13 @@ namespace ProGlassAutomation.ViewModels
             {
                 if (_currentViewModel is DashboardViewModel db)
                 {
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.Overview.OverviewDashboardViewModel) return "Real-time production metrics, live dispatch schedules & glass inventory yield";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.SheetStore.SheetStoreDashboardViewModel) return "Stock levels, inventory valuation & glass pack movements";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.ProformaInvoice.PiDashboardViewModel) return "Commercial quotations, conversion pipeline & pricing schedules";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard.JoDashboardViewModel) return "Live shop floor routing, machine work centers & tempering queue";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard.DnDashboardViewModel) return "Gate passes, site deliveries & driver dispatch schedules";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard.TiDashboardViewModel) return "FTA VAT 5% compliant invoices, collections & revenue ledger";
-                    if (db.ActivePage is ProGlassAutomation.ViewModels.Dashboard.Statement.StDashboardViewModel) return "Client balances, ageing analysis & payment reconciliation";
+                    if (db.ActivePage is OverviewDashboardViewModel) return "Real-time production metrics, live dispatch schedules & glass inventory yield";
+                    if (db.ActivePage is SheetStoreDashboardViewModel) return "Stock levels, inventory valuation & glass pack movements";
+                    if (db.ActivePage is PiDashboardViewModel) return "Commercial quotations, conversion pipeline & pricing schedules";
+                    if (db.ActivePage is JobOrder.JoDashboard.JoDashboardViewModel) return "Live shop floor routing, machine work centers & tempering queue";
+                    if (db.ActivePage is DeliveryNote.DnDashboard.DnDashboardViewModel) return "Gate passes, site deliveries & driver dispatch schedules";
+                    if (db.ActivePage is TaxInvoice.TiDashboard.TiDashboardViewModel) return "FTA VAT 5% compliant invoices, collections & revenue ledger";
+                    if (db.ActivePage is Statement.StDashboardViewModel) return "Client balances, ageing analysis & payment reconciliation";
                     return "Real-time production metrics, live dispatch schedules & glass inventory yield";
                 }
                 if (_currentViewModel is ProformaInvoiceViewModel) return "Commercial glass cutting, tempering, laminating & billing schedules";
@@ -363,9 +363,9 @@ namespace ProGlassAutomation.ViewModels
                 if (_currentViewModel is SheetStoreViewModel) return "Raw glass inventory, stock replenishment & yield analysis";
                 if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Technical glass definitions, tints & processing rules";
                 if (_currentViewModel is OptimizationViewModel) return "2D Nesting algorithms, scrap minimization & sheet yield";
-                if (_currentViewModel is ProductionViewModel) return "Work center scheduling, tempering furnaces & autoclave lines";
-                if (_currentViewModel is SalesReportViewModel || _currentViewModel is ReportsViewModel) return "Executive summaries, order book analysis & financial statements";
-                if (_currentViewModel is Reports.StatementModule.StatementModuleViewModel) return "Client ledger statements, balance summaries & credit audits";
+                if (_currentViewModel is ProductionControlCenterViewModel || _currentViewModel is ProductionStageViewModelBase) return "Work center scheduling, tempering furnaces & autoclave lines";
+                if (_currentViewModel is SalesReportViewModel) return "Executive summaries, order book analysis & financial statements";
+                if (_currentViewModel is StatementModuleViewModel) return "Client ledger statements, balance summaries & credit audits";
                 if (_currentViewModel is SettingsViewModel) return "Personalization, localization, storage & preferences";
                 if (_currentViewModel is AboutViewModel) return "Platform telemetry, version status & system diagnostics";
                 if (_currentViewModel is SystemCenterViewModel) return "System logs, database health & engine diagnostics";
