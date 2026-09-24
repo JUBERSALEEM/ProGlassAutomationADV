@@ -628,7 +628,3 @@ namespace ProGlassAutomation.ViewModels.Production
         }
     }
 }
-eturn (double)i.WidthMm * i.HeightMm * done / 1_000_000.0;
-        }
-    }
-}
