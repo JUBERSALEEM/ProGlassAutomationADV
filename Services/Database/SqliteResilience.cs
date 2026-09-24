@@ -398,12 +398,17 @@ namespace ProGlassAutomation.Services.Database
                             string mode = reader.GetString(0);
                             if (string.Equals(mode, "wal", StringComparison.OrdinalIgnoreCase))
                             {
+                                // Documented public ctor: (string? message, int errorCode).
+                                // Code 1 = SQLITE_ERROR: the classifier treats it as
+                                // non-transient, so this surfaces immediately instead
+                                // of retrying a condition that will not clear itself.
                                 throw new SqliteException(
                                     "The shared company database is in WAL journal mode, which is " +
                                     "unsafe over a WiFi/LAN share (SQLITE journal-mode verification " +
                                     "failed at connection open). Run Settings → Data → " +
                                     "“Prepare Folder” once (it converts the databases to " +
-                                    "rollback-journal mode), then restart every workstation.");
+                                    "rollback-journal mode), then restart every workstation.",
+                                    1);
                             }
                         }
                     }
