@@ -1,0 +1,40 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Prism component installer. Colors live here so the window
+         itself stays on theme tokens. This is a fixed installer stage,
+         like splash, not a module surface. -->
+    <Color x:Key="Prism.IndigoColor">#4C1D95</Color>
+    <Color x:Key="Prism.VioletColor">#7C3AED</Color>
+    <Color x:Key="Prism.CyanColor">#22D3EE</Color>
+    <Color x:Key="Prism.AmberColor">#F59E0B</Color>
+    <Color x:Key="Prism.InkColor">#1E1B4B</Color>
+    <Color x:Key="Prism.MutedColor">#6B6580</Color>
+    <Color x:Key="Prism.CardColor">#FFFBFF</Color>
+    <Color x:Key="Prism.WashColor">#F4F0FF</Color>
+    <Color x:Key="Prism.LineColor">#E4DCF5</Color>
+
+    <SolidColorBrush x:Key="Prism.InkBrush" Color="{StaticResource Prism.InkColor}"/>
+    <SolidColorBrush x:Key="Prism.MutedBrush" Color="{StaticResource Prism.MutedColor}"/>
+    <SolidColorBrush x:Key="Prism.CardBrush" Color="{StaticResource Prism.CardColor}"/>
+    <SolidColorBrush x:Key="Prism.WashBrush" Color="{StaticResource Prism.WashColor}"/>
+    <SolidColorBrush x:Key="Prism.LineBrush" Color="{StaticResource Prism.LineColor}"/>
+    <SolidColorBrush x:Key="Prism.CyanBrush" Color="{StaticResource Prism.CyanColor}"/>
+    <SolidColorBrush x:Key="Prism.VioletBrush" Color="{StaticResource Prism.VioletColor}"/>
+    <SolidColorBrush x:Key="Prism.WhiteBrush" Color="#FFFFFF"/>
+
+    <LinearGradientBrush x:Key="Prism.StageBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#EDE9FE" Offset="0"/>
+        <GradientStop Color="#CFFAFE" Offset="0.55"/>
+        <GradientStop Color="#FEF3C7" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="Prism.BarBrush" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#22D3EE" Offset="0"/>
+        <GradientStop Color="#7C3AED" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="Prism.PrimaryBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#7C3AED" Offset="0"/>
+        <GradientStop Color="#4C1D95" Offset="1"/>
+    </LinearGradientBrush>
+</ResourceDictionary>

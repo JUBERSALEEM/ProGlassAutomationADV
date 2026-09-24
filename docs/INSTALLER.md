@@ -13,7 +13,7 @@ For each tagged release (`v2.0.1`, `v2.0.2`, …) the pipeline produces:
 
 | Artefact | Purpose |
 |---|---|
-| `Setup.exe` | Full Velopack installer. Installs to Program Files, registers a Windows uninstall entry, supports delta upgrades for previously installed copies. |
+| `Setup.exe` | One-click Velopack installer. Shows the Prism splash, installs for the current user, then launches the app. |
 | `ProGlassAutomation-2.0.1-full.nupkg` | The full payload, in Velopack's nupkg format. Future deltas diff against the most recent full. |
 | `ProGlassAutomation-2.0.1-delta.nupkg` | Binary delta against the previous release. Only produced when an older release exists in the release feed. |
 | `ProGlassAutomation-Portable-2.0.1.zip` | Same binaries as `Setup.exe`, just zip-wrapped. For sysadmins who block Setup.exe or for kiosks where the app runs from a thumb drive. |
@@ -30,6 +30,8 @@ mirror) with confidence the bytes match what was tested.
 | File | Role | Used by |
 |---|---|---|
 | `installer/velopack.json` | Velopack pack manifest: packId, title, authors, copyright, icon, readme, target rid, framework, include/exclude globs. Version is overridden on the command line. | Local build script + CI release workflow |
+| `installer/content/` | Welcome, readme, licence, and finish text for the MSI wizard. | `vpk pack` when the installed vpk supports those flags |
+| `scripts/generate-installer-art.ps1` | Paints the Prism splash and the two MSI bitmaps into `installer/generated/`. Those images are not committed. | Local build script |
 | `Properties/PublishProfiles/Release.pubxml` | `dotnet publish` profile: `SelfContained=true`, `win-x64`, `ReadyToRun` on, deterministic build on, PDBs out. No secrets. | Local build script + CI release workflow |
 | `tools/build-installer.ps1` | Local mirror of the CI workflow. Runs on a Windows dev box with no GitHub involvement. | Operator (you) |
 | `.github/workflows/release.yml` | The CI mirror of the local build script. Runs on `windows-latest` on every `v*` tag push. | GitHub Actions |

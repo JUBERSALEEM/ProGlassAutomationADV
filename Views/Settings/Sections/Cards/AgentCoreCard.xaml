@@ -190,6 +190,10 @@
                                             Content="{Binding LocalModelToggleText, Mode=OneWay}"
                                             ToolTip="Switch between the installed local model and the curated knowledge base"
                                             Command="{Binding ToggleLocalModelCommand}"/>
+                                    <Button Style="{StaticResource OutlinedPillButton}"
+                                            Content="{DynamicResource Setup.OpenInstaller}"
+                                            Margin="{StaticResource SettingsInlineGap8}"
+                                            Click="OpenInstaller_Click"/>
                                 </StackPanel>
 
                                 <TextBlock TextWrapping="Wrap"

@@ -390,6 +390,11 @@ activations.json
 # source files for the Velopack build while keeping the
 # generated build OUTPUT out of source control.
 #
+#   * `installer/generated/` — splash PNG and MSI bitmaps painted
+#                              by scripts/generate-installer-art.ps1.
+#                              Not source. Regenerated on every pack.
+installer/generated/
+
 #   * `publish/`            — dotnet publish output folder,
 #                              regenerated on every build. The
 #                              default gitignore above ignores

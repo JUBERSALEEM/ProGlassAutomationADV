@@ -2720,4 +2720,26 @@
     <sys:String x:Key="Void.ThisDocument">이 문서</sys:String>
     <sys:String x:Key="Void.Title">문서 취소</sys:String>
 
+    <sys:String x:Key="Setup.Title">ProGlass Setup</sys:String>
+    <sys:String x:Key="Setup.Ffmpeg">FFmpeg</sys:String>
+    <sys:String x:Key="Setup.FfmpegNeed">Recording needs ffmpeg.exe and ffprobe.exe.</sys:String>
+    <sys:String x:Key="Setup.FfmpegBody">Downloads the Windows essentials zip, checks it, and places both tools in the tools folder.</sys:String>
+    <sys:String x:Key="Setup.DownloadInstall">Download and install</sys:String>
+    <sys:String x:Key="Setup.Recheck">Recheck</sys:String>
+    <sys:String x:Key="Setup.Skip">Skip</sys:String>
+    <sys:String x:Key="Setup.Next">Next</sys:String>
+    <sys:String x:Key="Setup.Back">Back</sys:String>
+    <sys:String x:Key="Setup.LocalModel">Offline AI model</sys:String>
+    <sys:String x:Key="Setup.LocalModelBody">Install once. Answers stay on this computer.</sys:String>
+    <sys:String x:Key="Setup.Install">Install</sys:String>
+    <sys:String x:Key="Setup.License">License</sys:String>
+    <sys:String x:Key="Setup.Cancel">Cancel</sys:String>
+    <sys:String x:Key="Setup.Close">Close</sys:String>
+    <sys:String x:Key="Setup.Recommended">Recommended</sys:String>
+    <sys:String x:Key="Setup.Downloading">Downloading the model.</sys:String>
+    <sys:String x:Key="Setup.NothingUploaded">Nothing is uploaded.</sys:String>
+    <sys:String x:Key="Setup.OpenInstaller">Open installer</sys:String>
+    <sys:String x:Key="Setup.Ready">Ready</sys:String>
+    <sys:String x:Key="Setup.NotInstalled">Not installed</sys:String>
+
 </ResourceDictionary>

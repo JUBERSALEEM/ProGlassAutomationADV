@@ -104,6 +104,11 @@
                                 HorizontalAlignment="Stretch"
                                 Margin="0"/>
                         </UniformGrid>
+                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Setup.OpenInstaller}"
+                                HorizontalAlignment="Left"
+                                Margin="0,8,0,0"
+                                Click="OpenInstaller_Click"/>
                         <TextBlock Text="{DynamicResource Settings.FfmpegReadyGenerateSelectedRecordModuleWrite}"
                                    Style="{StaticResource SettingsRowMetaStyle}"
                                    Visibility="{Binding IsFfmpegReady,
