@@ -46,7 +46,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Hero Card: Overall Yield & Total Sheets -->
-                    <Border Grid.Column="0" Style="{StaticResource OptHeroCard}" Margin="0,0,12,0" Padding="18,14">
+                    <Border Grid.Column="0" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0" Padding="18,14">
                         <StackPanel>
                             <TextBlock Text="OVERALL YIELD EFFICIENCY" FontSize="11" FontWeight="SemiBold"
                                        Foreground="{DynamicResource TextTertiaryBrush}"/>

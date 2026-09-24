@@ -39,16 +39,16 @@
             <!-- ══ 1. BENTO HERO BANNER: Title, Diagnostics & Engine Controls ══ -->
             <Border Grid.Row="0" Style="{StaticResource OptHeroCard}" Margin="0,0,0,12">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <StackPanel Grid.Row="0" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Optimization" FontSize="22" FontWeight="SemiBold"
                                        Foreground="{StaticResource OptOnIndigo}" VerticalAlignment="Center"/>
-                            <Border Background="#33FFFFFF" CornerRadius="8" Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <Border Background="{StaticResource OptOnIndigoChip}" CornerRadius="8" Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="Guillotine 2D" FontSize="11" FontWeight="Bold"
                                            Foreground="{StaticResource OptOnIndigo}"/>
                             </Border>
@@ -74,8 +74,8 @@
                     </StackPanel>
 
                     <!-- Right: In-Flight Stage Progress & Action Buttons -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <StackPanel VerticalAlignment="Center" Margin="0,0,16,0"
+                    <WrapPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                        <StackPanel VerticalAlignment="Center" Margin="0,0,8,8"
                                     Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="{Binding RunStageLabel}" FontSize="11"
                                        FontWeight="SemiBold" Foreground="{StaticResource OptOnIndigo}"
@@ -85,33 +85,33 @@
                         </StackPanel>
 
                         <Button Content="Run Quick" Style="{StaticResource OptOutlinedButton}"
-                                Command="{Binding RunQuickCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
+                                Command="{Binding RunQuickCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,8"
                                 ToolTip="One fast deterministic pass (guillotine shelves) — completes in seconds"/>
 
                         <Button Content="Run Optimize" Style="{StaticResource OptPrimaryButton}"
                                 Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
                                 BorderBrush="{StaticResource OptOnIndigo}"
-                                Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}"
+                                Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,8"
                                 ToolTip="Multi-start search across effort levels 1–5 — maximizes plate yield"/>
 
                         <Button Content="Cancel" Style="{StaticResource OptOutlinedButton}"
                                 Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
-                                Margin="8,0,0,0"
+                                Margin="0,0,8,8"
                                 ToolTip="Stop the current run — engine checks for cancellation once per part"/>
 
                         <Button Content="Upgrade to Optimize" Style="{StaticResource OptPrimaryButton}"
                                 Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
                                 BorderBrush="{StaticResource OptOnIndigo}"
-                                Command="{Binding UpgradeToOptimizeCommand}" Margin="8,0,0,0"
+                                Command="{Binding UpgradeToOptimizeCommand}" Margin="0,0,8,8"
                                 Visibility="{Binding CanUpgradeToOptimize, Converter={StaticResource BoolToVisibilityConverter}}"
                                 ToolTip="Re-run this cutting list through OPTIMIZE at the configured effort level"/>
-                    </StackPanel>
+                    </WrapPanel>
                 </Grid>
             </Border>
 
             <!-- ══ 2. STUDIO BENTO MODULE TAB RAIL ══ -->
             <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,12">
-                <StackPanel Orientation="Horizontal">
+                <WrapPanel Orientation="Horizontal">
                     <RadioButton GroupName="OptTabs" Tag="&#xE821;" Content="JOBS"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
                                  Style="{StaticResource OptRailTab}"/>
@@ -136,20 +136,14 @@
                     <RadioButton GroupName="OptTabs" Tag="&#xE9F9;" Content="REPORT"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
                                  Style="{StaticResource OptRailTab}" Margin="0"/>
-                </StackPanel>
+                </WrapPanel>
             </Border>
 
             <!-- ══ 3. STUDIO BENTO KPI METRIC QUAD ══ -->
-            <Grid Grid.Row="2" Margin="0,0,0,16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <UniformGrid Grid.Row="2" Columns="4" Margin="-6,0,-6,10">
 
                 <!-- CARD 1: CONFIRMED JOBS -->
-                <Border Grid.Column="0" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
+                <Border Grid.Column="0" Style="{StaticResource OptKpiCard}" Margin="6">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -170,7 +164,7 @@
                 </Border>
 
                 <!-- CARD 2: PIECES -->
-                <Border Grid.Column="1" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
+                <Border Grid.Column="1" Style="{StaticResource OptKpiCard}" Margin="6">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -191,7 +185,7 @@
                 </Border>
 
                 <!-- CARD 3: TOTAL GLASS -->
-                <Border Grid.Column="2" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
+                <Border Grid.Column="2" Style="{StaticResource OptKpiCard}" Margin="6">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -212,15 +206,15 @@
                 </Border>
 
                 <!-- CARD 4: CUTTING GROUPS -->
-                <Border Grid.Column="3" Style="{StaticResource OptKpiCard}">
+                <Border Grid.Column="3" Style="{StaticResource OptKpiCard}" Margin="6">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource AccentSoftBrush}">
+                        <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptIndigoSoft}">
                             <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{DynamicResource AccentBrush}"
+                                       Foreground="{StaticResource OptIndigo}"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
@@ -231,7 +225,7 @@
                         </StackPanel>
                     </Grid>
                 </Border>
-            </Grid>
+            </UniformGrid>
 
             <!-- ══ 4. TAB HOST WORKSPACE ══ -->
             <Grid Grid.Row="3" IsEnabled="{Binding CanRun}">

@@ -23,44 +23,36 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <StackPanel Margin="4,0,4,10">
-        <Border Style="{StaticResource ModuleListShellStyle}" Padding="12">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0"
-                           Text="Release from Job Order"
+    <StackPanel Margin="24,0,24,10">
+        <Border Style="{StaticResource OptPanelCard}" Padding="14,12">
+            <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Release from Job Order"
                            FontSize="{DynamicResource FontSize.Body}"
                            FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            VerticalAlignment="Center"
-                           Margin="0,0,12,0"/>
-                <ComboBox Grid.Column="1"
-                          ItemsSource="{Binding Sources}"
+                           Margin="0,6,12,6"/>
+                <ComboBox ItemsSource="{Binding Sources}"
                           SelectedItem="{Binding SelectedSource}"
                           DisplayMemberPath="DisplayLabel"
                           Style="{StaticResource ModuleListFilterComboStyle}"
-                          Margin="0,0,8,0"
+                          Width="320" MinWidth="180"
+                          Margin="0,6,8,6"
                           VerticalAlignment="Center"
                           ToolTip="Released / In-Production Job Orders (confirmed PIs only — drafts never reach the floor)"/>
-                <Button Grid.Column="2"
-                        Style="{StaticResource PrimaryPillButton}"
+                <Button Style="{StaticResource PrimaryPillButton}"
                         Command="{Binding ReleaseCommand}"
                         Tag="&#xE768;"
                         Content="Release to Production"
                         MinWidth="210"
-                        Margin="0,0,8,0"/>
-                <Button Grid.Column="3"
-                        Style="{StaticResource OutlinedPillButton}"
+                        Margin="0,6,8,6"/>
+                <Button Style="{StaticResource OutlinedPillButton}"
                         Command="{Binding RefreshCommand}"
                         Tag="&#xE72C;"
                         Content="Refresh"
-                        MinWidth="120"/>
-            </Grid>
+                        MinWidth="120"
+                        Margin="0,6,0,6"/>
+            </WrapPanel>
         </Border>
 
         <TextBlock Text="{Binding ReleaseMessage}"

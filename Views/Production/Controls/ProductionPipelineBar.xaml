@@ -24,12 +24,11 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Border CornerRadius="{DynamicResource CardCornerRadius}"
-            Background="{DynamicResource DashAmbientBrush}"
-            Padding="12,10"
-            Margin="4,0,4,10">
+    <Border Style="{StaticResource OptPanelCard}"
+            Padding="14,12"
+            Margin="24,0,24,10">
         <StackPanel>
-            <Grid>
+            <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="PRODUCTION PIPELINE"
                                FontSize="{DynamicResource FontSize.BodySmall}"
@@ -42,13 +41,14 @@
                     <TextBlock Text="{Binding ChainProgressLabel}"
                                FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.SemiBold}"
-                               Foreground="{DynamicResource AccentBrush}"/>
+                               Foreground="{DynamicResource AccentBrush}"
+                               TextWrapping="Wrap"/>
                 </StackPanel>
                 <TextBlock Text="Click a stage to follow the work"
                            FontSize="{DynamicResource FontSize.BodySmall}"
                            Foreground="{DynamicResource TextTertiaryBrush}"
-                           HorizontalAlignment="Right"/>
-            </Grid>
+                           Margin="0,2,0,0"/>
+            </StackPanel>
 
             <ItemsControl ItemsSource="{Binding ChainStages}" Margin="0,8,0,0">
                 <ItemsControl.ItemsPanel>
@@ -67,11 +67,11 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="ChipBorder"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            CornerRadius="12"
                                             Padding="10,6"
                                             Background="{DynamicResource SurfacePrimaryBrush}"
-                                            BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                            BorderThickness="1"
+                                            BorderBrush="{StaticResource OptIndigo}"
+                                            BorderThickness="1.5"
                                             SnapsToDevicePixels="True">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Ordinal}"

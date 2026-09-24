@@ -20,28 +20,34 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="24,20,24,8" Visibility="Collapsed">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Border Width="56" Height="56" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center" Margin="0,0,14,0">
-                <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
-                           Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Border>
-            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding ModuleName}" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
-                            Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding StageOrdinalLabel}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
-                    </Border>
+        <Border Grid.Row="0" Style="{StaticResource OptHeroCard}" Margin="24,16,24,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="48" Height="48" CornerRadius="12"
+                        Background="{StaticResource OptOnIndigoChip}" VerticalAlignment="Center" Margin="0,0,14,0">
+                    <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="22"
+                               Foreground="{StaticResource OptOnIndigo}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{Binding ModuleName}" FontSize="20" FontWeight="SemiBold"
+                                   Foreground="{StaticResource OptOnIndigo}"/>
+                        <Border CornerRadius="8" Background="{StaticResource OptOnIndigoChip}"
+                                Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding StageOrdinalLabel}" FontSize="11" FontWeight="Bold"
+                                       Foreground="{StaticResource OptOnIndigo}"/>
+                        </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Description}" FontSize="12"
+                               Foreground="{StaticResource OptOnIndigoMuted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding StationWorkOrderHint}" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{StaticResource OptOnIndigo}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                 </StackPanel>
-                <TextBlock Text="{Binding Description}" Style="{StaticResource ModulePageSubtitleStyle}"/>
-            </StackPanel>
-        </Grid>
+            </Grid>
+        </Border>
         <production:ProductionPipelineBar Grid.Row="1"/>
         <production:ProductionReleaseBar Grid.Row="2"/>
         <production:ProductionStationBody Grid.Row="3"/>

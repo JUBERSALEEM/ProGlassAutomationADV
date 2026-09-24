@@ -62,7 +62,9 @@
                               Style="{StaticResource GodViewGridStyle}"
                               ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
                               SelectionMode="Single" CanUserAddRows="False" IsReadOnly="True"
-                              EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                              EnableRowVirtualization="True" EnableColumnVirtualization="False"
+                              FrozenColumnCount="3"
+                              ScrollViewer.HorizontalScrollBarVisibility="Auto"
                               VirtualizingPanel.IsVirtualizing="True"
                               VirtualizingPanel.VirtualizationMode="Recycling"
                               VirtualizingPanel.ScrollUnit="Pixel"
@@ -98,7 +100,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="JOB NO" Width="*">
+                            <DataGridTemplateColumn Header="JOB NO" Width="168" MinWidth="140">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel VerticalAlignment="Center">
@@ -111,47 +113,45 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <!-- 2026-09-14: CUSTOMER is the star filler — every other column is
-                     fixed (stable numeric layout), the free-text column
-                     absorbs remaining width so the table fills the
-                     container exactly. Fixed 160 left the grid bunched
-                     left with dead space on wide screens. -->
-                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="*"/>
-                            <DataGridTextColumn  Header="W×H" Binding="{Binding SizeLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"
+                            <!-- QTY sits beside the job, fixed width, literal header.
+                                 A star-width column after GLASS/TREATMENT was virtualized
+                                 away and its header binding never resolved, so the floor
+                                 saw a blank "qty" column. -->
+                            <DataGridTemplateColumn Header="QTY" Width="78" MinWidth="72"
+                                                    HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding InflowLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                   ToolTip="Pieces arrived at this station"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="CUSTOMER" Binding="{Binding Customer}" Width="*" MinWidth="140"/>
+                            <DataGridTextColumn  Header="W×H" Binding="{Binding SizeLabel}" Width="118" ElementStyle="{StaticResource StationLeftTextStyle}"
                                  Visibility="{Binding Data.ShowSizeColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
-                            <DataGridTextColumn  Header="GLASS" Binding="{Binding GlassLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"
+                            <DataGridTextColumn  Header="GLASS" Binding="{Binding GlassLabel}" Width="150" ElementStyle="{StaticResource StationLeftTextStyle}"
                                  Visibility="{Binding Data.ShowGlassColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
-                            <DataGridTextColumn  Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="*" ElementStyle="{StaticResource StationLeftTextStyle}"
+                            <DataGridTextColumn  Header="TREATMENT" Binding="{Binding TreatmentLabel}" Width="130" ElementStyle="{StaticResource StationLeftTextStyle}"
                                  Visibility="{Binding Data.ShowTreatmentColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
-                            <DataGridTextColumn  Header="LM" Binding="{Binding LmLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
+                            <DataGridTextColumn  Header="LM" Binding="{Binding LmLabel}" Width="88" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
                                  Visibility="{Binding Data.ShowLmColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
-                            <DataGridTextColumn  Header="LOAD" Binding="{Binding LoadLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
+                            <DataGridTextColumn  Header="LOAD" Binding="{Binding LoadLabel}" Width="88" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
                                  Visibility="{Binding Data.ShowLoadColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
-                            <DataGridTextColumn  Header="MATCH" Binding="{Binding MatchLabel}" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
+                            <DataGridTextColumn  Header="MATCH" Binding="{Binding MatchLabel}" Width="110" HeaderStyle="{StaticResource StationCenterHeaderStyle}" ElementStyle="{StaticResource StationCenterTextStyle}"
                                  Visibility="{Binding Data.ShowMatchColumn, Source={StaticResource StationVm}, Converter={StaticResource BoolToVis}}"/>
-                            <!-- HEADER BINDING FIX (2026-09-17 owner report:
-                                 "in cutting section qty missing from column qty
-                                 text"; STILL broken 2026-09-18: "cutting section
-                                 qty after job no still not visible").
-
-                                 Wave 5 moved the binding onto Header= with a
-                                 RelativeSource — but Header is a property OF THE
-                                 COLUMN, and the column is not in the tree, so the
-                                 ancestor walk had nowhere to start and the header
-                                 stayed EMPTY (Cutting lost "TOTAL", every other
-                                 station lost "IN").
-
-                                 The only two mechanisms that actually work here:
-                                   • HeaderTemplate — the template is instantiated
-                                     by the DataGridColumnHeader, which IS in the
-                                     visual tree, so RelativeSource resolves;
-                                   • BindingProxy (used for Visibility below).
-                                 This column uses the HeaderTemplate form. -->
-                            <DataGridTemplateColumn Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                            <!-- Hidden duplicate of QTY. The visible column is the
+                                 fixed QTY beside JOB NO. This one used a header
+                                 binding that resolved empty and a star width that
+                                 column-virtualization pushed off screen. Kept collapsed
+                                 so the piece count is not shown twice. -->
+                            <DataGridTemplateColumn Width="78" HeaderStyle="{StaticResource StationCenterHeaderStyle}" Visibility="Collapsed">
                                 <DataGridTemplateColumn.HeaderTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding DataContext.InColumnHeader,
-                                                     RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                        <TextBlock Text="{Binding DataContext.InflowColumnHeader,
+                                                     RelativeSource={RelativeSource AncestorType=DataGrid},
+                                                     FallbackValue=QTY, TargetNullValue=QTY}"
                                                    VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.HeaderTemplate>
@@ -163,7 +163,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="DONE" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                            <DataGridTemplateColumn Header="DONE" Width="72" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding DoneLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -172,7 +172,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="BAL" Width="*" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
+                            <DataGridTemplateColumn Header="BAL" Width="72" HeaderStyle="{StaticResource StationCenterHeaderStyle}">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding BalanceLabel}" FontWeight="{DynamicResource Weight.SemiBold}"
@@ -181,7 +181,7 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="STATUS" Width="*">
+                            <DataGridTemplateColumn Header="STATUS" Width="118">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"

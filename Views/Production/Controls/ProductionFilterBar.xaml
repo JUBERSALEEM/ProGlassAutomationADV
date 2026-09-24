@@ -14,7 +14,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <StackPanel>
-        <Border Style="{StaticResource ModuleListFilterBarStyle}">
+        <Border Style="{StaticResource OptPanelCard}" Padding="14,12" Margin="0,0,0,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" MinWidth="160"/>

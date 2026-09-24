@@ -16,6 +16,7 @@
     <SolidColorBrush x:Key="OptIndigoSoft" Color="#EEE8F8"/>
     <SolidColorBrush x:Key="OptOnIndigo" Color="#FFFFFF"/>
     <SolidColorBrush x:Key="OptOnIndigoMuted" Color="#E3DAF7"/>
+    <SolidColorBrush x:Key="OptOnIndigoChip" Color="#33FFFFFF"/>
 
     <SolidColorBrush x:Key="OptBentoHeroBg" Color="#6546B5"/>
     <SolidColorBrush x:Key="OptBentoHeroBorder" Color="#493080"/>
@@ -73,17 +74,18 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <!-- ══ Light Studio Bento Hero Card (Primary Yield & Engine Status) ══ -->
+    <!-- Indigo bento hero. Do not point this at a light surface: every consumer
+         paints OptOnIndigo / OptOnIndigoMuted text. Summary yield uses OptKpiCard. -->
     <Style x:Key="OptHeroCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource OptCardRadius}"/>
+        <Setter Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptBentoHeroBorder}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="20,18"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Direction="270" Color="#000000" Opacity="0.04"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Direction="270" Color="#3D2A6B" Opacity="0.18"/>
             </Setter.Value>
         </Setter>
     </Style>
