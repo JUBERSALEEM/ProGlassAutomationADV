@@ -1,12 +1,17 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Setup/ComponentInstallerWindow.xaml.cs
-// Prism card for the two optional installers: FFmpeg, then the
-// offline model. Neither download starts until the user clicks.
+// The approved Prism card for the two optional downloads. FFmpeg and
+// the offline model are not MSI pages. Nothing starts until the user
+// clicks Install.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
+using System.Windows.Input;
+using ProGlassAutomation.Agent.Demo.Video;
+using ProGlassAutomation.Agent.LocalAi;
 using ProGlassAutomation.ViewModels.Setup;
 
 namespace ProGlassAutomation.Views.Setup
@@ -19,24 +24,10 @@ namespace ProGlassAutomation.Views.Setup
         {
             InitializeComponent();
             DataContext = _vm;
-            ModelList.ItemsSource = _vm.Models;
-            ModelList.SelectedItem = _vm.SelectedModel;
-            ModelList.SelectionChanged += (_, _) =>
-            {
-                if (ModelList.SelectedItem is SetupModelRow row)
-                    _vm.SelectedModel = row;
-            };
-            _vm.PropertyChanged += (_, e) =>
-            {
-                if (e.PropertyName is nameof(ComponentInstallerViewModel.Page)
-                    or nameof(ComponentInstallerViewModel.Status)
-                    or nameof(ComponentInstallerViewModel.Percent)
-                    or nameof(ComponentInstallerViewModel.FfmpegReady)
-                    or nameof(ComponentInstallerViewModel.IsBusy))
-                {
-                    Apply();
-                }
-            };
+            _vm.ApplyRecommendedLabel((string)FindResource("Setup.Recommended"));
+            if (_vm.FfmpegReady && !_vm.AnyModelInstalled)
+                _vm.ShowModelCommand.Execute(null);
+            _vm.PropertyChanged += OnVmChanged;
             Apply();
         }
 
@@ -49,7 +40,9 @@ namespace ProGlassAutomation.Views.Setup
             try
             {
                 if (File.Exists(SeenPath)) return false;
-                return true;
+                bool ffmpeg = FfmpegMp4Composer.Find() != null;
+                bool model = LocalModelCatalog.All.Any(entry => LocalModelManager.IsInstalled(entry.Id, out _));
+                return !ffmpeg || !model;
             }
             catch
             {
@@ -68,8 +61,9 @@ namespace ProGlassAutomation.Views.Setup
                 }
             }
             var window = new ComponentInstallerWindow();
-            if (owner != null) window.Owner = owner;
-            window.Show();
+            if (owner != null && owner.IsLoaded)
+                window.Owner = owner;
+            window.ShowDialog();
         }
 
         public static void MarkSeen()
@@ -86,63 +80,88 @@ namespace ProGlassAutomation.Views.Setup
             }
         }
 
+        private void OnVmChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is nameof(ComponentInstallerViewModel.Page)
+                or nameof(ComponentInstallerViewModel.Status)
+                or nameof(ComponentInstallerViewModel.StatusKey)
+                or nameof(ComponentInstallerViewModel.Percent)
+                or nameof(ComponentInstallerViewModel.FfmpegReady)
+                or nameof(ComponentInstallerViewModel.IsBusy)
+                or nameof(ComponentInstallerViewModel.IsModelBusy)
+                or nameof(ComponentInstallerViewModel.IsComplete))
+            {
+                Apply();
+            }
+        }
+
+        private string Line(string key, string fallback)
+        {
+            return TryFindResource(key) as string ?? fallback;
+        }
+
+        private string StatusText()
+        {
+            if (!string.IsNullOrEmpty(_vm.StatusKey))
+                return Line(_vm.StatusKey, _vm.Status);
+            return _vm.Status;
+        }
+
         private void Apply()
         {
             FfmpegPage.Visibility = _vm.Page == 0 ? Visibility.Visible : Visibility.Collapsed;
             ModelPage.Visibility = _vm.Page == 1 ? Visibility.Visible : Visibility.Collapsed;
             ProgressPage.Visibility = _vm.Page == 2 ? Visibility.Visible : Visibility.Collapsed;
-            FfmpegBar.Value = _vm.Percent;
-            ModelBar.Value = _vm.Percent;
-            FfmpegState.Text = _vm.Status;
-            ProgressState.Text = _vm.Status;
-            StatusLine.Text = _vm.Status;
+            CancelButton.Visibility = _vm.Page == 2 ? Visibility.Visible : Visibility.Collapsed;
+            BackButton.Visibility = _vm.Page == 1 ? Visibility.Visible : Visibility.Collapsed;
+            SkipButton.Visibility = _vm.Page == 2 ? Visibility.Collapsed : Visibility.Visible;
+
+            FfmpegPercent.Text = _vm.PercentText;
+            ModelPercent.Text = _vm.PercentText;
+            FfmpegState.Text = StatusText();
+            ProgressState.Text = StatusText();
+            PaintFill(FfmpegTrack, FfmpegFill);
+            PaintFill(ModelTrack, ModelFill);
+
+            FfmpegInstallButton.IsEnabled = !_vm.IsBusy;
+            ModelInstallButton.IsEnabled = !_vm.IsBusy && _vm.SelectedModel != null;
+            SkipButton.IsEnabled = !_vm.IsBusy;
+            BackButton.IsEnabled = !_vm.IsBusy;
 
             if (_vm.Page == 0)
-            {
-                Heading.Text = (string)FindResource("Setup.Ffmpeg");
-                Body.Text = (string)FindResource("Setup.FfmpegNeed");
-                PrimaryButton.Content = FindResource("Setup.DownloadInstall");
-                SecondaryButton.Content = FindResource("Setup.Recheck");
-                SecondaryButton.Visibility = Visibility.Visible;
-                BackButton.Visibility = Visibility.Collapsed;
-                SkipButton.Visibility = Visibility.Visible;
-            }
+                Caption.Text = Line("Setup.Ffmpeg", "FFmpeg");
             else if (_vm.Page == 1)
-            {
-                Heading.Text = (string)FindResource("Setup.LocalModel");
-                Body.Text = (string)FindResource("Setup.LocalModelBody");
-                PrimaryButton.Content = FindResource("Setup.Install");
-                SecondaryButton.Content = FindResource("Setup.License");
-                SecondaryButton.Visibility = Visibility.Visible;
-                BackButton.Visibility = Visibility.Visible;
-                SkipButton.Visibility = Visibility.Visible;
-            }
+                Caption.Text = Line("Setup.LocalModel", "Offline AI model");
             else
             {
-                Heading.Text = (string)FindResource("Setup.LocalModel");
-                Body.Text = _vm.SelectedModel?.Title ?? "";
-                ProgressTitle.Text = _vm.SelectedModel?.Title ?? "";
-                PrimaryButton.Content = FindResource("Setup.Cancel");
-                SecondaryButton.Visibility = Visibility.Collapsed;
-                BackButton.Visibility = Visibility.Collapsed;
-                SkipButton.Visibility = Visibility.Collapsed;
+                Caption.Text = Line("Setup.LocalDownload", "Local model download");
+                var row = _vm.SelectedModel;
+                ProgressTitle.Text = Line("Setup.Installing", "Installing") + " " + (row?.ShortTitle ?? "");
+                ProgressMeta.Text = row == null
+                    ? ""
+                    : $"{row.Entry.SizeMb} MB · {row.Entry.LicenseName} · {Line("Setup.NothingUploaded", "nothing is uploaded.")}";
+                CancelButton.Content = _vm.IsModelBusy
+                    ? FindResource("Setup.Cancel")
+                    : FindResource("Setup.Close");
             }
-
-            PrimaryButton.IsEnabled = !_vm.IsBusy || _vm.Page == 2;
         }
 
-        private void Primary_Click(object sender, RoutedEventArgs e)
+        private void PaintFill(FrameworkElement track, FrameworkElement fill)
         {
-            if (_vm.Page == 0) _vm.InstallFfmpegCommand.Execute(null);
-            else if (_vm.Page == 1) _vm.InstallModelCommand.Execute(null);
-            else _vm.CancelModelCommand.Execute(null);
+            double width = track.ActualWidth;
+            if (width <= 0) width = 360;
+            fill.Width = Math.Max(0, width * _vm.Percent / 100.0);
         }
 
-        private void Secondary_Click(object sender, RoutedEventArgs e)
-        {
-            if (_vm.Page == 0) _vm.RecheckFfmpegCommand.Execute(null);
-            else _vm.OpenLicenseCommand.Execute(null);
-        }
+        private void Track_SizeChanged(object sender, SizeChangedEventArgs e) => Apply();
+
+        private void InstallFfmpeg_Click(object sender, RoutedEventArgs e) => _vm.InstallFfmpegCommand.Execute(null);
+
+        private void Recheck_Click(object sender, RoutedEventArgs e) => _vm.RecheckFfmpegCommand.Execute(null);
+
+        private void InstallModel_Click(object sender, RoutedEventArgs e) => _vm.InstallModelCommand.Execute(null);
+
+        private void License_Click(object sender, RoutedEventArgs e) => _vm.OpenLicenseCommand.Execute(null);
 
         private void Back_Click(object sender, RoutedEventArgs e) => _vm.ShowFfmpegCommand.Execute(null);
 
@@ -152,8 +171,45 @@ namespace ProGlassAutomation.Views.Setup
             else Close();
         }
 
+        private void Cancel_Click(object sender, RoutedEventArgs e)
+        {
+            if (_vm.IsModelBusy) _vm.CancelActive();
+            else Close();
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Escape) return;
+            if (_vm.IsModelBusy) _vm.CancelActive();
+            else Close();
+            e.Handled = true;
+        }
+
+        private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState != MouseButtonState.Pressed || IsInteractive(e.OriginalSource as DependencyObject))
+                return;
+            try { DragMove(); }
+            catch { /* DragMove throws if the button was already released. */ }
+        }
+
+        private static bool IsInteractive(DependencyObject? source)
+        {
+            while (source != null)
+            {
+                if (source is System.Windows.Controls.Button
+                    or System.Windows.Controls.ListBox
+                    or System.Windows.Controls.ListBoxItem)
+                    return true;
+                source = System.Windows.Media.VisualTreeHelper.GetParent(source);
+            }
+            return false;
+        }
+
         protected override void OnClosed(EventArgs e)
         {
+            _vm.PropertyChanged -= OnVmChanged;
+            _vm.CancelActive();
             MarkSeen();
             base.OnClosed(e);
         }

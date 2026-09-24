@@ -2745,9 +2745,16 @@
     <sys:String x:Key="Setup.Close">Close</sys:String>
     <sys:String x:Key="Setup.Recommended">Recommended</sys:String>
     <sys:String x:Key="Setup.Downloading">Downloading the model.</sys:String>
-    <sys:String x:Key="Setup.NothingUploaded">Nothing is uploaded.</sys:String>
+    <sys:String x:Key="Setup.NothingUploaded">nothing is uploaded.</sys:String>
     <sys:String x:Key="Setup.OpenInstaller">Open installer</sys:String>
     <sys:String x:Key="Setup.Ready">Ready</sys:String>
     <sys:String x:Key="Setup.NotInstalled">Not installed</sys:String>
+    <sys:String x:Key="Setup.FfmpegReady">FFmpeg is ready.</sys:String>
+    <sys:String x:Key="Setup.FfmpegMissing">FFmpeg is not installed.</sys:String>
+    <sys:String x:Key="Setup.ModelDone">Installed. Answers from this model stay on this computer.</sys:String>
+    <sys:String x:Key="Setup.ModelFailed">The model did not install. Check disk space and the connection, then try again.</sys:String>
+    <sys:String x:Key="Setup.DownloadCancelled">Download cancelled. No partial file was kept.</sys:String>
+    <sys:String x:Key="Setup.LocalDownload">Local model download</sys:String>
+    <sys:String x:Key="Setup.Installing">Installing</sys:String>
 
 </ResourceDictionary>

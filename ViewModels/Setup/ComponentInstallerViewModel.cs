@@ -22,29 +22,52 @@ using ProGlassAutomation.ViewModels;
 
 namespace ProGlassAutomation.ViewModels.Setup
 {
-    public sealed class SetupModelRow
+    public sealed class SetupModelRow : ViewModelBase
     {
         public SetupModelRow(LocalModelEntry entry, bool recommended)
         {
             Entry = entry;
             IsRecommended = recommended;
+            int cut = entry.Title.IndexOf(" (", StringComparison.Ordinal);
+            ShortTitle = cut > 0 ? entry.Title.Substring(0, cut) : entry.Title;
+            SizeLine = $"{entry.SizeMb} MB · {entry.MinRamGb} GB";
+            Detail = $"{entry.SizeMb} MB · {entry.MinRamGb} GB RAM · {entry.LicenseName}";
         }
 
         public LocalModelEntry Entry { get; }
         public string Id => Entry.Id;
         public string Title => Entry.Title;
-        public string Description => Entry.Description;
+        public string ShortTitle { get; }
+        public string SizeLine { get; }
         public string LicenseUrl => Entry.LicenseUrl;
         public bool IsRecommended { get; }
-        public string Meta =>
-            $"{Entry.SizeMb} MB · {Entry.MinRamGb} GB RAM · {Entry.LicenseName}" +
-            (IsRecommended ? " · Recommended" : "");
+
+        private string _detail = "";
+        public string Detail
+        {
+            get => _detail;
+            private set { _detail = value; OnPropertyChanged(); }
+        }
+
+        private bool _isInstalled;
+        public bool IsInstalled
+        {
+            get => _isInstalled;
+            set { _isInstalled = value; OnPropertyChanged(); }
+        }
+
+        public void ApplyRecommendedLabel(string label)
+        {
+            Detail = $"{Entry.SizeMb} MB · {Entry.MinRamGb} GB RAM · {Entry.LicenseName}" +
+                     (IsRecommended && !string.IsNullOrWhiteSpace(label) ? " · " + label : "");
+        }
     }
 
     public sealed class ComponentInstallerViewModel : ViewModelBase
     {
         private readonly CancellationTokenSource _modelCts = new();
         private CancellationTokenSource? _activeModel;
+        private CancellationTokenSource? _ffmpegCts;
 
         public ComponentInstallerViewModel()
         {
@@ -54,6 +77,7 @@ namespace ProGlassAutomation.ViewModels.Setup
             {
                 Models.Add(new SetupModelRow(entry, entry.Id == recommended.Id));
             }
+            RefreshInstalled();
             SelectedModel = Models.FirstOrDefault(m => m.IsRecommended) ?? Models.FirstOrDefault();
 
             InstallFfmpegCommand = new RelayCommand(async _ => await InstallFfmpegAsync(), _ => !IsBusy);
@@ -102,8 +126,15 @@ namespace ProGlassAutomation.ViewModels.Setup
         public double Percent
         {
             get => _percent;
-            private set { _percent = value; OnPropertyChanged(); }
+            private set
+            {
+                _percent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PercentText));
+            }
         }
+
+        public string PercentText => $"{Math.Round(Percent):0}%";
 
         private string _status = "";
         public string Status
@@ -111,6 +142,23 @@ namespace ProGlassAutomation.ViewModels.Setup
             get => _status;
             private set { _status = value; OnPropertyChanged(); }
         }
+
+        private string _statusKey = "";
+        /// <summary>Language key when the line is a known sentence. Empty when Status is a live download note.</summary>
+        public string StatusKey
+        {
+            get => _statusKey;
+            private set { _statusKey = value; OnPropertyChanged(); }
+        }
+
+        private bool _isComplete;
+        public bool IsComplete
+        {
+            get => _isComplete;
+            private set { _isComplete = value; OnPropertyChanged(); }
+        }
+
+        public bool AnyModelInstalled => Models.Any(m => m.IsInstalled);
 
         private bool _ffmpegReady;
         public bool FfmpegReady
@@ -127,16 +175,37 @@ namespace ProGlassAutomation.ViewModels.Setup
         public ICommand ShowFfmpegCommand { get; }
         public ICommand ShowModelCommand { get; }
 
+        public void RefreshInstalled()
+        {
+            foreach (var row in Models)
+                row.IsInstalled = LocalModelManager.IsInstalled(row.Id, out _);
+        }
+
+        public void ApplyRecommendedLabel(string label)
+        {
+            foreach (var row in Models)
+                row.ApplyRecommendedLabel(label);
+        }
+
+        public void CancelActive()
+        {
+            try { _activeModel?.Cancel(); } catch (ObjectDisposedException) { }
+            try { _ffmpegCts?.Cancel(); } catch (ObjectDisposedException) { }
+        }
+
         public void RefreshFfmpeg()
         {
             FfmpegMp4Composer.InvalidateCache();
             FfmpegReady = FfmpegMp4Composer.Find() != null;
             if (!IsBusy)
-            {
-                Status = FfmpegReady
-                    ? "FFmpeg is ready."
-                    : "FFmpeg is not installed.";
-            }
+                SetStatus(FfmpegReady ? "Setup.FfmpegReady" : "Setup.FfmpegMissing",
+                    FfmpegReady ? "FFmpeg is ready." : "FFmpeg is not installed.");
+        }
+
+        private void SetStatus(string key, string fallback)
+        {
+            StatusKey = key;
+            Status = fallback;
         }
 
         private async Task InstallFfmpegAsync()
@@ -146,12 +215,15 @@ namespace ProGlassAutomation.ViewModels.Setup
             try
             {
                 var result = await FfmpegInstaller.DownloadAndInstallAsync(
-                    progress: msg => RunOnUi(() => Status = msg),
+                    progress: msg => RunOnUi(() =>
+                    {
+                        StatusKey = "";
+                        Status = msg;
+                    }),
                     percent: value => RunOnUi(() => Percent = value));
                 RefreshFfmpeg();
-                Status = result.IsSuccess
-                    ? "FFmpeg is ready."
-                    : result.Error;
+                if (!result.IsSuccess)
+                    SetStatus("", result.Error);
             }
             catch (Exception ex)
             {
@@ -160,6 +232,8 @@ namespace ProGlassAutomation.ViewModels.Setup
             finally
             {
                 IsBusy = false;
+                _ffmpegCts?.Dispose();
+                _ffmpegCts = null;
             }
         }
 
@@ -168,9 +242,10 @@ namespace ProGlassAutomation.ViewModels.Setup
             if (SelectedModel == null) return;
             IsBusy = true;
             IsModelBusy = true;
+            IsComplete = false;
             Percent = 0;
             Page = 2;
-            Status = "Downloading the model.";
+            SetStatus("Setup.Downloading", "Downloading the model.");
             _activeModel?.Dispose();
             _activeModel = CancellationTokenSource.CreateLinkedTokenSource(_modelCts.Token);
             var entry = SelectedModel.Entry;
@@ -184,16 +259,20 @@ namespace ProGlassAutomation.ViewModels.Setup
                 {
                     AgentConfigurationService.SetLocalModel(entry.Id, true);
                     ProGlassAutomation.Agent.Core.AgentHost.Invalidate();
-                    Status = "Installed. Answers from this model stay on this computer.";
+                    RefreshInstalled();
+                    SetStatus("Setup.ModelDone", "Installed. Answers from this model stay on this computer.");
+                    IsComplete = true;
                 }
                 else
                 {
-                    Status = "The model did not install. Check disk space and the connection, then try again.";
+                    SetStatus("Setup.ModelFailed", "The model did not install. Check disk space and the connection, then try again.");
+                    IsComplete = true;
                 }
             }
             catch (OperationCanceledException)
             {
-                Status = "Download cancelled. No partial file was kept.";
+                SetStatus("Setup.DownloadCancelled", "Download cancelled. No partial file was kept.");
+                Page = 1;
             }
             finally
             {
@@ -201,7 +280,6 @@ namespace ProGlassAutomation.ViewModels.Setup
                 IsModelBusy = false;
                 _activeModel?.Dispose();
                 _activeModel = null;
-                Page = 1;
             }
         }
 

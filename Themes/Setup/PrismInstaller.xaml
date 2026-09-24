@@ -21,12 +21,34 @@
     <SolidColorBrush x:Key="Prism.CyanBrush" Color="{StaticResource Prism.CyanColor}"/>
     <SolidColorBrush x:Key="Prism.VioletBrush" Color="{StaticResource Prism.VioletColor}"/>
     <SolidColorBrush x:Key="Prism.WhiteBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="Prism.CanvasBrush" Color="#F3F4F6"/>
+    <SolidColorBrush x:Key="Prism.BadgeBrush" Color="{StaticResource Prism.IndigoColor}"/>
 
     <LinearGradientBrush x:Key="Prism.StageBrush" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="#EDE9FE" Offset="0"/>
         <GradientStop Color="#CFFAFE" Offset="0.55"/>
         <GradientStop Color="#FEF3C7" Offset="1"/>
     </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="Prism.PanelBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#4C1D95" Offset="0"/>
+        <GradientStop Color="#7C3AED" Offset="0.42"/>
+        <GradientStop Color="#22D3EE" Offset="0.72"/>
+        <GradientStop Color="#F59E0B" Offset="1"/>
+    </LinearGradientBrush>
+
+    <RadialGradientBrush x:Key="Prism.BlobCyan" GradientOrigin="0.45,0.4" Center="0.45,0.4" RadiusX="0.55" RadiusY="0.55">
+        <GradientStop Color="#B322D3EE" Offset="0"/>
+        <GradientStop Color="#0022D3EE" Offset="1"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="Prism.BlobViolet" GradientOrigin="0.4,0.45" Center="0.4,0.45" RadiusX="0.6" RadiusY="0.6">
+        <GradientStop Color="#D97C3AED" Offset="0"/>
+        <GradientStop Color="#007C3AED" Offset="1"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="Prism.BlobAmber" GradientOrigin="0.5,0.5" Center="0.5,0.5" RadiusX="0.55" RadiusY="0.55">
+        <GradientStop Color="#A6F59E0B" Offset="0"/>
+        <GradientStop Color="#00F59E0B" Offset="1"/>
+    </RadialGradientBrush>
 
     <LinearGradientBrush x:Key="Prism.BarBrush" StartPoint="0,0" EndPoint="1,0">
         <GradientStop Color="#22D3EE" Offset="0"/>
