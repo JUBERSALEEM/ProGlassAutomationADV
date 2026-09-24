@@ -22,11 +22,11 @@
     <SolidColorBrush x:Key="BorderDefaultBrush" Color="#FFE2DBEF"/>
     <SolidColorBrush x:Key="BorderFocusBrush" Color="#FF6546B5"/>
 
-    <SolidColorBrush x:Key="AccentSoftBrush" Color="#FFEE8F8"/>
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#FFEEE8F8"/>
     <SolidColorBrush x:Key="SuccessSoftBrush" Color="#FFEAF4EF"/>
     <SolidColorBrush x:Key="WarningSoftBrush" Color="#FFFAF2E7"/>
     <SolidColorBrush x:Key="DangerSoftBrush" Color="#FFFBECEF"/>
-    <SolidColorBrush x:Key="InfoSoftBrush" Color="#FFEE8F8"/>
+    <SolidColorBrush x:Key="InfoSoftBrush" Color="#FFEEE8F8"/>
 
     <SolidColorBrush x:Key="SelectionBrush" Color="#336546B5"/>
     <SolidColorBrush x:Key="SelectionForegroundBrush" Color="#FF2C2440"/>
