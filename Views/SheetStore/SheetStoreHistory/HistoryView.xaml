@@ -1,35 +1,50 @@
 <!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/SheetStore/SheetStoreHistory/HistoryView.xaml
-     MODULE: Sheet Store — Inventory Audit History
-     Bento Design System: 1-column full-width transaction ledger (Rule 2),
-     clean filter bar, tabular numerals, standardized button heights.
-═══════════════════════════════════════════════════════════════════════ -->
+     SHEET STORE HISTORY & AUDIT LEDGER — Indigo Studio Bento Redesign
+     Bento filter card, proportional audit table, tabular numerals.
+═══════════════════════════════════════════════════════════════════ -->
 <dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreHistory.HistoryView"
-                            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                            xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-                            xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
-                            Title="{DynamicResource SheetStore.HistoryLOG}"
-                            Width="1100" Height="720"
-                            MinWidth="800" MinHeight="520"
-                            MaxWidth="1400"
-                            SizeToContent="Manual"
-                            ResizeMode="CanResize"
-                            DialogIcon="&#xE81C;"
-                            DialogSubtitle="{DynamicResource SheetStore.ChangeSheetStoreRecordedHere}"
-                            FontFamily="{DynamicResource AppFontFamily}">
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
+             Title="{DynamicResource SheetStore.HistoryLOG}"
+             Width="1140" Height="740"
+             MinWidth="840" MinHeight="520"
+             MaxWidth="1440"
+             SizeToContent="Manual"
+             ResizeMode="CanResize"
+             DialogIcon="&#xE81C;"
+             DialogSubtitle="{DynamicResource SheetStore.ChangeSheetStoreRecordedHere}"
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <Window.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CloseCommand}"/>
     </Window.InputBindings>
 
-    <dialogs:ThemedDialogWindow.Resources>
+    <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <Style x:Key="SheetListBoxItemStyle" TargetType="ListBoxItem">
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Margin" Value="0,0,0,4"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="Focusable" Value="False"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ListBoxItem">
+                            <ContentPresenter/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
-    </dialogs:ThemedDialogWindow.Resources>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -37,17 +52,15 @@
             <RowDefinition Height="*" MinHeight="280"/>
         </Grid.RowDefinitions>
 
-        <!-- ══ 1. FILTER / TOOLBAR BENTO BAR ════════════════════════════ -->
-        <Border Grid.Row="0"
-                Style="{StaticResource Ov.CardCompact}"
-                Margin="0,0,0,10">
+        <!-- ══ BENTO FILTER / TOOLBAR ══════════════════════════════════ -->
+        <Border Grid.Row="0" Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="135"/>
                     <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="135"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="10"/>
@@ -62,13 +75,12 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="0"
                            Text="{DynamicResource Shared.Action}"
-                           Style="{StaticResource Ov.Meta}" Margin="2,0,0,4"/>
+                           Style="{StaticResource Ov.Meta}" Margin="2,0,0,3"/>
                 <ComboBox Grid.Row="1" Grid.Column="0"
                           SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
                           SelectedValuePath="Tag"
                           Style="{StaticResource ModuleListFilterComboStyle}"
-                          Height="34"
-                          HorizontalAlignment="Stretch">
+                          HorizontalAlignment="Stretch" Height="34">
                     <ComboBoxItem Content="{DynamicResource Common.All}" Tag="All"/>
                     <ComboBoxItem Content="{DynamicResource ProformaInvoice.Added}" Tag="Added"/>
                     <ComboBoxItem Content="{DynamicResource SheetStore.Edited}" Tag="Edited"/>
@@ -80,25 +92,23 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="2"
                            Text="{DynamicResource Common.FromDate}"
-                           Style="{StaticResource Ov.Meta}" Margin="2,0,0,4"/>
+                           Style="{StaticResource Ov.Meta}" Margin="2,0,0,3"/>
                 <DatePicker Grid.Row="1" Grid.Column="2"
                             SelectedDate="{Binding FromDate, Mode=TwoWay}"
                             Style="{StaticResource ModuleListFilterDatePickerStyle}"
-                            Height="34"
-                            HorizontalAlignment="Stretch"/>
+                            HorizontalAlignment="Stretch" Height="34"/>
 
                 <TextBlock Grid.Row="0" Grid.Column="4"
                            Text="{DynamicResource Common.ToDate}"
-                           Style="{StaticResource Ov.Meta}" Margin="2,0,0,4"/>
+                           Style="{StaticResource Ov.Meta}" Margin="2,0,0,3"/>
                 <DatePicker Grid.Row="1" Grid.Column="4"
                             SelectedDate="{Binding ToDate, Mode=TwoWay}"
                             Style="{StaticResource ModuleListFilterDatePickerStyle}"
-                            Height="34"
-                            HorizontalAlignment="Stretch"/>
+                            HorizontalAlignment="Stretch" Height="34"/>
 
                 <Button Grid.Row="1" Grid.Column="6"
                         Style="{StaticResource OutlinedPillButton}"
-                        Height="34" Padding="12,0"
+                        Height="34"
                         VerticalAlignment="Bottom"
                         Tag="&#xE711;" Content="{DynamicResource SheetStore.ClearDates}"
                         ToolTip="{DynamicResource SheetStore.ClearDateFilter}"
@@ -107,7 +117,7 @@
 
                 <Button Grid.Row="1" Grid.Column="8"
                         Style="{StaticResource PrimaryPillButton}"
-                        Height="34" Padding="14,0"
+                        Height="34"
                         VerticalAlignment="Bottom"
                         Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
                         ToolTip="{DynamicResource SheetStore.ReloadHistory}"
@@ -115,7 +125,7 @@
 
                 <TextBlock Grid.Row="0" Grid.Column="10"
                            Text="{DynamicResource Action.Search}"
-                           Style="{StaticResource Ov.Meta}" Margin="2,0,0,4"/>
+                           Style="{StaticResource Ov.Meta}" Margin="2,0,0,3"/>
                 <TextBox Grid.Row="1" Grid.Column="10"
                          behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
                          Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
@@ -125,56 +135,60 @@
             </Grid>
         </Border>
 
-        <!-- ══ 2. RESULTS TABLE BENTO CARD ═════════════════════════════ -->
-        <Border Grid.Row="1"
-                Style="{StaticResource Ov.CardCompact}"
-                Padding="0"
-                MinHeight="280">
+        <!-- ══ BENTO RESULTS TABLE ═════════════════════════════════════ -->
+        <Border Grid.Row="1" Style="{StaticResource Ov.Card}" Padding="0" MinHeight="280">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*" MinHeight="240"/>
                 </Grid.RowDefinitions>
 
-                <!-- Column Header -->
-                <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}" Padding="12,10">
+                <!-- Column Headers -->
+                <Border Grid.Row="0"
+                        Background="{DynamicResource AccentBrush}"
+                        CornerRadius="{DynamicResource Radius.Top.Medium}"
+                        Padding="14,9"
+                        SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="92"/>
-                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="86"/>
+                            <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="1.6*"/>
-                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="2.2*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="64"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="110"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="118"/>
-                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="65"/>
+                            <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="90"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{DynamicResource Shared.Action}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="{DynamicResource SheetStore.SheetDetails}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="{DynamicResource Shared.Details}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="6" Text="{DynamicResource Common.Qty}" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="8" Text="{DynamicResource SystemCenter.USER}" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="10" Text="{DynamicResource Shared.DATETIME}" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="12" Text=" " Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="0" Text="{DynamicResource Shared.Action}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="2" Text="{DynamicResource SheetStore.SheetDetails}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="4" Text="{DynamicResource Shared.Details}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="6" Text="{DynamicResource Common.Qty}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="8" Text="{DynamicResource SystemCenter.USER}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        <TextBlock Grid.Column="10" Text="{DynamicResource Shared.DATETIME}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="12" Text="" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
-                <!-- Virtualized Rows -->
+                <!-- Virtualized History Rows -->
                 <ListBox Grid.Row="1"
-                         ItemsSource="{Binding FilteredHistory}"
+                         ItemsSource="{Binding Entries}"
+                         ItemContainerStyle="{StaticResource SheetListBoxItemStyle}"
                          Background="Transparent"
                          BorderThickness="0"
-                         Padding="6,4"
+                         Padding="8,6"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
+                         ScrollViewer.CanContentScroll="False"
                          VirtualizingStackPanel.IsVirtualizing="True"
                          VirtualizingStackPanel.VirtualizationMode="Recycling"
+                         VirtualizingStackPanel.ScrollUnit="Pixel"
+                         behaviors:SmoothScrollBehavior.IsEnabled="True"
                          Visibility="{Binding HasEntries, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -183,30 +197,31 @@
                     </ListBox.ItemsPanel>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource ModuleListRowStyle}" Padding="10,6">
+                            <Border CornerRadius="8" Padding="10,6" Margin="0,0,0,4"
+                                    Background="{DynamicResource Ov.Surface}"
+                                    BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1"
+                                    SnapsToDevicePixels="True">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="92"/>
-                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="86"/>
+                                        <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="1.6*"/>
-                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="2.2*"/>
-                                        <ColumnDefinition Width="12"/>
-                                        <ColumnDefinition Width="64"/>
-                                        <ColumnDefinition Width="12"/>
-                                        <ColumnDefinition Width="110"/>
-                                        <ColumnDefinition Width="12"/>
-                                        <ColumnDefinition Width="118"/>
-                                        <ColumnDefinition Width="12"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="65"/>
+                                        <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="10"/>
+                                        <ColumnDefinition Width="90"/>
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Action Badge -->
-                                    <Border Grid.Column="0"
-                                            CornerRadius="6"
-                                            Padding="8,3"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Left">
+                                    <Border Grid.Column="0" CornerRadius="6" Padding="6,2"
+                                            VerticalAlignment="Center" HorizontalAlignment="Left">
                                         <Border.Background>
                                             <SolidColorBrush Color="{Binding ActionColor, Converter={StaticResource ColorStringConverter}}"/>
                                         </Border.Background>
@@ -216,6 +231,7 @@
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                     </Border>
 
+                                    <!-- Sheet Description -->
                                     <TextBlock Grid.Column="2"
                                                Text="{Binding SheetDescription}"
                                                FontSize="{DynamicResource FontSize.Body}"
@@ -225,58 +241,60 @@
                                                VerticalAlignment="Center"
                                                ToolTip="{Binding SheetDescription}"/>
 
+                                    <!-- Details & Reversed Badge -->
                                     <StackPanel Grid.Column="4" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Details}"
                                                    FontSize="{DynamicResource FontSize.Body}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"
                                                    ToolTip="{Binding Details}"/>
-                                        <Border Margin="0,4,0,0" Padding="7,1"
-                                                HorizontalAlignment="Left"
-                                                CornerRadius="4"
+                                        <Border Margin="0,3,0,0" Padding="6,1"
+                                                HorizontalAlignment="Left" CornerRadius="4"
                                                 Background="{DynamicResource Ov.WarningSoft}"
                                                 Visibility="{Binding IsReversed, Converter={StaticResource BoolToVisibilityConverter}}">
                                             <TextBlock Text="{DynamicResource SheetStore.ReversedBadge}"
-                                                       FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource Ov.Warning}"/>
+                                                       FontSize="10" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource WarningBrush}"/>
                                         </Border>
                                     </StackPanel>
 
+                                    <!-- Quantity Changed -->
                                     <TextBlock Grid.Column="6"
                                                Text="{Binding QuantityChanged, StringFormat=N0}"
                                                FontSize="{DynamicResource FontSize.Body}"
-                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
                                                HorizontalAlignment="Right"
                                                VerticalAlignment="Center"
                                                Typography.NumeralAlignment="Tabular"
                                                Foreground="{DynamicResource TextPrimaryBrush}"/>
 
+                                    <!-- User Name -->
                                     <TextBlock Grid.Column="8"
                                                Text="{Binding UserName}"
-                                               FontSize="{DynamicResource FontSize.Body}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
                                                TextTrimming="CharacterEllipsis"
                                                VerticalAlignment="Center"
                                                Foreground="{DynamicResource TextSecondaryBrush}"
                                                ToolTip="{Binding UserName}"/>
 
+                                    <!-- Date & Time -->
                                     <StackPanel Grid.Column="10" HorizontalAlignment="Right" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DateDisplay}"
-                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
                                                    FontWeight="{DynamicResource Weight.SemiBold}"
                                                    HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         <TextBlock Text="{Binding TimeDisplay}"
-                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   FontSize="10"
                                                    HorizontalAlignment="Right"
-                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
                                     </StackPanel>
 
+                                    <!-- Undo Movement Button -->
                                     <Button Grid.Column="12"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Center"
+                                            HorizontalAlignment="Right" VerticalAlignment="Center"
                                             Style="{StaticResource RowOutlinedButton}"
-                                            Height="30" Padding="8,0"
+                                            Height="28" MinWidth="76"
                                             Tag="&#xE7A7;"
                                             Content="{DynamicResource SheetStore.UndoMovement}"
                                             Command="{Binding DataContext.UndoMovementCommand, RelativeSource={RelativeSource AncestorType=Window}}"
@@ -292,12 +310,12 @@
         </Border>
     </Grid>
 
-    <!-- Standardized Footer -->
     <dialogs:ThemedDialogWindow.FooterContent>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
             <TextBlock VerticalAlignment="Center"
                        Margin="0,0,16,0"
-                       Style="{StaticResource Ov.Meta}">
+                       FontSize="{DynamicResource FontSize.Body}"
+                       Foreground="{DynamicResource TextSecondaryBrush}">
                 <TextBlock.Inlines>
                     <Run Text="{Binding TotalEntries, Mode=OneWay}"/>
                     <Run Text=" "/>
@@ -305,7 +323,7 @@
                 </TextBlock.Inlines>
             </TextBlock>
             <Button Style="{StaticResource OutlinedPillButton}"
-                    Height="36" Padding="18,0"
+                    Height="36"
                     Tag="&#xE711;" Content="{DynamicResource Action.Close}"
                     ToolTip="{DynamicResource SheetStore.CloseHistory}"
                     Command="{Binding CloseCommand}"/>

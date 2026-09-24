@@ -1,7 +1,7 @@
 <!-- ═══════════════════════════════════════════════════════════════
-     SHEET STORE — Add / Edit Glass Sheet Dialog
-     Bento Design System: Compact structured fieldsets, standardized
-     36px button rhythm, zero concentric cards, full token alignment.
+     ADD / EDIT GLASS SHEET — Indigo Studio Bento Redesign
+     Bento fieldset cards, standardized 36px buttons, tabular inputs,
+     and keyboard shortcuts (Enter -> Save, Esc -> Cancel).
 ═══════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.SheetStore.AddEditSheetView"
         TextOptions.TextHintingMode="Fixed"
@@ -9,7 +9,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         Title="{Binding DialogTitle}"
-        Width="660"
+        Width="680"
         MinWidth="600"
         Height="740"
         MinHeight="640"
@@ -39,38 +39,48 @@
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/> <!-- Header -->
-            <RowDefinition Height="*"/>    <!-- Bento Form ScrollViewer -->
-            <RowDefinition Height="Auto"/> <!-- Error banner -->
-            <RowDefinition Height="Auto"/> <!-- Buttons -->
+            <RowDefinition Height="*"/>    <!-- Bento Form -->
+            <RowDefinition Height="Auto"/> <!-- Error Banner -->
+            <RowDefinition Height="Auto"/> <!-- Action Buttons -->
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,16">
-            <Border Style="{StaticResource Ov.IconBox}" Margin="0,0,14,0" VerticalAlignment="Center">
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Ov.IconBox}" Grid.Column="0" Margin="0,0,12,0">
                 <TextBlock Text="&#xE7B8;" Style="{StaticResource Ov.Glyph}"/>
             </Border>
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="{Binding DialogTitle}" Style="{StaticResource Ov.CardTitle}"/>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding DialogTitle}"
+                           Style="{StaticResource Ov.CardTitle}" FontSize="20"/>
                 <TextBlock Text="{DynamicResource SheetStore.EnterGlassSheetInventoryDetails}"
                            Style="{StaticResource Ov.Meta}" Margin="0,2,0,0"/>
             </StackPanel>
-        </DockPanel>
+        </Grid>
 
-        <!-- Bento Form -->
+        <!-- Form Cards (smooth scroll) -->
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       CanContentScroll="False"
+                      IsDeferredScrollingEnabled="False"
                       PanningMode="None"
-                      Focusable="False"
+                      Focusable="True"
+                      FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel>
-                <!-- Bento Fieldset 1: Physical Specification -->
-                <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,14">
+                <!-- Card 1: Glass Identity & Dimensions -->
+                <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
                     <StackPanel>
-                        <TextBlock Text="GLASS SPECIFICATION" Style="{StaticResource Ov.Meta}"
-                                   FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
+                        <TextBlock Text="SPECIFICATIONS &amp; DIMENSIONS"
+                                   Style="{StaticResource Ov.Meta}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,10"/>
 
                         <!-- Category -->
                         <TextBlock Text="{DynamicResource SheetStore.Category}" Style="{StaticResource Field.Label}"/>
@@ -81,10 +91,10 @@
                                   IsEditable="True"
                                   IsTextSearchEnabled="True"
                                   behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"
-                                  Margin="0,0,0,12"/>
+                                  Margin="0,0,0,10"/>
 
-                        <!-- Thickness & Color -->
-                        <Grid Margin="0,0,0,12">
+                        <!-- Thickness & Color (2 cols) -->
+                        <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="12"/>
@@ -110,8 +120,8 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- Width & Height -->
-                        <Grid Margin="0,0,0,12">
+                        <!-- Width & Height (2 cols) -->
+                        <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="12"/>
@@ -148,14 +158,17 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Bento Fieldset 2: Pricing & Stock Inventory -->
+                <!-- Card 2: Pricing & Stock Valuation -->
                 <Border Style="{StaticResource Ov.CardCompact}">
                     <StackPanel>
-                        <TextBlock Text="PRICING &amp; WAREHOUSE STOCK" Style="{StaticResource Ov.Meta}"
-                                   FontWeight="{DynamicResource Weight.Bold}" Margin="0,0,0,12"/>
+                        <TextBlock Text="COMMERCIAL PRICING &amp; OPENING STOCK"
+                                   Style="{StaticResource Ov.Meta}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,10"/>
 
-                        <!-- Purchase & Sell Rates -->
-                        <Grid Margin="0,0,0,12">
+                        <!-- Purchase & Sell Rates (2 cols) -->
+                        <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="12"/>
@@ -175,7 +188,7 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- Opening Stock Quantity -->
+                        <!-- Opening Stock -->
                         <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource Field.Label}"/>
                         <TextBox Style="{StaticResource Input.TextBox}"
                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
@@ -185,44 +198,45 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Error Message Banner -->
+        <!-- Error Banner -->
         <Border Grid.Row="2"
                 Background="{DynamicResource Ov.DangerSoft}"
-                BorderBrush="{DynamicResource Ov.Danger}"
+                BorderBrush="{DynamicResource DangerBrush}"
                 BorderThickness="1"
                 CornerRadius="8"
-                Padding="14,10"
+                Padding="12,10"
                 Margin="0,12,0,0"
                 SnapsToDevicePixels="True"
                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
-                           FontSize="{DynamicResource FontSize.H3}"
-                           Foreground="{DynamicResource Ov.Danger}"
+                           FontSize="16"
+                           FontWeight="{DynamicResource Weight.Bold}"
+                           Foreground="{DynamicResource DangerBrush}"
                            VerticalAlignment="Center"
                            Margin="0,0,10,0"/>
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="{DynamicResource Ov.Danger}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           Foreground="{DynamicResource DangerBrush}"
+                           FontSize="{DynamicResource FontSize.Body}"
                            FontWeight="{DynamicResource Weight.SemiBold}"
                            TextWrapping="Wrap"
                            VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
 
-        <!-- Standardized 36px Action Buttons -->
+        <!-- Action Buttons -->
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Margin="0,16,0,0">
             <Button Style="{StaticResource OutlinedPillButton}"
-                    Height="36" Padding="18,0"
+                    Height="36"
                     Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
-                    Margin="0,0,12,0"
+                    Margin="0,0,10,0"
                     ToolTip="{DynamicResource SheetStore.DiscardChangesClose}"
                     Command="{Binding CancelCommand}"/>
             <Button Style="{StaticResource PrimaryPillButton}"
-                    Height="36" Padding="20,0"
+                    Height="36"
                     Tag="&#xE74E;" Content="{Binding SaveButtonText}"
                     ToolTip="{DynamicResource SheetStore.SaveSheet}"
                     Command="{Binding SaveCommand}"

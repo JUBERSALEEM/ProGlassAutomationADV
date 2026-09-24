@@ -195,6 +195,7 @@
     <Thickness x:Key="SettingsInset4">4</Thickness>
     <Thickness x:Key="SettingsInset2">2</Thickness>
     <Thickness x:Key="SettingsStackGap2">0,2,0,0</Thickness>
+    <Thickness x:Key="SettingsStackTop2">0,2,0,0</Thickness>
     <Thickness x:Key="SettingsStackBottom4">0,0,0,4</Thickness>
     <Thickness x:Key="SettingsStackGap4Bottom2">0,4,0,2</Thickness>
     <Thickness x:Key="SettingsDockTextMargin">2,4,2,2</Thickness>
