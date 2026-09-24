@@ -52,12 +52,12 @@
     <Style x:Key="MasterHeroStripStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Ov.Hero}"/>
         <Setter Property="CornerRadius" Value="18,18,0,0"/>
-        <Setter Property="Padding" Value="20,16"/>
+        <Setter Property="Padding" Value="16,10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="SpecGroupCardStyle" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
-        <Setter Property="Margin" Value="0,0,0,16"/>
+        <Setter Property="Margin" Value="0,0,0,10"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="ClipToBounds" Value="True"/>
     </Style>
@@ -66,7 +66,7 @@
         <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Padding" Value="20,14"/>
+        <Setter Property="Padding" Value="16,10"/>
         <Setter Property="CornerRadius" Value="18,18,0,0"/>
     </Style>
 

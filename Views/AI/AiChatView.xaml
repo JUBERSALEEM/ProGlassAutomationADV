@@ -165,7 +165,7 @@
                 <Border x:Name="ChatHeader"
                         Grid.Row="0"
                         CornerRadius="{DynamicResource Radius.Top.Medium}"
-                        Padding="16,12"
+                        Padding="16,8"
                         Background="{DynamicResource ChatBrand}"
                         Cursor="SizeAll"
                         SnapsToDevicePixels="True"

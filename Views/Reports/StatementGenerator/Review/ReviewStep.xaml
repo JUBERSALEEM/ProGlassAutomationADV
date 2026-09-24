@@ -64,31 +64,31 @@
                   HorizontalScrollBarVisibility="Disabled"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-        <Grid Margin="32,24,32,32">
+        <Grid Margin="20,12,20,16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <!-- Step title -->
                 <RowDefinition Height="Auto"/>
                 <!-- Success banner -->
-                <RowDefinition Height="20"/>
+                <RowDefinition Height="14"/>
                 <RowDefinition Height="Auto"/>
                 <!-- Financial KPI strip -->
-                <RowDefinition Height="16"/>
+                <RowDefinition Height="12"/>
                 <RowDefinition Height="Auto"/>
                 <!-- Aging analysis -->
-                <RowDefinition Height="16"/>
+                <RowDefinition Height="12"/>
                 <RowDefinition Height="Auto"/>
                 <!-- Per-PI reconciliation -->
-                <RowDefinition Height="16"/>
+                <RowDefinition Height="12"/>
                 <RowDefinition Height="Auto"/>
                 <!-- 2-column: PDF card + Section browser -->
-                <RowDefinition Height="16"/>
+                <RowDefinition Height="12"/>
                 <RowDefinition Height="Auto"/>
                 <!-- Statistics footer -->
             </Grid.RowDefinitions>
 
             <!-- ═══ STEP TITLE ═══ -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <StackPanel Grid.Row="0" Margin="0,0,0,10">
                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.StatementReady}"
                           />
                 <TextBlock Text="{DynamicResource Reports.StatementGenerator.MergedPDFReportGeneratedDownloadReview}"
@@ -98,7 +98,7 @@
             <!-- ═══ SUCCESS/WARNING BANNER ═══ -->
             <Border Grid.Row="1"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="24,20"
+                    Padding="20,12"
                     BorderThickness="{DynamicResource CardBorderThickness}">
                 <Border.Style>
                     <Style TargetType="Border">

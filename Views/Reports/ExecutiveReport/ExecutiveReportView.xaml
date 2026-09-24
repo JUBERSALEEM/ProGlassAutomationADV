@@ -26,16 +26,13 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="16,16,16,12">
+        <Grid Grid.Row="0" Margin="16,6,16,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="Executive Summary" Style="{StaticResource Sl.Title}"/>
-                <TextBlock Text="The order-to-cash funnel — Proforma → Job Order → Delivery → Tax Invoice → Paid — with the conversion rates that localise where work gets stuck." Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,4,0,0"/>
-            </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
+            <StackPanel Grid.Column="0" Visibility="Collapsed"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <StackPanel Style="{StaticResource Field.Panel}" Margin="0,0,8,0">
                     <TextBlock Text="From" Style="{StaticResource Field.Label}"/>
                     <DatePicker Width="130" SelectedDate="{Binding DateFrom, Mode=TwoWay}"
@@ -51,7 +48,7 @@
             </StackPanel>
         </Grid>
 
-        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,0,16,14">
+        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,6,16,14">
             <Grid>
                 <loading:LoadingStateControl Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Building the executive view…"/>
                 <emptyState:EmptyStateControl Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No activity in this period" Message="The funnel is built from proformas, job orders, deliveries and tax invoices. Adjust the date range or create documents to populate it." Icon="&#xE9D2;"/>

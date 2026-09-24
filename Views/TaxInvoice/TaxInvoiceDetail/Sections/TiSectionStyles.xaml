@@ -69,15 +69,15 @@
     </Style>
 
     <Style x:Key="SectionHeaderStyle" TargetType="Border" BasedOn="{StaticResource Ov.CardCompact}">
-        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Padding" Value="16,8"/>
         <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
     </Style>
 
     <Style x:Key="MasterHeroStripStyle" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
-        <Setter Property="Padding" Value="16,14"/>
-        <Setter Property="Margin" Value="0,0,0,14"/>
+        <Setter Property="Padding" Value="16,10"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
