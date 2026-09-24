@@ -351,6 +351,7 @@
          SECTION 10 — BORDER & OUTLINE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource BorderColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="DividerBrush" Color="#243244" po:Freeze="True"/>
     <SolidColorBrush x:Key="OutlineBrush" Color="#334155" po:Freeze="True"/>
     <SolidColorBrush x:Key="OutlineDefaultBrush" Color="#334155" po:Freeze="True"/>
@@ -742,6 +743,8 @@
     <SolidColorBrush x:Key="Ios26AccentSoftBrush"         Color="#FF12324A" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26AccentSoftTextBrush"     Color="#FF7DD3FC" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26SuccessBrush"            Color="#FF34D399" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26WarningBrush"            Color="#FFFBBF24" po:Freeze="True"/>
+    <SolidColorBrush x:Key="Ios26TileBadgeBrush"          Color="#FF12324A" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26SuccessSoftBrush"        Color="#FF123524" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26ValuePillBrush"          Color="#FF262A34" po:Freeze="True"/>
     <SolidColorBrush x:Key="Ios26SearchBrush"             Color="#FF20232B" po:Freeze="True"/>

@@ -42,7 +42,7 @@
                 </Border>
                 <ControlTemplate.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter TargetName="Card" Property="Background" Value="{DynamicResource Ov.AccentSoftBorder}"/>
+                        <Setter TargetName="Card" Property="Background" Value="{DynamicResource Ov.OnAccentMuted}"/>
                         <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
                     </Trigger>
                     <Trigger Property="IsPressed" Value="True">

@@ -141,6 +141,9 @@ Write-Host "> Publishing self-contained win-x64 (Release.pubxml)..." -Foreground
 if (Test-Path $PublishDir) { Remove-Item -Recurse -Force $PublishDir }
 & dotnet publish "$RepoRoot/ProGlassAutomation.csproj" -c Release -r win-x64 --self-contained true -p:PublishProfile=Release -o $PublishDir -p:Version=$Version
 if ($LASTEXITCODE -ne 0) { exit 3 }
+# Engineering evidence must never ride along in a customer pack.
+$leaked = Join-Path $PublishDir "PRODUCTION_READINESS"
+if (Test-Path $leaked) { Remove-Item -Recurse -Force $leaked }
 
 # -- 5. Velopack pack ----------------------------------------------
 Write-Host "> Running vpk pack..." -ForegroundColor Yellow

@@ -248,7 +248,7 @@
                                                                     <Grid Margin="{StaticResource SettingsInset4}">
                                                                         <Border HorizontalAlignment="Right"
                                                                                 VerticalAlignment="Top"
-                                                                                Background="{DynamicResource SurfaceGlassOverlayBrush}"
+                                                                                Background="{DynamicResource LiquidOverlayBrush}"
                                                                                 CornerRadius="{DynamicResource Radius.XSmall}"
                                                                                 Padding="5,2">
                                                                             <TextBlock Text="Scene"

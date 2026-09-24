@@ -142,7 +142,7 @@
                     reads the same DocumentStyle the export cannot drift.
                 -->
                 <Border DockPanel.Dock="Top"
-                        Background="{DynamicResource SurfaceBrush}"
+                        Background="{DynamicResource SurfacePrimaryBrush}"
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource ControlCornerRadius}"

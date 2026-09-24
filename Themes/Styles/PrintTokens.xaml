@@ -12,7 +12,8 @@
      ═══════════════════════════════════════════════════════════════════ -->
 
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime">
 
     <SolidColorBrush x:Key="PrintSurfaceBrush" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="PrintSurfaceMutedBrush" Color="#FFF8FAFC"/>
@@ -33,5 +34,46 @@
     <Style x:Key="ProGlassPrint.Card" TargetType="Border" BasedOn="{StaticResource ProGlassPrint.Surface}">
         <Setter Property="Padding" Value="12"/>
     </Style>
+
+    <!-- Keys the printable invoice actually requests. Missing keys left
+         the paper transparent, unpadded, and at the default font. -->
+    <SolidColorBrush x:Key="Print.Paper" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Print.Surface" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Print.SurfaceAlt" Color="#FFF8FAFC"/>
+    <SolidColorBrush x:Key="Print.TableAlt" Color="#FFF1F5F9"/>
+    <SolidColorBrush x:Key="Print.TableHeader" Color="#FFE2E8F0"/>
+    <SolidColorBrush x:Key="Print.Text" Color="#FF0F172A"/>
+    <SolidColorBrush x:Key="Print.Muted" Color="#FF475569"/>
+    <SolidColorBrush x:Key="Print.Accent" Color="#FF1E3A5F"/>
+    <SolidColorBrush x:Key="Print.AccentOn" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Print.AccentSoft" Color="#FF334155"/>
+    <SolidColorBrush x:Key="Print.OnAccentMuted" Color="#FFE2E8F0"/>
+    <SolidColorBrush x:Key="Print.Border" Color="#FFCBD5E1"/>
+    <SolidColorBrush x:Key="Print.BorderStrong" Color="#FF64748B"/>
+    <SolidColorBrush x:Key="Print.Highlight" Color="#FF1E3A5F"/>
+    <SolidColorBrush x:Key="Print.Success" Color="#FF166534"/>
+
+    <sys:Double x:Key="Print.Font.Title">18</sys:Double>
+    <sys:Double x:Key="Print.Font.Section">13</sys:Double>
+    <sys:Double x:Key="Print.Font.Group">11</sys:Double>
+    <sys:Double x:Key="Print.Font.MetaValue">10</sys:Double>
+    <sys:Double x:Key="Print.Font.Kicker">9</sys:Double>
+    <sys:Double x:Key="Print.Font.DocumentId">12</sys:Double>
+    <sys:Double x:Key="Print.Font.GrandValue">16</sys:Double>
+
+    <Thickness x:Key="Print.Thickness.PageMargin">28</Thickness>
+    <Thickness x:Key="Print.Thickness.Card">12</Thickness>
+    <Thickness x:Key="Print.Thickness.Group">8</Thickness>
+    <Thickness x:Key="Print.Thickness.Cell">4,2</Thickness>
+    <Thickness x:Key="Print.Thickness.LogoChip">6</Thickness>
+
+    <Thickness x:Key="Print.Margin.SectionAbove">0,16,0,0</Thickness>
+    <Thickness x:Key="Print.Margin.SectionBelow">0,0,0,12</Thickness>
+    <Thickness x:Key="Print.Margin.BlockAbove">0,10,0,0</Thickness>
+    <Thickness x:Key="Print.Margin.BlockBelow">0,0,0,8</Thickness>
+    <Thickness x:Key="Print.Margin.RowBelow">0,0,0,4</Thickness>
+    <Thickness x:Key="Print.Margin.StackBelow">0,0,0,6</Thickness>
+    <Thickness x:Key="Print.Margin.LabelRightBelow">0,0,8,2</Thickness>
+    <Thickness x:Key="Print.Margin.LogoRight">0,0,12,0</Thickness>
 
 </ResourceDictionary>

@@ -1,0 +1,1 @@
+Feature completeness was not click-tested. Modules exist for Sheet Store, Inquiry, Proforma (steps 1–9), Job Order, Delivery Note, Tax Invoice, Statements, Reports, Production, Optimization, Settings, and AI. Status: UNVERIFIED.

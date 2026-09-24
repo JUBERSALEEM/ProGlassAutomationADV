@@ -45,7 +45,7 @@
                                     <DataTemplate>
                                         <Border Margin="{StaticResource SettingsStackBottom8}"
                                                 Padding="{StaticResource SettingsTilePadding}"
-                                                Background="{DynamicResource SurfaceBrush}"
+                                                Background="{DynamicResource SurfacePrimaryBrush}"
                                                 BorderBrush="{DynamicResource BorderBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}">
