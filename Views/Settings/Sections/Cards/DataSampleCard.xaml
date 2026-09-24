@@ -43,19 +43,25 @@
                            Text="{DynamicResource Settings.6Sheets3Proformas2JobOrders2DeliveryNotes3}"/>
 
                 <!-- Compact action buttons side by side -->
-                <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
-                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                <Grid Margin="{StaticResource SettingsStackGap10}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Style="{StaticResource SettingsActionButtonStyle}"
+                            Height="36" Margin="0"
                             Content="{DynamicResource Settings.LOADSampleDATA}"
                             Command="{Binding LoadSampleDataCommand}"
                             HorizontalAlignment="Stretch"
                             ToolTip="{DynamicResource Settings.SeedDemoDatasetEmptyDatabase}"/>
-                    <Button Style="{StaticResource SettingsActionButtonStyle}"
+                    <Button Grid.Column="2" Style="{StaticResource DangerButton}"
+                            Height="36" Margin="0"
                             Content="{DynamicResource Settings.ClearDATA}"
                             Command="{Binding ClearAllDataCommand}"
                             HorizontalAlignment="Stretch"
-                            Margin="0"
                             ToolTip="{DynamicResource Settings.PermanentlyDeleteRecordModulesEGAfterTesting}"/>
-                </UniformGrid>
+                </Grid>
 
                 <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                            Margin="{StaticResource SettingsStackGap6}"

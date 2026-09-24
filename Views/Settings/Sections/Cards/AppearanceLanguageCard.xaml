@@ -2,7 +2,8 @@
      FILE: Views/Settings/Sections/Cards/AppearanceLanguageCard.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v3 — Appearance: Language, Currency & Localization
-     Redesigned to Studio Bento with clean non-nested surfaces and proper type ladder.
+     Redesigned to compact Bento Studio layout matching AppearanceThemeLayoutCard
+     with zero blank space and balanced visual rhythm.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.Cards.AppearanceLanguageCard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -19,7 +20,8 @@
 
     <Border Style="{StaticResource SettingsCompactCardStyle}">
         <StackPanel>
-            <Grid>
+            <!-- ── CARD HEADER ── -->
+            <Grid Margin="{StaticResource SettingsStackBottom8}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -35,127 +37,158 @@
                 </StackPanel>
             </Grid>
 
-            <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
+            <!-- ── SECTION 1: REGIONAL STANDARDS (3-COLUMN BENTO) ── -->
+            <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="10,8">
+                <StackPanel>
+                    <Grid Margin="{StaticResource SettingsStackBottom4}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <StackPanel Grid.Column="1" Margin="{StaticResource SettingsInlineGap6}">
+                            <TextBlock Text="Regional Standards" Style="{StaticResource SettingsRowTitleStyle}"/>
+                            <TextBlock Text="System language, accounting currency symbol, and dialing code"
+                                       Style="{StaticResource SettingsRowMetaStyle}"/>
+                        </StackPanel>
+                    </Grid>
 
-                <!-- Language (15 shipped, live switch, en-US primary) -->
-                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;" VerticalAlignment="Center"/>
-                        <TextBlock Text="{DynamicResource Settings.LblLanguage}"
-                                   Style="{StaticResource SettingsRowTitleStyle}"
-                                   Margin="{StaticResource SettingsIconTextMargin}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock Text="{DynamicResource Settings.HintLanguage}"
-                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                    <ComboBox AutomationProperties.AutomationId="Settings.Language"
-                              ItemsSource="{Binding Languages}"
-                              SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
-                              DisplayMemberPath="DisplayName"
-                              MinWidth="180" Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource ComboBoxStyle}"/>
+                    <Grid Margin="{StaticResource SettingsStackTop4}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Language -->
+                        <Border Grid.Column="0" Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Settings.LblLanguage}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Settings.HintLanguage}" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                <ComboBox AutomationProperties.AutomationId="Settings.Language"
+                                          ItemsSource="{Binding Languages}"
+                                          SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
+                                          DisplayMemberPath="DisplayName"
+                                          Height="32" Padding="8,5"
+                                          Margin="{StaticResource SettingsStackTop4}"
+                                          Style="{StaticResource ComboBoxStyle}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Currency -->
+                        <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Settings.LblCurrency}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Settings.HintCurrency}" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                <ComboBox AutomationProperties.AutomationId="Settings.Currency"
+                                          ItemsSource="{Binding Currencies}"
+                                          SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
+                                          DisplayMemberPath="DisplayName"
+                                          Height="32" Padding="8,5"
+                                          Margin="{StaticResource SettingsStackTop4}"
+                                          Style="{StaticResource ComboBoxStyle}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Phone Country -->
+                        <Border Grid.Column="4" Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                CornerRadius="{DynamicResource Radius.Small}" Padding="8,6">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource Settings.LblPhoneCountry}"
+                                           FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Settings.HintPhoneCountry}" Style="{StaticResource SettingsRowMetaStyle}"/>
+                                <ComboBox AutomationProperties.AutomationId="Settings.PhoneCountry"
+                                          ItemsSource="{Binding PhoneCountries}"
+                                          SelectedItem="{Binding PhoneCountry, Mode=TwoWay}"
+                                          DisplayMemberPath="DisplayName"
+                                          Height="32" Padding="8,5"
+                                          Margin="{StaticResource SettingsStackTop4}"
+                                          Style="{StaticResource ComboBoxStyle}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsRowSeparatorStyle}" Margin="{StaticResource SettingsStackGap6}"/>
+
+            <!-- ── SECTION 2: AUTO-DETECTION, FALLBACK & MOTION ACCESSIBILITY ── -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Auto-detect & Currency Live Status -->
+                <StackPanel Grid.Column="0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
+                                      AutomationProperties.Name="{DynamicResource Settings.LblAutoDetect}"
+                                      IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
+                                      FontWeight="{DynamicResource Weight.SemiBold}"
+                                      FontSize="{DynamicResource FontSize.BodySmall}"
+                                      Foreground="{DynamicResource TextPrimaryBrush}"
+                                      VerticalContentAlignment="Center"
+                                      AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
+                            <TextBlock Text="{Binding FxStatusText}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       Margin="{StaticResource SettingsStackTop2}"/>
+                        </StackPanel>
+                        <Button Grid.Column="1"
+                                Style="{StaticResource OutlinedPillButton}"
+                                Content="{DynamicResource Settings.ResetToEnglish}"
+                                Command="{Binding ResetToEnglishCommand}"
+                                AutomationProperties.AutomationId="Settings.ResetLocale"
+                                Height="28" Padding="10,0"
+                                FontSize="{DynamicResource FontSize.BodySmall}"
+                                VerticalAlignment="Center"/>
+                    </Grid>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.LocaleFallbackCaption}"
+                               Margin="{StaticResource SettingsStackTop2}"/>
                 </StackPanel>
 
-                <!-- Currency (live FX, offline = last fetched) -->
-                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                        <TextBlock Text="&#xEAF1;"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   Margin="{StaticResource SettingsInlineGap6R}"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{DynamicResource Settings.LblCurrency}"
-                                   Style="{StaticResource SettingsRowTitleStyle}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock Text="{DynamicResource Settings.HintCurrency}"
-                               Style="{StaticResource SettingsRowMetaStyle}"/>
-                    <ComboBox AutomationProperties.AutomationId="Settings.Currency"
-                              ItemsSource="{Binding Currencies}"
-                              SelectedItem="{Binding SelectedCurrency, Mode=TwoWay}"
-                              DisplayMemberPath="DisplayName"
-                              MinWidth="180" Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource ComboBoxStyle}"/>
-                </StackPanel>
-
-                <!-- Phone country (from IP, editable) -->
-                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                        <TextBlock Text="&#xE717;"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   Margin="{StaticResource SettingsInlineGap6R}"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{DynamicResource Settings.LblPhoneCountry}"
-                                   Style="{StaticResource SettingsRowTitleStyle}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock Text="{DynamicResource Settings.HintPhoneCountry}"
-                                   Style="{StaticResource SettingsRowMetaStyle}"/>
-                    <ComboBox AutomationProperties.AutomationId="Settings.PhoneCountry"
-                              ItemsSource="{Binding PhoneCountries}"
-                              SelectedItem="{Binding PhoneCountry, Mode=TwoWay}"
-                              DisplayMemberPath="DisplayName"
-                              MinWidth="180" Margin="{StaticResource SettingsStackGap8}" Style="{StaticResource ComboBoxStyle}"/>
-                </StackPanel>
-
-                <!-- Reduced motion accessibility -->
-                <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                        <TextBlock Text="&#xE713;"
-                                   FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.Body}"
-                                   Margin="{StaticResource SettingsInlineGap6R}"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{DynamicResource Settings.ReducedMotion}"
-                                   Style="{StaticResource SettingsRowTitleStyle}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock Text="{DynamicResource Settings.ReducedMotionTip}"
-                               Style="{StaticResource SettingsRowMetaStyle}"
-                               TextWrapping="Wrap"/>
+                <!-- Right: Reduced Motion Accessibility -->
+                <StackPanel Grid.Column="2">
                     <CheckBox AutomationProperties.AutomationId="Settings.ReducedMotion"
                               AutomationProperties.Name="{DynamicResource Settings.ReducedMotion}"
                               Content="{DynamicResource Settings.ReducedMotion}"
+                              FontWeight="{DynamicResource Weight.SemiBold}"
+                              FontSize="{DynamicResource FontSize.BodySmall}"
                               IsChecked="{Binding ReducedMotion, Mode=TwoWay}"
-                              Margin="{StaticResource SettingsStackGap8}"/>
+                              Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{DynamicResource Settings.ReducedMotionTip}"
+                               Style="{StaticResource SettingsRowMetaStyle}"
+                               TextWrapping="Wrap"
+                               Margin="{StaticResource SettingsStackTop2}"/>
                 </StackPanel>
-            </UniformGrid>
-
-            <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-            <!-- Auto-detect + currency status -->
-            <StackPanel Margin="{StaticResource SettingsStackGap12}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE774;"/>
-                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center"
-                               Text="{DynamicResource Settings.LocaleFallback}"/>
-                </StackPanel>
-                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                           Text="{DynamicResource Settings.LocaleFallbackCaption}"/>
-                <Grid Margin="{StaticResource SettingsStackGap8}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel VerticalAlignment="Center">
-                        <CheckBox Content="{DynamicResource Settings.LblAutoDetect}"
-                                  AutomationProperties.Name="{DynamicResource Settings.LblAutoDetect}"
-                                  IsChecked="{Binding AutoSuggestByRegion, Mode=TwoWay}"
-                                  FontSize="{DynamicResource FontSize.Body}"
-                                  Foreground="{DynamicResource TextPrimaryBrush}"
-                                  VerticalContentAlignment="Center"
-                                  AutomationProperties.AutomationId="Settings.AutoSuggestByRegion"/>
-                        <TextBlock Text="{Binding FxStatusText}"
-                                   Style="{StaticResource SettingsRowMetaStyle}"
-                                   Margin="{StaticResource SettingsStackGap4}"/>
-                    </StackPanel>
-                    <Button Grid.Column="1"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Content="{DynamicResource Settings.ResetToEnglish}"
-                            Command="{Binding ResetToEnglishCommand}"
-                            AutomationProperties.AutomationId="Settings.ResetLocale"
-                            VerticalAlignment="Center"/>
-                </Grid>
-            </StackPanel>
+            </Grid>
         </StackPanel>
     </Border>
 </UserControl>

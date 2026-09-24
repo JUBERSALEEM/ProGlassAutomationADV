@@ -295,16 +295,23 @@
                                      AcceptsReturn="True" TextWrapping="Wrap"
                                      VerticalScrollBarVisibility="Auto"
                                      FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
-                            <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                            <Grid Margin="{StaticResource SettingsStackGap10}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource SuccessPillButton}"
+                                    Height="36" Margin="0"
                                     Content="{DynamicResource Sharing.SaveTemplate}"
                                     Command="{Binding SaveSharingTemplateCommand}"
                                     HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                <Button Grid.Column="2" Style="{StaticResource SettingsActionButtonStyle}"
+                                    Height="36" Margin="0"
                                     Content="{DynamicResource Sharing.ResetTemplate}"
                                     Command="{Binding ResetSharingTemplateCommand}"
                                     HorizontalAlignment="Stretch"/>
-                            </UniformGrid>
+                            </Grid>
                             <TextBlock Text="{DynamicResource Sharing.Variables}"
                                        Style="{StaticResource SettingsRowMetaStyle}"
                                        TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap8}"/>

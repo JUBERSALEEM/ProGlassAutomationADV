@@ -48,21 +48,30 @@
                     </StackPanel>
                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                Text="{DynamicResource Settings.CreateBackupSetNowRefreshListOpenFolderWhere}"/>
-                    <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap8}">
-                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                    <Grid Margin="{StaticResource SettingsStackGap8}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Style="{StaticResource SettingsActionButtonStyle}"
+                                Height="36" Margin="0"
                                 Content="{DynamicResource Settings.CreateBackupNOW}"
                                 Command="{Binding CreateBackupNowCommand}"
                                 HorizontalAlignment="Stretch"/>
-                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                        <Button Grid.Column="2" Style="{StaticResource SettingsActionButtonStyle}"
+                                Height="36" Margin="0"
                                 Content="{DynamicResource Action.Refresh}"
                                 Command="{Binding RefreshBackupsCommand}"
                                 HorizontalAlignment="Stretch"/>
-                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                        <Button Grid.Column="4" Style="{StaticResource SettingsActionButtonStyle}"
+                                Height="36" Margin="0"
                                 Content="{DynamicResource About.OPENFolder}"
                                 Command="{Binding OpenBackupsFolderCommand}"
-                                HorizontalAlignment="Stretch"
-                                Margin="0"/>
-                    </UniformGrid>
+                                HorizontalAlignment="Stretch"/>
+                    </Grid>
                 </StackPanel>
 
                 <!-- Restore column directly on card canvas -->
@@ -74,6 +83,7 @@
                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                Text="{DynamicResource Settings.RestoreAlwaysSnapshotsCurrentDataFirstBad}"/>
                     <Button Style="{StaticResource SuccessPillButton}"
+                            Height="36"
                             Tag="&#xE895;" Content="{DynamicResource Settings.RestoreSelectedBackup}"
                             Command="{Binding RestoreSelectedBackupCommand}"
                             Margin="{StaticResource SettingsStackGap8}"

@@ -81,20 +81,30 @@
                                              Padding="10,7"
                                              FontSize="{DynamicResource FontSize.Body}" Style="{StaticResource TextBoxStyle}"/>
 
-                                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                    <Grid Margin="{StaticResource SettingsStackGap10}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="8"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0" Style="{StaticResource SettingsActionButtonStyle}"
+                                            Height="36" Margin="0"
                                             Content="Test Connection"
                                             Command="{Binding TestSharedDataRootCommand}"
                                             HorizontalAlignment="Stretch"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                        <Button Grid.Column="2" Style="{StaticResource SettingsActionButtonStyle}"
+                                            Height="36" Margin="0"
                                             Content="Prepare Folder"
                                             Command="{Binding PrepareSharedDataRootCommand}"
                                             HorizontalAlignment="Stretch"/>
-                                        <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                            Content="Save + Restart Required"
+                                        <Button Grid.Column="4" Style="{StaticResource PrimaryPillButton}"
+                                            Height="36" Margin="0"
+                                            Content="Save + Restart"
                                             Command="{Binding ApplySharedDataRootCommand}"
                                             HorizontalAlignment="Stretch"/>
-                                    </UniformGrid>
+                                    </Grid>
                                 </StackPanel>
                             </Grid>
 

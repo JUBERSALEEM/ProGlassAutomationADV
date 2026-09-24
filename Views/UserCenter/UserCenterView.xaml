@@ -238,7 +238,7 @@
 
                                             <!-- Quick Toggle Active Status -->
                                             <Button Grid.Row="0" Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
-                                                    Height="28" Width="32" Padding="0" Tag="&#xE716;" Content=""
+                                                    Height="32" Width="32" Padding="0" Tag="&#xE716;" Content=""
                                                     ToolTip="{DynamicResource UserCenter.ActivateDeactivate}"
                                                     Command="{Binding DataContext.ToggleActiveCommand,
                                                         RelativeSource={RelativeSource AncestorType=UserControl}}"

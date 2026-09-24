@@ -107,7 +107,7 @@
                                             Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                             Command="{Binding TestGeminiCommand}"
                                             HorizontalAlignment="Stretch"
-                                            Height="32"
+                                            Height="36" Margin="0"
                                             FontSize="{DynamicResource FontSize.Body}"/>
                                     <TextBlock Text="{Binding GeminiTestStatus}"
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
@@ -183,7 +183,7 @@
                                             Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                             Command="{Binding TestGroqCommand}"
                                             HorizontalAlignment="Stretch"
-                                            Height="32"
+                                            Height="36" Margin="0"
                                             FontSize="{DynamicResource FontSize.Body}"/>
                                     <TextBlock Text="{Binding GroqTestStatus}"
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
@@ -258,7 +258,7 @@
                                             Tag="&#xE74E;" Content="{DynamicResource Settings.SAVETEST}"
                                             Command="{Binding TestCohereCommand}"
                                             HorizontalAlignment="Stretch"
-                                            Height="32"
+                                            Height="36" Margin="0"
                                             FontSize="{DynamicResource FontSize.Body}"/>
                                     <TextBlock Text="{Binding CohereTestStatus}"
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"

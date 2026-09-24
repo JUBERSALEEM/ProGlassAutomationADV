@@ -167,6 +167,8 @@
         <Setter Property="Foreground" Value="{DynamicResource Ios26TextBodyBrush}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="MinHeight" Value="32"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
@@ -177,7 +179,8 @@
                             BorderBrush="{DynamicResource Ios26HairlineBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource Ios26RadiusChip}"
-                            Padding="14,8"
+                            Padding="14,0"
+                            Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>

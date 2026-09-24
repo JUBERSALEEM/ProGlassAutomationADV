@@ -65,19 +65,25 @@
                             </Border>
 
                             <!-- Full-width action row: buttons stretch evenly across the whole card. -->
-                            <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                            <Grid Margin="{StaticResource SettingsStackGap10}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource SettingsActionButtonStyle}"
+                                    Height="36" Margin="0"
                                     Content="{DynamicResource Action.Refresh}"
                                     Command="{Binding RefreshDatabaseHealthCommand}"
                                     HorizontalAlignment="Stretch"
                                     ToolTip="{DynamicResource Settings.ProbeDatabaseRefreshRowCountTable}"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                <Button Grid.Column="2" Style="{StaticResource DangerButton}"
+                                    Height="36" Margin="0"
                                     Content="{DynamicResource Settings.RebuildDatabasesEmergency}"
                                     Command="{Binding RebuildAllDatabasesCommand}"
                                     HorizontalAlignment="Stretch"
-                                    Margin="0"
                                     ToolTip="{DynamicResource Settings.MoveDbFileMigrationbackupsRecreateCurrent}"/>
-                            </UniformGrid>
+                            </Grid>
 
                             <ListBox ItemsSource="{Binding DatabaseHealthRows}"
                             AutomationProperties.Name="{DynamicResource Settings.RebuildDatabasesEmergency}"

@@ -146,8 +146,8 @@
     <!-- VARIANT 4 — DangerButton: transparent glass + danger edge -->
     <Style x:Key="DangerButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="Height" Value="32"/>
-        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Padding" Value="16,0"/>
         <Setter Property="MinWidth" Value="92"/>
         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
@@ -255,9 +255,9 @@
 
     <Style x:Key="RowSuccessButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="Height" Value="26"/>
-        <Setter Property="Padding" Value="10,0"/>
-        <Setter Property="MinWidth" Value="46"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="MinWidth" Value="56"/>
         <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
@@ -267,9 +267,9 @@
 
     <Style x:Key="RowPrimaryButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="Height" Value="26"/>
-        <Setter Property="Padding" Value="10,0"/>
-        <Setter Property="MinWidth" Value="46"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="MinWidth" Value="56"/>
         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
@@ -279,9 +279,9 @@
 
     <Style x:Key="RowOutlinedButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="Height" Value="26"/>
-        <Setter Property="Padding" Value="10,0"/>
-        <Setter Property="MinWidth" Value="46"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="MinWidth" Value="56"/>
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
@@ -291,9 +291,9 @@
 
     <Style x:Key="RowDangerButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="Height" Value="26"/>
-        <Setter Property="Padding" Value="8,0"/>
-        <Setter Property="MinWidth" Value="44"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="MinWidth" Value="50"/>
         <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
         <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>

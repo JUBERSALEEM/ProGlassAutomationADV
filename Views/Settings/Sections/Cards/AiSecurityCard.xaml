@@ -71,17 +71,23 @@
                     </StackPanel>
                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                Text="{DynamicResource Settings.DeleteProviderKeyDiskAssistantAskReEnterNext}"/>
-                    <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap8}">
-                        <Button Style="{StaticResource DangerButton}"
+                    <Grid Margin="{StaticResource SettingsStackGap8}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Style="{StaticResource DangerButton}"
+                                Height="36" Margin="0"
                                 Tag="&#xE74D;" Content="{DynamicResource Settings.RemoveKEYS}"
                                 Command="{Binding RemoveSavedKeysCommand}"
-                                Margin="{StaticResource SettingsInlineGap6R}"
                                 HorizontalAlignment="Stretch"/>
-                        <Button Style="{StaticResource DangerButton}"
+                        <Button Grid.Column="2" Style="{StaticResource DangerButton}"
+                                Height="36" Margin="0"
                                 Tag="&#xE81C;" Content="{DynamicResource Settings.ClearMemory}"
                                 Command="{Binding ClearAiMemoryCommand}"
                                 HorizontalAlignment="Stretch"/>
-                    </UniformGrid>
+                    </Grid>
                 </StackPanel>
 
             </UniformGrid>

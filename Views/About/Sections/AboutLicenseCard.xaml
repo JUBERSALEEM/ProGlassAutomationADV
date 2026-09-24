@@ -75,7 +75,8 @@
             <!-- Small ghost copy button (mockup: icon-only square). -->
             <Style x:Key="LicenseCopyButtonStyle" TargetType="Button"
                    BasedOn="{StaticResource AboutPillButtonStyle}">
-                <Setter Property="Padding" Value="7,3"/>
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="Padding" Value="10,0"/>
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>

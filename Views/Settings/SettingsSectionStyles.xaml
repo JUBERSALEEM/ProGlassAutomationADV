@@ -178,8 +178,9 @@
         <!-- 2026-09-01: was GlassBorderSoft → SELECT label was white-
              on-white. Now the real accent ink so the button reads. -->
         <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="Height"              Value="28"/>
-        <Setter Property="Padding"             Value="12,0"/>
+        <Setter Property="Height"              Value="32"/>
+        <Setter Property="MinHeight"           Value="32"/>
+        <Setter Property="Padding"             Value="14,0"/>
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
         <Setter Property="FontWeight"          Value="{DynamicResource Weight.Bold}"/>
         <Setter Property="BorderThickness"     Value="0"/>
@@ -446,8 +447,9 @@
     <Style x:Key="SettingsActionButtonStyle" TargetType="Button">
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalAlignment" Value="Stretch"/>
-        <Setter Property="MinHeight" Value="{DynamicResource DensityButtonHeight}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="MinHeight" Value="36"/>
         <Setter Property="MinWidth" Value="{DynamicResource DensityButtonMinWidth}"/>
         <Setter Property="Padding" Value="14,0"/>
         <Setter Property="Margin" Value="0,0,8,0"/>

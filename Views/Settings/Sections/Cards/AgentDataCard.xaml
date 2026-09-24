@@ -41,31 +41,46 @@
                             </Border>
                         </Grid>
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                            <UniformGrid Columns="2" Margin="{StaticResource SettingsStackGap10}">
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                            <Grid Margin="{StaticResource SettingsStackGap10}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Button Grid.Row="0" Grid.Column="0"
+                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                    Height="36" Margin="0"
                                     Tag="&#xE78C;"
                                     Content="{DynamicResource Settings.ExportKnowledge}"
                                     HorizontalAlignment="Stretch"
                                     Command="{Binding ExportKnowledgeCommand}"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                <Button Grid.Row="0" Grid.Column="2"
+                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                    Height="36" Margin="0"
                                     Tag="&#xE896;"
                                     Content="{DynamicResource Settings.ImportKnowledge}"
                                     HorizontalAlignment="Stretch"
-                                    Margin="0"
                                     Command="{Binding ImportKnowledgeCommand}"/>
-                                <Button Style="{StaticResource DangerButton}"
+                                <Button Grid.Row="2" Grid.Column="0"
+                                    Style="{StaticResource DangerButton}"
+                                    Height="36" Margin="0"
                                     Tag="&#xE74D;"
                                     Content="{DynamicResource Settings.ClearMemory}"
                                     HorizontalAlignment="Stretch"
-                                    Margin="{StaticResource SettingsStackGap6}"
                                     Command="{Binding ClearMemoryCommand}"/>
-                                <Button Style="{StaticResource DangerButton}"
+                                <Button Grid.Row="2" Grid.Column="2"
+                                    Style="{StaticResource DangerButton}"
+                                    Height="36" Margin="0"
                                     Tag="&#xE74D;"
                                     Content="{DynamicResource Settings.ClearKnowledge}"
                                     HorizontalAlignment="Stretch"
-                                    Margin="{StaticResource SettingsStackGap6}"
                                     Command="{Binding ClearKnowledgeCommand}"/>
-                            </UniformGrid>
+                            </Grid>
 
                             <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Margin="{StaticResource SettingsStackGap12}"
