@@ -373,6 +373,7 @@
     <SolidColorBrush x:Key="LiquidBlueSurfaceBrush" Color="#1438BDF8" po:Freeze="True"/>
     <Color x:Key="LiquidBlueColor">#38BDF8</Color>
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AccentPrimaryBrush" Color="{StaticResource AccentColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentDarkBrush" Color="{StaticResource AccentDarkColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentLightBrush" Color="{StaticResource AccentLightColor}" po:Freeze="True"/>
