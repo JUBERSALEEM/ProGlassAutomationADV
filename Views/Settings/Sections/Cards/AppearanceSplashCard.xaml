@@ -32,13 +32,13 @@
                 <StackPanel Grid.Column="0">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F4;" Margin="{StaticResource SettingsInlineGap8R}" Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="SPLASH SCREEN STAGE &amp; THEMES" Style="{StaticResource SettingsCardTitleStyle}"/>
+                        <TextBlock Text="{Binding SelectedSplashStyleName}" Style="{StaticResource SettingsCardTitleStyle}"/>
                     </StackPanel>
                     <TextBlock Text="Select between 10 corporate glass architectures or automatically cycle on every system boot."
                                Style="{StaticResource SettingsCardHeaderNoteStyle}" Margin="{StaticResource SettingsStackGap4}"/>
                 </StackPanel>
                 <Border Grid.Column="1" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" VerticalAlignment="Top">
-                    <TextBlock Text="10 Corporate Presets" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                    <TextBlock Text="Splash" FontSize="{DynamicResource FontSize.Chip}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                 </Border>
             </Grid>
 

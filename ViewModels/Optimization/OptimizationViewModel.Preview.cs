@@ -222,6 +222,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         public bool IsSingleSheetMode => !_isGalleryMode;
 
+        // Normal view fits the whole sheet into the stage. Zoom leaves that
+        // mode so the operator can inspect a cut at actual canvas size.
+        private bool _isFitView = true;
+        public bool IsFitView
+        {
+            get => _isFitView;
+            private set
+            {
+                if (_isFitView == value) return;
+                _isFitView = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand PreviewFitCommand { get; private set; } = null!;
+
         private int _galleryPageSize = 8;
         public int GalleryPageSize
         {

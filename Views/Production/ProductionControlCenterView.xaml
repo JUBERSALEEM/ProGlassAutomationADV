@@ -6,7 +6,8 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              FontFamily="{DynamicResource AppFontFamily}"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource WindowBackgroundBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -46,30 +47,24 @@
         <StackPanel Margin="24,20,24,16">
 
             <!-- Header -->
-            <Border Padding="16,8" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Margin="0,0,0,12"
-                    Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Title}" FontSize="{DynamicResource FontSize.TitleLarge}"
-                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="4" Padding="8,3" Margin="14,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="HIGH-CAPACITY PRODUCTION PIPELINE" FontSize="{DynamicResource FontSize.Badge}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                            </Border>
-                        </StackPanel>
-                        <TextBlock Text="{Binding Subtitle}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                   Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource OptHeroCard}" Margin="0,0,12,0">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"
+                                   Foreground="{StaticResource OptOnIndigo}"/>
+                        <TextBlock Text="{Binding Subtitle}" FontSize="12"
+                                   Foreground="{StaticResource OptOnIndigoMuted}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                </Border>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Content="Load / Refresh" Command="{Binding LoadCommand}" Style="{StaticResource PrimaryPillButton}" Height="32" Padding="18,0" Margin="0,0,8,0"/>
                         <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource OutlinedPillButton}" Height="32" Padding="14,0"/>
                     </StackPanel>
-                </Grid>
-            </Border>
+            </Grid>
 
             <!-- ══ 3-PILLAR STAGE SWITCH RIBBON (Left: Cutting | Center: Tempering | Right: DGU) ══ -->
             <Grid Margin="0,0,0,14">
@@ -124,7 +119,7 @@
 
                 <!-- 1. TOTAL SCHEDULED -->
                 <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -147,7 +142,7 @@
 
                 <!-- 2. COMPLETED / DONE -->
                 <Border Grid.Column="1" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -170,7 +165,7 @@
 
                 <!-- 3. BALANCE PENDING -->
                 <Border Grid.Column="2" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -193,7 +188,7 @@
 
                 <!-- 4. STAGE COMPLETION RATE -->
                 <Border Grid.Column="3" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -215,7 +210,7 @@
 
             <!-- ── Streamlined Stage Filter & Fast Command Toolbar ── -->
             <Border Padding="16,14" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Margin="0,0,0,14"
-                    Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1">
+                    Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -284,7 +279,7 @@
                         <RowDefinition Height="340"/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="Production Queue" Style="{StaticResource ModulePageTitleStyle}" Margin="0,0,0,8"/>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding Queue}" SelectedItem="{Binding Selected, Mode=TwoWay}"
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding StageQueue}" SelectedItem="{Binding Selected, Mode=TwoWay}"
                               AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True"
                               CanUserResizeColumns="False" CanUserReorderColumns="False"
                               Style="{StaticResource SurfaceDataGrid}" VerticalScrollBarVisibility="Auto"
@@ -323,7 +318,7 @@
                             <RowDefinition Height="150"/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="Ready to run" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,6"/>
-                        <DataGrid Grid.Row="1" ItemsSource="{Binding ExecutableQueue}" AutoGenerateColumns="False"
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding StageExecutableQueue}" AutoGenerateColumns="False"
                                   CanUserAddRows="False" IsReadOnly="True"
                                   CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}"
                               behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
@@ -363,7 +358,7 @@
                             <RowDefinition Height="150"/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="QC pending / failed" FontWeight="{DynamicResource Weight.SemiBold}" Margin="0,0,0,6"/>
-                        <DataGrid Grid.Row="1" ItemsSource="{Binding QcQueue}" AutoGenerateColumns="False"
+                        <DataGrid Grid.Row="1" ItemsSource="{Binding StageQcQueue}" AutoGenerateColumns="False"
                                   CanUserAddRows="False" IsReadOnly="True"
                                   CanUserResizeColumns="False" CanUserReorderColumns="False" Style="{StaticResource SurfaceDataGrid}"
                               behaviors:SmartScrollBubblingBehavior.IsEnabled="True">
@@ -475,7 +470,7 @@
                         </DataGrid>
                     </TabItem>
                     <TabItem Header="Rework">
-                        <DataGrid ItemsSource="{Binding ReworkQueue}" AutoGenerateColumns="False" CanUserAddRows="False"
+                        <DataGrid ItemsSource="{Binding StageReworkQueue}" AutoGenerateColumns="False" CanUserAddRows="False"
                                   IsReadOnly="True" CanUserResizeColumns="False" CanUserReorderColumns="False"
                                   Style="{StaticResource SurfaceDataGrid}" Height="220" Margin="0,8,0,0"
                               behaviors:SmartScrollBubblingBehavior.IsEnabled="True">

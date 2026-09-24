@@ -2,6 +2,7 @@ using Microsoft.Data.Sqlite;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -112,6 +113,144 @@ namespace ProGlassAutomation.Services.Database
             !string.IsNullOrWhiteSpace(path)
             && (path.Trim().StartsWith(@"\\", StringComparison.Ordinal)
                 || !string.IsNullOrEmpty(AppDataRoot.GetMappedNetworkPath(path)));
+
+        /// <summary>
+        /// A folder this PC can create and share. Never the local AppData
+        /// root — that path is rejected by <see cref="AppDataRoot.TryNormalizeSharedRoot"/>.
+        /// </summary>
+        public static string SuggestShareableFolder()
+        {
+            string? root = Path.GetPathRoot(Environment.SystemDirectory);
+            if (string.IsNullOrWhiteSpace(root)) root = @"C:\";
+            string candidate = Path.Combine(root, "ProGlassData");
+            try
+            {
+                string full = Path.GetFullPath(candidate);
+                string local = Path.GetFullPath(AppDataRoot.ProductionFolder);
+                string demo = Path.GetFullPath(AppDataRoot.DemoFolder);
+                if (full.Equals(local, StringComparison.OrdinalIgnoreCase)
+                    || full.Equals(demo, StringComparison.OrdinalIgnoreCase)
+                    || full.StartsWith(local + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+                    || full.StartsWith(demo + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                {
+                    candidate = Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments),
+                        "ProGlassData");
+                }
+            }
+            catch
+            {
+                candidate = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.CommonDocuments),
+                    "ProGlassData");
+            }
+            return candidate;
+        }
+
+        /// <summary>
+        /// Creates the company folder and, on a local path, publishes a
+        /// Windows file share named ProGlassData. Creating a folder does
+        /// not copy databases and does not require a safety backup — the
+        /// old Prepare button cancelled before any folder existed when the
+        /// backup failed, which is why operators could not create a share.
+        /// </summary>
+        public static (bool Ok, string Message, string Path) CreateSharedFolder(
+            string? path, bool publishWindowsShare = true)
+        {
+            bool usedSuggestion = string.IsNullOrWhiteSpace(path);
+            string requested = usedSuggestion ? SuggestShareableFolder() : path!.Trim();
+            if (!AppDataRoot.TryNormalizeSharedRoot(requested, out string normalized))
+            {
+                return (false,
+                    "✗ That path cannot be the shared folder. Use a new folder such as C:\\ProGlassData, not the local ProGlass AppData folder.",
+                    requested);
+            }
+
+            try
+            {
+                Directory.CreateDirectory(normalized);
+                string probeFile = Path.Combine(normalized, ".proglass-share-probe");
+                File.WriteAllText(probeFile, "ok");
+                File.Delete(probeFile);
+                WriteManifest(normalized);
+            }
+            catch (Exception ex)
+            {
+                string extra = requested.StartsWith(@"\\", StringComparison.Ordinal)
+                    ? " A network path can only be created when the share already exists. Leave the path empty and press Create Folder on the computer that will host the files."
+                    : "";
+                return (false,
+                    "✗ Could not create the shared folder: " + AppDataRoot.DescribeShareFailure(ex) + extra,
+                    normalized);
+            }
+
+            string shareNote = publishWindowsShare
+                ? TryPublishWindowsShare(normalized)
+                : " Share this folder from File Explorer → Properties → Sharing so other workstations can open it.";
+            string created = usedSuggestion
+                ? "✓ Created " + normalized + " (the path was empty, so ProGlass chose a folder outside AppData)."
+                : "✓ Created shared folder: " + normalized + ".";
+            return (true, created + shareNote, normalized);
+        }
+
+        /// <summary>
+        /// Best-effort SMB publish. Failure does not undo the folder —
+        /// Windows share creation needs administrator rights, and a folder
+        /// the operator can share by hand is still a successful create.
+        /// </summary>
+        private static string TryPublishWindowsShare(string folder)
+        {
+            if (folder.StartsWith(@"\\", StringComparison.Ordinal))
+                return " This path is already on a network share. Other workstations can use it as typed.";
+            if (!OperatingSystem.IsWindows())
+                return " Share this folder from the host operating system so other workstations can open it.";
+            if (folder.IndexOf('"') >= 0)
+                return " The folder exists. Its path contains a quote, so ProGlass did not publish a Windows share.";
+
+            const string shareName = "ProGlassData";
+            try
+            {
+                var psi = new ProcessStartInfo
+                {
+                    FileName = "net",
+                    Arguments = "share " + shareName + "=\"" + folder + "\" /GRANT:Everyone,CHANGE /REMARK:\"ProGlass company database\"",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true
+                };
+                using var process = Process.Start(psi);
+                if (process == null)
+                    return " The folder exists. Windows did not start the share command.";
+                if (!process.WaitForExit(8000))
+                {
+                    try
+                    {
+                        process.Kill(entireProcessTree: true);
+                    }
+                    catch (Exception killEx)
+                    {
+                        AppLogService.Warning(
+                            "Windows share command did not exit and could not be stopped: " + killEx.Message,
+                            new LogContext { Module = "Database", Operation = "PublishWindowsShare" });
+                    }
+                    return " The folder exists. Windows did not finish publishing the share. Share it from File Explorer → Properties → Sharing.";
+                }
+                string output = (process.StandardOutput.ReadToEnd() + " " + process.StandardError.ReadToEnd()).Trim();
+                if (process.ExitCode == 0)
+                    return " Windows share \\\\" + Environment.MachineName + "\\" + shareName + " is published. Other workstations use that path. Tighten permissions in Windows if this network is not private.";
+                if (output.Contains("already been shared", StringComparison.OrdinalIgnoreCase)
+                    || output.Contains("2118", StringComparison.Ordinal))
+                    return " Windows share " + shareName + " already exists. Other workstations use \\\\" + Environment.MachineName + "\\" + shareName + ".";
+                return " The folder was created, but Windows did not publish the share"
+                    + (string.IsNullOrWhiteSpace(output) ? "." : ": " + output)
+                    + " Share it from File Explorer → Properties → Sharing, or run ProGlass as administrator once.";
+            }
+            catch (Exception ex)
+            {
+                return " The folder was created. Windows share was not published: " + ex.Message;
+            }
+        }
 
         public static (bool Ok, string Message) PrepareSharedFolder(
             string sharedFolder,

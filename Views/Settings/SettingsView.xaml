@@ -98,6 +98,9 @@
         <Border Grid.Column="0"
                 Margin="14,10,6,14"
                 Width="232"
+                Background="{DynamicResource Ios26AccentSoftBrush}"
+                BorderBrush="{DynamicResource Ios26AccentBrush}"
+                BorderThickness="1.5"
                 Visibility="{Binding IsSettingsRailOpen,
                     Converter={StaticResource BoolToVisibilityConverter}}"
                 RenderOptions.EdgeMode="Aliased"

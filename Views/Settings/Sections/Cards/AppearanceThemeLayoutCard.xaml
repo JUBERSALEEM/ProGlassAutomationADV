@@ -112,6 +112,50 @@
                 </StackPanel>
             </Border>
 
+            <!-- ── THEME ENGINE ───────────────────────────────────────
+                 The family picker and pack export/import lived only on the
+                 Themes page, so Appearance → Theme had no engine. -->
+            <Border Style="{StaticResource SettingsRowSeparatorStyle}" Margin="{StaticResource SettingsStackGap6}"/>
+            <Grid Margin="{StaticResource SettingsStackBottom8}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="&#xE790;" FontFamily="{DynamicResource FontFamily.Icon}"
+                           FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center"
+                           Foreground="{DynamicResource Ios26AccentBrush}"/>
+                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsInlineGap6}">
+                    <TextBlock Text="Theme Engine" Style="{StaticResource SettingsRowTitleStyle}"/>
+                    <TextBlock Text="{DynamicResource Settings.NormalMonetIos17pm}"
+                               Style="{StaticResource SettingsRowMetaStyle}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+            <ComboBox AutomationProperties.AutomationId="Settings.AppearanceThemeEngine"
+                      ItemsSource="{Binding VisualThemeOptions}"
+                      DisplayMemberPath="Display"
+                      SelectedValuePath="Key"
+                      SelectedValue="{Binding SelectedVisualTheme, Mode=TwoWay}"
+                      HorizontalAlignment="Stretch"
+                      Height="32" Padding="8,5"
+                      Margin="{StaticResource SettingsStackBottom8}"
+                      Style="{StaticResource ComboBoxStyle}"/>
+            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                <Button AutomationProperties.AutomationId="Settings.ExportThemePackAppearance"
+                        Command="{Binding ExportThemeProfileCommand}"
+                        Content="Export Pack"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Height="30" Padding="12,0"
+                        FontSize="{DynamicResource FontSize.BodySmall}"
+                        Margin="{StaticResource SettingsInlineGap8R}"/>
+                <Button AutomationProperties.AutomationId="Settings.ImportThemePackAppearance"
+                        Command="{Binding ImportThemeProfileCommand}"
+                        Content="Import Pack"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Height="30" Padding="12,0"
+                        FontSize="{DynamicResource FontSize.BodySmall}"/>
+            </StackPanel>
+
             <!-- ── SECTION 1: SURFACE ARCHITECTURE ───────────────────
                  Primary / Secondary / Detail surface cards — fixed 3-up
                  grid with the module's 14px tile gutters. -->

@@ -6,7 +6,8 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              FontFamily="{DynamicResource AppFontFamily}"
-             Background="{DynamicResource Ov.Canvas}"
+             Background="{DynamicResource WindowBackgroundBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
 
     <UserControl.Resources>
@@ -38,37 +39,24 @@
         <StackPanel Margin="24,20,24,16">
 
             <!-- Header -->
-            <Border Padding="18,16" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
-                    Margin="0,0,0,14">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Width="48" Height="48" CornerRadius="24"
-                            Background="{DynamicResource TintTealBrush}" VerticalAlignment="Center"
-                            Margin="0,0,14,0">
-                        <TextBlock Text="&#xE9F5;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="20" Foreground="{DynamicResource AccentBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Title}" Style="{StaticResource ModulePageTitleStyle}"/>
-                            <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="4" Padding="8,3" Margin="14,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="HIGH-CAPACITY PROCESS HUB" FontSize="{DynamicResource FontSize.Badge}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                            </Border>
-                        </StackPanel>
-                        <TextBlock Text="{Binding Subtitle}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource OptHeroCard}" Margin="0,0,12,0">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"
+                                   Foreground="{StaticResource OptOnIndigo}"/>
+                        <TextBlock Text="{Binding Subtitle}" FontSize="12"
+                                   Foreground="{StaticResource OptOnIndigoMuted}" TextWrapping="Wrap" Margin="0,6,0,0"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                </Border>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Content="Load Pipeline" Command="{Binding LoadCommand}" Style="{StaticResource PrimaryPillButton}" Height="36" Padding="18,0" Margin="0,0,8,0"/>
                         <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource OutlinedPillButton}" Height="36" Padding="14,0"/>
                     </StackPanel>
-                </Grid>
-            </Border>
+            </Grid>
 
             <!-- ══ 3-PILLAR STAGE SWITCH RIBBON (Left: Cutting | Center: Tempering | Right: DGU) ══ -->
             <Grid Margin="0,0,0,14">
@@ -123,7 +111,7 @@
 
                 <!-- 1. TOTAL SCHEDULED -->
                 <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -146,7 +134,7 @@
 
                 <!-- 2. COMPLETED / DONE -->
                 <Border Grid.Column="1" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -169,7 +157,7 @@
 
                 <!-- 3. BALANCE PENDING -->
                 <Border Grid.Column="2" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12" Margin="0,0,10,0">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -192,7 +180,7 @@
 
                 <!-- 4. STAGE COMPLETION RATE -->
                 <Border Grid.Column="3" Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                        BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -244,7 +232,7 @@
 
             <!-- ── Streamlined Station Filters & Execution Actions ── -->
             <Border Padding="16,14" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1"
+                    Background="{DynamicResource SurfaceSecondaryBrush}" BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
                     Margin="0,0,0,14">
                 <Grid>
                     <Grid.RowDefinitions>

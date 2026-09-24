@@ -19,7 +19,11 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsCompactCardStyle}">
+    <Border Style="{StaticResource SettingsCompactCardStyle}"
+            VerticalAlignment="Top"
+            Background="{DynamicResource Ios26AccentSoftBrush}"
+            BorderBrush="{DynamicResource Ios26AccentBrush}"
+            BorderThickness="1.5">
         <StackPanel>
             <Grid>
                 <Grid.ColumnDefinitions>

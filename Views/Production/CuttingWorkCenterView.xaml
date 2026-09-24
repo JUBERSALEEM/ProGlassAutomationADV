@@ -6,7 +6,8 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              FontFamily="{DynamicResource AppFontFamily}"
-             Background="{DynamicResource Ov.Canvas}"
+             Background="{DynamicResource WindowBackgroundBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
 
     <UserControl.Resources>
@@ -27,37 +28,31 @@
         </Grid.RowDefinitions>
 
         <!-- Header: Cutting Work Center -->
-        <Grid Grid.Row="0" Margin="24,20,24,8">
+        <Grid Grid.Row="0" Margin="24,16,24,10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Border Width="56" Height="56" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center" Margin="0,0,14,0">
-                <TextBlock Text="&#xE8C6;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Kpi}"
-                           Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Border>
-            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding Title}" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource DashAmbientBrush}"
-                            Padding="10,3" Margin="12,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Stage 1 of 8 — Cutting + 2D Nesting" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextTertiaryBrush}"/>
-                    </Border>
+            <Border Grid.Column="0" Style="{StaticResource OptHeroCard}" Margin="0,0,12,0">
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"
+                               Foreground="{StaticResource OptOnIndigo}"/>
+                    <TextBlock Text="Stage 1 — cutting and 2D nesting" FontSize="12"
+                               Foreground="{StaticResource OptOnIndigoMuted}" Margin="0,4,0,0"/>
+                    <TextBlock Text="{Binding Subtitle}" FontSize="12"
+                               Foreground="{StaticResource OptOnIndigoMuted}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                 </StackPanel>
-                <TextBlock Text="{Binding Subtitle}" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
-            </StackPanel>
-            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+            </Border>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Content="Load" Command="{Binding LoadCommand}" Style="{StaticResource OutlinedPillButton}" Margin="0,0,8,0"/>
                 <Button Content="Cancel" Command="{Binding CancelCommand}" Style="{StaticResource OutlinedPillButton}"/>
             </StackPanel>
         </Grid>
 
         <!-- KPI: Pending, In Progress, Completed, Rework, QC Pending, Ready -->
-        <Border Grid.Row="1" Margin="24,0,24,8" Padding="12" CornerRadius="{DynamicResource CardCornerRadius}"
-                Background="{DynamicResource SurfacePrimaryBrush}">
+        <Border Grid.Row="1" Margin="24,0,24,8" Padding="12" CornerRadius="18"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5">
             <StackPanel>
                 <TextBlock Text="{Binding KpiSummary}" FontSize="{DynamicResource FontSize.BodySmall}" Foreground="{DynamicResource TextSecondaryBrush}" TextWrapping="Wrap"/>
                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">

@@ -53,7 +53,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             else if (AppDataRoot.SharedRootFallbackActive)
                 NetworkDataRootStatus = "⚠ This workstation is on LOCAL data — the shared folder was unreachable at startup.";
             else
-                NetworkDataRootStatus = "Local database mode. Use this only after creating a reliable shared Windows folder on the same LAN/Wi-Fi.";
+                NetworkDataRootStatus = "Local database mode. Press Create Folder to make C:\\ProGlassData and publish the Windows share, or type an existing share path.";
 
             TestSharedDataRootCommand = new RelayCommand(_ =>
             {
@@ -62,8 +62,35 @@ namespace ProGlassAutomation.ViewModels.Settings
                 RefreshSharedRootWarning();
             });
 
+            // Create the folder (and the Windows share, when Windows allows
+            // it) before any backup. The old Prepare path cancelled on a
+            // failed safety backup and never created the folder at all.
+            CreateSharedFolderCommand = new RelayCommand(_ =>
+            {
+                var created = SharedDataRootService.CreateSharedFolder(SharedDataRootPath);
+                if (!string.IsNullOrWhiteSpace(created.Path))
+                    SharedDataRootPath = created.Path;
+                NetworkDataRootStatus = created.Message;
+                RefreshSharedRootWarning();
+            });
+
             PrepareSharedDataRootCommand = new RelayCommand(_ =>
             {
+                if (string.IsNullOrWhiteSpace(SharedDataRootPath))
+                {
+                    var created = SharedDataRootService.CreateSharedFolder(null);
+                    if (!string.IsNullOrWhiteSpace(created.Path))
+                        SharedDataRootPath = created.Path;
+                    // Set after the path setter — that setter replaces the
+                    // status line with "run Test Connection".
+                    NetworkDataRootStatus = created.Message;
+                    if (!created.Ok)
+                    {
+                        RefreshSharedRootWarning();
+                        return;
+                    }
+                }
+
                 var confirm = _dialogs.Show(
                     "This will verify the shared folder and, if enabled, copy the current local ProGlass dataset only when the shared folder is empty.\n\n" +
                     "Use a reliable Windows shared folder on the same LAN/Wi-Fi. Do not use cloud-sync folders for live databases. Continue?",
@@ -76,7 +103,17 @@ namespace ProGlassAutomation.ViewModels.Settings
                     .CreateFullBackupSet("before shared database preparation");
                 if (string.IsNullOrWhiteSpace(backup))
                 {
-                    NetworkDataRootStatus = "✗ Safety backup failed. Shared database preparation was cancelled.";
+                    // A failed backup must not hide the folder. Copy is the
+                    // only step that needed the backup; the folder itself
+                    // can still be created so the company share exists.
+                    var created = SharedDataRootService.CreateSharedFolder(SharedDataRootPath);
+                    if (!string.IsNullOrWhiteSpace(created.Path))
+                        SharedDataRootPath = created.Path;
+                    NetworkDataRootStatus = "✗ Safety backup failed, so local data was not copied. "
+                        + (created.Ok
+                            ? created.Message
+                            : "The folder was also not created: " + created.Message);
+                    RefreshSharedRootWarning();
                     return;
                 }
 

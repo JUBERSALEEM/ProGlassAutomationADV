@@ -228,6 +228,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         }
 
         public ICommand TestSharedDataRootCommand { get; private set; }
+        public ICommand CreateSharedFolderCommand { get; private set; }
         public ICommand PrepareSharedDataRootCommand { get; private set; }
         public ICommand ApplySharedDataRootCommand { get; private set; }
         public ICommand RevertToLocalDataRootCommand { get; private set; }

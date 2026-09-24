@@ -20,7 +20,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="Transparent">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -215,7 +215,9 @@
                             <Button Content="+" Style="{StaticResource OptOutlinedButton}" Width="30" Height="30" Padding="0"
                                     Command="{Binding PreviewZoomInCommand}" Margin="0,0,4,0" ToolTip="Zoom in"/>
                             <Button Content="100%" Style="{StaticResource OptOutlinedButton}" Height="30" Padding="8,0"
-                                    Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%"/>
+                                    Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%" Margin="0,0,4,0"/>
+                            <Button Content="Normal view" Style="{StaticResource OptPrimaryButton}" Height="30" Padding="10,0"
+                                    Command="{Binding PreviewFitCommand}" ToolTip="Fit the whole sheet into the stage"/>
                         </StackPanel>
 
                         <!-- Mini-map thumbnail -->
@@ -281,10 +283,26 @@
                                    HorizontalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Active CAD Sheet Layout + Piece Table -->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                                  Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel Margin="8">
+                    <!-- Normal view: the whole plate stays visible. The schedule
+                         sits beside it so it cannot push the sheet off the stage. -->
+                    <Grid Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="340"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="SheetStage" Grid.Column="0" Margin="0,0,12,0"
+                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                                CornerRadius="12" Padding="8"
+                                SizeChanged="OnSheetStageSizeChanged">
+                            <ScrollViewer x:Name="SheetScroller"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto">
+                                <Grid x:Name="SheetFitHost" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Grid.LayoutTransform>
+                                        <ScaleTransform x:Name="SheetFitScale" ScaleX="1" ScaleY="1"/>
+                                    </Grid.LayoutTransform>
+                                    <StackPanel>
                             <!-- ── TOP PLATE DIMENSION CALLOUT BAR ── -->
                             <Grid HorizontalAlignment="Center" Width="{Binding RenderWidth}" Margin="0,0,0,4">
                                 <Border Height="1" Background="{DynamicResource BorderBrush}" VerticalAlignment="Center"/>
@@ -321,8 +339,8 @@
                                 </Border>
 
                                 <!-- Plate Canvas -->
-                                <Border Grid.Column="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2"
-                                        CornerRadius="4" Background="#FFFFFF" SnapsToDevicePixels="True">
+                                <Border Grid.Column="1" BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                                        CornerRadius="4" Background="{DynamicResource SurfacePrimaryBrush}" SnapsToDevicePixels="True">
                                     <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
 
                                         <!-- Usable Rect (Inside Margins) — Accent Dashed Line -->
@@ -387,12 +405,11 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                            BorderThickness="1" BorderBrush="#94A3B8"
+                                                            BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                                                             CornerRadius="2" SnapsToDevicePixels="True">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
-                                                                <!-- Normal Placement: Soft Studio Porcelain Tint -->
-                                                                <Setter Property="Background" Value="#F8FAFC"/>
+                                                                <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
                                                                 <Style.Triggers>
                                                                     <!-- Rotated 90°: Light Sky Blue Tint -->
                                                                     <DataTrigger Binding="{Binding Rotated}" Value="True">
@@ -446,9 +463,15 @@
                                     </Canvas>
                                 </Border>
                             </Grid>
+                                    </StackPanel>
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
 
+                        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled">
                             <!-- ── PIECE CUTTING SCHEDULE MATRIX TABLE ── -->
-                            <Border Style="{StaticResource OptInnerCard}" Margin="0,18,0,0" HorizontalAlignment="Stretch">
+                            <Border Style="{StaticResource OptInnerCard}" Margin="0" HorizontalAlignment="Stretch">
                                 <StackPanel>
                                     <Grid Margin="0,0,0,10">
                                         <Grid.ColumnDefinitions>
@@ -526,8 +549,8 @@
                                     </ItemsControl>
                                 </StackPanel>
                             </Border>
-                        </StackPanel>
-                    </ScrollViewer>
+                        </ScrollViewer>
+                    </Grid>
                 </Grid>
 
                 <!-- ═════════════════════════════════════════════════════
@@ -593,8 +616,8 @@
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
                                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                                            BorderThickness="0.8" BorderBrush="#94A3B8"
-                                                                            Background="#F8FAFC">
+                                                                            BorderThickness="0.8" BorderBrush="{DynamicResource BorderBrush}"
+                                                                            Background="{DynamicResource Ios26AccentSoftBrush}">
                                                                         <TextBlock Text="{Binding CutNumber}" FontSize="8" FontWeight="Bold"
                                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"
                                                                                    VerticalAlignment="Center"

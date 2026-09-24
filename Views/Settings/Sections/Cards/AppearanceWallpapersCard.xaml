@@ -207,7 +207,7 @@
                                                FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"/>
-                                    <TextBlock Text="Code-drawn, 4K resolution-independent scenes paired per visual theme"
+                                    <TextBlock Text="Industrial pattern wallpaper, plus one distinct type per theme family"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                HorizontalAlignment="Right"
                                                VerticalAlignment="Center"/>
@@ -232,11 +232,11 @@
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
                                                         <Border x:Name="CardBd"
-                                                                Background="{DynamicResource SurfaceSecondaryBrush}"
-                                                                BorderBrush="{DynamicResource DividerBrush}"
-                                                                BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                                                Background="{DynamicResource Ios26AccentSoftBrush}"
+                                                                BorderBrush="{DynamicResource Ios26AccentBrush}"
+                                                                BorderThickness="1.5"
                                                                 Padding="8"
-                                                                CornerRadius="{DynamicResource CardCornerRadius}">
+                                                                CornerRadius="{DynamicResource Radius.Large}">
                                                             <StackPanel>
                                                                 <!-- Live Scene Gradient Viewport -->
                                                                 <Border Height="80"
@@ -251,10 +251,10 @@
                                                                                 Background="{DynamicResource SurfaceGlassOverlayBrush}"
                                                                                 CornerRadius="{DynamicResource Radius.XSmall}"
                                                                                 Padding="5,2">
-                                                                            <TextBlock Text="4K Scene"
+                                                                            <TextBlock Text="Scene"
                                                                                        FontSize="{DynamicResource FontSize.Caption}"
                                                                                        FontWeight="{DynamicResource Weight.SemiBold}"
-                                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                                                       Foreground="{DynamicResource Ios26AccentBrush}"/>
                                                                         </Border>
                                                                     </Grid>
                                                                 </Border>
@@ -272,9 +272,10 @@
                                                                                HorizontalAlignment="Right"
                                                                                VerticalAlignment="Center"/>
                                                                 </DockPanel>
-                                                                <TextBlock Text="{Binding Key}"
+                                                                <TextBlock Text="{Binding TypeLabel}"
                                                                            FontSize="{DynamicResource FontSize.Caption}"
-                                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                                                           TextWrapping="Wrap"
                                                                            Margin="{StaticResource SettingsDockCaptionMargin}"/>
                                                             </StackPanel>
                                                         </Border>

@@ -106,7 +106,7 @@
                     BorderThickness="0,0,1,0" BorderBrush="{DynamicResource Ios26HairlineBrush}">
                 <Border.Style>
                     <Style TargetType="Border">
-                        <Setter Property="Background" Value="{DynamicResource Ios26RailBrush}"/>
+                        <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsRailOpen}" Value="False">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -221,19 +221,21 @@
                                                         <TextBlock Text="ACTIVE"
                                                                    FontSize="{DynamicResource Ios26FontSizeCaption}"
                                                                    FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource Ios26AccentBrush}"/>
+                                                                   Foreground="{DynamicResource Ios26OnAccentBrush}"/>
                                                     </Border>
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
-                                                </Trigger>
-                                                <Trigger Property="IsSelected" Value="True">
                                                     <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
                                                     <Setter TargetName="RailBg" Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
-                                                    <Setter TargetName="RailIcon" Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                    <Setter TargetName="RailBg" Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
+                                                    <Setter TargetName="RailIcon" Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
+                                                    <Setter TargetName="ActiveChip" Property="Background" Value="{DynamicResource Ios26OnAccentChipBrush}"/>
                                                     <Setter TargetName="ActiveChip" Property="Visibility" Value="Visible"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
@@ -301,9 +303,11 @@
                 <StackPanel Margin="24,20,24,28">
 
                     <!-- Header Strip: Hamburger + Current Tab Title -->
-                    <Border Style="{StaticResource Ios26CardStyle}"
-                            Padding="14,12"
-                            Margin="0,0,0,16">
+                    <Border Padding="14,12"
+                            Margin="0,0,0,16"
+                            CornerRadius="{DynamicResource Ios26RadiusCard}"
+                            Background="{DynamicResource Ios26AccentBrush}"
+                            SnapsToDevicePixels="True">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -312,6 +316,7 @@
 
                             <Button Grid.Column="0"
                                     Style="{StaticResource AboutRailHamburger}"
+                                    Foreground="{DynamicResource Ios26OnAccentBrush}"
                                     Command="{Binding ToggleRailCommand}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"/>
@@ -319,7 +324,7 @@
                             <TextBlock Grid.Column="1"
                                        FontSize="{DynamicResource Ios26FontSizeCardTitle}"
                                        FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                       Foreground="{DynamicResource Ios26OnAccentBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"
                                        IsHitTestVisible="False">

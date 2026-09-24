@@ -16,7 +16,8 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource WindowBackgroundBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -36,53 +37,38 @@
             </Grid.RowDefinitions>
 
             <!-- ══ 1. BENTO HERO BANNER: Title, Diagnostics & Engine Controls ══ -->
-            <Border Grid.Row="0" Style="{StaticResource OptPanelCard}" Margin="0,0,0,10" Padding="16,8">
+            <Border Grid.Row="0" Style="{StaticResource OptHeroCard}" Margin="0,0,0,12">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Left: Identity, Subtitle, and In-Flight Messages -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Visibility="Collapsed">
-                            <Border Width="36" Height="36" CornerRadius="8"
-                                    Background="{DynamicResource AccentSoftBrush}"
-                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
-                                    Margin="0,0,12,0" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-
-                            <TextBlock Text="OPTIMIZATION ENGINE" FontSize="18" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
-
-                            <Border Background="{DynamicResource AccentSoftBrush}"
-                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
-                                    CornerRadius="6" Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="GUILLOTINE 2D" FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="Optimization" FontSize="22" FontWeight="SemiBold"
+                                       Foreground="{StaticResource OptOnIndigo}" VerticalAlignment="Center"/>
+                            <Border Background="#33FFFFFF" CornerRadius="8" Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Guillotine 2D" FontSize="11" FontWeight="Bold"
+                                           Foreground="{StaticResource OptOnIndigo}"/>
                             </Border>
                         </StackPanel>
-
                         <TextBlock Text="Industrial cutting plans that minimize waste — pieces in, sheets out, verified layouts."
-                                   FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"
-                                   Margin="0,0,0,0"
-                                   Visibility="Collapsed"/>
+                                   FontSize="12" Foreground="{StaticResource OptOnIndigoMuted}"
+                                   Margin="0,6,16,0" TextWrapping="Wrap"/>
 
                         <!-- Diagnostic and Upgrade Messages -->
                         <TextBlock Text="{Binding RunMessage}" FontSize="12"
-                                   FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"
+                                   FontWeight="SemiBold" Foreground="{StaticResource OptOnIndigo}"
                                    TextWrapping="Wrap" Margin="0,0,0,0"
                                    Visibility="{Binding HasRunMessage, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                         <TextBlock Text="{Binding ResultEffortLabel}" FontSize="11"
-                                   Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="0,2,0,0"
+                                   Foreground="{StaticResource OptOnIndigoMuted}" TextWrapping="Wrap" Margin="0,2,0,0"
                                    Visibility="{Binding HasResultEffort, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                         <TextBlock Text="{Binding UpgradeSummaryLabel}" FontSize="11"
-                                   FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"
+                                   FontWeight="SemiBold" Foreground="{StaticResource OptOnIndigo}"
                                    TextWrapping="Wrap" Margin="0,2,0,0"
                                    Visibility="{Binding HasUpgradeSummary, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
@@ -92,10 +78,10 @@
                         <StackPanel VerticalAlignment="Center" Margin="0,0,16,0"
                                     Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}">
                             <TextBlock Text="{Binding RunStageLabel}" FontSize="11"
-                                       FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
+                                       FontWeight="SemiBold" Foreground="{StaticResource OptOnIndigo}"
                                        HorizontalAlignment="Right" Margin="0,0,0,4"/>
                             <ProgressBar Height="4" IsIndeterminate="True" Width="160"
-                                         Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right"/>
+                                         Foreground="{StaticResource OptOnIndigo}" HorizontalAlignment="Right"/>
                         </StackPanel>
 
                         <Button Content="Run Quick" Style="{StaticResource OptOutlinedButton}"
@@ -103,6 +89,8 @@
                                 ToolTip="One fast deterministic pass (guillotine shelves) — completes in seconds"/>
 
                         <Button Content="Run Optimize" Style="{StaticResource OptPrimaryButton}"
+                                Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
+                                BorderBrush="{StaticResource OptOnIndigo}"
                                 Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}"
                                 ToolTip="Multi-start search across effort levels 1–5 — maximizes plate yield"/>
 
@@ -112,6 +100,8 @@
                                 ToolTip="Stop the current run — engine checks for cancellation once per part"/>
 
                         <Button Content="Upgrade to Optimize" Style="{StaticResource OptPrimaryButton}"
+                                Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
+                                BorderBrush="{StaticResource OptOnIndigo}"
                                 Command="{Binding UpgradeToOptimizeCommand}" Margin="8,0,0,0"
                                 Visibility="{Binding CanUpgradeToOptimize, Converter={StaticResource BoolToVisibilityConverter}}"
                                 ToolTip="Re-run this cutting list through OPTIMIZE at the configured effort level"/>
@@ -120,9 +110,7 @@
             </Border>
 
             <!-- ══ 2. STUDIO BENTO MODULE TAB RAIL ══ -->
-            <Border Grid.Row="1" Background="{DynamicResource SurfaceSecondaryBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                    CornerRadius="10" Padding="6" Margin="0,0,0,14">
+            <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,12">
                 <StackPanel Orientation="Horizontal">
                     <RadioButton GroupName="OptTabs" Tag="&#xE821;" Content="JOBS"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"

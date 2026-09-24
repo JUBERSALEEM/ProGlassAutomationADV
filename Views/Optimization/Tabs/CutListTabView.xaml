@@ -54,7 +54,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=7}"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="Transparent">
 
     <UserControl.Resources>
         <ResourceDictionary>

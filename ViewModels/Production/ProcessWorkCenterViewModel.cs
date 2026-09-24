@@ -287,8 +287,11 @@ namespace ProGlassAutomation.ViewModels.Production
                 Reload();
         }
 
+        private int _loadGeneration;
+
         public async Task LoadAsync()
         {
+            int generation = Interlocked.Increment(ref _loadGeneration);
             try
             {
                 IsRunning = true;
@@ -306,7 +309,10 @@ namespace ProGlassAutomation.ViewModels.Production
                 if (!string.IsNullOrWhiteSpace(SpecFilter))
                     query = query.Where(e => e.SpecName.Contains(SpecFilter));
 
-                if (ProcessFilter != "All" && Enum.TryParse<ProductionProcessType>(ProcessFilter, out var pt))
+                if (IsDguTab)
+                    query = query.Where(e => e.ProcessType == (int)ProductionProcessType.Pairing
+                        || e.ProcessType == (int)ProductionProcessType.DoublingLamination);
+                else if (ProcessFilter != "All" && Enum.TryParse<ProductionProcessType>(ProcessFilter, out var pt))
                     query = query.Where(e => e.ProcessType == (int)pt);
 
                 if (StatusFilter != "All" && Enum.TryParse<WorkItemStatus>(StatusFilter, out var st))
@@ -314,6 +320,7 @@ namespace ProGlassAutomation.ViewModels.Production
 
                 var execs = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
                     .ToListAsync(query.OrderByDescending(e => e.CreatedAt).Take(200)).ConfigureAwait(true);
+                if (generation != _loadGeneration) return;
 
                 Executions.Clear();
                 foreach (var e in execs) Executions.Add(e);
@@ -357,7 +364,8 @@ namespace ProGlassAutomation.ViewModels.Production
             }
             finally
             {
-                IsRunning = false;
+                if (generation == _loadGeneration)
+                    IsRunning = false;
             }
         }
 

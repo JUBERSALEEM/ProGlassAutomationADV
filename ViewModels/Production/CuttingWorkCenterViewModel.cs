@@ -195,14 +195,18 @@ namespace ProGlassAutomation.ViewModels.Production
                 Reload();
         }
 
+        private int _loadGeneration;
+
         public async Task LoadAsync()
         {
+            int generation = Interlocked.Increment(ref _loadGeneration);
             try
             {
                 IsRunning = true;
                 ProgressLabel = "Loading cutting sessions…";
 
                 var sessions = await CuttingWorkflowService.GetSessionsByJobAsync(JobFilter, CancellationToken.None).ConfigureAwait(true);
+                if (generation != _loadGeneration) return;
 
                 // Apply filters
                 var filtered = sessions.AsEnumerable();
@@ -253,7 +257,8 @@ namespace ProGlassAutomation.ViewModels.Production
             }
             finally
             {
-                IsRunning = false;
+                if (generation == _loadGeneration)
+                    IsRunning = false;
             }
         }
 
