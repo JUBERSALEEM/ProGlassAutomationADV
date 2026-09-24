@@ -1,22 +1,22 @@
-<!-- ═══════════════════════════════════════════════════════════════
-     SHEET STORE — Indigo Studio Bento Redesign
-     Standardized Bento layout: Proportional Star/Auto DataGrid,
-     zero horizontal table clipping, 7-card Bento micro KPI strip,
-     clean 5-column filter card, and slide-in Bento inspection rail.
-═══════════════════════════════════════════════════════════════ -->
-<UserControl Style="{StaticResource ErpPageRootStyle}"
-             x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreView"
-             TextOptions.TextHintingMode="Fixed"
+<!-- Sheet Store — Studio Bento list, same visual contract as the
+     Proforma Invoice list (SavedInvoicesListView): Sl.* hero/KPI band,
+     filter card, soft table headers, virtualized rows, slide-in
+     inspection rail and consumables item editor. All collections,
+     commands and code-behind x:Name contracts retained. -->
+<UserControl x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:layout="clr-namespace:ProGlassAutomation.Views.Dashboard"
+             TextOptions.TextHintingMode="Fixed"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}"
              Focusable="True">
 
     <UserControl.InputBindings>
@@ -26,10 +26,10 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Action Dropdown Item Style -->
+            <!-- Action dropdown item (Sl.* popup rows) -->
             <Style x:Key="SheetMenuActionItem" TargetType="Button">
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -41,48 +41,30 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="Button">
-                            <Border x:Name="Bg" Background="Transparent"
+                            <Border x:Name="MenuBg" Background="Transparent"
                                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,7"
                                     SnapsToDevicePixels="True">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="{TemplateBinding Tag}"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
                                                FontSize="{DynamicResource FontSize.Icon}"
-                                               Foreground="{DynamicResource AccentBrush}"
+                                               Foreground="{DynamicResource Ov.Accent}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
                                     <TextBlock Text="{TemplateBinding Content}"
                                                FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"
+                                               Foreground="{DynamicResource Ov.Ink}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                    <Setter TargetName="MenuBg" Property="Background" Value="{DynamicResource Ov.Soft}"/>
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
+                                    <Setter TargetName="MenuBg" Property="Opacity" Value="0.8"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-
-            <!-- ListBoxItem — strips default WPF selection padding -->
-            <Style x:Key="SheetListBoxItemStyle" TargetType="ListBoxItem">
-                <Setter Property="Padding" Value="0"/>
-                <Setter Property="Margin" Value="0,0,0,4"/>
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                <Setter Property="Focusable" Value="False"/>
-                <Setter Property="SnapsToDevicePixels" Value="True"/>
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="ListBoxItem">
-                            <ContentPresenter/>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
@@ -90,462 +72,351 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- ══════════════════════════════════════════════════════════════
-         ROOT LAYOUT — Bento header + KPIs + filters + Master/Detail
-    ══════════════════════════════════════════════════════════════ -->
     <Grid Background="Transparent">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/> <!-- Header + KPIs + Filters -->
-            <RowDefinition Height="*"/>    <!-- Proportional Data Deck + Slide Sidebar -->
+            <RowDefinition Height="Auto"/> <!-- toolbar: hero + KPIs + actions + filters -->
+            <RowDefinition Height="*"/>    <!-- data deck + slide-in panels -->
         </Grid.RowDefinitions>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             STICKY BENTO CONTROLS (Header, KPIs, Filters)
-        ═══════════════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="0" Margin="20,10,20,8">
-
-            <!-- HEADER & ACTION ROW -->
-            <DockPanel Margin="0,0,0,10">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{DynamicResource Module.SheetStore}"
-                               Style="{StaticResource Ov.Title}"
-                               VerticalAlignment="Center" Margin="0,0,12,0"/>
-                    <Border Background="{DynamicResource Ov.Soft}"
-                            CornerRadius="{DynamicResource Radius.Medium}" Padding="10,4"
-                            VerticalAlignment="Center" Margin="0,0,16,0">
-                        <TextBlock Text="{DynamicResource Nav.GroupInventory}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AccentBrush}"/>
+        <!-- ══ TOOLBAR ═══════════════════════════════════════════════ -->
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False" Focusable="False" Margin="16,10,16,0">
+            <StackPanel>
+                <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="270" Gap="14">
+                    <!-- Hero: expected profit -->
+                    <Border Style="{StaticResource Sl.Hero}">
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}" Style="{StaticResource Sl.Label}"
+                                       TextWrapping="Wrap" Foreground="{DynamicResource Ov.OnAccent}"/>
+                            <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}" Style="{StaticResource Sl.Value}"
+                                       TextWrapping="Wrap" Foreground="{DynamicResource Ov.OnAccent}"
+                                       Typography.NumeralAlignment="Tabular"
+                                       ToolTip="{Binding ExpectedProfit}"/>
+                            <TextBlock Text="{DynamicResource Module.SheetStore}" Style="{StaticResource Sl.Subtitle}"
+                                       TextWrapping="Wrap" Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+                        </StackPanel>
                     </Border>
 
-                    <!-- Segmented View Mode Toggle: GLASS SHEETS vs CONSUMABLES -->
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <!-- Glass Sheets Pill Pair -->
-                        <Button Command="{Binding ShowGlassCommand}"
-                                Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,6,0">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                    <Setter Property="Height" Value="34"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsGlassView}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        <Button Command="{Binding ShowGlassCommand}"
-                                Tag="&#xE7B8;" Content="GLASS SHEETS" Margin="0,0,6,0">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                    <Setter Property="Height" Value="34"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsGlassView}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-
-                        <!-- Consumables Pill Pair -->
-                        <Button Command="{Binding ShowConsumablesCommand}"
-                                Tag="&#xE71D;" Content="CONSUMABLES" Margin="0,0,8,0">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                    <Setter Property="Height" Value="34"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsConsumablesView}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        <Button Command="{Binding ShowConsumablesCommand}"
-                                Tag="&#xE71D;" Content="CONSUMABLES" Margin="0,0,8,0">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                    <Setter Property="Height" Value="34"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsConsumablesView}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-
-                        <!-- Low Stock Badge -->
-                        <Border Background="{DynamicResource DangerBrush}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="9,4" VerticalAlignment="Center" Margin="0,0,4,0"
-                                Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="{Binding LowStockCount, StringFormat={}{0} LOW}"
-                                       FontSize="{DynamicResource FontSize.BodySmall}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        </Border>
-                    </StackPanel>
-                </StackPanel>
-
-                <!-- Right Action Buttons -->
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button x:Name="ActionsMenuButton"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Height="36"
-                            Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
-                            ToolTip="{DynamicResource SheetStore.MoreActions}"
-                            Margin="0,0,10,0"
-                            behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
-
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Height="36"
-                            Tag="&#xE710;" Content="{DynamicResource SheetStore.ADDNEW}"
-                            ToolTip="{DynamicResource SheetStore.AddNewGlassSheet}"
-                            Command="{Binding AddNewStockCommand}"/>
-
-                    <!-- Action Popup Menu -->
-                    <Popup x:Name="ActionsMenuPopup"
-                           PlacementTarget="{Binding ElementName=ActionsMenuButton}"
-                           Placement="Bottom"
-                           VerticalOffset="4"
-                           AllowsTransparency="True"
-                           StaysOpen="True"
-                           PopupAnimation="Fade">
-                        <Border Background="{DynamicResource PopupSurfaceBrush}"
-                                BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
-                                Padding="6"
-                                SnapsToDevicePixels="True">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="20" ShadowDepth="4"
-                                                  Direction="270" Opacity="0.22"
-                                                  Color="{DynamicResource LiquidShadowColor}"/>
-                            </Border.Effect>
-                            <StackPanel MinWidth="180">
-                                <Button Style="{StaticResource SheetMenuActionItem}"
-                                        Tag="&#xE72C;" Content="{DynamicResource SheetStore.RefreshData}"
-                                        Command="{Binding RefreshCommand}"
-                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource SheetMenuActionItem}"
-                                        Tag="&#xE896;" Content="{DynamicResource SheetStore.ImportCSV}"
-                                        Command="{Binding ImportCsvCommand}"
-                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Border Height="1" Margin="8,4" Background="{DynamicResource BorderDefaultBrush}"/>
-                                <Button Style="{StaticResource SheetMenuActionItem}"
-                                        Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
-                                        Command="{Binding ExportCsvCommand}"
-                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource SheetMenuActionItem}"
-                                        Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
-                                        Command="{Binding ExportExcelCommand}"
-                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource SheetMenuActionItem}"
-                                        Tag="&#xE8A5;" Content="{DynamicResource SheetStore.ExportPDFReport}"
-                                        Command="{Binding ExportPdfCommand}"
-                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Button Style="{StaticResource SheetMenuActionItem}"
-                                        Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
-                                        Command="{Binding ShareCommand}"
-                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
-                                <Border Height="1" Margin="8,4" Background="{DynamicResource BorderDefaultBrush}"/>
-                                <Button Style="{StaticResource SheetMenuActionItem}"
-                                        Tag="&#xE81C;" Content="{DynamicResource SheetStore.ShowHistory}"
-                                        Command="{Binding ShowHistoryCommand}"
-                                        behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                    <!-- KPI band -->
+                    <layout:IndigoDashboardPanel MaxColumns="3" MinimumColumnWidth="126" Gap="10">
+                        <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource DeliveryNote.Items}" Style="{StaticResource Sl.Label}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding TotalItems}" Style="{StaticResource Sl.Value}"
+                                           Typography.NumeralAlignment="Tabular" TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalItems}"/>
                             </StackPanel>
                         </Border>
-                    </Popup>
-                </StackPanel>
-            </DockPanel>
+                        <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.Stock}" Style="{StaticResource Sl.Label}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding TotalStock}" Style="{StaticResource Sl.Value}"
+                                           Foreground="{DynamicResource Ov.Success}"
+                                           Typography.NumeralAlignment="Tabular" TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalStock}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.BuyingValue}" Style="{StaticResource Sl.Label}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource Sl.Value}"
+                                           Foreground="{DynamicResource Ov.Danger}"
+                                           Typography.NumeralAlignment="Tabular" TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalBuyingValue}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Sl.Card}" Padding="14,10">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.SellingValue}" Style="{StaticResource Sl.Label}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource Sl.Value}"
+                                           Foreground="{DynamicResource Ov.Success}"
+                                           Typography.NumeralAlignment="Tabular" TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalSellingValue}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Sl.Card}" Padding="14,10" ToolTip="{DynamicResource SheetStore.UsedValueTip}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.UsedValue}" Style="{StaticResource Sl.Label}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}" Style="{StaticResource Sl.Value}"
+                                           Foreground="{DynamicResource Ov.Warning}"
+                                           Typography.NumeralAlignment="Tabular" TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalUsedValue}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource Sl.Card}" Padding="14,10" ToolTip="{DynamicResource SheetStore.BalanceValueTip}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.BalanceValue}" Style="{StaticResource Sl.Label}" TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}" Style="{StaticResource Sl.Value}"
+                                           Foreground="{DynamicResource Ov.Accent}"
+                                           Typography.NumeralAlignment="Tabular" TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalBalanceValue}"/>
+                            </StackPanel>
+                        </Border>
+                    </layout:IndigoDashboardPanel>
 
-            <!-- ═══════════════════════════════════════════════════════════
-                 BENTO KPI BAND — 7 balanced micro cards with clean gutters
-            ═══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="1.15*"/>
-                    <ColumnDefinition Width="1.15*"/>
-                    <ColumnDefinition Width="1.15*"/>
-                    <ColumnDefinition Width="1.15*"/>
-                    <ColumnDefinition Width="1.2*"/>
-                </Grid.ColumnDefinitions>
+                    <!-- Actions card -->
+                    <Border Style="{StaticResource Sl.Card}">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="{DynamicResource Common.Actions}" Style="{StaticResource Sl.Label}" VerticalAlignment="Center"/>
+                                <Border Grid.Column="1"
+                                        Background="{DynamicResource Ov.DangerSoft}"
+                                        CornerRadius="{DynamicResource Radius.Small}" Padding="8,3"
+                                        VerticalAlignment="Center"
+                                        Visibility="{Binding HasLowStock, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding LowStockCount, StringFormat={}{0} LOW}"
+                                               FontSize="{DynamicResource FontSize.Caption}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Danger}"/>
+                                </Border>
+                            </Grid>
 
-                <!-- 1. Total Items -->
-                <Border Grid.Column="0" Style="{StaticResource Ov.CardMicro}" Margin="0,0,4,0">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource DeliveryNote.Items}"
-                                   Style="{StaticResource Ov.Meta}"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <Viewbox MaxHeight="22" HorizontalAlignment="Left" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding TotalItems}"
-                                       Style="{StaticResource Ov.Value}"
-                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalItems}"/>
-                        </Viewbox>
-                    </StackPanel>
-                </Border>
+                            <!-- View mode toggle -->
+                            <WrapPanel Margin="0,8,0,0">
+                                <!-- Outlined pair shows while the view is NOT active -->
+                                <Button Command="{Binding ShowGlassCommand}"
+                                        Tag="&#xE7B8;" Content="Glass sheets" Margin="0,0,6,4">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsGlassView}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Command="{Binding ShowGlassCommand}"
+                                        Tag="&#xE7B8;" Content="Glass sheets" Margin="0,0,6,4">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsGlassView}" Value="False">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Command="{Binding ShowConsumablesCommand}"
+                                        Tag="&#xE71D;" Content="Consumables" Margin="0,0,6,4">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsConsumablesView}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                                <Button Command="{Binding ShowConsumablesCommand}"
+                                        Tag="&#xE71D;" Content="Consumables" Margin="0,0,6,4">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsConsumablesView}" Value="False">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </WrapPanel>
 
-                <!-- 2. Total In-Stock -->
-                <Border Grid.Column="1" Style="{StaticResource Ov.CardMicro}" Margin="4,0">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource SheetStore.Stock}"
-                                   Style="{StaticResource Ov.Meta}"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <Viewbox MaxHeight="22" HorizontalAlignment="Left" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding TotalStock}"
-                                       Style="{StaticResource Ov.Value}"
-                                       Foreground="{DynamicResource SuccessBrush}"
-                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalStock}"/>
-                        </Viewbox>
-                    </StackPanel>
-                </Border>
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button x:Name="ActionsMenuButton" Grid.Column="0"
+                                        Style="{StaticResource Sl.Button}" HorizontalAlignment="Stretch"
+                                        Tag="&#xE712;" Content="{DynamicResource Common.Actions}"
+                                        ToolTip="{DynamicResource SheetStore.MoreActions}"
+                                        behaviors:DropdownButtonBehavior.Popup="{Binding ElementName=ActionsMenuPopup}"/>
+                                <Button Grid.Column="2" Style="{StaticResource Sl.PrimaryButton}" HorizontalAlignment="Stretch"
+                                        Tag="&#xE710;" Content="{DynamicResource SheetStore.ADDNEW}"
+                                        ToolTip="{DynamicResource SheetStore.AddNewGlassSheet}"
+                                        Command="{Binding AddNewStockCommand}"/>
+                            </Grid>
 
-                <!-- 3. Buying Value -->
-                <Border Grid.Column="2" Style="{StaticResource Ov.CardMicro}" Margin="4,0">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource SheetStore.BuyingValue}"
-                                   Style="{StaticResource Ov.Meta}"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <Viewbox MaxHeight="22" HorizontalAlignment="Left" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}"
-                                       Style="{StaticResource Ov.Value}"
-                                       Foreground="{DynamicResource DangerBrush}"
-                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalBuyingValue}"/>
-                        </Viewbox>
-                    </StackPanel>
-                </Border>
-
-                <!-- 4. Selling Value -->
-                <Border Grid.Column="3" Style="{StaticResource Ov.CardMicro}" Margin="4,0">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource SheetStore.SellingValue}"
-                                   Style="{StaticResource Ov.Meta}"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <Viewbox MaxHeight="22" HorizontalAlignment="Left" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}"
-                                       Style="{StaticResource Ov.Value}"
-                                       Foreground="{DynamicResource SuccessBrush}"
-                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalSellingValue}"/>
-                        </Viewbox>
-                    </StackPanel>
-                </Border>
-
-                <!-- 5. Used Value -->
-                <Border Grid.Column="4" Style="{StaticResource Ov.CardMicro}" Margin="4,0"
-                        ToolTip="{DynamicResource SheetStore.UsedValueTip}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource SheetStore.UsedValue}"
-                                   Style="{StaticResource Ov.Meta}"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <Viewbox MaxHeight="22" HorizontalAlignment="Left" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding TotalUsedValue, StringFormat={}{0:N0} AED}"
-                                       Style="{StaticResource Ov.Value}"
-                                       Foreground="{DynamicResource WarningBrush}"
-                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalUsedValue}"/>
-                        </Viewbox>
-                    </StackPanel>
-                </Border>
-
-                <!-- 6. Balance Value -->
-                <Border Grid.Column="5" Style="{StaticResource Ov.CardMicro}" Margin="4,0"
-                        ToolTip="{DynamicResource SheetStore.BalanceValueTip}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource SheetStore.BalanceValue}"
-                                   Style="{StaticResource Ov.Meta}"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <Viewbox MaxHeight="22" HorizontalAlignment="Left" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding TotalBalanceValue, StringFormat={}{0:N0} AED}"
-                                       Style="{StaticResource Ov.Value}"
-                                       Foreground="{DynamicResource InfoBrush}"
-                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding TotalBalanceValue}"/>
-                        </Viewbox>
-                    </StackPanel>
-                </Border>
-
-                <!-- 7. Expected Profit -->
-                <Border Grid.Column="6" Style="{StaticResource Ov.CardMicro}" Margin="4,0,0,0"
-                        ToolTip="{DynamicResource SheetStore.ExpectedProfitTip}">
-                    <StackPanel>
-                        <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}"
-                                   Style="{StaticResource Ov.Meta}"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <Viewbox MaxHeight="22" HorizontalAlignment="Left" Margin="0,4,0,0">
-                            <TextBlock Text="{Binding ExpectedProfit, StringFormat={}{0:N0} AED}"
-                                       Style="{StaticResource Ov.Value}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       TextTrimming="CharacterEllipsis" ToolTip="{Binding ExpectedProfit}"/>
-                        </Viewbox>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <!-- ═══════════════════════════════════════════════════════════
-                 BENTO FILTER & SEARCH BAR
-            ═══════════════════════════════════════════════════════════ -->
-            <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,4">
-                <StackPanel>
-                    <Grid Visibility="{Binding IsGlassView, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="1.2*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Category Filter -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{DynamicResource SheetStore.Category}"
-                                       Style="{StaticResource Ov.Meta}" Margin="2,0,0,3"/>
-                            <ComboBox ItemsSource="{Binding CategoryOptions}"
-                                      SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
-                                      Style="{StaticResource ModernComboBoxStyle}"/>
+                            <!-- Action popup menu -->
+                            <Popup x:Name="ActionsMenuPopup"
+                                   PlacementTarget="{Binding ElementName=ActionsMenuButton}"
+                                   Placement="Bottom"
+                                   VerticalOffset="4"
+                                   AllowsTransparency="True"
+                                   StaysOpen="True"
+                                   PopupAnimation="Fade">
+                                <Border Background="{DynamicResource Ov.Surface}"
+                                        BorderBrush="{DynamicResource Ov.Line}"
+                                        BorderThickness="1"
+                                        CornerRadius="{DynamicResource Radius.Medium}"
+                                        Padding="6"
+                                        SnapsToDevicePixels="True">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                          Direction="270" Opacity="0.22"
+                                                          Color="{DynamicResource LiquidShadowColor}"/>
+                                    </Border.Effect>
+                                    <StackPanel MinWidth="190">
+                                        <Button Style="{StaticResource SheetMenuActionItem}"
+                                                Tag="&#xE72C;" Content="{DynamicResource SheetStore.RefreshData}"
+                                                Command="{Binding RefreshCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Button Style="{StaticResource SheetMenuActionItem}"
+                                                Tag="&#xE896;" Content="{DynamicResource SheetStore.ImportCSV}"
+                                                Command="{Binding ImportCsvCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Border Height="1" Margin="8,4" Background="{DynamicResource Ov.Line}"/>
+                                        <Button Style="{StaticResource SheetMenuActionItem}"
+                                                Tag="&#xE72D;" Content="{DynamicResource DeliveryNote.ExportCSV}"
+                                                Command="{Binding ExportCsvCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Button Style="{StaticResource SheetMenuActionItem}"
+                                                Tag="&#xE9F9;" Content="{DynamicResource DeliveryNote.ExportExcel}"
+                                                Command="{Binding ExportExcelCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Button Style="{StaticResource SheetMenuActionItem}"
+                                                Tag="&#xE8A5;" Content="{DynamicResource SheetStore.ExportPDFReport}"
+                                                Command="{Binding ExportPdfCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Button Style="{StaticResource SheetMenuActionItem}"
+                                                Tag="&#xE72D;" Content="{DynamicResource Sharing.Share}"
+                                                Command="{Binding ShareCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                        <Border Height="1" Margin="8,4" Background="{DynamicResource Ov.Line}"/>
+                                        <Button Style="{StaticResource SheetMenuActionItem}"
+                                                Tag="&#xE81C;" Content="{DynamicResource SheetStore.ShowHistory}"
+                                                Command="{Binding ShowHistoryCommand}"
+                                                behaviors:DropdownButtonBehavior.ClosePopup="{Binding ElementName=ActionsMenuPopup}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Popup>
                         </StackPanel>
+                    </Border>
+                </layout:IndigoDashboardPanel>
 
-                        <!-- Thickness Filter -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="{DynamicResource ProformaInvoice.Thickness}"
-                                       Style="{StaticResource Ov.Meta}" Margin="2,0,0,3"/>
-                            <ComboBox ItemsSource="{Binding ThicknessOptions}"
-                                      SelectedItem="{Binding SelectedThickness, Mode=TwoWay}"
-                                      Style="{StaticResource ModernComboBoxStyle}"/>
-                        </StackPanel>
-
-                        <!-- Color Filter -->
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="{DynamicResource ProformaInvoice.Color}"
-                                       Style="{StaticResource Ov.Meta}" Margin="2,0,0,3"/>
-                            <ComboBox ItemsSource="{Binding ColorOptions}"
-                                      SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
-                                      Style="{StaticResource ModernComboBoxStyle}"/>
-                        </StackPanel>
-
-                        <!-- Supplier Filter -->
-                        <StackPanel Grid.Column="6">
-                            <TextBlock Text="{DynamicResource SheetStore.Supplier}"
-                                       Style="{StaticResource Ov.Meta}" Margin="2,0,0,3"/>
-                            <ComboBox ItemsSource="{Binding SupplierOptions}"
-                                      SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
-                                      Style="{StaticResource ModernComboBoxStyle}"/>
-                        </StackPanel>
-
-                        <!-- Sort Filter -->
-                        <StackPanel Grid.Column="8">
-                            <TextBlock Text="{DynamicResource SheetStore.SORT}"
-                                       Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource AccentBrush}" Margin="2,0,0,3"/>
-                            <ComboBox ItemsSource="{Binding SortOptions}"
-                                      SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
-                                      Style="{StaticResource ModernComboBoxStyle}"/>
-                        </StackPanel>
-
-                        <!-- Clear Filters -->
-                        <StackPanel Grid.Column="10" VerticalAlignment="Bottom">
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Height="32"
+                <!-- FILTER CARD -->
+                <Border Style="{StaticResource Sl.FilterBar}" Margin="0,10,0,10">
+                    <StackPanel>
+                        <WrapPanel Visibility="{Binding IsGlassView, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.Category}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                                <ComboBox Margin="0,0,8,4" Width="150"
+                                          ItemsSource="{Binding CategoryOptions}"
+                                          SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+                                          Style="{StaticResource Sl.Combo}"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.Thickness}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                                <ComboBox Margin="0,0,8,4" Width="120"
+                                          ItemsSource="{Binding ThicknessOptions}"
+                                          SelectedItem="{Binding SelectedThickness, Mode=TwoWay}"
+                                          Style="{StaticResource Sl.Combo}"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                                <ComboBox Margin="0,0,8,4" Width="140"
+                                          ItemsSource="{Binding ColorOptions}"
+                                          SelectedItem="{Binding SelectedColor, Mode=TwoWay}"
+                                          Style="{StaticResource Sl.Combo}"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                                <ComboBox Margin="0,0,8,4" Width="150"
+                                          ItemsSource="{Binding SupplierOptions}"
+                                          SelectedItem="{Binding SelectedSupplier, Mode=TwoWay}"
+                                          Style="{StaticResource Sl.Combo}"/>
+                            </StackPanel>
+                            <StackPanel>
+                                <TextBlock Text="{DynamicResource SheetStore.SORT}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                                <ComboBox Margin="0,0,8,4" Width="160"
+                                          ItemsSource="{Binding SortOptions}"
+                                          SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
+                                          Style="{StaticResource Sl.Combo}"/>
+                            </StackPanel>
+                            <Button Style="{StaticResource Sl.Button}" VerticalAlignment="Bottom" Margin="0,0,0,4"
                                     Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
                                     ToolTip="{DynamicResource SheetStore.ClearFilters}"
-                                    MinWidth="84"
+                                    MinWidth="88"
                                     Command="{Binding ClearFiltersCommand}"
                                     Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        </StackPanel>
-                    </Grid>
+                        </WrapPanel>
 
-                    <!-- Fast Live Search Bar -->
-                    <Border BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
-                            Background="{DynamicResource Ov.Soft}"
-                            CornerRadius="{DynamicResource Radius.Medium}" Padding="10,6" Margin="0,8,0,0"
-                            SnapsToDevicePixels="True">
-                        <DockPanel>
-                            <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="{DynamicResource FontSize.Icon}"
-                                       Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
-                                     behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
-                                     BorderThickness="0" Background="Transparent"
-                                     FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource TextPrimaryBrush}"
-                                     VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
-                        </DockPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
-        </StackPanel>
+                        <!-- Fast live search -->
+                        <Border BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
+                                Background="{DynamicResource Ov.Soft}"
+                                CornerRadius="{DynamicResource Radius.Medium}" Padding="10,7" Margin="0,4,0,0"
+                                SnapsToDevicePixels="True">
+                            <DockPanel>
+                                <TextBlock Text="&#xE721;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Icon}"
+                                           Foreground="{DynamicResource Ov.Accent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                                         BorderThickness="0" Background="Transparent"
+                                         FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Ink}"
+                                         VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+                            </DockPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             MAIN WORK DECK — Proportional DataGrid + Animated Bento Sidebar
-        ═══════════════════════════════════════════════════════════ -->
-        <Grid Grid.Row="1" Margin="20,0,20,16">
+        <!-- ══ DATA DECK ═════════════════════════════════════════════ -->
+        <Grid Grid.Row="1" Margin="16,0,16,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <!-- Animated Bento slide sidebar: width 0 when closed, 376 when open -->
+                <!-- Animated slide panel: width 0 when closed, 376 when open -->
                 <ColumnDefinition x:Name="DetailColumn" Width="0"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ══ GLASS SHEETS PROPORTIONAL LIST ══ -->
+            <!-- ══ GLASS SHEETS LIST ══ -->
             <Grid Grid.Column="0" Visibility="{Binding IsGlassView, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <!-- Sticky Table Header (Proportional Columns: Total ~1000 DIPs) -->
-                <Border Grid.Row="0"
-                        Background="{DynamicResource AccentBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="1,1,1,0"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,9"
-                        SnapsToDevicePixels="True">
+                <Border Style="{StaticResource Sl.Card}" Padding="0">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="45"/>
-                            <ColumnDefinition Width="1.3*"/>
-                            <ColumnDefinition Width="0.8*"/>
-                            <ColumnDefinition Width="0.9*"/>
-                            <ColumnDefinition Width="1.1*"/>
-                            <ColumnDefinition Width="1.2*"/>
-                            <ColumnDefinition Width="95"/>
-                            <ColumnDefinition Width="95"/>
-                            <ColumnDefinition Width="65"/>
-                            <ColumnDefinition Width="65"/>
-                            <ColumnDefinition Width="65"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="#" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="1" Padding="4,0" Text="{DynamicResource SheetStore.Category}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="2" Padding="4,0" Text="{DynamicResource SheetStore.Thick}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="3" Padding="4,0" Text="{DynamicResource ProformaInvoice.Color}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="4" Padding="4,0" Text="{DynamicResource ProformaInvoice.SIZE}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="5" Padding="4,0" Text="{DynamicResource SheetStore.Supplier}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="6" Padding="4,0" Text="{DynamicResource SheetStore.TotalBUY}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="7" Padding="4,0" Text="{DynamicResource SheetStore.TotalSELL}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="8" Padding="4,0" Text="{DynamicResource SheetStore.Stock}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="9" Padding="4,0" Text="{DynamicResource SheetStore.USED}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="10" Padding="4,0" Text="BAL" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
-                    </Grid>
-                </Border>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                <!-- Virtualized Sheet Data Rows -->
-                <Border Grid.Row="1"
-                        Background="{DynamicResource Ov.Surface}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="{DynamicResource Radius.Bottom.Medium}"
-                        SnapsToDevicePixels="True">
-                    <Grid>
-                        <ListBox ItemsSource="{Binding Sheets}"
-                                 ItemContainerStyle="{StaticResource SheetListBoxItemStyle}"
+                        <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Margin="0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="45"/>
+                                    <ColumnDefinition Width="1.3*"/>
+                                    <ColumnDefinition Width="0.8*"/>
+                                    <ColumnDefinition Width="0.9*"/>
+                                    <ColumnDefinition Width="1.1*"/>
+                                    <ColumnDefinition Width="1.2*"/>
+                                    <ColumnDefinition Width="95"/>
+                                    <ColumnDefinition Width="95"/>
+                                    <ColumnDefinition Width="65"/>
+                                    <ColumnDefinition Width="65"/>
+                                    <ColumnDefinition Width="65"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="#" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0,0,0"/>
+                                <TextBlock Grid.Column="1" Padding="4,0" Text="{DynamicResource SheetStore.Category}" Style="{StaticResource Sl.ColumnLabel}"/>
+                                <TextBlock Grid.Column="2" Padding="4,0" Text="{DynamicResource SheetStore.Thick}" Style="{StaticResource Sl.ColumnLabel}"/>
+                                <TextBlock Grid.Column="3" Padding="4,0" Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Sl.ColumnLabel}"/>
+                                <TextBlock Grid.Column="4" Padding="4,0" Text="{DynamicResource ProformaInvoice.SIZE}" Style="{StaticResource Sl.ColumnLabel}"/>
+                                <TextBlock Grid.Column="5" Padding="4,0" Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource Sl.ColumnLabel}"/>
+                                <TextBlock Grid.Column="6" Padding="4,0" Text="{DynamicResource SheetStore.TotalBUY}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="7" Padding="4,0" Text="{DynamicResource SheetStore.TotalSELL}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="8" Padding="4,0" Text="{DynamicResource SheetStore.Stock}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="9" Padding="4,0" Text="{DynamicResource SheetStore.USED}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="10" Padding="4,0" Text="BAL" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding Sheets}"
+                                 ItemContainerStyle="{StaticResource Sl.ListItem}"
                                  BorderThickness="0"
                                  Background="Transparent"
-                                 Padding="8,6"
-                                 Focusable="False"
+                                 Padding="0"
+                                 Focusable="True"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                                  ScrollViewer.CanContentScroll="False"
@@ -566,26 +437,17 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectSheetCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
-                                            Padding="10,8"
-                                            CornerRadius="{DynamicResource Radius.Medium}"
-                                            BorderThickness="1"
-                                            Background="Transparent"
-                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                            SnapsToDevicePixels="True">
+                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding}">
                                         <Border.InputBindings>
                                             <MouseBinding MouseAction="LeftDoubleClick"
                                                           Command="{Binding DataContext.OpenEditPanelCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                           CommandParameter="{Binding}"/>
                                         </Border.InputBindings>
                                         <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
-                                                <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+                                            <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
+                                                <Setter Property="MinHeight" Value="52"/>
+                                                <Setter Property="Cursor" Value="Hand"/>
                                                 <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
-                                                    </Trigger>
                                                     <DataTrigger Value="True">
                                                         <DataTrigger.Binding>
                                                             <MultiBinding Converter="{StaticResource ReferenceEqualityConverter}">
@@ -593,8 +455,7 @@
                                                                 <Binding/>
                                                             </MultiBinding>
                                                         </DataTrigger.Binding>
-                                                        <Setter Property="Background" Value="{DynamicResource SelectionBrush}"/>
-                                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -614,81 +475,69 @@
                                                 <ColumnDefinition Width="65"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- ID -->
-                                            <TextBlock Grid.Column="0" Text="{Binding Id}"
+                                            <TextBlock Grid.Column="0" Text="{Binding Id}" Margin="12,0,0,0"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource TextTertiaryBrush}"
-                                                       VerticalAlignment="Center"/>
-
-                                            <!-- Category -->
+                                                       Foreground="{DynamicResource Ov.Muted}"
+                                                       VerticalAlignment="Center"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                             <TextBlock Grid.Column="1" Padding="4,0" Text="{Binding Category}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}"
+                                                       Foreground="{DynamicResource Ov.Ink}"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Category}"
                                                        VerticalAlignment="Center"/>
-
-                                            <!-- Thickness -->
                                             <TextBlock Grid.Column="2" Padding="4,0" Text="{Binding ThicknessDisplay}"
                                                        FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource AccentBrush}" FontWeight="{DynamicResource Weight.Bold}"
-                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-
-                                            <!-- Color -->
+                                                       Foreground="{DynamicResource Ov.Accent}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                             <TextBlock Grid.Column="3" Padding="4,0" Text="{Binding Color}"
                                                        FontSize="{DynamicResource FontSize.Body}"
-                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       Foreground="{DynamicResource Ov.Muted}"
                                                        TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-
-                                            <!-- Size -->
                                             <TextBlock Grid.Column="4" Padding="4,0" Text="{Binding SizeDisplay}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-
-                                            <!-- Supplier -->
+                                                       Foreground="{DynamicResource Ov.Ink}"
+                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                             <TextBlock Grid.Column="5" Padding="4,0" Text="{Binding Supplier}"
                                                        FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                                       Foreground="{DynamicResource Ov.Muted}"
                                                        TextTrimming="CharacterEllipsis" ToolTip="{Binding Supplier}"
                                                        VerticalAlignment="Center"/>
-
-                                            <!-- Buy Value -->
                                             <TextBlock Grid.Column="6" Padding="4,0" Text="{Binding TotalPurchaseValue, StringFormat={}{0:N0}}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource DangerBrush}"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
-
-                                            <!-- Sell Value -->
+                                                       Foreground="{DynamicResource Ov.Danger}"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                             <TextBlock Grid.Column="7" Padding="4,0" Text="{Binding TotalSellValue, StringFormat={}{0:N0}}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource SuccessBrush}"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                                       Foreground="{DynamicResource Ov.Success}"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                       Typography.NumeralAlignment="Tabular"/>
 
-                                            <!-- Stock Pill -->
                                             <Border Grid.Column="8" Margin="4,0"
                                                     Background="{DynamicResource Ov.SuccessSoft}"
-                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="6,2"
+                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="7,3"
                                                     HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Stock}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Success}"
+                                                           Typography.NumeralAlignment="Tabular"/>
                                             </Border>
-
-                                            <!-- Used Pill -->
                                             <Border Grid.Column="9" Margin="4,0"
                                                     Background="{DynamicResource Ov.DangerSoft}"
-                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="6,2"
+                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="7,3"
                                                     HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Used}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource DangerBrush}"/>
+                                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Danger}"
+                                                           Typography.NumeralAlignment="Tabular"/>
                                             </Border>
-
-                                            <!-- Balance Pill -->
                                             <Border Grid.Column="10" Margin="4,0"
                                                     Background="{DynamicResource Ov.WarningSoft}"
-                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="6,2"
+                                                    CornerRadius="{DynamicResource Radius.Small}" Padding="7,3"
                                                     HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Balance}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Warning}"
+                                                           Typography.NumeralAlignment="Tabular"/>
                                             </Border>
                                         </Grid>
                                     </Border>
@@ -696,8 +545,8 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <!-- Empty State -->
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <!-- Empty state -->
+                        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
                                     IsHitTestVisible="False"
                                     Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                             <emptyState:EmptyStateControl
@@ -709,50 +558,39 @@
                 </Border>
             </Grid>
 
-            <!-- ══ CONSUMABLES PROPORTIONAL LIST ══ -->
+            <!-- ══ CONSUMABLES LIST ══ -->
             <Grid Grid.Column="0" Visibility="{Binding IsConsumablesView, Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <!-- Sticky Consumables Header -->
-                <Border Grid.Row="0"
-                        Background="{DynamicResource AccentBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="1,1,1,0"
-                        CornerRadius="{DynamicResource Radius.Top.Medium}" Padding="16,9"
-                        SnapsToDevicePixels="True">
+                <Border Style="{StaticResource Sl.Card}" Padding="0">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2.2*"/>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="1.1*"/>
-                            <ColumnDefinition Width="290"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="ITEM" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock Grid.Column="1" Text="BALANCE" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="2" Text="USED" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="VALUE" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="ACTIONS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="8,0,0,0"/>
-                    </Grid>
-                </Border>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                <!-- Virtualized Consumables Rows -->
-                <Border Grid.Row="1"
-                        Background="{DynamicResource Ov.Surface}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="{DynamicResource Radius.Bottom.Medium}"
-                        SnapsToDevicePixels="True">
-                    <Grid>
-                        <ListBox ItemsSource="{Binding Items}"
-                                 ItemContainerStyle="{StaticResource SheetListBoxItemStyle}"
+                        <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Margin="0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2.2*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1*"/>
+                                    <ColumnDefinition Width="1.1*"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="ITEM" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0,0,0"/>
+                                <TextBlock Grid.Column="1" Text="BALANCE" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="2" Text="USED" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="3" Text="VALUE" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="4" Text="ACTIONS" Style="{StaticResource Sl.ColumnLabel}" Margin="8,0,0,0"/>
+                            </Grid>
+                        </Border>
+
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding Items}"
+                                 ItemContainerStyle="{StaticResource Sl.ListItem}"
                                  BorderThickness="0"
                                  Background="Transparent"
-                                 Padding="8,6"
-                                 Focusable="False"
+                                 Padding="0"
+                                 Focusable="True"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"
                                  ScrollViewer.CanContentScroll="False"
@@ -771,22 +609,14 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Border behaviors:ClickToCommandBehavior.Command="{Binding DataContext.SelectItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding}"
-                                            Padding="12,8"
-                                            CornerRadius="{DynamicResource Radius.Medium}"
-                                            BorderThickness="1"
-                                            SnapsToDevicePixels="True">
+                                            behaviors:ClickToCommandBehavior.CommandParameter="{Binding}">
                                         <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
-                                                <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+                                            <Style TargetType="Border" BasedOn="{StaticResource Sl.Row}">
+                                                <Setter Property="MinHeight" Value="52"/>
+                                                <Setter Property="Cursor" Value="Hand"/>
                                                 <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
-                                                    </Trigger>
                                                     <DataTrigger Binding="{Binding IsLowStock}" Value="True">
                                                         <Setter Property="Background" Value="{DynamicResource Ov.DangerSoft}"/>
-                                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -797,22 +627,22 @@
                                                 <ColumnDefinition Width="1*"/>
                                                 <ColumnDefinition Width="1*"/>
                                                 <ColumnDefinition Width="1.1*"/>
-                                                <ColumnDefinition Width="290"/>
+                                                <ColumnDefinition Width="300"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- Item Description -->
-                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <!-- Item description -->
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="12,0,8,0">
                                                 <TextBlock Text="{Binding FullDescription}"
                                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                                                            TextTrimming="CharacterEllipsis" ToolTip="{Binding FullDescription}"
-                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                           Foreground="{DynamicResource Ov.Ink}"/>
                                                 <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                                                     <TextBlock Text="{Binding CategoryDisplay}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource AccentBrush}"/>
+                                                               Foreground="{DynamicResource Ov.Accent}"/>
                                                     <TextBlock Text="{Binding Supplier, StringFormat={}  ·  {0}}"
                                                                FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                               Foreground="{DynamicResource Ov.Muted}"/>
                                                 </StackPanel>
                                             </StackPanel>
 
@@ -820,44 +650,47 @@
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                                                 <TextBlock Text="{Binding BalanceDisplay}"
                                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                                           Foreground="{DynamicResource Ov.Success}"
+                                                           Typography.NumeralAlignment="Tabular"/>
                                                 <TextBlock Text="{Binding UomDisplay}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                           Foreground="{DynamicResource Ov.Muted}"/>
                                             </StackPanel>
 
                                             <!-- Used -->
                                             <TextBlock Grid.Column="2" Text="{Binding Used, StringFormat={}{0:N2}}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource DangerBrush}"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                                       Foreground="{DynamicResource Ov.Danger}"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                       Typography.NumeralAlignment="Tabular"/>
 
                                             <!-- Value -->
                                             <TextBlock Grid.Column="3" Text="{Binding BalanceCostValue, StringFormat={}{0:N0} AED}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                                       Foreground="{DynamicResource Ov.Accent}"
+                                                       VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                       Typography.NumeralAlignment="Tabular"/>
 
-                                            <!-- Row Action Buttons (Standardized 30px height) -->
-                                            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
-                                                <Button Style="{StaticResource RowSuccessButton}"
-                                                        Height="30" MinWidth="60"
-                                                        Tag="&#xE7B8;" Content="BUY"
+                                            <!-- Row actions -->
+                                            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,8,0">
+                                                <Button Style="{StaticResource Sl.SuccessButton}"
+                                                        MinHeight="30" Padding="10,4"
+                                                        Tag="&#xE7B8;" Content="Buy"
                                                         Command="{Binding DataContext.ReceiveItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}"/>
-                                                <Button Style="{StaticResource RowPrimaryButton}"
-                                                        Height="30" MinWidth="60" Margin="4,0,0,0"
-                                                        Tag="&#xE896;" Content="USE"
+                                                <Button Style="{StaticResource Sl.PrimaryButton}"
+                                                        MinHeight="30" Padding="10,4" Margin="4,0,0,0"
+                                                        Tag="&#xE896;" Content="Use"
                                                         Command="{Binding DataContext.ConsumeItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}"/>
-                                                <Button Style="{StaticResource RowOutlinedButton}"
-                                                        Height="30" MinWidth="60" Margin="4,0,0,0"
-                                                        Tag="&#xE8E5;" Content="EDIT"
+                                                <Button Style="{StaticResource Sl.Button}"
+                                                        MinHeight="30" Padding="10,4" Margin="4,0,0,0"
+                                                        Tag="&#xE8E5;" Content="Edit"
                                                         Command="{Binding DataContext.EditItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}"/>
-                                                <Button Style="{StaticResource RowDangerButton}"
-                                                        Height="30" MinWidth="68" Margin="4,0,0,0"
-                                                        Tag="&#xE74D;" Content="DELETE"
+                                                <Button Style="{StaticResource Sl.DangerButton}"
+                                                        MinHeight="30" Padding="10,4" Margin="4,0,0,0"
+                                                        Tag="&#xE74D;" Content="Delete"
                                                         Command="{Binding DataContext.DeleteItemCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
                                                         CommandParameter="{Binding}"/>
                                             </StackPanel>
@@ -867,8 +700,8 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
 
-                        <!-- Empty State -->
-                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                        <!-- Empty state -->
+                        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
                                     IsHitTestVisible="False"
                                     Visibility="{Binding HasNoItems, Converter={StaticResource BoolToVisibilityConverter}}">
                             <emptyState:EmptyStateControl
@@ -880,112 +713,107 @@
                 </Border>
             </Grid>
 
-            <!-- ═══════════════════════════════════════════════════════════
-                 RIGHT SLIDE-IN BENTO DETAIL PANEL
-                 Preserves exact code-behind contract (x:Name="DetailPanel",
-                 TranslateTransform x:Name="PanelSlide")
-            ═══════════════════════════════════════════════════════════ -->
+            <!-- ══ SLIDE-IN DETAIL PANEL (code-behind contract:
+                 x:Name="DetailPanel", TranslateTransform x:Name="PanelSlide") ══ -->
             <Grid x:Name="DetailPanel" Grid.Column="1" Margin="14,0,0,0"
                   Visibility="Collapsed">
                 <Grid.RenderTransform>
                     <TranslateTransform x:Name="PanelSlide" X="0"/>
                 </Grid.RenderTransform>
 
-                <Border Width="360"
-                        VerticalAlignment="Stretch"
-                        Style="{StaticResource Ov.Card}"
-                        Padding="16"
+                <Border Width="360" VerticalAlignment="Stretch"
+                        Style="{StaticResource Sl.Card}" Padding="16"
                         SnapsToDevicePixels="True">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="20" ShadowDepth="4"
-                                          Direction="270" Opacity="0.18"
-                                          Color="{DynamicResource LiquidShadowColor}"/>
-                    </Border.Effect>
-
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <StackPanel>
-                            <!-- Panel Header -->
+                            <!-- Panel header -->
                             <Grid Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Style="{StaticResource Ov.IconBox}" Grid.Column="0">
-                                    <TextBlock Text="&#xE7B8;" Style="{StaticResource Ov.Glyph}"/>
+                                <Border Width="34" Height="34" CornerRadius="{DynamicResource Radius.Medium}"
+                                        Background="{DynamicResource Ov.Soft}" Grid.Column="0">
+                                    <TextBlock Text="&#xE7B8;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Body}"
+                                               Foreground="{DynamicResource Ov.Accent}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
                                     <TextBlock Text="{DynamicResource SheetStore.SheetDetails}"
-                                               Style="{StaticResource Ov.CardTitle}"
-                                               FontSize="{DynamicResource FontSize.H3}"/>
+                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Ink}"/>
                                     <TextBlock Text="{Binding SelectionLabel}"
-                                               Style="{StaticResource Ov.Meta}"
+                                               FontSize="{DynamicResource FontSize.BodySmall}"
+                                               Foreground="{DynamicResource Ov.Muted}"
                                                TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                                 <Button Grid.Column="2"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Width="32" Height="32" Padding="0"
+                                        Style="{StaticResource Sl.Button}"
+                                        Width="32" Height="32" MinWidth="32" Padding="0"
                                         Content="✕" ToolTip="{DynamicResource DeliveryNote.CloseClickRowAgain}"
                                         Command="{Binding ClearSelectionCommand}"/>
                             </Grid>
 
-                            <!-- Valuation Metrics -->
+                            <!-- Valuation metrics -->
                             <TextBlock Text="{DynamicResource DeliveryNote.ROWDetails}"
-                                       Style="{StaticResource Ov.Meta}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Margin="2,0,0,6"/>
+                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ov.Muted}"
+                                       Margin="2,0,0,8"/>
 
-                            <!-- Buying Value Card -->
                             <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10" Margin="0,0,0,8"
                                     Background="{DynamicResource Ov.DangerSoft}"
-                                    BorderBrush="{DynamicResource DangerBrush}"
+                                    BorderBrush="{DynamicResource Ov.Danger}"
                                     BorderThickness="1" SnapsToDevicePixels="True">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource SheetStore.PurchaseValue}"
-                                               Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,2,0,0">
-                                        <TextBlock Text="{Binding DisplayBuyingValue, StringFormat={}{0:N0} AED}"
-                                                   Style="{StaticResource Ov.Value}" Foreground="{DynamicResource DangerBrush}"/>
-                                    </Viewbox>
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Danger}"/>
+                                    <TextBlock Text="{Binding DisplayBuyingValue, StringFormat={}{0:N0} AED}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Ink}"
+                                               Typography.NumeralAlignment="Tabular" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
 
-                            <!-- Selling Value Card -->
                             <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10" Margin="0,0,0,8"
                                     Background="{DynamicResource Ov.SuccessSoft}"
-                                    BorderBrush="{DynamicResource SuccessBrush}"
+                                    BorderBrush="{DynamicResource Ov.Success}"
                                     BorderThickness="1" SnapsToDevicePixels="True">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource SheetStore.SellingValue}"
-                                               Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,2,0,0">
-                                        <TextBlock Text="{Binding DisplaySellingValue, StringFormat={}{0:N0} AED}"
-                                                   Style="{StaticResource Ov.Value}" Foreground="{DynamicResource SuccessBrush}"/>
-                                    </Viewbox>
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Success}"/>
+                                    <TextBlock Text="{Binding DisplaySellingValue, StringFormat={}{0:N0} AED}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Ink}"
+                                               Typography.NumeralAlignment="Tabular" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
 
-                            <!-- Expected Profit Card -->
                             <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="12,10" Margin="0,0,0,12"
                                     Background="{DynamicResource Ov.Soft}"
-                                    BorderBrush="{DynamicResource AccentBrush}"
+                                    BorderBrush="{DynamicResource Ov.Accent}"
                                     BorderThickness="1" SnapsToDevicePixels="True">
                                 <StackPanel>
                                     <TextBlock Text="{DynamicResource SheetStore.ExpectedProfit}"
-                                               Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource AccentBrush}"/>
-                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,2,0,0">
-                                        <TextBlock Text="{Binding DisplayProfit, StringFormat={}{0:N0} AED}"
-                                                   Style="{StaticResource Ov.Value}" Foreground="{DynamicResource AccentBrush}"/>
-                                    </Viewbox>
+                                               FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Accent}"/>
+                                    <TextBlock Text="{Binding DisplayProfit, StringFormat={}{0:N0} AED}"
+                                               FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource Ov.Ink}"
+                                               Typography.NumeralAlignment="Tabular" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
 
-                            <!-- Selected Row Stock: Stock / Used / Balance -->
+                            <!-- Selected row stock: stock / used / balance -->
                             <TextBlock Text="{DynamicResource SheetStore.SelectedROW}"
-                                       Style="{StaticResource Ov.Meta}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Margin="2,0,0,6"/>
+                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ov.Muted}"
+                                       Margin="2,0,0,8"/>
                             <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -994,48 +822,42 @@
                                     <ColumnDefinition Width="6"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-
-                                <!-- Stock -->
-                                <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
+                                <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,8"
                                         Background="{DynamicResource Ov.SuccessSoft}"
-                                        BorderBrush="{DynamicResource SuccessBrush}"
-                                        BorderThickness="1">
+                                        BorderBrush="{DynamicResource Ov.Success}" BorderThickness="1">
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource SheetStore.Stock}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
-                                        <Viewbox MaxHeight="20" HorizontalAlignment="Left" Margin="0,2,0,0">
-                                            <TextBlock Text="{Binding DisplayStock}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource SuccessBrush}"/>
-                                        </Viewbox>
+                                        <TextBlock Text="{DynamicResource SheetStore.Stock}" FontSize="{DynamicResource FontSize.Caption}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Success}"/>
+                                        <TextBlock Text="{Binding DisplayStock}" FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"
+                                                   Typography.NumeralAlignment="Tabular" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
-
-                                <!-- Used -->
-                                <Border Grid.Column="2" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
+                                <Border Grid.Column="2" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,8"
                                         Background="{DynamicResource Ov.DangerSoft}"
-                                        BorderBrush="{DynamicResource DangerBrush}"
-                                        BorderThickness="1">
+                                        BorderBrush="{DynamicResource Ov.Danger}" BorderThickness="1">
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource SheetStore.USED}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
-                                        <Viewbox MaxHeight="20" HorizontalAlignment="Left" Margin="0,2,0,0">
-                                            <TextBlock Text="{Binding DisplayUsed}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource DangerBrush}"/>
-                                        </Viewbox>
+                                        <TextBlock Text="{DynamicResource SheetStore.USED}" FontSize="{DynamicResource FontSize.Caption}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Danger}"/>
+                                        <TextBlock Text="{Binding DisplayUsed}" FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"
+                                                   Typography.NumeralAlignment="Tabular" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
-
-                                <!-- Balance -->
-                                <Border Grid.Column="4" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
+                                <Border Grid.Column="4" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,8"
                                         Background="{DynamicResource Ov.WarningSoft}"
-                                        BorderBrush="{DynamicResource WarningBrush}"
-                                        BorderThickness="1">
+                                        BorderBrush="{DynamicResource Ov.Warning}" BorderThickness="1">
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource Common.Balance}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource WarningBrush}"/>
-                                        <Viewbox MaxHeight="20" HorizontalAlignment="Left" Margin="0,2,0,0">
-                                            <TextBlock Text="{Binding DisplayBalance}" Style="{StaticResource Ov.Value}" Foreground="{DynamicResource WarningBrush}"/>
-                                        </Viewbox>
+                                        <TextBlock Text="{DynamicResource Common.Balance}" FontSize="{DynamicResource FontSize.Caption}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Warning}"/>
+                                        <TextBlock Text="{Binding DisplayBalance}" FontSize="{DynamicResource FontSize.Title}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Ink}"
+                                                   Typography.NumeralAlignment="Tabular" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>
 
-                            <!-- Per-Sheet SQM Pricing -->
+                            <!-- Per-sheet SQM pricing -->
                             <StackPanel Margin="0,0,0,12"
                                         Visibility="{Binding IsRowSelected, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <Grid Margin="0,0,0,6">
@@ -1044,79 +866,82 @@
                                         <ColumnDefinition Width="6"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
+                                    <Border Grid.Column="0" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,8"
                                             Background="{DynamicResource Ov.Soft}"
-                                            BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="1">
+                                            BorderBrush="{DynamicResource Ov.Accent}" BorderThickness="1">
                                         <StackPanel>
-                                            <TextBlock Text="SQM/SHEET" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource AccentBrush}"/>
-                                            <TextBlock Text="{Binding DisplaySqmPerSheet, StringFormat={}{0:0.####}}" Style="{StaticResource Ov.Value}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
+                                            <TextBlock Text="SQM/SHEET" FontSize="{DynamicResource FontSize.Caption}"
+                                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Accent}"/>
+                                            <TextBlock Text="{Binding DisplaySqmPerSheet, StringFormat={}{0:0.####}}"
+                                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource Ov.Ink}" Margin="0,2,0,0"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                         </StackPanel>
                                     </Border>
-                                    <Border Grid.Column="2" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
+                                    <Border Grid.Column="2" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,8"
                                             Background="{DynamicResource Ov.DangerSoft}"
-                                            BorderBrush="{DynamicResource DangerBrush}"
-                                            BorderThickness="1">
+                                            BorderBrush="{DynamicResource Ov.Danger}" BorderThickness="1">
                                         <StackPanel>
-                                            <TextBlock Text="{DynamicResource SheetStore.BUYSQM}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource DangerBrush}"/>
-                                            <TextBlock Text="{Binding DisplayBuyPricePerSqm, StringFormat={}{0:0.##} AED}" Style="{StaticResource Ov.Value}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
+                                            <TextBlock Text="{DynamicResource SheetStore.BUYSQM}" FontSize="{DynamicResource FontSize.Caption}"
+                                                       FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Danger}"/>
+                                            <TextBlock Text="{Binding DisplayBuyPricePerSqm, StringFormat={}{0:0.##} AED}"
+                                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       Foreground="{DynamicResource Ov.Ink}" Margin="0,2,0,0"
+                                                       Typography.NumeralAlignment="Tabular"/>
                                         </StackPanel>
                                     </Border>
                                 </Grid>
-                                <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="8,8"
+                                <Border CornerRadius="{DynamicResource Radius.Medium}" Padding="10,8"
                                         Background="{DynamicResource Ov.SuccessSoft}"
-                                        BorderBrush="{DynamicResource SuccessBrush}"
-                                        BorderThickness="1">
+                                        BorderBrush="{DynamicResource Ov.Success}" BorderThickness="1">
                                     <StackPanel>
-                                        <TextBlock Text="{DynamicResource SheetStore.SELLSQM}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource SuccessBrush}"/>
-                                        <TextBlock Text="{Binding DisplaySellPricePerSqm, StringFormat={}{0:0.##} AED}" Style="{StaticResource Ov.Value}" FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
+                                        <TextBlock Text="{DynamicResource SheetStore.SELLSQM}" FontSize="{DynamicResource FontSize.Caption}"
+                                                   FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource Ov.Success}"/>
+                                        <TextBlock Text="{Binding DisplaySellPricePerSqm, StringFormat={}{0:0.##} AED}"
+                                                   FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                   Foreground="{DynamicResource Ov.Ink}" Margin="0,2,0,0"
+                                                   Typography.NumeralAlignment="Tabular"/>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>
 
                             <Border Height="1" Background="{DynamicResource Ov.Line}" Margin="0,2,0,12"/>
 
-                            <!-- Standardized Bento Action Buttons -->
+                            <!-- Actions -->
                             <TextBlock Text="{DynamicResource Common.Actions}"
-                                       Style="{StaticResource Ov.Meta}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ov.Muted}"
                                        Margin="2,0,0,8"/>
-
                             <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0"
-                                        Style="{StaticResource SuccessPillButton}"
-                                        Height="36"
+                                <Button Grid.Column="0" Style="{StaticResource Sl.SuccessButton}"
+                                        MinHeight="36" HorizontalAlignment="Stretch"
                                         Tag="&#xE7B8;" Content="{DynamicResource SheetStore.BUY}"
                                         Command="{Binding BuyCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
-                                <Button Grid.Column="2"
-                                        Style="{StaticResource PrimaryPillButton}"
-                                        Height="36"
+                                <Button Grid.Column="2" Style="{StaticResource Sl.PrimaryButton}"
+                                        MinHeight="36" HorizontalAlignment="Stretch"
                                         Tag="&#xE896;" Content="{DynamicResource Login.Use}"
                                         Command="{Binding UseCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
                             </Grid>
-
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Height="36"
+                                <Button Grid.Column="0" Style="{StaticResource Sl.Button}"
+                                        MinHeight="36" HorizontalAlignment="Stretch"
                                         Tag="&#xE70F;" Content="{DynamicResource Action.Edit}"
                                         Command="{Binding OpenEditPanelCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
-                                <Button Grid.Column="2"
-                                        Style="{StaticResource DangerButton}"
-                                        Height="36"
+                                <Button Grid.Column="2" Style="{StaticResource Sl.DangerButton}"
+                                        MinHeight="36" HorizontalAlignment="Stretch"
                                         Tag="&#xE74D;" Content="{DynamicResource Action.Delete}"
                                         Command="{Binding DeleteCommand}"
                                         CommandParameter="{Binding SelectedSheet}"/>
@@ -1126,27 +951,26 @@
                 </Border>
             </Grid>
 
-            <!-- ═══════════════════════════════════════════════════════════
-                 RIGHT SLIDE-IN CONSUMABLE ITEM EDITOR PANEL
-                 Preserves exact code-behind contract (x:Name="ItemEditorPanel")
-            ═══════════════════════════════════════════════════════════ -->
+            <!-- ══ SLIDE-IN CONSUMABLE ITEM EDITOR (code-behind
+                 contract: x:Name="ItemEditorPanel") ══ -->
             <Grid x:Name="ItemEditorPanel" Grid.Column="1" Margin="14,0,0,0"
                   Visibility="Collapsed">
                 <Border Width="360" VerticalAlignment="Stretch"
-                        Style="{StaticResource Ov.Card}"
-                        Padding="16"
+                        Style="{StaticResource Sl.Card}" Padding="16"
                         DataContext="{Binding ItemEditor}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <StackPanel Style="{StaticResource Field.Panel}">
                             <TextBlock Text="{Binding Title}"
-                                       Style="{StaticResource Ov.CardTitle}"
+                                       FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource Ov.Ink}"
                                        Margin="0,0,0,12"/>
 
                             <TextBlock Text="NAME" Style="{StaticResource Field.Label}"/>
                             <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding NameError}" Style="{StaticResource Typography.Caption}"
+                                       Foreground="{DynamicResource Ov.Danger}"
                                        Visibility="{Binding HasNameError, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                             <TextBlock Text="CATEGORY" Style="{StaticResource Field.Label}"/>
@@ -1181,6 +1005,7 @@
                                      IsEnabled="{Binding CanEditStock}"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding StockError}" Style="{StaticResource Typography.Caption}"
+                                       Foreground="{DynamicResource Ov.Danger}"
                                        Visibility="{Binding HasStockError, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                             <TextBlock Text="REORDER LEVEL" Style="{StaticResource Field.Label}"/>
@@ -1188,6 +1013,7 @@
                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding ReorderError}" Style="{StaticResource Typography.Caption}"
+                                       Foreground="{DynamicResource Ov.Danger}"
                                        Visibility="{Binding HasReorderError, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                             <TextBlock Text="PURCHASE PRICE / UNIT" Style="{StaticResource Field.Label}"/>
@@ -1195,6 +1021,7 @@
                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding PurchaseError}" Style="{StaticResource Typography.Caption}"
+                                       Foreground="{DynamicResource Ov.Danger}"
                                        Visibility="{Binding HasPurchaseError, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                             <TextBlock Text="SELL PRICE / UNIT" Style="{StaticResource Field.Label}"/>
@@ -1202,16 +1029,17 @@
                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      Style="{StaticResource Input.TextBox}"/>
                             <TextBlock Text="{Binding SellError}" Style="{StaticResource Typography.Caption}"
+                                       Foreground="{DynamicResource Ov.Danger}"
                                        Visibility="{Binding HasSellError, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                             <Border Background="{DynamicResource Ov.WarningSoft}"
-                                    BorderBrush="{DynamicResource WarningBrush}"
+                                    BorderBrush="{DynamicResource Ov.Warning}"
                                     BorderThickness="1" Padding="10,8" Margin="0,4,0,0"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    CornerRadius="{DynamicResource Radius.Medium}"
                                     Visibility="{Binding HasMarginWarning, Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="{Binding MarginWarning}" TextWrapping="Wrap"
                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                           Foreground="{DynamicResource WarningBrush}"/>
+                                           Foreground="{DynamicResource Ov.Warning}"/>
                             </Border>
 
                             <Grid Margin="0,16,0,0">
@@ -1220,13 +1048,13 @@
                                     <ColumnDefinition Width="10"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                                        Height="36"
-                                        Content="CANCEL"
+                                <Button Grid.Column="0" Style="{StaticResource Sl.Button}"
+                                        MinHeight="36" HorizontalAlignment="Stretch"
+                                        Content="{DynamicResource Action.Cancel}"
                                         Command="{Binding DataContext.CloseItemEditorCommand,
                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"/>
-                                <Button Grid.Column="2" Style="{StaticResource PrimaryPillButton}"
-                                        Height="36"
+                                <Button Grid.Column="2" Style="{StaticResource Sl.PrimaryButton}"
+                                        MinHeight="36" HorizontalAlignment="Stretch"
                                         Content="{Binding SaveButtonText}"
                                         Command="{Binding DataContext.SaveItemEditorCommand,
                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"/>
