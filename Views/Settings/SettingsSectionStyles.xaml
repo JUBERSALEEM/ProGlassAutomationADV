@@ -74,7 +74,7 @@
 
     <!-- Rounded password box (API keys). -->
     <Style x:Key="RoundedPasswordBoxStyle" TargetType="PasswordBox">
-        <Setter Property="Height"                   Value="42"/>
+        <Setter Property="Height"                   Value="36"/>
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
         <Setter Property="Padding"                  Value="14,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>

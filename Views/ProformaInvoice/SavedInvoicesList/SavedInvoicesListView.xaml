@@ -121,18 +121,18 @@
                         <Border Style="{StaticResource Sl.FilterBar}">
                             <WrapPanel>
                                 <StackPanel>
-                                    <TextBlock Text="Search" Style="{StaticResource Sl.Label}" Margin="0,0,0,5" />
+                                    <TextBlock Text="Search" Style="{StaticResource Sl.Label}" Margin="0,0,0,3" />
                                     <TextBox
-                                        Margin="0,0,10,8"
+                                        Margin="0,0,8,4"
                                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
                                         Style="{StaticResource Sl.Input}"
                                         ToolTip="{DynamicResource ProformaInvoice.SearchRefCompanyCustomerProject}"
                                         Width="280" />
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="Status" Style="{StaticResource Sl.Label}" Margin="0,0,0,5" />
+                                    <TextBlock Text="Status" Style="{StaticResource Sl.Label}" Margin="0,0,0,3" />
                                     <ComboBox
-                                        Margin="0,0,10,8"
+                                        Margin="0,0,8,4"
                                         MinWidth="120"
                                         ItemsSource="{Binding StatusFilterOptions}"
                                         SelectedItem="{Binding SelectedStatusFilter}"
@@ -140,9 +140,9 @@
                                         Width="180" />
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="Created from" Style="{StaticResource Sl.Label}" Margin="0,0,0,5" />
+                                    <TextBlock Text="Created from" Style="{StaticResource Sl.Label}" Margin="0,0,0,3" />
                                     <DatePicker
-                                        Margin="0,0,10,8"
+                                        Margin="0,0,8,4"
                                         MinWidth="120"
                                         SelectedDate="{Binding FromDate}"
                                         Style="{StaticResource Sl.Date}"
@@ -150,9 +150,9 @@
                                         Width="148" />
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="Created to" Style="{StaticResource Sl.Label}" Margin="0,0,0,5" />
+                                    <TextBlock Text="Created to" Style="{StaticResource Sl.Label}" Margin="0,0,0,3" />
                                     <DatePicker
-                                        Margin="0,0,10,8"
+                                        Margin="0,0,8,4"
                                         MinWidth="120"
                                         SelectedDate="{Binding ToDate}"
                                         Style="{StaticResource Sl.Date}"
@@ -160,9 +160,9 @@
                                         Width="148" />
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="Sort" Style="{StaticResource Sl.Label}" Margin="0,0,0,5" />
+                                    <TextBlock Text="Sort" Style="{StaticResource Sl.Label}" Margin="0,0,0,3" />
                                     <ComboBox
-                                        Margin="0,0,10,8"
+                                        Margin="0,0,8,4"
                                         MinWidth="120"
                                         ItemsSource="{Binding SortPresetOptions}"
                                         SelectedItem="{Binding SelectedSortPreset}"
@@ -171,14 +171,14 @@
                                 </StackPanel>
                                 <CheckBox
                                     VerticalAlignment="Bottom"
-                                    Margin="0,0,10,8"
+                                    Margin="0,0,8,4"
                                     IsChecked="{Binding ShowVoided}"
                                     Content="{DynamicResource Void.ShowVoided}"
                                     ToolTip="{DynamicResource Void.ShowVoidedTip}" />
                                 <Button
                                     Style="{StaticResource Sl.Button}"
                                     Command="{Binding ClearFiltersCommand}"
-                                    Margin="0,0,10,8"
+                                    Margin="0,0,8,4"
                                     MinWidth="92"
                                     Tag="&#xE711;"
                                     Content="{DynamicResource Action.Clear}"
@@ -187,7 +187,7 @@
                                 <Button
                                     Style="{StaticResource Sl.Button}"
                                     Command="{Binding SetTodayFilterCommand}"
-                                    Margin="0,0,10,8"
+                                    Margin="0,0,8,4"
                                     MinWidth="92"
                                     Tag="&#xE787;"
                                     Content="{DynamicResource Shell.Today}"

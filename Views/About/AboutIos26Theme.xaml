@@ -110,7 +110,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Ios26CardBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
-        <Setter Property="Padding" Value="22,20"/>
+        <Setter Property="Padding" Value="18,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Effect" Value="{DynamicResource Ios26CardShadow}"/>
     </Style>
@@ -123,7 +123,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Ios26TileBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
-        <Setter Property="Padding" Value="14,12"/>
+        <Setter Property="Padding" Value="12,8"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
     <Style x:Key="AboutInsetStyle" TargetType="Border"

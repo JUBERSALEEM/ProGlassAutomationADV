@@ -16,15 +16,15 @@
              FontFamily="{DynamicResource AppFontFamily}">
 
     <StackPanel>
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
             <Button x:Name="SelectAllButton"
                     Content="{DynamicResource Inquiry.Select}"
                     Style="{StaticResource PiGhostChipButton}"
-                    Height="32" MinWidth="110" Margin="0,0,8,0"/>
+                    Height="30" MinWidth="110" Margin="0,0,8,0"/>
             <Button x:Name="SelectNoneButton"
                     Content="{DynamicResource TaxInvoice.SelectNONE}"
                     Style="{StaticResource PiGhostChipButton}"
-                    Height="32" MinWidth="110"/>
+                    Height="30" MinWidth="110"/>
         </StackPanel>
 
         <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -36,7 +36,7 @@
                     <DataTemplate>
                         <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                Padding="4,10">
+                                Padding="4,6">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
