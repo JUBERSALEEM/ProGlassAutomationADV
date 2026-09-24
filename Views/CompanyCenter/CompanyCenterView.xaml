@@ -1,12 +1,8 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/CompanyCenter/CompanyCenterView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Company Center — Full Studio Bento Redesign (2026-09-23)
-     Adopts Overview Dashboard aesthetic: compact bento cards, clean shapes,
-     smart multi-column placement, zero oversized monolithic containers.
-═══════════════════════════════════════════════════════════════════════ -->
-<UserControl Style="{StaticResource ErpPageRootStyle}"
-             x:Class="ProGlassAutomation.Views.CompanyCenter.CompanyCenterView"
+<!-- Company Center — Studio Bento fresh UI, same visual contract as the
+     Proforma Invoice list (SavedInvoicesListView): Sl.* hero band,
+     cards, inputs and buttons. All company list, editor, logo-studio
+     and save bindings retained. No private card styles. -->
+<UserControl x:Class="ProGlassAutomation.Views.CompanyCenter.CompanyCenterView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,34 +13,14 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="{DynamicResource Ov.Canvas}">
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
 
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-
-        <!-- Bento card container style matching Overview Dashboard aesthetic -->
-        <Style x:Key="CompanyCenterCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
-            <Setter Property="BorderThickness" Value="{DynamicResource Border.HairlineThickness}"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
-            <Setter Property="Padding" Value="20,18"/>
-            <Setter Property="Margin" Value="0,0,0,16"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <!-- Bento header icon tile style -->
-        <Style x:Key="CompanyCenterIconTileStyle" TargetType="Border">
-            <Setter Property="Width" Value="36"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-            <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-        </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -53,80 +29,72 @@
                   Focusable="False"
                   Background="Transparent"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <StackPanel Margin="28,24,28,32">
+        <StackPanel Margin="20,16,20,24">
 
-            <!-- ═══ BENTO HERO HEADER STRIP ═══ -->
-            <Border Style="{StaticResource CompanyCenterCardStyle}" Padding="16,8" Margin="0,0,0,12">
+            <!-- ═══ HERO BAND ═══ -->
+            <Border Style="{StaticResource Sl.Hero}" Margin="0,0,0,14">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Width="44" Height="44" CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center" Margin="0,0,16,0"
-                            Visibility="Collapsed">
-                        <TextBlock Text="&#xE821;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                   FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource AccentBrush}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Visibility="Collapsed">
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="{DynamicResource Module.CompanyCenter}"
-                                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                   Style="{StaticResource Sl.Label}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource Ov.OnAccent}"/>
                         <TextBlock Text="{DynamicResource CompanyCenter.CompaniesIdentityTRNBankingLogoDefault}"
-                                   FontSize="{DynamicResource FontSize.Body}" Margin="0,3,0,0"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                   Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource Ov.OnAccentMuted}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE710;" Content="{DynamicResource CompanyCenter.NEWCompany}"
-                                Command="{Binding NewCompanyCommand}" Margin="0,0,10,0"/>
-                        <Button Style="{StaticResource OutlinedPillButton}"
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource Sl.Button}"
                                 Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
-                                Command="{Binding RefreshCommand}"/>
+                                Command="{Binding RefreshCommand}" Margin="0,0,8,0"
+                                Background="{DynamicResource Ov.Surface}"/>
+                        <Button Style="{StaticResource Sl.Button}"
+                                Background="{DynamicResource Ov.Surface}"
+                                Foreground="{DynamicResource Ov.Accent}"
+                                BorderBrush="{DynamicResource Ov.Surface}"
+                                Tag="&#xE710;" Content="{DynamicResource CompanyCenter.NEWCompany}"
+                                Command="{Binding NewCompanyCommand}"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
-            <!-- ═══ TWO-COLUMN BENTO STAGE ═══ -->
+            <!-- ═══ TWO-COLUMN STAGE ═══ -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="360"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- ═══════════════════════════════════════════════════
-                     LEFT COLUMN: SAVED COMPANY PROFILES
-                     ═══════════════════════════════════════════════════ -->
-                <Border Grid.Column="0" Style="{StaticResource CompanyCenterCardStyle}">
+                <!-- ── LEFT: SAVED COMPANY PROFILES ── -->
+                <Border Grid.Column="0" Style="{StaticResource Sl.Card}" VerticalAlignment="Top">
                     <StackPanel>
-                        <Grid Margin="0,0,0,14">
+                        <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Style="{StaticResource CompanyCenterIconTileStyle}" Margin="0,0,10,0">
+                            <Border Grid.Column="0" Width="34" Height="34" CornerRadius="{DynamicResource Radius.Medium}"
+                                    Background="{DynamicResource Ov.Soft}" Margin="0,0,10,0">
                                 <TextBlock Text="&#xE821;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                           FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}"
+                                           FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Accent}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="Saved Companies" FontSize="{DynamicResource FontSize.Title}"
-                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Text="Click card to edit profile" FontSize="{DynamicResource FontSize.Caption}"
-                                           Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                <TextBlock Text="{DynamicResource Module.CompanyCenter}" Style="{StaticResource Sl.Label}"/>
+                                <TextBlock Text="{DynamicResource CompanyCenter.ClickToLoadCompany}"
+                                           Style="{StaticResource Sl.Subtitle}" Margin="0,2,0,0"/>
                             </StackPanel>
-                            <Border Grid.Column="2" Background="{DynamicResource TintBlueBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3" VerticalAlignment="Center">
+                            <Border Grid.Column="2" Background="{DynamicResource Ov.Soft}"
+                                    CornerRadius="{DynamicResource Radius.Small}" Padding="8,4" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Companies.Count, StringFormat='{}{0} Total'}"
                                            FontSize="{DynamicResource FontSize.Caption}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                           Foreground="{DynamicResource Ov.Accent}"
+                                           Typography.NumeralAlignment="Tabular"/>
                             </Border>
                         </Grid>
 
@@ -135,9 +103,9 @@
                                 <DataTemplate>
                                     <Border Margin="0,0,0,10" Padding="14,12"
                                             CornerRadius="{DynamicResource Radius.Medium}" Cursor="Hand"
-                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                            BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                            Background="{DynamicResource SurfaceSecondaryBrush}"
+                                            BorderBrush="{DynamicResource Ov.Line}"
+                                            BorderThickness="1"
+                                            Background="{DynamicResource Ov.Surface}"
                                             ToolTip="{DynamicResource CompanyCenter.ClickToLoadCompany}"
                                             Focusable="True"
                                             AutomationProperties.Name="{Binding CompanyName}"
@@ -149,24 +117,20 @@
                                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                           CommandParameter="{Binding}"/>
                                             <KeyBinding Key="Return"
-                                                            Command="{Binding DataContext.SelectCompanyCommand,
-                                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                            CommandParameter="{Binding}"/>
-                                            <KeyBinding Key="Space"
-                                                            Command="{Binding DataContext.SelectCompanyCommand,
-                                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                            CommandParameter="{Binding}"/>
+                                                        Command="{Binding DataContext.SelectCompanyCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"/>
                                         </Border.InputBindings>
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="BorderBrush" Value="{DynamicResource BorderDefaultBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                                        <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
+                                                        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
                                                     </DataTrigger>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Accent}"/>
                                                     </Trigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -177,48 +141,39 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- Executive Avatar Badge -->
-                                            <Border Grid.Row="0" Grid.Column="0" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" Width="40" Height="40"
-                                                    CornerRadius="20" VerticalAlignment="Center" Background="{DynamicResource SurfacePrimaryBrush}">
-                                                <TextBlock Text="&#xE822;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                                           FontSize="{DynamicResource FontSize.Title}" Foreground="{DynamicResource AccentBrush}"
-                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-
-                                            <!-- Company Details -->
-                                            <StackPanel Grid.Row="0" Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding CompanyName}" FontSize="{DynamicResource FontSize.Body}"
-                                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock FontSize="{DynamicResource FontSize.Caption}" Margin="0,2,0,0"
-                                                           Foreground="{DynamicResource TextTertiaryBrush}">
-                                                    <Run Text="{DynamicResource CompanyCenter.TRN}"/>
+                                            <StackPanel Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding CompanyName}"
+                                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                                           Foreground="{DynamicResource Ov.Ink}"
+                                                           TextTrimming="CharacterEllipsis" ToolTip="{Binding CompanyName}"/>
+                                                <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource Ov.Muted}">
+                                                    <Run Text="TRN: "/>
                                                     <Run Text="{Binding CompanyTrn, Mode=OneWay}" FontWeight="SemiBold"/>
                                                 </TextBlock>
                                             </StackPanel>
 
-                                            <!-- Quick Action Buttons -->
-                                            <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <Button Style="{StaticResource RowOutlinedButton}" Height="32" Padding="12,0"
+                                            <!-- Quick actions -->
+                                            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button Style="{StaticResource Sl.Button}" MinHeight="30" Padding="10,4"
                                                         Tag="&#xE8E5;" Content="{DynamicResource Action.Edit}"
                                                         Command="{Binding DataContext.SelectCompanyCommand,
                                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}" Margin="0,0,8,0"/>
-                                                <Button Style="{StaticResource RowDangerButton}" Height="32" Width="32" Padding="0"
+                                                        CommandParameter="{Binding}" Margin="0,0,6,0"/>
+                                                <Button Style="{StaticResource Sl.DangerButton}" MinHeight="30" Width="32" Padding="0"
                                                         Tag="&#xE74D;" Content=""
                                                         Command="{Binding DataContext.DeleteCompanyCommand,
                                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"/>
                                             </StackPanel>
 
-                                            <!-- Status Chips Strip -->
-                                            <Border Grid.Row="1" Grid.ColumnSpan="3" Margin="0,8,0,0" Padding="8,4"
-                                                    Background="{DynamicResource SurfacePrimaryBrush}"
+                                            <!-- Chips strip -->
+                                            <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,10,0,0" Padding="8,5"
+                                                    Background="{DynamicResource Ov.Soft}"
                                                     CornerRadius="{DynamicResource Radius.Small}">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
@@ -226,17 +181,18 @@
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
                                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                        <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="6,2" Margin="0,0,6,0">
-                                                            <TextBlock Text="Verified TRN" FontSize="{DynamicResource FontSize.Badge}" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                        <Border Background="{DynamicResource Ov.SuccessSoft}" CornerRadius="{DynamicResource Radius.Small}" Padding="6,2" Margin="0,0,6,0">
+                                                            <TextBlock Text="Verified TRN" FontSize="{DynamicResource FontSize.Caption}" FontWeight="Bold" Foreground="{DynamicResource Ov.Success}"/>
                                                         </Border>
-                                                        <Border Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource Radius.Small}" Padding="6,2">
-                                                            <TextBlock FontSize="{DynamicResource FontSize.Badge}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
+                                                        <Border Background="{DynamicResource Ov.Surface}" CornerRadius="{DynamicResource Radius.Small}" Padding="6,2">
+                                                            <TextBlock FontSize="{DynamicResource FontSize.Caption}" FontWeight="Bold" Foreground="{DynamicResource Ov.Accent}">
                                                                 <Run Text="{Binding UsageCount, Mode=OneWay}"/><Run Text=" Invoices"/>
                                                             </TextBlock>
                                                         </Border>
                                                     </StackPanel>
-                                                    <TextBlock Grid.Column="1" Text="{Binding Status}" FontSize="{DynamicResource FontSize.Label}" FontWeight="Medium"
-                                                               Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Status}" FontSize="{DynamicResource FontSize.Caption}"
+                                                               FontWeight="{DynamicResource Weight.SemiBold}"
+                                                               Foreground="{DynamicResource Ov.Muted}" VerticalAlignment="Center"/>
                                                 </Grid>
                                             </Border>
                                         </Grid>
@@ -247,13 +203,11 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ═══════════════════════════════════════════════════
-                     RIGHT COLUMN: MODULAR BENTO PROFILE EDITOR
-                     ═══════════════════════════════════════════════════ -->
+                <!-- ── RIGHT: PROFILE EDITOR STACK ── -->
                 <StackPanel Grid.Column="2">
 
-                    <!-- ── BENTO CARD 1: LIVE LETTERHEAD MASTHEAD PREVIEW ── -->
-                    <Border Style="{StaticResource CompanyCenterCardStyle}" Background="{DynamicResource TintIndigoBrush}">
+                    <!-- Live letterhead masthead preview -->
+                    <Border Style="{StaticResource Sl.Card}" Background="{DynamicResource Ov.Soft}" Margin="0,0,0,14">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -261,12 +215,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- Logo slot -->
                             <Border Grid.Column="0" Width="64" Height="64"
-                                    Background="{DynamicResource SurfacePrimaryBrush}"
-                                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                    BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    CornerRadius="{DynamicResource Radius.Small}"
+                                    Background="{DynamicResource Ov.Surface}"
+                                    BorderBrush="{DynamicResource Ov.Line}"
+                                    BorderThickness="1"
+                                    CornerRadius="{DynamicResource Radius.Medium}"
                                     VerticalAlignment="Center">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -281,14 +234,13 @@
                                 <Image Source="{Binding LogoPath}" Stretch="Uniform" Margin="6"/>
                             </Border>
 
-                            <!-- Header texts -->
                             <StackPanel Grid.Column="1" Margin="16,0,12,0" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding CompanyName}"
-                                           FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource Ov.Ink}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Margin="0,3,0,0" FontSize="{DynamicResource FontSize.Body}"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource Ov.Muted}"
                                            TextTrimming="CharacterEllipsis">
                                     <Run Text="{Binding CompanyTrn, Mode=OneWay}"/>
                                     <Run Text="  ·  "/>
@@ -296,50 +248,48 @@
                                 </TextBlock>
                                 <TextBlock Margin="0,4,0,0" FontSize="{DynamicResource FontSize.BodySmall}"
                                            FontWeight="{DynamicResource Weight.SemiBold}"
-                                           Foreground="{DynamicResource AccentBrush}">
+                                           Foreground="{DynamicResource Ov.Accent}">
                                     <Run Text="LETTERHEAD  ·  "/>
                                     <Run Text="{Binding EditorTitle, Mode=OneWay}"/>
                                 </TextBlock>
                             </StackPanel>
 
-                            <!-- Layout pill -->
-                            <Border Grid.Column="2" Background="{DynamicResource SurfacePrimaryBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,6"
+                            <Border Grid.Column="2" Background="{DynamicResource Ov.Surface}"
+                                    CornerRadius="{DynamicResource Radius.Small}" Padding="10,6"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="{Binding LogoLayoutLabel}"
                                            FontSize="{DynamicResource FontSize.BodySmall}"
                                            FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                           Foreground="{DynamicResource Ov.Accent}"/>
                             </Border>
                         </Grid>
                     </Border>
 
-                    <!-- ── BENTO CARD 2: CORPORATE IDENTITY & LOCATION ── -->
-                    <Border Style="{StaticResource CompanyCenterCardStyle}">
+                    <!-- Corporate identity & tax registration -->
+                    <Border Style="{StaticResource Sl.Card}" Margin="0,0,0,14">
                         <StackPanel>
                             <Grid Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Style="{StaticResource CompanyCenterIconTileStyle}" Margin="0,0,10,0">
+                                <Border Grid.Column="0" Width="34" Height="34" CornerRadius="{DynamicResource Radius.Medium}"
+                                        Background="{DynamicResource Ov.Soft}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE821;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}"
+                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Accent}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="Corporate Identity &amp; Tax Registration"
-                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="Official trade license entity, FTA VAT tax registration, and physical address"
-                                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                    <TextBlock Text="{DynamicResource CompanyCenter.CompanyNAME}" Style="{StaticResource Sl.Label}"/>
+                                    <TextBlock Text="{DynamicResource CompanyCenter.CompaniesIdentityTRNBankingLogoDefault}"
+                                               Style="{StaticResource Sl.Subtitle}"/>
                                 </StackPanel>
                             </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="14"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
@@ -350,16 +300,14 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <!-- Company Name -->
                                 <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="0" Grid.ColumnSpan="3">
                                     <TextBlock Text="{DynamicResource CompanyCenter.CompanyNAME}" Style="{StaticResource Field.Label}"/>
                                     <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource Input.TextBox}"/>
                                 </StackPanel>
 
-                                <!-- TRN & Location -->
                                 <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="2" Grid.Column="0">
-                                    <TextBlock Text="TRN (Tax Registration Number)" Style="{StaticResource Field.Label}"/>
+                                    <TextBlock Text="{DynamicResource CompanyCenter.TRN}" Style="{StaticResource Field.Label}"/>
                                     <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource Input.TextBox}"/>
                                 </StackPanel>
@@ -369,42 +317,40 @@
                                              Style="{StaticResource Input.TextBox}"/>
                                 </StackPanel>
 
-                                <!-- Default Company Checkbox -->
                                 <CheckBox Grid.Row="4" Grid.ColumnSpan="3"
                                           IsChecked="{Binding IsDefaultCompany, Mode=TwoWay}"
-                                          Content="Use as default company in new proforma invoices"
+                                          Content="{DynamicResource CompanyCenter.DefaultCompanyPreFillsNewInvoices}"
                                           FontWeight="{DynamicResource Weight.SemiBold}"
-                                          Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                          Foreground="{DynamicResource Ov.Ink}"/>
                             </Grid>
                         </StackPanel>
                     </Border>
 
-                    <!-- ── BENTO CARD 3: REPRESENTATIVE & SETTLEMENT BANKING ── -->
-                    <Border Style="{StaticResource CompanyCenterCardStyle}">
+                    <!-- Representative & settlement banking -->
+                    <Border Style="{StaticResource Sl.Card}" Margin="0,0,0,14">
                         <StackPanel>
                             <Grid Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Style="{StaticResource CompanyCenterIconTileStyle}" Margin="0,0,10,0">
+                                <Border Grid.Column="0" Width="34" Height="34" CornerRadius="{DynamicResource Radius.Medium}"
+                                        Background="{DynamicResource Ov.Soft}" Margin="0,0,10,0">
                                     <TextBlock Text="&#xE77B;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}"
+                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Accent}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="Representative &amp; Settlement Banking"
-                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="Signatory contact details and bank account remittance coordinates"
-                                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                    <TextBlock Text="{DynamicResource CompanyCenter.Representative}" Style="{StaticResource Sl.Label}"/>
+                                    <TextBlock Text="{DynamicResource CompanyCenter.BANKNAME}"
+                                               Style="{StaticResource Sl.Subtitle}"/>
                                 </StackPanel>
                             </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="14"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
@@ -415,7 +361,6 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <!-- Representative & Mobile -->
                                 <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="0" Grid.Column="0">
                                     <TextBlock Text="{DynamicResource CompanyCenter.Representative}" Style="{StaticResource Field.Label}"/>
                                     <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
@@ -430,7 +375,6 @@
                                              AutomationProperties.Name="Representative mobile"/>
                                 </StackPanel>
 
-                                <!-- Email & Bank Name -->
                                 <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="2" Grid.Column="0">
                                     <TextBlock Text="{DynamicResource CompanyCenter.CompanyEMAIL}" Style="{StaticResource Field.Label}"/>
                                     <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
@@ -442,7 +386,6 @@
                                              Style="{StaticResource Input.TextBox}"/>
                                 </StackPanel>
 
-                                <!-- Account Number / IBAN -->
                                 <StackPanel Style="{StaticResource Field.Panel}" Grid.Row="4" Grid.ColumnSpan="3">
                                     <TextBlock Text="{DynamicResource CompanyCenter.AccountNumberIBAN}" Style="{StaticResource Field.Label}"/>
                                     <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
@@ -452,63 +395,57 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- ── BENTO CARD 4: LOGO STUDIO & LETTERHEAD FORMATTING ── -->
-                    <Border Style="{StaticResource CompanyCenterCardStyle}">
+                    <!-- Logo studio & letterhead formatting -->
+                    <Border Style="{StaticResource Sl.Card}" Margin="0,0,0,14">
                         <StackPanel>
                             <Grid Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Style="{StaticResource CompanyCenterIconTileStyle}" Margin="0,0,10,0">
-                                    <TextBlock Text="&#xE8B9;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource AccentBrush}"
+                                <Border Grid.Column="0" Width="34" Height="34" CornerRadius="{DynamicResource Radius.Medium}"
+                                        Background="{DynamicResource Ov.Soft}" Margin="0,0,10,0">
+                                    <TextBlock Text="&#xE8F1;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Body}" Foreground="{DynamicResource Ov.Accent}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock Text="Logo Studio &amp; Letterhead Formatting"
-                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                    <TextBlock Text="Document branding layout, printed dimensions (mm), and high-resolution logo"
-                                               FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                    <TextBlock Text="{DynamicResource CompanyCenter.ChooseLOGO}" Style="{StaticResource Sl.Label}"/>
+                                    <TextBlock Text="LETTERHEAD COMPOSITION"
+                                               Style="{StaticResource Sl.Subtitle}"/>
                                 </StackPanel>
                             </Grid>
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="18"/>
+                                    <ColumnDefinition Width="16"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Portrait preview box -->
-                                <Border Grid.Column="0" Width="104" Height="112"
-                                        Background="{DynamicResource SurfaceSecondaryBrush}"
-                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                        BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                        CornerRadius="{DynamicResource Radius.Small}"
+                                <!-- Preview tile -->
+                                <Border Grid.Column="0" Width="150" Height="110"
+                                        Background="{DynamicResource Ov.Soft}"
+                                        BorderBrush="{DynamicResource Ov.Line}"
+                                        BorderThickness="1"
+                                        CornerRadius="{DynamicResource Radius.Medium}"
                                         VerticalAlignment="Top">
                                     <Grid>
-                                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                            <StackPanel.Style>
-                                                <Style TargetType="StackPanel">
+                                        <TextBlock Text="&#xE8F1;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                                   FontSize="{DynamicResource FontSize.H2}"
+                                                   Foreground="{DynamicResource Ov.Muted}" Opacity="0.6"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding HasLogo}" Value="True">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
-                                            </StackPanel.Style>
-                                            <TextBlock Text="&#xE8B9;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource FontSize.H1}"
-                                                       Foreground="{DynamicResource TextTertiaryBrush}"
-                                                       HorizontalAlignment="Center"/>
-                                            <TextBlock Text="NO LOGO" FontSize="{DynamicResource FontSize.Caption}"
-                                                       FontWeight="{DynamicResource Weight.SemiBold}"
-                                                       Foreground="{DynamicResource TextTertiaryBrush}"
-                                                       HorizontalAlignment="Center" Margin="0,4,0,0"/>
-                                        </StackPanel>
-                                        <Image Source="{Binding LogoPath}" Stretch="Uniform" Margin="8">
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <Image Source="{Binding LogoPath}" Stretch="Uniform" Margin="10">
                                             <Image.Style>
                                                 <Style TargetType="Image">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -526,13 +463,13 @@
                                 <StackPanel Grid.Column="2">
                                     <!-- Action buttons -->
                                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                        <Button Style="{StaticResource PrimaryPillButton}"
+                                        <Button Style="{StaticResource Sl.PrimaryButton}"
                                                 Tag="&#xE8B9;" Content="{DynamicResource CompanyCenter.ChooseLOGO}"
                                                 Command="{Binding PickLogoCommand}"/>
-                                        <Button Style="{StaticResource RowOutlinedButton}"
+                                        <Button Style="{StaticResource Sl.Button}"
                                                 Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
                                                 Command="{Binding ClearLogoCommand}"
-                                                Margin="10,0,0,0"/>
+                                                Margin="8,0,0,0"/>
                                     </StackPanel>
 
                                     <!-- Width × Height (mm) -->
@@ -540,11 +477,11 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="8"/>
-                                            <ColumnDefinition Width="72"/>
+                                            <ColumnDefinition Width="80"/>
                                             <ColumnDefinition Width="20"/>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="8"/>
-                                            <ColumnDefinition Width="72"/>
+                                            <ColumnDefinition Width="80"/>
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="WIDTH (MM)" Style="{StaticResource Field.Label}"
                                                    VerticalAlignment="Center" Margin="0"/>
@@ -560,12 +497,10 @@
                                                  TextAlignment="Center"/>
                                     </Grid>
                                     <TextBlock FontSize="{DynamicResource FontSize.Caption}"
-                                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,12">
-                                        <Run Text="Printed dimensions · "/>
+                                               Foreground="{DynamicResource Ov.Muted}" Margin="0,0,0,12">
                                         <Run Text="{Binding LogoWidthDisplay, Mode=OneWay}"/>
                                         <Run Text=" × "/>
                                         <Run Text="{Binding LogoHeightDisplay, Mode=OneWay}"/>
-                                        <Run Text=" · (range: 8–60 mm)"/>
                                     </TextBlock>
 
                                     <!-- Letterhead layout options -->
@@ -574,25 +509,25 @@
                                         <RadioButton Content="Text only"
                                                      GroupName="CompanyLogoLayout"
                                                      IsChecked="{Binding IsNoLogoLayout}"
-                                                     Foreground="{DynamicResource TextPrimaryBrush}"
+                                                     Foreground="{DynamicResource Ov.Ink}"
                                                      VerticalAlignment="Center"/>
                                         <RadioButton Content="Left portrait"
                                                      GroupName="CompanyLogoLayout"
                                                      IsChecked="{Binding IsLeftPortraitLayout}"
-                                                     Foreground="{DynamicResource TextPrimaryBrush}"
+                                                     Foreground="{DynamicResource Ov.Ink}"
                                                      Margin="16,0,0,0"
                                                      VerticalAlignment="Center"/>
                                         <RadioButton Content="Top panel"
                                                      GroupName="CompanyLogoLayout"
                                                      IsChecked="{Binding IsTopPanelLayout}"
-                                                     Foreground="{DynamicResource TextPrimaryBrush}"
+                                                     Foreground="{DynamicResource Ov.Ink}"
                                                      Margin="16,0,0,0"
                                                      VerticalAlignment="Center"/>
                                     </StackPanel>
 
                                     <TextBlock Text="{Binding LogoPath}"
                                                FontSize="{DynamicResource FontSize.Caption}" Margin="0,8,0,0"
-                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Foreground="{DynamicResource Ov.Muted}"
                                                TextTrimming="CharacterEllipsis"
                                                MaxWidth="420"
                                                ToolTip="{Binding LogoPath}"/>
@@ -601,8 +536,8 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- ── BENTO CARD 5: AUDIT LOG NOTE & SAVE ACTION ── -->
-                    <Border Style="{StaticResource CompanyCenterCardStyle}">
+                    <!-- Audit note & save action -->
+                    <Border Style="{StaticResource Sl.Card}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource Field.Panel}" Margin="0,0,0,14">
                                 <TextBlock Text="{DynamicResource CompanyCenter.WHYNOTEOptionalRecordedAuditTrail}"
@@ -612,16 +547,14 @@
                                          ToolTip="{DynamicResource CompanyCenter.ReasonChangeEGTRNCorrectedAfterTradeLicence}"/>
                             </StackPanel>
 
-                            <StackPanel Orientation="Horizontal">
-                                <Button Style="{StaticResource SuccessPillButton}"
-                                        Tag="&#xE74E;" Content="{Binding SaveButtonText}"
-                                        Command="{Binding SaveCompanyCommand}"
-                                        Height="36" Padding="20,0"/>
-                            </StackPanel>
+                            <Button Style="{StaticResource Sl.SuccessButton}"
+                                    Tag="&#xE74E;" Content="{Binding SaveButtonText}"
+                                    Command="{Binding SaveCompanyCommand}"
+                                    MinHeight="38" Padding="22,8"/>
 
-                            <!-- Dynamic Status -->
-                            <Border CornerRadius="{DynamicResource Radius.Small}" Background="{DynamicResource TintIndigoBrush}"
-                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
+                            <!-- Dynamic status -->
+                            <Border CornerRadius="{DynamicResource Radius.Medium}" Background="{DynamicResource Ov.Soft}"
+                                    BorderBrush="{DynamicResource Ov.Accent}" BorderThickness="1"
                                     Padding="14,10" Margin="0,12,0,0">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -638,7 +571,7 @@
                                 </Border.Style>
                                 <TextBlock Text="{Binding Status}"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                           Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap"/>
+                                           Foreground="{DynamicResource Ov.Accent}" TextWrapping="Wrap"/>
                             </Border>
                         </StackPanel>
                     </Border>

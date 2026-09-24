@@ -1,3 +1,6 @@
+<!-- Shared recent-activity panel — Studio Bento style, matching the
+     Proforma Invoice list system (Sl.* / Ov.*). The code-behind appends
+     generated rows to the x:Name="ActivityList" StackPanel. -->
 <UserControl x:Class="ProGlassAutomation.Views.Shared.ActivityPanel"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,50 +9,51 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Foreground="{DynamicResource Ov.Ink}">
 
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Margin="10,8,10,16">
-    <Border Width="400" CornerRadius="{DynamicResource CardCornerRadiusLarge}">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="22" ShadowDepth="3"
-                              Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
-        </Border.Effect>
-        <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+        <Border Width="400" CornerRadius="{DynamicResource Radius.Large}"
                 Background="{DynamicResource Ov.Surface}"
                 BorderBrush="{DynamicResource Ov.Line}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                ClipToBounds="True">
+                BorderThickness="1"
+                SnapsToDevicePixels="True">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="22" ShadowDepth="3"
+                                  Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
+            </Border.Effect>
+            <Border CornerRadius="{DynamicResource Radius.Large}"
+                    Background="{DynamicResource Ov.Surface}"
+                    ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource Ov.Hero}"
+                            Padding="18,12">
+                        <TextBlock Text="{DynamicResource ToolTip.RecentActivity}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ov.OnAccent}"/>
+                    </Border>
 
-            <Border Grid.Row="0"
-                    Background="{DynamicResource Ov.Hero}"
-                    CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    Padding="18,12">
-                <TextBlock Text="{DynamicResource ToolTip.RecentActivity}"
-                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    <ScrollViewer Grid.Row="1" MaxHeight="320"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel x:Name="ActivityList" Margin="12,10,12,12"/>
+                    </ScrollViewer>
+                </Grid>
             </Border>
-
-            <ScrollViewer Grid.Row="1" MaxHeight="320"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel x:Name="ActivityList" Margin="10,10,10,12"/>
-            </ScrollViewer>
-        </Grid>
         </Border>
-    </Border>
     </Grid>
 </UserControl>
