@@ -852,6 +852,10 @@ namespace ProGlassAutomation.Services
             double secondaryOpacity = Clamp01(appearance?.SurfaceSecondaryOpacity ?? 0.94, 0.25, 1.0);
             double detailOpacity = Clamp01(appearance?.SurfaceDetailOpacity ?? 0.86, 0.15, 1.0);
             double overlay = Clamp01(appearance?.PrimarySurfaceOverlayOpacity ?? 0.0, 0.0, 0.35);
+            // 0 = white, 100 = the exact picked RGB. 0 = clear, 100 = opaque.
+            // Defaults are 100 so a pick is not washed into grey.
+            double plateStrength = Clamp01((appearance?.CardFrostStrength ?? 100) / 100.0, 0, 1);
+            double plateOpacity = Clamp01((appearance?.CardFrostOpacity ?? 100) / 100.0, 0, 1);
             if (material == ProGlassMaterial.Solid)
             {
                 primaryOpacity = 1.0;
@@ -869,6 +873,8 @@ namespace ProGlassAutomation.Services
                 secondaryOpacity.ToString("0.###"),
                 detailOpacity.ToString("0.###"),
                 overlay.ToString("0.###"),
+                plateStrength.ToString("0.###"),
+                plateOpacity.ToString("0.###"),
                 material.ToString(),
                 appearance?.UsePrimarySurfaceElevation == true ? "1" : "0");
             // Family publish, which ran just above, copies the stock palette
@@ -884,37 +890,55 @@ namespace ProGlassAutomation.Services
             _liveFillSignature = signature;
             _cachedFillBrushes.Clear();
 
-            const double plate = 0.58;
+            // A picked plate is mixed from white to the swatch, then given
+            // the transparency handle's alpha. It is not mixed through the
+            // page grey, and it does not inherit SurfacePrimaryOpacity
+            // (0.82). Those two washes are why black painted as dark grey.
+            bool plateOn = tint != null;
+            bool clearPlate = plateOpacity < 0.999;
+            Color plateFace = plateOn
+                ? PlateColor(tint!.Value, plateStrength, plateOpacity)
+                : Color.FromArgb(
+                    (byte)Math.Round(plateOpacity * 255.0),
+                    baseColor.R, baseColor.G, baseColor.B);
             SetOverrideBrush(resources, "Surface.Primary.LiveFill",
-                MixFill(baseColor, tint, plate, accent, overlay, primaryOpacity));
+                plateOn || clearPlate
+                    ? plateFace
+                    : MixFill(baseColor, null, 0, accent, overlay, primaryOpacity));
             SetOverrideBrush(resources, "Surface.Secondary.LiveFill",
-                MixFill(baseColor, tint, 0.36, null, 0, secondaryOpacity));
+                plateOn || clearPlate
+                    ? plateFace
+                    : MixFill(baseColor, null, 0, null, 0, secondaryOpacity));
             SetOverrideBrush(resources, "Surface.Detail.LiveFill",
-                MixFill(baseColor, tint, 0.22, null, 0, detailOpacity));
+                plateOn || clearPlate
+                    ? plateFace
+                    : MixFill(baseColor, null, 0, null, 0, detailOpacity));
 
             // Factory glass stays the authored DrawingBrush. A plate, a
             // moved opacity, or Solid material is an explicit edit and
             // must repaint the card the operator is looking at. The inner
             // tile is a second face; leaving it on the theme solid is why
             // a plate click looked like it had done nothing.
-            bool customFace = tint != null
+            bool customFace = plateOn
+                || clearPlate
                 || material == ProGlassMaterial.Solid
                 || Math.Abs(primaryOpacity - 0.82) > 0.01
                 || overlay > 0.01;
-            if (customFace)
+            if (plateOn || clearPlate)
             {
-                var face = MixFill(baseColor, tint, tint == null ? 0 : plate, accent, overlay, primaryOpacity);
+                PublishPlateFace(resources, plateFace);
+            }
+            else if (customFace)
+            {
+                var face = MixFill(baseColor, null, 0, accent, overlay, primaryOpacity);
                 SetOverrideBrush(resources, "SettingsCardFaceBrush", face);
                 SetOverrideBrush(resources, "SettingsInnerFaceBrush",
-                    MixFill(baseColor, tint, tint == null ? 0 : 0.28, null, 0, Math.Max(primaryOpacity, 0.92)));
+                    MixFill(baseColor, null, 0, null, 0, Math.Max(primaryOpacity, 0.92)));
                 SetOverrideBrush(resources, "SurfacePrimaryBrush", face);
                 SetOverrideBrush(resources, "SurfaceSecondaryBrush",
-                    MixFill(baseColor, tint, tint == null ? 0 : 0.36, null, 0, secondaryOpacity));
+                    MixFill(baseColor, null, 0, null, 0, secondaryOpacity));
                 SetOverrideBrush(resources, "SurfaceTertiaryBrush",
-                    MixFill(baseColor, tint, tint == null ? 0 : 0.22, null, 0, detailOpacity));
-                // Studio lists and the three detail modules alias their card
-                // face at this colour. Writing the app key is what those
-                // aliases read; they do not see SurfacePrimaryBrush.
+                    MixFill(baseColor, null, 0, null, 0, detailOpacity));
                 PublishStudioColor(resources, "Appearance.StudioFaceColor", "Appearance.StudioFace", face);
             }
             else
@@ -1039,6 +1063,28 @@ namespace ProGlassAutomation.Services
                 rgb = MixRgb(rgb, accentColor, accentAmount);
             byte alpha = (byte)Math.Round(Clamp01(opacity, 0, 1) * 255.0);
             return Color.FromArgb(alpha, rgb.R, rgb.G, rgb.B);
+        }
+
+        /// <summary>
+        /// Exact plate colour. Strength 1 is the swatch RGB, strength 0 is
+        /// white. Opacity is the alpha, not a second mix into the page.
+        /// </summary>
+        private static Color PlateColor(Color tint, double strength, double opacity)
+        {
+            var rgb = MixRgb(Color.FromRgb(255, 255, 255),
+                Color.FromRgb(tint.R, tint.G, tint.B), strength);
+            byte alpha = (byte)Math.Round(Clamp01(opacity, 0, 1) * 255.0);
+            return Color.FromArgb(alpha, rgb.R, rgb.G, rgb.B);
+        }
+
+        private static void PublishPlateFace(ResourceDictionary resources, Color face)
+        {
+            SetOverrideBrush(resources, "SettingsCardFaceBrush", face);
+            SetOverrideBrush(resources, "SettingsInnerFaceBrush", face);
+            SetOverrideBrush(resources, "SurfacePrimaryBrush", face);
+            SetOverrideBrush(resources, "SurfaceSecondaryBrush", face);
+            SetOverrideBrush(resources, "SurfaceTertiaryBrush", face);
+            PublishStudioColor(resources, "Appearance.StudioFaceColor", "Appearance.StudioFace", face);
         }
 
         private static Color MixRgb(Color from, Color to, double amount)

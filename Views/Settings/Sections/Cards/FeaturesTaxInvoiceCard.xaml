@@ -17,6 +17,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
+    <StackPanel>
                     <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Grid>
@@ -34,6 +35,9 @@
                                                Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                                 </StackPanel>
                             </Grid>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                             <StackPanel Margin="{StaticResource SettingsRowMargin}">
                                 <StackPanel Margin="{StaticResource SettingsStackGap8}">
                                         <StackPanel Orientation="Horizontal">
@@ -57,10 +61,11 @@
                                         </UniformGrid>
                                     </StackPanel>
                             </StackPanel>
-
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
                             <TextBlock Text="{DynamicResource Settings.InvoiceDetails}"
-                                   Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="{StaticResource SettingsStackGap18}"/>
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                             <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                                 <Grid Margin="{StaticResource SettingsTileGridMargin}">
@@ -125,4 +130,5 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
+    </StackPanel>
 </UserControl>

@@ -64,7 +64,9 @@
             <!-- ═══ 5-CARD SMART BENTO DECK: COMPACT PREFERENCE CONTROLS ═══ -->
             <!-- Row 1: 3-column Bento grid (Mode, Density & Scale, Splash Screen).
                  Top alignment: a taller sibling must not inflate the shorter cards. -->
-            <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+            <!-- Row gap is the card's own margin. A second 16px on the
+                 grid stacked on that and left a hole under the shorter cards. -->
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1.3*"/>
@@ -87,17 +89,17 @@
             <!-- Card material restored from the 2026-09-24 theme-card rewrite.
                  The tiles and their commands were never removed from the
                  view-model; only the hosts were. Each card sizes to content. -->
-            <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Style="{StaticResource SettingsCompactCardStyle}"
-                        Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top">
+                        Margin="0,0,8,10" VerticalAlignment="Top">
                     <cards:AppearanceFrostTile/>
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource SettingsCompactCardStyle}"
-                        Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top">
+                        Margin="8,0,0,10" VerticalAlignment="Top">
                     <cards:AppearanceCardEdgesTile/>
                 </Border>
             </Grid>
@@ -105,32 +107,32 @@
             <!-- Theme family stays in the Theme Engine combo above. A second
                  copy of that combo was the old tile; hosting both on this
                  page would show two controls for one setting. -->
-            <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Style="{StaticResource SettingsCompactCardStyle}"
-                        Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top">
+                        Margin="0,0,8,10" VerticalAlignment="Top">
                     <cards:AppearanceGradientTile/>
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource SettingsCompactCardStyle}"
-                        Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top">
+                        Margin="8,0,0,10" VerticalAlignment="Top">
                     <cards:AppearanceRadiusTile/>
                 </Border>
             </Grid>
 
-            <Grid Margin="{StaticResource SettingsBentoRowMargin}">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Border Grid.Column="0" Style="{StaticResource SettingsCompactCardStyle}"
-                        Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top">
+                        Margin="0,0,8,10" VerticalAlignment="Top">
                     <cards:AppearanceFontColorTile/>
                 </Border>
                 <Border Grid.Column="1" Style="{StaticResource SettingsCompactCardStyle}"
-                        Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top">
+                        Margin="8,0,0,10" VerticalAlignment="Top">
                     <cards:AppearancePreviewTile/>
                 </Border>
             </Grid>
@@ -141,10 +143,10 @@
 
             <!-- ═══ MAJOR STUDIO CARDS ═══ -->
             <!-- 1. Brand Accent Palette & Typography Studio -->
-            <cards:AppearanceAccentFontCard Margin="{StaticResource SettingsCardMargin}"/>
+            <cards:AppearanceAccentFontCard/>
 
             <!-- 2. Studio Wallpapers & Atmospheric Depth -->
-            <cards:AppearanceWallpapersCard Margin="{StaticResource SettingsCardMargin}"/>
+            <cards:AppearanceWallpapersCard/>
 
         </StackPanel>
     </ScrollViewer>

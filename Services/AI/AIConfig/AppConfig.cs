@@ -248,9 +248,22 @@ namespace ProGlassAutomation.Services.AI.AIConfig
 
         /// <summary>
         /// Frost tint for semantic cards (#RRGGBB). Empty = theme surface.
-        /// Mixed into Surface.Primary/Secondary/Detail fills.
+        /// Painted as itself at CardFrostStrength 100. Not mixed with the
+        /// page grey, which is why a picked black used to read as grey.
         /// </summary>
         public string CardFrostTint { get; set; } = "";
+
+        /// <summary>
+        /// How much of the picked plate is used. 0 = white, 100 = the
+        /// exact swatch. Default 100 so a pick matches the card.
+        /// </summary>
+        public double CardFrostStrength { get; set; } = 100;
+
+        /// <summary>
+        /// Alpha of the painted plate. 0 = clear, 100 = opaque. Default
+        /// 100 so the colour is not composited back toward white.
+        /// </summary>
+        public double CardFrostOpacity { get; set; } = 100;
 
         /// <summary>Opacity of the major module/page surface level.</summary>
         public double SurfacePrimaryOpacity { get; set; } = 0.82;

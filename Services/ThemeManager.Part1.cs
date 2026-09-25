@@ -338,9 +338,13 @@ namespace ProGlassAutomation.Services
                 || VisualThemeEngine.Current == VisualThemeEngine.NormalIndustrial;
 
             // ── Core accent family ────────────────────────────────────
-            // Light theme: accent as chosen.  Dark theme: lift lightness
-            // a touch so the colour survives against dark surfaces.
-            Color core = dark ? ColorMath.FromHsl(h, s, Math.Max(l, 0.55)) : effective;
+            // A colour the operator picked is that colour. The old dark-theme
+            // floor (L >= 0.55) turned a picked black into grey. Only the
+            // theme's own default accent still lifts, so it stays visible
+            // on a dark canvas.
+            Color core = (dark && accent == null)
+                ? ColorMath.FromHsl(h, s, Math.Max(l, 0.55))
+                : effective;
 
             FreezeAndSet(resources, "AccentBrush", core);
             FreezeAndSet(resources, "AccentHoverBrush",

@@ -171,6 +171,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyCardEdgePresetCommand = new RelayCommand(param =>
                 ApplyCardEdgePreset(param as string ?? ""));
             InitializeCardEdgePalette();
+            InitializeCardFrostPalette();
             ApplyCardFrostTintCommand = new RelayCommand(param =>
                 ApplyCardFrostTintPreset(param as string ?? ""));
 

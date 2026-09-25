@@ -17,27 +17,28 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
+    <StackPanel>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
+                                <TextBlock Text="&#xE8A5;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                            </Border>
+                            <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
+                                           Style="{StaticResource SettingsCardTitleStyle}"/>
+                                <TextBlock Text="{DynamicResource Settings.ShowHideOptionalFieldsSteps13InvoiceWizard}"
+                                           Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
                     <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                                    <TextBlock Text="&#xE8A5;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                                    <TextBlock Text="{DynamicResource Module.ProformaInvoice}"
-                                               Style="{StaticResource SettingsCardTitleStyle}"/>
-                                    <TextBlock Text="{DynamicResource Settings.ShowHideOptionalFieldsSteps13InvoiceWizard}"
-                                               Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
-                                </StackPanel>
-                            </Grid>
-                        <!-- ── STEP 1 · COMPANY ─────────────────────── -->
                             <TextBlock Text="{DynamicResource Settings.STEP1Company}"
-                                   Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="{StaticResource SettingsStackGap18}"/>
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
                             <TextBlock Text="{DynamicResource Settings.CompanyNameProformaIDStayVisibleRequired}"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
 
@@ -163,10 +164,12 @@
                                     </Grid>
                             </UniformGrid>
 
-                        <!-- ── STEP 2 · CLIENT ─────────────────────── -->
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
                             <TextBlock Text="{DynamicResource Settings.STEP2Client}"
-                                   Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="{StaticResource SettingsStackGap18}"/>
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
                             <TextBlock Text="{DynamicResource Settings.CustomerNameStaysVisibleRequiredDatabase}"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
 
@@ -256,10 +259,12 @@
                                     </Grid>
                             </UniformGrid>
 
-                        <!-- ── STEP 3 · PROJECT ─────────────────────── -->
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
                             <TextBlock Text="{DynamicResource Settings.STEP3Project}"
-                                   Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="{StaticResource SettingsStackGap18}"/>
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                             <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
                                 <Grid Margin="{StaticResource SettingsTileGridMargin}">
@@ -333,9 +338,12 @@
                              Literal text on purpose — the value travels through
                              AppConfig.ProformaInvoiceFields.ExpectedProfitMarginPercent
                              and the live mirror Step9PricingDefaults. -->
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
                             <TextBlock Text="STEP 9 · TARGET PRICING &amp; BULK CONTROLS"
-                                   Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="{StaticResource SettingsStackGap18}"/>
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                             <Grid Margin="{StaticResource SettingsRowMargin}">
                                 <Grid.ColumnDefinitions>
@@ -399,4 +407,5 @@
                             </Grid>
                         </StackPanel>
                     </Border>
+    </StackPanel>
 </UserControl>

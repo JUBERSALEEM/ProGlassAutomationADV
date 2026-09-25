@@ -32,7 +32,7 @@
         </StackPanel>
         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                    TextWrapping="Wrap"
-                   Text="Blurs the module wallpaper behind every screen. Cards stay sharp. 1 = light frost, 50 = professional, 100 = max. Colour plate tints the shared card fill."/>
+                   Text="Blurs the wallpaper behind the module. Colour strength 100 paints the swatch as picked. 0 washes it to white. Transparency 100 is solid. 0 is clear."/>
         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                    Text="Reduced motion is on, so wallpaper blur stays off. Turn it off in Language &amp; Currency to see the frost."
                    TextWrapping="Wrap"
@@ -42,33 +42,36 @@
                 Minimum="1" Maximum="100"
                 Value="{Binding CardBlurIntensity, Mode=TwoWay}"
                 VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap8}"/>
-        <!-- The page behind this card is opaque, so a wallpaper blur
-             cannot be seen here. This specimen is the live proof: the
-             wash blurs, the card on top stays sharp, and the plate
-             retints the fill. -->
-        <Grid Height="64" Margin="0,4,0,8">
-            <Border Background="{DynamicResource AccentBrush}" Opacity="0.55"
-                    CornerRadius="{DynamicResource Ios26RadiusInner}"
-                    Effect="{DynamicResource ModuleSkinBlurEffect}"
-                    IsHitTestVisible="False"/>
-            <Border Margin="18,10" VerticalAlignment="Center"
-                    Background="{DynamicResource Surface.Primary.LiveFill}"
-                    BorderBrush="{DynamicResource SettingsCardEdgeBrush}"
-                    BorderThickness="{DynamicResource CardEdgeThickness}"
-                    CornerRadius="{DynamicResource Ios26RadiusInner}"
-                    SnapsToDevicePixels="False"
-                    RenderOptions.EdgeMode="Unspecified"
-                    behaviors:RoundedEdgeStrokeBehavior.IsEnabled="True"
-                    Padding="10,6">
-                <TextBlock Text="Card stays sharp" HorizontalAlignment="Center"
-                           FontSize="{DynamicResource FontSize.Caption}"
-                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-            </Border>
-        </Grid>
+        <TextBlock Margin="{StaticResource SettingsStackGap8}"
+                   Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="Colour strength — 0 white, 100 exact swatch"/>
+        <Slider Style="{StaticResource ModernSliderStyle}"
+                AutomationProperties.Name="Card colour strength"
+                Minimum="0" Maximum="100"
+                Value="{Binding CardFrostStrength, Mode=TwoWay}"
+                VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap4}"/>
+        <TextBlock Margin="{StaticResource SettingsStackGap8}"
+                   Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="Transparency — 0 clear, 100 solid"/>
+        <Slider Style="{StaticResource ModernSliderStyle}"
+                AutomationProperties.Name="Card colour transparency"
+                Minimum="0" Maximum="100"
+                Value="{Binding CardFrostOpacity, Mode=TwoWay}"
+                VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap4}"/>
+        <!-- Live plate. This is the brush the cards paint, not a sample
+             mixed a second time, so black here is the black on the card. -->
+        <Border Height="28" Margin="0,8,0,4"
+                Background="{DynamicResource SettingsCardFaceBrush}"
+                BorderBrush="{DynamicResource SettingsCardEdgeBrush}"
+                BorderThickness="{DynamicResource CardEdgeThickness}"
+                CornerRadius="{DynamicResource Ios26RadiusInner}"
+                SnapsToDevicePixels="False"
+                RenderOptions.EdgeMode="Unspecified"
+                behaviors:RoundedEdgeStrokeBehavior.IsEnabled="True"/>
         <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
                    Style="{StaticResource SettingsRowMetaStyle}"
                    Text="Frost colour plate"/>
-        <ItemsControl ItemsSource="{Binding CardEdgePalette}">
+        <ItemsControl ItemsSource="{Binding CardFrostPalette}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel/>
