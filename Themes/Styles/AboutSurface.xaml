@@ -62,4 +62,9 @@
                       Color="#334155" Opacity="0.10"
                       BlurRadius="24" ShadowDepth="10" Direction="90"
                       po:Freeze="True"/>
+
+    <!-- First-frame edge. ApplyOutline replaces both. Thickness 1 and the
+         light hairline are the Defined-Card-Edges OFF look. -->
+    <SolidColorBrush x:Key="AboutDefinedEdgeBrush" Color="#E2E8F0" po:Freeze="True"/>
+    <Thickness x:Key="AboutDefinedEdgeThickness">1</Thickness>
 </ResourceDictionary>

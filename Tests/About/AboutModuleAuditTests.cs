@@ -326,8 +326,10 @@ namespace ProGlassAutomation.Tests.About
         //  under a perfectly working tab strip.
         //
         //  The locks below make both halves of that failure impossible to
-        //  reintroduce: the switch must resolve against the shell, and no
-        //  About section may re-point its own root DataContext.
+        //  reintroduce: hosts default Collapsed and AboutView shows exactly
+        //  one from the shell view model (never a host DataContext, and
+        //  never a binding that fails open to Visible — that painted all
+        //  six screens' edges through each other).
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
@@ -335,20 +337,23 @@ namespace ProGlassAutomation.Tests.About
         {
             var root = LocateProjectRoot();
             var shell = File.ReadAllText(Path.Combine(root, "Views/About/AboutView.xaml"));
+            var code = File.ReadAllText(Path.Combine(root, "Views/About/AboutView.xaml.cs"));
 
             Assert.Contains("x:Name=\"AboutShell\"", shell);
+            Assert.Contains("SyncSectionHosts", code);
+            Assert.Contains("SelectedTabIndex", code);
 
-            var hosts = new (string Tag, string Name, int Index)[]
+            var hosts = new (string Tag, string Name)[]
             {
-                ("AboutOverviewSection", "OverviewSection", 0),
-                ("AboutLicenseCard", "LicenseSectionHost", 1),
-                ("ModulesSection", "ModulesSectionHost", 2),
-                ("DeveloperSection", "DeveloperSectionHost", 3),
-                ("SystemSection", "SystemSectionHost", 4),
-                ("DiagnosticsSection", "DiagnosticsSectionHost", 5),
+                ("AboutOverviewSection", "OverviewSection"),
+                ("AboutLicenseCard", "LicenseSectionHost"),
+                ("ModulesSection", "ModulesSectionHost"),
+                ("DeveloperSection", "DeveloperSectionHost"),
+                ("SystemSection", "SystemSectionHost"),
+                ("DiagnosticsSection", "DiagnosticsSectionHost"),
             };
 
-            foreach (var (tag, name, index) in hosts)
+            foreach (var (tag, name) in hosts)
             {
                 int at = shell.IndexOf($"<aboutSections:{tag} x:Name=\"{name}\"",
                     StringComparison.Ordinal);
@@ -357,15 +362,10 @@ namespace ProGlassAutomation.Tests.About
                 int end = shell.IndexOf('>', at);
                 string openTag = shell.Substring(at, end - at + 1);
 
-                Assert.Contains("ElementName=AboutShell", openTag);
-                Assert.Contains("DataContext.SelectedTabIndex", openTag);
-                Assert.Contains(
-                    $"ConverterParameter={index}", openTag);
-
-                // The unanchored form is what broke: on an element whose
-                // DataContext is re-pointed by its own constructor it never
-                // resolves. It is banned on the section hosts for good.
-                Assert.DoesNotContain("Visibility=\"{Binding SelectedTabIndex", openTag);
+                Assert.Contains("Visibility=\"Collapsed\"", openTag);
+                // A binding on the host resolves against that host. It is
+                // banned: a failed one stays Visible and stacks every screen.
+                Assert.DoesNotContain("Visibility=\"{Binding", openTag);
             }
         }
 

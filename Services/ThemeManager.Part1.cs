@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 
 namespace ProGlassAutomation.Services
 {
@@ -928,6 +929,74 @@ namespace ProGlassAutomation.Services
             // Semantic surface border resources are derived from the final
             // card edge/keyline choice, so repaint them in the same live tick.
             ReapplySemanticSurfaces();
+
+            // After the semantic pass, so DualWrite cannot put a second
+            // brush under the one About cards actually stroke.
+            PublishAboutDefinedEdge(resources, defined, edge, effectiveEdge);
+        }
+
+        private static DropShadowEffect? _aboutCardShadowRest;
+
+        /// <summary>
+        /// One About card edge. The style reads these two keys only.
+        /// A strong edge is a single inset stroke: pixel-snapping is off
+        /// in the style, thickness is clamped so a 26 px corner cannot
+        /// self-intersect across the next card, and the shared shadow
+        /// loses its 10 px offset so it cannot stamp a second outline
+        /// onto the card below.
+        /// </summary>
+        private static void PublishAboutDefinedEdge(
+            ResourceDictionary resources, bool defined, Color edge, double thickness)
+        {
+            if (_aboutCardShadowRest == null
+                && resources["Ios26CardShadow"] is DropShadowEffect current
+                && current.ShadowDepth > 0)
+            {
+                _aboutCardShadowRest = current;
+            }
+
+            Brush brush;
+            double painted;
+            if (defined)
+            {
+                var solid = new SolidColorBrush(edge);
+                if (solid.CanFreeze) solid.Freeze();
+                brush = solid;
+                painted = thickness < 1.0 ? 1.0 : (thickness > 4.0 ? 4.0 : thickness);
+            }
+            else if (resources["Ios26CardBorderBrush"] is Brush live)
+            {
+                brush = live;
+                painted = 1.0;
+            }
+            else
+            {
+                var solid = new SolidColorBrush(edge);
+                if (solid.CanFreeze) solid.Freeze();
+                brush = solid;
+                painted = 1.0;
+            }
+
+            resources["AboutDefinedEdgeBrush"] = brush;
+            resources["AboutDefinedEdgeThickness"] = new Thickness(painted);
+
+            if (defined)
+            {
+                var halo = new DropShadowEffect
+                {
+                    Color = Color.FromRgb(0x33, 0x41, 0x55),
+                    Opacity = 0.08,
+                    BlurRadius = 8,
+                    ShadowDepth = 0,
+                    Direction = 270,
+                };
+                if (halo.CanFreeze) halo.Freeze();
+                resources["Ios26CardShadow"] = halo;
+            }
+            else if (_aboutCardShadowRest != null)
+            {
+                resources["Ios26CardShadow"] = _aboutCardShadowRest;
+            }
         }
 
         /// <summary>

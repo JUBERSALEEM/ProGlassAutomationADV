@@ -105,13 +105,17 @@
          every other module. ═══ -->
 
     <!-- ═══ L1 CARD — the frosted 26 px slab ═══ -->
+    <!-- One edge. AboutDefinedEdge* is published by ThemeManager.ApplyOutline.
+         The native hairline is not also painted, and the stroke is not
+         pixel-snapped: snapping a 26 px corner draws a second rectangle
+         that crosses the next card once the edge colour is strong. -->
     <Style x:Key="Ios26CardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Ios26CardBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ios26CardBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AboutDefinedEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource AboutDefinedEdgeThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
         <Setter Property="Padding" Value="22,20"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="Effect" Value="{DynamicResource Ios26CardShadow}"/>
     </Style>
 

@@ -76,8 +76,64 @@ namespace ProGlassAutomation.Views.About
             Loaded -= OnLoaded;
 
             EnsureDataContext();
+            HookSectionHost();
+            SyncSectionHosts();
             StartAmbientMotion();
             WireSectionReveals();
+        }
+
+        private ProGlassAutomation.ViewModels.About.AboutViewModel? _sectionHost;
+
+        /// <summary>
+        /// Shows exactly one of the six section hosts. They share a grid
+        /// cell; leaving the others Visible paints every card edge through
+        /// the selected screen once Define Card Edges turns the stroke on.
+        /// Reads the shell view model, never a section's own DataContext.
+        /// </summary>
+        private void HookSectionHost()
+        {
+            UnhookSectionHost();
+            _sectionHost = DataContext as ProGlassAutomation.ViewModels.About.AboutViewModel;
+            if (_sectionHost != null)
+                _sectionHost.PropertyChanged += OnSectionHostPropertyChanged;
+            DataContextChanged -= OnSectionHostContextChanged;
+            DataContextChanged += OnSectionHostContextChanged;
+        }
+
+        private void UnhookSectionHost()
+        {
+            if (_sectionHost == null) return;
+            _sectionHost.PropertyChanged -= OnSectionHostPropertyChanged;
+            _sectionHost = null;
+        }
+
+        private void OnSectionHostContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            HookSectionHost();
+            SyncSectionHosts();
+        }
+
+        private void OnSectionHostPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is null or nameof(ProGlassAutomation.ViewModels.About.AboutViewModel.SelectedTabIndex))
+                SyncSectionHosts();
+        }
+
+        private void SyncSectionHosts()
+        {
+            int index = _sectionHost?.SelectedTabIndex ?? 0;
+            ShowHost(OverviewSection, index == 0);
+            ShowHost(LicenseSectionHost, index == 1);
+            ShowHost(ModulesSectionHost, index == 2);
+            ShowHost(DeveloperSectionHost, index == 3);
+            ShowHost(SystemSectionHost, index == 4);
+            ShowHost(DiagnosticsSectionHost, index == 5);
+        }
+
+        private static void ShowHost(UIElement? host, bool show)
+        {
+            if (host == null) return;
+            host.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
         }
 
         // ──────────────────────────────────────────────────────────────

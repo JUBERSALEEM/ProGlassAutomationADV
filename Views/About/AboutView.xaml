@@ -443,51 +443,52 @@
                         </Border>
                     </Border>
 
-                    <!-- ═══ SECTION HOSTS (Switched by SelectedTabIndex) ═══ -->
+                    <!-- ═══ SECTION HOSTS ═══
+                         All six live in one cell. A failed ElementName binding
+                         used to leave every host at the default Visible, so
+                         turning on a strong card edge drew every screen's
+                         outlines through the selected one. Default is
+                         Collapsed. AboutView.SyncSectionHosts shows exactly
+                         one, from the shell view model — not from a host
+                         DataContext that a section might replace. -->
                     <Grid>
-                        <!-- Tab 0: Overview Section -->
                         <aboutSections:AboutOverviewSection x:Name="OverviewSection"
-                                                            Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}">
+                                                            Visibility="Collapsed">
                             <aboutSections:AboutOverviewSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:AboutOverviewSection.RenderTransform>
                         </aboutSections:AboutOverviewSection>
 
-                        <!-- Tab 1: License & Workstation Section -->
                         <aboutSections:AboutLicenseCard x:Name="LicenseSectionHost"
-                                                        Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=1}">
+                                                        Visibility="Collapsed">
                             <aboutSections:AboutLicenseCard.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:AboutLicenseCard.RenderTransform>
                         </aboutSections:AboutLicenseCard>
 
-                        <!-- Tab 2: Modules Section (12 Active Mosaic) -->
                         <aboutSections:ModulesSection x:Name="ModulesSectionHost"
-                                                      Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=2}">
+                                                      Visibility="Collapsed">
                             <aboutSections:ModulesSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:ModulesSection.RenderTransform>
                         </aboutSections:ModulesSection>
 
-                        <!-- Tab 3: Developer & Engineering Section -->
                         <aboutSections:DeveloperSection x:Name="DeveloperSectionHost"
-                                                        Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=3}">
+                                                        Visibility="Collapsed">
                             <aboutSections:DeveloperSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:DeveloperSection.RenderTransform>
                         </aboutSections:DeveloperSection>
 
-                        <!-- Tab 4: System Architecture Section -->
                         <aboutSections:SystemSection x:Name="SystemSectionHost"
-                                                     Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=4}">
+                                                     Visibility="Collapsed">
                             <aboutSections:SystemSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:SystemSection.RenderTransform>
                         </aboutSections:SystemSection>
 
-                        <!-- Tab 5: Diagnostics & Logs Section -->
                         <aboutSections:DiagnosticsSection x:Name="DiagnosticsSectionHost"
-                                                          Visibility="{Binding DataContext.SelectedTabIndex, ElementName=AboutShell, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=5}">
+                                                          Visibility="Collapsed">
                             <aboutSections:DiagnosticsSection.RenderTransform>
                                 <TranslateTransform Y="0"/>
                             </aboutSections:DiagnosticsSection.RenderTransform>
