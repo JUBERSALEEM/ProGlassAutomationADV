@@ -330,7 +330,13 @@ namespace ProGlassAutomation.Services.Optimization
         public readonly struct EffortRecommendation
         {
             public int Stage { get; init; }
-            public string Reason { get; init; } = string.Empty;
+            public string Reason { get; init; }
+
+            public EffortRecommendation()
+            {
+                Stage = 0;
+                Reason = string.Empty;
+            }
         }
 
         /// <summary>Same full-search ceiling as <see cref="PlanForOptimizeCore"/> and the partitioned handoff.</summary>
