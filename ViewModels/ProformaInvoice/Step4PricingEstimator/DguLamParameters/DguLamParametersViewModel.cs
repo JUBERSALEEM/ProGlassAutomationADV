@@ -64,6 +64,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters
 {
@@ -679,7 +680,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 warning = warning.Length > 0 ? warning + "  " + note : note;
             }
 
-            return Math.Round(rate, 2);
+            return MoneyRounding.Round(rate);
         }
 
         /// <summary>Parameterless overload for callers that ignore warnings.</summary>

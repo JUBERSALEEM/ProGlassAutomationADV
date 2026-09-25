@@ -11,6 +11,7 @@ using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Licensing;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.TaxInvoice;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Utilities;
@@ -52,7 +53,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             var totals = ProGlassAutomation.Services.TaxInvoice
                 .InvoiceTotalsCalculator.Compute(subtotal, _discountPercent);
 
-            Subtotal = Math.Round(subtotal, 2);
+            Subtotal = MoneyRounding.Round(subtotal);
             DiscountAmount = totals.DiscountAmount;
             AfterDiscount = totals.AfterDiscount;
             VatAmount = totals.VatAmount;

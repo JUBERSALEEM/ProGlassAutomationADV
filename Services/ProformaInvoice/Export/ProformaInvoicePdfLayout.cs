@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using System.Globalization;
+using ProGlassAutomation.Services.Reporting;
 namespace ProGlassAutomation.Services.ProformaInvoice.Export
 {
     /// <summary>
@@ -193,7 +194,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             // BUG-22: shared SqmCalculator (0.5 m² floor)
                             decimal unitArea = SqmCalculator.CalculatePanel(r.W1, r.H1);
                             decimal totalArea = Math.Round(unitArea * r.Qty, 3);
-                            decimal total = Math.Round(totalArea * r.Rate, 2);
+                            decimal total = MoneyRounding.Round(totalArea * r.Rate);
 
                             group.Rows.Add(new PiGlassRowModel
                             {
@@ -261,7 +262,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         // BUG-23: DELIVERY quick-hack preserved — documented tech debt.
                         metricQty = 1m;
                         unitLabel = "TRIP";
-                        amount = Math.Round(metricQty * c.Rate, 2);
+                        amount = MoneyRounding.Round(metricQty * c.Rate);
                     }
                     else if (c.TemplateKey == "POLISH"
                           || c.TemplateKey == "POLISH_MATCHED_LAM")
@@ -286,7 +287,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             else if (!string.IsNullOrWhiteSpace(c.PolishSubType))
                                 friendlyName = $"Polish — {c.PolishSubType}";
                         }
-                        amount = Math.Round(metricQty * c.Rate, 2);
+                        amount = MoneyRounding.Round(metricQty * c.Rate);
                     }
                     else
                     {
@@ -299,7 +300,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                                 snapshot.SpecGroups,
                                 sourceKey,
                                 c.CheckedSpecGroupNumbers);
-                        amount = Math.Round(metricQty * c.Rate, 2);
+                        amount = MoneyRounding.Round(metricQty * c.Rate);
                     }
 
                     doc.OtherCharges.Add(new PiChargeModel
@@ -330,7 +331,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     {
                         wastageQty = ProformaChargeMetricsCalculator
                             .ComputeWastageQty(snapshot.SpecGroups, w.CheckedSourceKeys);
-                        wastageAmount = Math.Round(wastageQty * w.Rate, 2);
+                        wastageAmount = MoneyRounding.Round(wastageQty * w.Rate);
                     }
 
                     doc.OtherCharges.Add(new PiChargeModel
@@ -348,7 +349,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 foreach (var c in snapshot.OtherCharges.CustomCharges
                     .Where(c => c.IsActive))
                 {
-                    decimal amount = Math.Round(c.Qty * c.Rate, 2);
+                    decimal amount = MoneyRounding.Round(c.Qty * c.Rate);
                     string unitStr = string.IsNullOrWhiteSpace(c.Unit)
                                           ? "QTY" : c.Unit.ToUpper();
 

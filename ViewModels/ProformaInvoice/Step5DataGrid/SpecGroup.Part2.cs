@@ -23,6 +23,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
@@ -986,7 +987,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             FooterTotalSqm2 = Math.Round(sqm2, 3);
             FooterTotalLm1 = Math.Round(lm1, 3);
             FooterTotalLm2 = Math.Round(lm2, 3);
-            FooterTotalValue = Math.Round(val, 2);
+            FooterTotalValue = MoneyRounding.Round(val);
         }
     }
 }

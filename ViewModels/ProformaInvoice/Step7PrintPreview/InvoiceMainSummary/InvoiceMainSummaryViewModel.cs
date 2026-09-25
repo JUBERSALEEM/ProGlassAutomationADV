@@ -1,6 +1,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
 using ProGlassAutomation.Services.ProformaInvoice;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
@@ -151,7 +152,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
             get => _roundToGrandTotal;
             set
             {
-                var clamped = value < 0m ? 0m : Math.Round(value, 2);
+                var clamped = value < 0m ? 0m : MoneyRounding.Round(value);
                 if (_roundToGrandTotal == clamped) return;
                 _roundToGrandTotal = clamped;
                 OnPropertyChanged();
@@ -259,8 +260,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
         /// </summary>
         public void ApplyRoundTo()
         {
-            decimal net = Math.Round(GlassMaterialsSubtotal + OtherChargesSubtotal, 2);
-            decimal target = Math.Round(RoundToGrandTotal, 2);
+            decimal net = MoneyRounding.Round(GlassMaterialsSubtotal + OtherChargesSubtotal);
+            decimal target = MoneyRounding.Round(RoundToGrandTotal);
             if (net <= 0m || target <= 0m)
             {
                 RoundToHint = "Enter a target grand total in AED first.";
@@ -370,7 +371,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
             // Compute raw discount from user input
             decimal discount = SelectedDiscountType switch
             {
-                DiscountType.Percentage => Math.Round(net * (DiscountValue / 100m), 2),
+                DiscountType.Percentage => MoneyRounding.Round(net * (DiscountValue / 100m)),
                 DiscountType.FixedAmount => DiscountValue,
                 _ => 0m
             };
@@ -387,16 +388,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
             // BUG-58: VAT applied to (net - discount), NOT gross.
             // This matches UAE FTA guidance for tax invoices.
             decimal vat = IsVatApplicable
-                ? Math.Round(beforeVat * (VatPercent / 100m), 2)
+                ? MoneyRounding.Round(beforeVat * (VatPercent / 100m))
                 : 0m;
 
             decimal grand = beforeVat + vat;
 
-            NetSubtotal = Math.Round(net, 2);
-            DiscountAmount = Math.Round(discount, 2);
-            SubtotalBeforeVat = Math.Round(beforeVat, 2);
+            NetSubtotal = MoneyRounding.Round(net);
+            DiscountAmount = MoneyRounding.Round(discount);
+            SubtotalBeforeVat = MoneyRounding.Round(beforeVat);
             VatAmount = vat;
-            GrandTotalVatInclusive = Math.Round(grand, 2);
+            GrandTotalVatInclusive = MoneyRounding.Round(grand);
         }
     }
 }

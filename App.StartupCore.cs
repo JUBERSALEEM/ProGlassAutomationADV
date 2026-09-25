@@ -12,6 +12,7 @@ using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Database.DatabaseBackup;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Network;
@@ -421,6 +422,31 @@ namespace ProGlassAutomation
                 }
 
                 throw;
+            }
+
+            if (SchemaMigrationRunner.HasFailure)
+            {
+                AppLogService.Error(
+                    "One or more database schema upgrades failed. Data files were left unchanged. " +
+                    SchemaMigrationRunner.FailureSummary,
+                    null,
+                    new LogContext { Module = "Database", Operation = "StartupSchemaUpgrade" });
+                try
+                {
+                    Prompts.Show(
+                        "A database upgrade failed, so the file was left unchanged. " +
+                        "Do not enter new invoices, job orders, or deliveries until this is fixed. " +
+                        "A backup is next to the database when one could be made.\n\n" +
+                        SchemaMigrationRunner.FailureSummary,
+                        "Database upgrade failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                }
+                catch (Exception dialogEx)
+                {
+                    AppLogService.Warning(
+                        "Could not show the schema-upgrade warning: " + dialogEx.Message);
+                }
             }
 
             // 9c-2) Cross-database integrity sweep (Phase 2 — Result + Correlation):

@@ -34,6 +34,34 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
     /// <summary>Applies versioned schema migrations to a SQLite file.</summary>
     public static class SchemaMigrationRunner
     {
+        private static readonly object FailureGate = new();
+        private static readonly List<string> FailureMessages = new();
+
+        /// <summary>
+        /// True when any upgrade this process attempted failed. Callers that
+        /// ignore the bool still leave a record here so startup can tell the
+        /// operator. The schema is unchanged and the backup path, when one
+        /// was made, is in <see cref="FailureSummary"/>.
+        /// </summary>
+        public static bool HasFailure
+        {
+            get { lock (FailureGate) return FailureMessages.Count > 0; }
+        }
+
+        public static string FailureSummary
+        {
+            get { lock (FailureGate) return string.Join(Environment.NewLine, FailureMessages); }
+        }
+
+        private static void RecordFailure(string message)
+        {
+            lock (FailureGate)
+            {
+                if (!FailureMessages.Contains(message))
+                    FailureMessages.Add(message);
+            }
+        }
+
         /// <summary>
         /// Ensures a database file is at the latest registered schema version.
         /// Returns true when up-to-date or successfully upgraded; false when a
@@ -67,9 +95,10 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 string backupPath = BackupBeforeMigrate(dbPath, target);
                 if (string.IsNullOrEmpty(backupPath))
                 {
+                    string aborted = $"Schema upgrade for {Path.GetFileName(dbPath)} was aborted: a backup could not be created. The database was not changed.";
+                    RecordFailure(aborted);
                     AppLogService.Error(
-                        $"Schema migration aborted for {Path.GetFileName(dbPath)}: " +
-                        "could not create a pre-migration backup.",
+                        aborted,
                         null,
                         new LogContext
                         {
@@ -94,9 +123,10 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                     catch (Exception applyEx)
                     {
                         try { tx.Rollback(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SchemaMigrationRunner] Upgrade: rollback is best-effort: " + ex.Message); }
+                        string failed = $"Schema upgrade for {Path.GetFileName(dbPath)} failed. The database was not changed. Backup: {backupPath}";
+                        RecordFailure(failed);
                         AppLogService.Error(
-                            $"Schema migration FAILED for {Path.GetFileName(dbPath)}. " +
-                            $"Schema unchanged. Pre-migration backup: {backupPath}",
+                            failed,
                             applyEx,
                             new LogContext
                             {
@@ -121,8 +151,10 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             }
             catch (Exception ex)
             {
+                string runFailed = $"Schema upgrade for {Path.GetFileName(dbPath)} failed ({ex.GetType().Name}). The database was not changed.";
+                RecordFailure(runFailed);
                 AppLogService.Error(
-                    $"Schema migration run failed for {Path.GetFileName(dbPath)}.",
+                    runFailed,
                     ex,
                     new LogContext
                     {

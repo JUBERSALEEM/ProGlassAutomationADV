@@ -43,6 +43,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Sharing;
@@ -236,7 +237,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string UsageEfficiencyDisplay => $"{UsageEfficiencyPercent:0.##}%";
 
         /// <summary>Reconciliation balance: buy − used − wastage value (0 when healthy).</summary>
-        public decimal ReconciliationBalance => Math.Round(TotalBuyPrice - TotalUsedPrice - TotalWastageValue, 2);
+        public decimal ReconciliationBalance => MoneyRounding.Round(TotalBuyPrice - TotalUsedPrice - TotalWastageValue);
 
         public string ReconciliationBalanceDisplay => $"{ReconciliationBalance:+#,##0.00;−#,##0.00;0.00}";
 
@@ -261,11 +262,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         // TotalUsedArea vs the average given rate — the whole-report
         // yield premium in one line.
         public decimal TotalLandedRatePerSqm => TotalUsedArea > 0m
-            ? Math.Round(TotalBuyPrice / TotalUsedArea, 2)
+            ? MoneyRounding.Round(TotalBuyPrice / TotalUsedArea)
             : 0m;
 
         public decimal TotalAvgGivenRatePerSqm => TotalUsedArea > 0m
-            ? Math.Round(TotalUsedPrice / TotalUsedArea, 2)
+            ? MoneyRounding.Round(TotalUsedPrice / TotalUsedArea)
             : 0m;
 
         public decimal TotalYieldPremiumPercent =>
@@ -952,11 +953,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 : src.SqmValue;
                             decimal wastageArea = buySheetArea - usedArea;
 
-                            decimal buySheetPrice = Math.Round(buySheetArea * unitRate, 2);
-                            decimal usedSheetPrice = Math.Round(usedArea * unitRate, 2);
+                            decimal buySheetPrice = MoneyRounding.Round(buySheetArea * unitRate);
+                            decimal usedSheetPrice = MoneyRounding.Round(usedArea * unitRate);
                             decimal wastageValue = Math.Max(0m, buySheetPrice - usedSheetPrice);
                             decimal charge = setup.IsActive && setup.ResultAmount > 0m && totalSourceSqm > 0m
-                                ? Math.Round(setup.ResultAmount * (src.SqmValue / totalSourceSqm), 2)
+                                ? MoneyRounding.Round(setup.ResultAmount * (src.SqmValue / totalSourceSqm))
                                 : 0m;
 
                             // 2026-09-11 SHORTFALL on setup rows: the checked
@@ -1115,9 +1116,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         decimal wastageArea = buySheetArea - usedArea;
 
                         decimal buySheetPrice = step6SheetQuantity > 0 && unitRate > 0m
-                            ? Math.Round(buySheetArea * unitRate, 2)
+                            ? MoneyRounding.Round(buySheetArea * unitRate)
                             : glassRow.Amount;
-                        decimal usedSheetPrice = Math.Round(usedArea * unitRate, 2);
+                        decimal usedSheetPrice = MoneyRounding.Round(usedArea * unitRate);
                         decimal wastageValue = Math.Max(0m, buySheetPrice - usedSheetPrice);
 
                         string diagnostic;
@@ -1412,7 +1413,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         continue;
 
                     decimal charge = row.IsActive && row.ResultAmount > 0m
-                        ? Math.Round(row.ResultAmount * (src.SqmValue / totalSqm), 2)
+                        ? MoneyRounding.Round(row.ResultAmount * (src.SqmValue / totalSqm))
                         : 0m;
                     return new Step6ChargeInfo(
                         src.DisplayLabel, src.SqmValue, row.SheetQuantity,
@@ -1658,7 +1659,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         // changes NO totals — buy/used/wastage reconcile by construction;
         // these columns EXPLAIN the embedded premium.
         public decimal EffectivePricePerSqm => UsedArea > 0m
-            ? Math.Round(BuySheetPrice / UsedArea, 2)
+            ? MoneyRounding.Round(BuySheetPrice / UsedArea)
             : 0m;
 
         public string EffectivePricePerSqmDisplay => EffectivePricePerSqm > 0m

@@ -24,6 +24,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
@@ -208,7 +209,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 if (_rate == value) return;
                 _rate = value;
-                _value = Math.Round(_sqm1 * _qty * _rate, 2);
+                _value = MoneyRounding.Round(_sqm1 * _qty * _rate);
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(Value));
             }
@@ -372,7 +373,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     ((decimal)_w2 + _h2) / 1000m * _perimeterFactor * _qty, 3)
                 : 0m;
 
-            decimal newValue = Math.Round(newSqm1 * _qty * _rate, 2);
+            decimal newValue = MoneyRounding.Round(newSqm1 * _qty * _rate);
 
             _sqm1 = newSqm1;
             _totalSqm = newTotalSqm;
@@ -425,7 +426,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     ((decimal)_w2 + _h2) / 1000m * _perimeterFactor * _qty, 3)
                 : 0m;
 
-            _value = Math.Round(_sqm1 * _qty * _rate, 2);
+            _value = MoneyRounding.Round(_sqm1 * _qty * _rate);
         }
 
         public void ApplyColumnValues(
@@ -506,7 +507,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 _rate = _sqm1 >= 4m ? surchargeRate : baseRate;
             }
 
-            _value = Math.Round(_sqm1 * _qty * _rate, 2);
+            _value = MoneyRounding.Round(_sqm1 * _qty * _rate);
         }
 
         public void FireAllChanged()

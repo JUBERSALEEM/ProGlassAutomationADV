@@ -18,6 +18,7 @@ using System.Windows.Input;
 using ProGlassAutomation.Services.Localization;
 using ProGlassAutomation.Services.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 {
@@ -586,7 +587,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal basis = vm.BasePricePerSqm / SafeYield(vm.YieldFactor)
                           + vm.CuttingCostPerSqm
                           + vm.TemperingCostPerSqm;
-            return Math.Round(basis, 2);
+            return MoneyRounding.Round(basis);
         }
 
         private decimal DguBasis()
@@ -595,7 +596,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal basis = (vm.OuterBasePrice + vm.InnerBasePrice)
                                 / SafeYield(vm.YieldFactor)
                           + vm.SpacerPrice;
-            return Math.Round(basis, 2);
+            return MoneyRounding.Round(basis);
         }
 
         private decimal LamBasis()
@@ -606,7 +607,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                           + vm.PvbMaterialRate
                           + vm.OuterCuttingCost + vm.InnerCuttingCost
                           + vm.OuterTemperingCost + vm.InnerTemperingCost;
-            return Math.Round(basis, 2);
+            return MoneyRounding.Round(basis);
         }
 
         private decimal DguLamBasis()
@@ -618,7 +619,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                           + vm.TotalTemperingCost
                           + vm.InterlayerSellPrice
                           + vm.SpacerPrice;
-            return Math.Round(basis, 2);
+            return MoneyRounding.Round(basis);
         }
 
         private decimal CalculateSguRate()
@@ -646,7 +647,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal step4 = step3 + temperingCost;
             decimal step5 = step4 * (1m + (marginPercent / 100m));
 
-            return Math.Round(step5, 2);
+            return MoneyRounding.Round(step5);
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -677,7 +678,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal step3 = step2 + spacerPrice;                        // 130.88
             decimal step4 = step3 * (1m + (marginPercent / 100m));      // 150.51
 
-            return Math.Round(step4, 2);
+            return MoneyRounding.Round(step4);
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -733,7 +734,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal step5 = step4 + outerTempering + innerTempering;              // 198.82
             decimal step6 = step5 * (1m + (marginPercent / 100m));                // 228.65
 
-            return Math.Round(step6, 2);
+            return MoneyRounding.Round(step6);
         }
     }
 }

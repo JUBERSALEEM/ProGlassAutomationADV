@@ -23,6 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
 {
@@ -156,24 +157,24 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             }
 
             result.TotalAreaSqm = Math.Round(totalArea, 2);
-            result.TotalGivenValue = Math.Round(given, 2);
-            result.TotalRequiredValue = Math.Round(required, 2);
-            result.TotalDifferenceValue = Math.Round(given - required, 2);
+            result.TotalGivenValue = MoneyRounding.Round(given);
+            result.TotalRequiredValue = MoneyRounding.Round(required);
+            result.TotalDifferenceValue = MoneyRounding.Round(given - required);
             result.AverageGivenPricePerSqm = totalArea > 0m
-                ? Math.Round(given / totalArea, 2)
+                ? MoneyRounding.Round(given / totalArea)
                 : 0m;
             result.AverageRequiredPerSqm = totalArea > 0m
-                ? Math.Round(required / totalArea, 2)
+                ? MoneyRounding.Round(required / totalArea)
                 : 0m;
 
             result.AverageBasePricePerSqm = totalArea > 0m
-                ? Math.Round(baseW / totalArea, 2)
+                ? MoneyRounding.Round(baseW / totalArea)
                 : 0m;
             result.AverageGivenJudgedPerSqm = totalArea > 0m
-                ? Math.Round(judgedW / totalArea, 2)
+                ? MoneyRounding.Round(judgedW / totalArea)
                 : 0m;
-            result.TotalBaseValue = Math.Round(baseW, 2);
-            result.TotalExtraValue = Math.Round(judgedW - baseW, 2);
+            result.TotalBaseValue = MoneyRounding.Round(baseW);
+            result.TotalExtraValue = MoneyRounding.Round(judgedW - baseW);
 
             // Base-price judgement aggregates. Only when EVERY row is
             // complete AND carries the component rates needed for the base
@@ -182,8 +183,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 && usableRows.Count > 0
                 && baseW > 0m)
             {
-                result.AverageExtraProfitPerSqm = Math.Round(
-                    (judgedW - baseW) / totalArea, 2);
+                result.AverageExtraProfitPerSqm = MoneyRounding.Round(
+                    (judgedW - baseW) / totalArea);
                 result.ExtraProfitMarginPercent = Math.Round(
                     (judgedW - baseW) / baseW * 100m, 2);
             }
@@ -262,7 +263,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             decimal preUplift = (glass / s.YieldFactor)
                                 + Math.Max(0m, s.AspRatePerSqm)
                                 + Math.Max(0m, s.ProcessingRatePerSqm);
-            return Math.Round(preUplift, 2);
+            return MoneyRounding.Round(preUplift);
         }
     }
 }

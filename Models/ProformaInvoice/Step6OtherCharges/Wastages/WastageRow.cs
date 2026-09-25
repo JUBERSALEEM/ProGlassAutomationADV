@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
 {
@@ -995,7 +996,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             if (UseOptimizationFormula)
             {
                 RecalculateOptimizationResults();
-                ResultAmount = IsActive ? Math.Round(FinalResultValue, 2) : 0m;
+                ResultAmount = IsActive ? MoneyRounding.Round(FinalResultValue) : 0m;
             }
             else
             {

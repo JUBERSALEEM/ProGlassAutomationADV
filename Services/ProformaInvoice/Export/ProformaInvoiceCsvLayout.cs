@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 
 using System.Globalization;
+using ProGlassAutomation.Services.Reporting;
 namespace ProGlassAutomation.Services.ProformaInvoice.Export
 {
     /// <summary>
@@ -91,7 +92,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         // BUG-22 / BUG-27: shared SqmCalculator (0.5 m² floor)
                         decimal unitArea = SqmCalculator.CalculatePanel(r.W1, r.H1);
                         decimal totalArea = Math.Round(unitArea * r.Qty, 3);
-                        decimal total = Math.Round(totalArea * r.Rate, 2);
+                        decimal total = MoneyRounding.Round(totalArea * r.Rate);
 
                         writer.WriteField(g.GroupNumber);
                         writer.WriteField(groupLabel);

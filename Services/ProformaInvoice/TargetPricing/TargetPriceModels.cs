@@ -55,6 +55,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
 {
@@ -440,7 +441,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 result.TotalAreaSqm += area;
                 result.TotalGivenValue += Math.Max(0m, spec.GivenValue);
                 result.TotalSpecificationTargetValue += Math.Max(0m,
-                    Math.Round(Math.Max(0m, spec.SpecificationTargetPerSqm) * area, 2));
+                    MoneyRounding.Round(Math.Max(0m, spec.SpecificationTargetPerSqm) * area));
                 result.TotalRequiredTargetValue += Math.Max(0m, spec.RequiredTargetValue);
                 // Difference is a balance, not income. Preserve the sign so
                 // totals can show how far the job is above or below target.
@@ -452,26 +453,26 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 judgedW += Math.Max(0m, spec.GivenPriceJudgedPerSqm) * area;
             }
 
-            result.TotalGivenValue = Math.Round(result.TotalGivenValue, 2);
-            result.TotalSpecificationTargetValue = Math.Round(result.TotalSpecificationTargetValue, 2);
-            result.TotalRequiredTargetValue = Math.Round(result.TotalRequiredTargetValue, 2);
-            result.TotalDifferenceValue = Math.Round(result.TotalDifferenceValue, 2);
+            result.TotalGivenValue = MoneyRounding.Round(result.TotalGivenValue);
+            result.TotalSpecificationTargetValue = MoneyRounding.Round(result.TotalSpecificationTargetValue);
+            result.TotalRequiredTargetValue = MoneyRounding.Round(result.TotalRequiredTargetValue);
+            result.TotalDifferenceValue = MoneyRounding.Round(result.TotalDifferenceValue);
 
             result.AverageGivenPricePerSqm = result.TotalAreaSqm > 0m
-                ? Math.Round(result.TotalGivenValue / result.TotalAreaSqm, 2)
+                ? MoneyRounding.Round(result.TotalGivenValue / result.TotalAreaSqm)
                 : 0m;
 
             result.AverageSpecificationTargetPerSqm = result.TotalAreaSqm > 0m
-                ? Math.Round(result.TotalSpecificationTargetValue / result.TotalAreaSqm, 2)
+                ? MoneyRounding.Round(result.TotalSpecificationTargetValue / result.TotalAreaSqm)
                 : 0m;
 
             result.AverageFinalRequiredTargetPerSqm = result.TotalAreaSqm > 0m
-                ? Math.Round(result.TotalRequiredTargetValue / result.TotalAreaSqm, 2)
+                ? MoneyRounding.Round(result.TotalRequiredTargetValue / result.TotalAreaSqm)
                 : 0m;
 
             result.AverageAppliedUInsertPerSqm = result.TotalAreaSqm > 0m
-                ? Math.Round(Math.Max(0m, result.TotalRequiredTargetValue - result.TotalSpecificationTargetValue)
-                             / result.TotalAreaSqm, 2)
+                ? MoneyRounding.Round(Math.Max(0m, result.TotalRequiredTargetValue - result.TotalSpecificationTargetValue)
+                             / result.TotalAreaSqm)
                 : 0m;
 
             if (result.TotalRequiredTargetValue > 0m
@@ -490,16 +491,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             bool allExtraValid = list.Count > 0
                                  && list.All(s => s.HasValidExtraProfit);
             result.AverageBasePricePerSqm = result.TotalAreaSqm > 0m
-                ? Math.Round(baseW / result.TotalAreaSqm, 2)
+                ? MoneyRounding.Round(baseW / result.TotalAreaSqm)
                 : 0m;
             result.AverageGivenJudgedPerSqm = result.TotalAreaSqm > 0m
-                ? Math.Round(judgedW / result.TotalAreaSqm, 2)
+                ? MoneyRounding.Round(judgedW / result.TotalAreaSqm)
                 : 0m;
 
             if (allExtraValid && result.TotalAreaSqm > 0m)
             {
-                result.AverageExtraProfitPerSqm = Math.Round(
-                    (judgedW - baseW) / result.TotalAreaSqm, 2);
+                result.AverageExtraProfitPerSqm = MoneyRounding.Round(
+                    (judgedW - baseW) / result.TotalAreaSqm);
                 if (baseW > 0m)
                 {
                     result.ExtraProfitMarginPercent = Math.Round(

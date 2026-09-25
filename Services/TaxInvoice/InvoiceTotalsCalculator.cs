@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.TaxInvoice
 {
@@ -34,15 +35,15 @@ namespace ProGlassAutomation.Services.TaxInvoice
 
         /// <summary>
         /// Computes discount, VAT and grand total from a subtotal and a
-        /// discount percentage. Rounding matches the previous behaviour:
-        /// discount and VAT are rounded to 2dp.
+        /// discount percentage. Discount and VAT use MoneyRounding
+        /// (2dp, midpoint away from zero) so a half-fil does not banker's-round
+        /// down and disagree with the line values.
         /// </summary>
         public static Totals Compute(decimal subtotal, decimal discountPercent)
         {
-            decimal discountAmt = Math.Round(
-                subtotal * (discountPercent / 100m), 2);
+            decimal discountAmt = MoneyRounding.Round(subtotal * (discountPercent / 100m));
             decimal afterDiscount = subtotal - discountAmt;
-            decimal vatAmount = Math.Round(afterDiscount * VatRate, 2);
+            decimal vatAmount = MoneyRounding.Round(afterDiscount * VatRate);
             decimal grandTotal = afterDiscount + vatAmount;
 
             return new Totals(discountAmt, afterDiscount, vatAmount, grandTotal);
