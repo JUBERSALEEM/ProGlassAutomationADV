@@ -104,13 +104,15 @@
          card. A DropShadowEffect declared here is invisible to
          every other module. ═══ -->
 
-    <!-- ═══ L1 CARD — the frosted 26 px slab ═══ -->
+    <!-- ═══ L1 CARD — indigo bento slab. Soft indigo fill and a real
+         indigo edge so About cards read as the studio bento, not white
+         slabs on a pale canvas. ═══ -->
     <Style x:Key="Ios26CardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Ios26CardBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ios26CardBorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
-        <Setter Property="Padding" Value="22,20"/>
+        <Setter Property="Padding" Value="18,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Effect" Value="{DynamicResource Ios26CardShadow}"/>
     </Style>
@@ -123,7 +125,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource Ios26TileBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
-        <Setter Property="Padding" Value="14,12"/>
+        <Setter Property="Padding" Value="12,8"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
     <Style x:Key="AboutInsetStyle" TargetType="Border"
@@ -167,6 +169,8 @@
         <Setter Property="Foreground" Value="{DynamicResource Ios26TextBodyBrush}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="MinHeight" Value="32"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
@@ -177,7 +181,8 @@
                             BorderBrush="{DynamicResource Ios26HairlineBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource Ios26RadiusChip}"
-                            Padding="14,8"
+                            Padding="14,0"
+                            Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>

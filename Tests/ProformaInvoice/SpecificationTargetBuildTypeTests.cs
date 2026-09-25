@@ -83,12 +83,10 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         {
             // (30 + 20) ÷ 0.80 + 5 processing = 67.50 → × 1.15 = 77.625.
             //
-            // 77.625 is an exact half, so this also pins the rounding mode
-            // these call sites actually use: Math.Round(value, 2) with no mode
-            // argument is MidpointRounding.ToEven, which gives 77.62. Rounding
-            // away from zero would give 77.63. If Phase 2's migration ever
-            // reaches this file, this assertion is what tells you the figure
-            // moved — and that it moved on purpose.
+            // 77.625 is an exact half-fil. Phase 2 now routes this rate through
+            // MoneyRounding (AwayFromZero), so it is 77.63, not the old
+            // banker's 77.62. The line value is that rate times area, rounded
+            // again: 77.63 × 10 = 776.30.
             var result = SpecificationTargetCalculator.Calculate(
                 specNumber: 2, specName: "LAM 6.38", glassTypeCode: "G2",
                 buildType: GlassBuildType.Lam,
@@ -98,8 +96,8 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
 
             Assert.Equal(TargetStatus.UpToDate, result.Status);
             Assert.Equal(67.50m, result.BasePricePerSqm);
-            Assert.Equal(77.62m, result.SpecificationTargetPerSqm);
-            Assert.Equal(776.20m, result.RequiredTargetValue);
+            Assert.Equal(77.63m, result.SpecificationTargetPerSqm);
+            Assert.Equal(776.30m, result.RequiredTargetValue);
         }
 
         [Fact]

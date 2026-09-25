@@ -544,9 +544,11 @@ namespace ProGlassAutomation.Agent.Demo
         private static readonly System.Collections.Generic.HashSet<string> AllowedDownloadHosts =
             new(System.StringComparer.OrdinalIgnoreCase)
             {
-                "ffmpeg.org", "www.ffmpeg.org",   // official project page
-                "gyan.dev", "www.gyan.dev",       // ffmpeg.org-listed Windows builds (direct zip)
-                "github.com", "www.github.com",   // BtbN / GyanD release pages
+                "ffmpeg.org", "www.ffmpeg.org",
+                "gyan.dev", "www.gyan.dev",
+                "github.com", "www.github.com",
+                "objects.githubusercontent.com",
+                "release-assets.githubusercontent.com",
             };
 
         // 2026-08-25: one-click ffmpeg install — download the essentials

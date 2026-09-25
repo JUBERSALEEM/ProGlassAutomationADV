@@ -75,7 +75,8 @@
             <!-- Small ghost copy button (mockup: icon-only square). -->
             <Style x:Key="LicenseCopyButtonStyle" TargetType="Button"
                    BasedOn="{StaticResource AboutPillButtonStyle}">
-                <Setter Property="Padding" Value="7,3"/>
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="Padding" Value="10,0"/>
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -103,9 +104,9 @@
         </Border>
 
         <!-- ═══ HERO · LICENSE & WORKSTATION ENTITLEMENTS (Screen 02) ═══ -->
-        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,8">
             <StackPanel>
-                <Grid Margin="0,0,0,14">
+                <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="14"/>
@@ -334,11 +335,11 @@
         <!-- ═══ 2 · LICENSE DETAILS ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}"
                 Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
-                Margin="0,0,0,14">
+                Margin="0,0,0,8">
             <StackPanel>
                 <TextBlock Text="{DynamicResource About.LicenseDetails}"
                            Style="{StaticResource Ios26CardTitleStyle}"
-                           Margin="0,0,0,14"/>
+                           Margin="0,0,0,8"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
@@ -489,11 +490,11 @@
         <!-- ═══ 3 · FEATURES ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}"
                 Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
-                Margin="0,0,0,14">
+                Margin="0,0,0,8">
             <StackPanel>
                 <TextBlock Text="{DynamicResource Settings.SecFeatures}"
                            Style="{StaticResource Ios26CardTitleStyle}"
-                           Margin="0,0,0,14"/>
+                           Margin="0,0,0,8"/>
                 <ItemsControl ItemsSource="{Binding FeatureChips}"
                               ItemTemplate="{StaticResource LicenseFeatureChipTemplate}">
                     <ItemsControl.ItemsPanel>

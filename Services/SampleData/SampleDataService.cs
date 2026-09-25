@@ -41,6 +41,7 @@ using System.Threading.Tasks;
 using ProGlassAutomation.Services.Database;
 
 using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
+using ProGlassAutomation.Services.Reporting;
 namespace ProGlassAutomation.Services.SampleData
 {
     /// <summary>Seeds a single comprehensive demo workflow across all modules.</summary>
@@ -590,7 +591,7 @@ namespace ProGlassAutomation.Services.SampleData
                 foreach (var item in sg.ItemRows)
                 {
                     decimal sqm = ((decimal)item.W1 / 1000m) * ((decimal)item.H1 / 1000m) * item.Qty;
-                    subtotal += Math.Round(sqm * item.Rate, 2);
+                    subtotal += MoneyRounding.Round(sqm * item.Rate);
                 }
             }
 
@@ -760,13 +761,13 @@ namespace ProGlassAutomation.Services.SampleData
                     Sqm = Math.Round(sqm, 3),
                     TotalSqm = Math.Round(totalSqm, 3),
                     Rate = rate,
-                    Value = Math.Round(value, 2),
+                    Value = MoneyRounding.Round(value),
                     Notes = ""
                 });
             }
 
             decimal deliveredSubtotal = items.Sum(i => i.Value);
-            deliveredSubtotal = Math.Round(deliveredSubtotal, 2);
+            deliveredSubtotal = MoneyRounding.Round(deliveredSubtotal);
             decimal vat = Reporting.VatCalculator.CalculateVatFromSubtotal(deliveredSubtotal);
             decimal total = deliveredSubtotal + vat;
 

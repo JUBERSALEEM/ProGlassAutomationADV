@@ -18,7 +18,16 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}">
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -114,23 +123,16 @@
                         </Border>
 
                         <!-- Bento KPI Cards Strip -->
-                        <Grid Grid.Row="2" Margin="0,14,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+                        <UniformGrid Grid.Row="2" Columns="3" Margin="-6,8,-6,0">
 
-                            <Border Grid.Column="0" Style="{StaticResource OptInnerCard}" Margin="0,0,8,0" Padding="14,10">
+                            <Border Grid.Column="0" Style="{StaticResource OptInnerCard}" Margin="6" Padding="14,10">
                                 <StackPanel>
                                     <TextBlock Text="SHEETS" Style="{StaticResource OptHeader}"/>
                                     <TextBlock Text="{Binding ResultSheets}" Style="{StaticResource OptKpiValue}" FontSize="22" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="1" Style="{StaticResource OptInnerCard}" Margin="0,0,8,0" Padding="14,10">
+                            <Border Grid.Column="1" Style="{StaticResource OptInnerCard}" Margin="6" Padding="14,10">
                                 <StackPanel>
                                     <TextBlock Text="UTILIZATION" Style="{StaticResource OptHeader}"/>
                                     <TextBlock Text="{Binding ResultUtilization}" Style="{StaticResource OptKpiValue}" FontSize="22"
@@ -138,7 +140,7 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="2" Style="{StaticResource OptInnerCard}" Margin="0,0,8,0" Padding="14,10">
+                            <Border Grid.Column="2" Style="{StaticResource OptInnerCard}" Margin="6" Padding="14,10">
                                 <StackPanel>
                                     <TextBlock Text="OFFCUT" Style="{StaticResource OptHeader}"/>
                                     <TextBlock Text="{Binding ResultWaste}" Style="{StaticResource OptKpiValue}" FontSize="22"
@@ -146,20 +148,20 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="3" Style="{StaticResource OptInnerCard}" Margin="0,0,8,0" Padding="14,10">
+                            <Border Grid.Column="3" Style="{StaticResource OptInnerCard}" Margin="6" Padding="14,10">
                                 <StackPanel>
                                     <TextBlock Text="UNPLACED" Style="{StaticResource OptHeader}"/>
                                     <TextBlock Text="{Binding ResultUnplaced}" Style="{StaticResource OptKpiValue}" FontSize="22" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
 
-                            <Border Grid.Column="4" Style="{StaticResource OptInnerCard}" Padding="14,10">
+                            <Border Style="{StaticResource OptInnerCard}" Margin="6" Padding="14,10">
                                 <StackPanel>
                                     <TextBlock Text="GLASS AREA" Style="{StaticResource OptHeader}"/>
                                     <TextBlock Text="{Binding KpiGlass}" Style="{StaticResource OptKpiValue}" FontSize="22" Margin="0,2,0,0"/>
                                 </StackPanel>
                             </Border>
-                        </Grid>
+                        </UniformGrid>
                     </Grid>
                 </Border>
 

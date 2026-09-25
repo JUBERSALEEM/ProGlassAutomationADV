@@ -35,10 +35,8 @@ namespace ProGlassAutomation.Services.Audit
         protected override void OnConfiguring(
             DbContextOptionsBuilder optionsBuilder)
         {
-            // Ensure folder exists once per context creation.
-            var folder = Path.GetDirectoryName(DatabaseFilePath)!;
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            // Shared-aware folder ensure (2026-09-24) — see AppDataRoot.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
 
             // Senior audit (Aug 2026): audit.db is security-critical — WAL
             // + foreign_keys=ON + busy_timeout=5s guarantee no audit write is

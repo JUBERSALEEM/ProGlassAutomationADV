@@ -148,8 +148,11 @@
                                        FontSize="{DynamicResource FontSize.Title}"
                                        FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{DynamicResource TextPrimaryBrush}"
+                                       Typography.NumeralAlignment="Tabular"
                                        TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding UtcTimeDisplay}" Style="{StaticResource Typography.BodySmall}"/>
+                            <TextBlock Text="{Binding UtcTimeDisplay}"
+                                       Typography.NumeralAlignment="Tabular"
+                                       Style="{StaticResource Typography.BodySmall}"/>
                         </StackPanel>
 
                         <!-- WHAT -->

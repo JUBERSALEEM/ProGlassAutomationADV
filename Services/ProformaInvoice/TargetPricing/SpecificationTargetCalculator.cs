@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
 {
@@ -141,9 +142,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
             // The specification target lifts the ROUNDED base price
             // (103.82 × 1.15 = 119.39) so the written-down numbers on the
             // card always reconcile with the shop's own arithmetic.
-            decimal basePerSqm = Math.Round(preUplift, 2);
+            decimal basePerSqm = MoneyRounding.Round(preUplift);
             result.BasePricePerSqm = basePerSqm;
-            result.SpecificationTargetPerSqm = Math.Round(basePerSqm * upliftFactor, 2);
+            result.SpecificationTargetPerSqm = MoneyRounding.Round(basePerSqm * upliftFactor);
 
             // Final required target starts as the base-price specification
             // target (the U-insert rate is never folded in — ApplyUInsert
@@ -311,14 +312,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
 
             if (targetPerSqm > 0m)
             {
-                r.RequiredTargetValue = Math.Round(targetPerSqm * r.AreaSqm, 2);
+                r.RequiredTargetValue = MoneyRounding.Round(targetPerSqm * r.AreaSqm);
             }
 
             if (r.GivenPricePerSqm > 0m)
             {
-                r.GivenValue = Math.Round(r.GivenPricePerSqm * r.AreaSqm, 2);
-                r.DifferencePerSqm = Math.Round(r.GivenPricePerSqm - targetPerSqm, 2);
-                r.DifferenceValue = Math.Round(r.GivenValue - r.RequiredTargetValue, 2);
+                r.GivenValue = MoneyRounding.Round(r.GivenPricePerSqm * r.AreaSqm);
+                r.DifferencePerSqm = MoneyRounding.Round(r.GivenPricePerSqm - targetPerSqm);
+                r.DifferenceValue = MoneyRounding.Round(r.GivenValue - r.RequiredTargetValue);
 
                 // Given JUDGED for the margin: when the U-insert is covered
                 // INSIDE the given price (IncludedInStep5Price) the customer
@@ -329,7 +330,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 decimal judged = r.GivenPricePerSqm;
                 if (r.UInsertTreatment == UInsertTreatment.IncludedInStep5Price)
                     judged = Math.Max(0m, judged - Math.Max(0m, r.UInsertRatePerSqm));
-                r.GivenPriceJudgedPerSqm = Math.Round(judged, 2);
+                r.GivenPriceJudgedPerSqm = MoneyRounding.Round(judged);
 
                 bool marginEligible = r.Status is not (TargetStatus.MissingBasePrice
                         or TargetStatus.MissingGlassRate
@@ -386,7 +387,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.TargetPricing
                 if (r.BasePricePerSqm > 0m && marginEligible)
                 {
                     decimal extra = judged - r.BasePricePerSqm;
-                    r.ExtraProfitPerSqm = Math.Round(extra, 2);
+                    r.ExtraProfitPerSqm = MoneyRounding.Round(extra);
                     r.ExtraProfitMarginPercent = Math.Round(
                         extra / r.BasePricePerSqm * 100m, 2);
                 }

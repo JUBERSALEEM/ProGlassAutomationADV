@@ -1,3 +1,4 @@
+<!-- Bento print preview: token-aligned A4 layout -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintableInvoice.PrintableInvoiceView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"

@@ -174,6 +174,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             {
                 decimal stock = racks.Sum(r => r.StockSqm);
                 decimal glass = racks.Sum(r => r.GlassSqm);
+                // Percent, not money — stays on Math.Round so MoneyRounding
+                // is not applied to a utilization figure.
                 utilization = stock > 0m
                     ? Math.Min(100m, Math.Round(glass / stock * 100m, 2))
                     : 0m;

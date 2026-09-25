@@ -15,8 +15,8 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ═══ GEOMETRY & SIZING TOKENS ═══ -->
-    <sys:Double x:Key="PgTopBarHeight">92</sys:Double>
-    <sys:Double x:Key="PgTopRowHeight">52</sys:Double>
+    <sys:Double x:Key="PgTopBarHeight">56</sys:Double>
+    <sys:Double x:Key="PgTopRowHeight">56</sys:Double>
     <sys:Double x:Key="PgTopCtrlHeight">32</sys:Double>
     <sys:Double x:Key="PgSidebarWidth">260</sys:Double>
     <sys:Double x:Key="PgSidebarItemHeight">38</sys:Double>
@@ -25,17 +25,17 @@
     <sys:Double x:Key="PgTopFontCap">9.5</sys:Double>
     <sys:Double x:Key="PgTopFontBtn">13</sys:Double>
 
-    <!-- ═══ FULL LIGHT STUDIO BENTO PALETTE BRUSHES ═══ -->
+    <!-- ═══ FULL LIGHT STUDIO BENTO PALETTE BRUSHES (BENTO INDIGO SYSTEM) ═══ -->
     <SolidColorBrush x:Key="PgPorcelainSurfaceBrush" Color="#FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgModuleBgBrush"          Color="#F8FAFC" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderRibbonBrush"    Color="#F1F5F9" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderHoverBrush"     Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderPressedBrush"   Color="#CBD5E1" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgKeylineBrush"           Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgVioletInkBrush"         Color="#0F172A" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgSelectedRowBrush"       Color="#4F46E5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgFocusRimBrush"          Color="#4F46E5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgTextMutedBrush"         Color="#64748B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgModuleBgBrush"          Color="#F3F0FA" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderRibbonBrush"    Color="#EEE8F8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderHoverBrush"     Color="#E4DCF5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderPressedBrush"   Color="#D8CEEE" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgKeylineBrush"           Color="#E2DBEF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgVioletInkBrush"         Color="#2C2440" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgSelectedRowBrush"       Color="#6546B5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgFocusRimBrush"          Color="#6546B5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgTextMutedBrush"         Color="#6B6078" po:Freeze="True"/>
     <SolidColorBrush x:Key="PgWhiteBrush"             Color="#FFFFFF" po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -318,6 +318,39 @@
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Row inside the professional More menu. Left-aligned, no min-width. -->
+    <Style x:Key="PgShellMenuRowStyle" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Margin" Value="4,1"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource PgLavenderHoverBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════

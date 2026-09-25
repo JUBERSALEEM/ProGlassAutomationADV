@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.TaxInvoice.Mapper
 {
@@ -237,7 +238,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                 {
                     decimal sqm = SqmCalculator.CalculatePanel(row.W1, row.H1);
                     decimal totalSqm = Math.Round(sqm * row.Qty, 3);
-                    decimal value = Math.Round(row.Rate * row.Qty * sqm, 2);
+                    decimal value = MoneyRounding.Round(row.Rate * row.Qty * sqm);
                     subtotal += value;
 
                     items.Add(new TaxInvoiceItem
@@ -263,7 +264,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                 }
             }
 
-            return (items, Math.Round(subtotal, 2));
+            return (items, MoneyRounding.Round(subtotal));
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -294,7 +295,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                     {
                         decimal sqm = SqmCalculator.CalculatePanel(r.W1, r.H1);
                         decimal totalSqm = Math.Round(sqm * r.Qty, 3);
-                        decimal value = Math.Round(r.Rate * r.Qty * sqm, 2);
+                        decimal value = MoneyRounding.Round(r.Rate * r.Qty * sqm);
 
                         return new InvGlassItemRowSnapshot
                         {
@@ -323,7 +324,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                         Rows = rows,
                         GroupTotalQty = rows.Sum(r => r.Qty),
                         GroupTotalSqm = Math.Round(rows.Sum(r => r.TotalSqm), 3),
-                        GroupTotalValue = Math.Round(rows.Sum(r => r.Value), 2)
+                        GroupTotalValue = MoneyRounding.Round(rows.Sum(r => r.Value))
                     };
                 }).ToList() ?? new List<InvSpecGroupSnapshot>();
 

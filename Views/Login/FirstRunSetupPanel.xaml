@@ -70,7 +70,7 @@
                 <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                        
                         IsHitTestVisible="False" Style="{StaticResource SurfacePrimaryStyle}"/>
-                <Border Padding="28,24"
+                <Border Padding="24,18"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}">
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
@@ -81,7 +81,7 @@
 
                             <!-- ── BRAND ─────────────────────────────── -->
                             <StackPanel HorizontalAlignment="Center">
-                                <Border Width="54" Height="54" CornerRadius="{DynamicResource Radius.Large}"
+                                <Border Width="48" Height="48" CornerRadius="{DynamicResource Radius.Large}"
                                         SnapsToDevicePixels="True"
                                         HorizontalAlignment="Center">
                                     <Border.Background>
@@ -94,62 +94,62 @@
                                     </Border.Effect>
                                 </Border>
                                 <TextBlock Text="{DynamicResource Login.WelcomeProglass}"
-                                           FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource NameGradient}"
                                            HorizontalAlignment="Center"
-                                           Margin="0,12,0,0"/>
+                                           Margin="0,8,0,0"/>
                                 <TextBlock Text="{DynamicResource Login.CreateFirstAdministratorAccount}"
-                                           FontSize="{DynamicResource FontSize.Body}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}"
                                            Foreground="{DynamicResource Cerulean}"
                                            HorizontalAlignment="Center"
-                                           Margin="0,4,0,0"/>
+                                           Margin="0,2,0,0"/>
                             </StackPanel>
 
-                            <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,18,0,0"/>
+                            <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,12,0,0"/>
 
                             <!-- ── HEADLINE COPY ─────────────────────── -->
-                            <TextBlock TextWrapping="Wrap" FontSize="{DynamicResource FontSize.Body}"
+                            <TextBlock TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource Ice}"
                                        Opacity="0.9"
-                                       Margin="0,14,0,0"
+                                       Margin="0,8,0,0"
                                        HorizontalAlignment="Center">
                                 <Run Text="{DynamicResource Login.ProglassNeedsAdministratorGetStartedChoose}"/>
                             </TextBlock>
 
                             <!-- ── USERNAME ─────────────────────────── -->
                             <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource FieldLabel}"
-                                       Margin="2,18,0,6"/>
+                                       Margin="2,10,0,4"/>
                             <TextBox x:Name="UsernameBox"
                                      Tag="&#xE77B;"
                                      Style="{StaticResource RoundedTextBox}"/>
 
                             <!-- ── DISPLAY NAME ─────────────────────── -->
                             <TextBlock Text="{DynamicResource Login.DisplayNAME}" Style="{StaticResource FieldLabel}"
-                                       Margin="2,14,0,6"/>
+                                       Margin="2,8,0,4"/>
                             <TextBox x:Name="DisplayNameBox"
                                      Tag="&#xE77B;"
                                      Style="{StaticResource RoundedTextBox}"/>
 
                             <!-- ── PASSWORD ─────────────────────────── -->
                             <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource FieldLabel}"
-                                       Margin="2,14,0,6"/>
+                                       Margin="2,8,0,4"/>
                             <PasswordBox x:Name="PasswordBox"
                                          Tag="&#xE72E;"
                                          Style="{StaticResource RoundedPasswordBox}"
                                          PasswordChanged="PasswordBox_PasswordChanged"/>
 
                             <!-- ── STRENGTH METER ─────────────────────── -->
-                            <StackPanel x:Name="PasswordMeter" Orientation="Horizontal" Margin="2,6,0,0">
+                            <StackPanel x:Name="PasswordMeter" Orientation="Horizontal" Margin="2,4,0,0">
                                 <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,6,0" Background="{DynamicResource BorderDefaultBrush}"/>
                                 <Border Height="5" Width="52" CornerRadius="{DynamicResource Radius.XSmall}" Margin="0,0,8,0" Background="{DynamicResource BorderDefaultBrush}"/>
                                 <TextBlock x:Name="PasswordMeterLabel"
-                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock x:Name="PasswordGuidance"
-                                       TextWrapping="Wrap" FontSize="{DynamicResource FontSize.Body}"
+                                       TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource Frost}"
                                        Opacity="0.85"
                                        Margin="2,2,0,0"
@@ -157,23 +157,23 @@
 
                             <!-- ── CONFIRM PASSWORD ─────────────────── -->
                             <TextBlock Text="{DynamicResource Login.ConfirmPassword}" Style="{StaticResource FieldLabel}"
-                                       Margin="2,14,0,6"/>
+                                       Margin="2,8,0,4"/>
                             <PasswordBox x:Name="ConfirmPasswordBox"
                                          Tag="&#xE72E;"
                                          Style="{StaticResource RoundedPasswordBox}"/>
 
                             <!-- ── PASSWORD RULES (small reminder) ───── -->
                             <TextBlock x:Name="PasswordHintText"
-                                       TextWrapping="Wrap" FontSize="{DynamicResource FontSize.Body}"
+                                       TextWrapping="Wrap" FontSize="{DynamicResource FontSize.BodySmall}"
                                        Foreground="{DynamicResource Frost}"
                                        Opacity="0.75"
-                                       Margin="2,6,0,0">
+                                       Margin="2,4,0,0">
                                 <Run Text="{DynamicResource Login.PasswordMustLeast6CharactersChooseSomething}"/>
                             </TextBlock>
 
                             <!-- ── ERROR PANEL ───────────────────────── -->
                             <Border x:Name="ErrorPanel"
-                                    Margin="0,14,0,0" Padding="13,10"
+                                    Margin="0,10,0,0" Padding="12,8"
                                     CornerRadius="{DynamicResource Radius.Medium}"
                                     Background="{DynamicResource DangerSurfaceBrush}"
                                     BorderBrush="{DynamicResource DangerOnLiquid}"
@@ -197,8 +197,8 @@
                             <!-- ── THE SINGLE ACTION ─────────────────── -->
                             <Button x:Name="CreateButton"
                                     Content="{DynamicResource Login.CreateAdmin}"
-                                    Height="44"
-                                    Margin="0,16,0,0"
+                                    Height="40"
+                                    Margin="0,12,0,0"
                                     Style="{StaticResource SignInButtonStyle}"
                                     Click="Create_Click"
                                     IsDefault="True"
@@ -209,7 +209,7 @@
                             <StackPanel x:Name="StatusStrip"
                                         Orientation="Horizontal"
                                         HorizontalAlignment="Center"
-                                        Margin="0,12,0,0"
+                                        Margin="0,8,0,0"
                                         Visibility="Hidden">
                                 <Ellipse x:Name="CreateBusyDot" Width="8" Height="8"
                                          Fill="{DynamicResource SuccessBrush}" Margin="0,0,8,0"
@@ -222,7 +222,7 @@
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
-                            <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,16,0,0"/>
+                            <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,10,0,0"/>
 
                             <!-- ── FOOTER (no Exit — fresh install) ──── -->
                             <TextBlock HorizontalAlignment="Center"

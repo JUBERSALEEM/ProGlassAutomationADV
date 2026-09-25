@@ -47,11 +47,13 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             public string Key { get; }
             public string Label { get; }
+            public string TypeLabel { get; }
             public Brush Preview { get; }
             public SceneRow(string key, string label)
             {
                 Key = key;
                 Label = label;
+                TypeLabel = BuiltinWallpaperScenes.WallpaperType(key);
                 Preview = BuiltinWallpaperScenes.For(key);
             }
             /// <summary>Style-immune label (see file header).</summary>
@@ -135,7 +137,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
-        /// <summary>Six built-in scenes with live preview swatches.</summary>
+        /// <summary>Built-in scenes with live preview swatches. Industrial
+        /// is the pattern wallpaper; each other family has its own type.</summary>
         public IReadOnlyList<SceneRow> BuiltinSceneRows { get; } =
             BuiltinWallpaperScenes.All
                 .Select(s => new SceneRow(s.Key, s.Label))

@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.Statement.Aggregation
 {
@@ -760,12 +761,12 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             return new StatementFinancialSummary
             {
                 TotalInvoiceCount = rows.Count,
-                TotalSubtotal = Math.Round(rows.Sum(r => r.Subtotal), 2),
-                TotalVat = Math.Round(rows.Sum(r => r.VatAmount), 2),
-                TotalInvoiced = Math.Round(rows.Sum(r => r.GrandTotal), 2),
-                TotalPaid = Math.Round(rows.Sum(r => r.PaidAmount), 2),
-                TotalOutstanding = Math.Round(rows.Sum(r => r.Balance), 2),
-                OverdueAmount = Math.Round(overdueAmt, 2),
+                TotalSubtotal = MoneyRounding.Round(rows.Sum(r => r.Subtotal)),
+                TotalVat = MoneyRounding.Round(rows.Sum(r => r.VatAmount)),
+                TotalInvoiced = MoneyRounding.Round(rows.Sum(r => r.GrandTotal)),
+                TotalPaid = MoneyRounding.Round(rows.Sum(r => r.PaidAmount)),
+                TotalOutstanding = MoneyRounding.Round(rows.Sum(r => r.Balance)),
+                OverdueAmount = MoneyRounding.Round(overdueAmt),
                 TotalQty = rows.Sum(r => r.TotalQty),
                 TotalSqm = Math.Round(rows.Sum(r => r.TotalSqm), 3)
             };
@@ -800,11 +801,11 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 else b.Days90Plus += balance;
             }
 
-            b.Current = Math.Round(b.Current, 2);
-            b.Days0To30 = Math.Round(b.Days0To30, 2);
-            b.Days31To60 = Math.Round(b.Days31To60, 2);
-            b.Days61To90 = Math.Round(b.Days61To90, 2);
-            b.Days90Plus = Math.Round(b.Days90Plus, 2);
+            b.Current = MoneyRounding.Round(b.Current);
+            b.Days0To30 = MoneyRounding.Round(b.Days0To30);
+            b.Days31To60 = MoneyRounding.Round(b.Days31To60);
+            b.Days61To90 = MoneyRounding.Round(b.Days61To90);
+            b.Days90Plus = MoneyRounding.Round(b.Days90Plus);
 
             return b;
         }

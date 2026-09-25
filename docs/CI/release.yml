@@ -86,6 +86,10 @@ jobs:
             }
           }
 
+      - name: Bundle FFmpeg into the installer payload
+        shell: pwsh
+        run: ./scripts/bundle-ffmpeg.ps1 -PublishDir publish
+
       # ── Package: portable zip ───────────────────────────────────────
       - name: Package (zip)
         shell: pwsh
@@ -101,11 +105,40 @@ jobs:
 
       - name: Velopack pack
         shell: pwsh
-        run: >
-          vpk pack --packId ProGlassAutomation
-          --packVersion $("${{ github.ref_name }}".TrimStart('v'))
-          --packDir publish --packTitle "ProGlass Automation"
-          --packAuthors "Juber Saleem" --outputDir releases
+        run: |
+          & ./scripts/generate-installer-art.ps1 -RepoRoot $PWD
+          $help = & vpk pack --help 2>&1 | Out-String
+          $vpkArgs = @(
+            "pack",
+            "--packId", "ProGlassAutomation",
+            "--packVersion", "${{ github.ref_name }}".TrimStart("v"),
+            "--packDir", "publish",
+            "--packTitle", "ProGlass Automation",
+            "--packAuthors", "Juber Saleem",
+            "--outputDir", "releases"
+          )
+          function Add-VpkFlag([string]$name, [string[]]$values) {
+            if ($help -match ("(?i)--" + [regex]::Escape($name) + "(?![\w])")) {
+              $script:vpkArgs += "--$name"
+              if ($values -and $values.Count -gt 0) { $script:vpkArgs += $values }
+            }
+          }
+          Add-VpkFlag "splashImage" @("installer/generated/splash.png")
+          Add-VpkFlag "splashProgressColor" @("None")
+          Add-VpkFlag "msi" @()
+          Add-VpkFlag "instLocation" @("Either")
+          Add-VpkFlag "instWelcome" @("installer/content/welcome.txt")
+          Add-VpkFlag "instReadme" @("installer/content/readme.md")
+          Add-VpkFlag "instLicense" @("installer/content/license.md")
+          Add-VpkFlag "instConclusion" @("installer/content/conclusion.txt")
+          if ($help -match "msiTopBanner") {
+            Add-VpkFlag "msiTopBanner" @("installer/generated/msi-banner.bmp")
+            Add-VpkFlag "msiDialogBackground" @("installer/generated/msi-dialog.bmp")
+          } else {
+            Add-VpkFlag "msiBanner" @("installer/generated/msi-banner.bmp")
+            Add-VpkFlag "msiLogo" @("installer/generated/msi-dialog.bmp")
+          }
+          & vpk @vpkArgs
 
       - name: Velopack publish to GitHub Releases
         run: >

@@ -1,0 +1,1 @@
+1. Get a Windows or SDK-capable agent and run Release build plus tests. 2. Exercise PI save/reopen and money totals. 3. Decide whether a failed schema upgrade must block writes. 4. Pack the installer and open every MSI page plus the in-app component window. 5. Run optimizer conservation on a large job.

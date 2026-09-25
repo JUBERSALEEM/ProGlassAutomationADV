@@ -6,6 +6,7 @@
 // InvRowViewModel split out of InvSpecGroupViewModel.cs (Phase 11/12 God-VM split) — behaviour unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.ObjectModel;
@@ -159,7 +160,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         {
             Sqm = SqmCalculator.CalculatePanel(_w1, _h1);
             TotalSqm = Math.Round(Sqm * _qty, 3);
-            Value = Math.Round(_rate * _qty * Sqm, 2);
+            Value = MoneyRounding.Round(_rate * _qty * Sqm);
 
             // Propagate up the chain
             _parent.RecalculateGroup();

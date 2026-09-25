@@ -14,6 +14,7 @@
 //   ✓ UiTreeHelper also patched centrally for other views
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels;
@@ -72,6 +73,19 @@ namespace ProGlassAutomation
             // window stage in-window (VisualThemeEngine) — no OS-
             // level chrome service to attach.
 
+            // Right-align shell popups to their anchors so a wide card
+            // stays on screen without a detached horizontal offset.
+            var align = new CustomPopupPlacementCallback(AlignPopupUnderAnchor);
+            foreach (var popup in new[]
+            {
+                UserSwitchPopup, SettingsPopup, NotificationsPopup,
+                ShellMorePopup, ScreenshotPopup, ScreenRecordPopup
+            })
+            {
+                popup.Placement = PlacementMode.Custom;
+                popup.CustomPopupPlacementCallback = align;
+            }
+
             // Shutdown safety guard
             Closing += MainWindow_Closing;
 
@@ -93,6 +107,7 @@ namespace ProGlassAutomation
                         vm.IsScreenshotOpen = false;
                         vm.IsScreenRecordOpen = false;
                         vm.IsStorageOpen = false;
+                        vm.IsShellMoreOpen = false;
                         if (vm.AiChatVM != null) vm.AiChatVM.IsOpen = false;
                     }
                 }
@@ -110,6 +125,7 @@ namespace ProGlassAutomation
                     vm.IsScreenshotOpen = false;
                     vm.IsScreenRecordOpen = false;
                     vm.IsStorageOpen = false;
+                    vm.IsShellMoreOpen = false;
                     // SENIOR: also close AI on deactivate — prevents chat
                     // staying open when app loses focus and returning to
                     // find it covering modules.
@@ -141,6 +157,9 @@ namespace ProGlassAutomation
                 if (vm.IsNotificationsOpen && !In(NotificationButton) && !In(ActivityPanelHost)
                     && !InPersonalAnchor(source, "Shell.PersonalNotificationsButton"))
                     vm.IsNotificationsOpen = false;
+
+                if (vm.IsShellMoreOpen && !In(MoreButton) && !In(ShellMorePanel))
+                    vm.IsShellMoreOpen = false;
 
                 // GB-B10: the Personal screenshot button (GlassShell)
                 // toggles the SAME IsScreenshotOpen flag; a click on it
@@ -198,6 +217,21 @@ namespace ProGlassAutomation
                     if (!insideAgent)
                         vm.IsAgentChatOpen = false;
                 }
+            };
+        }
+
+        /// <summary>
+        /// Places a popup so its right edge meets the anchor's right edge,
+        /// 6px below. Used by the professional shell menus.
+        /// </summary>
+        private static CustomPopupPlacement[] AlignPopupUnderAnchor(
+            Size popupSize, Size targetSize, Point offset)
+        {
+            return new[]
+            {
+                new CustomPopupPlacement(
+                    new Point(targetSize.Width - popupSize.Width, targetSize.Height + 6),
+                    PopupPrimaryAxis.Horizontal)
             };
         }
 

@@ -71,6 +71,14 @@
         <Setter Property="Padding" Value="24"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
+    <Style x:Key="Ov.CardCompact" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="16,14"/>
+    </Style>
+    <Style x:Key="Ov.CardMicro" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="14,12"/>
+    </Style>
     <Style x:Key="Ov.IconBox" TargetType="Border">
         <Setter Property="Width" Value="34"/>
         <Setter Property="Height" Value="34"/>

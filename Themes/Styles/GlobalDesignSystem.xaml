@@ -49,6 +49,7 @@
     <FontFamily x:Key="IconFontFamily">Segoe MDL2 Assets</FontFamily>
     <FontFamily x:Key="AppFontFamily">Segoe UI Variable, Segoe UI</FontFamily>
     <FontFamily x:Key="AppFontFamilyVariable">Segoe UI Variable, Segoe UI</FontFamily>
+    <FontFamily x:Key="PrimaryFontFamily">Segoe UI Variable, Segoe UI</FontFamily>
 
     <!-- ═══════════════════════════════════════════════════════════════
          2. FONT WEIGHT — ONE CANONICAL (replaces 99.7% hardcoded)
@@ -163,6 +164,7 @@
     <CornerRadius x:Key="Radius.Small">6</CornerRadius>
     <CornerRadius x:Key="Radius.Medium">10</CornerRadius>
     <CornerRadius x:Key="Radius.Large">12</CornerRadius>
+    <CornerRadius x:Key="Radius.Top.Large">12,12,0,0</CornerRadius>
     <CornerRadius x:Key="Radius.XLarge">16</CornerRadius>
     <CornerRadius x:Key="Radius.2XLarge">20</CornerRadius>
     <!-- 2026-09-14: 999 capsule removed per the global 12px standard.
@@ -374,6 +376,10 @@
     <SolidColorBrush x:Key="Chart.LimeBrush" Color="#FF1AFF3B"/>
     <SolidColorBrush x:Key="Chart.MintBrush" Color="#FF1AFFA5"/>
     <SolidColorBrush x:Key="Chart.NavyBrush" Color="#FF1A3B82"/>
+    <SolidColorBrush x:Key="Chart.IndigoBrush.Alpha1A.5E" Color="#1A1A22C5"/>
+    <SolidColorBrush x:Key="Chart.LimeBrush.Alpha1A.30" Color="#301AFF3B"/>
+    <SolidColorBrush x:Key="Chart.MintBrush.Alpha1A" Color="#1A1AFFA5"/>
+    <SolidColorBrush x:Key="Chart.NavyBrush.Alpha1A.F6" Color="#1A1A3B82"/>
     <SolidColorBrush x:Key="Chart.BlueBrush.Soft" Color="#221000FF"/>
     <SolidColorBrush x:Key="Chart.GreenBrush.Soft" Color="#2210FF00"/>
 

@@ -6,7 +6,8 @@
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P10 — GLASS BLUSH TAX INVOICE / INVOICE AGING PAGE (glass-07)
@@ -35,6 +36,10 @@
     ═══════════════════════════════════════════════════════════════════ -->
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- skeleton (page-level, glass) -->
         <Style x:Key="GbSkeletonBlock" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource GlassBlush.SurfaceFaint}"/>
@@ -48,6 +53,7 @@
             <Setter Property="Effect" Value="{StaticResource GlassBlush.CardShadowFx}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -212,7 +218,8 @@
                                                            Text="{Binding AmountDisplay}"
                                                            FontSize="{DynamicResource GlassBlush.FontBody}"
                                                            FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource GlassBlush.Text}"/>
+                                                           Foreground="{DynamicResource GlassBlush.Text}"
+                                                           Typography.NumeralAlignment="Tabular"/>
                                             </Grid>
                                             <ProgressBar Margin="0,7,0,0"
                                                          Minimum="0" Maximum="1"
@@ -320,6 +327,7 @@
                                                            FontSize="{DynamicResource GlassBlush.FontBody}"
                                                            FontWeight="SemiBold"
                                                            Foreground="{DynamicResource GlassBlush.Text}"
+                                                           Typography.NumeralAlignment="Tabular"
                                                            VerticalAlignment="Center"
                                                            Margin="0,0,16,0"/>
                                                 <Border Grid.Column="3"

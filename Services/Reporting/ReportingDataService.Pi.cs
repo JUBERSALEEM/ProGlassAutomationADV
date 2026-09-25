@@ -268,6 +268,7 @@ namespace ProGlassAutomation.Services.Reporting
                     SpecGroupCount = snap?.SpecGroups?.Count ?? 0,
                     TotalRows = rows.Count,
                     TotalQty = rows.Sum(x => x.Qty),
+                    // Area, 3 dp — not money. Counted by the rounding ratchet as a non-money call.
                     TotalSqm = Math.Round(rows.Sum(x => x.TotalSqm), 3),
                     HasJobOrder = joSet.Contains(r.ProformaId),
                     HasDelivery = dnSet.Contains(r.ProformaId),

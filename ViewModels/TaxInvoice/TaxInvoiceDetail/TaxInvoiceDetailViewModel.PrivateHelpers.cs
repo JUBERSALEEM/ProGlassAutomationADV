@@ -11,6 +11,7 @@ using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Licensing;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.TaxInvoice;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Utilities;
@@ -286,19 +287,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             foreach (var group in _specGroups)
                 subtotal += group.GroupTotalValue;
 
-            decimal discountAmt = Math.Round(subtotal * (_discountPercent / 100m), 2);
-            decimal afterDiscount = subtotal - discountAmt;
-            // Was a bare 0.05m. VatCalculator is the single declaration of
-            // the UAE rate; duplicating it here meant the tax invoice detail
-            // screen could drift from every other VAT calculation.
-            decimal vatAmount = Math.Round(
-                afterDiscount * ProGlassAutomation.Services.Reporting.VatCalculator.VAT_RATE_DECIMAL, 2);
+            // Same rule as RecalculateFinancials. A second local round here
+            // used banker's midpoint and could disagree with the saved invoice.
+            var totals = InvoiceTotalsCalculator.Compute(subtotal, _discountPercent);
 
-            _subtotal = Math.Round(subtotal, 2);
-            _discountAmount = discountAmt;
-            _afterDiscount = afterDiscount;
-            _vatAmount = vatAmount;
-            _grandTotal = afterDiscount + vatAmount;
+            _subtotal = MoneyRounding.Round(subtotal);
+            _discountAmount = totals.DiscountAmount;
+            _afterDiscount = totals.AfterDiscount;
+            _vatAmount = totals.VatAmount;
+            _grandTotal = totals.GrandTotal;
 
             OnPropertyChanged(string.Empty);
         }

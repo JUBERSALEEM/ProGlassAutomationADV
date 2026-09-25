@@ -41,11 +41,20 @@
              xmlns:detail="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail"
              xmlns:godview="clr-namespace:ProGlassAutomation.Views.JobOrder.GodView"
              xmlns:sharedViews="clr-namespace:ProGlassAutomation.Views.Shared"
+             Background="{DynamicResource Ov.Canvas}"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid Background="Transparent">
         <Grid.RowDefinitions>

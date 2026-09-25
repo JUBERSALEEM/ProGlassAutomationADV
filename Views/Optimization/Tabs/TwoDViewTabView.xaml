@@ -19,7 +19,16 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}">
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid>
         <Border Style="{StaticResource OptPanelCard}">
@@ -36,15 +45,10 @@
                 <!-- ═════════════════════════════════════════════════════
                      ROW 0: TOP TOOLBAR & VIEW MODE CONTROLS
                      ═════════════════════════════════════════════════════ -->
-                <Grid Grid.Row="0" Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                <WrapPanel Grid.Row="0" Margin="0,0,0,8" Orientation="Horizontal">
 
                     <!-- Left: Single / Gallery View Mode Switcher -->
-                    <Border Grid.Column="0" Background="{DynamicResource SurfaceSecondaryBrush}"
+                    <Border Margin="0,4,12,8" Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                             CornerRadius="8" Padding="3" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
@@ -105,15 +109,15 @@
                     </Border>
 
                     <!-- Center: Sheet Readout & Stepper (Visible in Single Sheet Mode) -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                Visibility="{Binding IsSingleSheetMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <WrapPanel Margin="0,4,12,4" VerticalAlignment="Center"
+                               Visibility="{Binding IsSingleSheetMode, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Button Style="{StaticResource OptOutlinedButton}" Width="36" Height="34" Padding="0"
                                 Command="{Binding SelectPreviousSheetCommand}" ToolTip="Previous sheet (Left Arrow)"
                                 Content="&#xE76B;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="12"
                                 VerticalAlignment="Center" Margin="0,0,8,0"/>
 
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center"
-                                    Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <WrapPanel VerticalAlignment="Center"
+                                   Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
                             <!-- Sheet Number Pill -->
                             <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,5" Margin="0,0,8,0">
                                 <TextBlock Text="{Binding PreviewSheetCounter}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
@@ -141,8 +145,8 @@
                             <TextBlock Text="{Binding PreviewGroupLabel}" FontSize="12"
                                        Foreground="{DynamicResource TextTertiaryBrush}"
                                        VerticalAlignment="Center" Margin="6,0,0,0" TextTrimming="CharacterEllipsis"
-                                       MaxWidth="320"/>
-                        </StackPanel>
+                                       MaxWidth="280"/>
+                        </WrapPanel>
 
                         <TextBlock Text="Run optimization to generate 2D sheet layouts"
                                    FontSize="13" Foreground="{DynamicResource TextTertiaryBrush}"
@@ -153,11 +157,11 @@
                                 Command="{Binding SelectNextSheetCommand}" ToolTip="Next sheet (Right Arrow)"
                                 Content="&#xE76C;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="12"
                                 VerticalAlignment="Center" Margin="8,0,0,0"/>
-                    </StackPanel>
+                    </WrapPanel>
 
                     <!-- Center: Multi-Sheet Gallery Header (Visible in Gallery Mode) -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                Visibility="{Binding IsGalleryMode, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <WrapPanel Margin="0,4,12,4" VerticalAlignment="Center"
+                               Visibility="{Binding IsGalleryMode, Converter={StaticResource BoolToVisibilityConverter}}">
                         <!-- Per-Page Selector -->
                         <Border Background="{DynamicResource SurfaceSecondaryBrush}"
                                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
@@ -189,10 +193,10 @@
                                 Command="{Binding GalleryNextPageCommand}" IsEnabled="{Binding CanGalleryNext}"
                                 ToolTip="Next page" Content="&#xE76C;" FontFamily="{DynamicResource FontFamily.Icon}"
                                 FontSize="10" VerticalAlignment="Center" Margin="6,0,0,0"/>
-                    </StackPanel>
+                    </WrapPanel>
 
                     <!-- Right: Zoom Controls & Mini-map Thumbnail (Single Mode) -->
-                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"
+                    <StackPanel Margin="0,4,0,8" Orientation="Horizontal" VerticalAlignment="Center"
                                 Visibility="{Binding IsSingleSheetMode, Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel Orientation="Horizontal" Margin="0,0,14,0" VerticalAlignment="Center">
                             <Button Content="−" Style="{StaticResource OptOutlinedButton}" Width="30" Height="30" Padding="0"
@@ -206,7 +210,9 @@
                             <Button Content="+" Style="{StaticResource OptOutlinedButton}" Width="30" Height="30" Padding="0"
                                     Command="{Binding PreviewZoomInCommand}" Margin="0,0,4,0" ToolTip="Zoom in"/>
                             <Button Content="100%" Style="{StaticResource OptOutlinedButton}" Height="30" Padding="8,0"
-                                    Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%"/>
+                                    Command="{Binding PreviewZoomResetCommand}" ToolTip="Reset zoom to 100%" Margin="0,0,4,0"/>
+                            <Button Content="Normal view" Style="{StaticResource OptPrimaryButton}" Height="30" Padding="10,0"
+                                    Command="{Binding PreviewFitCommand}" ToolTip="Fit the whole sheet into the stage"/>
                         </StackPanel>
 
                         <!-- Mini-map thumbnail -->
@@ -249,7 +255,7 @@
                             </Canvas>
                         </Border>
                     </StackPanel>
-                </Grid>
+                </WrapPanel>
 
                 <!-- ═════════════════════════════════════════════════════
                      ROW 1A: SINGLE SHEET CAD VISUALIZER WORKSPACE
@@ -272,10 +278,26 @@
                                    HorizontalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Active CAD Sheet Layout + Piece Table -->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
-                                  Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel Margin="8">
+                    <!-- Normal view: the whole plate stays visible. The schedule
+                         sits beside it so it cannot push the sheet off the stage. -->
+                    <Grid ClipToBounds="True" Visibility="{Binding HasPreview, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*" MinWidth="280"/>
+                            <ColumnDefinition Width="*" MinWidth="240"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="SheetStage" Grid.Column="0" Margin="0,0,12,0" ClipToBounds="True"
+                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                                CornerRadius="12" Padding="8"
+                                SizeChanged="OnSheetStageSizeChanged">
+                            <ScrollViewer x:Name="SheetScroller"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto">
+                                <Grid x:Name="SheetFitHost" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Grid.LayoutTransform>
+                                        <ScaleTransform x:Name="SheetFitScale" ScaleX="1" ScaleY="1"/>
+                                    </Grid.LayoutTransform>
+                                    <StackPanel>
                             <!-- ── TOP PLATE DIMENSION CALLOUT BAR ── -->
                             <Grid HorizontalAlignment="Center" Width="{Binding RenderWidth}" Margin="0,0,0,4">
                                 <Border Height="1" Background="{DynamicResource BorderBrush}" VerticalAlignment="Center"/>
@@ -312,8 +334,8 @@
                                 </Border>
 
                                 <!-- Plate Canvas -->
-                                <Border Grid.Column="1" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="2"
-                                        CornerRadius="4" Background="#FFFFFF" SnapsToDevicePixels="True">
+                                <Border Grid.Column="1" BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
+                                        CornerRadius="4" Background="{DynamicResource SurfacePrimaryBrush}" SnapsToDevicePixels="True">
                                     <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
 
                                         <!-- Usable Rect (Inside Margins) — Accent Dashed Line -->
@@ -378,12 +400,11 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                            BorderThickness="1" BorderBrush="#94A3B8"
+                                                            BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
                                                             CornerRadius="2" SnapsToDevicePixels="True">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
-                                                                <!-- Normal Placement: Soft Studio Porcelain Tint -->
-                                                                <Setter Property="Background" Value="#F8FAFC"/>
+                                                                <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
                                                                 <Style.Triggers>
                                                                     <!-- Rotated 90°: Light Sky Blue Tint -->
                                                                     <DataTrigger Binding="{Binding Rotated}" Value="True">
@@ -437,9 +458,15 @@
                                     </Canvas>
                                 </Border>
                             </Grid>
+                                    </StackPanel>
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
 
+                        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Auto">
                             <!-- ── PIECE CUTTING SCHEDULE MATRIX TABLE ── -->
-                            <Border Style="{StaticResource OptInnerCard}" Margin="0,18,0,0" HorizontalAlignment="Stretch">
+                            <Border Style="{StaticResource OptInnerCard}" Margin="0" HorizontalAlignment="Stretch">
                                 <StackPanel>
                                     <Grid Margin="0,0,0,10">
                                         <Grid.ColumnDefinitions>
@@ -517,8 +544,8 @@
                                     </ItemsControl>
                                 </StackPanel>
                             </Border>
-                        </StackPanel>
-                    </ScrollViewer>
+                        </ScrollViewer>
+                    </Grid>
                 </Grid>
 
                 <!-- ═════════════════════════════════════════════════════
@@ -584,8 +611,8 @@
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
                                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                                            BorderThickness="0.8" BorderBrush="#94A3B8"
-                                                                            Background="#F8FAFC">
+                                                                            BorderThickness="0.8" BorderBrush="{DynamicResource BorderBrush}"
+                                                                            Background="{DynamicResource Ios26AccentSoftBrush}">
                                                                         <TextBlock Text="{Binding CutNumber}" FontSize="8" FontWeight="Bold"
                                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"
                                                                                    VerticalAlignment="Center"
@@ -626,17 +653,13 @@
                 <!-- ═════════════════════════════════════════════════════
                      ROW 2: FOOTER STATUS & TWO-TONE CAD LEGEND
                      ═════════════════════════════════════════════════════ -->
-                <Grid Grid.Row="2" Margin="0,14,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Column="0" Text="{Binding MarginZoneLabel}" FontSize="11"
-                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"/>
+                <WrapPanel Grid.Row="2" Margin="0,14,0,0" Orientation="Horizontal">
+                    <TextBlock Text="{Binding MarginZoneLabel}" FontSize="11"
+                               Foreground="{DynamicResource TextTertiaryBrush}" VerticalAlignment="Center"
+                               Margin="0,4,16,4" TextWrapping="Wrap" MaxWidth="360"/>
 
                     <!-- Studio Bento CAD Legend -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <WrapPanel VerticalAlignment="Center">
                         <!-- Margin Zone -->
                         <Border Width="12" Height="12" Background="Transparent" BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="1.5" CornerRadius="2" Margin="0,0,5,0"/>
@@ -666,8 +689,8 @@
                                 BorderBrush="{StaticResource OptOffcutBorder}" BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
                         <TextBlock Text="Reusable Offcut" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
+                    </WrapPanel>
+                </WrapPanel>
             </Grid>
         </Border>
     </Grid>

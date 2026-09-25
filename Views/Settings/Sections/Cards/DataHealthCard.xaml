@@ -11,8 +11,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -35,105 +35,106 @@
                             </StackPanel>
                         </Grid>
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
+                            <!-- License status strip (compact — full card lives on the About page) -->
+                            <Border Style="{StaticResource SettingsWashTileStyle}"
+                                    Margin="{StaticResource SettingsStackBottom10}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="&#xE73E;"
+                                               FontFamily="{DynamicResource FontFamily.Icon}"
+                                               FontSize="{DynamicResource FontSize.Title}"
+                                               VerticalAlignment="Center"
+                                               Margin="{StaticResource SettingsInlineGap8R}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}">
+                                            <Run Text="{DynamicResource About.License}"/>
+                                            <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
+                                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                                   TextWrapping="Wrap"
+                                                   Margin="{StaticResource SettingsStackGap2}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
 
-                                    <!-- License status strip (compact — full card lives on the About page) -->
-                                    <Border Padding="10,8"
-                                            CornerRadius="{DynamicResource CardCornerRadius}"
-                                            Background="{DynamicResource SurfaceTertiaryBrush}"
-                                            Margin="{StaticResource SettingsStackBottom10}">
-                                        <Grid>
+                            <!-- Full-width action row: buttons stretch evenly across the whole card. -->
+                            <Grid Margin="{StaticResource SettingsStackGap10}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0" Style="{StaticResource SettingsActionButtonStyle}"
+                                    Height="36" Margin="0"
+                                    Content="{DynamicResource Action.Refresh}"
+                                    Command="{Binding RefreshDatabaseHealthCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    ToolTip="{DynamicResource Settings.ProbeDatabaseRefreshRowCountTable}"/>
+                                <Button Grid.Column="2" Style="{StaticResource DangerButton}"
+                                    Height="36" Margin="0"
+                                    Content="{DynamicResource Settings.RebuildDatabasesEmergency}"
+                                    Command="{Binding RebuildAllDatabasesCommand}"
+                                    HorizontalAlignment="Stretch"
+                                    ToolTip="{DynamicResource Settings.MoveDbFileMigrationbackupsRecreateCurrent}"/>
+                            </Grid>
+
+                            <ListBox ItemsSource="{Binding DatabaseHealthRows}"
+                            AutomationProperties.Name="{DynamicResource Settings.RebuildDatabasesEmergency}"
+                                     Margin="{StaticResource SettingsStackGap10}"
+                                     MaxHeight="240"
+                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
+                                     BorderBrush="{DynamicResource BorderDefaultBrush}"
+                                     Background="{DynamicResource SurfaceTertiaryBrush}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="{StaticResource SettingsInset2}">
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0"
-                                                       Text="&#xE73E;"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource FontSize.Title}"
-                                                       VerticalAlignment="Center"
-                                                       Margin="{StaticResource SettingsInlineGap8R}"
-                                                       Foreground="{DynamicResource AccentBrush}"/>
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}">
-                                                    <Run Text="{DynamicResource About.License}"/>
-                                                    <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
-                                                </TextBlock>
-                                                <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
-                                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                                           TextWrapping="Wrap"
-                                                           Margin="{StaticResource SettingsStackGap2}"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            </StackPanel>
+                                            <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                                       Text="{Binding DisplayName}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Text="{Binding Status}"/>
+                                            <Viewbox Grid.Column="2" MaxHeight="18" HorizontalAlignment="Right">
+                                                <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           Text="{Binding TotalRowsDisplay}"
+                                                           TextAlignment="Right"/>
+                                            </Viewbox>
+                                            <Viewbox Grid.Column="3" MaxHeight="18" HorizontalAlignment="Right">
+                                                <TextBlock VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
+                                                           FontWeight="{DynamicResource Weight.Bold}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           Text="{Binding FileSizeDisplay}"
+                                                           TextAlignment="Right"/>
+                                            </Viewbox>
+                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="{StaticResource SettingsInlineGap8}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Text="{Binding DriftDisplay}"/>
                                         </Grid>
-                                    </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
 
-                                    <!-- Full-width action row: buttons stretch evenly
-                                         across the whole card. -->
-                                    <Border 
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                        <UniformGrid Columns="2">
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Action.Refresh}"
-                                                Command="{Binding RefreshDatabaseHealthCommand}"
-                                                HorizontalAlignment="Stretch"
-                                                ToolTip="{DynamicResource Settings.ProbeDatabaseRefreshRowCountTable}"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Content="{DynamicResource Settings.RebuildDatabasesEmergency}"
-                                                Command="{Binding RebuildAllDatabasesCommand}"
-                                                HorizontalAlignment="Stretch"
-                                                Margin="0"
-                                                ToolTip="{DynamicResource Settings.MoveDbFileMigrationbackupsRecreateCurrent}"/>
-                                        </UniformGrid>
-                                    </Border>
-
-                                    <ListBox ItemsSource="{Binding DatabaseHealthRows}"
-                                    AutomationProperties.Name="{DynamicResource Settings.RebuildDatabasesEmergency}"
-                                             Margin="{StaticResource SettingsStackGap10}"
-                                             MaxHeight="240"
-                                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                             BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                             Background="{DynamicResource SurfaceTertiaryBrush}">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid Margin="{StaticResource SettingsInset2}">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="220"/>
-                                                        <ColumnDefinition Width="80"/>
-                                                        <ColumnDefinition Width="60"/>
-                                                        <ColumnDefinition Width="80"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
-                                                               Text="{Binding DisplayName}"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               Text="{Binding Status}"/>
-                                                    <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
-                                                               Text="{Binding TotalRowsDisplay}"
-                                                               TextAlignment="Right"/>
-                                                    <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.Body}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               Text="{Binding FileSizeDisplay}"
-                                                               TextAlignment="Right"/>
-                                                    <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                               TextWrapping="Wrap"
-                                                               Margin="{StaticResource SettingsInlineGap8}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               Text="{Binding DriftDisplay}"/>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-
-                                    <TextBlock Text="{Binding DatabaseHealthStatus}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"
-                                               FontWeight="{DynamicResource Weight.SemiBold}"
-                                               Foreground="{DynamicResource AccentBrush}"/>
-                                </StackPanel>
-                            </Border>
+                            <TextBlock Text="{Binding DatabaseHealthStatus}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>

@@ -45,7 +45,7 @@
                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                 BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                                Padding="2,10" Style="{StaticResource SurfacePrimaryStyle}">
+                                Padding="2,6" Style="{StaticResource SurfacePrimaryStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>

@@ -45,5 +45,18 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(11.11m, t.VatAmount);      // 5% of 222.23 = 11.1115 -> 11.11
             Assert.Equal(233.34m, t.GrandTotal);    // 222.23 + 11.11
         }
+
+        [Fact]
+        public void Compute_rounds_half_fil_away_from_zero()
+        {
+            // 200.10 * 5% = 10.005. Banker's ToEven would keep 10.00 and
+            // understate VAT by one fil. Product money rule is AwayFromZero.
+            var t = InvoiceTotalsCalculator.Compute(200.10m, 0m);
+
+            Assert.Equal(0m, t.DiscountAmount);
+            Assert.Equal(200.10m, t.AfterDiscount);
+            Assert.Equal(10.01m, t.VatAmount);
+            Assert.Equal(210.11m, t.GrandTotal);
+        }
     }
 }

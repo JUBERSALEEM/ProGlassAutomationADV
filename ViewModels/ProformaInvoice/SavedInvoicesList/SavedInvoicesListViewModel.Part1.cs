@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using ProGlassAutomation.Services.Localization;
 using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.JobOrder.Repository;
@@ -64,6 +65,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         private int _loadingFlag;
         private int _reloadQueued;
+        private int _interactiveLoad;
+        private bool _hasCompletedLoad;
+        private DispatcherTimer? _autoRefresh;
+        private NextActionKind _nextAction = NextActionKind.None;
 
         public string Title { get; } = "SAVED PROFORMA INVOICES";
         public string Subtitle { get; } = "Browse, load, duplicate, or delete previously saved invoices.";
@@ -165,7 +170,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public SavedInvoiceListItem SelectedItem
         {
             get => _selectedItem;
-            set { if (_selectedItem == value) return; _selectedItem = value; OnPropertyChanged(); }
+            set
+            {
+                if (_selectedItem == value) return;
+                _selectedItem = value;
+                OnPropertyChanged();
+                PublishSelectionWorkflow();
+            }
         }
 
         private bool _isLoading;
@@ -204,6 +215,72 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         }
         public bool HasExportStatus => !string.IsNullOrEmpty(_lastExportStatus);
 
+        private string _syncStatus = "Live sync starts with the first load.";
+        public string SyncStatus
+        {
+            get => _syncStatus;
+            private set { if (_syncStatus == value) return; _syncStatus = value; OnPropertyChanged(); }
+        }
+
+        private string _lastSyncedDisplay = "";
+        public string LastSyncedDisplay
+        {
+            get => _lastSyncedDisplay;
+            private set { if (_lastSyncedDisplay == value) return; _lastSyncedDisplay = value; OnPropertyChanged(); }
+        }
+
+        private bool _isBackgroundRefresh;
+        public bool IsBackgroundRefresh
+        {
+            get => _isBackgroundRefresh;
+            private set { if (_isBackgroundRefresh == value) return; _isBackgroundRefresh = value; OnPropertyChanged(); }
+        }
+
+        public IReadOnlyList<ProformaStageChip> StageChips { get; private set; } =
+            Array.Empty<ProformaStageChip>();
+
+        private string _workflowTitle = "Next step";
+        public string WorkflowTitle
+        {
+            get => _workflowTitle;
+            private set { if (_workflowTitle == value) return; _workflowTitle = value; OnPropertyChanged(); }
+        }
+
+        private string _workflowHint = "Select a saved invoice. The next step follows its live status.";
+        public string WorkflowHint
+        {
+            get => _workflowHint;
+            private set { if (_workflowHint == value) return; _workflowHint = value; OnPropertyChanged(); }
+        }
+
+        private string _nextActionLabel = "Select an invoice";
+        public string NextActionLabel
+        {
+            get => _nextActionLabel;
+            private set { if (_nextActionLabel == value) return; _nextActionLabel = value; OnPropertyChanged(); }
+        }
+
+        private bool _isNextActionEnabled;
+        public bool IsNextActionEnabled
+        {
+            get => _isNextActionEnabled;
+            private set { if (_isNextActionEnabled == value) return; _isNextActionEnabled = value; OnPropertyChanged(); }
+        }
+
+        private string _emptyTitle = "No saved invoices found";
+        public string EmptyTitle
+        {
+            get => _emptyTitle;
+            private set { if (_emptyTitle == value) return; _emptyTitle = value; OnPropertyChanged(); }
+        }
+
+        private string _emptyMessage = "Create one with New inquiry or Blank.";
+        public string EmptyMessage
+        {
+            get => _emptyMessage;
+            private set { if (_emptyMessage == value) return; _emptyMessage = value; OnPropertyChanged(); }
+        }
+
         // ── Commands ─────────────────────────────────────────────────────────
 
         public ICommand RefreshCommand { get; private set; }
@@ -233,6 +310,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         // v2: quick "today" filter + share the filtered list as Excel
         public ICommand SetTodayFilterCommand { get; private set; }
         public ICommand ExportFilteredExcelCommand { get; private set; }
+        public ICommand SelectStageCommand { get; private set; }
+        public ICommand NextActionCommand { get; private set; }
 
         // v2: version history (§24)
         public ICommand ShowVersionsCommand { get; private set; }
@@ -242,6 +321,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// the version's snapshot JSON. The wizard shell opens it.
         /// </summary>
         public Action<string>? OnSnapshotRestoreRequested { get; set; }
+
+        /// <summary>
+        /// Opens the live job order for a saved invoice. The host navigates
+        /// to Job Order. The load picker has no host, so the action explains
+        /// that instead of switching modules from a dialog.
+        /// </summary>
+        public Action<int>? OnOpenJobRequested { get; set; }
 
         public SavedInvoicesListViewModel()
          : this(
@@ -256,7 +342,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         // and the DI-selected parameterized ctor initialize fully.
         private void InitializeCore()
         {
-            RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
+            RefreshCommand = new RelayCommand(async _ =>
+            {
+                Interlocked.Exchange(ref _interactiveLoad, 1);
+                await LoadInvoicesAsync();
+            });
 
             // Phase 4: Named handler — detachable, no lambda leak
             _dataSeededHandler = async () => { try { await LoadInvoicesAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ExceptionMessages.Deep(ex)}"); } };
@@ -346,7 +436,39 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             ExportFilteredExcelCommand = new RelayCommand(
                 async _ => await ExportFilteredExcelAsync());
 
+            SelectStageCommand = new RelayCommand(p =>
+            {
+                string key = p as string ?? "All Statuses";
+                if (!StatusFilterOptions.Contains(key))
+                    key = "All Statuses";
+                SelectedStatusFilter = key;
+            });
+            NextActionCommand = new RelayCommand(async _ => await RunNextActionAsync());
+
+            StartAutoRefresh();
+            Interlocked.Exchange(ref _interactiveLoad, 1);
             _ = LoadInvoicesAsync();
+        }
+
+        /// <summary>
+        /// Quiet refresh while this register is alive. Document writes already
+        /// raise DocumentLifecycle; the timer covers a second workstation or a
+        /// missed event without covering the grid or opening a dialog.
+        /// </summary>
+        private void StartAutoRefresh()
+        {
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher == null) return;
+
+            _autoRefresh = new DispatcherTimer(
+                TimeSpan.FromSeconds(20),
+                DispatcherPriority.Background,
+                (_, _) =>
+                {
+                    if (_disposed) return;
+                    _ = LoadInvoicesAsync();
+                },
+                dispatcher);
         }
 
         /// <summary>
@@ -481,9 +603,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         private async Task LoadInvoicesCoreAsync()
         {
-            IsLoading = true;
-            HasError = false;
-            ErrorMessage = "";
+            bool interactive = Interlocked.Exchange(ref _interactiveLoad, 0) == 1
+                || !_hasCompletedLoad;
+            if (interactive)
+            {
+                IsLoading = true;
+                HasError = false;
+                ErrorMessage = "";
+            }
+            else
+            {
+                // Keep the last live line. A 20-second tick must not flash
+                // "Syncing" over the register the operator is reading.
+                IsBackgroundRefresh = true;
+            }
 
             try
             {
@@ -526,21 +659,42 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 }).ToList();
 
                 TotalCount = _allItems.Count;
+                _hasCompletedLoad = true;
                 ApplyFilters();
+                SyncStatus = "Live. Job, delivery, and tax invoice changes refresh this list.";
+                LastSyncedDisplay = "Refreshed " + DateTime.Now.ToString("g");
+                HasError = false;
+                ErrorMessage = "";
             }
             catch (Exception ex)
             {
-                HasError = true;
-                ErrorMessage = "Could not refresh saved invoices. Retry with Refresh. " + ExceptionMessages.Deep(ex);
-                _dialogs?.Show(
-                    string.Format(LocalizationService.Instance.T("Msg.FailedToLoadSavedInvoices"), ExceptionMessages.Deep(ex)),
-                    LocalizationService.Instance.T("Msg.CapLoadError"),
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                // A background tick must not hide a good list or pop a dialog
+                // over the operator. An explicit Refresh, or a first load with
+                // nothing to show, still surfaces the failure.
+                bool keepLastList = !interactive && _allItems.Count > 0;
+                if (keepLastList)
+                {
+                    SyncStatus = "Live sync failed. Showing the last list. Press Refresh to retry.";
+                }
+                else
+                {
+                    HasError = true;
+                    ErrorMessage = "Could not refresh saved invoices. Retry with Refresh. " + ExceptionMessages.Deep(ex);
+                    SyncStatus = "Could not refresh saved invoices.";
+                    if (interactive)
+                    {
+                        _dialogs?.Show(
+                            string.Format(LocalizationService.Instance.T("Msg.FailedToLoadSavedInvoices"), ExceptionMessages.Deep(ex)),
+                            LocalizationService.Instance.T("Msg.CapLoadError"),
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                }
             }
             finally
             {
                 IsLoading = false;
+                IsBackgroundRefresh = false;
             }
         }
 
@@ -634,28 +788,35 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     || (x.ProjectName ?? "").ToLowerInvariant().Contains(s));
             }
 
-            if (!string.IsNullOrWhiteSpace(_selectedStatusFilter)
-                && _selectedStatusFilter != "All Statuses")
-                query = query.Where(x => string.Equals(
-                    x.DisplayStatus, _selectedStatusFilter,
-                    StringComparison.OrdinalIgnoreCase));
-
             if (_fromDate.HasValue)
                 query = query.Where(x => x.CreatedAt.Date >= _fromDate.Value.Date);
             if (_toDate.HasValue)
                 query = query.Where(x => x.CreatedAt.Date <= _toDate.Value.Date);
 
-            query = _selectedSortPreset switch
+            // Stage counts ignore the stage chip itself, so every chip stays
+            // a real count of the current search and date window.
+            var stageScope = query.ToList();
+            PublishStageChips(stageScope);
+
+            IEnumerable<SavedInvoiceListItem> filtered = stageScope;
+            if (!string.IsNullOrWhiteSpace(_selectedStatusFilter)
+                && _selectedStatusFilter != "All Statuses")
+                filtered = filtered.Where(x => string.Equals(
+                    x.DisplayStatus, _selectedStatusFilter,
+                    StringComparison.OrdinalIgnoreCase));
+
+            filtered = _selectedSortPreset switch
             {
-                "Oldest First" => query.OrderBy(x => x.CreatedAt),
-                "Highest Value" => query.OrderByDescending(x => x.GrandTotal),
-                "Lowest Value" => query.OrderBy(x => x.GrandTotal),
-                "Company A-Z" => query.OrderBy(x => x.CompanyName),
-                "Company Z-A" => query.OrderByDescending(x => x.CompanyName),
-                _ => query.OrderByDescending(x => x.CreatedAt)
+                "Oldest First" => filtered.OrderBy(x => x.CreatedAt),
+                "Highest Value" => filtered.OrderByDescending(x => x.GrandTotal),
+                "Lowest Value" => filtered.OrderBy(x => x.GrandTotal),
+                "Company A-Z" => filtered.OrderBy(x => x.CompanyName),
+                "Company Z-A" => filtered.OrderByDescending(x => x.CompanyName),
+                _ => filtered.OrderByDescending(x => x.CreatedAt)
             };
 
-            var result = query.ToList();
+            var result = filtered.ToList();
+            int? keepId = _selectedItem?.Id;
 
             // BUG-74: standard clear + refill pattern
             FilteredItems.ClearSilent();
@@ -664,6 +825,221 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             FilteredCount = result.Count;
             TotalValueSum = result.Sum(x => x.GrandTotal);
+            PublishEmptyCopy();
+
+            var match = keepId == null
+                ? null
+                : result.FirstOrDefault(x => x.Id == keepId.Value);
+            if (!ReferenceEquals(_selectedItem, match))
+                SelectedItem = match;
+            else
+                PublishSelectionWorkflow();
+        }
+
+        private void PublishStageChips(IReadOnlyList<SavedInvoiceListItem> stageScope)
+        {
+            var chips = new List<ProformaStageChip>(StatusFilterOptions.Count);
+            foreach (string option in StatusFilterOptions)
+            {
+                int count = option == "All Statuses"
+                    ? stageScope.Count
+                    : stageScope.Count(x => string.Equals(
+                        x.DisplayStatus, option, StringComparison.OrdinalIgnoreCase));
+                chips.Add(new ProformaStageChip
+                {
+                    Key = option,
+                    Label = count.ToString("N0") + "  " + ShortStageLabel(option),
+                    Tip = option + " · " + count.ToString("N0"),
+                    IsSelected = string.Equals(
+                        _selectedStatusFilter, option, StringComparison.Ordinal)
+                });
+            }
+
+            StageChips = chips;
+            OnPropertyChanged(nameof(StageChips));
+        }
+
+        private static string ShortStageLabel(string option) => option switch
+        {
+            "All Statuses" => "All",
+            "PI created" => "Created",
+            "PI sent" => "Sent",
+            "PI confirmed" => "Confirmed",
+            "Full job created" => "Job",
+            "Partially delivered" => "Part delivered",
+            "Fully delivered" => "Delivered",
+            "Partially invoiced" => "Part invoiced",
+            "Fully invoiced" => "Invoiced",
+            "Cancelled" => "Cancelled",
+            _ => option
+        };
+
+        private static bool IsJobOwnedStatus(string display) =>
+            display == DocumentListStatus.FullJobCreated
+            || display == DocumentListStatus.PartiallyDelivered
+            || display == DocumentListStatus.FullyDelivered
+            || display == DocumentListStatus.PartiallyInvoiced
+            || display == DocumentListStatus.FullyInvoiced;
+
+        private async Task OpenRelatedJobAsync(SavedInvoiceListItem item)
+        {
+            if (item == null) return;
+            if (_jobs == null)
+            {
+                _dialogs.Show(
+                    "Job orders are not available from this window.",
+                    LocalizationService.Instance.T("Dashboard.JobOrders"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            var jobs = await _jobs.GetBySourceProformaIdAsync(item.ProformaId ?? "");
+            var live = jobs?
+                .Where(j => j != null && !j.IsVoid)
+                .OrderByDescending(j => j.UpdatedAt)
+                .FirstOrDefault();
+            if (live == null)
+            {
+                _dialogs.Show(
+                    "No live job order is linked to " + (item.ProformaId ?? "this invoice") + " yet.",
+                    LocalizationService.Instance.T("Dashboard.JobOrders"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            if (OnOpenJobRequested == null)
+            {
+                _dialogs.Show(
+                    "Job order " + live.JobOrderId + " is linked. Open it from the Job Order module. This load picker cannot switch modules.",
+                    LocalizationService.Instance.T("Dashboard.JobOrders"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            OnOpenJobRequested(live.Id);
+        }
+
+        private void PublishEmptyCopy()
+        {
+            if (TotalCount == 0)
+            {
+                EmptyTitle = LocalizationService.Instance.T("ProformaInvoice.NoSavedInvoicesFound");
+                EmptyMessage = "Create one with New inquiry or Blank. Nothing is saved yet.";
+            }
+            else
+            {
+                EmptyTitle = "No invoices match";
+                EmptyMessage = "Clear the stage, search, or dates. Saved invoices are still in the register.";
+            }
+        }
+
+        private void PublishSelectionWorkflow()
+        {
+            var item = _selectedItem;
+            if (item == null)
+            {
+                WorkflowTitle = "Next step";
+                WorkflowHint = "Select a saved invoice. The next step follows its live status.";
+                NextActionLabel = "Select an invoice";
+                IsNextActionEnabled = false;
+                _nextAction = NextActionKind.None;
+                return;
+            }
+
+            string stored = item.Status ?? "";
+            string display = item.DisplayStatus ?? "";
+            WorkflowTitle = (item.ProformaId ?? "Invoice") + " · " + display;
+
+            if (item.IsVoid || DocumentListStatus.IsCancelledProforma(stored))
+            {
+                NextActionLabel = "Create revision";
+                WorkflowHint = "A cancelled invoice stays on record. A revision is a new draft; the original is not rewritten.";
+                _nextAction = NextActionKind.Revision;
+            }
+            else if (string.Equals(stored, "Expired", StringComparison.OrdinalIgnoreCase))
+            {
+                NextActionLabel = "Reopen as draft";
+                WorkflowHint = "Expired can return to Draft, then be sent again. Confirmation still happens in Step 8.";
+                _nextAction = NextActionKind.ReopenDraft;
+            }
+            else if (display == DocumentListStatus.PiConfirmed)
+            {
+                NextActionLabel = "Create job order";
+                WorkflowHint = "This invoice is confirmed, but no job order is linked yet. This creates or releases it without approving again.";
+                _nextAction = NextActionKind.EnsureJob;
+            }
+            else if (IsJobOwnedStatus(display))
+            {
+                NextActionLabel = "Open job order";
+                WorkflowHint = display + " is owned by the job order. Delivery and tax invoice changes still refresh this row.";
+                _nextAction = NextActionKind.OpenJob;
+            }
+            else if (string.Equals(stored, ProformaInvoiceStatus.Approved, StringComparison.OrdinalIgnoreCase))
+            {
+                NextActionLabel = "Confirm in Step 8";
+                WorkflowHint = "The invoice is marked approved, but the confirmation document is not on the row yet. Step 8 is the approval path.";
+                _nextAction = NextActionKind.Confirm;
+            }
+            else if (display == DocumentListStatus.PiSent
+                || string.Equals(stored, "Sent", StringComparison.OrdinalIgnoreCase))
+            {
+                NextActionLabel = "Confirm in Step 8";
+                WorkflowHint = "Confirmation needs the signed PI or LPO. That approves the invoice and creates or releases the job order.";
+                _nextAction = NextActionKind.Confirm;
+            }
+            else if (display == DocumentListStatus.PiCreated
+                || string.Equals(stored, "Draft", StringComparison.OrdinalIgnoreCase))
+            {
+                NextActionLabel = "Mark sent";
+                WorkflowHint = "Sending records that the quotation left the office. Confirmation still requires the signed PI or LPO in Step 8.";
+                _nextAction = NextActionKind.MarkSent;
+            }
+            else
+            {
+                NextActionLabel = "Open invoice";
+                WorkflowHint = display + " is driven by the job, delivery, and tax invoice. Those documents update this row live.";
+                _nextAction = NextActionKind.Open;
+            }
+
+            IsNextActionEnabled = true;
+        }
+
+        private async Task RunNextActionAsync()
+        {
+            var item = _selectedItem;
+            if (item == null || _nextAction == NextActionKind.None)
+                return;
+
+            switch (_nextAction)
+            {
+                case NextActionKind.MarkSent:
+                    await ChangeStatusAsync(item, "Sent");
+                    break;
+                case NextActionKind.ReopenDraft:
+                    await ChangeStatusAsync(item, "Draft");
+                    break;
+                case NextActionKind.Confirm:
+                    if (_invoices == null) return;
+                    var toApprove = await _invoices.GetByIdAsync(item.Id);
+                    if (toApprove != null)
+                        await ApproveAsync(toApprove);
+                    break;
+                case NextActionKind.Revision:
+                    await CreateRevisionAsync(item);
+                    break;
+                case NextActionKind.EnsureJob:
+                    await EnsureJobForConfirmedAsync(item);
+                    break;
+                case NextActionKind.OpenJob:
+                    await OpenRelatedJobAsync(item);
+                    break;
+                default:
+                    RequestLoad(item);
+                    break;
+            }
         }
 
         private void ClearFilters()
@@ -1007,6 +1383,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 bool wasCancelled = IsCancelledStatus(entity.Status);
 
                 entity.Status = newStatus;
+                entity.UpdatedAt = DateTime.Now;
+                SyncSnapshotWorkflow(entity, newStatus, null);
                 await _invoices.UpdateAsync(entity);
 
                 // Cancelling / rejecting a PI clears its Step 8 attachments

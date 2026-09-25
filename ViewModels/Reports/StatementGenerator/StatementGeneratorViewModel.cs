@@ -272,13 +272,25 @@ public StatementGeneratorViewModel(IDialogService? dialogs,
             // ── Wizard navigation commands ──────────────────────────────
             NextStepCommand = new RelayCommand(_ =>
             {
-                if (_currentStep == 1 && HasFilter)
+                if (_currentStep == 1)
                 {
+                    if (!HasFilter)
+                    {
+                        StatusMessage = "Configure at least one filter before continuing.";
+                        return;
+                    }
                     _ = RunPreviewAsync();
                     CurrentStep = 2;
+                    StatusMessage = "";
                 }
-                else if (_currentStep == 2 && PreviewVM.HasSelection)
+                else if (_currentStep == 2)
                 {
+                    if (!PreviewVM.HasSelection)
+                    {
+                        StatusMessage = "Select at least one invoice before running the pipeline.";
+                        return;
+                    }
+                    StatusMessage = "Starting the statement pipeline…";
                     CurrentStep = 3;
                 }
                 else if (_currentStep == 4)
@@ -294,6 +306,19 @@ public StatementGeneratorViewModel(IDialogService? dialogs,
                     }
                 }
             }, _ => CanGoNext);
+
+            FinishCommand = new RelayCommand(_ =>
+            {
+                if (_pendingListRefresh && OnStatementSaved != null)
+                {
+                    _pendingListRefresh = false;
+                    _ = OnStatementSaved.Invoke();
+                }
+                else
+                {
+                    OnCancelled?.Invoke();
+                }
+            }, _ => _currentStep == 4 && !_isGenerating);
 
             PreviousStepCommand = new RelayCommand(_ =>
             {

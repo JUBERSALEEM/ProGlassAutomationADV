@@ -23,17 +23,11 @@ namespace ProGlassAutomation.Services.Statement.Database
         public DbSet<StatementLineItem> LineItems { get; set; } = null!;
 
         // ── DB file path ──────────────────────────────────────────────────
-        private static string DbPath
-        {
-            get
-            {
-                Directory.CreateDirectory(
-                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder);
-                return Path.Combine(
-                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
-                    "statements.db");
-            }
-        }
+        // Pure path computation — no side effects (2026-09-24): folder
+        // creation lives in OnConfiguring via AppDataRoot.EnsureCurrentFolder.
+        private static string DbPath => Path.Combine(
+            ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+            "statements.db");
 
         /// <summary>Public accessor used by the schema migration runner.</summary>
         public static string DatabaseFilePath => DbPath;
@@ -42,6 +36,8 @@ namespace ProGlassAutomation.Services.Statement.Database
         protected override void OnConfiguring(
             DbContextOptionsBuilder optionsBuilder)
         {
+            // Shared-aware folder ensure (2026-09-24) — see AppDataRoot.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
             // Senior audit (Aug 2026): WAL + busy_timeout=5s + foreign_keys=ON
             // via SqliteResilience. Statement generation reads across five
             // sibling databases in parallel — without WAL, one long read

@@ -1,0 +1,1 @@
+This wizard installs ProGlass Automation on this computer. Click Next to continue, or Cancel to exit. Your records stay in AppData.

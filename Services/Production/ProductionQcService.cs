@@ -131,6 +131,7 @@ namespace ProGlassAutomation.Services.Production
                 workItem.UpdatedAt = DateTime.Now;
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                ProductionRepository.NotifyWorkItemsChanged();
 
                 AppLogService.Info($"[QC] {workItem.JobRef} Spec {workItem.SpecGroupNumber} Serial {workItem.SerialNumber} Stage {workItem.Stage} QC {result} reason {reason}",
                     new LogContext { Module = "Production", Class = nameof(ProductionQcService), Operation = nameof(RecordQcAsync) });

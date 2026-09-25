@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using System.Globalization;
+using ProGlassAutomation.Services.Reporting;
 namespace ProGlassAutomation.Services.ProformaInvoice.Export
 {
     /// <summary>
@@ -476,7 +477,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             c.CheckedSpecGroupNumbers);
                 }
 
-                decimal amount = Math.Round(metricQty * c.Rate, 2);
+                decimal amount = MoneyRounding.Round(metricQty * c.Rate);
                 string qtyStr = metricQty > 0
                     ? $"{metricQty:0.###} {unitLabel}"
                     : "—";
@@ -495,7 +496,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 // BUG-21: shared calculator
                 decimal wastageQty = ProformaChargeMetricsCalculator
                     .ComputeWastageQty(_snapshot.SpecGroups, w.CheckedSourceKeys);
-                decimal wastageAmount = Math.Round(wastageQty * w.Rate, 2);
+                decimal wastageAmount = MoneyRounding.Round(wastageQty * w.Rate);
 
                 lines.Add((
                     $"Wastage — {w.ColorName}",
@@ -508,7 +509,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             foreach (var c in _snapshot.OtherCharges.CustomCharges
                 .Where(c => c.IsActive))
             {
-                decimal amount = Math.Round(c.Qty * c.Rate, 2);
+                decimal amount = MoneyRounding.Round(c.Qty * c.Rate);
                 string unitStr = string.IsNullOrWhiteSpace(c.Unit)
                                       ? "QTY" : c.Unit.ToUpper();
 

@@ -13,7 +13,7 @@
          which makes TextWrapping inert and runs bubbles off-screen.
        • Bubbles cap at MaxWidth so a long answer wraps instead of
          stretching the row. The cap MUST be smaller than the hosting
-         overlay (560px) or it never engages.
+         overlay (520px) or it never engages.
        • This control does NOT replace its own root DataContext.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Agent.UI.AgentChatView"
@@ -131,7 +131,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource TintIndigoBrush}"
                         VerticalAlignment="Center">
-                    <TextBlock Text="&#xE99A;"
+                    <TextBlock Text="&#xE946;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="{StaticResource TextTitle}"
                                Foreground="{DynamicResource AccentBrush}"
@@ -148,7 +148,7 @@
                     <TextBlock FontSize="{StaticResource TextBody}"
                                TextWrapping="Wrap"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Text="Runs locally. Reads your ERP data, never writes without asking."/>
+                               Text="{DynamicResource Shell.AgentAsksFirst}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2"

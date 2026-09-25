@@ -32,6 +32,10 @@
     SnapsToDevicePixels="True">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <!-- Section eyebrow (small uppercase accent label) -->
         
@@ -88,6 +92,7 @@
             </Setter>
         </Style>
 
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">

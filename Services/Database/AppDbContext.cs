@@ -32,7 +32,10 @@ namespace ProGlassAutomation.Services.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            Directory.CreateDirectory(AppDataRoot.CurrentFolder);
+            // Senior audit (2026-09-24): shared-aware folder ensure — an
+            // unreachable LAN share becomes an operator-readable
+            // SharedDataRootUnavailableException, not a raw IOException.
+            AppDataRoot.EnsureCurrentFolder();
             // Senior audit (Aug 2026): route through SqliteResilience for WAL,
             // busy_timeout=5s, foreign_keys=ON. See SqliteResilience.cs.
             SqliteResilience.ConfigureFor(options, DatabaseFilePath);

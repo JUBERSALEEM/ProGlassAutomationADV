@@ -1,0 +1,1 @@
+No empty `catch (Exception) {}` that returns success was found in production save paths during this pass. `HasExistingDataAsync` returns true on read failure so sample seed does not overwrite. Full crash audit: UNVERIFIED.

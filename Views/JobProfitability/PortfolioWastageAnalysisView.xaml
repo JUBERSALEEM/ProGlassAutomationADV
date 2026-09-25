@@ -34,20 +34,11 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══════ HEADER ═══════ -->
-        <Border Grid.Row="0" Margin="16,16,16,0" Padding="16,14"
-                Style="{StaticResource Sl.Card}">
-            <StackPanel>
-                <TextBlock Text="Wastage Analysis — All Confirmed Jobs"
-                           Style="{StaticResource Sl.Title}"/>
-                <TextBlock Text="Actual wastage charges from Step 6, grouped by glass color. Clear glass offcuts are optional (reusable); colored/tinted/coated glass offcuts are always charged."
-                           Style="{StaticResource Sl.Subtitle}"
-                           Margin="0,4,0,0"/>
-            </StackPanel>
-        </Border>
+        <!-- ═══════ HEADER (reclaimed vertical space; tab context in parent) ═══════ -->
+        <Border Grid.Row="0" Visibility="Collapsed"/>
 
         <!-- ═══════ SUMMARY KPIs ═══════ -->
-        <Grid Grid.Row="1" Margin="16,12,16,0">
+        <Grid Grid.Row="1" Margin="16,8,16,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="12"/>
@@ -63,55 +54,60 @@
             <Border Grid.Column="0" Style="{StaticResource Sl.Hero}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="JOBS ANALYZED" Style="{StaticResource Sl.Label}" Foreground="{DynamicResource Ov.OnAccentMuted}"/>
-                    <TextBlock Text="{Binding TotalJobsAnalyzed}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
-                               Foreground="{DynamicResource Ov.OnAccent}"
-                               Typography.NumeralAlignment="Tabular"
-                               Margin="0,4,0,0"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalJobsAnalyzed}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.OnAccent}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="2" Style="{StaticResource Sl.Card}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL SHEET AREA" Style="{StaticResource Sl.Label}"/>
-                    <TextBlock Text="{Binding TotalSheetAreaDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
-                               Foreground="{DynamicResource Ov.Ink}"
-                               Typography.NumeralAlignment="Tabular"
-                               Margin="0,4,0,0"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalSheetAreaDisplay}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.Ink}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="4" Style="{StaticResource Sl.Card}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL WASTAGE AREA" Style="{StaticResource Sl.Label}"/>
-                    <TextBlock Text="{Binding TotalWastageAreaDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
-                               Foreground="{DynamicResource Ov.Warning}"
-                               Typography.NumeralAlignment="Tabular"
-                               Margin="0,4,0,0"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalWastageAreaDisplay}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.Warning}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="6" Style="{StaticResource Sl.Card}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="TOTAL WASTAGE CHARGE" Style="{StaticResource Sl.Label}"/>
-                    <TextBlock Text="{Binding TotalWastageChargeDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
-                               Foreground="{DynamicResource Ov.Danger}"
-                               Typography.NumeralAlignment="Tabular"
-                               Margin="0,4,0,0"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding TotalWastageChargeDisplay}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.Danger}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="8" Style="{StaticResource Sl.Card}" Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="OVERALL WASTAGE %" Style="{StaticResource Sl.Label}"/>
-                    <TextBlock Text="{Binding OverallWastageDisplay}"
-                               FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
-                               Foreground="{DynamicResource Ov.Ink}"
-                               Typography.NumeralAlignment="Tabular"
-                               Margin="0,4,0,0"/>
+                    <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,4,0,0">
+                        <TextBlock Text="{Binding OverallWastageDisplay}"
+                                   FontSize="{DynamicResource FontSize.H1}" FontWeight="Bold"
+                                   Foreground="{DynamicResource Ov.Ink}"
+                                   Typography.NumeralAlignment="Tabular"/>
+                    </Viewbox>
                 </StackPanel>
             </Border>
         </Grid>

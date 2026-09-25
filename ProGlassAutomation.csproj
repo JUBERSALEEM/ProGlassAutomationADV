@@ -106,6 +106,12 @@
 		<None Remove="Tools/**" />
 		<Page Remove="Tools/**" />
 		<Resource Remove="Tools/**" />
+		<!-- Release evidence. Not application code. Must not ship. -->
+		<Compile Remove="PRODUCTION_READINESS/**" />
+		<None Remove="PRODUCTION_READINESS/**" />
+		<Content Remove="PRODUCTION_READINESS/**" />
+		<Page Remove="PRODUCTION_READINESS/**" />
+		<Resource Remove="PRODUCTION_READINESS/**" />
 	</ItemGroup>
 
 	<ItemGroup>

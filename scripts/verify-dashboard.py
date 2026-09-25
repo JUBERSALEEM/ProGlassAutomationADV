@@ -241,6 +241,23 @@ def main():
     for n, ln in kpi_bad: print(f"    {n} line {ln}")
     if kpi_bad: rc = 1
 
+    # [10] Hex color validity check: ensure all #hex colors in XAML are 3, 4, 6, or 8 digits
+    hex_color_re = re.compile(r'(?:Color|Background|Foreground|BorderBrush|Fill|Stroke)\s*=\s*"#([0-9A-Fa-f]+)"')
+    hex_bad = []
+    for f in glob.glob(os.path.join(ROOT, "**", "*.xaml"), recursive=True):
+        try:
+            txt = open(f, encoding="utf-8", errors="replace").read()
+            for m in hex_color_re.finditer(txt):
+                h = m.group(1)
+                if len(h) not in (3, 4, 6, 8):
+                    hex_bad.append((f, f"#{h}", len(h)))
+        except Exception:
+            pass
+    print(f"[10] Invalid hex color tokens: {len(hex_bad)}")
+    for f, h, l in hex_bad:
+        print(f"    {os.path.relpath(f, ROOT)}: {h} (len={l})")
+    if hex_bad: rc = 1
+
     touched = sys.argv[1:]
     if touched:
         print(f"[7] brace balance ({len(touched)} files):")

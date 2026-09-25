@@ -4,6 +4,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid.GrandTotalSummary
 {
@@ -137,7 +138,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid.GrandTotal
             GrandTotalQty = grandQty;
             GrandTotalSqm = Math.Round(grandSqm, 3);
             GrandTotalLm = Math.Round(grandLm, 3);
-            GrandTotalValue = Math.Round(grandVal, 2);
+            GrandTotalValue = MoneyRounding.Round(grandVal);
         }
 
         /// <summary>

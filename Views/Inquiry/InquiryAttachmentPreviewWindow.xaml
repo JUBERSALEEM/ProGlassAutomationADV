@@ -12,14 +12,14 @@
         Title="{DynamicResource Inquiry.AttachmentPreview}"
         Width="1000" Height="760" MinWidth="560" MinHeight="420"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource WindowBackgroundBrush}"
+        Background="{DynamicResource Ov.Canvas}"
         FontFamily="{DynamicResource AppFontFamily}"
         UseLayoutRounding="True" SnapsToDevicePixels="True"
         Closed="OnClosed">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>

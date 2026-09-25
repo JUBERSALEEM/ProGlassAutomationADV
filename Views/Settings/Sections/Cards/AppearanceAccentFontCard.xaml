@@ -13,8 +13,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -37,229 +37,210 @@
                 </StackPanel>
             </Grid>
             
-            <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
+            <!-- ── 2-COLUMN BALANCED STUDIO: ACCENT & TYPOGRAPHY ── -->
+            <Grid Margin="{StaticResource SettingsRowMargin}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- Accent palette (wide) -->
-                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LblAccent}"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>
-                        <!-- Palette chips generated from SettingsViewModel.AccentPalette -->
-                        <ItemsControl ItemsSource="{Binding AccentPalette}" Margin="{StaticResource SettingsStackGap4}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Button Command="{Binding DataContext.ApplyAccentCommand,
-                                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding Key}"
-                                            Style="{StaticResource AccentChipStyle}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
-                                                     VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                            <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                        
-                        <!-- Free-pick colour: hex input -->
-                        <Border Margin="{StaticResource SettingsStackGap12}" Padding="10,8" CornerRadius="{DynamicResource Radius.Small}"
-                                BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                HorizontalAlignment="Left" Style="{StaticResource SettingsWashTileStyle}">
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="14" Height="14"
-                                         Fill="{Binding CustomAccentSwatch}"
-                                         Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
-                                         VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
-                                <TextBox Text="{Binding CustomAccentHex, UpdateSourceTrigger=PropertyChanged}"
-                                         Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Title}"
-                                         FontFamily="{DynamicResource FontFamily.Code}"
-                                         VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
-                                <Button Command="{Binding ApplyCustomAccentCommand}"
-                                        Style="{StaticResource AccentChipStyle}" Margin="{StaticResource SettingsInlineGap8}">
-                                    <TextBlock Text="{DynamicResource Settings.ApplyCustomColour}"/>
+                <!-- Left Column: Accent Palette -->
+                <StackPanel Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE790;"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LblAccent}"/>
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.ButtonsTintsHoverStatesMonetGlassSurfaces}"/>
+                    <!-- Palette chips generated from SettingsViewModel.AccentPalette -->
+                    <ItemsControl ItemsSource="{Binding AccentPalette}" Margin="{StaticResource SettingsStackGap4}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.ApplyAccentCommand,
+                                                  RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding Key}"
+                                        Style="{StaticResource AccentChipStyle}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                                 VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                        <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                    </StackPanel>
                                 </Button>
-                            </StackPanel>
-                        </Border>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{Binding CustomAccentStatus}" Margin="{StaticResource SettingsStackGap6}" TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Font family selection -->
-                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.FontFamily}"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.UsedScreenDialogTableIconsStaySegoeMDL2}"/>
-                        <ComboBox ItemsSource="{Binding FontOptions}"
-                                  SelectedItem="{Binding SelectedFont, Mode=TwoWay}"
-                                  DisplayMemberPath="Name"
-                                  HorizontalAlignment="Stretch"
-                                  Padding="10,7" FontSize="{DynamicResource FontSize.Title}"
-                                  MaxDropDownHeight="320" Style="{StaticResource ComboBoxStyle}"/>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{Binding FontStatus}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap6}"/>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="Preview your changes below before clicking 'Apply Font'."
-                                   Foreground="{DynamicResource AccentBrush}" Margin="{StaticResource SettingsStackGap4}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Weight + Style + Formatting Controls -->
-                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D2;"/>
-                            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.FontWeightStyle}"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                   Text="{DynamicResource Settings.TuneWeightStyleWithinSelectedFamily}"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="12"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <ComboBox Grid.Column="0"
-                                      ItemsSource="{Binding FontWeightChoices}"
-                                      SelectedItem="{Binding SelectedFontWeight, Mode=TwoWay}"
-                                      Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
-                            <ComboBox Grid.Column="2"
-                                      ItemsSource="{Binding FontStyleChoices}"
-                                      SelectedItem="{Binding SelectedFontStyle, Mode=TwoWay}"
-                                      Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
-                        </Grid>
-
-                        <!-- Bold, Italic, Underline Quick Toggles -->
-                        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap10}">
-                            <CheckBox AutomationProperties.Name="Typography Bold"
-                                      IsChecked="{Binding IsFontBold, Mode=TwoWay}" Margin="{StaticResource SettingsTrailingGap}" VerticalAlignment="Center"
-                                      ToolTip="Make typography bold (FontWeights.Bold)">
-                                <TextBlock Text="Bold" FontWeight="Bold"/>
-                            </CheckBox>
-                            <CheckBox AutomationProperties.Name="Typography Italic"
-                                      IsChecked="{Binding IsFontItalic, Mode=TwoWay}" Margin="{StaticResource SettingsTrailingGap}" VerticalAlignment="Center"
-                                      ToolTip="Make typography italic (FontStyles.Italic)">
-                                <TextBlock Text="Italic" FontStyle="Italic"/>
-                            </CheckBox>
-                            <CheckBox AutomationProperties.Name="Typography Underline"
-                                      IsChecked="{Binding IsFontUnderline, Mode=TwoWay}" VerticalAlignment="Center"
-                                      ToolTip="Add underline decoration to typography (TextDecorations.Underline)">
-                                <TextBlock Text="Underline" TextDecorations="Underline"/>
-                            </CheckBox>
-                        </StackPanel>
-
-                        <!-- Actions: Import, Reset, Apply -->
-                        <WrapPanel Margin="{StaticResource SettingsStackGap12}">
-                            <Button Command="{Binding ApplyFontCommand}"
-                                    Style="{StaticResource AccentChipStyle}"
-                                    Background="{DynamicResource AccentBrush}"
-                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                    ToolTip="Apply selected typography settings across the entire application">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                    <TextBlock Text="Apply Font" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{Binding ImportFontCommand}"
-                                    Style="{StaticResource AccentChipStyle}"
-                                    ToolTip="Import .ttf or .otf font file">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE8E5;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                    <TextBlock Text="{DynamicResource Settings.ImportFONT}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{Binding ResetFontCommand}"
-                                    Style="{StaticResource AccentChipStyle}"
-                                    ToolTip="Restore default Segoe UI system font">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE777;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                               FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                    <TextBlock Text="{DynamicResource Action.Reset}" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </WrapPanel>
-                    </StackPanel>
-                </Border>
-
-            </UniformGrid>
-
-            <!-- ═══ LIVE TYPOGRAPHY PREVIEW TILE ═══ -->
-            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsRowMargin}" Padding="16,14">
-                <StackPanel>
-                    <DockPanel LastChildFill="True" Margin="{StaticResource SettingsStackBottom8}">
-                        <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H3}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                            <TextBlock Text="Live Typography Preview" FontWeight="Bold"
-                                       FontSize="{DynamicResource FontSize.Title}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <Button DockPanel.Dock="Right"
-                                Command="{Binding ApplyFontCommand}"
-                                Style="{StaticResource AccentChipStyle}"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                ToolTip="Click to apply this previewed typography to all shop floor and office screens">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xE8FB;" FontFamily="{DynamicResource FontFamily.Icon}"
-                                           FontSize="{DynamicResource FontSize.BodySmall}"
-                                           VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6R}"/>
-                                <TextBlock Text="Apply Selected Font" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Button>
-                    </DockPanel>
-
-                    <!-- Preview container with smooth rounded corners -->
-                    <Border CornerRadius="{DynamicResource Radius.Small}"
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <!-- Free-pick colour: hex input -->
+                    <Border Margin="{StaticResource SettingsStackGap12}" Padding="10,8" CornerRadius="{DynamicResource Radius.Small}"
                             Background="{DynamicResource SurfaceElevatedBrush}"
-                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                            BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="16,12">
-                        <StackPanel>
-                            <TextBlock Text="ProGlass Industrial Studio — 3210 × 2250 mm Glass Fabrication &amp; 2D Cutting"
-                                       FontFamily="{Binding PreviewFontFamily}"
-                                       FontWeight="{Binding PreviewFontWeight}"
-                                       FontStyle="{Binding PreviewFontStyle}"
-                                       TextDecorations="{Binding PreviewTextDecorations}"
-                                       FontSize="{DynamicResource FontSize.H2}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       TextWrapping="Wrap"/>
-                            <TextBlock Text="The quick brown fox jumps over the lazy dog. 0123456789 — AED 14,850.00 — 6mm Clear Float (Tempered &amp; Polished)"
-                                       FontFamily="{Binding PreviewFontFamily}"
-                                       FontWeight="{Binding PreviewFontWeight}"
-                                       FontStyle="{Binding PreviewFontStyle}"
-                                       TextDecorations="{Binding PreviewTextDecorations}"
-                                       FontSize="{DynamicResource FontSize.BodySmall}"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       Margin="{StaticResource SettingsStackGap8}"
-                                       TextWrapping="Wrap"/>
+                            HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="14" Height="14"
+                                     Fill="{Binding CustomAccentSwatch}"
+                                     Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                                     VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
+                            <TextBox Text="{Binding CustomAccentHex, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Title}"
+                                     FontFamily="{DynamicResource FontFamily.Code}"
+                                     VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+                            <Button Command="{Binding ApplyCustomAccentCommand}"
+                                    Style="{StaticResource AccentChipStyle}" Margin="{StaticResource SettingsInlineGap8}">
+                                <TextBlock Text="{DynamicResource Settings.ApplyCustomColour}"/>
+                            </Button>
                         </StackPanel>
                     </Border>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{Binding CustomAccentStatus}" Margin="{StaticResource SettingsStackGap6}" TextWrapping="Wrap"/>
                 </StackPanel>
-            </Border>
 
-            <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                <!-- Right Column: Typography Studio -->
+                <StackPanel Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8EC;"/>
+                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.FontFamily}"/>
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{DynamicResource Settings.UsedScreenDialogTableIconsStaySegoeMDL2}"/>
+                    <ComboBox ItemsSource="{Binding FontOptions}"
+                              SelectedItem="{Binding SelectedFont, Mode=TwoWay}"
+                              DisplayMemberPath="Name"
+                              HorizontalAlignment="Stretch"
+                              Padding="10,7" FontSize="{DynamicResource FontSize.Title}"
+                              MaxDropDownHeight="320" Style="{StaticResource ComboBoxStyle}"/>
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                               Text="{Binding FontStatus}" TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap4}"/>
 
-            <!-- ═════════ GROUP: WALLPAPERS ═════════ -->
+                    <!-- Weight + Style Sub-controls -->
+                    <Grid Margin="{StaticResource SettingsStackTop8}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0"
+                                  ItemsSource="{Binding FontWeightChoices}"
+                                  SelectedItem="{Binding SelectedFontWeight, Mode=TwoWay}"
+                                  Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                        <ComboBox Grid.Column="2"
+                                  ItemsSource="{Binding FontStyleChoices}"
+                                  SelectedItem="{Binding SelectedFontStyle, Mode=TwoWay}"
+                                  Padding="10,7" FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                    </Grid>
+
+                    <!-- Bold, Italic, Underline Quick Toggles -->
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap8}">
+                        <CheckBox AutomationProperties.Name="Typography Bold"
+                                  IsChecked="{Binding IsFontBold, Mode=TwoWay}" Margin="{StaticResource SettingsTrailingGap}" VerticalAlignment="Center"
+                                  ToolTip="Make typography bold (FontWeights.Bold)">
+                            <TextBlock Text="Bold" FontWeight="Bold"/>
+                        </CheckBox>
+                        <CheckBox AutomationProperties.Name="Typography Italic"
+                                  IsChecked="{Binding IsFontItalic, Mode=TwoWay}" Margin="{StaticResource SettingsTrailingGap}" VerticalAlignment="Center"
+                                  ToolTip="Make typography italic (FontStyles.Italic)">
+                            <TextBlock Text="Italic" FontStyle="Italic"/>
+                        </CheckBox>
+                        <CheckBox AutomationProperties.Name="Typography Underline"
+                                  IsChecked="{Binding IsFontUnderline, Mode=TwoWay}" VerticalAlignment="Center"
+                                  ToolTip="Add underline decoration to typography (TextDecorations.Underline)">
+                            <TextBlock Text="Underline" TextDecorations="Underline"/>
+                        </CheckBox>
+                    </StackPanel>
+
+                    <!-- Actions: Import, Reset, Apply -->
+                    <WrapPanel Margin="{StaticResource SettingsStackGap8}">
+                        <Button Command="{Binding ApplyFontCommand}"
+                                Style="{StaticResource AccentChipStyle}"
+                                Background="{DynamicResource AccentBrush}"
+                                Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                ToolTip="Apply selected typography settings across the entire application">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE73E;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                <TextBlock Text="Apply Font" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ImportFontCommand}"
+                                Style="{StaticResource AccentChipStyle}"
+                                ToolTip="Import .ttf or .otf font file">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8E5;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                <TextBlock Text="{DynamicResource Settings.ImportFONT}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding ResetFontCommand}"
+                                Style="{StaticResource AccentChipStyle}"
+                                ToolTip="Restore default Segoe UI system font">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE777;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.Body}" VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                                <TextBlock Text="{DynamicResource Action.Reset}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- ═══ LIVE TYPOGRAPHY PREVIEW STRIP ═══ -->
+            <StackPanel Margin="{StaticResource SettingsRowMargin}">
+                <DockPanel LastChildFill="True" Margin="{StaticResource SettingsStackBottom8}">
+                    <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8EC;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                   FontSize="{DynamicResource FontSize.H3}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                        <TextBlock Text="Live Typography Preview" FontWeight="Bold"
+                                   FontSize="{DynamicResource FontSize.Title}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button DockPanel.Dock="Right"
+                            Command="{Binding ApplyFontCommand}"
+                            Style="{StaticResource AccentChipStyle}"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            ToolTip="Click to apply this previewed typography to all shop floor and office screens">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8FB;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}"
+                                       VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap6R}"/>
+                            <TextBlock Text="Apply Selected Font" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </DockPanel>
+
+                <!-- Preview container with smooth rounded corners directly on card surface -->
+                <Border CornerRadius="{DynamicResource Radius.Small}"
+                        Background="{DynamicResource SurfaceElevatedBrush}"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
+                        BorderThickness="{DynamicResource Border.HairlineThickness}"
+                        Padding="16,12">
+                    <StackPanel>
+                        <TextBlock Text="ProGlass Industrial Studio — 3210 × 2250 mm Glass Fabrication &amp; 2D Cutting"
+                                   FontFamily="{Binding PreviewFontFamily}"
+                                   FontWeight="{Binding PreviewFontWeight}"
+                                   FontStyle="{Binding PreviewFontStyle}"
+                                   TextDecorations="{Binding PreviewTextDecorations}"
+                                   FontSize="{DynamicResource FontSize.H2}"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="The quick brown fox jumps over the lazy dog. 0123456789 — AED 14,850.00 — 6mm Clear Float (Tempered &amp; Polished)"
+                                   FontFamily="{Binding PreviewFontFamily}"
+                                   FontWeight="{Binding PreviewFontWeight}"
+                                   FontStyle="{Binding PreviewFontStyle}"
+                                   TextDecorations="{Binding PreviewTextDecorations}"
+                                   FontSize="{DynamicResource FontSize.BodySmall}"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   Margin="{StaticResource SettingsStackGap8}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </StackPanel>
     </Border>
 </UserControl>

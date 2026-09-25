@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.Reporting
 {
@@ -211,7 +212,7 @@ namespace ProGlassAutomation.Services.Reporting
                     var sqm1 = r.Sqm1;
                     var totalSqm = r.TotalSqm;
                     var rate = r.Rate;
-                    var amount = Math.Round(sqm1 * r.Qty * rate, 2);
+                    var amount = MoneyRounding.Round(sqm1 * r.Qty * rate);
                     var canonical = BuildCanonicalFingerprint(
                         r.GlassRef, grp.SelectedGlassType, grp.SelectedSpecName,
                         grp.OuterGlassColor, grp.InnerGlassColor, r.W1, r.H1, r.W2, r.H2);
@@ -299,7 +300,7 @@ namespace ProGlassAutomation.Services.Reporting
                         TotalRows = g.Count(),
                         TotalQty = g.Sum(x => x.Qty),
                         TotalSqm = Math.Round(g.Sum(x => x.TotalSqm), 3),
-                        TotalValue = Math.Round(g.Sum(x => x.Amount), 2),
+                        TotalValue = MoneyRounding.Round(g.Sum(x => x.Amount)),
                         AvgRate = g.Average(x => x.Rate),
                         DeliveredQty = g.Sum(x => x.DeliveredQty),
                         BalanceQty = g.Sum(x => x.BalanceQty),

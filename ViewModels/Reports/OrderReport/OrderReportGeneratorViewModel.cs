@@ -155,13 +155,24 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
             NextStepCommand = new RelayCommand(_ =>
             {
-                if (_currentStep == 1 && HasFilter)
+                if (_currentStep == 1)
                 {
+                    if (!HasFilter)
+                    {
+                        StatusMessage = "Configure at least one filter before continuing.";
+                        return;
+                    }
                     _ = RunPreviewAsync();
                     CurrentStep = 2;
+                    StatusMessage = "";
                 }
-                else if (_currentStep == 2 && PreviewVM.HasSelection)
+                else if (_currentStep == 2)
                 {
+                    if (!PreviewVM.HasSelection)
+                    {
+                        StatusMessage = "Select at least one proforma invoice before generating.";
+                        return;
+                    }
                     CurrentStep = 3;
                     _ = RunGenerateAsync();
                 }
@@ -241,6 +252,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                 OnPropertyChanged(nameof(ShowNextButton));
                 OnPropertyChanged(nameof(ShowGenerateButton));
                 OnPropertyChanged(nameof(ShowFinishButton));
+                OnPropertyChanged(nameof(CurrentStepTitle));
                 OnPropertyChanged(nameof(IsStep1Active));
                 OnPropertyChanged(nameof(IsStep2Active));
                 OnPropertyChanged(nameof(IsStep3Active));
@@ -277,7 +289,17 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         public bool ShowNextButton =>
             (_currentStep == 1 || (_currentStep == 3 && HasReport) || _currentStep == 4) && !_isGenerating;
         public bool ShowGenerateButton => _currentStep == 2 && !_isGenerating;
-        public bool ShowFinishButton => _currentStep == 5;
+        public bool ShowFinishButton => _currentStep == 5 && !_isGenerating;
+
+        public string CurrentStepTitle => _currentStep switch
+        {
+            1 => "Filter",
+            2 => "Preview",
+            3 => "Execute",
+            4 => "Review",
+            5 => "Specifications",
+            _ => "Generator"
+        };
 
         public ICommand NextStepCommand { get; private set; } = null!;
         public ICommand PreviousStepCommand { get; private set; } = null!;
@@ -431,6 +453,53 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         {
             get => _statusMessage;
             set { if (_statusMessage == value) return; _statusMessage = value; OnPropertyChanged(); }
+        }
+
+        private double _generationProgress;
+        public double GenerationProgress
+        {
+            get => _generationProgress;
+            private set
+            {
+                if (Math.Abs(_generationProgress - value) < 0.01) return;
+                _generationProgress = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GenerationProgressDisplay));
+            }
+        }
+
+        public string GenerationProgressDisplay => $"{(int)Math.Round(_generationProgress)}%";
+
+        private int _generationStageIndex;
+        public int GenerationStageIndex
+        {
+            get => _generationStageIndex;
+            private set
+            {
+                if (_generationStageIndex == value) return;
+                _generationStageIndex = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _generationStage = "Ready";
+        public string GenerationStage
+        {
+            get => _generationStage;
+            private set
+            {
+                if (_generationStage == value) return;
+                _generationStage = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private void SetGenerationStage(int index, double percent, string stage, string status)
+        {
+            GenerationStageIndex = index;
+            GenerationProgress = percent;
+            GenerationStage = stage;
+            StatusMessage = status;
         }
 
         // ── Pipeline / review result ──────────────────────────────────────
@@ -740,14 +809,20 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
         {
             if (_isGenerating) return;
             var selectedIds = PreviewVM.GetSelectedProformaIds();
-            if (selectedIds.Count == 0) return;
+            if (selectedIds.Count == 0)
+            {
+                StatusMessage = "Select at least one proforma invoice before generating.";
+                return;
+            }
 
             IsGenerating = true;
-            StatusMessage = "Building report…";
+            SetGenerationStage(1, 8, "Reading invoices", "Reading the selected proforma invoices…");
+            SetGenerationStage(2, 18, "Building sections", "Building job orders, deliveries and tax invoices…");
 
             try
             {
                 var sections = await _engine.BuildBatchAsync(selectedIds);
+                GenerationProgress = 58;
                 var bundle = new OrderReportBundle
                 {
                     ReportNumber = await Task.Run(() => _repo.GetNextReportNumberAsync()),
@@ -789,9 +864,11 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
                     FilterJson = JsonSerializer.Serialize(filter)
                 };
 
+                SetGenerationStage(3, 68, "Saving report", "Saving the report record…");
                 await Task.Run(() => _repo.InsertAsync(entity));
 
                 // ── PDF ───────────────────────────────────────────────────
+                SetGenerationStage(4, 86, "Writing PDF", "Writing the PDF…");
                 string pdfPath = await Task.Run(() => OrderReportPdfExporter.Generate(bundle));
                 await Task.Run(() => _repo.UpdatePdfPathAsync(entity.Id, pdfPath));
 
@@ -802,7 +879,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
 
                 LastBundle = bundle;
                 LastPdfPath = pdfPath;
-                StatusMessage = $"Report {bundle.ReportNumber} generated ({bundle.SectionCount} order(s)).";
+                SetGenerationStage(5, 100, "Complete", $"Report {bundle.ReportNumber} generated ({bundle.SectionCount} order(s)).");
 
                 ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
                 {
@@ -811,6 +888,7 @@ namespace ProGlassAutomation.ViewModels.Reports.OrderReport
             }
             catch (Exception ex)
             {
+                GenerationStage = "Failed";
                 StatusMessage = $"Generation failed: {ExceptionMessages.Deep(ex)}";
                 AppLogService.Error("[OrderReport] generation failed", ex);
             }

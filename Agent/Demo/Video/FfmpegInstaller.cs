@@ -54,6 +54,26 @@ namespace ProGlassAutomation.Agent.Demo.Video
             Timeout = TimeSpan.FromMinutes(30),
         };
 
+        static FfmpegInstaller()
+        {
+            _http.DefaultRequestHeaders.UserAgent.ParseAdd("ProGlassAutomation");
+        }
+
+        private static bool IsAllowedDownload(string url, out string host)
+        {
+            host = "";
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
+                uri.Scheme != Uri.UriSchemeHttps)
+                return false;
+            host = uri.Host;
+            return host.Equals("github.com", StringComparison.OrdinalIgnoreCase)
+                || host.Equals("www.github.com", StringComparison.OrdinalIgnoreCase)
+                || host.Equals("objects.githubusercontent.com", StringComparison.OrdinalIgnoreCase)
+                || host.Equals("release-assets.githubusercontent.com", StringComparison.OrdinalIgnoreCase)
+                || host.Equals("www.gyan.dev", StringComparison.OrdinalIgnoreCase)
+                || host.Equals("gyan.dev", StringComparison.OrdinalIgnoreCase);
+        }
+
         /// <summary>
         /// Full one-click install. Reports human-readable stages through
         /// <paramref name="progress"/> and the download percentage 0–100
@@ -75,32 +95,53 @@ namespace ProGlassAutomation.Agent.Demo.Video
             {
                 percent?.Invoke(0);
 
-                // ── 1. Re-validate the URL, even though the constant is ours ──
-                string url = FfmpegMp4Composer.WindowsEssentialsZipUrl;
-                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
-                    uri.Scheme != Uri.UriSchemeHttps ||
-                    !string.Equals(uri.Host, "www.gyan.dev",
-                        StringComparison.OrdinalIgnoreCase))
+                // GitHub CDN first (same official Gyan build), then gyan.dev.
+                HttpResponseMessage? response = null;
+                string? lastError = null;
+                foreach (string url in FfmpegMp4Composer.WindowsEssentialsZipUrls)
+                {
+                    if (!IsAllowedDownload(url, out var host))
+                    {
+                        lastError = "Refusing to download ffmpeg from an unexpected host: " + url;
+                        continue;
+                    }
+
+                    progress?.Invoke("Contacting " + host + " for the Windows essentials zip…");
+                    HttpResponseMessage candidate;
+                    try
+                    {
+                        candidate = await _http.GetAsync(
+                            url, HttpCompletionOption.ResponseHeadersRead, ct)
+                            .ConfigureAwait(false);
+                    }
+                    catch (Exception ex) when (!ct.IsCancellationRequested && ex is HttpRequestException or TaskCanceledException)
+                    {
+                        lastError = host + " did not respond. Trying the next mirror.";
+                        continue;
+                    }
+
+                    if (!candidate.IsSuccessStatusCode)
+                    {
+                        lastError = host + " returned HTTP " + (int)candidate.StatusCode + ".";
+                        candidate.Dispose();
+                        continue;
+                    }
+
+                    response = candidate;
+                    break;
+                }
+
+                if (response == null)
                 {
                     return Result<string>.Fail(
-                        "Refusing to download ffmpeg from an unexpected host: " + url,
+                        (lastError ?? "The essentials zip could not be downloaded.") +
+                        " Try again, or use COPY LINK for a manual download.",
                         corrId);
                 }
 
-                progress?.Invoke("Contacting gyan.dev for the Windows essentials zip…");
-
                 // ── 2. Download with progress ────────────────────────────────
-                using (var response = await _http.GetAsync(
-                    url, HttpCompletionOption.ResponseHeadersRead, ct)
-                    .ConfigureAwait(false))
+                using (response)
                 {
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        return Result<string>.Fail(
-                            $"gyan.dev returned HTTP {(int)response.StatusCode}. " +
-                            "Try again, or use COPY LINK for a manual download.",
-                            corrId);
-                    }
 
                     long total = response.Content.Headers.ContentLength ?? -1;
                     if (total > MaxDownloadBytes)

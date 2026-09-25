@@ -47,9 +47,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
         {
             // BUG-12: Directory creation moved here — runs once per context
             // creation, not on every DbPath property access.
-            var folder = Path.GetDirectoryName(DbPath)!;
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            // Shared-aware (2026-09-24): see AppDataRoot.EnsureCurrentFolder.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
 
             // Senior audit (Aug 2026): SqliteResilience applies WAL,
             // busy_timeout=5s, foreign_keys=ON on every connection so the

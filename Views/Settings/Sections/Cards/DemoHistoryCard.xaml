@@ -11,8 +11,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -35,36 +35,30 @@
                             </StackPanel>
                         </Grid>
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.State}"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding StateText}"
-                                               TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
-                                    <TextBlock Text="{Binding StatusText}"
-                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
-                                    <TextBlock Text="{Binding VerifiedText}"
-                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE9D2;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.State}"/>
                                 </StackPanel>
-                            </Border>
+                                <TextBlock Text="{Binding StateText}"
+                                           TextTrimming="CharacterEllipsis" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding StatusText}"
+                                           Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding VerifiedText}"
+                                           Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                            </StackPanel>
 
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LastOutput}"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding LastMp4Text}"
-                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
-                                    <TextBlock Text="{Binding FfmpegStatus}"
-                                               Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7C1;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.LastOutput}"/>
                                 </StackPanel>
-                            </Border>
+                                <TextBlock Text="{Binding LastMp4Text}"
+                                           Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding FfmpegStatus}"
+                                           Style="{StaticResource SettingsRowMetaStyle}" TextWrapping="Wrap"/>
+                            </StackPanel>
                         </UniformGrid>
-
-                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>
                 </Border>
 </UserControl>

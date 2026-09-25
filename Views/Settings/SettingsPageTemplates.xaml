@@ -1,7 +1,7 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsPageTemplates.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings v3 — PAGE HOST TEMPLATES (Studio Bento Optimized)
+     MODULE: Settings v3 — PAGE HOST TEMPLATES (Studio Bento Optimized & Certified)
 
      One DataTemplate per settings page. The shell hosts a single
      ContentControl whose ContentTemplateSelector picks from this

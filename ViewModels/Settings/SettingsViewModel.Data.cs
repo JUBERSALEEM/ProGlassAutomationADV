@@ -112,9 +112,16 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DataRootModeDisplay));
                 NetworkDataRootStatus = value
-                    ? "Shared database mode selected. Test/prepare the folder, save, then restart all workstations."
+                    ? "Shared database mode selected. Test/prepare the folder, then Save + Restart on every workstation."
                     : "Local database mode selected. Save and restart to return this workstation to local AppData.";
-                ScheduleDebouncedSave();
+                // Senior fix (2026-09-24): this setter used to debounce-save
+                // the config immediately. Toggling the mode with an empty or
+                // untested path persisted a HALF-CONFIGURED shared mode
+                // (UseSharedDataRoot=true, SharedDataRootPath="") that the
+                // next startup silently fell back out of — a split-brain the
+                // operator could never see. The decision is persisted only by
+                // the explicit "Save + Restart" / "Revert to local" commands,
+                // which validate the path first.
             }
         }
 
@@ -172,11 +179,59 @@ namespace ProGlassAutomation.ViewModels.Settings
             ? "Shared LAN/Wi-Fi database mode"
             : "Local workstation database mode";
 
-        public string CurrentDataRootDisplay => Services.Database.AppDataRoot.CurrentFolder;
+        public string CurrentDataRootDisplay
+        {
+            get
+            {
+                var root = Services.Database.AppDataRoot.CurrentFolder;
+                // Make a startup fallback impossible to miss next to the path.
+                return Services.Database.AppDataRoot.SharedRootFallbackActive
+                    ? root + "   ⚠ LOCAL fallback — shared folder was unreachable at startup"
+                    : root;
+            }
+        }
+
+        /// <summary>
+        /// Red split-brain banner text for the Data card. Non-empty only
+        /// when the settings want a shared root but this workstation is
+        /// actually running on local data (see AppDataRoot state). The
+        /// XAML collapses the tile via StringToVisibilityConverter.
+        /// </summary>
+        private string _sharedRootWarning = "";
+        public string SharedRootWarning
+        {
+            get => _sharedRootWarning;
+            private set { _sharedRootWarning = value ?? ""; OnPropertyChanged(); }
+        }
+
+        /// <summary>
+        /// Re-derives <see cref="SharedRootWarning"/> from the live
+        /// AppDataRoot state. Called at VM init and after every
+        /// test/prepare/apply/revert step.
+        /// </summary>
+        public void RefreshSharedRootWarning()
+        {
+            if (Services.Database.AppDataRoot.SharedRootFallbackActive)
+            {
+                SharedRootWarning = string.IsNullOrEmpty(
+                    Services.Database.AppDataRoot.SharedRootFallbackReason)
+                    ? "This workstation is on LOCAL data but a shared company database is " +
+                      "configured. Check the shared folder path and restart ProGlass."
+                    : Services.Database.AppDataRoot.SharedRootFallbackReason;
+            }
+            else
+            {
+                SharedRootWarning = "";
+            }
+            OnPropertyChanged(nameof(DataRootModeDisplay));
+            OnPropertyChanged(nameof(CurrentDataRootDisplay));
+        }
 
         public ICommand TestSharedDataRootCommand { get; private set; }
+        public ICommand CreateSharedFolderCommand { get; private set; }
         public ICommand PrepareSharedDataRootCommand { get; private set; }
         public ICommand ApplySharedDataRootCommand { get; private set; }
+        public ICommand RevertToLocalDataRootCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
         //  v2 — BACKUP & RESTORE (full dataset sets)

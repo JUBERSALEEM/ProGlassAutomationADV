@@ -124,6 +124,7 @@ namespace ProGlassAutomation.Services.Production.Cutting
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
                 await tx.CommitAsync(ct).ConfigureAwait(false);
+                ProductionRepository.NotifyWorkItemsChanged();
 
                 AppLogService.Info($"[CuttingCompletion] Completed piece {placedPieceId} {placed.PieceLabel}",
                     new LogContext { Module = "Production", Class = nameof(CuttingCompletionService), Operation = nameof(CompletePieceAsync) });

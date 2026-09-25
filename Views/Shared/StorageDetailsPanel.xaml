@@ -9,9 +9,11 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        
-        
-        
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Margin="10,8,10,16">
@@ -21,8 +23,8 @@
                                   Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
             </Border.Effect>
             <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    Background="{DynamicResource ShellLiquidBrush}"
-                    BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
+                    Background="{DynamicResource Ov.Surface}"
+                    BorderBrush="{DynamicResource Ov.Line}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     ClipToBounds="True">
 
@@ -34,7 +36,7 @@
 
                     <!-- Header -->
                     <Border Grid.Row="0"
-                            Background="{DynamicResource AccentBrush}"
+                            Background="{DynamicResource Ov.Hero}"
                             CornerRadius="{DynamicResource Radius.Top.Medium}"
                             Padding="18,12">
                         <Grid>
@@ -91,13 +93,15 @@
                                     <TextBlock Text="{Binding StorageCountDisplay, FallbackValue='0'}"
                                                FontSize="{DynamicResource FontSize.BodySmall}"
                                                Foreground="{DynamicResource TextTertiaryBrush}"
+                                               Typography.NumeralAlignment="Tabular"
                                                Margin="6,1,0,0"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding StorageTotalDisplay, FallbackValue='—'}"
                                            HorizontalAlignment="Right"
                                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           Typography.NumeralAlignment="Tabular"/>
                             </Grid>
 
                             <TextBlock Text="{DynamicResource Storage.Refreshing}"
@@ -126,6 +130,7 @@
                                                            Text="{Binding DisplayName}"/>
                                                 <TextBlock Grid.Column="2"
                                                            Style="{StaticResource Typography.BodySmall}"
+                                                           Typography.NumeralAlignment="Tabular"
                                                            Text="{Binding SizeDisplay}"/>
                                             </Grid>
                                             <Border Height="5"
