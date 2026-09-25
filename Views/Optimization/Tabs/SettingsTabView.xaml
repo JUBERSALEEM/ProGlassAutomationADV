@@ -140,7 +140,7 @@
                                           SelectedItem="{Binding SelectedStageStrategy}"
                                           Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"
                                           AutomationProperties.Name="Optimize effort and strategy stage"/>
-                                <TextBlock Text="Same five stages as the banner. Changing either updates the run."
+                                <TextBlock Text="Same list as the banner, including Auto. Auto calls an existing stage. It does not change the plate pattern."
                                            FontSize="11" TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
 

@@ -289,6 +289,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             int effort = int.TryParse(SelectedEffortLevel, NumberStyles.Integer,
                 CultureInfo.InvariantCulture, out int lvl) && lvl >= 1 && lvl <= 5 ? lvl : 3;
+            bool autoEffort = UseAutoEffort;
             var rotation = RotationEnabled ? RotationPolicy.Free90 : RotationPolicy.Locked;
             var groups = BuildCuttingGroups(pieces);
 
@@ -322,17 +323,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
             HasResult = false;
             IsRunning = true;
             RunStageLabel = stage == "OPTIMIZE"
-                ? $"Optimizing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s) · level {effort.ToString(CultureInfo.InvariantCulture)}…"
+                ? autoEffort
+                    ? $"Optimizing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s) · Auto effort…"
+                    : $"Optimizing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s) · level {effort.ToString(CultureInfo.InvariantCulture)}…"
                 : $"Quick packing {groups.Count.ToString(CultureInfo.InvariantCulture)} cutting group(s)…";
             RunMessage = "";
 
             int totalParts = groups.Sum(g => g.Pieces.Count);
             RunScaleLabel = string.Format(CultureInfo.InvariantCulture,
-                "{0} cutting group(s) · {1} part(s) · SETTINGS level {2}",
+                autoEffort
+                    ? "{0} cutting group(s) · {1} part(s) · Auto effort"
+                    : "{0} cutting group(s) · {1} part(s) · SETTINGS level {2}",
                 groups.Count, totalParts, SelectedEffortLevel);
-            RunArchitectureLabel = BuildRunArchitectureLabel(stage, groups.Max(g => g.Pieces.Count), effort)
-                + (stage == "OPTIMIZE" && stockPool.Any(s => s.Stock.MaxSheets > 0 && s.Stock.MaxSheets < StockSize.EffectivelyUnlimitedSheets)
-                    ? " Finite inventory uses globally capped search instead of partitioning." : string.Empty);
+            string finiteNote = stage == "OPTIMIZE" && stockPool.Any(s => s.Stock.MaxSheets > 0 && s.Stock.MaxSheets < StockSize.EffectivelyUnlimitedSheets)
+                ? " Finite inventory uses globally capped search instead of partitioning."
+                : string.Empty;
+            RunArchitectureLabel = autoEffort && stage == "OPTIMIZE"
+                ? "Auto effort — each cutting group uses stage 3, 4, or 5 from the piece count, stock mix, and rack cap. Yield is not changed." + finiteNote
+                : BuildRunArchitectureLabel(stage, groups.Max(g => g.Pieces.Count), effort) + finiteNote;
             RunProgressPercent = 0;
             RunProgressDetail = stage == "OPTIMIZE"
                 ? "Preparing multi-start search…"
@@ -344,7 +352,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             StartRunClock();
 
             AsyncUtility.SafeFireAndForget(
-                () => RunCoreAsync(stage, groups, stockPool, margins, rotation, effort),
+                () => RunCoreAsync(stage, groups, stockPool, margins, rotation, effort, autoEffort),
                 "Optimization run");
             return true;
         }
@@ -486,7 +494,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private async Task RunCoreAsync(
             string stage, List<(string Composition, List<CutPiece> Pieces)> groups,
             List<(StockSize Stock, string Composition)> stockPool,
-            MarginProfile margins, RotationPolicy rotation, int effort)
+            MarginProfile margins, RotationPolicy rotation, int effort, bool autoEffort)
         {
             // ── SCALE / ROBUSTNESS ────────────────────────────────────────
             // This method had try/finally with NO catch, and it is invoked
@@ -500,6 +508,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             var scaleNotes = new List<string>();
             var smartWins = new List<string>();
             _lastRunEffort = effort;
+            _lastRunAutoEffort = autoEffort;
 
             try
             {
@@ -566,20 +575,40 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             exhausted.Unplaced.AddRange(groupPieces);
                             return exhausted;
                         }
-                        if (stage != "OPTIMIZE")
-                            return GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
-                                rotation, SplitMode.HorizontalFirst, ct, groupProgress,
-                                platePattern: CurrentPlatePattern, fillEffort: effort);
-                        // The preserved partitioner gives each batch the rack cap independently.
-                        // Finite inventory must use the globally capped advanced search instead.
                         bool finiteStock = groupStocks.Any(stock => stock.MaxSheets > 0
                             && stock.MaxSheets < StockSize.EffectivelyUnlimitedSheets);
+                        int stockSizes = groupStocks
+                            .Select(stock => (stock.WidthMm, stock.HeightMm))
+                            .Distinct()
+                            .Count();
+                        var recommendation = autoEffort
+                            ? OptimizationSearchGovernor.RecommendEffort(groupPieces.Count, stockSizes, finiteStock)
+                            : default;
+                        int groupEffort = autoEffort ? recommendation.Stage : effort;
+                        if (stage != "OPTIMIZE")
+                        {
+                            var quick = GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
+                                rotation, SplitMode.HorizontalFirst, ct, groupProgress,
+                                platePattern: CurrentPlatePattern, fillEffort: groupEffort);
+                            if (autoEffort && CurrentPlatePattern == PlatePattern.FillFirstPlate)
+                                quick.ScaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
+                                    "Auto effort widened Fill first plate to stage {0}. The quick yield search was unchanged.",
+                                    groupEffort));
+                            else if (autoEffort)
+                                quick.ScaleNotes.Add("Auto effort applies to Optimize. Quick kept the quick portfolio.");
+                            return quick;
+                        }
+                        // The preserved partitioner gives each batch the rack cap independently.
+                        // Finite inventory must use the globally capped advanced search instead.
                         var packed = finiteStock
                             ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
-                                rotation, effort, ct, groupProgress, CurrentPlatePattern)
+                                rotation, groupEffort, ct, groupProgress, CurrentPlatePattern)
                             : GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
-                                rotation, effort, ct, groupProgress, platePattern: CurrentPlatePattern);
+                                rotation, groupEffort, ct, groupProgress, platePattern: CurrentPlatePattern);
                         if (finiteStock) packed.ScaleNotes.Add("Finite inventory: global advanced search preserves the shared rack cap.");
+                        if (autoEffort)
+                            packed.ScaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
+                                "Auto effort: stage {0} — {1}", groupEffort, recommendation.Reason));
                         return packed;
                     }, ct).ConfigureAwait(true);
 
@@ -700,8 +729,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
             string patternLabel = PlatePatternStamp();
+            string effortLabel = _lastRunAutoEffort ? "auto" : "level " + SelectedEffortLevel;
             ResultStage = stage == "OPTIMIZE"
-                ? $"OPTIMIZE · level {SelectedEffortLevel} · {patternLabel} · {rotationLabel} · {runs.Count} cutting group(s)"
+                ? $"OPTIMIZE · {effortLabel} · {patternLabel} · {rotationLabel} · {runs.Count} cutting group(s)"
                 : $"QUICK · {patternLabel} · {rotationLabel} · {runs.Count} cutting group(s)";
             // Stamps the SETTINGS level onto this result and, when this run was
             // an upgrade of a previous QUICK result, reports what it bought.

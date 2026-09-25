@@ -323,6 +323,89 @@ namespace ProGlassAutomation.Services.Optimization
             };
         }
 
+        /// <summary>
+        /// An existing stage, chosen from the cutting list. This does not
+        /// invent a search and it does not choose the plate pattern.
+        /// </summary>
+        public readonly struct EffortRecommendation
+        {
+            public int Stage { get; init; }
+            public string Reason { get; init; } = string.Empty;
+        }
+
+        /// <summary>Same full-search ceiling as <see cref="PlanForOptimizeCore"/> and the partitioned handoff.</summary>
+        public const int FullSearchPieceLimit = 2000;
+
+        /// <summary>Same narrowed-search ceiling as <see cref="PlanForOptimizeCore"/>.</summary>
+        public const int NarrowedSearchPieceLimit = 15000;
+
+        /// <summary>Same industrial handoff as the packer. The small-job grid is not run at this count.</summary>
+        public const int IndustrialPieceLimit = 100000;
+
+        /// <summary>
+        /// Picks stage 3, 4, or 5. Stage 1 and stage 2 stay manual. A higher
+        /// stage can improve the plan; it cannot replace a better one.
+        /// Yield is not changed here.
+        /// </summary>
+        public static EffortRecommendation RecommendEffort(int pieceCount, int stockSizeCount, bool finiteStock)
+        {
+            if (pieceCount < 0) pieceCount = 0;
+            if (stockSizeCount < 1) stockSizeCount = 1;
+
+            if (pieceCount >= IndustrialPieceLimit)
+            {
+                return new EffortRecommendation
+                {
+                    Stage = 3,
+                    Reason = "industrial quantity uses the pattern master, not the small-job grid. Stage 3 keeps the default depth."
+                };
+            }
+
+            if (pieceCount > NarrowedSearchPieceLimit && !finiteStock)
+            {
+                return new EffortRecommendation
+                {
+                    Stage = 3,
+                    Reason = "above 15,000 pieces the batched search is already narrowed. Stage 3 stays inside that budget."
+                };
+            }
+
+            if (pieceCount > FullSearchPieceLimit)
+            {
+                return new EffortRecommendation
+                {
+                    Stage = 4,
+                    Reason = finiteStock
+                        ? "a finite rack stays on the global search. Stage 4 runs every ordering without the stage 5 shuffle grid."
+                        : "above 2,000 pieces the batched search adds best-split, sheet-fill, and wall-seed at stage 4."
+                };
+            }
+
+            if (pieceCount <= 200)
+            {
+                return new EffortRecommendation
+                {
+                    Stage = 5,
+                    Reason = "a short list finishes the deepest existing stage quickly, and that stage cannot replace a better plan."
+                };
+            }
+
+            if (stockSizeCount > 1 || finiteStock)
+            {
+                return new EffortRecommendation
+                {
+                    Stage = 4,
+                    Reason = "mixed stock sizes or a finite rack use stage 4, which tries every ordering and split."
+                };
+            }
+
+            return new EffortRecommendation
+            {
+                Stage = 3,
+                Reason = "one stock size in the normal shop range stays on stage 3, the calibrated default."
+            };
+        }
+
         /// <summary>Search plan for PackQuick.</summary>
         public static SearchPlan PlanForQuick(int pieceCount)
         {

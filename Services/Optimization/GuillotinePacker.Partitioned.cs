@@ -231,7 +231,8 @@ namespace ProGlassAutomation.Services.Optimization
 
             winningResult.ScaleNotes.Add(
                 $"Partitioned Adaptive Smart Search: {totalParts:N0} parts across {batchCount} batches + global multi-pass, " +
-                $"cross-window consolidation + tail repacking in {sw.Elapsed.TotalSeconds:F1}s.");
+                $"cross-window consolidation + tail repacking in {sw.Elapsed.TotalSeconds:F1}s. " +
+                "This quantity uses the batched search, not the small-job stage grid.");
 
             // Industrial safety net: validate before the plan can reach a cut
             // file. If the winner is invalid, try the other candidate, then a

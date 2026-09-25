@@ -64,7 +64,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (e.PropertyName is nameof(ThicknessText) or nameof(LeftMarginText) or nameof(RightMarginText)
                 or nameof(TopMarginText) or nameof(BottomMarginText) or nameof(KerfText)
                 or nameof(MinBreakoutText) or nameof(RotationEnabled) or nameof(SelectedEffortLevel)
-                or nameof(SelectedPlatePattern))
+                or nameof(SelectedStageStrategy) or nameof(SelectedPlatePattern))
                 InvalidateInputs();
         }
 
