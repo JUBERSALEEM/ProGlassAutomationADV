@@ -263,7 +263,8 @@
          Commands/bindings preserved; no ViewModel changes.
     ═══════════════════════════════════════════════════════════════ -->
 
-    <Grid Margin="24">
+    <!-- Clear of the shell top panel and the sidebar. 24 px sat on both. -->
+    <Grid Margin="32,28,32,28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -368,6 +369,7 @@
 
         <!-- ══ ACTIVE TAB CONTENT ═════════════════════════════════════ -->
         <ContentControl Grid.Row="3"
+                        Margin="4,8,4,0"
                         Content="{Binding ActiveContent}"/>
     </Grid>
 </UserControl>
