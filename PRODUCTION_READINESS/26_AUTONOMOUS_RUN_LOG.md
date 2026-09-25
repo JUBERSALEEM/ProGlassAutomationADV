@@ -53,3 +53,4 @@ Date: 2026-09-25
 - Build / `dotnet test` / WPF runtime: BLOCKED. No .NET SDK. Do not treat this as production-ready.
 - Still open: `ProformaLifecycleSync` logs a failed status sync and returns success to the delete caller. Profit-and-loss `ProfitLossStepViewModel.Calculation.cs` still mixes money `Math.Round` with quantities and was not converted. Optimizer silent-drop was not re-proven.
 - Local commit: `f1b4143` on `f2249ea`. The first push was rejected because origin was at `e78ee00`. Merged that remote history in. Not force-pushed.
+- Compile errors that were still on that remote tip: `ProductionControlCenterViewModel.cs` had a leftover fragment after the class (CS8803), and the saved-invoice row attached `MouseDoubleClick` to a `Border` (XLS0413). The fragment is removed. The row now uses `PreviewMouseLeftButtonDown` and opens only on the second click.

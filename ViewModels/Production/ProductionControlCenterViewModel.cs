@@ -696,7 +696,3 @@ namespace ProGlassAutomation.ViewModels.Production
         }
     }
 }
-* i.HeightMm * done / 1_000_000.0;
-        }
-    }
-}

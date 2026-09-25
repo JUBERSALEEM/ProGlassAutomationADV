@@ -361,7 +361,7 @@
                                     </ListBox.ItemsPanel>
                                     <ListBox.ItemTemplate>
                                         <DataTemplate>
-                                            <Border MouseRightButtonUp="OnRowRightClick" MouseDoubleClick="OnRowDoubleClick" MinHeight="48" Style="{StaticResource Sl.Row}">
+                                            <Border MouseRightButtonUp="OnRowRightClick" PreviewMouseLeftButtonDown="OnRowDoubleClick" MinHeight="48" Style="{StaticResource Sl.Row}">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="3" />

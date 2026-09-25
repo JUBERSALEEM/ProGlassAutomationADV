@@ -48,6 +48,9 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
         // The visible More button and right-click share every original menu action.
         private void OnRowDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            // Border is not a Control, so it has no MouseDoubleClick event.
+            // PreviewMouseLeftButtonDown is on UIElement; only the second click opens.
+            if (e.ClickCount != 2) return;
             if (sender is not FrameworkElement element) return;
             if (element.DataContext is not SavedInvoiceListItem item) return;
             if (DataContext is not SavedInvoicesListViewModel vm) return;
