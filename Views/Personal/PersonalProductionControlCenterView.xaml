@@ -7,7 +7,8 @@
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P7 — GLASS BLUSH PRODUCTION CONTROL (glass-04 reference)
@@ -22,6 +23,10 @@
     ═══════════════════════════════════════════════════════════════════ -->
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <BooleanToVisibilityConverter x:Key="GbBoolToVis"/>
 
         <!-- night card (measured tile #152B50 @25% + cyan-tinted border) -->
@@ -147,6 +152,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <!-- NIGHT ATMOSPHERE (measured midnight gradient) -->
@@ -202,56 +208,54 @@
                     </Grid>
                 </ContentControl>
 
-                <!-- ══ STAGE RIBBON (Cutting | Tempering | DGU) ══════ -->
-                <Grid Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <RadioButton Grid.Column="0" GroupName="ProductionStagesPersonal"
-                                 Margin="0,0,8,0"
-                                 IsChecked="{Binding IsCuttingTab, Mode=OneWay}"
-                                 Command="{Binding SelectCuttingTabCommand}"
-                                 Style="{StaticResource GbNightTab}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE8C6;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                       Margin="0,0,10,0" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource GlassBlushNight.AccentGlow}"/>
-                            <TextBlock Text="1. CUTTING &amp; NESTING" FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassBlushNight.Text}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </RadioButton>
-                    <RadioButton Grid.Column="1" GroupName="ProductionStagesPersonal"
-                                 Margin="4,0"
-                                 IsChecked="{Binding IsTemperingTab, Mode=OneWay}"
-                                 Command="{Binding SelectTemperingTabCommand}"
-                                 Style="{StaticResource GbNightTab}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE9CA;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                       Margin="0,0,10,0" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource GlassBlushNight.AccentGlow}"/>
-                            <TextBlock Text="2. TEMPERING &amp; FURNACE" FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassBlushNight.Text}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </RadioButton>
-                    <RadioButton Grid.Column="2" GroupName="ProductionStagesPersonal"
-                                 Margin="8,0,0,0"
-                                 IsChecked="{Binding IsDguTab, Mode=OneWay}"
-                                 Command="{Binding SelectDguTabCommand}"
-                                 Style="{StaticResource GbNightTab}">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                       Margin="0,0,10,0" VerticalAlignment="Center"
-                                       Foreground="{DynamicResource GlassBlushNight.AccentGlow}"/>
-                            <TextBlock Text="3. DGU &amp; ASSEMBLY" FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassBlushNight.Text}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </RadioButton>
-                </Grid>
+                <!-- Eight stations. Button selection cannot stick the way the old OneWay radios could. -->
+                <ItemsControl ItemsSource="{Binding StageChips}" Margin="0,0,0,16">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="8"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Margin="0,0,6,0" Padding="4,8" Cursor="Hand"
+                                    ToolTip="{Binding Tip}"
+                                    Command="{Binding DataContext.SelectStageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="{DynamicResource GlassBlushNight.Surface}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource GlassBlushNight.Text}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource GlassBlushNight.AccentGlow}"/>
+                                        <Setter Property="BorderThickness" Value="1"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                            CornerRadius="10" Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="BorderThickness" Value="2"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Label}" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource GlassBlushNight.Text}"/>
+                                    <TextBlock Text="{Binding Count}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,2,0,0"
+                                               Foreground="{DynamicResource GlassBlushNight.AccentGlow}"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
                 <!-- ══ GLOWING READOUTS (measured 3 big readouts) ═════ -->
                 <Grid Margin="0,0,0,16">
@@ -268,11 +272,13 @@
                                        FontSize="{DynamicResource GlassBlush.FontLabel}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource GlassBlushNight.TextMuted}"/>
-                            <TextBlock Text="{Binding TotalScheduledPcs, StringFormat={}{0:N0} Pcs}"
-                                       FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassBlushNight.AccentGlow}"
-                                       Margin="0,10,0,4"/>
+                            <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,10,0,4">
+                                <TextBlock Text="{Binding TotalScheduledPcs, StringFormat={}{0:N0} Pcs}"
+                                           FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource GlassBlushNight.AccentGlow}"
+                                           Typography.NumeralAlignment="Tabular"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding TotalScheduledSqm, StringFormat={}{0:N1} m²}"
                                        FontSize="{DynamicResource GlassBlush.FontCaption}"
                                        Foreground="{DynamicResource GlassBlushNight.TextMuted}"/>
@@ -285,11 +291,13 @@
                                        FontSize="{DynamicResource GlassBlush.FontLabel}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource GlassBlushNight.TextMuted}"/>
-                            <TextBlock Text="{Binding CompletedDonePcs, StringFormat={}{0:N0} Pcs}"
-                                       FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassBlush.Success}"
-                                       Margin="0,10,0,4"/>
+                            <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,10,0,4">
+                                <TextBlock Text="{Binding CompletedDonePcs, StringFormat={}{0:N0} Pcs}"
+                                           FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource GlassBlush.Success}"
+                                           Typography.NumeralAlignment="Tabular"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding CompletedDoneSqm, StringFormat={}{0:N1} m²}"
                                        FontSize="{DynamicResource GlassBlush.FontCaption}"
                                        Foreground="{DynamicResource GlassBlushNight.TextMuted}"/>
@@ -302,11 +310,13 @@
                                        FontSize="{DynamicResource GlassBlush.FontLabel}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource GlassBlushNight.TextMuted}"/>
-                            <TextBlock Text="{Binding BalancePendingPcs, StringFormat={}{0:N0} Pcs}"
-                                       FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassBlush.Warning}"
-                                       Margin="0,10,0,4"/>
+                            <Viewbox MaxHeight="30" HorizontalAlignment="Left" Margin="0,10,0,4">
+                                <TextBlock Text="{Binding BalancePendingPcs, StringFormat={}{0:N0} Pcs}"
+                                           FontSize="{DynamicResource GlassBlush.FontKpiSmall}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource GlassBlush.Warning}"
+                                           Typography.NumeralAlignment="Tabular"/>
+                            </Viewbox>
                             <TextBlock Text="{Binding BalancePendingSqm, StringFormat={}{0:N1} m²}"
                                        FontSize="{DynamicResource GlassBlush.FontCaption}"
                                        Foreground="{DynamicResource GlassBlushNight.TextMuted}"/>
@@ -319,11 +329,13 @@
                                        FontSize="{DynamicResource GlassBlush.FontLabel}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource GlassBlushNight.TextMuted}"/>
-                            <TextBlock Text="{Binding StageCompletionPct, StringFormat={}{0:F1}%}"
-                                       FontSize="{DynamicResource GlassBlush.FontKpi}"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassBlush.Success}"
-                                       Margin="0,8,0,10"/>
+                            <Viewbox MaxHeight="32" HorizontalAlignment="Left" Margin="0,8,0,10">
+                                <TextBlock Text="{Binding StageCompletionPct, StringFormat={}{0:F1}%}"
+                                           FontSize="{DynamicResource GlassBlush.FontKpi}"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource GlassBlush.Success}"
+                                           Typography.NumeralAlignment="Tabular"/>
+                            </Viewbox>
                             <ProgressBar Style="{StaticResource GlassBlush.Progress}"
                                          Height="8" Minimum="0" Maximum="100"
                                          Value="{Binding StageCompletionPct, Mode=OneWay}"/>

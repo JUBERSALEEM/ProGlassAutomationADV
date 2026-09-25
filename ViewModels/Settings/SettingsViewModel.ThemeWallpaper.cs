@@ -54,7 +54,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             public VisualThemeOptionRow(string key)
             {
                 Key = key;
-                string scene = "Studio";
+                string scene = "Industrial Pattern";
                 foreach (var s in ProGlassAutomation.Services.Theme
                              .BuiltinWallpaperScenes.All)
                     if (s.Key == key) { scene = s.Label; break; }

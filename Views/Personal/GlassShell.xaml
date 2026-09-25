@@ -14,7 +14,8 @@
     xmlns:vmSettings="clr-namespace:ProGlassAutomation.ViewModels.Settings"
     xmlns:viewsShared="clr-namespace:ProGlassAutomation.Views.Shared"
     xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
-    xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal">
+    xmlns:pv="clr-namespace:ProGlassAutomation.Views.Personal"
+             Background="{DynamicResource Ov.Canvas}">
 
     <!-- ═══ PERSONAL VIEW ROUTING (GB-P4…) ═════════════════════════════
          The Personal shell hosts the SAME MainViewModel / module VMs as
@@ -26,6 +27,10 @@
          same ViewModel (zero business-logic duplication).
          Each new Personal screen (GB-P4…P13) adds exactly one template. -->
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- 2026-09-19 (GB-P10 fix): the routed module VM is
              DashboardViewModel (it hosts OverviewVM/TaxInvoiceVM/… as
              tabs). The template previously targeted OverviewDashboardViewModel,
@@ -63,6 +68,7 @@
         <DataTemplate DataType="{x:Type vmSettings:SettingsViewModel}">
             <pv:PersonalSettingsView/>
         </DataTemplate>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════

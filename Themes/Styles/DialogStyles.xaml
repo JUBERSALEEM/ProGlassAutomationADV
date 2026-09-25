@@ -27,6 +27,10 @@
                     xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../../Views/Dashboard/Overview/IndigoStudioResources.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <!-- ═══════════════════════════════════════════════════════════════
          TOKENS
          ═══════════════════════════════════════════════════════════════ -->

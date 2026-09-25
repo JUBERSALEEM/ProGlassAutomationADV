@@ -37,9 +37,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             // BUG-13: Directory creation moved here — runs once per
             // context instance, not on every property access.
-            var folder = Path.GetDirectoryName(DatabaseFilePath)!;
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            // Shared-aware (2026-09-24): see AppDataRoot.EnsureCurrentFolder.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
 
             // Senior audit (Aug 2026): WAL + busy_timeout + foreign_keys=ON
             // via SqliteResilience. Prevents lock contention between the PI

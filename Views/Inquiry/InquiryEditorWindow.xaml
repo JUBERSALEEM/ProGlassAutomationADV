@@ -19,16 +19,19 @@
         Title="{DynamicResource Inquiry.InquiryWorkspace}"
         Width="1180" Height="790" MinWidth="980" MinHeight="640"
         WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource WindowBackgroundBrush}"
+        Background="{DynamicResource Ov.Canvas}"
         FontFamily="{DynamicResource AppFontFamily}"
         TextOptions.TextFormattingMode="Ideal"
         UseLayoutRounding="True" SnapsToDevicePixels="True"
         PreviewKeyDown="OnPreviewKeyDown"
         AllowDrop="True" Drop="OnFileDrop" DragOver="OnDragOver">
 
-        <Window.Resources>
-        <!-- Migrated SectionCardStyle to global SurfacePrimaryStyle / Typography -->
-        <!-- Migrated InqDropZoneStyle to global SurfacePrimaryStyle -->
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
 

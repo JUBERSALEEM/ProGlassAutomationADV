@@ -11,8 +11,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -68,46 +68,47 @@
                                          Value="{Binding FfmpegDownloadPercent, Mode=OneWay}"
                                          Foreground="{DynamicResource AccentBrush}"
                                          VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1"
-                                       Margin="{StaticResource SettingsIconTextMargin}"
-                                       FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Text="{Binding FfmpegDownloadPercent, Mode=OneWay,
-                                           StringFormat={}{0:0}%}"/>
+                            <Viewbox Grid.Column="1" MaxHeight="20" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
+                                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Text="{Binding FfmpegDownloadPercent, Mode=OneWay,
+                                               StringFormat={}{0:0}%}"/>
+                            </Viewbox>
                         </Grid>
                         <TextBlock Text="{Binding FfmpegInstallHint}"
                                    Style="{StaticResource SettingsRowMetaStyle}"/>
-                        <!-- Full-width action row: buttons stretch evenly. -->
-                        <Border Margin="{StaticResource SettingsStackGap12}"
-        Style="{StaticResource SurfacePanelTileStyle}">
-                            <UniformGrid Columns="5">
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="{DynamicResource Settings.DownloadInstallAutomatic}"
-                                    Command="{Binding InstallFfmpegCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
-                                    HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="{DynamicResource Settings.OfficialFfmpegPAGE}"
-                                    Command="{Binding OpenFfmpegPageCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.FfmpegOfficial"
-                                    HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="{DynamicResource Settings.COPYLINK}"
-                                    Command="{Binding CopyFfmpegLinkCommand}"
-                                    HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="{DynamicResource Settings.OPENToolsFolder}"
-                                    Command="{Binding OpenToolsFolderCommand}"
-                                    HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="{DynamicResource Settings.Recheck}"
-                                    Command="{Binding RecheckFfmpegCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.RecheckFfmpeg"
-                                    HorizontalAlignment="Stretch"
-                                    Margin="0"/>
-                            </UniformGrid>
-                        </Border>
+                        <!-- Full-width action row: 5 buttons side-by-side -->
+                        <UniformGrid Columns="5" Margin="{StaticResource SettingsStackGap12}">
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Settings.DownloadInstallAutomatic}"
+                                Command="{Binding InstallFfmpegCommand}"
+                                AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
+                                HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Settings.OfficialFfmpegPAGE}"
+                                Command="{Binding OpenFfmpegPageCommand}"
+                                AutomationProperties.AutomationId="DemoCenter.FfmpegOfficial"
+                                HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Settings.COPYLINK}"
+                                Command="{Binding CopyFfmpegLinkCommand}"
+                                HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Settings.OPENToolsFolder}"
+                                Command="{Binding OpenToolsFolderCommand}"
+                                HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Settings.Recheck}"
+                                Command="{Binding RecheckFfmpegCommand}"
+                                AutomationProperties.AutomationId="DemoCenter.RecheckFfmpeg"
+                                HorizontalAlignment="Stretch"
+                                Margin="0"/>
+                        </UniformGrid>
+                        <Button Style="{StaticResource SettingsActionButtonStyle}"
+                                Content="{DynamicResource Setup.OpenInstaller}"
+                                HorizontalAlignment="Left"
+                                Margin="0,8,0,0"
+                                Click="OpenInstaller_Click"/>
                         <TextBlock Text="{DynamicResource Settings.FfmpegReadyGenerateSelectedRecordModuleWrite}"
                                    Style="{StaticResource SettingsRowMetaStyle}"
                                    Visibility="{Binding IsFfmpegReady,

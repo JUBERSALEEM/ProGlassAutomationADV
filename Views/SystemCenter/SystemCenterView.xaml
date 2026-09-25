@@ -1,15 +1,8 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/System/SystemCenterView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: System Center — Users + Activity Log
-
-     Shell UI for the audit subsystem:
-       [ Users ]   [ Activity Log ]
-     Users tab: create users, toggle active, switch session user.
-     Activity tab: full audit trail with a live section filter.
-═══════════════════════════════════════════════════════════════════════ -->
-
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.SystemCenter.SystemCenterView"
+<!-- System Center — Users + Activity Log. Studio Bento fresh UI, same
+     visual contract as the Proforma Invoice list (SavedInvoicesListView):
+     Sl.* hero band, tab chips, cards, soft table headers and rows.
+     All commands, bindings and the two password handlers retained. -->
+<UserControl x:Class="ProGlassAutomation.Views.SystemCenter.SystemCenterView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -19,128 +12,103 @@
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Background="Transparent">
+             Background="{DynamicResource Ov.Canvas}"
+             Foreground="{DynamicResource Ov.Ink}">
 
-        <UserControl.Resources>
-        <!-- Migrated ScFieldLabel to global Typography.Label -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         MIGRATION LOG — Button Standardization (master prompt v1.0)
-         Date: 2026-08-15
-
-         Changes:
-           • Deleted legacy ScPrimaryButton style (rule 5)
-           • 3 CTA/refresh buttons -> PrimaryPillButton (glyph + UPPERCASE
-             content + ToolTip)
-           • Users/Activity tabs -> STEP D two-button visibility pattern
-           • Row toggle -> DangerButton DEACTIVATE / OutlinedPillButton
-             ACTIVATE pair with Visibility triggers
-           • Card headers: emoji badge boxes -> inline MDL2 icon + title
-           • Emojis removed: 🛠 👥 📜 ➕ 🔁  ↻ 👤 🕓
-           • ToolTips added to every migrated button
-
-         All commands, bindings, and code-behind wiring preserved.
-         No ViewModel changes required.
-    ═══════════════════════════════════════════════════════════════ -->
-    <Grid Margin="20,16,20,16">
+    <Grid Margin="16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══ HEADER ═════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,8">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE90F;" FontFamily="{DynamicResource FontFamily.Icon}"
-                           FontSize="{DynamicResource FontSize.H2}" VerticalAlignment="Center"
-                           Margin="0,0,10,0"
-                           Foreground="{DynamicResource AccentBrush}"/>
-                <TextBlock Text="{DynamicResource Module.SystemCenter}"
-                           FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-            </StackPanel>
-            <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,3,0,0"
-                       Foreground="{DynamicResource TextSecondaryBrush}">
-                <Run Text="{DynamicResource SystemCenter.UserManagementAuditTrailSigned}"/>
-                <Run Text="{Binding CurrentUserDisplay, Mode=OneWay}"
-                     FontWeight="{DynamicResource Weight.Bold}"/>
-            </TextBlock>
-        </StackPanel>
+        <!-- ══ HERO BAND ═════════════════════════════════════════════ -->
+        <Border Grid.Row="0" Style="{StaticResource Sl.Hero}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Module.SystemCenter}"
+                               Style="{StaticResource Sl.Label}" TextWrapping="Wrap"
+                               Foreground="{DynamicResource Ov.OnAccent}"/>
+                    <TextBlock Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap"
+                               Foreground="{DynamicResource Ov.OnAccentMuted}">
+                        <Run Text="{DynamicResource SystemCenter.UserManagementAuditTrailSigned}"/>
+                        <Run Text="{Binding CurrentUserDisplay, Mode=OneWay}" FontWeight="{DynamicResource Weight.Bold}"/>
+                    </TextBlock>
+                </StackPanel>
 
-        <!-- ══ TAB STRIP ══════════════════════════════════════════════ -->
-        <Border Grid.Row="1"
-                Style="{StaticResource ModuleTabStripStyle}"
-                Margin="0,0,0,10">
-            <StackPanel Orientation="Horizontal">
-
-                <!-- TAB Users — STEP D two-button visibility pattern -->
-                <Button Command="{Binding SwitchTabCommand}"
-                        CommandParameter="Users"
-                        Tag="&#xE716;" Content="{DynamicResource SystemCenter.Users}"
-                        ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,10,0">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsUsersTab}" Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-                <Button Command="{Binding SwitchTabCommand}"
-                        CommandParameter="Users"
-                        Tag="&#xE716;" Content="{DynamicResource SystemCenter.Users}"
-                        ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,10,0">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsUsersTab}" Value="False">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-
-                <!-- TAB Activity — STEP D two-button visibility pattern -->
-                <Button Command="{Binding SwitchTabCommand}"
-                        CommandParameter="Activity"
-                        Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ActivityLOG}"
-                        ToolTip="{DynamicResource SystemCenter.AuditTrailRecordedAction}"
-                        Margin="0,0,10,0">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-                <Button Command="{Binding SwitchTabCommand}"
-                        CommandParameter="Activity"
-                        Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ActivityLOG}"
-                        ToolTip="{DynamicResource SystemCenter.AuditTrailRecordedAction}"
-                        Margin="0,0,10,0">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsActivityTab}" Value="False">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-            </StackPanel>
+                <!-- Tab chips: Users / Activity -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Command="{Binding SwitchTabCommand}" CommandParameter="Users"
+                            Tag="&#xE716;" Content="{DynamicResource SystemCenter.Users}"
+                            ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,8,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUsersTab}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Command="{Binding SwitchTabCommand}" CommandParameter="Users"
+                            Tag="&#xE716;" Content="{DynamicResource SystemCenter.Users}"
+                            ToolTip="{DynamicResource SystemCenter.ManageUsers}" Margin="0,0,8,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUsersTab}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Command="{Binding SwitchTabCommand}" CommandParameter="Activity"
+                            Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ActivityLOG}"
+                            ToolTip="{DynamicResource SystemCenter.AuditTrailRecordedAction}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                    <Button Command="{Binding SwitchTabCommand}" CommandParameter="Activity"
+                            Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ActivityLOG}"
+                            ToolTip="{DynamicResource SystemCenter.AuditTrailRecordedAction}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsActivityTab}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
 
-        <!-- ══ USERS TAB ══════════════════════════════════════════════ -->
+        <!-- ══ USERS TAB ═════════════════════════════════════════════ -->
         <Grid Grid.Row="2">
             <Grid.Style>
                 <Style TargetType="Grid">
@@ -155,394 +123,334 @@
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="340"/>
+                <ColumnDefinition Width="16"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- LEFT: create user + switch user + online network.
-                 2026-09-10 FIX: this column used to be a bare StackPanel —
-                 on laptop heights the ONLINE NETWORK (nearby connected PC
-                 users) card fell below the viewport with no way to reach
-                 it. Cards are compacted AND the column now scrolls. -->
+            <!-- LEFT: create user + switch user + online network -->
             <ScrollViewer Grid.Column="0"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled"
-                          Focusable="False"
-                          Margin="0,0,16,0">
-            <StackPanel Margin="0">
+                          Focusable="False">
+                <StackPanel>
+                    <!-- Create user -->
+                    <Border Style="{StaticResource Sl.Card}" Padding="16,14" Margin="0,0,0,12">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <TextBlock Text="&#xE710;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
+                                           Foreground="{DynamicResource Ov.Accent}"
+                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBlock Text="{DynamicResource SystemCenter.CreateUSER}"
+                                           Style="{StaticResource Sl.Label}" FontSize="{DynamicResource FontSize.Title}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
 
-                <Border Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="14,12">
-                    <StackPanel>
-<StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                            <TextBlock Text="&#xE710;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H2}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                            <TextBlock Text="{DynamicResource SystemCenter.CreateUSER}"
-                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                            <TextBox Style="{StaticResource Sl.Input}"
+                                     Text="{Binding NewUsername, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Text="{DynamicResource Login.DisplayNAME}" Style="{StaticResource Sl.Label}" Margin="0,8,0,3"/>
+                            <TextBox Style="{StaticResource Sl.Input}"
+                                     Text="{Binding NewDisplayName, UpdateSourceTrigger=PropertyChanged}"/>
+
+                            <TextBlock Text="{DynamicResource SystemCenter.ROLE}" Style="{StaticResource Sl.Label}" Margin="0,8,0,3"/>
+                            <ComboBox ItemsSource="{Binding RoleOptions}"
+                                      SelectedItem="{Binding SelectedRole}"
+                                      Style="{StaticResource Sl.Combo}"/>
+
+                            <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource Sl.Label}" Margin="0,8,0,3"/>
+                            <PasswordBox x:Name="NewPasswordBox"
+                                         Padding="10,8"
+                                         FontSize="{DynamicResource FontSize.Body}"
+                                         Background="{DynamicResource Ov.Surface}"
+                                         Foreground="{DynamicResource Ov.Ink}"
+                                         BorderBrush="{DynamicResource Ov.Line}"
+                                         BorderThickness="1"
+                                         PasswordChanged="NewPasswordBox_PasswordChanged"/>
+
+                            <Button Style="{StaticResource Sl.PrimaryButton}"
+                                    Margin="0,12,0,0" HorizontalAlignment="Stretch"
+                                    Tag="&#xE710;" Content="{DynamicResource SystemCenter.CreateUSER}"
+                                    ToolTip="{DynamicResource SystemCenter.CreateNewUserAccount}"
+                                    Command="{Binding CreateUserCommand}"/>
+
+                            <TextBlock Text="{Binding UserFormMessage}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                       Margin="0,8,0,0" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource Ov.Accent}"/>
                         </StackPanel>
+                    </Border>
 
-                        <TextBlock Text="{DynamicResource Login.Username}"/>
-                        <TextBox Style="{StaticResource ScTextBox}"
-                                 Text="{Binding NewUsername, UpdateSourceTrigger=PropertyChanged}"/>
+                    <!-- Switch active user -->
+                    <Border Style="{StaticResource Sl.Card}" Padding="16,14" Margin="0,0,0,12">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <TextBlock Text="&#xE895;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
+                                           Foreground="{DynamicResource Ov.Accent}"
+                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBlock Text="{DynamicResource SystemCenter.SwitchActiveUser}"
+                                           Style="{StaticResource Sl.Label}" FontSize="{DynamicResource FontSize.Title}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="{DynamicResource SystemCenter.FutureActionsRecordedActiveUser}"
+                                       Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap"
+                                       Margin="0,0,0,10"/>
 
-                        <TextBlock Text="{DynamicResource Login.DisplayNAME}"
-                                   Margin="0,8,0,4"/>
-                        <TextBox Style="{StaticResource ScTextBox}"
-                                 Text="{Binding NewDisplayName, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Text="{DynamicResource Login.Username}" Style="{StaticResource Sl.Label}" Margin="0,0,0,3"/>
+                            <TextBox Style="{StaticResource Sl.Input}"
+                                     Text="{Binding SwitchUsername, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <TextBlock Text="{DynamicResource SystemCenter.ROLE}"
-                                   Margin="0,8,0,4"/>
-                        <ComboBox ItemsSource="{Binding RoleOptions}"
-                                  SelectedItem="{Binding SelectedRole}"
-                                  Padding="10,7"
-                                  FontSize="{DynamicResource FontSize.Title}"/>
+                            <TextBlock Text="{DynamicResource Login.Password}" Style="{StaticResource Sl.Label}" Margin="0,8,0,3"/>
+                            <PasswordBox x:Name="SwitchPasswordBox"
+                                         Padding="10,8"
+                                         FontSize="{DynamicResource FontSize.Body}"
+                                         Background="{DynamicResource Ov.Surface}"
+                                         Foreground="{DynamicResource Ov.Ink}"
+                                         BorderBrush="{DynamicResource Ov.Line}"
+                                         BorderThickness="1"
+                                         PasswordChanged="SwitchPasswordBox_PasswordChanged"/>
 
-                        <TextBlock Text="{DynamicResource Login.Password}"
-                                   Margin="0,8,0,4"/>
-                        <PasswordBox x:Name="NewPasswordBox"
-                                     Padding="10,6"
-                                     FontSize="{DynamicResource FontSize.Title}"
-                                     Background="{DynamicResource SurfaceTertiaryBrush}"
-                                     Foreground="{DynamicResource TextPrimaryBrush}"
-                                     BorderThickness="{DynamicResource Border.NoneThickness}"
-                                     PasswordChanged="NewPasswordBox_PasswordChanged"/>
+                            <Button Style="{StaticResource Sl.PrimaryButton}"
+                                    Margin="0,12,0,0" HorizontalAlignment="Stretch"
+                                    Tag="&#xE895;" Content="{DynamicResource Login.SwitchUser}"
+                                    ToolTip="{DynamicResource SystemCenter.SignUser}"
+                                    Command="{Binding SwitchUserCommand}"/>
 
-                        <Button Style="{StaticResource PrimaryPillButton}"
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Stretch"
-                                Tag="&#xE710;" Content="{DynamicResource SystemCenter.CreateUSER}"
-                                ToolTip="{DynamicResource SystemCenter.CreateNewUserAccount}"
-                                Command="{Binding CreateUserCommand}"/>
-
-                        <TextBlock Text="{Binding UserFormMessage}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Margin="0,6,0,0"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="14,12"
-                        Margin="0,12,0,0">
-                    <StackPanel>
-<StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                            <TextBlock Text="&#xE895;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H2}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                            <TextBlock Text="{DynamicResource SystemCenter.SwitchActiveUser}"
-                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding SwitchMessage}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                       Margin="0,8,0,0" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource Ov.Accent}"/>
                         </StackPanel>
-                        <TextBlock Text="{DynamicResource SystemCenter.FutureActionsRecordedActiveUser}"
-                                   FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   Margin="0,0,0,8"/>
+                    </Border>
 
-                        <TextBlock Text="{DynamicResource Login.Username}"/>
-                        <TextBox Style="{StaticResource ScTextBox}"
-                                 Text="{Binding SwitchUsername, UpdateSourceTrigger=PropertyChanged}"/>
+                    <!-- Online network -->
+                    <Border Style="{StaticResource Sl.Card}" Padding="16,14">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <TextBlock Text="&#xE839;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                           FontSize="{DynamicResource FontSize.H3}"
+                                           Foreground="{DynamicResource Ov.Accent}"
+                                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBlock Text="{DynamicResource SystemCenter.OnlineNetwork}"
+                                           Style="{StaticResource Sl.Label}" FontSize="{DynamicResource FontSize.Title}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Text="{DynamicResource SystemCenter.ColleaguesRunningProglassLANAppearHere}"
+                                       Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap"
+                                       Margin="0,0,0,10"/>
 
-                        <TextBlock Text="{DynamicResource Login.Password}"
-                                   Margin="0,8,0,4"/>
-                        <PasswordBox x:Name="SwitchPasswordBox"
-                                     Padding="10,6"
-                                     FontSize="{DynamicResource FontSize.Title}"
-                                     Background="{DynamicResource SurfaceTertiaryBrush}"
-                                     Foreground="{DynamicResource TextPrimaryBrush}"
-                                     BorderThickness="{DynamicResource Border.NoneThickness}"
-                                     PasswordChanged="SwitchPasswordBox_PasswordChanged"/>
+                            <!-- Empty state -->
+                            <TextBlock Text="{DynamicResource SystemCenter.NoOtherUsersDetectedRightNow}"
+                                       FontSize="{DynamicResource FontSize.BodySmall}" FontStyle="Italic">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasPeers}" Value="False">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
 
-                        <Button Style="{StaticResource PrimaryPillButton}"
-                                Margin="0,10,0,0"
-                                HorizontalAlignment="Stretch"
-                                Tag="&#xE895;" Content="{DynamicResource Login.SwitchUser}"
-                                ToolTip="{DynamicResource SystemCenter.SignUser}"
-                                Command="{Binding SwitchUserCommand}"/>
-
-                        <TextBlock Text="{Binding SwitchMessage}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Margin="0,6,0,0"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Same-network presence -->
-                <Border Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="14,12"
-                        Margin="0,12,0,4">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                            <TextBlock Text="&#xE839;"
-                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                       FontSize="{DynamicResource FontSize.H3}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                            <TextBlock Text="{DynamicResource SystemCenter.OnlineNetwork}"
-                                       FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource TextPrimaryBrush}"
-                                       VerticalAlignment="Center"/>
+                            <ItemsControl ItemsSource="{Binding OnlinePeers}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1" Padding="10,8" Margin="0,0,0,6"
+                                                Background="{DynamicResource Ov.Soft}"
+                                                CornerRadius="{DynamicResource Radius.Medium}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Ellipse Grid.Column="0" Width="8" Height="8"
+                                                         Fill="{DynamicResource Ov.Success}"
+                                                         VerticalAlignment="Center" Margin="0,0,9,0"/>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="{Binding DisplayName}"
+                                                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                                               Foreground="{DynamicResource Ov.Ink}"/>
+                                                    <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,1,0,0"
+                                                               Foreground="{DynamicResource Ov.Muted}">
+                                                        <Run Text="{Binding Username, Mode=OneWay}"/>
+                                                        <Run Text="  •  "/>
+                                                        <Run Text="{Binding MachineName, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
-                        <TextBlock Text="{DynamicResource SystemCenter.ColleaguesRunningProglassLANAppearHere}"
-                                   FontSize="{DynamicResource FontSize.Body}" TextWrapping="Wrap"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"
-                                   Margin="0,0,0,10"/>
-
-                        <!-- Empty state -->
-                        <TextBlock Text="{DynamicResource SystemCenter.NoOtherUsersDetectedRightNow}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontStyle="Italic">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource TextTertiaryBrush}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasPeers}" Value="False">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-
-                        <ItemsControl ItemsSource="{Binding OnlinePeers}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Padding="8,5" Margin="0,0,0,4"
-                                            Background="{DynamicResource SurfaceTertiaryBrush}"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Ellipse Grid.Column="0"
-                                                     Width="8" Height="8"
-                                                     Fill="{DynamicResource SuccessBrush}"
-                                                     VerticalAlignment="Center"
-                                                     Margin="0,0,9,0"/>
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,1,0,0"
-                                                           Foreground="{DynamicResource TextSecondaryBrush}">
-                                                    <Run Text="{Binding Username, Mode=OneWay}"/>
-                                                    <Run Text="  •  "/>
-                                                    <Run Text="{Binding MachineName, Mode=OneWay}"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
+                    </Border>
+                </StackPanel>
             </ScrollViewer>
 
             <!-- RIGHT: user table -->
-            <Border Grid.Column="1"
-                    Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    ClipToBounds="True">
+            <Border Grid.Column="2" Style="{StaticResource Sl.Card}" Padding="0" ClipToBounds="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <!-- Column heading strip (v2 table reference) -->
-                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
-                            Background="{DynamicResource AccentBrush}"
-                            Padding="16,8">
+
+                    <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Margin="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="50"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{DynamicResource SystemCenter.USER}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="1" Text="{DynamicResource SystemCenter.ROLEPermissions}"
-                                       Margin="12,0,0,0" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Status}"
-                                       HorizontalAlignment="Center" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="3" Text="{DynamicResource Shared.Action}"
-                                       HorizontalAlignment="Center" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource SystemCenter.USER}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0,0,0"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource SystemCenter.ROLEPermissions}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0,0,0"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Common.Status}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Shared.Action}" Style="{StaticResource Sl.ColumnLabel}" HorizontalAlignment="Center"/>
                         </Grid>
                     </Border>
+
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                              CanContentScroll="True"
-                              behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ItemsControl ItemsSource="{Binding Users}" Margin="6"
-                                  VirtualizingPanel.IsVirtualizing="True"
-                                  VirtualizingPanel.VirtualizationMode="Recycling">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <VirtualizingStackPanel/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Padding="14,10" Margin="0,4"
-                                        Background="{DynamicResource SurfaceSecondaryBrush}"
-                                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                        BorderThickness="{DynamicResource CardBorderThickness}"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="50"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="150"/>
-                                        </Grid.ColumnDefinitions>
+                                  CanContentScroll="False"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+                        <ItemsControl ItemsSource="{Binding Users}" Margin="0,6"
+                                      VirtualizingPanel.IsVirtualizing="True"
+                                      VirtualizingPanel.VirtualizationMode="Recycling">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource Sl.Row}" Margin="6,2" Padding="12,10"
+                                            BorderBrush="{DynamicResource Ov.Line}" BorderThickness="1"
+                                            CornerRadius="{DynamicResource Radius.Medium}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="50"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="150"/>
+                                            </Grid.ColumnDefinitions>
 
-                                        <Border Style="{StaticResource ModuleListKpiIconStyle}" Grid.Column="0"
-                                               
-                                               
-                                                Background="{DynamicResource TintIndigoBrush}"
-                                               >
-                                            <TextBlock Text="&#xE77B;"
-                                                       FontFamily="{DynamicResource FontFamily.Icon}"
-                                                       FontSize="{DynamicResource FontSize.H2}"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
+                                            <Border Grid.Column="0" Width="40" Height="40"
+                                                    CornerRadius="{DynamicResource Radius.Medium}"
+                                                    Background="{DynamicResource Ov.Soft}">
+                                                <TextBlock Text="&#xE77B;" FontFamily="{DynamicResource FontFamily.Icon}"
+                                                           FontSize="{DynamicResource FontSize.H3}"
+                                                           Foreground="{DynamicResource Ov.Accent}"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
 
-                                        <StackPanel Grid.Column="1"
-                                                    Margin="12,0"
-                                                    VerticalAlignment="Center">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                                <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintGreenBrush}"
-                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                        Padding="6,1"
-                                                        Margin="8,0,0,0"
-                                                        VerticalAlignment="Center">
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
-                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Border.Style>
-                                                    <TextBlock Text="{DynamicResource SystemCenter.ActiveNOW}"
-                                                               FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                                               Foreground="{DynamicResource SuccessBrush}"/>
-                                                </Border>
+                                            <StackPanel Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="{Binding DisplayName}"
+                                                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                                                               Foreground="{DynamicResource Ov.Ink}"/>
+                                                    <Border Background="{DynamicResource Ov.SuccessSoft}"
+                                                            CornerRadius="{DynamicResource Radius.Small}"
+                                                            Padding="6,2" Margin="8,0,0,0"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{DynamicResource SystemCenter.ActiveNOW}"
+                                                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                                   Foreground="{DynamicResource Ov.Success}"/>
+                                                    </Border>
+                                                </StackPanel>
+                                                <TextBlock FontSize="{DynamicResource FontSize.BodySmall}" Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource Ov.Muted}">
+                                                    <Run Text="{Binding Username, Mode=OneWay}"/>
+                                                    <Run Text="  •  "/>
+                                                    <Run Text="{Binding RoleBadge, Mode=OneWay}"/>
+                                                    <Run Text="  •  "/>
+                                                    <Run Text="{Binding PermissionCount, Mode=OneWay}"/>
+                                                    <Run Text="{DynamicResource SystemCenter.Since}"/>
+                                                    <Run Text="{Binding CreatedDisplay, Mode=OneWay}"/>
+                                                </TextBlock>
                                             </StackPanel>
-                                            <TextBlock FontSize="{DynamicResource FontSize.Body}" Margin="0,2,0,0"
-                                                       Foreground="{DynamicResource TextSecondaryBrush}">
-                                                <Run Text="{Binding Username, Mode=OneWay}"/>
-                                                <Run Text="  •  "/>
-                                                <Run Text="{Binding RoleBadge, Mode=OneWay}"/>
-                                                <Run Text="  •  "/>
-                                                <Run Text="{Binding PermissionCount, Mode=OneWay}"/>
-                                                <Run Text="{DynamicResource SystemCenter.Since}"/>
-                                                <Run Text="{Binding CreatedDisplay, Mode=OneWay}"/>
+
+                                            <TextBlock Grid.Column="2"
+                                                       VerticalAlignment="Center"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
+                                                       HorizontalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="ENABLED"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource Ov.Success}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                                <Setter Property="Text" Value="DISABLED"/>
+                                                                <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
                                             </TextBlock>
-                                        </StackPanel>
 
-                                        <TextBlock Grid.Column="2"
-                                                   VerticalAlignment="Center"
-                                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                                   Margin="0,0,10,0">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="ENABLED"/>
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource SuccessBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                            <Setter Property="Text" Value="DISABLED"/>
-                                                            <Setter Property="Foreground"
-                                                                    Value="{DynamicResource TextTertiaryBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-
-                                        <Button Grid.Column="3"
-                                                Tag="&#xE74D;" Content="{DynamicResource SystemCenter.Deactivate}"
-                                                ToolTip="{DynamicResource SystemCenter.DisableUserAccount}"
-                                                MinWidth="92"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Command="{Binding DataContext.ToggleActiveCommand,
-                                                            RelativeSource={RelativeSource
-                                                                AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                            <Button.Style>
-                                                <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                        <Button Grid.Column="3"
-                                                Tag="&#xE73E;" Content="{DynamicResource SystemCenter.Activate}"
-                                                ToolTip="{DynamicResource SystemCenter.ReEnableUserAccount}"
-                                                MinWidth="92"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Command="{Binding DataContext.ToggleActiveCommand,
-                                                            RelativeSource={RelativeSource
-                                                                AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                            <Button.Style>
-                                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                                            <Button Grid.Column="3"
+                                                    Tag="&#xE74D;" Content="{DynamicResource SystemCenter.Deactivate}"
+                                                    ToolTip="{DynamicResource SystemCenter.DisableUserAccount}"
+                                                    MinWidth="104"
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Command="{Binding DataContext.ToggleActiveCommand,
+                                                                RelativeSource={RelativeSource
+                                                                    AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource Sl.DangerButton}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                            <Button Grid.Column="3"
+                                                    Tag="&#xE73E;" Content="{DynamicResource SystemCenter.Activate}"
+                                                    ToolTip="{DynamicResource SystemCenter.ReEnableUserAccount}"
+                                                    MinWidth="104"
+                                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                    Command="{Binding DataContext.ToggleActiveCommand,
+                                                                RelativeSource={RelativeSource
+                                                                    AncestorType=ItemsControl}}"
+                                                    CommandParameter="{Binding}">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </Border>
         </Grid>
 
-        <!-- ══ ACTIVITY TAB ═══════════════════════════════════════════ -->
+        <!-- ══ ACTIVITY TAB ══════════════════════════════════════════ -->
         <Grid Grid.Row="2">
             <Grid.Style>
                 <Style TargetType="Grid">
@@ -560,213 +468,188 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- 2026-09-10: ACTION-FOCUSED toolbar — scope chips +
-                 important-only + search replace the flat section combo.
-                 The DB still records everything; this only narrows the
-                 surfaced view (All = full compliance trail). -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,8">
-                <StackPanel Orientation="Horizontal">
+            <!-- Action-focused toolbar: scope chips + important-only +
+                 search + refresh. All = full compliance trail. -->
+            <Border Grid.Row="0" Style="{StaticResource Sl.FilterBar}" Margin="0,0,0,10">
+                <StackPanel>
+                    <WrapPanel>
+                        <!-- Scope chips: two-button visibility pattern -->
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="All"
+                                Tag="&#xE81C;" Content="{DynamicResource Common.All}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeAll}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="All"
+                                Tag="&#xE81C;" Content="{DynamicResource Common.All}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeAll}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
 
-                    <!-- Scope chips: STEP D two-button pattern -->
-                    <Button Command="{Binding SetScopeCommand}" CommandParameter="All"
-                            Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ScopeAll}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeAllTooltip}" Margin="0,0,6,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeAll}" Value="True">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button IsHitTestVisible="False" Focusable="False"
-                            Tag="&#xE81C;" Content="{DynamicResource SystemCenter.ScopeAll}"
-                            Margin="0,0,6,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeAll}" Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="System"
+                                Tag="&#xE90F;" Content="{DynamicResource SystemCenter.ScopeSystem}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeSystem}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="System"
+                                Tag="&#xE90F;" Content="{DynamicResource SystemCenter.ScopeSystem}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeSystem}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
 
-                    <Button Command="{Binding SetScopeCommand}" CommandParameter="Transactions"
-                            Tag="&#xE8A5;" Content="{DynamicResource SystemCenter.ScopeTransactions}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeTransactionsTooltip}" Margin="0,0,6,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeTransactions}" Value="True">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button IsHitTestVisible="False" Focusable="False"
-                            Tag="&#xE8A5;" Content="{DynamicResource SystemCenter.ScopeTransactions}"
-                            Margin="0,0,6,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeTransactions}" Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="UsersSecurity"
+                                Tag="&#xE77B;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeUsersSecurity}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="UsersSecurity"
+                                Tag="&#xE77B;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeUsersSecurity}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
 
-                    <Button Command="{Binding SetScopeCommand}" CommandParameter="Inventory"
-                            Tag="&#xE719;" Content="{DynamicResource SystemCenter.ScopeInventory}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeInventoryTooltip}" Margin="0,0,6,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeInventory}" Value="True">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button IsHitTestVisible="False" Focusable="False"
-                            Tag="&#xE719;" Content="{DynamicResource SystemCenter.ScopeInventory}"
-                            Margin="0,0,6,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeInventory}" Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="Inventory"
+                                Tag="&#xE7B8;" Content="{DynamicResource SystemCenter.ScopeInventory}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeInventory}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="Inventory"
+                                Tag="&#xE7B8;" Content="{DynamicResource SystemCenter.ScopeInventory}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeInventory}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
 
-                    <Button Command="{Binding SetScopeCommand}" CommandParameter="UsersSecurity"
-                            Tag="&#xE716;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeUsersSecurityTooltip}" Margin="0,0,6,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeUsersSecurity}" Value="True">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button IsHitTestVisible="False" Focusable="False"
-                            Tag="&#xE716;" Content="{DynamicResource SystemCenter.ScopeUsersSecurity}"
-                            Margin="0,0,6,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeUsersSecurity}" Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="Transactions"
+                                Tag="&#xE8C7;" Content="{DynamicResource SystemCenter.ScopeTransactions}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.Button}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeTransactions}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding SetScopeCommand}" CommandParameter="Transactions"
+                                Tag="&#xE8C7;" Content="{DynamicResource SystemCenter.ScopeTransactions}" Margin="0,0,6,4">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource Sl.PrimaryButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsScopeTransactions}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
 
-                    <Button Command="{Binding SetScopeCommand}" CommandParameter="System"
-                            Tag="&#xE7F8;" Content="{DynamicResource SystemCenter.ScopeSystem}"
-                            ToolTip="{DynamicResource SystemCenter.ScopeSystemTooltip}" Margin="0,0,10,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeSystem}" Value="True">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-                    <Button IsHitTestVisible="False" Focusable="False"
-                            Tag="&#xE7F8;" Content="{DynamicResource SystemCenter.ScopeSystem}"
-                            Margin="0,0,10,0">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsScopeSystem}" Value="False">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
-
-                    <!-- Important-actions-only -->
-                    <TextBlock Text="{DynamicResource SystemCenter.ImportantActionsOnly}"
-                               FontSize="{DynamicResource FontSize.Body}"
-                               Foreground="{DynamicResource TextSecondaryBrush}"
-                               VerticalAlignment="Center" Margin="6,0,8,0"/>
-                    <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                        <CheckBox Content="{DynamicResource SystemCenter.ImportantActionsOnly}"
                                   IsChecked="{Binding ImportantOnly}"
-                                  VerticalAlignment="Center" Margin="0,0,14,0"
-                                  AutomationProperties.Name="Important actions only"
+                                  VerticalAlignment="Bottom" Margin="8,0,10,12"
                                   ToolTip="{DynamicResource SystemCenter.ImportantActionsOnlyTooltip}"/>
 
-                    <!-- Search -->
-                    <TextBox Style="{StaticResource ScTextBox}"
-                             Text="{Binding ActivitySearch, UpdateSourceTrigger=PropertyChanged}"
-                             Width="220" VerticalAlignment="Center"
-                             AutomationProperties.Name="Search activity"
-                             ToolTip="{DynamicResource SystemCenter.SearchActionsTooltip}"/>
+                        <TextBox Margin="0,0,8,4" Width="240"
+                                 Text="{Binding ActivitySearch, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource Sl.Input}"
+                                 VerticalAlignment="Bottom"
+                                 AutomationProperties.Name="Search activity"
+                                 ToolTip="{DynamicResource SystemCenter.SearchActionsTooltip}"/>
 
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Margin="10,0,0,0"
-                            Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
-                            ToolTip="{DynamicResource SystemCenter.ReloadActivityLog}"
-                            Command="{Binding RefreshActivityCommand}"/>
+                        <Button Style="{StaticResource Sl.PrimaryButton}" VerticalAlignment="Bottom" Margin="0,0,0,4"
+                                Tag="&#xE72C;" Content="{DynamicResource Action.Refresh}"
+                                ToolTip="{DynamicResource SystemCenter.ReloadActivityLog}"
+                                Command="{Binding RefreshActivityCommand}"/>
+                    </WrapPanel>
+
+                    <TextBlock Text="{Binding ActivityCountDisplay}"
+                               FontSize="{DynamicResource FontSize.Caption}"
+                               Foreground="{DynamicResource Ov.Muted}"
+                               Margin="2,2,0,0"/>
                 </StackPanel>
+            </Border>
 
-                <TextBlock Text="{Binding ActivityCountDisplay}"
-                           FontSize="{DynamicResource FontSize.BodySmall}"
-                           Foreground="{DynamicResource TextTertiaryBrush}"
-                           Margin="2,6,0,0"/>
-            </StackPanel>
-
-            <Border Grid.Row="1"
-                    Background="{DynamicResource SurfacePrimaryBrush}"
-                    BorderBrush="{DynamicResource BorderDefaultBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    ClipToBounds="True">
+            <!-- Activity table -->
+            <Border Grid.Row="1" Style="{StaticResource Sl.Card}" Padding="0" ClipToBounds="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    <!-- Column heading strip (v2 table reference) -->
-                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
-                            Background="{DynamicResource AccentBrush}"
-                            Padding="16,8">
+
+                    <Border Grid.Row="0" Style="{StaticResource Sl.TableHeader}" Margin="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="160"/>
                                 <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="160"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="{DynamicResource Diagnostics.TIME}" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="1" Text="{DynamicResource SystemCenter.Section}" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="2" Text="{DynamicResource Shared.Action}"
-                                       Margin="10,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                            <TextBlock Grid.Column="3" Text="{DynamicResource Shared.Details}"
-                                       Margin="10,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Diagnostics.TIME}" Style="{StaticResource Sl.ColumnLabel}" Margin="12,0,0,0"/>
+                            <TextBlock Grid.Column="1" Text="{DynamicResource SystemCenter.Section}" Style="{StaticResource Sl.ColumnLabel}"/>
+                            <TextBlock Grid.Column="2" Text="{DynamicResource Shared.Action}" Style="{StaticResource Sl.ColumnLabel}" Margin="10,0,0,0"/>
+                            <TextBlock Grid.Column="3" Text="{DynamicResource Shared.Details}" Style="{StaticResource Sl.ColumnLabel}" Margin="10,0,0,0"/>
                         </Grid>
                     </Border>
+
                     <!-- Empty state -->
                     <StackPanel Grid.Row="1" VerticalAlignment="Center"
-                                HorizontalAlignment="Center">
+                                HorizontalAlignment="Center" IsHitTestVisible="False">
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -779,24 +662,21 @@
                         </StackPanel.Style>
                         <TextBlock Text="&#xE81C;" FontFamily="{DynamicResource FontFamily.Icon}"
                                    FontSize="{DynamicResource FontSize.Display}"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   HorizontalAlignment="Center"
-                                   Opacity="0.6"/>
+                                   Foreground="{DynamicResource Ov.Accent}"
+                                   HorizontalAlignment="Center" Opacity="0.6"/>
                         <TextBlock Text="{DynamicResource Shared.NoActivityRecordedYet}"
                                    FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,10,0,3"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                   HorizontalAlignment="Center" Margin="0,10,0,3"
+                                   Foreground="{DynamicResource Ov.Ink}"/>
                         <TextBlock Text="{DynamicResource SystemCenter.ActionSectionRecordedHereAutomatically}"
                                    FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource Ov.Muted}"/>
                     </StackPanel>
 
                     <!-- Virtualized activity feed -->
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-                                  CanContentScroll="True"
-                                  VirtualizingPanel.IsVirtualizing="True"
-                                  VirtualizingPanel.VirtualizationMode="Recycling">
+                                  CanContentScroll="False"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <ItemsControl ItemsSource="{Binding ActivityRows}"
                                       VirtualizingPanel.IsVirtualizing="True"
                                       VirtualizingPanel.VirtualizationMode="Recycling">
@@ -807,43 +687,41 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,10"
-                                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                                            BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
+                                    <Border Style="{StaticResource Sl.Row}" Padding="14,10"
                                             ToolTip="{Binding RowTooltip}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="160"/>
                                                 <ColumnDefinition Width="140"/>
-                                                <ColumnDefinition Width="150"/>
+                                                <ColumnDefinition Width="160"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding TimeDisplay}"
-                                                       FontSize="{DynamicResource FontSize.Body}"
+                                                       FontSize="{DynamicResource FontSize.BodySmall}"
                                                        VerticalAlignment="Center"
-                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                                       Foreground="{DynamicResource Ov.Muted}"
+                                                       Typography.NumeralAlignment="Tabular"/>
 
-                                            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="1"
-                                                    Background="{DynamicResource TintBlueBrush}"
-                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            <Border Grid.Column="1"
+                                                    Background="{DynamicResource Ov.Soft}"
+                                                    CornerRadius="{DynamicResource Radius.Small}"
                                                     Padding="8,3"
                                                     HorizontalAlignment="Left"
                                                     VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Section}"
                                                            FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                                            TextTrimming="CharacterEllipsis"
-                                                           Foreground="{DynamicResource InfoBrush}"/>
+                                                           Foreground="{DynamicResource Ov.Accent}"/>
                                             </Border>
 
-                                            <TextBlock Grid.Column="2"
-                                                       Margin="10,0"
+                                            <TextBlock Grid.Column="2" Margin="10,0"
                                                        Text="{Binding Action}"
                                                        FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
-                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                       Foreground="{DynamicResource Ov.Ink}"/>
 
                                             <TextBlock Grid.Column="3"
                                                        Text="{Binding Details}"
@@ -851,7 +729,7 @@
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding Details}"
-                                                       Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                       Foreground="{DynamicResource Ov.Muted}"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

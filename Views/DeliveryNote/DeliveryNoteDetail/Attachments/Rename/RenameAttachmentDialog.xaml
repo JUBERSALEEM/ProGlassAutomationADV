@@ -81,7 +81,7 @@
                     BorderBrush="{DynamicResource BorderDefaultBrush}"
                     BorderThickness="{DynamicResource Border.BoxNoLeftThickness}"
                     CornerRadius="{DynamicResource Radius.Right.Medium}"
-                    Padding="16,10"
+                    Padding="12,6"
                     VerticalAlignment="Stretch">
                 <TextBlock Text="{Binding Extension}"
                            FontSize="{DynamicResource FontSize.H3}"
@@ -96,9 +96,9 @@
              footer never move when an error appears ─────────────────── -->
         <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                Height="36"
-                Margin="0,14,0,0"
-                Padding="14,8"
+                Height="32"
+                Margin="0,8,0,0"
+                Padding="10,4"
                 CornerRadius="{DynamicResource ControlCornerRadius}"
                 Background="{DynamicResource TintRedBrush}"
                 VerticalAlignment="Top"

@@ -9,7 +9,8 @@
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <!-- ═══════════════════════════════════════════════════════════════
          GB-P12 — GLASS BLUSH SETTINGS (glass-09 reference)
@@ -39,6 +40,10 @@
     ═══════════════════════════════════════════════════════════════════ -->
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- Note: the hosted Professional section UserControls each merge
              SettingsCardStyles/SettingsSectionStyles themselves, so no
              style-context dictionaries are needed here. -->
@@ -332,6 +337,7 @@
         <DataTemplate x:Key="SettingsPage.Features"><sections:SettingsFeaturesSection/></DataTemplate>
         <DataTemplate x:Key="SettingsPage.Sharing"><sections:SettingsSharingSection/></DataTemplate>
         <DataTemplate x:Key="SettingsPage.About"><sections:SettingsAboutSection/></DataTemplate>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>

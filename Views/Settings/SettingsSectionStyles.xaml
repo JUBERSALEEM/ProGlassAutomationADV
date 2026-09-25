@@ -74,7 +74,7 @@
 
     <!-- Rounded password box (API keys). -->
     <Style x:Key="RoundedPasswordBoxStyle" TargetType="PasswordBox">
-        <Setter Property="Height"                   Value="42"/>
+        <Setter Property="Height"                   Value="36"/>
         <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
         <Setter Property="Padding"                  Value="14,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -178,8 +178,9 @@
         <!-- 2026-09-01: was GlassBorderSoft → SELECT label was white-
              on-white. Now the real accent ink so the button reads. -->
         <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="Height"              Value="28"/>
-        <Setter Property="Padding"             Value="12,0"/>
+        <Setter Property="Height"              Value="32"/>
+        <Setter Property="MinHeight"           Value="32"/>
+        <Setter Property="Padding"             Value="14,0"/>
         <Setter Property="FontSize" Value="{DynamicResource FontSize.BodySmall}"/>
         <Setter Property="FontWeight"          Value="{DynamicResource Weight.Bold}"/>
         <Setter Property="BorderThickness"     Value="0"/>
@@ -312,17 +313,24 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                                    Value="{DynamicResource Ios26AccentSoftBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush"
+                                    Value="{DynamicResource Ios26AccentBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="1"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource TintIndigoBrush}"/>
+                                    Value="{DynamicResource Ios26AccentBrush}"/>
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource Ios26OnAccentBrush}"/>
                         </Trigger>
                         <Trigger Property="Tag" Value="Active">
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource AccentBrush}"/>
+                                    Value="{DynamicResource Ios26AccentBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderBrush"
+                                    Value="{DynamicResource Ios26AccentBrush}"/>
                             <Setter Property="Foreground"
-                                    Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    Value="{DynamicResource Ios26OnAccentBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -336,7 +344,7 @@
     <Style x:Key="SettingsNavGroupHeaderStyle" TargetType="TextBlock">
         <Setter Property="FontSize"   Value="{DynamicResource FontSize.Caption}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
         <Setter Property="Margin"     Value="18,16,18,6"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding Name, TargetNullValue=''}" Value="">
@@ -446,8 +454,9 @@
     <Style x:Key="SettingsActionButtonStyle" TargetType="Button">
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalAlignment" Value="Stretch"/>
-        <Setter Property="MinHeight" Value="{DynamicResource DensityButtonHeight}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="MinHeight" Value="36"/>
         <Setter Property="MinWidth" Value="{DynamicResource DensityButtonMinWidth}"/>
         <Setter Property="Padding" Value="14,0"/>
         <Setter Property="Margin" Value="0,0,8,0"/>

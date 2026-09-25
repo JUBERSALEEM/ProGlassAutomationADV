@@ -1,5 +1,6 @@
 ﻿using ProGlassAutomation.ViewModels;
 using System;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges
 {
@@ -61,7 +62,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomChar
 
         private void Recalculate()
         {
-            ResultAmount = _isActive ? Math.Round(Qty * Rate, 2) : 0m;
+            ResultAmount = _isActive ? MoneyRounding.Round(Qty * Rate) : 0m;
             OnPropertyChanged(nameof(FormulaDisplay));
         }
     }

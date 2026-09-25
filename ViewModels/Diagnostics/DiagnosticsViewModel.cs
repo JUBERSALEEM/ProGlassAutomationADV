@@ -39,6 +39,7 @@ namespace ProGlassAutomation.ViewModels.Diagnostics
         public ViewModelBase ActiveContent => ActiveTab?.Content!;
 
         public ICommand SwitchTabCommand { get; }
+        public ICommand RefreshCommand { get; }
 
         // ── v2 §11: header statistics (shared StatCardControl) ─────────
 
@@ -130,6 +131,12 @@ namespace ProGlassAutomation.ViewModels.Diagnostics
             {
                 if (param is DiagnosticsTab tab)
                     Activate(tab);
+            });
+
+            RefreshCommand = new RelayCommand(_ =>
+            {
+                RefreshStats();
+                Activate(ActiveTab);
             });
         }
 

@@ -202,59 +202,169 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
         }
 
+        public const string YieldPlatePatternLabel = "Yield";
+        public const string FillFirstPlatePatternLabel = "Fill first plate";
+        public const string AutoStageStrategyLabel = "Auto — choose the existing stage from this cutting list";
+        public const string Stage1StrategyLabel = "Stage 1: QUICK — area shelf, strips, and bounded patterns";
+        public const string Stage2StrategyLabel = "Stage 2: three orderings, best-split, and smart placement";
+        public const string Stage3StrategyLabel = "Stage 3: full split grid, MaxRects, and beam 4";
+        public const string Stage4StrategyLabel = "Stage 4: all orderings, shuffles, and beam 8";
+        public const string Stage5StrategyLabel = "Stage 5: deepest shuffle and MaxRects search";
+
         public ObservableCollection<string> StageStrategies { get; } = new()
         {
-            "Stage 1: QUICK (Quantity Patterns + Smart Fit)",
-            "Stage 2: Effort 2 (Area Patterns + Multi-Order Grid)",
-            "Stage 3: Effort 3 (Min-Side Patterns + Smart Search)",
-            "Stage 4: Effort 4 (Height Patterns + Best-Split)",
-            "Stage 5: Effort 5 (Wide Patterns + Deep Smart Search)"
+            AutoStageStrategyLabel,
+            Stage1StrategyLabel,
+            Stage2StrategyLabel,
+            Stage3StrategyLabel,
+            Stage4StrategyLabel,
+            Stage5StrategyLabel
         };
 
-        private string _selectedStageStrategy = "Stage 3: Effort 3 (Min-Side Patterns + Smart Search)";
+        private string _selectedStageStrategy = Stage3StrategyLabel;
+        private bool _syncingStage;
+        private bool _useAutoEffort;
+
+        /// <summary>
+        /// When true, Run Optimize picks stage 3, 4, or 5 from the cutting
+        /// group. The plate pattern is not chosen here.
+        /// </summary>
+        public bool UseAutoEffort
+        {
+            get => _useAutoEffort;
+            private set
+            {
+                if (_useAutoEffort == value) return;
+                _useAutoEffort = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedStageStrategyHint));
+            }
+        }
+
         public string SelectedStageStrategy
         {
             get => _selectedStageStrategy;
             set
             {
-                if (_selectedStageStrategy != value)
-                {
-                    _selectedStageStrategy = value;
-                    OnPropertyChanged();
-                    SyncEffortFromStageStrategy(value);
-                }
+                if (_selectedStageStrategy == value) return;
+                _selectedStageStrategy = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedStageStrategyHint));
+                if (_syncingStage) return;
+                SyncEffortFromStageStrategy(value);
             }
         }
 
+        public string SelectedStageStrategyHint =>
+            UseAutoEffort
+                ? "Auto picks stage 3, 4, or 5 from the piece count, stock mix, and rack cap. It calls that existing stage. It does not change Yield and it does not select Fill first plate."
+                : SelectedEffortLevel switch
+                {
+                    "1" => "Stage 1 is the quick portfolio. Run Optimize at this stage is that same search.",
+                    "2" => "Stage 2 adds three orderings, best-split, sheet-fill, wall-seed, and smart placement.",
+                    "3" => "Stage 3 adds every split, MaxRects, and a width-4 beam. This is the default.",
+                    "4" => "Stage 4 adds all six orderings, shuffles, vertical smart placement, and a width-8 beam.",
+                    _ => "Stage 5 adds the widest shuffle set and MaxRects on every ordering. It cannot replace a better plan."
+                };
+
         private void SyncStageStrategyFromEffort(string effort)
         {
-            _selectedStageStrategy = effort switch
+            if (UseAutoEffort) return;
+            string label = effort switch
             {
-                "1" => StageStrategies[0],
-                "2" => StageStrategies[1],
-                "3" => StageStrategies[2],
-                "4" => StageStrategies[3],
-                "5" => StageStrategies[4],
-                _ => StageStrategies[2]
+                "1" => StageStrategies[1],
+                "2" => StageStrategies[2],
+                "3" => StageStrategies[3],
+                "4" => StageStrategies[4],
+                "5" => StageStrategies[5],
+                _ => StageStrategies[3]
             };
-            OnPropertyChanged(nameof(SelectedStageStrategy));
+            if (string.Equals(_selectedStageStrategy, label, StringComparison.Ordinal)) return;
+            _syncingStage = true;
+            try
+            {
+                _selectedStageStrategy = label;
+                OnPropertyChanged(nameof(SelectedStageStrategy));
+                OnPropertyChanged(nameof(SelectedStageStrategyHint));
+            }
+            finally
+            {
+                _syncingStage = false;
+            }
         }
 
         private void SyncEffortFromStageStrategy(string strategy)
         {
-            if (string.IsNullOrWhiteSpace(strategy)) return;
-            string effort = strategy.StartsWith("Stage 1", StringComparison.OrdinalIgnoreCase) ? "1"
-                          : strategy.StartsWith("Stage 2", StringComparison.OrdinalIgnoreCase) ? "2"
-                          : strategy.StartsWith("Stage 3", StringComparison.OrdinalIgnoreCase) ? "3"
-                          : strategy.StartsWith("Stage 4", StringComparison.OrdinalIgnoreCase) ? "4"
-                          : strategy.StartsWith("Stage 5", StringComparison.OrdinalIgnoreCase) ? "5"
-                          : "3";
-            if (_selectedEffortLevel != effort)
+            if (_syncingStage || string.IsNullOrWhiteSpace(strategy)) return;
+            if (IsAutoStage(strategy))
+            {
+                UseAutoEffort = true;
+                return;
+            }
+
+            if (!TryParseStageNumber(strategy, out int stage)) return;
+            UseAutoEffort = false;
+            string effort = stage.ToString(CultureInfo.InvariantCulture);
+            if (string.Equals(_selectedEffortLevel, effort, StringComparison.Ordinal)) return;
+            _syncingStage = true;
+            try
             {
                 _selectedEffortLevel = effort;
                 OnPropertyChanged(nameof(SelectedEffortLevel));
             }
+            finally
+            {
+                _syncingStage = false;
+            }
         }
+
+        private static bool IsAutoStage(string strategy) =>
+            strategy.StartsWith("Auto", StringComparison.OrdinalIgnoreCase);
+
+        private static bool TryParseStageNumber(string strategy, out int stage)
+        {
+            stage = 0;
+            if (strategy.StartsWith("Stage 1", StringComparison.OrdinalIgnoreCase)) stage = 1;
+            else if (strategy.StartsWith("Stage 2", StringComparison.OrdinalIgnoreCase)) stage = 2;
+            else if (strategy.StartsWith("Stage 3", StringComparison.OrdinalIgnoreCase)) stage = 3;
+            else if (strategy.StartsWith("Stage 4", StringComparison.OrdinalIgnoreCase)) stage = 4;
+            else if (strategy.StartsWith("Stage 5", StringComparison.OrdinalIgnoreCase)) stage = 5;
+            return stage >= 1;
+        }
+
+        public ObservableCollection<string> PlatePatterns { get; } = new()
+        {
+            YieldPlatePatternLabel,
+            FillFirstPlatePatternLabel
+        };
+
+        private string _selectedPlatePattern = YieldPlatePatternLabel;
+        public string SelectedPlatePattern
+        {
+            get => _selectedPlatePattern;
+            set
+            {
+                string next = string.IsNullOrWhiteSpace(value) ? YieldPlatePatternLabel : value;
+                if (string.Equals(_selectedPlatePattern, next, StringComparison.Ordinal)) return;
+                _selectedPlatePattern = next;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentPlatePattern));
+                OnPropertyChanged(nameof(SelectedPlatePatternHint));
+            }
+        }
+
+        public string SelectedPlatePatternHint =>
+            CurrentPlatePattern == PlatePattern.FillFirstPlate
+                ? "Fill first plate fills sheet 1 before opening another. It does not add sheets or leave more pieces out."
+                : "Yield keeps today's winner: fewest pieces left out, then fewest sheets. A fuller first sheet does not replace it.";
+
+        public PlatePattern CurrentPlatePattern =>
+            string.Equals(SelectedPlatePattern, FillFirstPlatePatternLabel, StringComparison.Ordinal)
+                ? PlatePattern.FillFirstPlate
+                : PlatePattern.Yield;
+
+        private string PlatePatternStamp() =>
+            CurrentPlatePattern == PlatePattern.FillFirstPlate ? "fill first plate" : "yield";
 
         // ── margins ────────────────────────────────────────────────────
 

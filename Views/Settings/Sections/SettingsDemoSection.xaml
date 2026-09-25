@@ -21,8 +21,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -40,7 +40,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — DEMO & RECORDER ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -48,19 +48,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE714;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE714;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Demo Studio &amp; Screen Recorder" Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="FFmpeg hardware encoding, session isolation sandbox, and video capture" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            <TextBlock Text="Demo Studio &amp; Screen Recorder" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="FFmpeg hardware encoding, session isolation sandbox, and video capture" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
-                        <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
-                                Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                            <TextBlock Text="1080p 60fps" Style="{StaticResource SettingsChipTextStyle}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="1080p 60fps" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                         </Border>
                     </Grid>
                 </Border>
@@ -76,8 +74,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <cards:DemoRecordCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
-                    <cards:DemoQualityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                    <cards:DemoRecordCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+                    <cards:DemoQualityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
                 </Grid>
 
                 <!-- ═══ BENTO ROW — WORKFLOW & ISOLATION ═══ -->
@@ -86,8 +84,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <cards:DemoWorkflowCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
-                    <cards:DemoIsolationCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                    <cards:DemoWorkflowCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+                    <cards:DemoIsolationCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
                 </Grid>
 
                 <!-- ═══ CARD — RESET DEMO DATA ═══ -->
@@ -112,8 +110,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <cards:DemoHistoryCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
-                    <cards:DemoOutputCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                    <cards:DemoHistoryCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+                    <cards:DemoOutputCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
                 </Grid>
 
             </StackPanel>

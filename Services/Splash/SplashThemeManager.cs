@@ -11,7 +11,14 @@ using System.Windows.Media;
 
 namespace ProGlassAutomation.Services.Splash
 {
-    public record SplashStyleOption(int Id, string Name, string Description, string AccentHex);
+    public record SplashStyleOption(int Id, string Name, string Description, string AccentHex)
+    {
+        // ComboBox item templates that ignore DisplayMemberPath fall back to
+        // ToString(). A record's generated ToString is the whole payload
+        // ("SplashStyleOption { Id = 1, Name = ... }"), which is what the
+        // splash card was showing instead of the style name.
+        public override string ToString() => Name;
+    }
 
     public record SplashStyleTheme(
         int Id,

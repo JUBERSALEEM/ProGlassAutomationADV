@@ -1,19 +1,128 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
-    <!-- Shared styles for Job Order detail sections (also merged by the
-         detail view itself - single source, no duplication). -->
-        <!-- Migrated CardLabelStyle to global Typography.Label -->
-    
+    <!-- ═══════════════════════════════════════════════════════════════
+         FILE: Views/JobOrder/JobOrderDetail/Sections/JoSectionStyles.xaml
+         MODULE: Job Order Detail — Overview Dashboard (Indigo Studio Bento) Edition
+         Merges IndigoStudioResources and maps all module primitives into
+         the Ov.* token family for 100% visual unification.
+         ═══════════════════════════════════════════════════════════════ -->
 
-        
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
 
-        
+    <!-- Scoped Overview Dashboard / Indigo Studio palette aliases -->
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
+    <SolidColorBrush x:Key="TextTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
+    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Ink}}"/>
+    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
+    <SolidColorBrush x:Key="AccentBrush" Color="{Binding Color, Source={StaticResource Ov.Accent}}"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{Binding Color, Source={StaticResource Ov.AccentHover}}"/>
+    <SolidColorBrush x:Key="AccentDarkBrush" Color="{Binding Color, Source={StaticResource Ov.AccentHover}}"/>
+    <SolidColorBrush x:Key="SuccessBrush" Color="{Binding Color, Source={StaticResource Ov.Success}}"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{Binding Color, Source={StaticResource Ov.Warning}}"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="{Binding Color, Source={StaticResource Ov.Danger}}"/>
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
+    <SolidColorBrush x:Key="SurfacePrimaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
+    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
+    <SolidColorBrush x:Key="SurfaceTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
+    <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
+    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.OnAccent}}"/>
+    <SolidColorBrush x:Key="TintIndigoBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
+    <SolidColorBrush x:Key="TintBlueBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
+    <SolidColorBrush x:Key="TintGrayBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
+    <SolidColorBrush x:Key="TintRedBrush" Color="{Binding Color, Source={StaticResource Ov.DangerSoft}}"/>
+    <SolidColorBrush x:Key="TintAmberBrush" Color="{Binding Color, Source={StaticResource Ov.WarningSoft}}"/>
+    <SolidColorBrush x:Key="TintGreenBrush" Color="{Binding Color, Source={StaticResource Ov.SuccessSoft}}"/>
+    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
 
-        
+    <!-- Bento Card Styles for Job Order -->
+    <Style x:Key="SurfaceDetailStyle" TargetType="Border" BasedOn="{StaticResource Ov.CardCompact}">
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="14,12"/>
+    </Style>
 
-        
+    <Style x:Key="SpecGroupCardStyle" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
+        <Setter Property="Margin" Value="0,0,0,16"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
 
-        
+    <Style x:Key="ModuleListKpiStripStyle" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
+        <Setter Property="Padding" Value="16,14"/>
+        <Setter Property="CornerRadius" Value="18"/>
+    </Style>
+
+    <Style x:Key="ModuleListKpiDividerStyle" TargetType="Border">
+        <Setter Property="Width" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="Margin" Value="16,4"/>
+    </Style>
+
+    <!-- Compact Form Field Controls -->
+    <Style x:Key="JoCompactLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource Ov.Meta}">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <Style x:Key="JoCompactInputStyle" TargetType="TextBox">
+        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <Style x:Key="JoCompactComboStyle" TargetType="ComboBox">
+        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="MinHeight" Value="36"/>
+    </Style>
+
+    <Style x:Key="JoCompactDateStyle" TargetType="DatePicker">
+        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="MinHeight" Value="36"/>
+    </Style>
+
+    <Style x:Key="JoCompactMultiInputStyle" TargetType="TextBox">
+        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+        <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="MinHeight" Value="64"/>
+        <Setter Property="Padding" Value="10,6"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="AcceptsReturn" Value="True"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+    </Style>
+
+    <Style x:Key="LineItemsHeaderStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding" Value="14,10"/>
+    </Style>
+
+    <Style x:Key="LineItemsHeaderTextStyle" TargetType="TextBlock" BasedOn="{StaticResource Ov.Meta}">
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="LineItemsFooterStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="16,10"/>
+        <Setter Property="CornerRadius" Value="0,0,18,18"/>
+    </Style>
 
 </ResourceDictionary>

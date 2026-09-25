@@ -34,18 +34,18 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Page Header -->
-        <Grid Grid.Row="0" Margin="16,16,16,8">
+        <!-- Page Action / Status Header -->
+        <Grid Grid.Row="0" Margin="16,6,16,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="Overall Order Reports" Style="{StaticResource Sl.Title}"/>
-                <TextBlock Text="Enterprise Order Fulfillment &amp; Traceability" Style="{StaticResource Sl.Subtitle}"/>
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Overall Order Reports" Style="{StaticResource Sl.Title}" Visibility="Collapsed"/>
+                <TextBlock Text="Enterprise Order Fulfillment &amp; Traceability" Style="{StaticResource Sl.Subtitle}" Visibility="Collapsed"/>
                 <TextBlock Text="{Binding StatusMessage}"
                            Style="{StaticResource Sl.Subtitle}"
-                           Margin="0,4,0,0"
+                           Margin="0"
                            Typography.NumeralAlignment="Tabular"/>
             </StackPanel>
             <Button Grid.Column="1"
@@ -53,7 +53,7 @@
                     Style="{StaticResource Sl.PrimaryButton}"
                     Tag="&#xE710;"
                     Content="New Report"
-                    MinWidth="140"
+                    MinWidth="130"
                     VerticalAlignment="Center"/>
         </Grid>
 
@@ -79,11 +79,13 @@
                                     <TextBlock Text="TOTAL INVOICED"
                                                Style="{StaticResource Sl.Label}"
                                                Foreground="{DynamicResource Ov.OnAccentMuted}"/>
-                                    <TextBlock Text="{Binding TotalInvoicedValueDisplay}"
-                                               Style="{StaticResource Sl.Value}"
-                                               Foreground="{DynamicResource Ov.OnAccent}"
-                                               FontSize="28"
-                                               Typography.NumeralAlignment="Tabular"/>
+                                    <Viewbox MaxHeight="28" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding TotalInvoicedValueDisplay}"
+                                                   Style="{StaticResource Sl.Value}"
+                                                   Foreground="{DynamicResource Ov.OnAccent}"
+                                                   FontSize="28"
+                                                   Typography.NumeralAlignment="Tabular"/>
+                                    </Viewbox>
                                     <TextBlock Text="Across all saved overall order reports"
                                                Style="{StaticResource Sl.Subtitle}"
                                                Foreground="{DynamicResource Ov.OnAccentMuted}"
@@ -95,11 +97,12 @@
                             <Border Style="{StaticResource Sl.Card}" Padding="16,14">
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="SAVED REPORTS" Style="{StaticResource Sl.Label}"/>
-                                    <TextBlock Text="{Binding TotalReportsDisplay}"
-                                               Style="{StaticResource Sl.Value}"
-                                               FontSize="24"
-                                               Typography.NumeralAlignment="Tabular"
-                                               Margin="0,4,0,0"/>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                        <TextBlock Text="{Binding TotalReportsDisplay}"
+                                                   Style="{StaticResource Sl.Value}"
+                                                   FontSize="24"
+                                                   Typography.NumeralAlignment="Tabular"/>
+                                    </Viewbox>
                                     <TextBlock Text="Total registered reports"
                                                Style="{StaticResource Sl.Subtitle}"
                                                Margin="0,4,0,0"/>
@@ -110,21 +113,22 @@
                             <Border Style="{StaticResource Sl.Card}" Padding="16,14">
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="MISSING DOCUMENTS" Style="{StaticResource Sl.Label}"/>
-                                    <TextBlock Text="{Binding TotalMissingDocumentsDisplay}"
-                                               FontSize="24" FontWeight="Bold"
-                                               Typography.NumeralAlignment="Tabular"
-                                               Margin="0,4,0,0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
-                                                        <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
+                                    <Viewbox MaxHeight="24" HorizontalAlignment="Left" Margin="0,4,0,0">
+                                        <TextBlock Text="{Binding TotalMissingDocumentsDisplay}"
+                                                   FontSize="24" FontWeight="Bold"
+                                                   Typography.NumeralAlignment="Tabular">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasMissingDocuments}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Viewbox>
                                     <TextBlock Text="Delivery notes without attachments"
                                                Style="{StaticResource Sl.Subtitle}"
                                                Margin="0,4,0,0"/>

@@ -2115,6 +2115,7 @@ STRINGS = {
     "Settings.RemoveSavedKeys": "Remove Saved Keys",
     "Settings.RendersMonetGlassCardsWindowBackgroundAccent": "Renders Monet glass, cards and the window background as accent-derived gradients for a richer adaptive look. Off = the same palette, flat.",
     "Settings.RepresentativeMobile": "Representative Mobile",
+    "Settings.Reset": "Reset",
     "Settings.ResetAppearanceDefaults": "RESET APPEARANCE TO DEFAULTS",
     "Settings.ResetDEMOFolder": "RESET DEMO FOLDER",
     "Settings.ResetDeletesAppdataProglassautomationDemo": "Reset deletes only %AppData%/ProGlassAutomation.Demo. Production files are never opened or cleared.",

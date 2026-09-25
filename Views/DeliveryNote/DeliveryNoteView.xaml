@@ -52,20 +52,24 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
-        <!--
-            DataTemplate tells WPF: "when Content is a DeliveryNoteDetailViewModel,
-            render it using DeliveryNoteDetailView."
-            The DataContext of the view is automatically set to the VM instance.
-            This is instantiated LAZILY — only when DetailVM becomes non-null.
-        -->
-        <DataTemplate DataType="{x:Type detailVm:DeliveryNoteDetailViewModel}">
-            <detail:DeliveryNoteDetailView/>
-        </DataTemplate>
-
+            <!--
+                DataTemplate tells WPF: "when Content is a DeliveryNoteDetailViewModel,
+                render it using DeliveryNoteDetailView."
+                The DataContext of the view is automatically set to the VM instance.
+                This is instantiated LAZILY — only when DetailVM becomes non-null.
+            -->
+            <DataTemplate DataType="{x:Type detailVm:DeliveryNoteDetailViewModel}">
+                <detail:DeliveryNoteDetailView/>
+            </DataTemplate>
+        </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Background="Transparent">
+    <Grid Background="{DynamicResource Ov.Canvas}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

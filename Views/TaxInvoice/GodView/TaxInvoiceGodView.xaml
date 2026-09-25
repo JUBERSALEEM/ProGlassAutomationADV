@@ -27,7 +27,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="20">
+    <Grid Margin="16,10,16,16">
         <Grid.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                 <BeginStoryboard>
@@ -46,29 +46,20 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══ HEADER ═════════════════════════════════════════════════ -->
-        <Grid Grid.Row="0" Margin="0,0,0,16">
+        <!-- ══ HEADER (Action Bar) ═════════════════════════════════════ -->
+        <Grid Grid.Row="0" Margin="0,0,0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="{DynamicResource God.TiTitle}"
-                           Style="{StaticResource Sl.Title}"/>
-                <TextBlock Text="{DynamicResource God.TiSubtitle}"
-                           Style="{StaticResource Sl.Subtitle}"
-                           Margin="0,4,0,0"/>
-            </StackPanel>
-
             <!-- Search box -->
-            <Border Grid.Column="1"
+            <Border Grid.Column="0"
                     Style="{StaticResource Sl.Card}"
                     Padding="12,0"
-                    Width="320"
-                    Margin="16,0"
-                    MinHeight="38"
+                    MaxWidth="420"
+                    HorizontalAlignment="Left"
+                    MinHeight="36"
                     VerticalAlignment="Center">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -93,7 +84,7 @@
             </Border>
 
             <!-- Refresh Button -->
-            <Button Grid.Column="2"
+            <Button Grid.Column="1"
                     Style="{StaticResource Sl.PrimaryButton}"
                     Tag="&#xE72C;" Content="{DynamicResource God.Refresh}"
                     ToolTip="{DynamicResource God.RefreshOverview}"

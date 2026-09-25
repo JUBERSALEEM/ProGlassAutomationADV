@@ -30,8 +30,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            Directory.CreateDirectory(
-                ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder);
+            // Shared-aware folder ensure (2026-09-24) — see AppDataRoot.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
             // Senior audit (Aug 2026): WAL + busy_timeout + foreign_keys=ON
             // via SqliteResilience. See SqliteResilience.cs.
             ProGlassAutomation.Services.Database.SqliteResilience

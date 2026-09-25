@@ -7,6 +7,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
+             Background="{DynamicResource Ov.Canvas}"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -31,7 +32,7 @@
 
         <Border Grid.Row="0"
                 Style="{StaticResource ModuleDetailActionBarStyle}"
-                Margin="16,16,16,8">
+                Margin="16,8,16,6">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

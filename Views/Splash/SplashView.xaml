@@ -1,7 +1,7 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Splash Screen — "GLASS PRISM OPTICAL BEVEL" (v9 Master Approved)
+     MODULE: Splash Screen — "GLASS PRISM OPTICAL BEVEL" (v9 Master Bento Approved)
      Visual source of truth: docs/splash_09_glass_prism_bevel.png
      
      100% PURE NATIVE WPF XAML REWRITE:
@@ -103,7 +103,7 @@
         </LinearGradientBrush>
 
         <!-- Plate Shadow -->
-        <DropShadowEffect x:Key="PlateDropShadow" Color="#0F172A" BlurRadius="45" ShadowDepth="20" Direction="270" Opacity="0.18" RenderingBias="Performance"/>
+        <DropShadowEffect x:Key="PlateDropShadow" Color="#0F172A" BlurRadius="12" ShadowDepth="6" Direction="270" Opacity="0.16" RenderingBias="Performance"/>
 
         <!-- Terms Styles -->
         <Style x:Key="TermsLead" TargetType="TextBlock">
@@ -134,7 +134,10 @@
                         <GradientStop Color="#00E2E8F0" Offset="1"/>
                     </RadialGradientBrush>
                 </Ellipse.Fill>
-                <Ellipse.Effect><BlurEffect Radius="30" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
+                <!-- No BlurEffect. These blobs move forever on a maximized
+                     topmost window; a live blur is re-run every frame and
+                     has stalled the display driver at launch. The gradient
+                     already fades out. -->
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob1Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
 
@@ -147,7 +150,6 @@
                         <GradientStop Color="#00E2E8F0" Offset="1"/>
                     </RadialGradientBrush>
                 </Ellipse.Fill>
-                <Ellipse.Effect><BlurEffect Radius="32" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob2Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
 
@@ -159,7 +161,6 @@
                         <GradientStop Color="#00E2E8F0" Offset="1"/>
                     </RadialGradientBrush>
                 </Ellipse.Fill>
-                <Ellipse.Effect><BlurEffect Radius="26" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob3Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
 
@@ -172,7 +173,6 @@
                         <GradientStop Color="#00E2E8F0" Offset="1"/>
                     </RadialGradientBrush>
                 </Ellipse.Fill>
-                <Ellipse.Effect><BlurEffect Radius="26" KernelType="Box" RenderingBias="Performance"/></Ellipse.Effect>
                 <Ellipse.RenderTransform><TranslateTransform x:Name="BgBlob4Translate" X="0" Y="0"/></Ellipse.RenderTransform>
             </Ellipse>
 

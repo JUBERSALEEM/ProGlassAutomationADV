@@ -77,7 +77,11 @@
     <Thickness x:Key="Surface.Secondary.Padding">14,9</Thickness>
     <Thickness x:Key="Surface.Detail.Padding">10,6</Thickness>
     <x:Null x:Key="Surface.Primary.Effect"/>
-    <x:Null x:Key="ModuleSkinBlurEffect"/>
+    <!-- Radius 0, not x:Null. MainWindow binds this on the wallpaper
+         layer; a null Effect resource fails that assignment on some
+         theme loads. ThemeManager replaces it when frost is on. -->
+    <BlurEffect x:Key="ModuleSkinBlurEffect" Radius="0" KernelType="Box"
+                RenderingBias="Performance"/>
 
 
     <!-- Dynamic shape/border primitives for legacy XAML migration. These

@@ -29,7 +29,8 @@ namespace ProGlassAutomation.Services.Optimization
             int effortLevel = 3,
             CancellationToken cancellationToken = default,
             IProgress<OptimizeProgress> progress = null,
-            SmartSearchConfiguration config = null)
+            SmartSearchConfiguration config = null,
+            PlatePattern platePattern = PlatePattern.Yield)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -40,24 +41,29 @@ namespace ProGlassAutomation.Services.Optimization
                 return new OptimizationResult { Rotation = rotation };
 
             if (pieces.Count >= IndustrialQuantityThreshold)
-                return PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress);
+                return NoteFillSkipped(
+                    PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress),
+                    platePattern);
 
             if (effortLevel <= 1)
                 return PackQuick(pieces, stocks, margins, rotation,
-                    cancellationToken: cancellationToken, progress: progress);
+                    cancellationToken: cancellationToken, progress: progress,
+                    platePattern: platePattern, fillEffort: 1);
 
             config ??= SmartSearchConfiguration.Default;
 
             // Small/medium jobs directly leverage the standard global multi-start engine
             if (pieces.Count <= config.LargeJobThreshold)
             {
-                return PackOptimize(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress);
+                return PackOptimize(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress,
+                    platePattern);
             }
 
             // A stock cap belongs to the complete job, not independently to
             // each parallel batch. This matches the VM's finite-inventory route.
             if (stocks.Any(s => s.MaxSheets > 0 && s.MaxSheets < StockSize.EffectivelyUnlimitedSheets))
-                return PackOptimize(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress);
+                return PackOptimize(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress,
+                    platePattern);
 
             var sw = Stopwatch.StartNew();
             int totalParts = pieces.Count;
@@ -225,7 +231,8 @@ namespace ProGlassAutomation.Services.Optimization
 
             winningResult.ScaleNotes.Add(
                 $"Partitioned Adaptive Smart Search: {totalParts:N0} parts across {batchCount} batches + global multi-pass, " +
-                $"cross-window consolidation + tail repacking in {sw.Elapsed.TotalSeconds:F1}s.");
+                $"cross-window consolidation + tail repacking in {sw.Elapsed.TotalSeconds:F1}s. " +
+                "This quantity uses the batched search, not the small-job stage grid.");
 
             // Industrial safety net: validate before the plan can reach a cut
             // file. If the winner is invalid, try the other candidate, then a
@@ -257,6 +264,8 @@ namespace ProGlassAutomation.Services.Optimization
             winningResult.RecordValidation(
                 problems.Count == 0 ? problems : VerifyComprehensive(winningResult, pieces, margins),
                 conservationChecked: true, geometryChecked: true);
+            winningResult = ApplyPlatePattern(winningResult, pieces, stocks, margins, rotation,
+                effortLevel, platePattern, cancellationToken, progress);
 
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
                 $"{winningResult.Sheets.Count:N0} sheets cut · {winningResult.Unplaced.Count} unplaced"));

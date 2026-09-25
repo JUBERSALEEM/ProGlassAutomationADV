@@ -33,7 +33,8 @@
                  accent border on focus. Placeholder via template
                  triggers (no Storyboard). -->
             <Style x:Key="ModuleSearchBoxStyle" TargetType="TextBox">
-                <Setter Property="Width" Value="220"/>
+                <Setter Property="MinWidth" Value="0"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 <Setter Property="Padding" Value="14,8"/>
                 <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
                 <Setter Property="Foreground" Value="{DynamicResource Ios26TextBodyBrush}"/>
@@ -105,7 +106,7 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="12"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" MinWidth="0"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
@@ -127,6 +128,8 @@
                             <TextBlock Grid.Column="2"
                                        FontSize="{DynamicResource Ios26FontSizeValue}"
                                        VerticalAlignment="Center"
+                                       TextWrapping="NoWrap"
+                                       TextTrimming="CharacterEllipsis"
                                        IsHitTestVisible="False">
                                 <Run Text="{Binding Name, Mode=OneWay}"
                                      FontWeight="{DynamicResource Weight.Bold}"
@@ -217,11 +220,11 @@
         <!-- ═══ HERO · INTEGRATED GLASS MANUFACTURING SUITE (Screen 03) ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>
-                <Grid Margin="0,0,0,14">
+                <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="14"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*" MinWidth="0"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
@@ -239,10 +242,14 @@
                         <TextBlock Text="Integrated Glass Manufacturing Suite"
                                    FontSize="{DynamicResource Ios26FontSizeCardTitle}"
                                    FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="Continuous end-to-end traceability across 12 production &amp; optimization modules"
                                    FontSize="{DynamicResource Ios26FontSizeSmall}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
                                    Margin="0,2,0,0"/>
                     </StackPanel>
 
@@ -290,17 +297,20 @@
         <!-- ═══ PRODUCTION MODULES (mockup 03: one card) ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>
-                <Grid Margin="0,0,0,12">
+                <Grid Margin="0,0,0,6">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*" MinWidth="0"/>
+                        <ColumnDefinition Width="*" MinWidth="120" MaxWidth="220"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
                                Text="{DynamicResource About.ModulesProduction}"
                                FontSize="{DynamicResource Ios26FontSizeCardTitle}"
                                FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource Ios26TextTitleBrush}"
-                               VerticalAlignment="Center"/>
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
                     <TextBox Grid.Column="1"
                              Style="{StaticResource ModuleSearchBoxStyle}"
                              Text="{Binding ModuleSearch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
@@ -339,17 +349,21 @@
             <StackPanel>
                 <Grid Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*" MinWidth="0"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
+                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
                         <TextBlock Text="{DynamicResource About.EndEndProductionWorkflow}"
                                    FontSize="{DynamicResource Ios26FontSizeCardTitle}"
                                    FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource Ios26TextTitleBrush}"/>
+                                   Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{DynamicResource About.CommercialIntakeProductionPreparation}"
                                    FontSize="{DynamicResource Ios26FontSizeSmall}"
                                    Foreground="{DynamicResource Ios26TextMutedBrush}"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
                                    Margin="0,2,0,0"/>
                     </StackPanel>
                     <Border Grid.Column="1" Style="{StaticResource Ios26ChipSoftStyle}"
@@ -365,10 +379,10 @@
                     <StackPanel>
                         <Grid Margin="0,0,0,14">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" MinWidth="0"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource About.SalesCycle}"
                                            FontSize="{DynamicResource Ios26FontSizeCaption}"
                                            FontWeight="{DynamicResource Weight.SemiBold}"
@@ -402,10 +416,10 @@
                     <StackPanel>
                         <Grid Margin="0,0,0,14">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" MinWidth="0"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource About.ProductionStagesUpcoming}"
                                            FontSize="{DynamicResource Ios26FontSizeCaption}"
                                            FontWeight="{DynamicResource Weight.SemiBold}"
@@ -439,10 +453,10 @@
                     <StackPanel>
                         <Grid Margin="0,0,0,14">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" MinWidth="0"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" Margin="0,0,12,0">
                                 <TextBlock Text="{DynamicResource About.DispatchBilling}"
                                            FontSize="{DynamicResource Ios26FontSizeCaption}"
                                            FontWeight="{DynamicResource Weight.SemiBold}"

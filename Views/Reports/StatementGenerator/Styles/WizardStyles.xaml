@@ -33,6 +33,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <!-- ═════════════════════════════════════════════════════════════════
          SHARED FROZEN RESOURCES (performance-critical)
     ═════════════════════════════════════════════════════════════════ -->

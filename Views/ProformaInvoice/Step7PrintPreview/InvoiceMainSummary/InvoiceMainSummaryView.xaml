@@ -18,6 +18,10 @@
              FontFamily="{DynamicResource AppFontFamily}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         
         
         <Style x:Key="DiscountKindChip" TargetType="RadioButton">
@@ -53,6 +57,7 @@
             </Setter>
         </Style>
         
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <StackPanel>

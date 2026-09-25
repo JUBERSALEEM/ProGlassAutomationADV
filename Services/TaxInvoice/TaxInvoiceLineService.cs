@@ -22,6 +22,7 @@ using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.TaxInvoice
 {
@@ -47,7 +48,7 @@ namespace ProGlassAutomation.Services.TaxInvoice
         {
             decimal subtotal = items.Sum(i => i.Value);
             decimal afterDiscount = Math.Max(0, subtotal - discountAmount);
-            decimal vat = Math.Round(afterDiscount * vatRate, 2);
+            decimal vat = MoneyRounding.Round(afterDiscount * vatRate);
             decimal grandTotal = afterDiscount + vat;
             return (subtotal, vat, grandTotal);
         }

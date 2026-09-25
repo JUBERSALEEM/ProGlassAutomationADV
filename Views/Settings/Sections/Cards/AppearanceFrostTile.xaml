@@ -12,68 +12,94 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
-        <StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE792;" VerticalAlignment="Center"/>
-                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="Frosted module cards"/>
-                <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
-                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+    <StackPanel Margin="{StaticResource SettingsStackGap8}">
+        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE792;" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="Frosted module cards"/>
+            <Viewbox MaxHeight="18" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
+                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource AccentBrush}">
                     <Run Text="{Binding CardBlurIntensity, Mode=OneWay, StringFormat={}{0:0}}"/>
                     <Run Text="/100"/>
                 </TextBlock>
-            </StackPanel>
-            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                       Text="Blurs the module wallpaper behind every screen. Cards stay sharp. 1 = light frost, 50 = professional, 100 = max. Colour plate tints the shared card fill."/>
-            <Slider Style="{StaticResource ModernSliderStyle}"
-                    AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                    Minimum="1" Maximum="100"
-                    Value="{Binding CardBlurIntensity, Mode=TwoWay}"
-                    VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap8}"/>
-            <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
-                       Style="{StaticResource SettingsRowMetaStyle}"
-                       Text="Frost colour plate"/>
-            <ItemsControl ItemsSource="{Binding CardEdgePalette}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Command="{Binding DataContext.ApplyCardFrostTintCommand,
-                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                CommandParameter="{Binding Key}"
-                                Style="{StaticResource AccentChipStyle}">
-                            <StackPanel Orientation="Horizontal">
-                                <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
-                                         VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
-                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap12}">
-                <Ellipse Width="14" Height="14"
-                         Fill="{Binding CardFrostTintSwatch}"
-                         Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
-                         VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
-                <TextBox Text="{Binding CardFrostTint, UpdateSourceTrigger=PropertyChanged}"
-                         Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Body}"
-                         FontFamily="{DynamicResource FontFamily.Code}" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
-                <Button Command="{Binding ApplyCardFrostTintCommand}" CommandParameter="Auto"
-                        Style="{StaticResource AccentChipStyle}" Margin="{StaticResource SettingsInlineGap8}">
-                    <TextBlock Text="Auto (theme)"/>
-                </Button>
-            </StackPanel>
+            </Viewbox>
         </StackPanel>
-    </Border>
+        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   TextWrapping="Wrap"
+                   Text="Blurs the wallpaper behind the module. Colour strength 100 paints the swatch as picked. 0 washes it to white. Transparency 100 is solid. 0 is clear."/>
+        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="Reduced motion is on, so wallpaper blur stays off. Turn it off in Language &amp; Currency to see the frost."
+                   TextWrapping="Wrap"
+                   Visibility="{Binding ReducedMotion, Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <Slider Style="{StaticResource ModernSliderStyle}"
+                AutomationProperties.Name="Frost blur"
+                Minimum="1" Maximum="100"
+                Value="{Binding CardBlurIntensity, Mode=TwoWay}"
+                VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap8}"/>
+        <TextBlock Margin="{StaticResource SettingsStackGap8}"
+                   Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="Colour strength — 0 white, 100 exact swatch"/>
+        <Slider Style="{StaticResource ModernSliderStyle}"
+                AutomationProperties.Name="Card colour strength"
+                Minimum="0" Maximum="100"
+                Value="{Binding CardFrostStrength, Mode=TwoWay}"
+                VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap4}"/>
+        <TextBlock Margin="{StaticResource SettingsStackGap8}"
+                   Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="Transparency — 0 clear, 100 solid"/>
+        <Slider Style="{StaticResource ModernSliderStyle}"
+                AutomationProperties.Name="Card colour transparency"
+                Minimum="0" Maximum="100"
+                Value="{Binding CardFrostOpacity, Mode=TwoWay}"
+                VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap4}"/>
+        <!-- Live plate. This is the brush the cards paint, not a sample
+             mixed a second time, so black here is the black on the card. -->
+        <Border Height="28" Margin="0,8,0,4"
+                Style="{StaticResource EdgeProofStyle}"
+                CornerRadius="{DynamicResource Ios26RadiusInner}"
+                Background="{DynamicResource SettingsCardFaceBrush}"/>
+        <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
+                   Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="Frost colour plate"/>
+        <ItemsControl ItemsSource="{Binding CardFrostPalette}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Command="{Binding DataContext.ApplyCardFrostTintCommand,
+                                      RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                            CommandParameter="{Binding Key}"
+                            Style="{StaticResource AccentChipStyle}">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                     VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap8R}"/>
+                            <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Button>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap12}">
+            <Ellipse Width="14" Height="14"
+                     Fill="{Binding CardFrostTintSwatch}"
+                     Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                     VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
+            <TextBox Text="{Binding CardFrostTint, UpdateSourceTrigger=PropertyChanged}"
+                     Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Body}"
+                     FontFamily="{DynamicResource FontFamily.Code}" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+            <Button Command="{Binding ApplyCardFrostTintCommand}" CommandParameter="Auto"
+                    Style="{StaticResource AccentChipStyle}" Margin="{StaticResource SettingsInlineGap8}">
+                <TextBlock Text="Auto (theme)"/>
+            </Button>
+        </StackPanel>
+    </StackPanel>
 </UserControl>

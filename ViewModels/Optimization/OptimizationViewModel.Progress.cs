@@ -123,27 +123,27 @@ namespace ProGlassAutomation.ViewModels.Optimization
         ///   • any group over 2,000 parts → GuillotinePacker.
         ///     PackOptimizePartitioned — stratified production batches plus a
         ///     global multi-pass baseline (the two are compared, best kept).
-        /// Candidate counts below are the engine's real numbers for the
-        /// standard (≤2,000) band at each effort level.
+        /// The words below name the search that stage actually runs.
+        /// They are not the old pattern-family titles.
         /// </summary>
         private static string BuildRunArchitectureLabel(string stage, int maxGroupParts, int effort)
         {
             if (!string.Equals(stage, "OPTIMIZE", StringComparison.Ordinal) || effort <= 1)
                 return maxGroupParts >= 100000
                     ? "QUICK industrial — count-based pattern master, scalable strip floors and bounded remainder repair; all panes retained"
-                    : "QUICK — whole-order repeated-pattern quantities, shelf/strip floors and bounded pattern repair; best validated plan retained";
+                    : "QUICK — area shelf, capacity strips, bounded patterns, and repeated quantities. This is not stages 2 to 5.";
 
             if (maxGroupParts >= 100000)
                 return "Industrial quantity search — count-based pattern master, scalable strip floors and bounded remainder search; no whole-order quadratic beam";
 
             if (maxGroupParts <= 2000)
                 return effort == 2
-                        ? "QUICK floor + area-pattern beam 12 — 3 ordering candidates plus Best-Split, Sheet-Fill, Wall-Seed and Smart Placement"
+                        ? "Stage 2 — three orderings, best-split, sheet-fill, wall-seed, and smart placement"
                         : effort == 3
-                            ? "QUICK floor + cumulative pattern beams through 16 — 12 ordering/split candidates plus Best-Split, Sheet-Fill, Wall-Seed, Smart Placement, MaxRects and beam-corrected Best-Split"
+                            ? "Stage 3 — twelve ordering and split candidates, best-split, sheet-fill, wall-seed, smart placement, MaxRects, and beam 4"
                             : effort == 4
-                                ? "QUICK floor + cumulative pattern beams through 24 — 18 ordering/split candidates × 4 deterministic shuffles, plus Best-Split, Sheet-Fill, Wall-Seed, horizontal + vertical Smart Placement, MaxRects and widened beam"
-                                : "QUICK floor + cumulative pattern beams through 32 — 18 ordering/split candidates × 7 deterministic shuffles, plus Best-Split, Sheet-Fill, Wall-Seed, horizontal + vertical Smart Placement, MaxRects over all 6 orderings and widened beam";
+                                ? "Stage 4 — all six orderings, shuffles, vertical smart placement, and beam 8"
+                                : "Stage 5 — widest shuffle set and MaxRects on every ordering. A better plan already found is kept.";
 
             // > 2,000 parts per group → PackOptimizePartitioned.
             return "Stratified partitioned search — anchor/medium/filler production batches, per-batch bounded pattern repair and multi-strategy passes, global quantity-aware QUICK floor, cross-batch consolidation, tail repack and unplaced recovery";
@@ -184,6 +184,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         // ── effort stamping ──────────────────────────────────────────────
 
         private int _lastRunEffort;
+        private bool _lastRunAutoEffort;
 
         private string _resultEffortLabel = string.Empty;
         /// <summary>Which optimization level produced the current result, read
@@ -260,11 +261,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private void UpdateUpgradeSummary(string stage, int totalSheets)
         {
             ResultEffortLabel = stage == "OPTIMIZE"
-                ? string.Format(CultureInfo.InvariantCulture,
-                      "Optimization level {0} of 5 (from SETTINGS)", _lastRunEffort)
+                ? _lastRunAutoEffort
+                    ? string.Format(CultureInfo.InvariantCulture,
+                        "Auto effort · existing stage per cutting group · {0}", PlatePatternStamp())
+                    : string.Format(CultureInfo.InvariantCulture,
+                        "Optimization level {0} of 5 · {1} (from SETTINGS)", _lastRunEffort, PlatePatternStamp())
                 : string.Format(CultureInfo.InvariantCulture,
-                      "Quick single pass — SETTINGS level {0} available via Upgrade to Optimize",
-                      _lastRunEffort);
+                      "Quick single pass · {1} — SETTINGS level {0} available via Upgrade to Optimize",
+                      _lastRunEffort, PlatePatternStamp());
 
             bool isUpgrade = stage == "OPTIMIZE"
                 && string.Equals(_previousRunStage, "QUICK", StringComparison.Ordinal)
@@ -277,17 +281,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             int saved = _previousRunSheetCount - totalSheets;
+            string levelWord = _lastRunAutoEffort
+                ? "Auto effort"
+                : "Level " + _lastRunEffort.ToString(CultureInfo.InvariantCulture);
             UpgradeSummaryLabel = saved > 0
                 ? string.Format(CultureInfo.InvariantCulture,
-                      "Level {0} saved {1} sheet(s) over QUICK: {2} → {3}.",
-                      _lastRunEffort, saved, _previousRunSheetCount, totalSheets)
+                      "{0} saved {1} sheet(s) over QUICK: {2} → {3}.",
+                      levelWord, saved, _previousRunSheetCount, totalSheets)
                 : saved == 0
                     ? string.Format(CultureInfo.InvariantCulture,
-                          "Level {0} matched QUICK at {1} sheets — this job was already optimal.",
-                          _lastRunEffort, totalSheets)
+                          "{0} matched QUICK at {1} sheets — this job was already optimal.",
+                          levelWord, totalSheets)
                     : string.Format(CultureInfo.InvariantCulture,
-                          "Level {0} returned {1} sheets vs QUICK {2}.",
-                          _lastRunEffort, totalSheets, _previousRunSheetCount);
+                          "{0} returned {1} sheets vs QUICK {2}.",
+                          levelWord, totalSheets, _previousRunSheetCount);
         }
     }
 }

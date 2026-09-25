@@ -217,13 +217,34 @@ namespace ProGlassAutomation.Tests.Settings
         public void Rewritten_section_still_binds_to(string sectionFile, string binding)
         {
             var root = LocateProjectRoot();
-            var src = File.ReadAllText(Path.Combine(root,
-                "Views/Settings/Sections", sectionFile));
-            var pattern = @"\{Binding\s+(?:Path\s*=\s*)?" + Regex.Escape(binding) + @"[\s,}]";
+            var src = ReadSectionWithHostedCards(root, sectionFile);
+            // Card extraction moved bindings into Views/Settings/Sections/Cards.
+            // Palette chips bind DataContext.Command because the item template
+            // re-scopes DataContext to the swatch. Both forms are the same
+            // ViewModel member.
+            var pattern = @"\{Binding\s+(?:Path\s*=\s*)?(?:DataContext\.)?"
+                + Regex.Escape(binding) + @"[\s,}]";
             Assert.True(Regex.IsMatch(src, pattern),
-                $"Binding '{binding}' vanished from {sectionFile}. " +
+                $"Binding '{binding}' vanished from {sectionFile} and its hosted cards. " +
                 "The redesign was supposed to be a pure layout change — " +
-                "every ViewModel binding must survive byte-for-byte.");
+                "every ViewModel binding must survive.");
+        }
+
+        private static string ReadSectionWithHostedCards(string root, string sectionFile)
+        {
+            var sectionPath = Path.Combine(root, "Views/Settings/Sections", sectionFile);
+            var src = File.ReadAllText(sectionPath);
+            var combined = src;
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (Match match in Regex.Matches(src, @"cards:([A-Za-z0-9_]+)"))
+            {
+                var name = match.Groups[1].Value;
+                if (!seen.Add(name)) continue;
+                var cardPath = Path.Combine(root, "Views/Settings/Sections", "Cards", name + ".xaml");
+                if (File.Exists(cardPath))
+                    combined += "\n" + File.ReadAllText(cardPath);
+            }
+            return combined;
         }
 
         [Fact]

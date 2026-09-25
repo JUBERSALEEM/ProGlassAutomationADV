@@ -137,6 +137,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string Bottom { get; set; } = "15";
             public string Kerf { get; set; } = "3";
             public string MinBreakout { get; set; } = "15";
+            // JSON only. Sessions has no column for this — EnsureCreated does not migrate.
+            public string PlatePattern { get; set; } = "Yield";
+            // JSON only. True when the operator chose Auto effort. The stage number stays in EffortLevel.
+            public bool AutoEffort { get; set; }
         }
 
         // ── load ───────────────────────────────────────────────────────
@@ -452,6 +456,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 })
                 .ToList();
 
+            string platePattern = CurrentPlatePattern == PlatePattern.FillFirstPlate
+                ? "FillFirstPlate"
+                : "Yield";
             var margins = new MarginDto
             {
                 Thickness = ThicknessText,
@@ -460,7 +467,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 Top = TopMarginText,
                 Bottom = BottomMarginText,
                 Kerf = KerfText,
-                MinBreakout = MinBreakoutText
+                MinBreakout = MinBreakoutText,
+                PlatePattern = platePattern,
+                AutoEffort = UseAutoEffort
             };
 
             int totalSheets = _groupRuns.Sum(r => r.Result.Sheets.Count);
@@ -641,6 +650,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RotationEnabled = s.RotationEnabled;
             if (s.EffortLevel >= 1 && s.EffortLevel <= 5)
                 SelectedEffortLevel = s.EffortLevel.ToString(CultureInfo.InvariantCulture);
+            SelectedPlatePattern = string.Equals(margins?.PlatePattern, "FillFirstPlate",
+                    StringComparison.Ordinal)
+                ? FillFirstPlatePatternLabel
+                : YieldPlatePatternLabel;
+            if (margins?.AutoEffort == true)
+                SelectedStageStrategy = AutoStageStrategyLabel;
             SelectedCuttingGroup = AllCuttingGroups;
 
             // Restore the cutting list.
@@ -834,6 +849,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
             string stage = string.Equals(s.EngineStage, "OPTIMIZE", StringComparison.OrdinalIgnoreCase)
                 ? "OPTIMIZE"
                 : "QUICK";
+            MarginDto? savedMargins = null;
+            try
+            {
+                savedMargins = JsonSerializer.Deserialize<MarginDto>(s.MarginsJson);
+            }
+            catch (Exception)
+            {
+                savedMargins = null;
+            }
             _lastRunStage = stage;
             // Clear the previous run's geometry rather than leave sheets on screen
             // behind numbers that did not produce them.
@@ -937,11 +961,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
 
             string rotationLabel = s.RotationEnabled ? "rotation ON" : "rotation LOCKED";
+            string savedEffort = savedMargins?.AutoEffort == true
+                ? "auto"
+                : "level " + s.EffortLevel.ToString(CultureInfo.InvariantCulture);
             ResultStage = string.Format(CultureInfo.InvariantCulture,
                 stage == "OPTIMIZE"
-                    ? "OPTIMIZE \u00b7 level {0} \u00b7 {1} \u00b7 saved {2:dd MMM yyyy HH:mm}"
-                    : "QUICK \u00b7 {1} \u00b7 saved {2:dd MMM yyyy HH:mm}",
-                s.EffortLevel, rotationLabel, s.UpdatedUtc.ToLocalTime());
+                    ? "OPTIMIZE \u00b7 {0} \u00b7 {3} \u00b7 {1} \u00b7 saved {2:dd MMM yyyy HH:mm}"
+                    : "QUICK \u00b7 {3} \u00b7 {1} \u00b7 saved {2:dd MMM yyyy HH:mm}",
+                savedEffort, rotationLabel, s.UpdatedUtc.ToLocalTime(), PlatePatternStamp());
             ResultSheets = s.SheetsUsed.ToString(CultureInfo.InvariantCulture);
             ResultUtilization = s.UtilizationPct.ToString("0.00", CultureInfo.InvariantCulture) + "%";
             ResultUnplaced = s.UnplacedCount.ToString(CultureInfo.InvariantCulture);
@@ -961,10 +988,13 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     s.UnplacedCount));
             }
             ResultEffortLabel = stage == "OPTIMIZE"
-                ? string.Format(CultureInfo.InvariantCulture,
-                    "Optimization level {0} of 5 (from SETTINGS)", s.EffortLevel)
+                ? savedMargins?.AutoEffort == true
+                    ? string.Format(CultureInfo.InvariantCulture,
+                        "Auto effort · existing stage per cutting group · {0}", PlatePatternStamp())
+                    : string.Format(CultureInfo.InvariantCulture,
+                        "Optimization level {0} of 5 · {1} (from SETTINGS)", s.EffortLevel, PlatePatternStamp())
                 : string.Format(CultureInfo.InvariantCulture,
-                    "Quick single pass \u2014 saved at level {0}", s.EffortLevel);
+                    "Quick single pass · {1} \u2014 saved at level {0}", s.EffortLevel, PlatePatternStamp());
             UpgradeSummaryLabel = string.Empty;
             HasResult = true;
             _selectedSheetIndex = -1;

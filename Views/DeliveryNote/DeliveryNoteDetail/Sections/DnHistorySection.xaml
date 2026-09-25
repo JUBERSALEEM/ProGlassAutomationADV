@@ -316,33 +316,36 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                        <TextBlock Text="{Binding HistoryTotalOrdered}"
-                                   FontSize="{DynamicResource FontSize.H2}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding HistoryTotalOrdered}"
+                                       FontSize="{DynamicResource FontSize.H2}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </Viewbox>
                         <TextBlock Text="{DynamicResource Common.Ordered}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                        <TextBlock Text="{Binding HistoryTotalDelivered}"
-                                   FontSize="{DynamicResource FontSize.H2}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource SuccessBrush}"/>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding HistoryTotalDelivered}"
+                                       FontSize="{DynamicResource FontSize.H2}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                        </Viewbox>
                         <TextBlock Text="{DynamicResource Common.Delivered}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                        <TextBlock Text="{Binding HistoryTotalBalance}"
-                                   FontSize="{DynamicResource FontSize.H2}"
-                                   FontWeight="{DynamicResource Weight.Bold}"
-                                   HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource WarningBrush}"/>
+                        <Viewbox MaxHeight="28" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding HistoryTotalBalance}"
+                                       FontSize="{DynamicResource FontSize.H2}"
+                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       Foreground="{DynamicResource WarningBrush}"/>
+                        </Viewbox>
                         <TextBlock Text="{DynamicResource Common.Balance}"
                                    FontSize="{DynamicResource FontSize.BodySmall}"
                                    HorizontalAlignment="Center"

@@ -26,7 +26,16 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid Background="Transparent">
 
@@ -53,14 +62,13 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <WrapPanel Margin="16,16,16,12">
-
-                <StackPanel MinWidth="320" Margin="0,0,24,10">
+            <DockPanel Margin="16,10,16,8" LastChildFill="False">
+                <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
                     <TextBlock Text="{DynamicResource ProformaInvoice.ProformaInvoices}" Style="{StaticResource Sl.Title}"/>
                     <TextBlock Text="{DynamicResource ProformaInvoice.SavedQuotationsReadyConvertJobOrders}"
                                Style="{StaticResource Sl.Subtitle}"/>
                 </StackPanel>
-                <WrapPanel VerticalAlignment="Center" Margin="0,0,0,10">
+                <WrapPanel DockPanel.Dock="Right" VerticalAlignment="Center">
                     <Button Command="{Binding NewFromInquiryCommand}"
                             Style="{StaticResource Sl.PrimaryButton}"
                             Tag="&#xE710;"
@@ -76,7 +84,7 @@
                             AutomationProperties.AutomationId="ProformaInvoice.NewInvoiceButton"
                             AutomationProperties.Name="New Invoice Blank"/>
                 </WrapPanel>
-            </WrapPanel>
+            </DockPanel>
             <ContentControl Grid.Row="1" Margin="12,0,12,8" Content="{Binding SavedInvoicesListVM}">
                 <ContentControl.ContentTemplate>
                     <DataTemplate>

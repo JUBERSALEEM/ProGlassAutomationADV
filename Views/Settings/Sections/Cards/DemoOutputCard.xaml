@@ -11,8 +11,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -35,33 +35,49 @@
                             </StackPanel>
                         </Grid>
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="{DynamicResource Settings.NoJobsYetGenerateSelectedGenerateStart}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"
-                                               Visibility="{Binding HasHistory,
-                                                   Converter={StaticResource InverseBoolToVisibilityConverter},
-                                                   FallbackValue=Visible}"/>
-                                    <ItemsControl ItemsSource="{Binding History}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Margin="{StaticResource SettingsStackBottom10}">
-                                                    <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                                               Foreground="{DynamicResource TextPrimaryBrush}">
-                                                        <Run Text="{Binding Module, Mode=OneWay}"/>
-                                                        <Run Text=" · "/>
-                                                        <Run Text="{Binding State, Mode=OneWay}"/>
-                                                    </TextBlock>
-                                                    <TextBlock Text="{Binding Status}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               FontSize="{DynamicResource FontSize.Body}"
-                                                               TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </StackPanel>
-                            </Border>
+                            <TextBlock Text="{DynamicResource Settings.NoJobsYetGenerateSelectedGenerateStart}"
+                                       Style="{StaticResource SettingsRowMetaStyle}"
+                                       Visibility="{Binding HasHistory,
+                                           Converter={StaticResource InverseBoolToVisibilityConverter},
+                                           FallbackValue=Visible}"/>
+                            <ItemsControl ItemsSource="{Binding History}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="{StaticResource SettingsStackBottom8}"
+                                                Padding="{StaticResource SettingsTilePadding}"
+                                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Row="0" Grid.Column="0"
+                                                           FontSize="{DynamicResource FontSize.Body}"
+                                                           FontWeight="{DynamicResource Weight.SemiBold}"
+                                                           Foreground="{DynamicResource TextPrimaryBrush}">
+                                                    <Run Text="{Binding Module, Mode=OneWay}"/>
+                                                    <Run Text=" · "/>
+                                                    <Run Text="{Binding State, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Row="1" Grid.Column="0"
+                                                           Grid.ColumnSpan="2"
+                                                           Margin="{StaticResource SettingsStackTop4}"
+                                                           Text="{Binding Status}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           FontSize="{DynamicResource FontSize.Body}"
+                                                           TextWrapping="Wrap"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </StackPanel>
                     </StackPanel>
                 </Border>

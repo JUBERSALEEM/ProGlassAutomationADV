@@ -15,8 +15,8 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ═══ GEOMETRY & SIZING TOKENS ═══ -->
-    <sys:Double x:Key="PgTopBarHeight">92</sys:Double>
-    <sys:Double x:Key="PgTopRowHeight">52</sys:Double>
+    <sys:Double x:Key="PgTopBarHeight">56</sys:Double>
+    <sys:Double x:Key="PgTopRowHeight">56</sys:Double>
     <sys:Double x:Key="PgTopCtrlHeight">32</sys:Double>
     <sys:Double x:Key="PgSidebarWidth">260</sys:Double>
     <sys:Double x:Key="PgSidebarItemHeight">38</sys:Double>
@@ -25,24 +25,24 @@
     <sys:Double x:Key="PgTopFontCap">9.5</sys:Double>
     <sys:Double x:Key="PgTopFontBtn">13</sys:Double>
 
-    <!-- ═══ FULL LIGHT STUDIO BENTO PALETTE BRUSHES ═══ -->
+    <!-- ═══ FULL LIGHT STUDIO BENTO PALETTE BRUSHES (BENTO INDIGO SYSTEM) ═══ -->
     <SolidColorBrush x:Key="PgPorcelainSurfaceBrush" Color="#FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgModuleBgBrush"          Color="#F8FAFC" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderRibbonBrush"    Color="#F1F5F9" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderHoverBrush"     Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgLavenderPressedBrush"   Color="#CBD5E1" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgKeylineBrush"           Color="#E2E8F0" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgVioletInkBrush"         Color="#0F172A" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgSelectedRowBrush"       Color="#4F46E5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgFocusRimBrush"          Color="#4F46E5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="PgTextMutedBrush"         Color="#64748B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgModuleBgBrush"          Color="#F3F0FA" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderRibbonBrush"    Color="#EEE8F8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderHoverBrush"     Color="#E4DCF5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgLavenderPressedBrush"   Color="#D8CEEE" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgKeylineBrush"           Color="#E2DBEF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgVioletInkBrush"         Color="#2C2440" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgSelectedRowBrush"       Color="#6546B5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgFocusRimBrush"          Color="#6546B5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PgTextMutedBrush"         Color="#6B6078" po:Freeze="True"/>
     <SolidColorBrush x:Key="PgWhiteBrush"             Color="#FFFFFF" po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
          1 · TOP BAR & HEADER
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="PgTopBarStyle" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource PgPorcelainSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -53,7 +53,7 @@
         <Setter Property="Width" Value="{StaticResource PgTopCtrlHeight}"/>
         <Setter Property="Height" Value="{StaticResource PgTopCtrlHeight}"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
         <Setter Property="FontSize" Value="{StaticResource PgTopFontBtn}"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -70,11 +70,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                            <Setter Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgLavenderHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
@@ -320,6 +320,39 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
+    <!-- Row inside the professional More menu. Left-aligned, no min-width. -->
+    <Style x:Key="PgShellMenuRowStyle" TargetType="Button">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Margin" Value="4,1"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource PgLavenderHoverBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ═══════════════════════════════════════════════════════════════
          3 · SIDEBAR (drawer)
     ═══════════════════════════════════════════════════════════════ -->
@@ -334,7 +367,7 @@
     <Style x:Key="PgSidebarGroupLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="9.5"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{StaticResource PgTextMutedBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextTertiaryBrush}"/>
         <Setter Property="Margin" Value="12,12,10,4"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
         <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
@@ -365,28 +398,28 @@
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="13"
-                                       Foreground="{StaticResource PgTextMutedBrush}"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock x:Name="Label"
                                        Text="{TemplateBinding Content}"
                                        FontSize="12"
                                        FontWeight="Medium"
-                                       Foreground="{StaticResource PgVioletInkBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
-                            <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
-                            <Setter TargetName="Label" Property="Foreground" Value="{StaticResource PgVioletInkBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource PgLavenderHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
                         </Trigger>
-                        <!-- Active module: dark-violet (#443A86) filled rounded row, white text -->
+                        <!-- Active module: filled rounded row, white text -->
                         <DataTrigger Value="True">
                             <DataTrigger.Binding>
                                 <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
@@ -428,14 +461,14 @@
                                            Text="{TemplateBinding Tag}"
                                            FontFamily="Segoe MDL2 Assets"
                                            FontSize="13"
-                                           Foreground="{StaticResource PgTextMutedBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,10,0"/>
                                 <TextBlock x:Name="Label"
                                            Text="{TemplateBinding Content}"
                                            FontSize="12"
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource PgVioletInkBrush}"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
                                            VerticalAlignment="Center"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
@@ -527,7 +560,7 @@
                                        Text="{TemplateBinding Content}"
                                        FontSize="11.5"
                                        FontWeight="Medium"
-                                       Foreground="{StaticResource PgVioletInkBrush}"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>

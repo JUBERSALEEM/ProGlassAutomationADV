@@ -63,11 +63,45 @@ public sealed class OptimizationSettingsRestoreTests
     public void Five_stage_selector_and_saved_effort_are_bidirectional(int stage)
     {
         using var vm = new OptimizationViewModel(true);
-        Assert.Equal(5, vm.StageStrategies.Count);
-        vm.SelectedStageStrategy = vm.StageStrategies[stage - 1];
+        Assert.Equal(6, vm.StageStrategies.Count);
+        Assert.False(vm.UseAutoEffort);
+        vm.SelectedStageStrategy = vm.StageStrategies[stage];
         Assert.Equal(stage.ToString(), vm.SelectedEffortLevel);
+        Assert.Equal(PlatePattern.Yield, vm.CurrentPlatePattern);
         vm.SelectedEffortLevel = (6 - stage).ToString();
-        Assert.Equal(vm.StageStrategies[5 - stage], vm.SelectedStageStrategy);
+        Assert.Equal(vm.StageStrategies[6 - stage], vm.SelectedStageStrategy);
+        Assert.Equal(PlatePattern.Yield, vm.CurrentPlatePattern);
+    }
+
+    [Fact]
+    public void Plate_pattern_dropdown_stays_separate_from_the_stage()
+    {
+        using var vm = new OptimizationViewModel(true);
+        Assert.Equal(2, vm.PlatePatterns.Count);
+        Assert.Equal("Yield", vm.SelectedPlatePattern);
+        Assert.Equal(OptimizationViewModel.Stage3StrategyLabel, vm.SelectedStageStrategy);
+        Assert.Equal("3", vm.SelectedEffortLevel);
+        Assert.Equal(PlatePattern.Yield, vm.CurrentPlatePattern);
+        Assert.False(vm.UseAutoEffort);
+
+        vm.SelectedPlatePattern = "Fill first plate";
+        Assert.Equal(PlatePattern.FillFirstPlate, vm.CurrentPlatePattern);
+        Assert.Equal(OptimizationViewModel.Stage3StrategyLabel, vm.SelectedStageStrategy);
+        Assert.Equal("3", vm.SelectedEffortLevel);
+
+        vm.SelectedStageStrategy = OptimizationViewModel.AutoStageStrategyLabel;
+        Assert.True(vm.UseAutoEffort);
+        Assert.Equal("3", vm.SelectedEffortLevel);
+        Assert.Equal("Fill first plate", vm.SelectedPlatePattern);
+
+        vm.SelectedStageStrategy = OptimizationViewModel.Stage1StrategyLabel;
+        Assert.False(vm.UseAutoEffort);
+        Assert.Equal("1", vm.SelectedEffortLevel);
+        Assert.Equal("Fill first plate", vm.SelectedPlatePattern);
+
+        vm.SelectedPlatePattern = "Yield";
+        Assert.Equal(PlatePattern.Yield, vm.CurrentPlatePattern);
+        Assert.Equal("1", vm.SelectedEffortLevel);
     }
 
     [Theory]

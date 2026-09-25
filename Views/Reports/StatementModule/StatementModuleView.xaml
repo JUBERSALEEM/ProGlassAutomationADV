@@ -9,7 +9,7 @@
      module in the Dispatch section.
 ═══════════════════════════════════════════════════════════════════ -->
 
-<UserControl Style="{StaticResource ErpPageRootStyle}" x:Class="ProGlassAutomation.Views.Reports.StatementModule.StatementModuleView"
+<UserControl x:Class="ProGlassAutomation.Views.Reports.StatementModule.StatementModuleView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vmList="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementList"
@@ -21,15 +21,21 @@
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <DataTemplate DataType="{x:Type vmList:StatementListViewModel}">
             <vList:StatementListView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmGen:StatementGeneratorViewModel}">
             <vGen:StatementGeneratorView/>
         </DataTemplate>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">

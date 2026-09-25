@@ -26,14 +26,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Page Title -->
-        <StackPanel Grid.Row="0" Margin="16,16,16,12">
-            <TextBlock Text="Customer Directory &amp; Receivables" Style="{StaticResource Sl.Title}"/>
-            <TextBlock Text="Saved client details merged with live proforma, invoiced and outstanding figures." Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,4,0,0"/>
-        </StackPanel>
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header -->
+        <StackPanel Grid.Row="0" Visibility="Collapsed"/>
 
         <!-- Main Shell Card -->
-        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,0,16,14">
+        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,6,16,14">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- KPI Strip -->
@@ -60,7 +57,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="CUSTOMERS" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalCustomers}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalCustomers}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="{Binding SavedClientCount, Mode=OneWay}"/><Run Text=" saved on file"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
@@ -74,7 +73,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="OUTSTANDING" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalOutstanding, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalOutstanding, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="{Binding WithOutstandingCount, Mode=OneWay}"/><Run Text=" with balance due"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
@@ -88,7 +89,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="INVOICED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalInvoiced, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalInvoiced, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="of AED "/><Run Text="{Binding TotalPiValue, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text=" quoted"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
@@ -102,7 +105,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="RECORDS" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{Binding PageDisplay}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>

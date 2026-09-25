@@ -28,11 +28,11 @@
         </Grid.RowDefinitions>
 
         <!-- ── SEARCH BAR ───────────────────────────────────────────── -->
-        <Border Grid.Row="0" Padding="0,0,0,10">
+        <Border Grid.Row="0" Padding="0,0,0,6">
             <Grid>
                 <TextBox x:Name="SearchBox"
                          FontSize="{DynamicResource FontSize.Title}"
-                         Padding="10,8"
+                         Padding="8,5"
                          BorderThickness="{DynamicResource Border.HairlineThickness}"
                          BorderBrush="{DynamicResource BorderDefaultBrush}"
                          Background="{DynamicResource SurfaceSecondaryBrush}"

@@ -25,7 +25,8 @@
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
         <ResourceDictionary>
@@ -100,12 +101,12 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ═══ LEFT NAV RAIL (Screen 1–6 Studio Bento) ═══ -->
-            <Border Grid.Column="0" SnapsToDevicePixels="True"
-                    BorderThickness="0,0,1,0" BorderBrush="{DynamicResource Ios26HairlineBrush}">
+            <!-- Floating rounded rail, same card the Settings sidebar uses.
+                 The decorator keeps the edge stroke inside this column. -->
+            <AdornerDecorator Grid.Column="0" Margin="12,10,8,14">
+            <Border>
                 <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background" Value="{DynamicResource Ios26RailBrush}"/>
+                    <Style TargetType="Border" BasedOn="{StaticResource AboutRailSurfaceStyle}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsRailOpen}" Value="False">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -114,7 +115,7 @@
                     </Style>
                 </Border.Style>
 
-                <Grid Margin="16,18,16,18">
+                <Grid Margin="12,12,12,12">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
@@ -123,9 +124,9 @@
 
                     <!-- Top Brand Header Card -->
                     <Border Grid.Row="0"
-                            Style="{StaticResource Ios26CardStyle}"
+                            Style="{StaticResource Ios26InnerTileStyle}"
                             Padding="12,12"
-                            Margin="0,0,0,16">
+                            Margin="0,0,0,12">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -220,19 +221,21 @@
                                                         <TextBlock Text="ACTIVE"
                                                                    FontSize="{DynamicResource Ios26FontSizeCaption}"
                                                                    FontWeight="{DynamicResource Weight.Bold}"
-                                                                   Foreground="{DynamicResource Ios26AccentBrush}"/>
+                                                                   Foreground="{DynamicResource Ios26OnAccentBrush}"/>
                                                     </Border>
                                                 </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26HoverBrush}"/>
-                                                </Trigger>
-                                                <Trigger Property="IsSelected" Value="True">
                                                     <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
                                                     <Setter TargetName="RailBg" Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
-                                                    <Setter TargetName="RailIcon" Property="Foreground" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="RailBg" Property="Background" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                    <Setter TargetName="RailBg" Property="BorderBrush" Value="{DynamicResource Ios26AccentBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
+                                                    <Setter TargetName="RailIcon" Property="Foreground" Value="{DynamicResource Ios26OnAccentBrush}"/>
+                                                    <Setter TargetName="ActiveChip" Property="Background" Value="{DynamicResource Ios26OnAccentChipBrush}"/>
                                                     <Setter TargetName="ActiveChip" Property="Visibility" Value="Visible"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
@@ -245,9 +248,9 @@
 
                     <!-- Workstation Status Card (Sidebar Bottom) -->
                     <Border Grid.Row="2"
-                            Style="{StaticResource Ios26CardStyle}"
+                            Style="{StaticResource Ios26InnerTileStyle}"
                             Padding="14,12"
-                            Margin="0,14,0,0">
+                            Margin="0,12,0,0">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                                 <TextBlock Text="&#xE7F8;"
@@ -285,6 +288,7 @@
                     </Border>
                 </Grid>
             </Border>
+            </AdornerDecorator>
 
             <!-- ═══ CONTENT STAGE (Right Column) ═══ -->
             <ScrollViewer Grid.Column="1"
@@ -297,12 +301,15 @@
                           Focusable="False"
                           FocusVisualStyle="{x:Null}">
 
+                <AdornerDecorator>
                 <StackPanel Margin="24,20,24,28">
 
                     <!-- Header Strip: Hamburger + Current Tab Title -->
-                    <Border Style="{StaticResource Ios26CardStyle}"
-                            Padding="14,12"
-                            Margin="0,0,0,16">
+                    <Border Padding="14,12"
+                            Margin="0,0,0,16"
+                            CornerRadius="{DynamicResource Ios26RadiusCard}"
+                            Background="{DynamicResource Ios26AccentBrush}"
+                            SnapsToDevicePixels="True">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -311,6 +318,7 @@
 
                             <Button Grid.Column="0"
                                     Style="{StaticResource AboutRailHamburger}"
+                                    Foreground="{DynamicResource Ios26OnAccentBrush}"
                                     Command="{Binding ToggleRailCommand}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"/>
@@ -318,7 +326,7 @@
                             <TextBlock Grid.Column="1"
                                        FontSize="{DynamicResource Ios26FontSizeCardTitle}"
                                        FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{DynamicResource Ios26TextTitleBrush}"
+                                       Foreground="{DynamicResource Ios26OnAccentBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"
                                        IsHitTestVisible="False">
@@ -496,6 +504,7 @@
                     </Grid>
 
                 </StackPanel>
+                </AdornerDecorator>
             </ScrollViewer>
         </Grid>
     </Grid>

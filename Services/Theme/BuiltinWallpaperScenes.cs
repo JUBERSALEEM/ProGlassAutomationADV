@@ -48,8 +48,9 @@ namespace ProGlassAutomation.Services.Theme
         /// picker never reads "X — X".</summary>
         public static readonly (string Key, string Label)[] All =
         {
-            // August-25 cream Normal: quiet studio sweep on warm paper.
-            (VisualThemeEngine.NormalIndustrial, "Studio"),
+            // Industrial theme pattern wallpaper — warm paper with an
+            // indigo structural wash. Not the family display name ("Normal").
+            (VisualThemeEngine.NormalIndustrial, "Industrial Pattern"),
             (VisualThemeEngine.Monet,            "Golden Hour"),
             // iPhone 17 Pro Max (Crystal Fluid) — cyan water atmosphere.
             (VisualThemeEngine.CrystalFluid,     "Luminous Water"),
@@ -165,14 +166,36 @@ namespace ProGlassAutomation.Services.Theme
                     (Parse("#C5D8F5"), 1.00));
         }
 
-        /// <summary>Normal — quiet studio sweep on the cream stage.</summary>
+        /// <summary>Industrial theme pattern wallpaper. Warm paper field
+        /// with an indigo structural wash — the same indigo the studio
+        /// rail and cards use — so a theme-linked Industrial stage reads
+        /// as the industrial pattern, not a plain cream fill.</summary>
         private static LinearGradientBrush Studio(bool dark)
         {
             return dark
                 ? Diagonal(
-                    (Parse("#0A1226"), 0.0), (Parse("#101E3A"), 0.5), (Parse("#12294E"), 1.0))
+                    (Parse("#161022"), 0.00),
+                    (Parse("#241C40"), 0.28),
+                    (Parse("#2C2440"), 0.55),
+                    (Parse("#3D2E6B"), 0.78),
+                    (Parse("#1A1430"), 1.00))
                 : Diagonal(
-                    (Parse("#EDE7DA"), 0.0), (Parse("#F6F1E6"), 0.55), (Parse("#FDFAF3"), 1.0));
+                    (Parse("#FBF8F1"), 0.00),
+                    (Parse("#F3EFE6"), 0.22),
+                    (Parse("#EEE8F8"), 0.48),
+                    (Parse("#E4DCF3"), 0.72),
+                    (Parse("#F6F1E6"), 1.00));
+        }
+
+        /// <summary>Wallpaper-type caption for a built-in scene. Industrial
+        /// is the pattern wallpaper; the other families keep their own type
+        /// so two tiles never read as the same scene.</summary>
+        public static string WallpaperType(string? key)
+        {
+            if (key == VisualThemeEngine.Monet) return "Accent dusk wallpaper";
+            if (key == VisualThemeEngine.CrystalFluid) return "Water atmosphere wallpaper";
+            if (key == VisualThemeEngine.Ios26) return "Grouped glass wallpaper";
+            return "Industrial pattern wallpaper";
         }
 
         // ── Kit ───────────────────────────────────────────────────────

@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 {
@@ -614,7 +615,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         {
                             decimal sqm = SqmCalculator.CalculatePanel(r.W1, r.H1);
                             decimal totalSqm = Math.Round(sqm * r.Qty, 3);
-                            decimal value = Math.Round(r.Rate * r.Qty * sqm, 2);
+                            decimal value = MoneyRounding.Round(r.Rate * r.Qty * sqm);
 
                             group.Rows.Add(new InvRenderRow
                             {
@@ -638,7 +639,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                     }
 
                     group.TotalSqm = Math.Round(group.TotalSqm, 3);
-                    group.TotalValue = Math.Round(group.TotalValue, 2);
+                    group.TotalValue = MoneyRounding.Round(group.TotalValue);
                     ctx.SpecGroups.Add(group);
                 }
             }

@@ -19,8 +19,13 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-        <UserControl.Resources>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- Migrated DetailSectionLabel to global Typography.Label -->
+        </ResourceDictionary>
     </UserControl.Resources>
 
 
@@ -31,8 +36,8 @@
                                   Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
             </Border.Effect>
             <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    Background="{DynamicResource ShellLiquidBrush}"
-                    BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
+                    Background="{DynamicResource Ov.Surface}"
+                    BorderBrush="{DynamicResource Ov.Line}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     ClipToBounds="True">
 
@@ -45,7 +50,7 @@
                     <!-- ═══ HEADER ═══ -->
                     <Border Grid.Row="0" Background="{DynamicResource AccentBrush}"
                             CornerRadius="{DynamicResource Radius.Top.Medium}"
-                            Padding="18,12">
+                            Padding="16,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>

@@ -51,7 +51,8 @@ namespace ProGlassAutomation.Services.Production
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(DatabaseFilePath)!);
+            // Shared-aware folder ensure (2026-09-24) — see AppDataRoot.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
             // WAL + busy_timeout + foreign_keys=ON — same resilience as
             // every other isolated database in this app.
             ProGlassAutomation.Services.Database.SqliteResilience

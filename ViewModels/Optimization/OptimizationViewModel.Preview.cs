@@ -222,6 +222,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         public bool IsSingleSheetMode => !_isGalleryMode;
 
+        // Normal view fits the whole sheet into the stage. Zoom leaves that
+        // mode so the operator can inspect a cut at actual canvas size.
+        private bool _isFitView = true;
+        public bool IsFitView
+        {
+            get => _isFitView;
+            private set
+            {
+                if (_isFitView == value) return;
+                _isFitView = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand PreviewFitCommand { get; private set; } = null!;
+
         private int _galleryPageSize = 8;
         public int GalleryPageSize
         {
@@ -344,6 +360,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private const double PreviewRenderWidth = 860.0;
         private const double MiniMapRenderWidth = 120.0;
 
+        /// <summary>
+        /// Insets a placed rectangle by a visible saw channel. The packer
+        /// already leaves kerf in millimetres, but at sheet scale a 3 mm
+        /// kerf is under a pixel, so neighbouring pieces fuse into one block.
+        /// </summary>
+        private static void SeparateCut(
+            double originX, double originY, double width, double height,
+            double kerfPx, double minChannel,
+            out double x, out double y, out double w, out double h)
+        {
+            double channel = System.Math.Max(minChannel, kerfPx);
+            if (width <= channel + 2 || height <= channel + 2)
+                channel = System.Math.Min(channel, System.Math.Min(width, height) * 0.18);
+            w = System.Math.Max(2, width - channel);
+            h = System.Math.Max(2, height - channel);
+            x = originX + (width - w) / 2.0;
+            y = originY + (height - h) / 2.0;
+        }
+
         private void RebuildPreview()
         {
             SheetRects.Clear();
@@ -438,12 +473,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (p.X + p.WidthMm > maxX) maxX = p.X + p.WidthMm;
                 if (p.Y + p.HeightMm > maxY) maxY = p.Y + p.HeightMm;
 
+                SeparateCut(p.X * scale, p.Y * scale, pieceW, pieceH,
+                    margins.KerfMm * scale, 2.6,
+                    out double cutX, out double cutY, out double cutW, out double cutH);
+
                 SheetRects.Add(new PieceRectVm
                 {
-                    X = p.X * scale,
-                    Y = p.Y * scale,
-                    Width = pieceW,
-                    Height = pieceH,
+                    X = cutX,
+                    Y = cutY,
+                    Width = cutW,
+                    Height = cutH,
                     Rotated = p.Rotated,
                     Label = string.Format(CultureInfo.InvariantCulture, "{0}{1} · {2}×{3}{4}",
                         positionTag, refLabel,
@@ -511,12 +550,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
             MiniMapHeight = sheet.Stock.HeightMm * miniScale;
             foreach (var p in sheet.Pieces)
             {
+                double miniW = System.Math.Max(1, p.WidthMm * miniScale);
+                double miniH = System.Math.Max(1, p.HeightMm * miniScale);
+                SeparateCut(p.X * miniScale, p.Y * miniScale, miniW, miniH,
+                    margins.KerfMm * miniScale, 1.1,
+                    out double miniX, out double miniY, out double miniCutW, out double miniCutH);
                 MiniMapRects.Add(new PieceRectVm
                 {
-                    X = p.X * miniScale,
-                    Y = p.Y * miniScale,
-                    Width = System.Math.Max(1, p.WidthMm * miniScale),
-                    Height = System.Math.Max(1, p.HeightMm * miniScale),
+                    X = miniX,
+                    Y = miniY,
+                    Width = miniCutW,
+                    Height = miniCutH,
                     Rotated = p.Rotated,
                     Label = string.Empty // the thumbnail shows placement, not labels
                 });
@@ -560,12 +604,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     double pw = System.Math.Max(1, p.WidthMm * gScale);
                     double ph = System.Math.Max(1, p.HeightMm * gScale);
+                    SeparateCut(p.X * gScale, p.Y * gScale, pw, ph,
+                        (flat.Run.Margins?.KerfMm ?? 0) * gScale, 1.5,
+                        out double gx, out double gy, out double gw, out double gh);
                     gallerySheet.Pieces.Add(new PieceRectVm
                     {
-                        X = p.X * gScale,
-                        Y = p.Y * gScale,
-                        Width = pw,
-                        Height = ph,
+                        X = gx,
+                        Y = gy,
+                        Width = gw,
+                        Height = gh,
                         Rotated = p.Rotated,
                         CutNumber = pSeq,
                         DimensionsText = string.Format(CultureInfo.InvariantCulture, "{0}×{1}", p.WidthMm, p.HeightMm),

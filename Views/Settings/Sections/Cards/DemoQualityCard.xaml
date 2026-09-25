@@ -11,8 +11,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -35,96 +35,86 @@
                             </StackPanel>
                         </Grid>
                         <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F8;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Quality}"/>
-                                    </StackPanel>
-                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.OutputResolutionRecordedVideo}"/>
-                                    <ComboBox ItemsSource="{Binding Qualities}"
-                                              SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
-                                              DisplayMemberPath="Title"
-                                              IsSynchronizedWithCurrentItem="False"
-                                              MinWidth="200"
-                                              Padding="10,7"
-                                              FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7F8;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.Quality}"/>
                                 </StackPanel>
-                            </Border>
+                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{DynamicResource Settings.OutputResolutionRecordedVideo}"/>
+                                <ComboBox ItemsSource="{Binding Qualities}"
+                                          SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
+                                          DisplayMemberPath="Title"
+                                          IsSynchronizedWithCurrentItem="False"
+                                          MinWidth="200"
+                                          Padding="10,7"
+                                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                            </StackPanel>
 
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE823;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.FrameRate}"/>
-                                    </StackPanel>
-                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.HowManyFramesSecondCaptured}"/>
-                                    <ComboBox ItemsSource="{Binding FpsChoices}"
-                                              SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
-                                              DisplayMemberPath="Title"
-                                              IsSynchronizedWithCurrentItem="False"
-                                              MinWidth="160"
-                                              Padding="10,7"
-                                              FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                            <StackPanel Margin="{StaticResource SettingsTileGridMargin}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE823;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.FrameRate}"/>
                                 </StackPanel>
-                            </Border>
+                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{DynamicResource Settings.HowManyFramesSecondCaptured}"/>
+                                <ComboBox ItemsSource="{Binding FpsChoices}"
+                                          SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
+                                          DisplayMemberPath="Title"
+                                          IsSynchronizedWithCurrentItem="False"
+                                          MinWidth="160"
+                                          Padding="10,7"
+                                          FontSize="{DynamicResource FontSize.Title}" Style="{StaticResource ComboBoxStyle}"/>
+                            </StackPanel>
 
-                            <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE767;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.InternalAudio}" VerticalAlignment="Center"/>
-</StackPanel>
-                                    <TextBlock Grid.Row="1"
-                                               Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.CaptureAppNarrationSoundRunningApp}"/>
-                                    <ToggleButton Grid.Row="3"
-                                    AutomationProperties.Name="{DynamicResource Settings.InternalAudio}"
-                                                  HorizontalAlignment="Left"
-                                                  IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
-                                                  Style="{StaticResource ModernToggleSwitch}"
-                                                  AutomationProperties.AutomationId="DemoCenter.CaptureAudio"/>
-                                </Grid>
-                            </Border>
+                            <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE767;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.InternalAudio}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Grid.Row="1"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{DynamicResource Settings.CaptureAppNarrationSoundRunningApp}"/>
+                                <ToggleButton Grid.Row="3"
+                                              AutomationProperties.Name="{DynamicResource Settings.InternalAudio}"
+                                              HorizontalAlignment="Left"
+                                              IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
+                                              Style="{StaticResource ModernToggleSwitch}"
+                                              AutomationProperties.AutomationId="DemoCenter.CaptureAudio"/>
+                            </Grid>
 
-                            <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                        <RowDefinition Height="Auto"/>
-                                    </Grid.RowDefinitions>
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
-    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
-    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Microphone}" VerticalAlignment="Center"/>
-</StackPanel>
-                                    <TextBlock Grid.Row="1"
-                                               Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.CaptureLiveSpokenNarrationMicrophone}"/>
-                                    <ToggleButton Grid.Row="3"
-                                    AutomationProperties.Name="{DynamicResource Settings.Microphone}"
-                                                  HorizontalAlignment="Left"
-                                                  IsChecked="{Binding CaptureMicrophone, Mode=TwoWay}"
-                                                  Style="{StaticResource ModernToggleSwitch}"
-                                                  AutomationProperties.AutomationId="DemoCenter.CaptureMic"/>
-                                </Grid>
-                            </Border>
+                            <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE77B;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Microphone}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Grid.Row="1"
+                                           Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{DynamicResource Settings.CaptureLiveSpokenNarrationMicrophone}"/>
+                                <ToggleButton Grid.Row="3"
+                                              AutomationProperties.Name="{DynamicResource Settings.Microphone}"
+                                              HorizontalAlignment="Left"
+                                              IsChecked="{Binding CaptureMicrophone, Mode=TwoWay}"
+                                              Style="{StaticResource ModernToggleSwitch}"
+                                              AutomationProperties.AutomationId="DemoCenter.CaptureMic"/>
+                            </Grid>
                         </UniformGrid>
 
                         <TextBlock Text="{Binding RecordHint}"
                                    Style="{StaticResource SettingsRowMetaStyle}"
                                    Margin="{StaticResource SettingsRowMargin}"/>
-
-                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
                     </StackPanel>
                 </Border>
 </UserControl>

@@ -24,19 +24,19 @@
                    FontSize="{DynamicResource FontSize.BodySmall}"
                    Foreground="{DynamicResource TextTertiaryBrush}"
                    TextWrapping="Wrap"
-                   Margin="0,0,0,12"/>
+                   Margin="0,0,0,8"/>
 
                     <!-- FROM -->
                     <TextBlock Text="{DynamicResource Sharing.From}"
                                FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
-                               Margin="2,0,0,6"/>
+                               Margin="2,0,0,4"/>
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10">
+                            Padding="10,6">
                         <StackPanel>
                             <TextBlock Text="{Binding SenderLine, Mode=OneWay}"
                                        FontSize="{DynamicResource FontSize.Body}"
@@ -54,12 +54,12 @@
                                FontSize="{DynamicResource FontSize.BodySmall}"
                                FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}"
-                               Margin="2,14,0,6"/>
+                               Margin="2,8,0,4"/>
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource SurfaceSecondaryBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="{DynamicResource Border.HairlineThickness}"
-                            Padding="14,10">
+                            Padding="10,6">
                         <StackPanel>
                             <ComboBox ItemsSource="{Binding RecipientOptions}"
                                       SelectedItem="{Binding SelectedRecipient, Mode=TwoWay}"

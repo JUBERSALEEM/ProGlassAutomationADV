@@ -31,6 +31,10 @@
     SnapsToDevicePixels="True">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
         <!-- Small uppercase section label -->
         
@@ -102,6 +106,7 @@
             </Setter>
         </Style>
 
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="Transparent">

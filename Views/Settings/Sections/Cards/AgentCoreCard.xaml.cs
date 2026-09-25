@@ -20,6 +20,7 @@
 
 using ProGlassAutomation.Agent.UI;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Views.Setup;
 using System;
 using System.Diagnostics;
 using System.Windows;
@@ -65,6 +66,11 @@ namespace ProGlassAutomation.Views.Settings.Sections.Cards
             {
                 AppLogService.Debug($"[AgentCoreCard] open license: {ex.Message}");
             }
+        }
+
+        private void OpenInstaller_Click(object sender, RoutedEventArgs e)
+        {
+            ComponentInstallerWindow.Show(Window.GetWindow(this), models: true);
         }
     }
 }

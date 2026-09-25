@@ -105,6 +105,13 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// both read the static Services.Updates.AppInfo.Version.</summary>
         public string CurrentVersionDisplay => Services.Updates.AppInfo.Version;
 
+        // About section (2026-09-24 Overview-style upgrade): identity facts
+        // shown on the version/credits card. All read the single static
+        // AppInfo source — never a second copy of the numbers.
+        public string CurrentBuildLabel => Services.Updates.AppInfo.BuildLabel;
+        public string DeveloperName => Services.Updates.AppInfo.Developer;
+        public string CopyrightLine => Services.Updates.AppInfo.Copyright;
+
         // ── Shared initialization (ERR-633EEB) ─────────────────────
         // Extracted verbatim from the parameterless ctor so both it
         // and the DI-selected parameterized ctor initialize fully.
@@ -164,6 +171,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyCardEdgePresetCommand = new RelayCommand(param =>
                 ApplyCardEdgePreset(param as string ?? ""));
             InitializeCardEdgePalette();
+            InitializeCardFrostPalette();
             ApplyCardFrostTintCommand = new RelayCommand(param =>
                 ApplyCardFrostTintPreset(param as string ?? ""));
 

@@ -40,6 +40,7 @@
 <ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
 
@@ -104,31 +105,52 @@
          card. A DropShadowEffect declared here is invisible to
          every other module. ═══ -->
 
-    <!-- ═══ L1 CARD — the frosted 26 px slab ═══ -->
-    <!-- One edge. AboutDefinedEdge* is published by ThemeManager.ApplyOutline.
-         The native hairline is not also painted, and the stroke is not
-         pixel-snapped: snapping a 26 px corner draws a second rectangle
-         that crosses the next card once the edge colour is strong. -->
+    <!-- ═══ L1 CARD — indigo bento slab. Soft indigo fill and a real
+         indigo edge so About cards read as the studio bento, not white
+         slabs on a pale canvas. ═══ -->
+    <!-- Same face and edge the Settings plate publishes. A local accent
+         fill is why an About card ignored the picked colour. Unspecified
+         edges let the corner take that stroke. -->
     <Style x:Key="Ios26CardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Ios26CardBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AboutDefinedEdgeBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource AboutDefinedEdgeThickness}"/>
+        <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
+        <!-- The corner ring adorner is off. It was drawn on the adorner
+             layer, not on the card, so a defined edge piled every screen's
+             outlines through the selected one. The stroke below is the
+             card's own border: one line, on the corner, in the edge colour. -->
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
-        <Setter Property="Padding" Value="22,20"/>
+        <Setter Property="Padding" Value="{DynamicResource AboutCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
         <Setter Property="Effect" Value="{DynamicResource Ios26CardShadow}"/>
+    </Style>
+
+    <!-- Sidebar card. Same edge as the page cards, no inset and no shadow,
+         so the rail does not eat the nav or paint over the content column. -->
+    <Style x:Key="AboutRailSurfaceStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
+        <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
     </Style>
 
     <!-- ═══ INNER TILE — solid white panel inside a card.
          AboutInsetStyle is the same chrome kept under its historic
          key so existing sub-panel markup keeps working. ═══ -->
     <Style x:Key="Ios26InnerTileStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ios26TileBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SettingsInnerFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
-        <Setter Property="Padding" Value="14,12"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="False"/>
     </Style>
     <Style x:Key="AboutInsetStyle" TargetType="Border"
            BasedOn="{StaticResource Ios26InnerTileStyle}"/>
@@ -171,6 +193,8 @@
         <Setter Property="Foreground" Value="{DynamicResource Ios26TextBodyBrush}"/>
         <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
         <Setter Property="FontWeight" Value="{DynamicResource Weight.SemiBold}"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="MinHeight" Value="32"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
@@ -181,7 +205,8 @@
                             BorderBrush="{DynamicResource Ios26HairlineBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource Ios26RadiusChip}"
-                            Padding="14,8"
+                            Padding="14,0"
+                            Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>

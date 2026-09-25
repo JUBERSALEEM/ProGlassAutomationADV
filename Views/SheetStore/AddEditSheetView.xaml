@@ -1,87 +1,67 @@
 <!-- ═══════════════════════════════════════════════════════════════
-     MIGRATION LOG — Button Standardization (master prompt v1.0)
-     Date: 2026-08-15 — SheetStore module batch
-     • All buttons -> centralized PrimaryPill/SuccessPill/OutlinedPill/
-       DangerButton styles with MDL2 Tag glyphs + UPPERCASE content
-     • Removed legacy local styles (ActionBtn, HeaderActionBtn,
-       QtyButtonStyle, Cancel/Save/ConfirmButtonStyle,
-       FilterActionButtonStyle, CancelImportBtn)
-     • Decorative emojis (search/clock/empty/mailbox) -> MDL2 glyphs
-     Commands/bindings preserved; no ViewModel changes.
+     ADD / EDIT GLASS SHEET — Indigo Studio Bento Redesign
+     Bento fieldset cards, standardized 36px buttons, tabular inputs,
+     and keyboard shortcuts (Enter -> Save, Esc -> Cancel).
 ═══════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.SheetStore.AddEditSheetView"
-             TextOptions.TextHintingMode="Fixed"
+        TextOptions.TextHintingMode="Fixed"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         Title="{Binding DialogTitle}"
-        Width="640"
+        Width="680"
         MinWidth="600"
-        Height="720"
+        Height="740"
         MinHeight="640"
-        MaxHeight="860"
+        MaxHeight="880"
         WindowStartupLocation="CenterOwner"
         ResizeMode="CanResizeWithGrip"
         FontFamily="{DynamicResource AppFontFamily}"
-        Background="{DynamicResource Surface.Secondary.BackgroundBrush}"
+        Background="{DynamicResource Ov.Canvas}"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         KEYBOARD SHORTCUTS
-         Enter → Save · Esc → Cancel
-    ═══════════════════════════════════════════════════════════════ -->
     <Window.InputBindings>
         <KeyBinding Key="Enter" Command="{Binding SaveCommand}"/>
         <KeyBinding Key="Escape" Command="{Binding CancelCommand}"/>
     </Window.InputBindings>
 
     <Window.Resources>
-
-        <!-- Field label — 11 SemiBold UPPERCASE per spec -->
-        
-
-        <!-- Base text input — industrial chrome. Height 40 so glyphs
-             are not clipped the way 38 + Padding 10,6 was. -->
-        
-
-        <!-- Integer-only input (Width, Height, Stock) -->
-        <!-- Migrated IntInputStyle to global SurfacePrimaryStyle / Typography -->
-
-        <!-- Decimal input (prices) -->
-        <!-- Migrated DecimalInputStyle to global SurfacePrimaryStyle / Typography -->
-
-        <!-- Editable combo. Without BasedOn this keyed style dropped the
-             industrial template and SizeToContent+* made the form collapse. -->
-        <!-- Migrated ComboStyle to global SurfacePrimaryStyle / Typography -->
-
-        <!-- Cancel button — subtle secondary -->
-
-        <!-- Save button — primary indigo -->
-
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
 
-    <Grid Margin="28">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/> <!-- Header -->
+            <RowDefinition Height="*"/>    <!-- Bento Form -->
+            <RowDefinition Height="Auto"/> <!-- Error Banner -->
+            <RowDefinition Height="Auto"/> <!-- Action Buttons -->
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="{Binding DialogTitle}"
-                       FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.Bold}"
-                       Foreground="{DynamicResource TextPrimaryBrush}"/>
-            <TextBlock Text="{DynamicResource SheetStore.EnterGlassSheetInventoryDetails}"
-                       FontSize="{DynamicResource FontSize.Body}" Margin="0,4,0,0"
-                       Foreground="{DynamicResource TextSecondaryBrush}"/>
-        </StackPanel>
+        <Grid Grid.Row="0" Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Ov.IconBox}" Grid.Column="0" Margin="0,0,12,0">
+                <TextBlock Text="&#xE7B8;" Style="{StaticResource Ov.Glyph}"/>
+            </Border>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding DialogTitle}"
+                           Style="{StaticResource Ov.CardTitle}" FontSize="{DynamicResource FontSize.H2}"/>
+                <TextBlock Text="{DynamicResource SheetStore.EnterGlassSheetInventoryDetails}"
+                           Style="{StaticResource Ov.Meta}" Margin="0,2,0,0"/>
+            </StackPanel>
+        </Grid>
 
-        <!-- Form (smooth scroll) -->
+        <!-- Form Cards (smooth scroll) -->
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
@@ -92,141 +72,171 @@
                       FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Style="{StaticResource Field.Panel}">
+            <StackPanel>
+                <!-- Card 1: Glass Identity & Dimensions -->
+                <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,12">
+                    <StackPanel>
+                        <TextBlock Text="SPECIFICATIONS &amp; DIMENSIONS"
+                                   Style="{StaticResource Ov.Meta}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,10"/>
 
-                <TextBlock Text="{DynamicResource SheetStore.Category}" Style="{StaticResource Field.Label}"/>
-                <ComboBox Style="{StaticResource Input.ComboBox}"
-                          ItemsSource="{Binding CategoryOptions}"
-                          Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
-                          ToolTip="{DynamicResource SheetStore.EGClearFloatGuardianClimaguard70}"
-                          IsEditable="True"
-                          IsTextSearchEnabled="True"
-                          behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
-
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}" Style="{StaticResource Field.Label}"/>
+                        <!-- Category -->
+                        <TextBlock Text="{DynamicResource SheetStore.Category}" Style="{StaticResource Field.Label}"/>
                         <ComboBox Style="{StaticResource Input.ComboBox}"
-                                  ItemsSource="{Binding ThicknessOptions}"
-                                  Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
+                                  ItemsSource="{Binding CategoryOptions}"
+                                  Text="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
+                                  ToolTip="{DynamicResource SheetStore.EGClearFloatGuardianClimaguard70}"
+                                  IsEditable="True"
+                                  IsTextSearchEnabled="True"
+                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"
+                                  Margin="0,0,0,10"/>
+
+                        <!-- Thickness & Color (2 cols) -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{DynamicResource SheetStore.ThicknessMm}" Style="{StaticResource Field.Label}"/>
+                                <ComboBox Style="{StaticResource Input.ComboBox}"
+                                          ItemsSource="{Binding ThicknessOptions}"
+                                          Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Field.Label}"/>
+                                <ComboBox Style="{StaticResource Input.ComboBox}"
+                                          ItemsSource="{Binding ColorOptions}"
+                                          Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Width & Height (2 cols) -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{DynamicResource SheetStore.WidthMm}" Style="{StaticResource Field.Label}"/>
+                                <ComboBox Style="{StaticResource Input.ComboBox}"
+                                          ItemsSource="{Binding WidthOptions}"
+                                          Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource Field.Label}"/>
+                                <ComboBox Style="{StaticResource Input.ComboBox}"
+                                          ItemsSource="{Binding HeightOptions}"
+                                          Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
+                                          IsEditable="True"
+                                          IsTextSearchEnabled="True"
+                                          behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Supplier -->
+                        <TextBlock Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource Field.Label}"/>
+                        <ComboBox Style="{StaticResource Input.ComboBox}"
+                                  ItemsSource="{Binding SupplierOptions}"
+                                  Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
                                   IsEditable="True"
                                   IsTextSearchEnabled="True"
                                   behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
                     </StackPanel>
-                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
-                        <TextBlock Text="{DynamicResource ProformaInvoice.Color}" Style="{StaticResource Field.Label}"/>
-                        <ComboBox Style="{StaticResource Input.ComboBox}"
-                                  ItemsSource="{Binding ColorOptions}"
-                                  Text="{Binding Color, UpdateSourceTrigger=PropertyChanged}"
-                                  IsEditable="True"
-                                  IsTextSearchEnabled="True"
-                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
-                    </StackPanel>
-                </Grid>
+                </Border>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.WidthMm}" Style="{StaticResource Field.Label}"/>
-                        <ComboBox Style="{StaticResource Input.ComboBox}"
-                                  ItemsSource="{Binding WidthOptions}"
-                                  Text="{Binding WidthText, UpdateSourceTrigger=PropertyChanged}"
-                                  IsEditable="True"
-                                  IsTextSearchEnabled="True"
-                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
-                    </StackPanel>
-                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
-                        <TextBlock Text="{DynamicResource SheetStore.HeightMm}" Style="{StaticResource Field.Label}"/>
-                        <ComboBox Style="{StaticResource Input.ComboBox}"
-                                  ItemsSource="{Binding HeightOptions}"
-                                  Text="{Binding HeightText, UpdateSourceTrigger=PropertyChanged}"
-                                  IsEditable="True"
-                                  IsTextSearchEnabled="True"
-                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
-                    </StackPanel>
-                </Grid>
+                <!-- Card 2: Pricing & Stock Valuation -->
+                <Border Style="{StaticResource Ov.CardCompact}">
+                    <StackPanel>
+                        <TextBlock Text="COMMERCIAL PRICING &amp; OPENING STOCK"
+                                   Style="{StaticResource Ov.Meta}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,10"/>
 
-                <TextBlock Text="{DynamicResource SheetStore.Supplier}" Style="{StaticResource Field.Label}"/>
-                <ComboBox Style="{StaticResource Input.ComboBox}"
-                          ItemsSource="{Binding SupplierOptions}"
-                          Text="{Binding Supplier, UpdateSourceTrigger=PropertyChanged}"
-                          IsEditable="True"
-                          IsTextSearchEnabled="True"
-                          behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"/>
+                        <!-- Purchase & Sell Rates (2 cols) -->
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}" Style="{StaticResource Field.Label}"/>
+                                <TextBox Style="{StaticResource Input.TextBox}"
+                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                                         Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}" Style="{StaticResource Field.Label}"/>
+                                <TextBox Style="{StaticResource Input.TextBox}"
+                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                                         Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="0">
-                        <TextBlock Text="{DynamicResource SheetStore.PurchasePriceSQM}" Style="{StaticResource Field.Label}"/>
+                        <!-- Opening Stock -->
+                        <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource Field.Label}"/>
                         <TextBox Style="{StaticResource Input.TextBox}"
                                  behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
-                                 Text="{Binding PurchasePriceText, UpdateSourceTrigger=PropertyChanged}"/>
+                                 Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
-                    <StackPanel Style="{StaticResource Field.Panel}" Grid.Column="2">
-                        <TextBlock Text="{DynamicResource SheetStore.SELLPriceSQM}" Style="{StaticResource Field.Label}"/>
-                        <TextBox Style="{StaticResource Input.TextBox}"
-                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
-                                 Text="{Binding SellPriceText, UpdateSourceTrigger=PropertyChanged}"/>
-                    </StackPanel>
-                </Grid>
-
-                <TextBlock Text="{DynamicResource SheetStore.StockQuantity}" Style="{StaticResource Field.Label}"/>
-                <TextBox Style="{StaticResource Input.TextBox}"
-                         behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
-                         Text="{Binding StockText, UpdateSourceTrigger=PropertyChanged}"/>
-
+                </Border>
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Error message — palette-aligned crimson -->
+        <!-- Error Banner -->
         <Border Grid.Row="2"
-                Background="{DynamicResource TintRedBrush}"
+                Background="{DynamicResource Ov.DangerSoft}"
                 BorderBrush="{DynamicResource DangerBrush}"
                 BorderThickness="1"
-                CornerRadius="{DynamicResource ControlCornerRadius}"
-                Padding="14,12"
-                Margin="0,16,0,0"
+                CornerRadius="{DynamicResource Radius.Medium}"
+                Padding="12,10"
+                Margin="0,12,0,0"
                 SnapsToDevicePixels="True"
                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;" FontFamily="{DynamicResource FontFamily.Icon}"
-                           FontSize="{DynamicResource FontSize.H3}"
+                           FontSize="{DynamicResource FontSize.Icon}"
                            FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource DangerBrush}"
-                           VerticalAlignment="Top"
+                           VerticalAlignment="Center"
                            Margin="0,0,10,0"/>
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
                            FontSize="{DynamicResource FontSize.Body}"
                            FontWeight="{DynamicResource Weight.SemiBold}"
-                           TextWrapping="Wrap"/>
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
 
-        <!-- Buttons -->
+        <!-- Action Buttons -->
         <StackPanel Grid.Row="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
-                    Margin="0,20,0,0">
+                    Margin="0,16,0,0">
             <Button Style="{StaticResource OutlinedPillButton}"
+                    Height="36"
                     Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
-                    Margin="0,0,12,0"
+                    Margin="0,0,10,0"
                     ToolTip="{DynamicResource SheetStore.DiscardChangesClose}"
                     Command="{Binding CancelCommand}"/>
             <Button Style="{StaticResource PrimaryPillButton}"
+                    Height="36"
                     Tag="&#xE74E;" Content="{Binding SaveButtonText}"
                     ToolTip="{DynamicResource SheetStore.SaveSheet}"
                     Command="{Binding SaveCommand}"

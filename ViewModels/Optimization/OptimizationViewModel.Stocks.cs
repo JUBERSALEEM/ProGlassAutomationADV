@@ -139,6 +139,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         public ObservableCollection<StockEntryVm> Stocks { get; } = new();
+
+        /// <summary>
+        /// Report projection of <see cref="Stocks"/>. One row per plate size
+        /// and glass colour. Spec 1 and spec 2 of the same glass, cut on the
+        /// same rack, are not printed twice with the same used count.
+        /// </summary>
+        public ObservableCollection<StockAllocationRowVm> AllocationRows { get; } = new();
+
+        public sealed class StockAllocationRowVm
+        {
+            public string SizeLabel { get; init; } = string.Empty;
+            public string ColorLabel { get; init; } = string.Empty;
+            public string UsedLabel { get; init; } = string.Empty;
+            public string SourceLabel { get; init; } = string.Empty;
+        }
         public bool HasStocks => Stocks.Count > 0;
         public ICommand AddStockCommand { get; }
         public ICommand RemoveStockCommand { get; }
@@ -241,6 +256,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (sheets.Count == 0 && Stocks.Count == 0)
                 StocksStatusText = "Tick a Job Order — its Step 4 sheet sizes become the stock pool for this run.";
 
+            RebuildAllocationRows();
             return Stocks.Count;
         }
 
@@ -297,6 +313,71 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     s.UsedLabel = string.Empty;
                 }
+            }
+
+            RebuildAllocationRows();
+        }
+
+        /// <summary>
+        /// Colour key for allocation. Thickness, hyphens and word order do
+        /// not split one glass into two rows ("6mm clear low-e" and
+        /// "clear low e" are the same colour).
+        /// </summary>
+        private static string AllocationColorKey(string? composition)
+        {
+            string n = CompositionKey.Normalize(composition).Replace('-', ' ');
+            while (n.Contains("  ", StringComparison.Ordinal))
+                n = n.Replace("  ", " ", StringComparison.Ordinal);
+            var tokens = n.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                .Where(t => t.Length > 0
+                            && !t.EndsWith("mm", StringComparison.Ordinal)
+                            && !int.TryParse(t, NumberStyles.Integer, CultureInfo.InvariantCulture, out _))
+                .OrderBy(t => t, StringComparer.Ordinal);
+            string key = string.Join(" ", tokens);
+            return key.Length == 0 ? n : key;
+        }
+
+        private void RebuildAllocationRows()
+        {
+            AllocationRows.Clear();
+            var groups = Stocks
+                .Select(s =>
+                {
+                    int.TryParse(s.WidthText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int w);
+                    int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int h);
+                    return (Row: s, W: w, H: h, Key: AllocationColorKey(s.Composition));
+                })
+                .GroupBy(x => (x.W, x.H, x.Key))
+                .OrderBy(g => g.Key.Key, StringComparer.Ordinal)
+                .ThenBy(g => g.Key.W)
+                .ThenBy(g => g.Key.H);
+
+            foreach (var group in groups)
+            {
+                var rows = group.Select(x => x.Row).ToList();
+                string color = rows
+                    .Select(r => r.CompositionLabel)
+                    .OrderByDescending(c => c?.Length ?? 0)
+                    .FirstOrDefault(c => !string.IsNullOrWhiteSpace(c))
+                    ?? "Any group";
+                var used = rows
+                    .Select(r => r.UsedLabel)
+                    .Where(l => !string.IsNullOrWhiteSpace(l))
+                    .Distinct(StringComparer.Ordinal)
+                    .ToList();
+                int specs = rows.Select(r => r.SpecNumber).Where(n => n > 0).Distinct().Count();
+                string source = specs > 1
+                    ? "Shared colour"
+                    : (rows[0].SourceLabel ?? string.Empty);
+
+                AllocationRows.Add(new StockAllocationRowVm
+                {
+                    SizeLabel = string.Format(CultureInfo.InvariantCulture,
+                        "{0} × {1}", group.Key.W, group.Key.H),
+                    ColorLabel = color,
+                    UsedLabel = used.Count == 0 ? "—" : string.Join(" · ", used),
+                    SourceLabel = source
+                });
             }
         }
     }

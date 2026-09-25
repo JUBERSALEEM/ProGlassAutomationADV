@@ -3,47 +3,10 @@
      PROJECT: ProGlassAutomation
      MODULE: Shell — top-panel Settings quick list (the gear popup)
 
-     2026-09-16 REWRITE — owner report:
-       "check setting top panel … there are only 10 button when i have in
-        setting side bar 12 button … button too overlapping apply proper
-        spacing"
-
-     WHAT WAS WRONG
-     ──────────────
-     The list was ten hand-copied <Button> blocks, each with its own
-     CommandParameter string, its own glyph and no spacing:
-
-       • ten entries against a twelve-page registry — Themes and Sharing
-         could not be reached from this panel at all;
-       • two glyphs disagreed with the rail: Features drew E762 (the
-         rail's License glyph) and Agent drew E99A instead of the rail's
-         E9F5, so one page wore two different icons depending on which
-         surface you used;
-       • no vertical margin between rows and Typography.Icon sets no
-         right margin, so rows touched each other and each glyph touched
-         its label. Exactly ONE button carried a hand-added
-         Margin="0,0,10,0" — the gap was known and patched in one place.
-
-     THE FIX — the architecture the rail already uses
-     ────────────────────────────────────────────────
-     ONE grouped ItemsControl over SettingsViewModel.NavRows — the
-     registry that SettingsViewModel.Navigation.cs declares as the single
-     source of truth. Adding or renaming a settings page now changes this
-     panel for free, and it cannot drift again
-     (SettingsNavigationAuditTests locks it).
-
-       • Grouping is a CollectionViewSource over the row's LOCALIZED
-         GroupLabel, so captions come from the same localization service
-         as the rest of the app and the header template is one binding.
-       • Spacing is explicit and uniform: 6 px between rows (item
-         margin), 10 px between glyph and label — the same 10 px gap the
-         rail documents for its icon column.
-       • The glyph column is a fixed 20 px, so all twelve labels start on
-         one vertical line instead of stepping with each glyph's width.
-
-     The popup chrome (ShellLiquidBrush surface, CardCornerRadiusLarge,
-     LiquidShadowColor drop shadow, padding) is UNCHANGED from the
-     approved shell design — only the list inside it was rebuilt.
+     The list is one grouped ItemsControl over SettingsViewModel.NavRows.
+     Adding or renaming a settings page changes this panel for free
+     (SettingsNavigationAuditTests locks it). Theme Studio is the Themes
+     row, not a second banner and not a hard-coded page key.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Shared.QuickSettingsPanel"
              TextOptions.TextHintingMode="Fixed"
@@ -56,10 +19,11 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
-        <!-- The registry, grouped. The panel's DataContext is the shell
-             (MainViewModel), which exposes the Settings view model as
-             SettingsVM — so this binds the SAME rows the rail renders. -->
         <CollectionViewSource x:Key="QuickSettingsView"
                               Source="{Binding SettingsVM.NavRows}">
             <CollectionViewSource.GroupDescriptions>
@@ -67,9 +31,39 @@
             </CollectionViewSource.GroupDescriptions>
         </CollectionViewSource>
 
+        <Style x:Key="QuickSettingsRowButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource SurfaceTertiaryBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="10,8,10,16">
+    <Grid Margin="8">
         <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="22" ShadowDepth="3"
@@ -77,21 +71,20 @@
             </Border.Effect>
             <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
-                    BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
+                    BorderBrush="{DynamicResource Ov.Line}"
                     BorderThickness="{DynamicResource Border.HairlineThickness}"
                     ClipToBounds="True">
 
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0"
-                            Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource Radius.Top.Medium}"
-                            Padding="18,12">
+                            Background="{DynamicResource Ov.Hero}"
+                            Padding="16,10">
                         <StackPanel>
                             <TextBlock Text="{DynamicResource Shell.NavSettings}"
                                        FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
@@ -103,32 +96,11 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- 🎨 THEME STUDIO QUICK ACCESS BANNER -->
-                    <Border Grid.Row="1" Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="14,10">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Width="30" Height="30" CornerRadius="15" Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE790;" FontFamily="{DynamicResource FontFamily.Icon}" FontSize="13" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" Margin="10,0,8,0" VerticalAlignment="Center">
-                                <TextBlock Text="THEME STUDIO" FontSize="{DynamicResource FontSize.Label}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                <TextBlock Text="Family, light/dark, and crystal glass" FontSize="{DynamicResource FontSize.Badge}" Foreground="{DynamicResource TextTertiaryBrush}"/>
-                            </StackPanel>
-                            <Button Grid.Column="2" Style="{StaticResource PrimaryPillButton}" Height="28" Padding="12,0"
-                                    Command="{Binding DataContext.OpenSettingsPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="Themes"
-                                    Content="Open Studio" VerticalAlignment="Center"/>
-                        </Grid>
-                    </Border>
-
-                    <ScrollViewer Grid.Row="2"
-                                  MaxHeight="520"
+                    <ScrollViewer Grid.Row="1"
+                                  MaxHeight="420"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
-                                  Padding="10,6,10,12">
+                                  Padding="8,6,8,4">
                         <ItemsControl ItemsSource="{Binding Source={StaticResource QuickSettingsView}}"
                                       KeyboardNavigation.TabNavigation="Cycle">
                             <ItemsControl.GroupStyle>
@@ -145,12 +117,7 @@
 
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <!-- One row = one registered page: the
-                                         command comes from the shell and the
-                                         parameter is the row's own key, so a
-                                         page that has no host cannot be
-                                         invented here. -->
-                                    <Button Style="{StaticResource SurfaceDetailButtonStyle}"
+                                    <Button Style="{StaticResource QuickSettingsRowButton}"
                                             Margin="0,0,0,6"
                                             Command="{Binding DataContext.OpenSettingsPageCommand,
                                                 RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -165,18 +132,42 @@
                                                        Text="{Binding Glyph}"
                                                        HorizontalAlignment="Left"
                                                        VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1"
-                                                       Style="{StaticResource Typography.Body}"
-                                                       Text="{Binding Label}"
-                                                       Margin="10,0,0,0"
-                                                       VerticalAlignment="Center"
-                                                       TextTrimming="CharacterEllipsis"/>
+                                            <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource Typography.Body}"
+                                                           Text="{Binding Label}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{DynamicResource Shell.ThemeStudioHint}"
+                                                           FontSize="{DynamicResource FontSize.Badge}"
+                                                           Foreground="{DynamicResource TextTertiaryBrush}"
+                                                           Margin="0,1,0,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Key}" Value="Themes">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
                                         </Grid>
                                     </Button>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
+
+                    <Button Grid.Row="2"
+                            Style="{StaticResource QuickSettingsRowButton}"
+                            Margin="8,0,8,8"
+                            HorizontalContentAlignment="Center"
+                            Foreground="{DynamicResource AccentBrush}"
+                            FontWeight="SemiBold"
+                            Content="{DynamicResource Shell.OpenFullSettings}"
+                            Command="{Binding DataContext.OpenSettingsPageCommand,
+                                RelativeSource={RelativeSource AncestorType=UserControl}}"/>
                 </Grid>
             </Border>
         </Border>

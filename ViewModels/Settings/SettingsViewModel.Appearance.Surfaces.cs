@@ -94,6 +94,50 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
+        /// <summary>
+        /// 0 washes the plate to white. 100 paints the swatch unchanged.
+        /// </summary>
+        public double CardFrostStrength
+        {
+            get => _config?.Appearance?.CardFrostStrength ?? 100;
+            set => SetSurfaceDouble(value, 0, 100,
+                v => _config!.Appearance.CardFrostStrength = v,
+                () => _config!.Appearance.CardFrostStrength,
+                nameof(CardFrostStrength));
+        }
+
+        /// <summary>
+        /// 0 is clear. 100 is opaque, so the card is not composited
+        /// toward the page and a black pick stays black.
+        /// </summary>
+        public double CardFrostOpacity
+        {
+            get => _config?.Appearance?.CardFrostOpacity ?? 100;
+            set => SetSurfaceDouble(value, 0, 100,
+                v => _config!.Appearance.CardFrostOpacity = v,
+                () => _config!.Appearance.CardFrostOpacity,
+                nameof(CardFrostOpacity));
+        }
+
+        public ObservableCollection<AccentOption> CardFrostPalette { get; } = new();
+
+        public void InitializeCardFrostPalette()
+        {
+            CardFrostPalette.Clear();
+            CardFrostPalette.Add(new AccentOption(
+                "White", "White", Color.FromRgb(255, 255, 255)));
+            foreach (var (key, name) in
+                ProGlassAutomation.Services.Theme.AccentPresets.All)
+            {
+                // The accent "Black" chip is ink #111827 so a button stays
+                // visible. On a card plate, Black means black.
+                var swatch = key == ProGlassAutomation.Services.Theme.AccentPresets.Black
+                    ? Color.FromRgb(0, 0, 0)
+                    : ProGlassAutomation.Services.Theme.AccentPresets.SwatchFor(key);
+                CardFrostPalette.Add(new AccentOption(key, name, swatch));
+            }
+        }
+
         public ICommand ApplyCardFrostTintCommand { get; private set; }
 
         private void ApplyCardFrostTintPreset(string key)
@@ -102,6 +146,16 @@ namespace ProGlassAutomation.ViewModels.Settings
             if (string.IsNullOrWhiteSpace(key) || key == "Auto")
             {
                 CardFrostTint = "";
+                return;
+            }
+            if (key == "White")
+            {
+                CardFrostTint = "#FFFFFF";
+                return;
+            }
+            if (key == ProGlassAutomation.Services.Theme.AccentPresets.Black)
+            {
+                CardFrostTint = "#000000";
                 return;
             }
             var color = ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(key);
@@ -162,7 +216,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public double SurfacePrimaryOpacity
         {
             get => _config?.Appearance?.SurfacePrimaryOpacity ?? 0.82;
-            set => SetSurfaceDouble(value, 0.30, 1.0,
+            set => SetSurfaceDouble(value, 0, 1.0,
                 v => _config!.Appearance.SurfacePrimaryOpacity = v,
                 () => _config!.Appearance.SurfacePrimaryOpacity,
                 nameof(SurfacePrimaryOpacity));
@@ -171,7 +225,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public double SurfaceSecondaryOpacity
         {
             get => _config?.Appearance?.SurfaceSecondaryOpacity ?? 0.94;
-            set => SetSurfaceDouble(value, 0.25, 1.0,
+            set => SetSurfaceDouble(value, 0, 1.0,
                 v => _config!.Appearance.SurfaceSecondaryOpacity = v,
                 () => _config!.Appearance.SurfaceSecondaryOpacity,
                 nameof(SurfaceSecondaryOpacity));
@@ -180,7 +234,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public double SurfaceDetailOpacity
         {
             get => _config?.Appearance?.SurfaceDetailOpacity ?? 0.86;
-            set => SetSurfaceDouble(value, 0.15, 1.0,
+            set => SetSurfaceDouble(value, 0, 1.0,
                 v => _config!.Appearance.SurfaceDetailOpacity = v,
                 () => _config!.Appearance.SurfaceDetailOpacity,
                 nameof(SurfaceDetailOpacity));

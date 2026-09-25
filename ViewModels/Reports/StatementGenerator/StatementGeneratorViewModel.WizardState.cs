@@ -63,6 +63,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 OnPropertyChanged(nameof(ShowNextButton));
                 OnPropertyChanged(nameof(ShowGenerateButton));
                 OnPropertyChanged(nameof(ShowFinishButton));
+                OnPropertyChanged(nameof(CurrentStepTitle));
                 OnPropertyChanged(nameof(IsStep1Active));
                 OnPropertyChanged(nameof(IsStep2Active));
                 OnPropertyChanged(nameof(IsStep3Active));
@@ -95,7 +96,18 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         public bool ShowNextButton => _currentStep == 1 && !_isGenerating;
         public bool ShowGenerateButton => _currentStep == 2 && !_isGenerating;
-        public bool ShowFinishButton => _currentStep == 4;
+        public bool ShowFinishButton => _currentStep == 4 && !_isGenerating;
+
+        public string CurrentStepTitle => _currentStep switch
+        {
+            1 => "Filter",
+            2 => "Preview",
+            3 => "Execute",
+            4 => "Review",
+            _ => "Generator"
+        };
+
+        public ICommand FinishCommand { get; private set; } = null!;
 
         // ── Commands ─────────────────────────────────────────────────────
         public ICommand NextStepCommand { get; private set; } = null!;

@@ -1,0 +1,1 @@
+15 language files now share one key set. en-US remains the fallback. Translations of the newly copied shell strings are still English in non-English files. Status: PASS for key parity, UNVERIFIED for translation quality.

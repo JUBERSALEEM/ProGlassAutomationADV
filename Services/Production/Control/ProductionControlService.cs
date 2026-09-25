@@ -27,8 +27,9 @@ using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.Production.Control
 {
-    public static class ProductionControlService
+public static class ProductionControlService
     {
+        private static void NotifyFloor() => ProductionRepository.NotifyWorkItemsChanged();
         // ── Deterministic IDs ────────────────────────────────────────────
         public static string BuildHoldId(string jobRef, int specGroup, int serial, int stage, int seq) => $"{(jobRef ?? "").Trim()}|{specGroup}|{serial}|{stage}|HOLD:{seq:000}";
         public static string BuildAssignmentId(string jobRef, int specGroup, int serial, int stage, int seq) => $"{(jobRef ?? "").Trim()}|{specGroup}|{serial}|{stage}|ASSIGN:{seq:000}";
@@ -113,8 +114,10 @@ namespace ProGlassAutomation.Services.Production.Control
                     Notes = $"Production Control Start — Operator {operatorName ?? AuditService.CurrentUsername}"
                 });
 
+                ProductionRepository.SyncLinkedExecutionStatus(db, fresh);
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
                 await tx.CommitAsync(ct).ConfigureAwait(false);
+                NotifyFloor();
 
                 AppLogService.Info($"[ProductionControl] Start WorkItem {workItemId} Job {wi.JobRef} by {AuditService.CurrentUsername}", new LogContext { Module = "Production", Operation = "Start" });
                 return (true, "Started");
@@ -158,7 +161,9 @@ namespace ProGlassAutomation.Services.Production.Control
                 Notes = $"Production Control Pause — {reason}"
             });
 
+            ProductionRepository.SyncLinkedExecutionStatus(db, wi);
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            NotifyFloor();
             AppLogService.Info($"[ProductionControl] Pause {workItemId} Reason {reason} by {AuditService.CurrentUsername}");
             return (true, "Paused");
         }
@@ -194,7 +199,9 @@ namespace ProGlassAutomation.Services.Production.Control
                 Notes = $"Production Control Resume by {AuditService.CurrentUsername}"
             });
 
+            ProductionRepository.SyncLinkedExecutionStatus(db, wi);
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            NotifyFloor();
             return (true, "Resumed");
         }
 
@@ -252,6 +259,7 @@ namespace ProGlassAutomation.Services.Production.Control
                 Notes = notes ?? ""
             });
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            NotifyFloor();
 
             AppLogService.Info($"[ProductionControl] Hold {workItemId} Reason {holdReason} by {AuditService.CurrentUsername}");
             return (true, "On Hold", holdId);
@@ -296,6 +304,7 @@ namespace ProGlassAutomation.Services.Production.Control
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
             }
 
+            NotifyFloor();
             return (true, "Hold Released");
         }
 
@@ -345,6 +354,7 @@ namespace ProGlassAutomation.Services.Production.Control
 
             db.ControlAssignments.Add(assignment);
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            NotifyFloor();
 
             AppLogService.Info($"[ProductionControl] Assign {workItemId} WS {workstationId} Operator {operatorName} by {AuditService.CurrentUsername}");
             return (true, "Assigned", assignmentId);
@@ -365,6 +375,7 @@ namespace ProGlassAutomation.Services.Production.Control
                 a.UpdatedAt = DateTime.Now;
             }
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            NotifyFloor();
             return (true, "Unassigned");
         }
 
@@ -411,6 +422,7 @@ namespace ProGlassAutomation.Services.Production.Control
             }
 
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            NotifyFloor();
             AppLogService.Info($"[ProductionControl] Priority {workItemId} -> {priority} by {AuditService.CurrentUsername}");
             return (true, $"Priority set to {priority}");
         }
@@ -457,6 +469,7 @@ namespace ProGlassAutomation.Services.Production.Control
             }
 
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            NotifyFloor();
             return (true, dueDate.HasValue ? $"Due date set to {dueDate:yyyy-MM-dd}" : "Due date cleared");
         }
 

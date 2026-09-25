@@ -22,13 +22,29 @@ namespace ProGlassAutomation.Services.Database
                 // Bring an EXISTING proglass.db forward if any schema
                 // migrations are registered (additive only; see
                 // AppSchemaMigrations). Safe no-op until one is added.
-                SchemaMigrationRunner.Upgrade(
+                bool upgraded = SchemaMigrationRunner.Upgrade(
                     AppDbContext.DatabaseFilePath,
                     AppSchemaMigrations.ProGlass,
                     "Sheet Store");
 
+                if (!upgraded)
+                {
+                    AppLogService.Error(
+                        "Main database schema was not upgraded. Writes may not match the expected schema. " +
+                        SchemaMigrationRunner.FailureSummary,
+                        null,
+                        new LogContext
+                        {
+                            Module = "Database",
+                            Class = nameof(DatabaseInitializer),
+                            Operation = "Initialize"
+                        });
+                }
+
                 AppLogService.Info(
-                    $"Main database ready at {AppDbContext.DatabaseFilePath}",
+                    upgraded
+                        ? $"Main database ready at {AppDbContext.DatabaseFilePath}"
+                        : $"Main database opened WITHOUT a schema upgrade at {AppDbContext.DatabaseFilePath}",
                     new LogContext
                     {
                         Module = "Database",

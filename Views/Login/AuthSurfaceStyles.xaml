@@ -16,6 +16,10 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <!-- ═══ STAGE — deep navy (translucent when over the splash) ═══ -->
     <LinearGradientBrush x:Key="PageBg" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="0.0"/>

@@ -48,7 +48,7 @@
         <!-- ═══ HERO · DIAGNOSTICS & APPLICATION HEALTH (Screen 06) ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>
-                <Grid Margin="0,0,0,14">
+                <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="14"/>
@@ -128,7 +128,7 @@
                            FontSize="{DynamicResource Ios26FontSizeCardTitle}"
                            FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource Ios26TextTitleBrush}"
-                           Margin="0,0,0,14"/>
+                           Margin="0,0,0,8"/>
                 <ItemsControl ItemsSource="{Binding RecordingMarkers}"
                               ItemTemplate="{StaticResource DxMarkerChipTemplate}">
                     <ItemsControl.ItemsPanel>

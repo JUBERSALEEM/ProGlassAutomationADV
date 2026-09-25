@@ -70,11 +70,18 @@ namespace ProGlassAutomation.Agent.Demo.Video
         public const string OfficialDownloadPageUrl = "https://ffmpeg.org/download.html";
 
         /// <summary>
-        /// Direct Windows essentials zip (ffmpeg + ffprobe) from the
-        /// builds FFmpeg.org itself lists for Windows.
+        /// Official Gyan essentials zip. GitHub's CDN is tried first
+        /// because www.gyan.dev is slow from this region. The gyan.dev
+        /// file is the same build, kept as the fallback.
         /// </summary>
         public const string WindowsEssentialsZipUrl =
-            "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
+            "https://github.com/GyanD/codexffmpeg/releases/download/9.0.2/ffmpeg-9.0.2-essentials_build.zip";
+
+        public static readonly string[] WindowsEssentialsZipUrls =
+        {
+            WindowsEssentialsZipUrl,
+            "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
+        };
 
         public static string ToolsFolder => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -98,10 +105,16 @@ namespace ProGlassAutomation.Agent.Demo.Video
             return _cached;
         }
 
+        public static string BundledToolsFolder =>
+            Path.Combine(AppContext.BaseDirectory, "tools");
+
         private static string? FindCore()
         {
-            string local = Path.Combine(ToolsFolder, "ffmpeg.exe");
-            if (File.Exists(local)) return local;
+            foreach (var folder in new[] { BundledToolsFolder, ToolsFolder })
+            {
+                string local = Path.Combine(folder, "ffmpeg.exe");
+                if (File.Exists(local)) return local;
+            }
 
             foreach (var name in new[] { "ffmpeg", "ffmpeg.exe" })
             {
@@ -130,6 +143,12 @@ namespace ProGlassAutomation.Agent.Demo.Video
 
         public static string? FindProbe()
         {
+            foreach (var folder in new[] { BundledToolsFolder, ToolsFolder })
+            {
+                string local = Path.Combine(folder, "ffprobe.exe");
+                if (File.Exists(local)) return local;
+            }
+
             foreach (var name in new[] { "ffprobe", "ffprobe.exe" })
             {
                 try
@@ -152,8 +171,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] FindProbe: try next: " + ex.Message); }
             }
 
-            string local = Path.Combine(ToolsFolder, "ffprobe.exe");
-            return File.Exists(local) ? local : null;
+            return null;
         }
 
         public static async Task<string?> ComposeAviWavAsync(

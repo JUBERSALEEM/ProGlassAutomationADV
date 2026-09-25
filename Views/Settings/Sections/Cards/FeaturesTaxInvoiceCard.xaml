@@ -11,12 +11,13 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
+    <StackPanel>
                     <Border Style="{StaticResource SettingsPageCardStyle}">
                         <StackPanel>
                             <Grid>
@@ -34,42 +35,41 @@
                                                Style="{StaticResource SettingsCardHeaderNoteStyle}"/>
                                 </StackPanel>
                             </Grid>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
                             <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                    <StackPanel>
+                                <StackPanel Margin="{StaticResource SettingsStackGap8}">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B8;"/>
                                             <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.BulkActions}"/>
                                         </StackPanel>
                                         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.FlipTaxInvoiceFieldOnce}"/>
-                                        <Border 
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                            <UniformGrid Columns="2">
-                                                <Button Content="{DynamicResource Settings.Enable}"
-                                                Command="{Binding EnableAllCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"/>
-                                                <Button Content="{DynamicResource Settings.HideOptional}"
-                                                Command="{Binding DisableAllOptionalCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"/>
-                                                <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
-                                                Command="{Binding ResetToDefaultsCommand}"
-                                                Style="{StaticResource SettingsActionButtonStyle}"
-                                                Margin="0"/>
-                                            </UniformGrid>
-                                        </Border>
+                                        <!-- Full-width action row: 3 buttons side-by-side -->
+                                        <UniformGrid Columns="3" Margin="{StaticResource SettingsStackGap10}">
+                                            <Button Content="{DynamicResource Settings.Enable}"
+                                            Command="{Binding EnableAllCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"/>
+                                            <Button Content="{DynamicResource Settings.HideOptional}"
+                                            Command="{Binding DisableAllOptionalCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"/>
+                                            <Button Content="{DynamicResource ProformaInvoice.ResetDefaults}"
+                                            Command="{Binding ResetToDefaultsCommand}"
+                                            Style="{StaticResource SettingsActionButtonStyle}"
+                                            Margin="0"/>
+                                        </UniformGrid>
                                     </StackPanel>
-                                </Border>
                             </StackPanel>
-
+                    </Border>
+                    <Border Style="{StaticResource SettingsPageCardStyle}">
+                        <StackPanel>
                             <TextBlock Text="{DynamicResource Settings.InvoiceDetails}"
-                                   Style="{StaticResource SettingsGroupCaptionStyle}"
-                                   Margin="{StaticResource SettingsStackGap18}"/>
+                                   Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                             <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleed}">
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}" VerticalAlignment="Center"/>
@@ -79,11 +79,9 @@
                                         AutomationProperties.Name="{DynamicResource Reports.TaxInvoiceReport.DUEDATE}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.PaymentTerms}" VerticalAlignment="Center"/>
@@ -93,11 +91,9 @@
                                         AutomationProperties.Name="{DynamicResource Settings.PaymentTerms}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Discount}" VerticalAlignment="Center"/>
@@ -107,11 +103,9 @@
                                         AutomationProperties.Name="{DynamicResource Settings.Discount}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                                    <Grid>
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.IBAN}" VerticalAlignment="Center"/>
@@ -121,11 +115,9 @@
                                         AutomationProperties.Name="{DynamicResource Settings.IBAN}"
                                         />
                                     </Grid>
-                                </Border>
 
-                                <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                                    <Grid>
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid Margin="{StaticResource SettingsTileGridMargin}">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsStackBottom8}">
     <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8D4;" Margin="{StaticResource SettingsInlineGap8R}" VerticalAlignment="Center"/>
     <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Text="{DynamicResource Settings.Swift}" VerticalAlignment="Center"/>
@@ -135,8 +127,8 @@
                                         AutomationProperties.Name="{DynamicResource Settings.Swift}"
                                         />
                                     </Grid>
-                                </Border>
                             </UniformGrid>
                         </StackPanel>
                     </Border>
+    </StackPanel>
 </UserControl>

@@ -61,8 +61,8 @@ classification step, and not with a global find-and-replace.
 the uplift:
 
 ```csharp
-decimal basePerSqm = Math.Round(preUplift, 2);
-result.SpecificationTargetPerSqm = Math.Round(basePerSqm * upliftFactor, 2);
+decimal basePerSqm = MoneyRounding.Round(preUplift);
+result.SpecificationTargetPerSqm = MoneyRounding.Round(basePerSqm * upliftFactor);
 ```
 
 That is a third rounding before `rate × area` is rounded again, and it is
@@ -91,15 +91,16 @@ half-to-even and invoicing rounded half-away-from-zero. It is asserted by
 
 ## Migration status
 
-`MoneyRounding` is the home, and `VatCalculator.Round` and `InvoiceRoundTo` —
-the eight sites that already rounded away from zero — route through it. Those
-were chosen first precisely because the change is behaviour-neutral.
+`MoneyRounding` is the home. `VatCalculator.Round`, `InvoiceRoundTo`,
+`InvoiceTotalsCalculator`, the tax-invoice line and mapper, the statement
+aging totals, the Step 5 line value, the Step 7 summary, and the specification
+target rate now route through it. A half-fil such as 10.005 is 10.01 on those
+paths. Square metres, quantities, and percentages in the same files were left
+on their own precision.
 
-The remaining `Math.Round(x, 2)` call sites in the money namespaces still use
-the default `ToEven`. They are **not** converted blind, because the same
-two-argument call rounds square metres to 3 dp and counts to integers elsewhere
-in the same files, and there is no compiler in this environment to catch a
-misclassification.
+Remaining `Math.Round` call sites in the money namespaces are still the default
+`ToEven` until classified. They are **not** converted blind, because the same
+call rounds square metres, counts, and percentages in the same files.
 
 `Tests/Architecture/MoneyRoundingRatchetTests.cs` pins the current count per
 namespace and fails if it grows. Convert one file at a time, with a build

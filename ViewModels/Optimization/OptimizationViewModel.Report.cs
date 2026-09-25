@@ -567,15 +567,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     UtilArea = g.AreaM2 + " m²"
                 });
 
-            foreach (var st in Stocks)
+            if (AllocationRows.Count == 0)
+                RebuildAllocationRows();
+            foreach (var st in AllocationRows)
                 rows.Add(new OptimizationReportExport.CombinedRow
                 {
                     Section = "Stocks Summary",
-                    GlassSheet = st.CompositionLabel,
-                    SizeThickness = st.WidthText + "×" + st.HeightText,
-                    UtilArea = st.AvailableText,
+                    GlassSheet = st.ColorLabel,
+                    SizeThickness = st.SizeLabel,
                     OffcutUsed = st.UsedLabel,
-                    Source = st.HasPrice ? st.SourceLabel + " · " + st.PriceLabel : st.SourceLabel
+                    Source = st.SourceLabel
                 });
 
             if (rows.Count == 0)
@@ -601,6 +602,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private void RebuildIndustrialReport()
         {
+            RebuildAllocationRows();
             IndustrialReport.Clear();
             IndustrialReportBands.Clear();
 

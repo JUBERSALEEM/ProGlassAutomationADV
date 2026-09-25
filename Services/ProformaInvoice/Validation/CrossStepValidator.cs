@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.Validation
 {
@@ -167,7 +168,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Validation
             if (Math.Abs(snap.SummaryGlassMaterialsSubtotal - snap.TotalAmount) > 0.01m)
                 errors.Add($"Step 7 glass subtotal ({snap.SummaryGlassMaterialsSubtotal:N2}) does not match Step 5 total ({snap.TotalAmount:N2}). Recalculate before saving.");
 
-            var expectedNet = Math.Round(snap.SummaryGlassMaterialsSubtotal + snap.SummaryOtherChargesSubtotal, 2);
+            var expectedNet = MoneyRounding.Round(snap.SummaryGlassMaterialsSubtotal + snap.SummaryOtherChargesSubtotal);
             if (Math.Abs(snap.NetSubtotal - expectedNet) > 0.01m)
                 errors.Add($"Net subtotal mismatch: Step 7 shows {snap.NetSubtotal:N2}, expected {expectedNet:N2}.");
 
@@ -180,7 +181,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Validation
             if (snap.DiscountAmount > snap.NetSubtotal + 0.01m)
                 errors.Add("Discount cannot exceed the net subtotal (Step 7).");
 
-            var expectedBeforeVat = Math.Round(snap.NetSubtotal - snap.DiscountAmount, 2);
+            var expectedBeforeVat = MoneyRounding.Round(snap.NetSubtotal - snap.DiscountAmount);
             if (Math.Abs(snap.SubtotalBeforeVat - expectedBeforeVat) > 0.01m)
                 errors.Add($"Subtotal-before-VAT mismatch: Step 7 shows {snap.SubtotalBeforeVat:N2}, expected {expectedBeforeVat:N2}.");
 
@@ -188,12 +189,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Validation
                 errors.Add("VAT percent must be between 0 and 100 (Step 7).");
 
             var expectedVat = snap.IsVatApplicable
-                ? Math.Round(snap.SubtotalBeforeVat * (snap.VatPercent / 100m), 2)
+                ? MoneyRounding.Round(snap.SubtotalBeforeVat * (snap.VatPercent / 100m))
                 : 0m;
             if (Math.Abs(snap.VatAmount - expectedVat) > 0.01m)
                 errors.Add($"VAT amount mismatch: Step 7 shows {snap.VatAmount:N2}, expected {expectedVat:N2}.");
 
-            var expectedGrand = Math.Round(snap.SubtotalBeforeVat + snap.VatAmount, 2);
+            var expectedGrand = MoneyRounding.Round(snap.SubtotalBeforeVat + snap.VatAmount);
             if (Math.Abs(snap.GrandTotal - expectedGrand) > 0.01m)
                 errors.Add($"Grand total mismatch: Step 7 shows {snap.GrandTotal:N2}, expected {expectedGrand:N2}.");
 

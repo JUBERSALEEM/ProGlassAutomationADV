@@ -24,6 +24,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
@@ -132,7 +133,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         public decimal SurchargeRate =>
-            Math.Round(_baseRate * (1m + (_surchargePercent / 100m)), 2);
+            MoneyRounding.Round(_baseRate * (1m + (_surchargePercent / 100m)));
 
         public string SpecDisplayName => !string.IsNullOrWhiteSpace(SelectedSpecName)
             ? SelectedSpecName

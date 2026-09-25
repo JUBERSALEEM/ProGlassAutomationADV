@@ -12,33 +12,32 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTrailingGap}">
-        <StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B3;" VerticalAlignment="Center"/>
-                <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.CardCornerRadius}"/>
-                <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
-                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+    <StackPanel Margin="{StaticResource SettingsStackGap8}">
+        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
+            <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE7B3;" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.CardCornerRadius}"/>
+            <Viewbox MaxHeight="18" VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}">
+                <TextBlock FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                            Foreground="{DynamicResource AccentBrush}">
                     <Run Text="{Binding CardCornerRadius, Mode=OneWay, StringFormat={}{0:0}}"/>
                     <Run Text="{DynamicResource Settings.Px}"/>
                 </TextBlock>
-            </StackPanel>
-            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                       Text="{DynamicResource Settings.HowRoundCardButtonDefault12Px0Sharp}"/>
-            <Slider Style="{StaticResource ModernSliderStyle}"
-                    AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
-                    Minimum="4" Maximum="24"
-                    TickFrequency="2"
-                    IsSnapToTickEnabled="True"
-                    Value="{Binding CardCornerRadius, Mode=TwoWay}"
-                    VerticalAlignment="Center"/>
+            </Viewbox>
         </StackPanel>
-    </Border>
+        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="{DynamicResource Settings.HowRoundCardButtonDefault12Px0Sharp}"/>
+        <Slider Style="{StaticResource ModernSliderStyle}"
+                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                Minimum="4" Maximum="24"
+                TickFrequency="2"
+                IsSnapToTickEnabled="True"
+                Value="{Binding CardCornerRadius, Mode=TwoWay}"
+                VerticalAlignment="Center"/>
+    </StackPanel>
 </UserControl>

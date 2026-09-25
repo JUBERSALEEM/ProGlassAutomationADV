@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.ObjectModel;
@@ -134,7 +135,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         {
             GroupTotalQty = Rows.Sum(r => r.Qty);
             GroupTotalSqm = Math.Round(Rows.Sum(r => r.TotalSqm), 3);
-            GroupTotalValue = Math.Round(Rows.Sum(r => r.Value), 2);
+            GroupTotalValue = MoneyRounding.Round(Rows.Sum(r => r.Value));
         }
 
         // ── Helpers ───────────────────────────────────────────────────────

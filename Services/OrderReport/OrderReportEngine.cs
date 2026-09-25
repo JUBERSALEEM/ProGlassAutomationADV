@@ -468,7 +468,7 @@ namespace ProGlassAutomation.Services.OrderReport
                     GivenPriceJudgedPerSqm = target.GivenPriceJudgedPerSqm,
                     ExtraProfitPerSqm = target.ExtraProfitPerSqm,
                     BaseDifferenceValue = target.ExtraProfitPerSqm.HasValue && target.AreaSqm > 0m
-                        ? Math.Round(target.ExtraProfitPerSqm.Value * target.AreaSqm, 2)
+                        ? MoneyRounding.Round(target.ExtraProfitPerSqm.Value * target.AreaSqm)
                         : null,
                     ExtraProfitMarginPercent = target.ExtraProfitMarginPercent,
                     FinalRequiredTargetPerSqm = target.FinalRequiredTargetPerSqm,

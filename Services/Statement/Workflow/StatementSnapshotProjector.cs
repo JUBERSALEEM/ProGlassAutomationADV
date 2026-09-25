@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ProGlassAutomation.Models.Statement;
+using ProGlassAutomation.Services.Reporting;
 
 namespace ProGlassAutomation.Services.Statement.Workflow
 {
@@ -39,12 +40,12 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             var financial = new StatementFinancialSummary
             {
                 TotalInvoiceCount = filteredRows.Count,
-                TotalSubtotal = Math.Round(filteredRows.Sum(r => r.Subtotal), 2),
-                TotalVat = Math.Round(filteredRows.Sum(r => r.VatAmount), 2),
-                TotalInvoiced = Math.Round(filteredRows.Sum(r => r.GrandTotal), 2),
-                TotalPaid = Math.Round(filteredRows.Sum(r => r.PaidAmount), 2),
-                TotalOutstanding = Math.Round(filteredRows.Sum(r => r.Balance), 2),
-                OverdueAmount = Math.Round(overdue, 2),
+                TotalSubtotal = MoneyRounding.Round(filteredRows.Sum(r => r.Subtotal)),
+                TotalVat = MoneyRounding.Round(filteredRows.Sum(r => r.VatAmount)),
+                TotalInvoiced = MoneyRounding.Round(filteredRows.Sum(r => r.GrandTotal)),
+                TotalPaid = MoneyRounding.Round(filteredRows.Sum(r => r.PaidAmount)),
+                TotalOutstanding = MoneyRounding.Round(filteredRows.Sum(r => r.Balance)),
+                OverdueAmount = MoneyRounding.Round(overdue),
                 TotalQty = filteredRows.Sum(r => r.TotalQty),
                 TotalSqm = Math.Round(filteredRows.Sum(r => r.TotalSqm), 3)
             };
@@ -68,11 +69,11 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 else if (days <= 90) aging.Days61To90 += balance;
                 else aging.Days90Plus += balance;
             }
-            aging.Current = Math.Round(aging.Current, 2);
-            aging.Days0To30 = Math.Round(aging.Days0To30, 2);
-            aging.Days31To60 = Math.Round(aging.Days31To60, 2);
-            aging.Days61To90 = Math.Round(aging.Days61To90, 2);
-            aging.Days90Plus = Math.Round(aging.Days90Plus, 2);
+            aging.Current = MoneyRounding.Round(aging.Current);
+            aging.Days0To30 = MoneyRounding.Round(aging.Days0To30);
+            aging.Days31To60 = MoneyRounding.Round(aging.Days31To60);
+            aging.Days61To90 = MoneyRounding.Round(aging.Days61To90);
+            aging.Days90Plus = MoneyRounding.Round(aging.Days90Plus);
 
             return new StatementSnapshot
             {

@@ -17,7 +17,16 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}">
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid>
         <Border Style="{StaticResource OptPanelCard}">
@@ -129,7 +138,21 @@
                                 <TextBlock Text="OPTIMIZE EFFORT / STRATEGY STAGE" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <ComboBox ItemsSource="{Binding StageStrategies}"
                                           SelectedItem="{Binding SelectedStageStrategy}"
-                                          Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"/>
+                                          Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"
+                                          AutomationProperties.Name="Optimize effort and strategy stage"/>
+                                <TextBlock Text="Same list as the banner, including Auto. Auto calls an existing stage. It does not change the plate pattern."
+                                           FontSize="11" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+
+                                <TextBlock Text="PLATE PATTERN" Style="{StaticResource OptHeader}" Margin="0,14,0,6"/>
+                                <ComboBox ItemsSource="{Binding PlatePatterns}"
+                                          SelectedItem="{Binding SelectedPlatePattern}"
+                                          Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"
+                                          ToolTip="{Binding SelectedPlatePatternHint}"
+                                          AutomationProperties.Name="Plate pattern"/>
+                                <TextBlock Text="{Binding SelectedPlatePatternHint}"
+                                           FontSize="11" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                     </Grid>
