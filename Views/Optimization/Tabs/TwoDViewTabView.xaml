@@ -27,6 +27,13 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <!-- Saw channel is darker than the piece fill so a kerf gap
+                 reads as a cut, not as two pieces sharing one edge. -->
+            <SolidColorBrush x:Key="OptCutBed" Color="#D6D3D1"/>
+            <SolidColorBrush x:Key="OptCutInk" Color="#1F2937"/>
+            <SolidColorBrush x:Key="OptPieceFill" Color="#F8FAFC"/>
+            <SolidColorBrush x:Key="OptTrimInk" Color="#0F766E"/>
+            <SolidColorBrush x:Key="OptBreakoutInk" Color="#B45309"/>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -237,7 +244,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                    BorderThickness="0.5" BorderBrush="{DynamicResource BorderBrush}">
+                                                    BorderThickness="0.8" BorderBrush="{StaticResource OptCutInk}">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
                                                         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -334,21 +341,22 @@
                                 </Border>
 
                                 <!-- Plate Canvas -->
-                                <Border Grid.Column="1" BorderBrush="{StaticResource OptIndigo}" BorderThickness="1.5"
-                                        CornerRadius="4" Background="{DynamicResource SurfacePrimaryBrush}" SnapsToDevicePixels="True">
+                                <Border Grid.Column="1" BorderBrush="{StaticResource OptTrimInk}" BorderThickness="2"
+                                        CornerRadius="4" Background="{StaticResource OptCutBed}" SnapsToDevicePixels="True">
                                     <Canvas Width="{Binding RenderWidth}" Height="{Binding RenderHeight}">
 
-                                        <!-- Usable Rect (Inside Margins) — Accent Dashed Line -->
+                                        <!-- Trim boundary — the usable rectangle inside edge trims. -->
                                         <Rectangle Canvas.Left="{Binding UsableX}" Canvas.Top="{Binding UsableY}"
                                                    Width="{Binding UsableW}" Height="{Binding UsableH}"
-                                                   Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.5"
-                                                   StrokeDashArray="6,3" Fill="Transparent" IsHitTestVisible="False"/>
+                                                   Stroke="{StaticResource OptTrimInk}" StrokeThickness="2.25"
+                                                   StrokeDashArray="7,3" Fill="Transparent" IsHitTestVisible="False"/>
 
-                                        <!-- Minimum-Breakout Margin — Amber Dashed Line -->
+                                        <!-- Minimum-breakout band — inset from the trim, amber so it
+                                             does not disappear into the saw lines. -->
                                         <Rectangle Canvas.Left="{Binding BreakoutX}" Canvas.Top="{Binding BreakoutY}"
                                                    Width="{Binding BreakoutW}" Height="{Binding BreakoutH}"
-                                                   Stroke="{DynamicResource WarningBrush}" StrokeThickness="1"
-                                                   StrokeDashArray="3,2" Fill="Transparent" IsHitTestVisible="False"/>
+                                                   Stroke="{StaticResource OptBreakoutInk}" StrokeThickness="2"
+                                                   StrokeDashArray="2,2" Fill="Transparent" IsHitTestVisible="False"/>
 
                                         <!-- Reusable Offcut Remnants -->
                                         <ItemsControl ItemsSource="{Binding SheetOffcuts}">
@@ -400,11 +408,11 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                            BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}"
-                                                            CornerRadius="2" SnapsToDevicePixels="True">
+                                                            BorderThickness="1.75" BorderBrush="{StaticResource OptCutInk}"
+                                                            CornerRadius="1" SnapsToDevicePixels="True">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
-                                                                <Setter Property="Background" Value="{DynamicResource Ios26AccentSoftBrush}"/>
+                                                                <Setter Property="Background" Value="{StaticResource OptPieceFill}"/>
                                                                 <Style.Triggers>
                                                                     <!-- Rotated 90°: Light Sky Blue Tint -->
                                                                     <DataTrigger Binding="{Binding Rotated}" Value="True">
@@ -592,8 +600,8 @@
                                                 </Grid>
 
                                                 <!-- Miniature Sheet Vector Canvas -->
-                                                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                                                        CornerRadius="4" Background="#FFFFFF" Padding="2" Margin="0,0,0,8"
+                                                <Border BorderBrush="{StaticResource OptTrimInk}" BorderThickness="1.5"
+                                                        CornerRadius="4" Background="{StaticResource OptCutBed}" Padding="2" Margin="0,0,0,8"
                                                         HorizontalAlignment="Center">
                                                     <Canvas Width="{Binding CanvasWidth}" Height="{Binding CanvasHeight}">
                                                         <ItemsControl ItemsSource="{Binding Pieces}">
@@ -611,8 +619,8 @@
                                                             <ItemsControl.ItemTemplate>
                                                                 <DataTemplate>
                                                                     <Border Width="{Binding Width}" Height="{Binding Height}"
-                                                                            BorderThickness="0.8" BorderBrush="{DynamicResource BorderBrush}"
-                                                                            Background="{DynamicResource Ios26AccentSoftBrush}">
+                                                                            BorderThickness="1" BorderBrush="{StaticResource OptCutInk}"
+                                                                            Background="{StaticResource OptPieceFill}">
                                                                         <TextBlock Text="{Binding CutNumber}" FontSize="8" FontWeight="Bold"
                                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"
                                                                                    VerticalAlignment="Center"
@@ -661,21 +669,27 @@
                     <!-- Studio Bento CAD Legend -->
                     <WrapPanel VerticalAlignment="Center">
                         <!-- Margin Zone -->
-                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="1.5" CornerRadius="2" Margin="0,0,5,0"/>
-                        <TextBlock Text="Trim Margin" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{StaticResource OptTrimInk}"
+                                BorderThickness="2" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Trim" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0"/>
 
                         <!-- Breakout allowance -->
-                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{DynamicResource WarningBrush}"
-                                BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
-                        <TextBlock Text="Min Breakout" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                        <Border Width="12" Height="12" Background="Transparent" BorderBrush="{StaticResource OptBreakoutInk}"
+                                BorderThickness="2" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Breakout" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                                   VerticalAlignment="Center" Margin="0,0,14,0"/>
+
+                        <!-- Saw cut between pieces -->
+                        <Border Width="12" Height="12" Background="{StaticResource OptCutBed}" BorderBrush="{StaticResource OptCutInk}"
+                                BorderThickness="1.75" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Saw cut" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0"/>
 
                         <!-- Standard Cut Piece -->
-                        <Border Width="12" Height="12" Background="#F8FAFC" BorderBrush="#94A3B8"
-                                BorderThickness="1" CornerRadius="2" Margin="0,0,5,0"/>
-                        <TextBlock Text="Original (0°)" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
+                        <Border Width="12" Height="12" Background="{StaticResource OptPieceFill}" BorderBrush="{StaticResource OptCutInk}"
+                                BorderThickness="1.75" CornerRadius="2" Margin="0,0,5,0"/>
+                        <TextBlock Text="Piece" FontSize="11" Foreground="{DynamicResource TextTertiaryBrush}"
                                    VerticalAlignment="Center" Margin="0,0,14,0"/>
 
                         <!-- Rotated Cut Piece -->
