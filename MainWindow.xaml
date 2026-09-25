@@ -830,7 +830,16 @@
                  MODULE REGION (Column 1)
                  Full Light Studio Bento Workspace
             ═══════════════════════════════════════════════════════════════ -->
-            <Grid Grid.Column="1" Background="{DynamicResource BackgroundBrush}">
+            <Grid Grid.Column="1">
+                <!-- Wallpaper sits behind the page. Blur is on this layer
+                     only — a BlurEffect on the content grid would blur the
+                     text. Radius 0 is the off state, so a solid page is
+                     unchanged until Appearance raises the frost. -->
+                <Border IsHitTestVisible="False"
+                        Background="{DynamicResource BackgroundBrush}"/>
+                <Border IsHitTestVisible="False"
+                        Background="{DynamicResource ModuleWallpaperBrush}"
+                        Effect="{DynamicResource ModuleSkinBlurEffect}"/>
 
                 <ContentControl Content="{Binding ProfessionalContent}"
                                 behaviors:ContentTransitionBehavior.IsEnabled="True"

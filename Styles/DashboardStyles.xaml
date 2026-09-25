@@ -43,9 +43,9 @@
     </Style>
 
     <Style x:Key="SoftCardStyle" TargetType="Border" BasedOn="{StaticResource SurfacePrimaryStyle}">
-        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="Padding" Value="{StaticResource SoftCardPadding}"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
         <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
     </Style>
 

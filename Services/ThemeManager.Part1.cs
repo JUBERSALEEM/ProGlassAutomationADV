@@ -147,6 +147,14 @@ namespace ProGlassAutomation.Services
 
         public static void ApplyTheme(AppTheme theme, bool deferPostProcessing = false)
         {
+            // The new dictionary replaces the merged brushes. The live-fill
+            // cache must not skip the republish that puts the operator's
+            // plate back on top of that dictionary. The family key is
+            // cleared for the same reason: the next surface pass has to
+            // publish once, then slider ticks can skip that copy.
+            _liveFillSignature = null;
+            _familyPublishKey = null;
+            _publishedSurfaceStroke = null;
             ResourceDictionary palette;
             try
             {
@@ -923,6 +931,13 @@ namespace ProGlassAutomation.Services
             // own authored edge (industrial slate, crystal white, cream soft).
             FreezeAndSet(resources, "GlassBorderSoft", edge);
             FreezeAndSet(resources, "GlassBorderGradientCrystal", edge);
+
+            // Settings cards do not read OutlineBrush. Their rounded stroke,
+            // including the corner arc, is SettingsCardEdgeBrush /
+            // SettingsInnerEdgeBrush. Weight already worked because those
+            // styles bind CardEdgeThickness. Colour did not, so the corner
+            // stayed the theme grey. Publish the same edge colour there.
+            PublishDefinedCardEdge(resources, defined, edge);
 
 
             // Semantic surface border resources are derived from the final

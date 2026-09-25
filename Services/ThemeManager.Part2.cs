@@ -546,9 +546,10 @@ namespace ProGlassAutomation.Services
                 Clamp01(appearance?.PrimarySurfaceOverlayOpacity ?? 0.0, 0.0, 0.35));
             SetBrushResource(resources, "Surface.Secondary.BackgroundBrush", secondaryKey, secondaryOpacity);
             SetBrushResource(resources, "Surface.Detail.BackgroundBrush", detailKey, detailOpacity);
-            SetBrushResource(resources, "Surface.Primary.BorderBrush", "GlassBorderSoft", 1.0);
-            SetBrushResource(resources, "Surface.Secondary.BorderBrush", "OutlineBrush", 1.0);
-            SetBrushResource(resources, "Surface.Detail.BorderBrush", "OutlineBrush", 0.92);
+            // Border brushes are written by PublishSurfaceEdgeBrushes after
+            // the family publish. GlassBorderSoft is a low-alpha stroke, and
+            // a corner arc of that brush reads as "the corner refused the
+            // colour" even when the straight edge is still visible.
             SetBrushResource(resources, "Surface.Primary.OverlayBrush", "AccentBrush",
                 Clamp01(appearance?.PrimarySurfaceOverlayOpacity ?? 0.0, 0.0, 0.35));
 
@@ -568,27 +569,20 @@ namespace ProGlassAutomation.Services
             SetRadius(resources, "Surface.Detail.CornerRadius",
                 rounded ? appearance?.SurfaceDetailRadius ?? _cardCornerRadius : 0);
 
-            if (appearance?.UsePrimarySurfaceElevation == true)
-            {
-                var fx = new System.Windows.Media.Effects.DropShadowEffect
-                {
-                    BlurRadius = 18,
-                    ShadowDepth = 0,
-                    Opacity = 0.12,
-                    Color = Color.FromArgb(0xFF, 0x0F, 0x17, 0x2A)
-                };
-                if (fx.CanFreeze) fx.Freeze();
-                resources["Surface.Primary.Effect"] = fx;
-            }
-            else
-            {
-                resources["Surface.Primary.Effect"] = null;
-            }
-
+            // Elevation is published by PublishLiveSurfaceFills. Writing
+            // null here first wiped the shadow whenever the fill cache
+            // correctly skipped a duplicate tick.
             ApplyModuleSkinBlur(resources, appearance);
-            ApplyCardFrostTint(resources, appearance);
 
-            PublishProGlassDesignSystem();
+            // Family publish copies GlassUltraClearBrush back onto
+            // SurfacePrimaryBrush. Appearance has to win that write, or
+            // every slider tick paints the plate and the engine erases it
+            // in the same method. That was the dead-control loop. An
+            // unchanged family skips the copy — the slider hitch was that
+            // full publish running on every opacity tick.
+            PublishFamilyIfNeeded(appearance);
+            PublishLiveSurfaceFills(resources, appearance, material);
+            PublishSurfaceEdgeBrushes(resources);
         }
 
         /// <summary>
@@ -604,61 +598,46 @@ namespace ProGlassAutomation.Services
             var material = ProGlassThemeEngine.ParseMaterial(appearance?.SurfaceMaterialMode);
             if (reduced || material == ProGlassMaterial.Solid)
             {
-                resources["ModuleSkinBlurEffect"] = null;
+                // A shared zero-radius effect, not null. The shell binds
+                // this key; assigning null detaches the listener's effect
+                // in a way that the next real effect does not always
+                // reattach on a frozen Freezable slot.
+                if (_cachedWallpaperBlur == null || _cachedWallpaperBlurRadius > 0.05)
+                {
+                    var off = new System.Windows.Media.Effects.BlurEffect
+                    {
+                        Radius = 0,
+                        KernelType = System.Windows.Media.Effects.KernelType.Box,
+                        RenderingBias = System.Windows.Media.Effects.RenderingBias.Performance
+                    };
+                    if (off.CanFreeze) off.Freeze();
+                    _cachedWallpaperBlur = off;
+                    _cachedWallpaperBlurRadius = 0;
+                }
+                resources["ModuleSkinBlurEffect"] = _cachedWallpaperBlur;
+                return;
+            }
+
+            // Box kernel is the cheap blur. Gaussian on a full-window
+            // wallpaper is the frame hitch the slider used to cause.
+            // Reuse the frozen effect when the radius has not moved.
+            double radius = Math.Min(18.0, intensity * 24.0);
+            if (_cachedWallpaperBlur != null && Math.Abs(_cachedWallpaperBlurRadius - radius) < 0.05)
+            {
+                resources["ModuleSkinBlurEffect"] = _cachedWallpaperBlur;
                 return;
             }
 
             var blur = new System.Windows.Media.Effects.BlurEffect
             {
-                Radius = Math.Min(18.0, intensity * 24.0),
+                Radius = radius,
                 KernelType = System.Windows.Media.Effects.KernelType.Box,
                 RenderingBias = System.Windows.Media.Effects.RenderingBias.Performance
             };
             if (blur.CanFreeze) blur.Freeze();
+            _cachedWallpaperBlur = blur;
+            _cachedWallpaperBlurRadius = radius;
             resources["ModuleSkinBlurEffect"] = blur;
-        }
-
-        /// <summary>
-        /// Mixes the operator-chosen frost plate into semantic surfaces.
-        /// Empty tint leaves the theme fill (opacity already applied).
-        /// </summary>
-        private static void ApplyCardFrostTint(
-            ResourceDictionary resources, AppearanceSettings? appearance)
-        {
-            var tint = AccentPresets.TryParseHex(appearance?.CardFrostTint);
-            if (tint == null) return;
-
-            MixSurfaceTint(resources, "Surface.Primary.BackgroundBrush", tint.Value, 0.22);
-            MixSurfaceTint(resources, "Surface.Secondary.BackgroundBrush", tint.Value, 0.16);
-            MixSurfaceTint(resources, "Surface.Detail.BackgroundBrush", tint.Value, 0.10);
-        }
-
-        private static void MixSurfaceTint(
-            ResourceDictionary resources, string key, Color tint, double amount)
-        {
-            SolidColorBrush? surface = null;
-            try
-            {
-                if (resources.Contains(key))
-                    surface = resources[key] as SolidColorBrush;
-            }
-            catch (Exception)
-            {
-                return;
-            }
-            if (surface == null) return;
-
-            byte Mix(byte a, byte b)
-                => (byte)Math.Round(a * (1.0 - amount) + b * amount);
-
-            var mixed = new SolidColorBrush(Color.FromArgb(
-                surface.Color.A,
-                Mix(surface.Color.R, tint.R),
-                Mix(surface.Color.G, tint.G),
-                Mix(surface.Color.B, tint.B)));
-            mixed.Opacity = surface.Opacity;
-            if (mixed.CanFreeze) mixed.Freeze();
-            resources[key] = mixed;
         }
 
         /// <summary>
@@ -666,9 +645,43 @@ namespace ProGlassAutomation.Services
         /// live engine-managed brushes so Industrial / Monet / Crystal and
         /// Light / Dark all resolve through one vocabulary without views
         /// referencing Crystal* or LiquidGlass* names.
+        /// Appearance is reattached afterwards. Callers (theme pipeline,
+        /// accent rebuild) publish again after the surface pass, and that
+        /// second publish was putting the stock palette back on top of
+        /// the plate the operator had just chosen.
         /// </summary>
         public static void PublishProGlassDesignSystem()
-            => ProGlassThemeEngine.Publish();
+        {
+            ProGlassThemeEngine.Publish();
+            ReattachAppearanceWins();
+            _familyPublishKey = FamilyPublishKey(App.Config?.Appearance);
+        }
+
+        private static string? _familyPublishKey;
+
+        private static string FamilyPublishKey(AppearanceSettings? appearance)
+            => string.Join("|",
+                appearance?.VisualTheme ?? "",
+                _currentTheme.ToString(),
+                appearance?.SurfaceMaterialMode ?? "",
+                appearance?.DisplayDensity ?? "");
+
+        private static void PublishFamilyIfNeeded(AppearanceSettings? appearance)
+        {
+            string key = FamilyPublishKey(appearance);
+            if (key == _familyPublishKey) return;
+            _familyPublishKey = key;
+            ProGlassThemeEngine.Publish();
+            ReattachAppearanceWins();
+        }
+
+        private static void ReattachAppearanceWins()
+        {
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+            ReattachCachedFills(resources);
+            PublishSurfaceEdgeBrushes(resources, force: true);
+        }
 
         public static void ReapplySemanticSurfaces()
             => ApplySemanticSurfaces(App.Config?.Appearance);
@@ -780,6 +793,335 @@ namespace ProGlassAutomation.Services
                 resources["UiScale"] = scale;
 
             UiScaleChanged?.Invoke(null, EventArgs.Empty);
+        }
+
+        private static System.Windows.Media.Effects.BlurEffect? _cachedWallpaperBlur;
+        private static double _cachedWallpaperBlurRadius = -1;
+        private static string? _liveFillSignature;
+        private static readonly Dictionary<string, Brush> _cachedFillBrushes = new(StringComparer.Ordinal);
+        private static System.Windows.Media.Effects.DropShadowEffect? _cachedSurfaceShadow;
+        private static bool _cachedElevation;
+        private static Color? _publishedEdgeColor;
+        private static readonly HashSet<string> _localBrushOverrides = new(StringComparer.Ordinal);
+
+        /// <summary>
+        /// Settings cards paint their rounded stroke, corner included, from
+        /// SettingsCardEdgeBrush. OutlineBrush is a different token. While
+        /// the defined edge is on, both card-edge brushes become the chosen
+        /// colour. While off, the theme's own edge brush is restored so a
+        /// Light/Dark gradient is not stuck as a flat solid.
+        /// </summary>
+        private static void PublishDefinedCardEdge(
+            ResourceDictionary resources, bool defined, Color edge)
+        {
+            if (!defined)
+            {
+                _publishedEdgeColor = null;
+                RestoreThemeBrush(resources, "SettingsCardEdgeBrush");
+                RestoreThemeBrush(resources, "SettingsInnerEdgeBrush");
+                return;
+            }
+
+            // Opaque stroke. A low-alpha theme gradient is why a corner
+            // looked like it "refused" the plate: the arc has fewer pixels
+            // than the straight edge, so a 20% white gradient disappears
+            // there first. The plate colour is the stroke, full alpha.
+            var stroke = edge.A < 255
+                ? Color.FromArgb(255, edge.R, edge.G, edge.B)
+                : edge;
+            _publishedEdgeColor = stroke;
+            SetOverrideBrush(resources, "SettingsCardEdgeBrush", stroke);
+            SetOverrideBrush(resources, "SettingsInnerEdgeBrush", stroke);
+        }
+
+        /// <summary>
+        /// Builds the three surface fills the Appearance sliders actually
+        /// move, plus the Settings card face when the operator has left
+        /// the factory glass. The previous path cloned GlassSurfaceBrush
+        /// (a translucent gradient) and then refused to tint it because
+        /// it was not a SolidColorBrush. A plate click and an opacity
+        /// drag therefore changed nothing the eye could see.
+        /// </summary>
+        private static void PublishLiveSurfaceFills(
+            ResourceDictionary resources,
+            AppearanceSettings? appearance,
+            ProGlassMaterial material)
+        {
+            var tint = AccentPresets.TryParseHex(appearance?.CardFrostTint);
+            double primaryOpacity = Clamp01(appearance?.SurfacePrimaryOpacity ?? 0.82, 0.30, 1.0);
+            double secondaryOpacity = Clamp01(appearance?.SurfaceSecondaryOpacity ?? 0.94, 0.25, 1.0);
+            double detailOpacity = Clamp01(appearance?.SurfaceDetailOpacity ?? 0.86, 0.15, 1.0);
+            double overlay = Clamp01(appearance?.PrimarySurfaceOverlayOpacity ?? 0.0, 0.0, 0.35);
+            if (material == ProGlassMaterial.Solid)
+            {
+                primaryOpacity = 1.0;
+                secondaryOpacity = 1.0;
+                detailOpacity = Math.Max(detailOpacity, 0.96);
+            }
+
+            var baseColor = OpaqueCardBase(resources);
+            var accent = SampleBrushColor(LiveBrush(resources, "AccentBrush"));
+            string signature = string.Join("|",
+                baseColor.ToString(),
+                tint?.ToString() ?? "",
+                accent?.ToString() ?? "",
+                primaryOpacity.ToString("0.###"),
+                secondaryOpacity.ToString("0.###"),
+                detailOpacity.ToString("0.###"),
+                overlay.ToString("0.###"),
+                material.ToString(),
+                appearance?.UsePrimarySurfaceElevation == true ? "1" : "0");
+            // Family publish, which ran just above, copies the stock palette
+            // back over SurfacePrimaryBrush on every tick. A signature hit
+            // must reattach the cached brushes or that copy wins and the
+            // plate looks dead again. Reattach is a dictionary write, not
+            // a new brush.
+            if (signature == _liveFillSignature)
+            {
+                ReattachCachedFills(resources);
+                return;
+            }
+            _liveFillSignature = signature;
+            _cachedFillBrushes.Clear();
+
+            const double plate = 0.58;
+            SetOverrideBrush(resources, "Surface.Primary.LiveFill",
+                MixFill(baseColor, tint, plate, accent, overlay, primaryOpacity));
+            SetOverrideBrush(resources, "Surface.Secondary.LiveFill",
+                MixFill(baseColor, tint, 0.36, null, 0, secondaryOpacity));
+            SetOverrideBrush(resources, "Surface.Detail.LiveFill",
+                MixFill(baseColor, tint, 0.22, null, 0, detailOpacity));
+
+            // Factory glass stays the authored DrawingBrush. A plate, a
+            // moved opacity, or Solid material is an explicit edit and
+            // must repaint the card the operator is looking at. The inner
+            // tile is a second face; leaving it on the theme solid is why
+            // a plate click looked like it had done nothing.
+            bool customFace = tint != null
+                || material == ProGlassMaterial.Solid
+                || Math.Abs(primaryOpacity - 0.82) > 0.01
+                || overlay > 0.01;
+            if (customFace)
+            {
+                var face = MixFill(baseColor, tint, tint == null ? 0 : plate, accent, overlay, primaryOpacity);
+                SetOverrideBrush(resources, "SettingsCardFaceBrush", face);
+                SetOverrideBrush(resources, "SettingsInnerFaceBrush",
+                    MixFill(baseColor, tint, tint == null ? 0 : 0.28, null, 0, Math.Max(primaryOpacity, 0.92)));
+                SetOverrideBrush(resources, "SurfacePrimaryBrush", face);
+                SetOverrideBrush(resources, "SurfaceSecondaryBrush",
+                    MixFill(baseColor, tint, tint == null ? 0 : 0.36, null, 0, secondaryOpacity));
+                SetOverrideBrush(resources, "SurfaceTertiaryBrush",
+                    MixFill(baseColor, tint, tint == null ? 0 : 0.22, null, 0, detailOpacity));
+            }
+            else
+            {
+                RestoreThemeBrush(resources, "SettingsCardFaceBrush");
+                RestoreThemeBrush(resources, "SettingsInnerFaceBrush");
+                RestoreThemeBrush(resources, "SurfacePrimaryBrush");
+                RestoreThemeBrush(resources, "SurfaceSecondaryBrush");
+                RestoreThemeBrush(resources, "SurfaceTertiaryBrush");
+            }
+
+            PublishSurfaceShadow(resources, appearance?.UsePrimarySurfaceElevation == true);
+        }
+
+        private static void PublishSurfaceShadow(ResourceDictionary resources, bool elevate)
+        {
+            // Elevation off keeps a soft shadow so the toggle is a change
+            // of weight, not a disappear. A null effect was the previous
+            // "off" and made the control look dead. Reuse the frozen
+            // effect when only the plate colour moved.
+            if (_cachedSurfaceShadow == null || _cachedElevation != elevate)
+            {
+                var shadow = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    BlurRadius = elevate ? 28 : 8,
+                    ShadowDepth = elevate ? 2 : 0,
+                    Opacity = elevate ? 0.34 : 0.08,
+                    Direction = 270,
+                    Color = Color.FromRgb(0x0F, 0x17, 0x2A),
+                    RenderingBias = System.Windows.Media.Effects.RenderingBias.Performance
+                };
+                if (shadow.CanFreeze) shadow.Freeze();
+                _cachedSurfaceShadow = shadow;
+                _cachedElevation = elevate;
+            }
+
+            resources["Surface.Primary.Effect"] = _cachedSurfaceShadow;
+        }
+
+        /// <summary>
+        /// Opaque stroke for the three surface specimens and the module
+        /// cards that read Surface.*.BorderBrush. A cloned glass hairline
+        /// has so little alpha that raising its thickness changes nothing
+        /// the eye can see.
+        /// </summary>
+        private static Color? _publishedSurfaceStroke;
+
+        private static void PublishSurfaceEdgeBrushes(ResourceDictionary resources, bool force = false)
+        {
+            Color stroke;
+            bool definedStroke = _definedOutline && _publishedEdgeColor is Color;
+            if (definedStroke && _publishedEdgeColor is Color edge)
+                stroke = edge;
+            else
+            {
+                var sampled = SampleBrushColor(LiveBrush(resources, "BorderDefaultBrush"));
+                stroke = sampled is Color color
+                    ? Color.FromArgb(255, color.R, color.G, color.B)
+                    : Color.FromRgb(0xCB, 0xD5, 0xE1);
+            }
+
+            // Slider ticks call this after the fill cache has already
+            // decided nothing moved. Skip the brush allocations unless a
+            // family publish just copied the stock keyline back.
+            if (!force && _publishedSurfaceStroke is Color previous && previous == stroke)
+                return;
+            _publishedSurfaceStroke = stroke;
+
+            if (definedStroke)
+            {
+                FreezeAndSet(resources, "GlassBorderSoft", stroke);
+                FreezeAndSet(resources, "GlassBorderGradientCrystal", stroke);
+                FreezeAndSet(resources, "OutlineBrush", stroke);
+            }
+
+            FreezeAndSet(resources, "Surface.Primary.BorderBrush", stroke);
+            FreezeAndSet(resources, "Surface.Secondary.BorderBrush", stroke);
+            FreezeAndSet(resources, "Surface.Detail.BorderBrush", stroke);
+        }
+
+        private static void ReattachCachedFills(ResourceDictionary resources)
+        {
+            foreach (var pair in _cachedFillBrushes)
+                resources[pair.Key] = pair.Value;
+            if (_cachedSurfaceShadow != null)
+                resources["Surface.Primary.Effect"] = _cachedSurfaceShadow;
+        }
+
+        private static Color OpaqueCardBase(ResourceDictionary resources)
+        {
+            var sampled = SampleBrushColor(LiveBrush(resources, "BackgroundBrush"));
+            if (sampled is Color color && color.A > 200)
+                return Color.FromRgb(color.R, color.G, color.B);
+            return _currentTheme == AppTheme.Dark
+                ? Color.FromRgb(0x11, 0x18, 0x27)
+                : Color.FromRgb(0xF8, 0xFA, 0xFC);
+        }
+
+        private static Color MixFill(
+            Color baseColor, Color? tint, double tintAmount,
+            Color? accent, double accentAmount, double opacity)
+        {
+            var rgb = baseColor;
+            if (tint is Color plate && tintAmount > 0)
+                rgb = MixRgb(rgb, plate, tintAmount);
+            if (accent is Color accentColor && accentAmount > 0)
+                rgb = MixRgb(rgb, accentColor, accentAmount);
+            byte alpha = (byte)Math.Round(Clamp01(opacity, 0, 1) * 255.0);
+            return Color.FromArgb(alpha, rgb.R, rgb.G, rgb.B);
+        }
+
+        private static Color MixRgb(Color from, Color to, double amount)
+        {
+            byte Mix(byte a, byte b)
+                => (byte)Math.Round(a * (1.0 - amount) + b * amount);
+            return Color.FromRgb(Mix(from.R, to.R), Mix(from.G, to.G), Mix(from.B, to.B));
+        }
+
+        private static Color? SampleBrushColor(Brush? brush)
+        {
+            if (brush is SolidColorBrush solid)
+                return solid.Color;
+            if (brush is GradientBrush gradient)
+            {
+                var stop = gradient.GradientStops
+                    .OrderByDescending(s => s.Color.A)
+                    .FirstOrDefault();
+                if (stop != null) return stop.Color;
+            }
+            return null;
+        }
+
+        private static void SetOverrideBrush(ResourceDictionary resources, string key, Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            resources[key] = brush;
+            _cachedFillBrushes[key] = brush;
+            _localBrushOverrides.Add(key);
+        }
+
+        private static void RestoreThemeBrush(ResourceDictionary resources, string key)
+        {
+            _cachedFillBrushes.Remove(key);
+            if (!_localBrushOverrides.Remove(key)) return;
+            // Assign the active theme instance. Cloning the merged
+            // dictionary wrote the Light face over a Dark overlay, then
+            // dropped the key from the override set so the next swap
+            // could not remove that clone.
+            var theme = ActiveThemeBrush(key);
+            if (theme == null && _currentTheme != AppTheme.Dark)
+                theme = FindMergedBrush(resources, key);
+            if (theme != null)
+            {
+                resources[key] = theme;
+                return;
+            }
+
+            _localBrushOverrides.Add(key);
+        }
+
+        private static Brush? ActiveThemeBrush(string key)
+        {
+            var dict = _currentTheme == AppTheme.Dark ? _darkDict : _lightDict;
+            try
+            {
+                if (dict != null && dict.Contains(key) && dict[key] is Brush brush)
+                    return brush;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+        private static Brush? LiveBrush(ResourceDictionary resources, string key)
+        {
+            var themed = ActiveThemeBrush(key);
+            if (themed != null) return themed;
+            try
+            {
+                if (resources.Contains(key) && resources[key] is Brush brush)
+                    return brush;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
+            return FindMergedBrush(resources, key);
+        }
+
+        private static Brush? FindMergedBrush(ResourceDictionary root, string key)
+        {
+            Brush? found = null;
+            foreach (var dict in root.MergedDictionaries)
+            {
+                try
+                {
+                    if (dict.Contains(key) && dict[key] is Brush brush)
+                        found = brush;
+                }
+                catch (Exception)
+                {
+                    // A dictionary can throw if a key's value is a deferred
+                    // reference that has not been realized yet. Skip it.
+                }
+            }
+            return found;
         }
 
         private static void FreezeAndSet(

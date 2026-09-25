@@ -215,12 +215,20 @@
 
             <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
-                <!-- Primary surface card -->
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource Border.HairlineThickness}"
-                        CornerRadius="{DynamicResource Radius.Large}" Padding="12,10"
-                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                <!-- Primary surface card. The accent plate behind the fill is
+                     what makes opacity and radius visible: a near-white fill
+                     on a near-white card used to look like the slider did
+                     nothing. -->
+                <Grid Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                <Border Background="{DynamicResource AccentBrush}" Opacity="0.55"
+                        CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
+                        IsHitTestVisible="False"/>
+                <Border Background="{DynamicResource Surface.Primary.LiveFill}"
+                        BorderBrush="{DynamicResource Surface.Primary.BorderBrush}"
+                        BorderThickness="{DynamicResource Surface.Primary.BorderThickness}"
+                        CornerRadius="{DynamicResource Surface.Primary.CornerRadius}"
+                        Effect="{DynamicResource Surface.Primary.Effect}"
+                        Padding="12,10">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -264,13 +272,18 @@
                         </StackPanel>
                     </Grid>
                 </Border>
+                </Grid>
 
                 <!-- Secondary surface card -->
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource Border.HairlineThickness}"
-                        CornerRadius="{DynamicResource Radius.Large}" Padding="12,10"
-                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                <Grid Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                <Border Background="{DynamicResource AccentBrush}" Opacity="0.55"
+                        CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
+                        IsHitTestVisible="False"/>
+                <Border Background="{DynamicResource Surface.Secondary.LiveFill}"
+                        BorderBrush="{DynamicResource Surface.Secondary.BorderBrush}"
+                        BorderThickness="{DynamicResource Surface.Secondary.BorderThickness}"
+                        CornerRadius="{DynamicResource Surface.Secondary.CornerRadius}"
+                        Padding="12,10">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -314,13 +327,18 @@
                         </StackPanel>
                     </Grid>
                 </Border>
+                </Grid>
 
                 <!-- Detail surface card -->
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource Border.HairlineThickness}"
-                        CornerRadius="{DynamicResource Radius.Large}" Padding="12,10"
-                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                <Grid Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                <Border Background="{DynamicResource AccentBrush}" Opacity="0.55"
+                        CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
+                        IsHitTestVisible="False"/>
+                <Border Background="{DynamicResource Surface.Detail.LiveFill}"
+                        BorderBrush="{DynamicResource Surface.Detail.BorderBrush}"
+                        BorderThickness="{DynamicResource Surface.Detail.BorderThickness}"
+                        CornerRadius="{DynamicResource Surface.Detail.CornerRadius}"
+                        Padding="12,10">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -364,6 +382,7 @@
                         </StackPanel>
                     </Grid>
                 </Border>
+                </Grid>
             </UniformGrid>
 
             <Border Style="{StaticResource SettingsRowSeparatorStyle}" Margin="{StaticResource SettingsStackGap6}"/>

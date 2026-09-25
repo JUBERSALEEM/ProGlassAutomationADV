@@ -38,10 +38,33 @@
                    TextWrapping="Wrap"
                    Visibility="{Binding ReducedMotion, Converter={StaticResource BoolToVisibilityConverter}}"/>
         <Slider Style="{StaticResource ModernSliderStyle}"
-                AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
+                AutomationProperties.Name="Frost blur"
                 Minimum="1" Maximum="100"
                 Value="{Binding CardBlurIntensity, Mode=TwoWay}"
                 VerticalAlignment="Center" Margin="{StaticResource SettingsStackGap8}"/>
+        <!-- The page behind this card is opaque, so a wallpaper blur
+             cannot be seen here. This specimen is the live proof: the
+             wash blurs, the card on top stays sharp, and the plate
+             retints the fill. -->
+        <Grid Height="64" Margin="0,4,0,8">
+            <Border Background="{DynamicResource AccentBrush}" Opacity="0.55"
+                    CornerRadius="{DynamicResource Ios26RadiusInner}"
+                    Effect="{DynamicResource ModuleSkinBlurEffect}"
+                    IsHitTestVisible="False"/>
+            <Border Margin="18,10" VerticalAlignment="Center"
+                    Background="{DynamicResource Surface.Primary.LiveFill}"
+                    BorderBrush="{DynamicResource SettingsCardEdgeBrush}"
+                    BorderThickness="{DynamicResource CardEdgeThickness}"
+                    CornerRadius="{DynamicResource Ios26RadiusInner}"
+                    SnapsToDevicePixels="False"
+                    RenderOptions.EdgeMode="Unspecified"
+                    behaviors:RoundedEdgeStrokeBehavior.IsEnabled="True"
+                    Padding="10,6">
+                <TextBlock Text="Card stays sharp" HorizontalAlignment="Center"
+                           FontSize="{DynamicResource FontSize.Caption}"
+                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+            </Border>
+        </Grid>
         <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
                    Style="{StaticResource SettingsRowMetaStyle}"
                    Text="Frost colour plate"/>
