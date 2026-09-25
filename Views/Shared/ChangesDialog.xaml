@@ -35,7 +35,7 @@
                     <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource Border.BottomHairlineThickness}"
-                            Padding="2,10" Style="{StaticResource SurfacePrimaryStyle}">
+                            Padding="2,6" Style="{StaticResource SurfacePrimaryStyle}">
                         <StackPanel>
                             <!-- Field + change kind -->
                             <StackPanel Orientation="Horizontal">
@@ -58,10 +58,10 @@
                             <!-- BEFORE — full width, red tint -->
                             <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Margin="0,6,0,0"
+                                    Margin="0,4,0,0"
                                     Background="{DynamicResource TintRedBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="10,6">
+                                    Padding="8,4">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BA;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"
@@ -79,10 +79,10 @@
                             <!-- AFTER — full width, green tint -->
                             <Border BorderBrush="{DynamicResource BorderDefaultBrush}"
                                     BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                    Margin="0,4,0,0"
+                                    Margin="0,3,0,0"
                                     Background="{DynamicResource TintGreenBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="10,6">
+                                    Padding="8,4">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE73E;"
                                                FontFamily="{DynamicResource FontFamily.Icon}"

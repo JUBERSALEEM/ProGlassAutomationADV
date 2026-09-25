@@ -13,6 +13,7 @@ using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.JobOrder.Mapper;
+using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.Services.Database;
@@ -79,26 +80,29 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (dlg.ShowDialog() != true || !dlg.Approved)
                 return;   // cancelled — status unchanged
 
-            // Persist the LPO number into the snapshot (Step 3 Project.LpoNumber)
-            // so invoices / statement generator carry it (optional for Signed PI).
+            // Persist the LPO and the approved status into the same snapshot.
+            // Opening the invoice must not restore the pre-approval status and
+            // let a later SAVE ONLY put the row back to Draft or Sent.
             string lpoToSave = dlg.LpoNumber?.Trim() ?? "";
-            if (!string.IsNullOrWhiteSpace(lpoToSave))
-            {
-                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-                snapshot.Project.LpoNumber = lpoToSave;
-                entity.FullSnapshotJson =
-                    ProformaInvoiceMapper.SerializeSnapshot(snapshot);
-            }
 
             // Approve + persist — validated against the workflow table so
             // e.g. a Cancelled PI cannot silently become Approved.
-            if (!_status.Validate(
+            var approval = _status.Validate(
                     StatusTransitions.Kind.ProformaInvoice,
-                    entity.Status, ProformaInvoiceStatus.Approved).IsValid)
+                    entity.Status, ProformaInvoiceStatus.Approved);
+            if (!approval.IsValid)
+            {
+                _dialogs.Show(
+                    approval.Reason ?? "This invoice cannot be approved.",
+                    LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
                 return;
+            }
 
             entity.Status = ProformaInvoiceStatus.Approved;
             entity.UpdatedAt = DateTime.Now;
+            SyncSnapshotWorkflow(entity, ProformaInvoiceStatus.Approved, lpoToSave);
             await _invoices.UpdateAsync(entity);
 
             AuditService.Log(
@@ -107,16 +111,73 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 $"({(dlg.IsSignedPi ? "signed PI" : "LPO " + dlg.LpoNumber)})",
                 "PI", entity.ProformaId);
 
-            // Auto-convert to a Job Order.
-            await ConvertToJobOrderAsync(entity);
+            // Auto-convert to a Job Order. The dialog must describe what
+            // actually happened — a caught conversion failure used to still
+            // say the invoice was converted.
+            var conversion = await ConvertToJobOrderAsync(entity);
 
             await LoadInvoicesAsync();
+            ShowConversionOutcome(entity.ProformaId, conversion);
+        }
+
+        private async Task EnsureJobForConfirmedAsync(SavedInvoiceListItem item)
+        {
+            if (item == null || _invoices == null) return;
+            var entity = await _invoices.GetByIdAsync(item.Id);
+            if (entity == null) return;
+            if (!string.Equals(entity.Status, ProformaInvoiceStatus.Approved,
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                _dialogs.Show(
+                    "Create the job order only after the invoice is confirmed in Step 8.",
+                    LocalizationService.Instance.T("Msg.CapStatusChangeNotAllowed"),
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            var conversion = await ConvertToJobOrderAsync(entity);
+            await LoadInvoicesAsync();
+            ShowConversionOutcome(entity.ProformaId, conversion);
+        }
+
+        private void ShowConversionOutcome(string? proformaId, JobConversionResult conversion)
+        {
+            string id = string.IsNullOrWhiteSpace(proformaId) ? "this invoice" : proformaId;
+            string message;
+            var image = MessageBoxImage.Information;
+
+            switch (conversion.Kind)
+            {
+                case JobConversionKind.Created:
+                    message = string.Format(
+                        LocalizationService.Instance.T("Msg.InvoiceXApprovedAndConverted"), id);
+                    if (!string.IsNullOrWhiteSpace(conversion.Detail))
+                        message += "\n\n" + conversion.Detail;
+                    break;
+                case JobConversionKind.ReleasedExistingDraft:
+                    message = $"Invoice '{id}' is approved. Draft job order {conversion.JobOrderId} was released.";
+                    break;
+                case JobConversionKind.AlreadyPresent:
+                    message = string.IsNullOrWhiteSpace(conversion.Detail)
+                        ? $"Invoice '{id}' is approved. Job order {conversion.JobOrderId} was already on this quotation, so nothing new was created."
+                        : $"Invoice '{id}' is approved. {conversion.Detail}";
+                    break;
+                case JobConversionKind.Failed:
+                    image = MessageBoxImage.Warning;
+                    message = $"Invoice '{id}' is approved, but the job order was not created.\n\n{conversion.Detail}\n\nSelect the row and use Create job order to retry.";
+                    break;
+                default:
+                    image = MessageBoxImage.Warning;
+                    message = $"Invoice '{id}' is approved, but job order conversion was skipped because the job service is not available.";
+                    break;
+            }
 
             _dialogs.Show(
-                string.Format(LocalizationService.Instance.T("Msg.InvoiceXApprovedAndConverted"), entity.ProformaId),
+                message,
                 LocalizationService.Instance.T("Msg.CapApproved"),
                 MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                image);
         }
 
         /// <summary>
@@ -125,9 +186,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// used. Skips when a Job Order already exists for the proforma, so a
         /// re-approval can never duplicate it.
         /// </summary>
-        private async Task ConvertToJobOrderAsync(SavedProformaInvoice piEntity)
+        private async Task<JobConversionResult> ConvertToJobOrderAsync(SavedProformaInvoice piEntity)
         {
-            if (piEntity == null || _jobs == null) return;
+            if (piEntity == null || _jobs == null)
+                return new JobConversionResult(JobConversionKind.Unavailable, null, null);
 
             try
             {
@@ -138,30 +200,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     // RC-015 (2026-09-20): a Job Order created BEFORE its quote
                     // was approved is born Draft — JobOrderMapper writes
                     // Released only when the PI is already "Approved" at the
-                    // instant of conversion (JobOrderMapper.cs:92), and that is
-                    // the ONLY place in the codebase that ever assigns
-                    // Released. So the early return here left such a job Draft
-                    // forever: approving the PI created nothing new and
-                    // upgraded nothing existing.
-                    //
-                    // The consequence is invisible from the Proforma side. The
-                    // Optimization picker's source lock filters Draft out
-                    // (OptimizationViewModel.Jobs.cs — !Is(j.Status, Draft)),
-                    // so the confirmed job simply never appeared in the JOBS
-                    // tab while the status line still read "Loading confirmed
-                    // job orders…". That is the reported "not reading confirmed
-                    // PI as job order".
-                    //
-                    // Approval is the confirmation, so approval releases the
-                    // job — the same intent the mapper documents. Follows the
-                    // list-side status-change pattern exactly: validate the
-                    // transition, update the indexed column, keep the embedded
-                    // snapshot's Production.Status in sync (the detail view,
-                    // its save path and the production-sheet exports read the
-                    // status from the snapshot), then audit.
+                    // instant of conversion. Approval releases that draft
+                    // instead of inserting a second job.
+                    var releasedIds = new List<string>();
+                    var liveIds = new List<string>();
+                    string blocked = "";
                     foreach (var job in existing)
                     {
                         if (job == null || job.IsVoid) continue;
+                        if (!string.IsNullOrWhiteSpace(job.JobOrderId))
+                            liveIds.Add(job.JobOrderId);
                         if (!ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus
                                 .JobOrderStatusValues.Is(
                                     job.Status,
@@ -176,6 +224,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                                 .JobOrderStatusValues.Released);
                         if (!transition.IsValid)
                         {
+                            blocked = transition.Reason ?? "";
                             ProGlassAutomation.Services.Logging.AppLogService.Warning(
                                 $"Approved PI {piEntity.ProformaId} has job {job.JobOrderId} in " +
                                 $"status '{job.Status}' that cannot be released: {transition.Reason}");
@@ -198,6 +247,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         }
 
                         await _jobs.UpdateAsync(job);
+                        if (!string.IsNullOrWhiteSpace(job.JobOrderId))
+                            releasedIds.Add(job.JobOrderId);
 
                         AuditService.Log(
                             AuditSections.JobOrder,
@@ -206,7 +257,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                             "JO", job.JobOrderId);
                     }
 
-                    return;   // already converted — nothing to insert
+                    if (releasedIds.Count > 0)
+                        return new JobConversionResult(
+                            JobConversionKind.ReleasedExistingDraft,
+                            string.Join(", ", releasedIds),
+                            null);
+                    if (liveIds.Count > 0)
+                        return new JobConversionResult(
+                            JobConversionKind.AlreadyPresent,
+                            liveIds[0],
+                            string.IsNullOrWhiteSpace(blocked)
+                                ? null
+                                : $"Job {liveIds[0]} could not be released: {blocked}");
+                    return new JobConversionResult(
+                        JobConversionKind.AlreadyPresent,
+                        null,
+                        "Only voided job orders exist for this quotation. A new job was not created.");
                 }
 
                 var jobSnapshot = JobOrderMapper.BuildFromProformaInvoice(piEntity);
@@ -220,6 +286,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     jobSnapshot, piEntity.GrandTotalVatInclusive);
                 await _jobs.InsertAsync(jobEntity);
 
+                string? masterNote = null;
                 try
                 {
                     await ProGlassAutomation.Services.DeliveryNote
@@ -228,6 +295,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 }
                 catch (Exception masterEx)
                 {
+                    masterNote = "The job order was created, but the master delivery note was not.";
                     ProGlassAutomation.Services.Logging.AppLogService.Error(
                         "Job Order saved but Master DN was not created.",
                         masterEx,
@@ -243,6 +311,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     AuditSections.JobOrder, "Job Order auto-created on approval",
                     $"{jobEntity.JobOrderId} ← {piEntity.ProformaId}",
                     "JO", jobEntity.JobOrderId);
+                return new JobConversionResult(
+                    JobConversionKind.Created, jobEntity.JobOrderId, masterNote);
             }
             catch (Exception ex)
             {
@@ -255,6 +325,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         Class = nameof(SavedInvoicesListViewModel),
                         Operation = "ApproveAutoConvert"
                     });
+                return new JobConversionResult(
+                    JobConversionKind.Failed, null, ExceptionMessages.Deep(ex));
             }
         }
 
@@ -575,6 +647,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             if (_disposed) return;
             _disposed = true;
+            try { _autoRefresh?.Stop(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: auto-refresh stop failed: " + ExceptionMessages.Deep(ex)); }
             try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DataSeeded detach failed: " + ExceptionMessages.Deep(ex)); }
             try { _database?.UnsubscribeDocumentsChanged(LoadInvoicesAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DocumentLifecycle detach failed: " + ExceptionMessages.Deep(ex)); }
             GC.SuppressFinalize(this);
@@ -608,20 +681,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     {
                         FullSnapshotJson = sourceSnapshotJson
                     });
-                if (snap.Company != null)
-                {
-                    snap.Company.InquiryId = null;
-                    snap.Company.ProformaId = newProformaId ?? string.Empty;
-                }
+                if (snap?.Company == null)
+                    throw new InvalidOperationException("Snapshot has no company block to detach.");
+                snap.Company.InquiryId = null;
+                snap.Company.ProformaId = newProformaId ?? string.Empty;
                 return ProformaInvoiceMapper.SerializeSnapshot(snap);
             }
             catch (Exception ex)
             {
-                // Deserialise failed — keep the original snapshot so
-                // the duplicate at least carries the same visual state.
-                // The entity's own InquiryId is still null, so the
-                // back-link stays disconnected until the user saves
-                // through the wizard; the audit log records why.
+                // Do not insert the original JSON. That fallback re-linked
+                // the duplicate to the source inquiry and bypassed the
+                // convert-to-PI guard on the next wizard save.
                 ProGlassAutomation.Services.Logging.AppLogService.Warning(
                     "ScrubIdsForDuplicate could not sanitise snapshot: " + ExceptionMessages.Deep(ex),
                     new ProGlassAutomation.Services.Logging.LogContext
@@ -630,7 +700,55 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         Class = nameof(SavedInvoicesListViewModel),
                         Operation = "ScrubIdsForDuplicate"
                     });
-                return sourceSnapshotJson;
+                string? detached = ProformaDuplicateSnapshotScrub.TryDetach(
+                    sourceSnapshotJson, newProformaId);
+                if (detached == null)
+                    throw new InvalidOperationException(
+                        "Duplicate was not created because the snapshot could not be detached from the source inquiry.");
+                return detached;
+            }
+        }
+
+        /// <summary>
+        /// Keep Company.ProformaStatus (and an optional LPO number) aligned
+        /// with the indexed status. Restore reads the snapshot, and SAVE ONLY
+        /// writes that restored status back.
+        /// </summary>
+        private static void SyncSnapshotWorkflow(
+            SavedProformaInvoice entity, string status, string? lpoNumber)
+        {
+            if (entity == null || string.IsNullOrWhiteSpace(entity.FullSnapshotJson))
+                return;
+            try
+            {
+                var snap = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+                if (snap?.Company == null) return;
+                bool changed = false;
+                if (!string.Equals(snap.Company.ProformaStatus, status, StringComparison.Ordinal))
+                {
+                    snap.Company.ProformaStatus = status ?? "Draft";
+                    changed = true;
+                }
+                if (!string.IsNullOrWhiteSpace(lpoNumber)
+                    && snap.Project != null
+                    && !string.Equals(snap.Project.LpoNumber, lpoNumber, StringComparison.Ordinal))
+                {
+                    snap.Project.LpoNumber = lpoNumber;
+                    changed = true;
+                }
+                if (changed)
+                    entity.FullSnapshotJson = ProformaInvoiceMapper.SerializeSnapshot(snap);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not sync proforma snapshot status: " + ExceptionMessages.Deep(ex),
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(SavedInvoicesListViewModel),
+                        Operation = "SyncSnapshotWorkflow"
+                    });
             }
         }
     }

@@ -71,10 +71,9 @@ namespace ProGlassAutomation.Services.MasterData.Database
             // options are already complete — never override them.
             if (options.IsConfigured) return;
 
-            // Directory creation runs once per context creation
-            var folder = Path.GetDirectoryName(DbPath)!;
-            if (!Directory.Exists(folder))
-                Directory.CreateDirectory(folder);
+            // Directory creation runs once per context creation —
+            // shared-aware (2026-09-24): see AppDataRoot.
+            ProGlassAutomation.Services.Database.AppDataRoot.EnsureCurrentFolder();
 
             // Senior audit (Aug 2026): WAL + busy_timeout + foreign_keys=ON
             // via SqliteResilience. See SqliteResilience.cs.

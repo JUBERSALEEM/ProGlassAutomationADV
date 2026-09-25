@@ -189,7 +189,7 @@
             Background="Transparent"
             behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="{DynamicResource Ds.PageMargin}">
-                <layout:IndigoDashboardPanel Margin="0,0,0,18" MaxColumns="2" MinimumColumnWidth="390" FirstColumnWeight="1" Gap="20">
+                <layout:IndigoDashboardPanel Margin="0,0,0,8" MaxColumns="2" MinimumColumnWidth="390" FirstColumnWeight="1" Gap="20">
                     <StackPanel>
                         <TextBlock
                             Text="{DynamicResource Dashboard.Statements}"
@@ -331,10 +331,10 @@
                     </layout:IndigoDashboardPanel>
                 </StackPanel>
                 <StackPanel Style="{StaticResource Ds.Content}">
-                    <StackPanel Margin="0,0,0,18" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                        <Border Margin="0,0,0,18" Background="Transparent" BorderThickness="0" Padding="0">
+                    <StackPanel Margin="0,0,0,10" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <Border Margin="0,0,0,10" Background="Transparent" BorderThickness="0" Padding="0">
                             <DockPanel>
-                                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                                     <TextBlock
                                         Text="{DynamicResource Dashboard.StatementPulse}"
                                         Style="{StaticResource Ds.CardTitleStyle}"
@@ -342,7 +342,7 @@
                                     <TextBlock
                                         Text="{DynamicResource Dashboard.StatementsInvoicedOutstandingOverdue}"
                                         Style="{StaticResource Ds.CardSubStyle}"
-                                        Margin="0,2,0,0"
+                                        Margin="0,1,0,0"
                                         TextWrapping="Wrap" />
                                 </StackPanel>
                                 <ItemsControl
@@ -359,7 +359,7 @@
                                     <TextBlock
                                         Text="Amounts shown independently · overdue is included in outstanding"
                                         Style="{StaticResource Ds.CardSubStyle}"
-                                        Margin="0,2,0,10"
+                                        Margin="0,1,0,6"
                                         TextWrapping="Wrap" />
                                     <ItemsControl ItemsSource="{Binding BalanceMixSlices}" ItemTemplate="{StaticResource Ds.BalanceTemplate}" />
                                 </StackPanel>
@@ -400,7 +400,7 @@
                     <Border
                         Style="{StaticResource Ds.CardStyle}"
                         Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                        Margin="0,0,0,18">
+                        Margin="0,0,0,10">
                         <DockPanel>
                             <TextBlock
                                 DockPanel.Dock="Top"

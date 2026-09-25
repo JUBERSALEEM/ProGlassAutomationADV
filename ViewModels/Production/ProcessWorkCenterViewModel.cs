@@ -31,55 +31,49 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Production
 {
-    public sealed class ProcessWorkCenterViewModel : ViewModelBase
+    public sealed class ProcessWorkCenterViewModel : ViewModelBase, IDisposable
     {
         // ── Header ───────────────────────────────────────────────────────
         public string Title => "Production Process Work Center";
-        public string Subtitle => "Cutting → Holes/Cutouts → Polish → Edge Deletion → Mitring → Tempering → Pairing → Doubling/Lamination → QC → Ready — specification-driven route, shared execution framework";
+        public string Subtitle => "Released work sits here as Pending. Pick a station, then Start.";
 
-        // ── 3-Tab Production Stage Ribbon (Cutting / Tempering / DGU) ───
-        private int _selectedStageTab = 0;
+        // ── Eight stations. Selection is a button, not a OneWay radio, so a rejected command cannot stick the tab. ──
+        private int _selectedStageTab = (int)ProductionStage.Cutting;
         public int SelectedStageTab
         {
             get => _selectedStageTab;
-            set
-            {
-                if (_selectedStageTab != value)
-                {
-                    _selectedStageTab = value;
-                    OnPropertyChanged();
-                    OnPropertyChanged(nameof(IsCuttingTab));
-                    OnPropertyChanged(nameof(IsTemperingTab));
-                    OnPropertyChanged(nameof(IsDguTab));
-                    SyncProcessFilterFromStageTab(value);
-                    UpdateStageAutoSums();
-                }
-            }
+            set => SelectStage(value);
         }
 
-        public bool IsCuttingTab => SelectedStageTab == 0;
-        public bool IsTemperingTab => SelectedStageTab == 1;
-        public bool IsDguTab => SelectedStageTab == 2;
+        public ObservableCollection<ProductionStageChip> StageChips { get; } = new(ProductionStageChip.CreateBoard());
+        public ICommand SelectStageCommand { get; private set; } = null!;
 
-        public ICommand SelectCuttingTabCommand => new RelayCommand(_ => SelectedStageTab = 0);
-        public ICommand SelectTemperingTabCommand => new RelayCommand(_ => SelectedStageTab = 1);
-        public ICommand SelectDguTabCommand => new RelayCommand(_ => SelectedStageTab = 2);
+        public bool IsCuttingTab => SelectedStageTab == (int)ProductionStage.Cutting;
+        public bool IsTemperingTab => SelectedStageTab == (int)ProductionStage.Tempering;
+        public bool IsDguTab => SelectedStageTab == (int)ProductionStage.Pairing
+            || SelectedStageTab == (int)ProductionStage.DoublingLamination;
 
-        private void SyncProcessFilterFromStageTab(int tabIndex)
+        public ICommand SelectCuttingTabCommand => new RelayCommand(_ => SelectStage((int)ProductionStage.Cutting));
+        public ICommand SelectTemperingTabCommand => new RelayCommand(_ => SelectStage((int)ProductionStage.Tempering));
+        public ICommand SelectDguTabCommand => new RelayCommand(_ => SelectStage((int)ProductionStage.DoublingLamination));
+
+        private void SelectStage(int stage)
         {
-            string target = tabIndex switch
+            if (stage < 1 || stage > 8 || _selectedStageTab == stage) return;
+            _selectedStageTab = stage;
+            OnPropertyChanged(nameof(SelectedStageTab));
+            OnPropertyChanged(nameof(IsCuttingTab));
+            OnPropertyChanged(nameof(IsTemperingTab));
+            OnPropertyChanged(nameof(IsDguTab));
+            foreach (var chip in StageChips)
+                chip.IsSelected = chip.Stage == stage;
+            string name = ((ProductionProcessType)stage).ToString();
+            if (_processFilter != name)
             {
-                0 => "Cutting",
-                1 => "Tempering",
-                2 => "Pairing",
-                _ => "All"
-            };
-            if (_processFilter != target)
-            {
-                _processFilter = target;
+                _processFilter = name;
                 OnPropertyChanged(nameof(ProcessFilter));
-                AsyncUtility.SafeFireAndForget(LoadAsync, "Process tab change");
             }
+            AsyncUtility.SafeFireAndForget(LoadAsync, "Process stage");
         }
 
         // ── Auto-Sum Aggregation Metrics ──
@@ -104,40 +98,23 @@ namespace ProGlassAutomation.ViewModels.Production
         private double _stageCompletionPct;
         public double StageCompletionPct { get => _stageCompletionPct; private set { _stageCompletionPct = value; OnPropertyChanged(); } }
 
+        private long _boardScheduledPcs, _boardDonePcs, _boardBalancePcs;
+        private double _boardScheduledSqm, _boardDoneSqm, _boardBalanceSqm, _boardPct;
+
         public void UpdateStageAutoSums()
         {
-            var execs = Executions.ToList();
-            if (execs.Count == 0)
-            {
-                TotalScheduledPcs = PendingCount + InProgressCount + CompletedCount + ReworkCount + QcPendingCount;
-                CompletedDonePcs = CompletedCount;
-                BalancePendingPcs = TotalScheduledPcs - CompletedDonePcs;
-                if (BalancePendingPcs < 0) BalancePendingPcs = 0;
-                StageCompletionPct = TotalScheduledPcs > 0 ? Math.Round((double)CompletedDonePcs * 100.0 / TotalScheduledPcs, 1) : 0.0;
-                TotalScheduledSqm = 0;
-                CompletedDoneSqm = 0;
-                BalancePendingSqm = 0;
-                return;
-            }
-
-            long total = execs.Sum(e => (long)Math.Max(1, e.QtyRequired));
-            long done = execs.Where(e => e.Status == (int)Models.Production.WorkItemStatus.Completed)
-                             .Sum(e => (long)Math.Max(1, e.QtyDone));
-            long balance = total - done;
-
-            TotalScheduledPcs = total;
-            CompletedDonePcs = done;
-            BalancePendingPcs = balance >= 0 ? balance : 0;
-            StageCompletionPct = TotalScheduledPcs > 0 ? Math.Round((double)CompletedDonePcs * 100.0 / TotalScheduledPcs, 1) : 0.0;
-
-            // Executions have no W×H here — do not invent 1.575 m² / pc.
-            TotalScheduledSqm = 0;
-            CompletedDoneSqm = 0;
-            BalancePendingSqm = 0;
+            // Figures come from the full filtered stage, not the 200-row grid page.
+            TotalScheduledPcs = _boardScheduledPcs;
+            CompletedDonePcs = _boardDonePcs;
+            BalancePendingPcs = _boardBalancePcs;
+            StageCompletionPct = _boardPct;
+            TotalScheduledSqm = _boardScheduledSqm;
+            CompletedDoneSqm = _boardDoneSqm;
+            BalancePendingSqm = _boardBalanceSqm;
         }
 
         // ── Filters ──────────────────────────────────────────────────────
-        private string _processFilter = "All";
+        private string _processFilter = "Cutting";
         public string ProcessFilter
         {
             get => _processFilter;
@@ -256,8 +233,14 @@ namespace ProGlassAutomation.ViewModels.Production
         public ProcessWorkCenterViewModel()
         {
             LoadCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(LoadAsync, "Process load"));
-            ProductionRepository.WorkItemsChanged += OnLiveWorkItemsChanged;
-            AsyncUtility.SafeFireAndForget(LoadAsync, "Process work center initial load");
+            SelectStageCommand = new RelayCommand(p =>
+            {
+                if (p is ProductionStageChip chip)
+                    SelectStage(chip.Stage);
+            });
+            foreach (var chip in StageChips)
+                chip.IsSelected = chip.Stage == _selectedStageTab;
+            ListenForFloorChanges();
             StartCommand = new RelayCommand(p => AsyncUtility.SafeFireAndForget(() => StartAsync(p), "Process start"), _ => !IsRunning);
             PauseCommand = new RelayCommand(p => AsyncUtility.SafeFireAndForget(() => PauseAsync(p), "Process pause"), p => p is SavedProcessExecution e && e.Status == (int)WorkItemStatus.InProgress);
             CompleteCommand = new RelayCommand(p => AsyncUtility.SafeFireAndForget(() => CompleteAsync(p), "Process complete"), p => p is SavedProcessExecution e && e.Status == (int)WorkItemStatus.InProgress);
@@ -269,8 +252,29 @@ namespace ProGlassAutomation.ViewModels.Production
             PairCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(PairAsync, "Process pairing"), _ => !IsRunning && !string.IsNullOrWhiteSpace(JobRefInput));
             AssembleCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(AssembleAsync, "Process assembly"), _ => !IsRunning && !string.IsNullOrWhiteSpace(JobRefInput));
             CancelCommand = new RelayCommand(_ => _cts?.Cancel(), _ => IsRunning);
-
             AsyncUtility.SafeFireAndForget(LoadAsync, "Process initial load");
+        }
+
+        private bool _listening;
+        private bool _ensuredPending;
+
+        private void ListenForFloorChanges()
+        {
+            if (_listening) return;
+            ProductionRepository.WorkItemsChanged += OnLiveWorkItemsChanged;
+            _listening = true;
+        }
+
+        public void Dispose()
+        {
+            if (_listening)
+            {
+                ProductionRepository.WorkItemsChanged -= OnLiveWorkItemsChanged;
+                _listening = false;
+            }
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = null;
         }
 
         
@@ -279,6 +283,7 @@ namespace ProGlassAutomation.ViewModels.Production
         /// ProductionStageViewModelBase. Marshals to the UI thread.</summary>
         private void OnLiveWorkItemsChanged()
         {
+            if (!_listening) return;
             var dispatcher = System.Windows.Application.Current?.Dispatcher;
             void Reload() => AsyncUtility.SafeFireAndForget(LoadAsync, "Process work center live refresh");
             if (dispatcher != null && !dispatcher.CheckAccess())
@@ -287,16 +292,32 @@ namespace ProGlassAutomation.ViewModels.Production
                 Reload();
         }
 
+        private int _loadGeneration;
+
         public async Task LoadAsync()
         {
+            int generation = Interlocked.Increment(ref _loadGeneration);
             try
             {
                 IsRunning = true;
                 ProgressLabel = "Loading process executions…";
 
                 ProductionRepository.EnsureInitialized();
-                using var db = new ProductionDbContext();
+                if (!_ensuredPending)
+                {
+                    try
+                    {
+                        await ProductionProcessProjection.EnsurePendingExecutionsAsync(null).ConfigureAwait(true);
+                        _ensuredPending = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        ActionMessage = "Could not import released jobs: " + ex.Message;
+                    }
+                }
+                if (generation != _loadGeneration) return;
 
+                using var db = new ProductionDbContext();
                 var query = db.ProcessExecutions.AsNoTracking().AsQueryable();
 
                 if (!string.IsNullOrWhiteSpace(JobFilter))
@@ -305,51 +326,80 @@ namespace ProGlassAutomation.ViewModels.Production
                     query = query.Where(e => e.SourceProformaId.Contains(PiFilter));
                 if (!string.IsNullOrWhiteSpace(SpecFilter))
                     query = query.Where(e => e.SpecName.Contains(SpecFilter));
-
-                if (ProcessFilter != "All" && Enum.TryParse<ProductionProcessType>(ProcessFilter, out var pt))
-                    query = query.Where(e => e.ProcessType == (int)pt);
-
                 if (StatusFilter != "All" && Enum.TryParse<WorkItemStatus>(StatusFilter, out var st))
                     query = query.Where(e => e.Status == (int)st);
 
                 var execs = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
-                    .ToListAsync(query.OrderByDescending(e => e.CreatedAt).Take(200)).ConfigureAwait(true);
+                    .ToListAsync(query).ConfigureAwait(true);
+                if (generation != _loadGeneration) return;
 
-                Executions.Clear();
-                foreach (var e in execs) Executions.Add(e);
+                var jobRefs = execs.Select(e => e.JobRef).Where(j => !string.IsNullOrWhiteSpace(j)).Distinct().ToList();
+                var workItems = await LoadWorkItemsForJobsAsync(db, jobRefs).ConfigureAwait(true);
+                if (generation != _loadGeneration) return;
+                var byId = workItems.GroupBy(w => w.Id).ToDictionary(g => g.Key, g => g.First());
+                var matched = execs.Where(e => MatchesSpecFilters(e, byId.GetValueOrDefault(e.OutputWorkItemId))).ToList();
 
-                // KPIs
-                PendingCount = execs.Count(e => e.Status == (int)WorkItemStatus.Pending);
-                InProgressCount = execs.Count(e => e.Status == (int)WorkItemStatus.InProgress);
-                CompletedCount = execs.Count(e => e.Status == (int)WorkItemStatus.Completed);
-                ReworkCount = execs.Count(e => e.Status == (int)WorkItemStatus.Rework);
-                QcPendingCount = execs.Count(e => e.QcStatus == 0 && e.Status == (int)WorkItemStatus.Completed);
-                ReadyCount = execs.Count(e => e.QcStatus == 1);
+                foreach (var chip in StageChips)
+                {
+                    long open = matched
+                        .Where(e => e.ProcessType == chip.Stage && e.Status != (int)WorkItemStatus.Cancelled)
+                        .Sum(e => (long)Math.Max(0, e.QtyRequired - e.QtyDone));
+                    chip.Count = open > int.MaxValue ? int.MaxValue : (int)open;
+                    chip.IsSelected = chip.Stage == SelectedStageTab;
+                }
 
-                int required = execs.Sum(e => e.QtyRequired);
-                int completed = execs.Where(e => e.Status == (int)WorkItemStatus.Completed).Sum(e => e.QtyDone);
+                var stageExecs = matched.Where(e => e.ProcessType == SelectedStageTab).ToList();
+                long scheduledPcs = stageExecs.Sum(e => (long)Math.Max(0, e.QtyRequired));
+                long donePcs = stageExecs.Sum(e => (long)Math.Max(0, Math.Min(e.QtyDone, Math.Max(0, e.QtyRequired))));
+                double scheduledSqm = 0, doneSqm = 0;
+                foreach (var row in stageExecs)
+                {
+                    byId.TryGetValue(row.OutputWorkItemId, out var work);
+                    scheduledSqm += PaneSqm(work, Math.Max(0, row.QtyRequired));
+                    doneSqm += PaneSqm(work, Math.Min(Math.Max(0, row.QtyDone), Math.Max(0, row.QtyRequired)));
+                }
+                _boardScheduledPcs = scheduledPcs;
+                _boardDonePcs = donePcs;
+                _boardBalancePcs = Math.Max(0, scheduledPcs - donePcs);
+                _boardScheduledSqm = Math.Round(scheduledSqm, 1);
+                _boardDoneSqm = Math.Round(doneSqm, 1);
+                _boardBalanceSqm = Math.Round(Math.Max(0, scheduledSqm - doneSqm), 1);
+                _boardPct = scheduledPcs > 0 ? Math.Round(donePcs * 100.0 / scheduledPcs, 1) : 0;
+
+                PendingCount = stageExecs.Count(e => e.Status == (int)WorkItemStatus.Pending);
+                InProgressCount = stageExecs.Count(e => e.Status == (int)WorkItemStatus.InProgress);
+                CompletedCount = stageExecs.Count(e => e.Status == (int)WorkItemStatus.Completed);
+                ReworkCount = stageExecs.Count(e => e.Status == (int)WorkItemStatus.Rework);
+                QcPendingCount = stageExecs.Count(e => e.QcStatus == 0 && e.Status == (int)WorkItemStatus.Completed);
+                ReadyCount = stageExecs.Count(e => e.QcStatus == 1);
+
+                int required = stageExecs.Sum(e => e.QtyRequired);
+                int completed = stageExecs.Where(e => e.Status == (int)WorkItemStatus.Completed).Sum(e => e.QtyDone);
                 int remaining = Math.Max(0, required - completed);
-
                 KpiSummary = $"Required {required} Completed {completed} Remaining {remaining} — Pending {PendingCount} InProgress {InProgressCount} Rework {ReworkCount} QC Pending {QcPendingCount} Ready {ReadyCount}";
+
+                var page = stageExecs.OrderByDescending(e => e.CreatedAt).Take(200).ToList();
+                Executions.Clear();
+                foreach (var e in page) Executions.Add(e);
                 UpdateStageAutoSums();
 
-                // Route examples
                 var examples = ProductionProcessRoutingService.GetRouteExamples();
                 RouteLabel = string.Join(" | ", examples.Select(kv => $"{kv.Key}: {string.Join("→", kv.Value)}"));
 
-                // Load pairings/assemblies for selected job filter if any
+                Pairings.Clear();
+                Assemblies.Clear();
                 if (!string.IsNullOrWhiteSpace(JobFilter))
                 {
                     var pairings = await PairingService.GetByJobAsync(JobFilter).ConfigureAwait(true);
-                    Pairings.Clear();
                     foreach (var p in pairings) Pairings.Add(p);
-
                     var assemblies = await DoublingLaminationService.GetByJobAsync(JobFilter).ConfigureAwait(true);
-                    Assemblies.Clear();
                     foreach (var a in assemblies) Assemblies.Add(a);
                 }
 
-                ProgressLabel = $"Loaded {execs.Count} executions, {Pairings.Count} pairings, {Assemblies.Count} assemblies";
+                string stageName = ((ProductionProcessType)SelectedStageTab).ToString();
+                ProgressLabel = page.Count == stageExecs.Count
+                    ? $"Loaded {stageExecs.Count} {stageName} executions"
+                    : $"Showing {page.Count} of {stageExecs.Count} {stageName} executions";
             }
             catch (Exception ex)
             {
@@ -357,7 +407,8 @@ namespace ProGlassAutomation.ViewModels.Production
             }
             finally
             {
-                IsRunning = false;
+                if (generation == _loadGeneration)
+                    IsRunning = false;
             }
         }
 
@@ -496,6 +547,7 @@ namespace ProGlassAutomation.ViewModels.Production
                         e.QcId = qcEntry.QcId;
                         e.UpdatedAt = DateTime.Now;
                         await db.SaveChangesAsync(_cts.Token).ConfigureAwait(false);
+                        ProductionRepository.NotifyWorkItemsChanged();
                     }
                 }
 
@@ -621,6 +673,61 @@ namespace ProGlassAutomation.ViewModels.Production
             var e = SelectedExecution;
             string summary = ProcessExecutionFactory.SummarizeDetail(e.ProcessDetailJson, (ProductionProcessType)e.ProcessType);
             ProcessDetailLabel = $"{((ProductionProcessType)e.ProcessType)} — {summary} — Qty {e.QtyDone}/{e.QtyRequired} Status {((WorkItemStatus)e.Status)} Operator {e.StartedBy}→{e.CompletedBy}";
+        }
+
+        private static async Task<List<SavedProductionWorkItem>> LoadWorkItemsForJobsAsync(ProductionDbContext db, List<string> jobRefs)
+        {
+            var all = new List<SavedProductionWorkItem>();
+            const int chunk = 400;
+            for (int i = 0; i < jobRefs.Count; i += chunk)
+            {
+                var slice = jobRefs.Skip(i).Take(chunk).ToList();
+                var rows = await Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions
+                    .ToListAsync(db.WorkItems.AsNoTracking().Where(w => slice.Contains(w.JobRef)))
+                    .ConfigureAwait(true);
+                all.AddRange(rows);
+            }
+            return all;
+        }
+
+        private bool MatchesSpecFilters(SavedProcessExecution execution, SavedProductionWorkItem? work)
+        {
+            if (!string.IsNullOrWhiteSpace(CustomerFilter))
+            {
+                string name = work?.CustomerName ?? string.Empty;
+                if (name.IndexOf(CustomerFilter.Trim(), StringComparison.OrdinalIgnoreCase) < 0)
+                    return false;
+            }
+            if (string.IsNullOrWhiteSpace(MaterialFilter)
+                && string.IsNullOrWhiteSpace(ColorFilter)
+                && string.IsNullOrWhiteSpace(ThicknessFilter))
+                return true;
+
+            string blob = string.Join(" ", new[]
+            {
+                work?.GlassRef, work?.SpecName, execution.SpecName, work?.Treatment, work?.Notes, execution.Notes
+            });
+            if (!Contains(blob, MaterialFilter)) return false;
+            if (!Contains(blob, ColorFilter)) return false;
+            if (!Contains(blob, ThicknessFilter)) return false;
+            return true;
+        }
+
+        private static bool Contains(string blob, string filter)
+        {
+            if (string.IsNullOrWhiteSpace(filter)) return true;
+            return blob.IndexOf(filter.Trim(), StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        /// <summary>Area from the linked work item. Unknown size stays 0 — never an invented average.</summary>
+        private static double PaneSqm(SavedProductionWorkItem? work, int qty)
+        {
+            if (work == null || qty <= 0) return 0;
+            if (work.WidthMm > 0 && work.HeightMm > 0)
+                return work.WidthMm * (double)work.HeightMm * qty / 1_000_000.0;
+            if (work.UnitSqm > 0)
+                return (double)work.UnitSqm * qty;
+            return 0;
         }
     }
 }

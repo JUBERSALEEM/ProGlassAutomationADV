@@ -21,8 +21,8 @@
     <SolidColorBrush x:Key="TextTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
 
-    <Thickness x:Key="Ds.PageMargin">28,26,28,30</Thickness>
-    <Thickness x:Key="Ds.RowPadding">0,16</Thickness>
+    <Thickness x:Key="Ds.PageMargin">20,12,20,16</Thickness>
+    <Thickness x:Key="Ds.RowPadding">0,10</Thickness>
     <CornerRadius x:Key="Ds.ChipRadius">6</CornerRadius>
     <CornerRadius x:Key="Ds.TileRadius">12</CornerRadius>
     <CornerRadius x:Key="Ds.IconSmRadius">8</CornerRadius>
@@ -40,7 +40,7 @@
     <Style x:Key="Ds.CardStyle" TargetType="Border" BasedOn="{StaticResource Ov.Card}"/>
     <Style x:Key="Ds.HeroTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Ov.Title}"/>
     <Style x:Key="Ds.HeroSubStyle" TargetType="TextBlock" BasedOn="{StaticResource Ov.Meta}">
-        <Setter Property="Margin" Value="0,7,16,0"/>
+        <Setter Property="Margin" Value="0,3,16,0"/>
     </Style>
     <Style x:Key="Ds.CardTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource Ov.CardTitle}"/>
     <Style x:Key="Ds.CardSubStyle" TargetType="TextBlock" BasedOn="{StaticResource Ov.Meta}"/>
@@ -49,7 +49,7 @@
     <Style x:Key="Ds.LiveChipStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource Ov.Soft}"/>
         <Setter Property="CornerRadius" Value="6"/>
-        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Padding" Value="8,2"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding IsLoading}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
             <DataTrigger Binding="{Binding HasError}" Value="True"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>

@@ -352,6 +352,9 @@ namespace ProGlassAutomation.Services.Database
                     // from being used. Read-only media (network share,
                     // CD-ROM) can reject journal_mode=WAL; the connection
                     // still works with the previous journal mode.
+                    // (The one exception — WAL still active on a
+                    // shared-root database — is verified AFTER this
+                    // catch, below.)
                     //
                     // Error, not Warning (Phase 14). This is the one silent
                     // degradation that quietly changes data integrity rather
@@ -372,6 +375,61 @@ namespace ProGlassAutomation.Services.Database
                             Class = nameof(SqliteResilience),
                             Operation = "ApplyPragmas"
                         });
+                }
+
+                // Senior audit (2026-09-24): on a shared-root database, WAL
+                // is not a performance preference — it is UNSAFE across
+                // SMB/NAS (the -shm coordination file is not reliable over
+                // the network redirector, and two workstations can diverge
+                // silently). journal_mode=DELETE is a file-format change
+                // that needs exclusive access, so it can fail to take
+                // effect while another workstation holds the file. Verify
+                // the mode that is actually live and fail loud instead of
+                // risking silent corruption of the company database.
+                if (IsSharedRootDatabase(sqlite.DataSource))
+                {
+                    try
+                    {
+                        using var check = sqlite.CreateCommand();
+                        check.CommandText = "PRAGMA journal_mode;";
+                        using var reader = check.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            string mode = reader.GetString(0);
+                            if (string.Equals(mode, "wal", StringComparison.OrdinalIgnoreCase))
+                            {
+                                // Documented public ctor: (string? message, int errorCode).
+                                // Code 1 = SQLITE_ERROR: the classifier treats it as
+                                // non-transient, so this surfaces immediately instead
+                                // of retrying a condition that will not clear itself.
+                                throw new SqliteException(
+                                    "The shared company database is in WAL journal mode, which is " +
+                                    "unsafe over a WiFi/LAN share (SQLITE journal-mode verification " +
+                                    "failed at connection open). Run Settings → Data → " +
+                                    "“Prepare Folder” once (it converts the databases to " +
+                                    "rollback-journal mode), then restart every workstation.",
+                                    1);
+                            }
+                        }
+                    }
+                    catch (SqliteException security)
+                    {
+                        throw security;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Verification itself failing (connection trouble)
+                        // is logged; the connection is still used.
+                        AppLogService.Error(
+                            $"[SqliteResilience] journal_mode verification failed on '{sqlite.DataSource}': {ex.Message}",
+                            ex,
+                            new LogContext
+                            {
+                                Module = "Database",
+                                Class = nameof(SqliteResilience),
+                                Operation = "VerifySharedJournalMode"
+                            });
+                    }
                 }
             }
         }

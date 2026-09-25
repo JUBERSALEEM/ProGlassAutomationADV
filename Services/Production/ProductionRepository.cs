@@ -18,6 +18,7 @@ using ProGlassAutomation.Models.Production.SavedProduction;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Production.Process;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
@@ -35,6 +36,8 @@ namespace ProGlassAutomation.Services.Production
         public int Updated { get; set; }
         public int RemovedStalePending { get; set; }
         public int KeptOrphansInProgressOrDone { get; set; }
+        /// <summary>Pending process rows created so Process Work Center can see the release before Start.</summary>
+        public int ProjectedExecutions { get; set; }
         public List<string> Warnings { get; set; } = new();
     }
 
@@ -60,6 +63,9 @@ namespace ProGlassAutomation.Services.Production
                 AppLogService.Debug("[ProductionRepository] WorkItemsChanged listener failed: " + ex.Message);
             }
         }
+
+        /// <summary>One floor-change signal after a process, QC, or cutting save. Listeners reload themselves.</summary>
+        public static void NotifyWorkItemsChanged() => RaiseWorkItemsChanged();
 
         /// <summary>Creates production.db on first use (idempotent).</summary>
         public static void EnsureInitialized()
@@ -193,7 +199,19 @@ namespace ProGlassAutomation.Services.Production
 
             await db.SaveChangesAsync().ConfigureAwait(false);
 
+            try
+            {
+                result.ProjectedExecutions = await ProductionProcessProjection.ProjectJobAsync(db, plan.JobRef).ConfigureAwait(false);
+                if (db.ChangeTracker.HasChanges())
+                    await db.SaveChangesAsync().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                result.Warnings.Add("Released the job, but the process list could not be updated: " + ex.Message);
+            }
+
             result.Warnings.AddRange(plan.Warnings);
+            RaiseWorkItemsChanged();
             return result;
         }
 
@@ -277,6 +295,63 @@ namespace ProGlassAutomation.Services.Production
                 })
                 .OrderBy(r => r.Stage)
                 .ToList();
+        }
+
+        /// <summary>Full piece and area totals per stage. Not capped at a page size.</summary>
+        public sealed class StageBoardRow
+        {
+            public int Stage { get; set; }
+            public long Pieces { get; set; }
+            public long DonePieces { get; set; }
+            public double ScheduledSqm { get; set; }
+            public double DoneSqm { get; set; }
+        }
+
+        public static async Task<List<StageBoardRow>> GetStageBoardAsync(
+            string? jobRef, string? customer, System.Threading.CancellationToken ct = default)
+        {
+            EnsureInitialized();
+            using var db = new ProductionDbContext();
+            var query = db.WorkItems.AsNoTracking()
+                .Where(w => !w.IsCancelled && w.Status != (int)WorkItemStatus.Cancelled);
+            if (!string.IsNullOrWhiteSpace(jobRef))
+            {
+                var job = jobRef.Trim();
+                query = query.Where(w => w.JobRef == job);
+            }
+            if (!string.IsNullOrWhiteSpace(customer))
+            {
+                var name = customer.Trim();
+                query = query.Where(w => w.CustomerName.Contains(name));
+            }
+
+            var rows = await query
+                .Select(w => new { w.Stage, w.Qty, w.QtyDone, w.WidthMm, w.HeightMm, w.UnitSqm })
+                .ToListAsync(ct)
+                .ConfigureAwait(false);
+
+            return rows
+                .GroupBy(w => w.Stage)
+                .Select(g => new StageBoardRow
+                {
+                    Stage = g.Key,
+                    Pieces = g.Sum(w => (long)Math.Max(0, w.Qty)),
+                    DonePieces = g.Sum(w => (long)Math.Min(Math.Max(0, w.QtyDone), Math.Max(0, w.Qty))),
+                    ScheduledSqm = g.Sum(w => BoardSqm(w.WidthMm, w.HeightMm, w.UnitSqm, Math.Max(0, w.Qty))),
+                    DoneSqm = g.Sum(w => BoardSqm(w.WidthMm, w.HeightMm, w.UnitSqm, Math.Min(Math.Max(0, w.QtyDone), Math.Max(0, w.Qty))))
+                })
+                .OrderBy(r => r.Stage)
+                .ToList();
+        }
+
+        private static double BoardSqm(int width, int height, decimal unitSqm, int qty)
+        {
+            if (qty <= 0) return 0;
+            if (width > 0 && height > 0)
+                return width * (double)height * qty / 1_000_000.0;
+            if (unitSqm > 0)
+                return (double)unitSqm * qty;
+            return 0;
         }
 
         // ── Piece-flow engine (production toolchain, 2026-09-11) ────────
@@ -915,8 +990,52 @@ namespace ProGlassAutomation.Services.Production
                 Notes = notes ?? string.Empty
             });
 
+            SyncLinkedExecutionQty(db, row);
             return (true, applied, string.Empty);
         }
+
+        /// <summary>
+        /// WorkItem quantity is authoritative. Mirror it onto the sequence-0
+        /// execution so the process board shows the floor qty after a save.
+        /// Does not SaveChanges.
+        /// </summary>
+        private static void SyncLinkedExecutionQty(ProductionDbContext db, SavedProductionWorkItem row)
+        {
+            var linked = db.ProcessExecutions
+                .Where(e => e.OutputWorkItemId == row.Id && e.ReworkSequence == 0)
+                .ToList();
+            foreach (var exec in linked)
+            {
+                exec.QtyRequired = row.Qty;
+                exec.QtyDone = row.QtyDone;
+                bool frozen = exec.Status == (int)WorkItemStatus.Rework
+                    || exec.Status == (int)WorkItemStatus.Rejected
+                    || exec.Status == (int)WorkItemStatus.QcFailed
+                    || exec.Status == (int)WorkItemStatus.Cancelled;
+                bool startedEmpty = exec.Status == (int)WorkItemStatus.InProgress
+                    && row.Status == (int)WorkItemStatus.Pending;
+                if (!frozen && !startedEmpty)
+                    exec.Status = row.Status;
+                if (exec.Status == (int)WorkItemStatus.InProgress && exec.StartedAt == null)
+                {
+                    exec.StartedAt = DateTime.Now;
+                    exec.StartedBy = AuditService.CurrentUsername;
+                }
+                if (row.Status == (int)WorkItemStatus.Completed)
+                {
+                    exec.CompletedAt = row.CompletedAt;
+                    exec.CompletedBy = row.CompletedBy ?? string.Empty;
+                }
+                exec.UpdatedAt = DateTime.Now;
+            }
+        }
+
+        /// <summary>
+        /// Control Center changes status without a quantity save. Mirror that
+        /// onto the process row in the same context. Does not SaveChanges.
+        /// </summary>
+        public static void SyncLinkedExecutionStatus(ProductionDbContext db, SavedProductionWorkItem row)
+            => SyncLinkedExecutionQty(db, row);
 
         /// <summary>
         /// Batch version of <see cref="SetDoneQtyAsync"/> — saves many row

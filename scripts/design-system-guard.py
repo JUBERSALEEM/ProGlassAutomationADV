@@ -214,6 +214,41 @@ def check_canonical_exists():
             blocking.append(f"Failed to read GlobalDesignSystem: {e}")
     return blocking, warnings
 
+def check_duplicate_properties():
+    """Detect properties set more than once on the same element (attribute + property element syntax).
+    WPF build errors: MC3024 / XLS0501 / XDG0039."""
+    blocking = []
+    warnings = []
+    import xml.etree.ElementTree as ET
+    for xaml_path in ROOT.glob("**/*.xaml"):
+        rel = str(xaml_path.relative_to(ROOT)).replace('\\', '/')
+        if any(skip in rel for skip in ("bin/", "obj/", ".git/")):
+            continue
+        try:
+            tree = ET.parse(xaml_path)
+            for elem in tree.iter():
+                elem_tag = elem.tag.split("}")[-1]
+                elem_name = elem_tag.split(":")[-1]
+                child_props = {}
+                for child in elem:
+                    child_tag = child.tag.split("}")[-1]
+                    child_name = child_tag.split(":")[-1]
+                    if "." in child_name:
+                        _, prop_part = child_name.split(".", 1)
+                        child_props[prop_part] = child_props.get(prop_part, 0) + 1
+                        if child_props[prop_part] > 1:
+                            blocking.append(f"{rel}: property element <{child_tag}> declared multiple times on <{elem_tag}> — BUILD-BLOCKING (MC3024 / XLS0501)")
+                for attr in elem.attrib:
+                    attr_name = attr.split("}")[-1].split(":")[-1]
+                    attr_prop = attr_name.split(".", 1)[1] if "." in attr_name else attr_name
+                    if attr_prop in child_props:
+                        blocking.append(f"{rel}: property '{attr_prop}' set more than once on <{elem_tag}> ({attr_name}=\"...\" attribute AND <{elem_name}.{attr_prop}> child element) — BUILD-BLOCKING (MC3024 / XLS0501 / XDG0039)")
+        except ET.ParseError as e:
+            blocking.append(f"{rel}: XML parse error: {e}")
+        except Exception:
+            pass
+    return blocking, warnings
+
 def main():
     print("=== Design-System Guard — Phase 8A + Phase 9 improvements ===")
     print(f"Root: {ROOT}")
@@ -251,6 +286,11 @@ def main():
     all_blocking.extend(b)
     all_warnings.extend(w)
     print(f"[6] Canonical authority: BLOCKING={len(b)} WARNING={len(w)}")
+
+    b, w = check_duplicate_properties()
+    all_blocking.extend(b)
+    all_warnings.extend(w)
+    print(f"[7] Duplicate property definitions (MC3024/XLS0501): BLOCKING={len(b)} WARNING={len(w)}")
 
     print("")
     print("--- WARNINGS (allowed, but report) ---")

@@ -17,7 +17,16 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}">
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid>
         <Border Style="{StaticResource OptPanelCard}">

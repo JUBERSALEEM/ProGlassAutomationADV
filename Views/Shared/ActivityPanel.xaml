@@ -1,3 +1,6 @@
+<!-- Shared recent-activity panel. Rows are built in code-behind from the
+     last 20 audit entries. Today / All filters that list; there is no
+     unread store and no logs link. -->
 <UserControl x:Class="ProGlassAutomation.Views.Shared.ActivityPanel"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,42 +9,91 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Foreground="{DynamicResource Ov.Ink}">
 
-    <Grid Margin="10,8,10,16">
-    <Border Width="400" CornerRadius="{DynamicResource CardCornerRadiusLarge}">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="22" ShadowDepth="3"
-                              Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
-        </Border.Effect>
-        <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{DynamicResource ShellLiquidBrush}"
-                BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
-                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                ClipToBounds="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Shared/Lists/StudioListResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+            <Style x:Key="ActivityFilterChip" TargetType="Button">
+                <Setter Property="Height" Value="26"/>
+                <Setter Property="MinWidth" Value="64"/>
+                <Setter Property="Padding" Value="10,0"/>
+                <Setter Property="Margin" Value="0,0,6,0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
+                <Setter Property="Foreground" Value="{DynamicResource Ov.Ink}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="13"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
-            <Border Grid.Row="0"
-                    Background="{DynamicResource AccentBrush}"
-                    CornerRadius="{DynamicResource Radius.Top.Medium}"
-                    Padding="18,12">
-                <TextBlock Text="{DynamicResource ToolTip.RecentActivity}"
-                           FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+    <Grid Margin="8">
+        <Border Width="400" CornerRadius="{DynamicResource Radius.Large}"
+                Background="{DynamicResource Ov.Surface}"
+                BorderBrush="{DynamicResource Ov.Line}"
+                BorderThickness="1"
+                SnapsToDevicePixels="True">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="22" ShadowDepth="3"
+                                  Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
+            </Border.Effect>
+            <Border CornerRadius="{DynamicResource Radius.Large}"
+                    Background="{DynamicResource Ov.Surface}"
+                    ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource Ov.Hero}"
+                            Padding="18,12">
+                        <TextBlock Text="{DynamicResource ToolTip.RecentActivity}"
+                                   FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{DynamicResource Ov.OnAccent}"/>
+                    </Border>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="12,10,12,0">
+                        <Button x:Name="TodayFilter"
+                                Style="{StaticResource ActivityFilterChip}"
+                                Content="{DynamicResource Shell.ActivityToday}"
+                                Click="TodayFilter_Click"/>
+                        <Button x:Name="AllFilter"
+                                Style="{StaticResource ActivityFilterChip}"
+                                Content="{DynamicResource Shell.ActivityAll}"
+                                Click="AllFilter_Click"/>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="2" MaxHeight="320"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel x:Name="ActivityList" Margin="12,8,12,12"/>
+                    </ScrollViewer>
+                </Grid>
             </Border>
-
-            <ScrollViewer Grid.Row="1" MaxHeight="320"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel x:Name="ActivityList" Margin="10,10,10,12"/>
-            </ScrollViewer>
-        </Grid>
         </Border>
-    </Border>
     </Grid>
 </UserControl>

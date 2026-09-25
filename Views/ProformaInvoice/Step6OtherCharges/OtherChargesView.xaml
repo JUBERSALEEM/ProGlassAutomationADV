@@ -19,9 +19,14 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <Style x:Key="RateInputStyle" TargetType="TextBox">
             <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
@@ -115,6 +120,7 @@
                 </Setter.Value>
             </Setter>
         </Style>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"

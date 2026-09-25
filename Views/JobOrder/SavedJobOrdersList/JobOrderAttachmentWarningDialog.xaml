@@ -31,8 +31,8 @@
              FontFamily="{DynamicResource AppFontFamily}">
 
     <TextBlock x:Name="MessageText"
-               FontSize="{DynamicResource FontSize.Title}"
-               LineHeight="20"
+               FontSize="{DynamicResource FontSize.Body}"
+               LineHeight="18"
                TextWrapping="Wrap"
                Foreground="{DynamicResource TextPrimaryBrush}"/>
 

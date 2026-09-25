@@ -25,6 +25,7 @@ CHECKS
   E1  Invalid enum literals for common typed properties
   D1  Duplicate x:Key within one dictionary scope
   C1  x:Class with no matching code-behind file
+  P1  Duplicate property setting on same element (attribute + property element syntax, MC3024 / XLS0501 / XDG0039)
 
 Exit code 0 = clean, 1 = violations found.
 """
@@ -312,24 +313,57 @@ for path in all_xaml():
 # ══════════════════════════════════════════════════════════════════════
 
 SEVERITY = {
-    "X0": "FATAL  ",
+    "X0": "FATAL  ", "P1": "FATAL  ",
     "R1": "FATAL  ", "R2": "FATAL  ", "R3": "FATAL  ",
     "M1": "FATAL  ", "M2": "FATAL  ", "E1": "FATAL  ",
     "C1": "FATAL  ", "D1": "warning",
 }
 
-# ── X0: the file must be well-formed XML ────────────────────────────
+# ── X0 / P1: the file must be well-formed XML & free of duplicate properties ─────
 # Learned the hard way (MC3000, 2026-09-02): an XML comment was placed
 # INSIDE a start tag, i.e. between attributes. Every regex rule below
 # still passed, but the WPF XAML compiler rejected the whole file with
 # "Name cannot begin with the '<' character" -- which then cascaded into
 # CS0103 "InitializeComponent does not exist" for unrelated files,
 # because a failed XAML pass emits no .g.cs at all.
-# A real parse is the only thing that catches this class of error.
+#
+# P1 check (MC3024 / XLS0501 / XDG0039):
+# The property 'Style' (or any property) is set more than once on the same element:
+# e.g., <Border Style="..."> having a child <Border.Style>.
+# In XAML, setting the same property via both attribute and property element syntax
+# is illegal and halts the build.
 import xml.etree.ElementTree as _ET
 for _p in all_xaml():
     try:
-        _ET.parse(_p)
+        _tree = _ET.parse(_p)
+        _raw = read(_p)
+        for _elem in _tree.iter():
+            _elem_tag = _elem.tag.split("}")[-1]
+            _elem_name = _elem_tag.split(":")[-1]
+
+            _child_props = {}
+            for _child in _elem:
+                _child_tag = _child.tag.split("}")[-1]
+                _child_name = _child_tag.split(":")[-1]
+                if "." in _child_name:
+                    _parent_part, _prop_part = _child_name.split(".", 1)
+                    _child_props[_prop_part] = _child_props.get(_prop_part, 0) + 1
+                    if _child_props[_prop_part] > 1:
+                        _m = re.search(rf"<({re.escape(_child_name)}|{re.escape(_child_tag)})\b", _raw)
+                        _ln = line_of(_raw, _m.start()) if _m else 1
+                        add("P1", _p, _ln,
+                            f"<{_child_tag}> property element declared multiple times on <{_elem_tag}> (MC3024 / XLS0501).")
+
+            for _attr in _elem.attrib:
+                _attr_name = _attr.split("}")[-1].split(":")[-1]
+                _attr_prop = _attr_name.split(".", 1)[1] if "." in _attr_name else _attr_name
+                if _attr_prop in _child_props:
+                    _m = re.search(rf"<{_elem_name}\b[^>]*\b{re.escape(_attr_name)}\s*=", _raw)
+                    _ln = line_of(_raw, _m.start()) if _m else 1
+                    add("P1", _p, _ln,
+                        f"The property '{_attr_prop}' is set more than once on <{_elem_tag}>: "
+                        f"as an XML attribute ({_attr_name}=\"...\") AND as a child property element <{_elem_name}.{_attr_prop}>. "
+                        f"WPF compiler error: MC3024 / XLS0501 / XDG0039.")
     except _ET.ParseError as _ex:
         _ln = getattr(_ex, "position", (0, 0))[0]
         add("X0", _p, _ln, f"malformed XML: {_ex}")

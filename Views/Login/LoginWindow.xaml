@@ -15,5 +15,13 @@
         FontFamily="{DynamicResource AppFontFamily}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <local:LoginPanel x:Name="Panel"/>
 </Window>

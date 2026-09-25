@@ -127,9 +127,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     SelectedTabIndex = TabIndexTwoDView; // jump straight to the 2D VIEW
                 }
             });
-            PreviewZoomInCommand = new RelayCommand(_ => PreviewScale += 0.25);
-            PreviewZoomOutCommand = new RelayCommand(_ => PreviewScale -= 0.25);
-            PreviewZoomResetCommand = new RelayCommand(_ => PreviewScale = 1.0);
+            PreviewZoomInCommand = new RelayCommand(_ => { IsFitView = false; PreviewScale += 0.25; });
+            PreviewZoomOutCommand = new RelayCommand(_ => { IsFitView = false; PreviewScale -= 0.25; });
+            PreviewZoomResetCommand = new RelayCommand(_ => { IsFitView = true; PreviewScale = 1.0; });
+            PreviewFitCommand = new RelayCommand(_ => { IsFitView = true; PreviewScale = 1.0; });
             InitPreviewGalleryCommands();
 
             // The stock pool starts EMPTY — it is populated from the ticked

@@ -12,7 +12,8 @@
 #       installer build).
 #   3.  dotnet publish using the Release.pubxml profile, producing
 #       a self-contained win-x64 tree at .\publish\.
-#   4.  Velopack pack the publish\ tree into a release artefact set:
+#   4.  Paint the Prism splash and MSI bitmaps, then Velopack-pack
+#       the publish\ tree into a release artefact set:
 #         * Setup.exe                        (full installer)
 #         * ProGlassAutomation-2.0.0-win-x64.nupkg   (delta source)
 #         * ProGlassAutomation-2.0.0-full.nupkg     (full payload)
@@ -140,10 +141,20 @@ Write-Host "> Publishing self-contained win-x64 (Release.pubxml)..." -Foreground
 if (Test-Path $PublishDir) { Remove-Item -Recurse -Force $PublishDir }
 & dotnet publish "$RepoRoot/ProGlassAutomation.csproj" -c Release -r win-x64 --self-contained true -p:PublishProfile=Release -o $PublishDir -p:Version=$Version
 if ($LASTEXITCODE -ne 0) { exit 3 }
+# Engineering evidence must never ride along in a customer pack.
+$leaked = Join-Path $PublishDir "PRODUCTION_READINESS"
+if (Test-Path $leaked) { Remove-Item -Recurse -Force $leaked }
 
 # -- 5. Velopack pack ----------------------------------------------
 Write-Host "> Running vpk pack..." -ForegroundColor Yellow
 if (Test-Path $ReleasesDir) { Remove-Item -Recurse -Force $ReleasesDir }
+
+# Prism splash + MSI bitmaps. Generated, not committed.
+$artScript = Join-Path $PSScriptRoot "generate-installer-art.ps1"
+& $artScript -RepoRoot $RepoRoot
+if (-not $?) { exit 4 }
+$artDir = Join-Path $RepoRoot "installer\generated"
+$contentDir = Join-Path $RepoRoot "installer\content"
 
 # The installer/velopack.json manifest is the durable source
 # of pack metadata (id, title, authors, icon). The
@@ -152,25 +163,52 @@ if (Test-Path $ReleasesDir) { Remove-Item -Recurse -Force $ReleasesDir }
 # explicit command-line flags. Version is overridden on the
 # command line so the same manifest can pack any release.
 #
-# Flags (Velopack 1.x, confirmed via `vpk pack --help`):
-#   --packId       (required)  unique app id
-#   --packVersion  (required)  app version (N.N.N[.N])
-#   --packDir      (required)  published app folder
-#   --outputDir    (optional)  where to write the artefacts
-#   --packTitle    (optional)  display name
-#   --packAuthors  (optional)  author / publisher
-#   --icon         (optional)  app icon .ico file
-#   --channel      (optional)  release channel (stable, beta, ...)
-& vpk pack `
-    --packId       $PackId `
-    --packVersion  $Version `
-    --packDir      $PublishDir `
-    --outputDir    $ReleasesDir `
-    --packTitle    $PackTitle `
-    --packAuthors  $PackAuthors `
-    --icon         (Join-Path $RepoRoot 'favicon.ico') `
-    --channel      'stable' `
-    --mainExe      'ProGlassAutomation.exe'
+# Newer vpk builds also accept splash and MSI page flags.
+# Probe --help so an older CLI still packs Setup.exe.
+$vpkHelp = & vpk pack --help 2>&1 | Out-String
+$vpkArgs = @(
+    "pack",
+    "--packId", $PackId,
+    "--packVersion", $Version,
+    "--packDir", $PublishDir,
+    "--outputDir", $ReleasesDir,
+    "--packTitle", $PackTitle,
+    "--packAuthors", $PackAuthors,
+    "--icon", (Join-Path $RepoRoot "favicon.ico"),
+    "--channel", "stable",
+    "--mainExe", "ProGlassAutomation.exe"
+)
+
+function Add-VpkFlag([string]$name, [string[]]$values) {
+    # Whole flag only. "--msi" must not match "--msiBanner".
+    if ($vpkHelp -match ("(?i)--" + [regex]::Escape($name) + "(?![\w])")) {
+        $script:vpkArgs += "--$name"
+        if ($values -and $values.Count -gt 0) { $script:vpkArgs += $values }
+        Write-Host "  vpk --$name" -ForegroundColor DarkCyan
+    } else {
+        Write-Warning "This vpk does not support --$name. Update vpk to ship that installer page."
+    }
+}
+
+Add-VpkFlag "splashImage" @((Join-Path $artDir "splash.png"))
+# None keeps the rounded splash corners. A live bar is a square
+# strip painted over the bottom 12px, which would cut the card.
+Add-VpkFlag "splashProgressColor" @("None")
+Add-VpkFlag "msi" @()
+Add-VpkFlag "instLocation" @("Either")
+Add-VpkFlag "instWelcome" @((Join-Path $contentDir "welcome.txt"))
+Add-VpkFlag "instReadme" @((Join-Path $contentDir "readme.md"))
+Add-VpkFlag "instLicense" @((Join-Path $contentDir "license.md"))
+Add-VpkFlag "instConclusion" @((Join-Path $contentDir "conclusion.txt"))
+if ($vpkHelp -match "msiTopBanner") {
+    Add-VpkFlag "msiTopBanner" @((Join-Path $artDir "msi-banner.bmp"))
+    Add-VpkFlag "msiDialogBackground" @((Join-Path $artDir "msi-dialog.bmp"))
+} else {
+    Add-VpkFlag "msiBanner" @((Join-Path $artDir "msi-banner.bmp"))
+    Add-VpkFlag "msiLogo" @((Join-Path $artDir "msi-dialog.bmp"))
+}
+
+& vpk @vpkArgs
 if ($LASTEXITCODE -ne 0) { exit 4 }
 
 # -- 6. Portable zip (no installer; for sysadmins who block Setup.exe)

@@ -6,7 +6,16 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid Margin="10,8,10,16">
     <Border Width="360" CornerRadius="{DynamicResource CardCornerRadiusLarge}">
@@ -15,8 +24,8 @@
                               Opacity="0.18" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
         </Border.Effect>
         <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{DynamicResource ShellLiquidBrush}"
-                BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
+                Background="{DynamicResource Ov.Surface}"
+                BorderBrush="{DynamicResource Ov.Line}"
                 BorderThickness="{DynamicResource Border.HairlineThickness}"
                 ClipToBounds="True">
 
@@ -27,7 +36,7 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Row="0"
-                    Background="{DynamicResource AccentBrush}"
+                    Background="{DynamicResource Ov.Hero}"
                     CornerRadius="{DynamicResource Radius.Top.Medium}"
                     Padding="16,12">
                 <StackPanel>

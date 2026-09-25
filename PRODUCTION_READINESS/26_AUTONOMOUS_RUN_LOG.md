@@ -40,7 +40,6 @@ End HEAD after that push: `3e3aeff`.
 Worktree after push: clean.
 
 This log update is a follow-up so the evidence matches the commit that already shipped.
-
 ## Cycle 5 — money rounding and schema-upgrade warning
 
 Date: 2026-09-25
@@ -53,4 +52,4 @@ Date: 2026-09-25
 - Fix: failures are recorded on the runner. Startup logs an error and shows a warning telling the operator not to enter new documents until it is fixed.
 - Build / `dotnet test` / WPF runtime: BLOCKED. No .NET SDK. Do not treat this as production-ready.
 - Still open: `ProformaLifecycleSync` logs a failed status sync and returns success to the delete caller. Profit-and-loss `ProfitLossStepViewModel.Calculation.cs` still mixes money `Math.Round` with quantities and was not converted. Optimizer silent-drop was not re-proven.
-- Local commit: `f1b4143` on `f2249ea`. Push to `origin/arena/01a0ce09-proglassautomationadv` was rejected (remote is at `e78ee00`, which is ahead). Not force-pushed. Not merged, because the worktree already holds a large uncommitted rewrite.
+- Local commit: `f1b4143` on `f2249ea`. The first push was rejected because origin was at `e78ee00`. Merged that remote history in. Not force-pushed.

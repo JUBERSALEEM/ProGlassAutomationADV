@@ -1,44 +1,51 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsAboutSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings — ABOUT page (2026-09-16 grammar rewrite)
+     MODULE: Settings — ABOUT page (2026-09-24 Indigo Studio upgrade)
+     ───────────────────────────────────────────────────────────────────
+     Complete upgrade to the Overview Dashboard grammar
+     (Views/Dashboard/Overview/IndigoStudioResources.xaml — the Ov.*
+     token family), requested in place of the old Ios26 Settings card
+     stack whose 12px inner corners read thin next to the 18px Overview
+     cards:
 
-     WHAT CHANGED AND WHY
-     ────────────────────
-       • Duplicate page title + subtitle removed: the shell header strip
-         already names the page.
-       • Every card was `SurfacePrimaryStyle` with a second
-         `SurfaceDetailStyle` Border wrapped around its header row — a card
-         inside a card, three indentation levels deep. Now: one
-         SettingsPageCardStyle per card, header built from the icon tile +
-         title roles.
-       • `<Border Style="SurfaceDetailStyle"/>` used as a vertical gap →
-         real spacing.
-       • The four "learn more" cards keep the UniformGrid so the page still
-         reads as a grid on wide screens, but each one is the same material
-         as the version card above it.
-       • Fact lines moved from Typography.Caption to SettingsRowMetaStyle so
-         they inherit the grammar's muted ink and sizes.
+       • Signature purple gradient identity masthead with the app
+         version as the big Viewbox value (Ov.Value, tabular figures) —
+         the same PulseCard treatment the Overview dashboard opens with.
+       • "Version & credits" card beside it: structured label/value rows
+         with 1px Ov.Line separators, developer and copyright lines.
+       • "Learn more" section: heading row + 2×2 bento of the four
+         explainer cards, one flat Ov.Card each (no card-inside-card),
+         18px gaps, 28,14,28,30 page rhythm — identical spacing to the
+         Overview dashboard.
 
-     All content keys and the CurrentVersionDisplay binding are unchanged.
-═══════════════════════════════════════════════════════════════════ -->
+     Every language key and the CurrentVersionDisplay binding are
+     preserved verbatim (i18n intact). DataContext is SettingsViewModel;
+     the three new pass-through properties read the static AppInfo.
+═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAboutSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-             FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Ideal"
-             TextOptions.TextRenderingMode="ClearType"
+             FontFamily="Segoe UI"
+             Foreground="{DynamicResource Ov.Ink}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
              RenderOptions.ClearTypeHint="Enabled"
              RenderOptions.EdgeMode="Aliased">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <!-- Sizing kept as resources so the XAML carries no numeric
+                 FontSize literals (design-system rule [3]). -->
+            <sys:Double x:Key="About.HeroVersionSize">40</sys:Double>
+            <sys:Double x:Key="About.HeroTaglineSize">20</sys:Double>
+            <sys:Double x:Key="About.TileGlyphSize">14</sys:Double>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -48,195 +55,241 @@
                   PanningMode="VerticalOnly"
                   behaviors:SmoothScrollBehavior.IsEnabled="True"
                   Focusable="False"
-                  FocusVisualStyle="{x:Null}"
-                  Padding="{StaticResource SettingsPagePadding}">
-        <StackPanel>
+                  FocusVisualStyle="{x:Null}">
+        <StackPanel Margin="28,14,28,30">
 
-            <!-- ═══ BENTO HERO BANNER — ABOUT & KNOWLEDGE BASE ═══ -->
-            <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+            <!-- ═══ ROW A — IDENTITY MASTHEAD + VERSION & CREDITS ═══ -->
+            <Grid Margin="0,0,0,18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.45*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                        <TextBlock Text="&#xE946;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                    </Border>
+                <!-- Signature purple masthead (Overview PulseCard grammar) -->
+                <Border Style="{StaticResource Ov.Card}"
+                        Background="{DynamicResource Ov.Hero}"
+                        BorderThickness="0"
+                        MinHeight="218">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                        <TextBlock Text="About &amp; Knowledge Base" Style="{StaticResource SettingsCardTitleStyle}"/>
-                        <TextBlock Text="System architecture, offline neural models, DPAPI privacy guarantees, and workstation diagnostics" Style="{StaticResource SettingsCardNoteStyle}"/>
+                        <TextBlock Grid.Row="0"
+                                   Text="ProGlass Automation"
+                                   Style="{StaticResource Ov.CardTitle}"
+                                   Foreground="{DynamicResource Ov.OnAccentMuted}"/>
+
+                        <Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly"
+                                 HorizontalAlignment="Left" Margin="0,16,0,12">
+                            <TextBlock Text="{Binding CurrentVersionDisplay, Mode=OneWay}"
+                                       Style="{StaticResource Ov.Value}"
+                                       FontSize="{StaticResource About.HeroVersionSize}"
+                                       Foreground="{DynamicResource Ov.OnAccent}"/>
+                        </Viewbox>
+
+                        <TextBlock Grid.Row="2"
+                                   Text="{DynamicResource Settings.BuiltUAEGlassFabricators}"
+                                   Style="{StaticResource Ov.Text}"
+                                   FontSize="{StaticResource About.HeroTaglineSize}"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource Ov.OnAccent}"
+                                   VerticalAlignment="Bottom"/>
+
+                        <TextBlock Grid.Row="3" Margin="0,14,0,0"
+                                   Style="{StaticResource Ov.Meta}"
+                                   Foreground="{DynamicResource Ov.OnAccentMuted}"
+                                   TextTrimming="CharacterEllipsis">
+                            <Run Text="{DynamicResource Settings.ProductVersionRunningMachine}"/><Run Text=" · Build "/><Run Text="{Binding CurrentBuildLabel, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+                <!-- Version & credits — structured fact rows -->
+                <Border Grid.Column="1" Style="{StaticResource Ov.Card}" Margin="18,0,0,0">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource Ov.IconBox}">
+                                <TextBlock Text="&#xE946;" Style="{StaticResource Ov.Glyph}"/>
+                            </Border>
+                            <TextBlock Grid.Column="1" Margin="12,0,0,0"
+                                       Text="{DynamicResource Settings.InstalledVersion}"
+                                       Style="{StaticResource Ov.CardTitle}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <StackPanel Margin="0,18,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Version" Style="{StaticResource Ov.Meta}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding CurrentVersionDisplay, Mode=OneWay}"
+                                           Style="{StaticResource Ov.Text}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Border Height="1" Background="{DynamicResource Ov.Line}" Margin="0,12"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Build" Style="{StaticResource Ov.Meta}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding CurrentBuildLabel, Mode=OneWay}"
+                                           Style="{StaticResource Ov.Text}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Border Height="1" Background="{DynamicResource Ov.Line}" Margin="0,12"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Developer" Style="{StaticResource Ov.Meta}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding DeveloperName, Mode=OneWay}"
+                                           Style="{StaticResource Ov.Text}" FontWeight="SemiBold"/>
+                            </Grid>
+                            <Border Height="1" Background="{DynamicResource Ov.Line}" Margin="0,12"/>
+                            <TextBlock Text="{Binding CopyrightLine, Mode=OneWay}"
+                                       Style="{StaticResource Ov.Meta}"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
                     </StackPanel>
+                </Border>
+            </Grid>
 
-                    <Border Grid.Column="2" Style="{StaticResource SettingsChipStyle}"
-                            Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                        <TextBlock Text="ProGlass 2026" Style="{StaticResource SettingsChipTextStyle}"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- ═══ CARD — APPLICATION ═══ -->
-            <Border Style="{StaticResource SettingsPageCardStyle}">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE946;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                        </Border>
-
-                        <StackPanel Grid.Column="1"
-                                    Margin="{StaticResource SettingsIconTextMargin}"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="ProGlass Automation"
-                                       Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings.ProductVersionRunningMachine}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-
-                        <Border Grid.Column="2"
-                                Style="{StaticResource SettingsValuePillStyle}"
-                                Margin="{StaticResource SettingsInlineGap12}"
-                                VerticalAlignment="Center">
-                            <TextBlock Style="{StaticResource SettingsValuePillTextStyle}">
-                                <Run Text="{DynamicResource Settings.InstalledVersion}"/><Run Text=" "/>
-                                <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"/>
-                            </TextBlock>
-                        </Border>
-                    </Grid>
-
-                    <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
-
-                    <TextBlock Text="{DynamicResource Settings.BuiltUAEGlassFabricators}"
-                               Style="{StaticResource SettingsCardNoteStyle}"/>
+            <!-- ═══ ROW B — LEARN MORE HEADING ═══ -->
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource Ov.IconBox}">
+                    <TextBlock Text="&#xE7BE;" Style="{StaticResource Ov.Glyph}"/>
+                </Border>
+                <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="{DynamicResource Settings.LearnMORE}"
+                               Style="{StaticResource Ov.CardTitle}"/>
+                    <TextBlock Text="{DynamicResource Settings.ShortExplainersThemeSystemAIAssistantPrivacy}"
+                               Style="{StaticResource Ov.Meta}" Margin="0,3,0,0"/>
                 </StackPanel>
-            </Border>
+            </Grid>
 
-            <!-- ═══ CARD — LEARN MORE ═══ -->
-            <Border Style="{StaticResource SettingsPageCardStyle}">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+            <!-- ═══ ROW C — 2×2 EXPLAINER BENTO ═══ -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="18"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE7BE;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                        </Border>
+                <!-- About the Theme System -->
+                <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Ov.Card}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource Ov.IconBox}" Width="28" Height="28">
+                                <TextBlock Text="&#xE790;" Style="{StaticResource Ov.Glyph}" FontSize="{StaticResource About.TileGlyphSize}"/>
+                            </Border>
+                            <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Text="{DynamicResource Settings.AboutThemeSystem}"
+                                       Style="{StaticResource Ov.CardTitle}"/>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Ov.Text}" Margin="0,12,0,0">
+                            <Run Text="{DynamicResource Settings.ProglassAutomationShips}"/><Run Text="{DynamicResource Settings.TwoHandCraftedThemes}"/><Run Text="{DynamicResource Settings.LightDefaultDark}"/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,10,0,0" Text="{DynamicResource Settings.AboutLightTheme}"/>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,5,0,0" Text="{DynamicResource Settings.AboutDarkTheme}"/>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,5,0,0" Text="{DynamicResource Settings.AboutInstantSwap}"/>
+                    </StackPanel>
+                </Border>
 
-                        <StackPanel Grid.Column="1"
-                                    Margin="{StaticResource SettingsIconTextMargin}"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Settings.LearnMORE}"
-                                       Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="{DynamicResource Settings.ShortExplainersThemeSystemAIAssistantPrivacy}"
-                                       Style="{StaticResource SettingsRowMetaStyle}"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Grid>
+                <!-- About the AI Assistant -->
+                <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource Ov.Card}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource Ov.IconBox}" Width="28" Height="28">
+                                <TextBlock Text="&#xE8F2;" Style="{StaticResource Ov.Glyph}" FontSize="{StaticResource About.TileGlyphSize}"/>
+                            </Border>
+                            <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Text="{DynamicResource Settings.AboutAIAssistant}"
+                                       Style="{StaticResource Ov.CardTitle}"/>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Ov.Text}" Margin="0,12,0,0">
+                            <Run Text="{DynamicResource Settings.OptionalAIAssistantSupports}"/><Run Text="{DynamicResource Settings.GoogleGeminiGroqCohere}"/><Run Text="{DynamicResource Settings.FreeTiersTailoredUAEGlassManufacturing}"/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,10,0,0" Text="{DynamicResource Settings.AboutOptIn}"/>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,5,0,0" Text="{DynamicResource Settings.AboutContextAware}"/>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,5,0,0" Text="{DynamicResource Settings.AboutVoiceInput}"/>
+                    </StackPanel>
+                </Border>
 
-                    <UniformGrid Columns="2" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
+                <!-- About Your API Key & Privacy -->
+                <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource Ov.Card}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource Ov.IconBox}" Width="28" Height="28">
+                                <TextBlock Text="&#xE72E;" Style="{StaticResource Ov.Glyph}" FontSize="{StaticResource About.TileGlyphSize}"/>
+                            </Border>
+                            <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Text="{DynamicResource Settings.AboutAPIKeyPrivacy}"
+                                       Style="{StaticResource Ov.CardTitle}"/>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Ov.Text}" Margin="0,12,0,0">
+                            <Run Text="{DynamicResource Settings.APIKeyStored}"/><Run Text="{DynamicResource Settings.LocalMachine}"/><Run Text="{DynamicResource Settings.AppdataNeverLeavesPCExceptDirectHttps}"/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,10,0,0" Text="{DynamicResource Settings.AboutStoredAt}"/>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,5,0,0" Text="{DynamicResource Settings.AboutNoTelemetry}"/>
+                    </StackPanel>
+                </Border>
 
-                        <!-- About the Theme System -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                    <Border Style="{StaticResource SettingsIconTileStyle}"
-                                            Width="26" Height="26"
-                                            Background="{DynamicResource Ios26ValuePillBrush}">
-                                        <TextBlock Text="&#xE790;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Settings.AboutThemeSystem}"
-                                               Style="{StaticResource SettingsRowTitleStyle}"
-                                               Margin="{StaticResource SettingsIconTextMargin}"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
-                                    <Run Text="{DynamicResource Settings.ProglassAutomationShips}"/><Run Text="{DynamicResource Settings.TwoHandCraftedThemes}"/><Run Text="{DynamicResource Settings.LightDefaultDark}"/>
-                                </TextBlock>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutLightTheme}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutDarkTheme}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutInstantSwap}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- About the AI Assistant -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                    <Border Style="{StaticResource SettingsIconTileStyle}"
-                                            Width="26" Height="26"
-                                            Background="{DynamicResource Ios26ValuePillBrush}">
-                                        <TextBlock Text="&#xE8F2;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Settings.AboutAIAssistant}"
-                                               Style="{StaticResource SettingsRowTitleStyle}"
-                                               Margin="{StaticResource SettingsIconTextMargin}"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
-                                    <Run Text="{DynamicResource Settings.OptionalAIAssistantSupports}"/><Run Text="{DynamicResource Settings.GoogleGeminiGroqCohere}"/><Run Text="{DynamicResource Settings.FreeTiersTailoredUAEGlassManufacturing}"/>
-                                </TextBlock>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutOptIn}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutContextAware}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutVoiceInput}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- About Your API Key & Privacy -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsTileGridMargin}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                    <Border Style="{StaticResource SettingsIconTileStyle}"
-                                            Width="26" Height="26"
-                                            Background="{DynamicResource Ios26ValuePillBrush}">
-                                        <TextBlock Text="&#xE72E;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Settings.AboutAPIKeyPrivacy}"
-                                               Style="{StaticResource SettingsRowTitleStyle}"
-                                               Margin="{StaticResource SettingsIconTextMargin}"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
-                                    <Run Text="{DynamicResource Settings.APIKeyStored}"/><Run Text="{DynamicResource Settings.LocalMachine}"/><Run Text="{DynamicResource Settings.AppdataNeverLeavesPCExceptDirectHttps}"/>
-                                </TextBlock>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutStoredAt}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutNoTelemetry}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- About Voice Models -->
-                        <Border Margin="{StaticResource SettingsTileGridMargin}" Style="{StaticResource SettingsInnerTileStyle}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
-                                    <Border Style="{StaticResource SettingsIconTileStyle}"
-                                            Width="26" Height="26"
-                                            Background="{DynamicResource Ios26ValuePillBrush}">
-                                        <TextBlock Text="&#xE720;" Style="{StaticResource SettingsIconGlyphStyle}"/>
-                                    </Border>
-                                    <TextBlock Text="{DynamicResource Settings.AboutVoiceModels}"
-                                               Style="{StaticResource SettingsRowTitleStyle}"
-                                               Margin="{StaticResource SettingsIconTextMargin}"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource SettingsCardNoteStyle}">
-                                    <Run Text="{DynamicResource Settings.ThreeWhisperModelSizesAvailable}"/><Run Text="{DynamicResource Settings.BaseRecommended}"/><Run Text="{DynamicResource Settings.MostUsersFastAccurate142MB}"/>
-                                </TextBlock>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelBase}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelMedium}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelLarge}"/>
-                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="{DynamicResource Settings.AboutModelsOffline}"/>
-                            </StackPanel>
-                        </Border>
-
-                    </UniformGrid>
-                </StackPanel>
-            </Border>
+                <!-- About Voice Models -->
+                <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource Ov.Card}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0" Style="{StaticResource Ov.IconBox}" Width="28" Height="28">
+                                <TextBlock Text="&#xE720;" Style="{StaticResource Ov.Glyph}" FontSize="{StaticResource About.TileGlyphSize}"/>
+                            </Border>
+                            <TextBlock Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Text="{DynamicResource Settings.AboutVoiceModels}"
+                                       Style="{StaticResource Ov.CardTitle}"/>
+                        </Grid>
+                        <TextBlock Style="{StaticResource Ov.Text}" Margin="0,12,0,0">
+                            <Run Text="{DynamicResource Settings.ThreeWhisperModelSizesAvailable}"/><Run Text="{DynamicResource Settings.BaseRecommended}"/><Run Text="{DynamicResource Settings.MostUsersFastAccurate142MB}"/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,10,0,0" Text="{DynamicResource Settings.AboutModelBase}"/>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,5,0,0" Text="{DynamicResource Settings.AboutModelMedium}"/>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,5,0,0" Text="{DynamicResource Settings.AboutModelLarge}"/>
+                        <TextBlock Style="{StaticResource Ov.Meta}" Margin="0,5,0,0" Text="{DynamicResource Settings.AboutModelsOffline}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
 
         </StackPanel>
     </ScrollViewer>

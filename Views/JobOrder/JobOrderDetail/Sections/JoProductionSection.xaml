@@ -48,15 +48,15 @@
 
     <StackPanel>
 
-        <!-- Section header -->
-        <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+        <!-- Section header (compact) -->
+        <StackPanel Margin="0,0,0,6" Orientation="Horizontal">
             <TextBlock Text="{DynamicResource JobOrder.ProductionDetails}"
-                       Style="{StaticResource Typography.H2}"
+                       Style="{StaticResource Typography.Label}"
                        VerticalAlignment="Center"
-                       Margin="0,0,10,0"/>
+                       Margin="0,0,8,0"/>
             <TextBlock Text="{DynamicResource JobOrder.StatusPriorityDeliveryShopFloorInstructions}"
-                       FontSize="{DynamicResource FontSize.Body}"
-                       Foreground="{DynamicResource TextSecondaryBrush}"
+                       FontSize="{DynamicResource FontSize.BodySmall}"
+                       Foreground="{DynamicResource TextTertiaryBrush}"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"/>
         </StackPanel>

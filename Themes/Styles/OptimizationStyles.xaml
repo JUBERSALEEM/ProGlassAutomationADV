@@ -8,17 +8,26 @@
          semantic yield badges, and CAD-grade 2D cutting visualizer styling.
          ═════════════════════════════════════════════════════════════ -->
 
-    <!-- Bento Color Palette Tokens -->
-    <SolidColorBrush x:Key="OptBentoHeroBg" Color="#0284C7"/>
-    <SolidColorBrush x:Key="OptBentoHeroBorder" Color="#0369A1"/>
-    <SolidColorBrush x:Key="OptBentoSurface" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="OptBentoCardBg" Color="#FFFFFF"/>
-    <SolidColorBrush x:Key="OptBentoCardSubtleBg" Color="#F8FAFC"/>
-    <SolidColorBrush x:Key="OptBentoBorder" Color="#E2E8F0"/>
-    <SolidColorBrush x:Key="OptBentoKeyline" Color="#F1F5F9"/>
-    <SolidColorBrush x:Key="OptBentoInk" Color="#0F172A"/>
-    <SolidColorBrush x:Key="OptBentoMuted" Color="#64748B"/>
-    <SolidColorBrush x:Key="OptBentoSubtleText" Color="#94A3B8"/>
+    <!-- Indigo identity. Card faces and ink stay DynamicResource so light/dark
+         theme still paints the surface. Accent chrome stays studio indigo,
+         not the sky-blue freeze and not a user accent swap. -->
+    <SolidColorBrush x:Key="OptIndigo" Color="#6546B5"/>
+    <SolidColorBrush x:Key="OptIndigoDeep" Color="#493080"/>
+    <SolidColorBrush x:Key="OptIndigoSoft" Color="#EEE8F8"/>
+    <SolidColorBrush x:Key="OptOnIndigo" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="OptOnIndigoMuted" Color="#E3DAF7"/>
+    <SolidColorBrush x:Key="OptOnIndigoChip" Color="#33FFFFFF"/>
+
+    <SolidColorBrush x:Key="OptBentoHeroBg" Color="#6546B5"/>
+    <SolidColorBrush x:Key="OptBentoHeroBorder" Color="#493080"/>
+    <SolidColorBrush x:Key="OptBentoSurface" Color="#FFFEFC"/>
+    <SolidColorBrush x:Key="OptBentoCardBg" Color="#FFFEFC"/>
+    <SolidColorBrush x:Key="OptBentoCardSubtleBg" Color="#F3F0FA"/>
+    <SolidColorBrush x:Key="OptBentoBorder" Color="#E2DBEF"/>
+    <SolidColorBrush x:Key="OptBentoKeyline" Color="#EEE8F8"/>
+    <SolidColorBrush x:Key="OptBentoInk" Color="#2C2440"/>
+    <SolidColorBrush x:Key="OptBentoMuted" Color="#6B6078"/>
+    <SolidColorBrush x:Key="OptBentoSubtleText" Color="#8A7E9C"/>
 
     <!-- Semantic Pill Brushes -->
     <SolidColorBrush x:Key="OptSuccessBg" Color="#ECFDF5"/>
@@ -29,16 +38,16 @@
     <SolidColorBrush x:Key="OptWarningBorder" Color="#FDE68A"/>
     <SolidColorBrush x:Key="OptWarningInk" Color="#92400E"/>
 
-    <SolidColorBrush x:Key="OptInfoBg" Color="#EFF6FF"/>
-    <SolidColorBrush x:Key="OptInfoBorder" Color="#BFDBFE"/>
-    <SolidColorBrush x:Key="OptInfoInk" Color="#1E40AF"/>
+    <SolidColorBrush x:Key="OptInfoBg" Color="#EEE8F8"/>
+    <SolidColorBrush x:Key="OptInfoBorder" Color="#C9B8E8"/>
+    <SolidColorBrush x:Key="OptInfoInk" Color="#493080"/>
 
-    <SolidColorBrush x:Key="OptAccentBg" Color="#F0F9FF"/>
-    <SolidColorBrush x:Key="OptAccentBorder" Color="#BAE6FD"/>
-    <SolidColorBrush x:Key="OptAccentInk" Color="#0284C7"/>
+    <SolidColorBrush x:Key="OptAccentBg" Color="#EEE8F8"/>
+    <SolidColorBrush x:Key="OptAccentBorder" Color="#C9B8E8"/>
+    <SolidColorBrush x:Key="OptAccentInk" Color="#6546B5"/>
 
-    <SolidColorBrush x:Key="OptOffcutBg" Color="#F8FAFC"/>
-    <SolidColorBrush x:Key="OptOffcutBorder" Color="#CBD5E1"/>
+    <SolidColorBrush x:Key="OptOffcutBg" Color="#F3F0FA"/>
+    <SolidColorBrush x:Key="OptOffcutBorder" Color="#C9B8E8"/>
 
     <!-- Corner Radius Tokens -->
     <CornerRadius x:Key="OptCardRadius">14</CornerRadius>
@@ -47,52 +56,48 @@
 
     <!-- ══ Panel Card — Bento Porcelain Frost Surface ═══════════════ -->
     <Style x:Key="OptPanelCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource OptCardRadius}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="18,16"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <!-- ══ Inner Card (Sub-sections, items, nested surfaces) ════════ -->
     <Style x:Key="OptInnerCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Surface.Secondary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource OptInnerCardRadius}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfaceSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="14,12"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <!-- ══ Light Studio Bento Hero Card (Primary Yield & Engine Status) ══ -->
+    <!-- Indigo bento hero. Do not point this at a light surface: every consumer
+         paints OptOnIndigo / OptOnIndigoMuted text. Summary yield uses OptKpiCard. -->
     <Style x:Key="OptHeroCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource OptCardRadius}"/>
+        <Setter Property="Background" Value="{StaticResource OptBentoHeroBg}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptBentoHeroBorder}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="20,18"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Effect">
             <Setter.Value>
-                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Direction="270" Color="#000000" Opacity="0.04"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Direction="270" Color="#3D2A6B" Opacity="0.18"/>
             </Setter.Value>
         </Setter>
     </Style>
 
     <!-- ══ KPI Metric Card ══════════════════════════════════════════ -->
     <Style x:Key="OptKpiCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource OptCardRadius}"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="16,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Direction="270" Color="#000000" Opacity="0.04"/>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <!-- Tinted square icon badge on each KPI card -->
@@ -124,36 +129,52 @@
 
     <!-- ══ Bento Navigation Rail Tab ════════════════════════════════ -->
     <Style x:Key="OptRailTab" TargetType="RadioButton">
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="Root" CornerRadius="8"
-                            Background="{DynamicResource SurfaceSecondaryBrush}"
-                            BorderBrush="{DynamicResource BorderDefaultBrush}"
-                            BorderThickness="1" Padding="14,8" SnapsToDevicePixels="True">
+                    <Border x:Name="Root" CornerRadius="12" HorizontalAlignment="Stretch"
+                            Background="{DynamicResource SurfacePrimaryBrush}"
+                            BorderBrush="{StaticResource OptIndigo}"
+                            BorderThickness="1.5" Padding="14,10" SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock x:Name="Icon" FontFamily="Segoe MDL2 Assets" FontSize="14"
                                        Text="{TemplateBinding Tag}" Foreground="{TemplateBinding Foreground}"
-                                       VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                       VerticalAlignment="Center" Margin="0,0,8,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                             <ContentPresenter x:Name="Label" VerticalAlignment="Center"
                                               Content="{TemplateBinding Content}"/>
                         </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
-                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource OptIndigoSoft}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentBrush}"/>
-                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                            <Setter TargetName="Icon" Property="Foreground" Value="#FFFFFF"/>
-                            <Setter TargetName="Label" Property="TextElement.Foreground" Value="#FFFFFF"/>
+                            <Setter TargetName="Root" Property="Background" Value="{StaticResource OptIndigo}"/>
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+                            <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+                            <Setter TargetName="Icon" Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+                            <Setter TargetName="Label" Property="TextElement.Foreground" Value="{StaticResource OptOnIndigo}"/>
                             <Setter TargetName="Label" Property="TextElement.FontWeight" Value="Bold"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -384,9 +405,9 @@
 
     <!-- ══ Multi-Sheet Gallery Card Style ═══════════════════════════ -->
     <Style x:Key="OptGalleryCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Surface.Primary.BackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource SurfacePrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="{DynamicResource OptCardRadius}"/>
         <Setter Property="Padding" Value="14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -404,9 +425,9 @@
 
     <!-- ══ Studio Bento Buttons ══════════════════════════════════════ -->
     <Style x:Key="OptPrimaryButton" TargetType="Button">
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="Foreground" Value="#FFFFFF"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background" Value="{StaticResource OptIndigo}"/>
+        <Setter Property="Foreground" Value="{StaticResource OptOnIndigo}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OptIndigo}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Height" Value="36"/>
         <Setter Property="Padding" Value="16,0"/>

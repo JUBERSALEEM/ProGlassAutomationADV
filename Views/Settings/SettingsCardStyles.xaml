@@ -103,6 +103,8 @@
          inset starts clipping them below 1280. -->
     <Thickness x:Key="SettingsPagePadding">24,20,24,24</Thickness>
     <Thickness x:Key="SettingsCardPadding">22,20</Thickness>
+    <Thickness x:Key="SettingsCompactCardPadding">16,14</Thickness>
+    <Thickness x:Key="SettingsMicroCardPadding">14,12</Thickness>
     <!-- Crystal-axis rows (Themes): label sits above the track, 6px air,
          then 22px to the next row — matches the approved mockup rhythm. -->
     <Thickness x:Key="SettingsAxisLabelMargin">0,0,0,6</Thickness>
@@ -123,7 +125,7 @@
     <sys:Double x:Key="SettingsGapInline">10</sys:Double>
     <sys:Double x:Key="SettingsGapSection">14</sys:Double>
 
-    <Thickness x:Key="SettingsCardMargin">0,0,0,14</Thickness>
+    <Thickness x:Key="SettingsCardMargin">0,0,0,10</Thickness>
     <Thickness x:Key="SettingsRowMargin">0,0,0,6</Thickness>
     <!-- v3 (2026-09-17) spacing scale completion: every rhythmic gap in the
          sections now has ONE name. Before this, 425 literal Margin="…" values
@@ -137,6 +139,11 @@
     <Thickness x:Key="SettingsStackGap18">0,18,0,0</Thickness>
     <Thickness x:Key="SettingsStackBottom8">0,0,0,8</Thickness>
     <Thickness x:Key="SettingsStackBottom10">0,0,0,10</Thickness>
+    <Thickness x:Key="SettingsStackBottom14">0,0,0,14</Thickness>
+    <Thickness x:Key="SettingsStackTop4">0,4,0,0</Thickness>
+    <Thickness x:Key="SettingsStackTop6">0,6,0,0</Thickness>
+    <Thickness x:Key="SettingsStackTop8">0,8,0,0</Thickness>
+    <Thickness x:Key="SettingsStackTop12">0,12,0,0</Thickness>
     <Thickness x:Key="SettingsInlineGap6">6,0,0,0</Thickness>
     <Thickness x:Key="SettingsInlineGap8">8,0,0,0</Thickness>
     <Thickness x:Key="SettingsInlineGap6R">0,0,6,0</Thickness>
@@ -181,10 +188,14 @@
     <Thickness x:Key="SettingsFlagGridMargin">32,4,32,0</Thickness>
     <Thickness x:Key="SettingsBentoColLeft">0,0,8,0</Thickness>
     <Thickness x:Key="SettingsBentoColRight">8,0,0,0</Thickness>
+    <Thickness x:Key="SettingsBentoCol3Left">0,0,8,0</Thickness>
+    <Thickness x:Key="SettingsBentoCol3Mid">4,0,4,0</Thickness>
+    <Thickness x:Key="SettingsBentoCol3Right">8,0,0,0</Thickness>
     <Thickness x:Key="SettingsBentoRowMargin">0,0,0,16</Thickness>
     <Thickness x:Key="SettingsInset4">4</Thickness>
     <Thickness x:Key="SettingsInset2">2</Thickness>
     <Thickness x:Key="SettingsStackGap2">0,2,0,0</Thickness>
+    <Thickness x:Key="SettingsStackTop2">0,2,0,0</Thickness>
     <Thickness x:Key="SettingsStackBottom4">0,0,0,4</Thickness>
     <Thickness x:Key="SettingsStackGap4Bottom2">0,4,0,2</Thickness>
     <Thickness x:Key="SettingsDockTextMargin">2,4,2,2</Thickness>
@@ -236,6 +247,87 @@
                 </BeginStoryboard>
             </EventTrigger>
         </Style.Triggers>
+    </Style>
+
+    <!-- Bento Compact Card primitive (Rule 2: Small forms, toggle pairs, compact options) -->
+    <Style x:Key="SettingsCompactCardStyle" TargetType="Border" BasedOn="{StaticResource SettingsPageCardStyle}">
+        <Setter Property="Padding" Value="{StaticResource SettingsCompactCardPadding}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusInner}"/>
+    </Style>
+
+    <!-- Bento Micro Card primitive (Rule 2: Single KPI metrics, compact counters) -->
+    <Style x:Key="SettingsMicroCardStyle" TargetType="Border" BasedOn="{StaticResource SettingsPageCardStyle}">
+        <Setter Property="Padding" Value="{StaticResource SettingsMicroCardPadding}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Radius.Small}"/>
+    </Style>
+
+    <!-- ═══ OVERVIEW HERO BENTO CARD (Signature purple hero masthead) ═══ -->
+    <LinearGradientBrush x:Key="SettingsHeroBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#6744B9" Offset="0"/>
+        <GradientStop Color="#493080" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="SettingsOnAccentBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SettingsOnAccentMutedBrush" Color="#E3DAF7"/>
+
+    <Style x:Key="SettingsHeroCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource SettingsHeroBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
+        <Setter Property="Padding" Value="{StaticResource SettingsCardPadding}"/>
+        <Setter Property="Margin" Value="{StaticResource SettingsCardMargin}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Effect" Value="{DynamicResource SettingsCardShadow}"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroIconTileStyle" TargetType="Border">
+        <Setter Property="Width" Value="38"/>
+        <Setter Property="Height" Value="38"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Background" Value="#33FFFFFF"/>
+        <Setter Property="BorderBrush" Value="#44FFFFFF"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroIconGlyphStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily.Icon}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH2}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeH2}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroNoteStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeBody}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentMutedBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Margin" Value="{StaticResource SettingsStackGap4}"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroBadgeStyle" TargetType="Border">
+        <Setter Property="Background" Value="#33FFFFFF"/>
+        <Setter Property="BorderBrush" Value="#44FFFFFF"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Padding" Value="12,5"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsHeroBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="{DynamicResource Ios26FontSizeCaption}"/>
+        <Setter Property="FontWeight" Value="{DynamicResource Weight.Bold}"/>
+        <Setter Property="Foreground" Value="{StaticResource SettingsOnAccentBrush}"/>
     </Style>
 
     <!-- Card frames that need no shadow: the action bar and any card the

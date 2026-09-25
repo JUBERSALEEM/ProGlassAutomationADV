@@ -31,14 +31,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Page Title & Scope Subtitle -->
-        <StackPanel Grid.Row="0" Margin="16,16,16,12">
-            <TextBlock Text="{DynamicResource Reports.VatSubmission.VATSubmissionReport}" Style="{StaticResource Sl.Title}"/>
-            <TextBlock Text="{DynamicResource Reports.VatSubmission.5UAEFTAVATBreakdownSalesmanCompanyProject}" Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,4,0,0"/>
-        </StackPanel>
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header -->
+        <StackPanel Grid.Row="0" Visibility="Collapsed"/>
 
         <!-- Main Shell Card -->
-        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,0,16,14">
+        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,6,16,14">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- KPI Strip -->
@@ -67,7 +64,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.PiReport.TotalPI}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.FinalizedInvoices}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -81,7 +80,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.Salesmen}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.BySalesman.Count}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.BySalesman.Count}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}">
                                     <TextBlock.Inlines>
                                         <Run Text="{Binding Summary.ByCompany.Count, Mode=OneWay}"/>
@@ -101,7 +102,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.TotalRevenue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalGrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalGrandTotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.IncVAT}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -115,7 +118,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.NETRevenue}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalSubtotal, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.ExVAT}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -129,7 +134,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.VATCollected}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalVatCollected, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding Summary.TotalVatCollected, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="{DynamicResource Reports.VatSubmission.5FTARate}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>

@@ -118,7 +118,7 @@
                    Foreground="{DynamicResource AccentBrush}"/>
 
         <!-- Options -->
-        <StackPanel Margin="0,18,0,0">
+        <StackPanel Margin="0,10,0,0">
             <RadioButton GroupName="ApprovalMode"
                          IsChecked="{Binding ApprovalMode, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
                          Style="{StaticResource ApprovalRadioStyle}">
@@ -127,7 +127,7 @@
             </RadioButton>
             <RadioButton GroupName="ApprovalMode"
                          IsChecked="{Binding ApprovalMode, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
-                         Margin="0,12,0,0"
+                         Margin="0,8,0,0"
                          Style="{StaticResource ApprovalRadioStyle}"
                          behaviors:FocusOnCheckedBehavior.Target="{Binding ElementName=LpoBox}">
                 <TextBlock Text="{DynamicResource ProformaInvoice.CustomerProvidedLPOPurchaseOrder}"
@@ -138,7 +138,7 @@
         <!-- LPO number — shown for both options. The label stays a constant
              single line in BOTH states (state is conveyed by the label text
              itself), so switching modes can never change the layout height. -->
-        <Grid x:Name="LpoPanel" Margin="0,20,0,0">
+        <Grid x:Name="LpoPanel" Margin="0,10,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -154,9 +154,9 @@
         <!-- Validation strip — always reserved at a fixed height;
              Visibility toggles Hidden/Visible only, so the window and
              footer below never move when an error appears. -->
-        <Border Height="48"
-                Margin="0,14,0,0"
-                Padding="14,10"
+        <Border Height="36"
+                Margin="0,8,0,0"
+                Padding="12,6"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 Background="{DynamicResource TintRedBrush}"
                 BorderBrush="{DynamicResource DangerBrush}"

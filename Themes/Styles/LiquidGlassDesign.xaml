@@ -726,19 +726,14 @@
                 <ControlTemplate TargetType="CheckBox">
                     <StackPanel Orientation="Horizontal">
                         <Border x:Name="Box" Width="20" Height="20" CornerRadius="{DynamicResource Radius.Small}"
-                                Background="{DynamicResource GlassSurfaceBrush}"
-                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                                Background="{DynamicResource SurfacePrimaryBrush}"
+                                BorderBrush="{DynamicResource BorderDefaultBrush}"
                                 BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                Effect="{StaticResource ShadowSoft}"
                                 VerticalAlignment="Center">
-                            <Grid>
-                                <Border Height="7" CornerRadius="{DynamicResource Radius.Top.Medium}" VerticalAlignment="Top"
-                                        Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
-                                <TextBlock x:Name="Glyph" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="{DynamicResource FontSize.Caption}" Foreground="{DynamicResource TextPrimaryBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                                           Visibility="Collapsed"/>
-                            </Grid>
+                            <TextBlock x:Name="Glyph" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{DynamicResource FontSize.Caption}" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="Collapsed"/>
                         </Border>
                         <ContentPresenter Margin="9,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>
@@ -746,9 +741,10 @@
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Glyph" Property="Visibility" Value="Visible"/>
                             <Setter TargetName="Box" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource AccentSoftBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

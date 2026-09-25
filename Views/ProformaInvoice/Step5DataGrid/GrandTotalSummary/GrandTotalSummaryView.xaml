@@ -17,6 +17,14 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
     <StackPanel>
         <Grid Margin="0,0,0,2">
             <Grid.Style>
@@ -129,11 +137,11 @@
                            FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource TextPrimaryBrush}"/>
-                <TextBlock Grid.Column="5"
-                           Text="{Binding GrandTotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
-                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
-                           HorizontalAlignment="Right"
-                           Foreground="{DynamicResource SuccessBrush}"/>
+                <Viewbox Grid.Column="5" MaxHeight="24" HorizontalAlignment="Right">
+                    <TextBlock Text="{Binding GrandTotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=prefix}"
+                               FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource SuccessBrush}"/>
+                </Viewbox>
             </Grid>
         </Border>
     </StackPanel>

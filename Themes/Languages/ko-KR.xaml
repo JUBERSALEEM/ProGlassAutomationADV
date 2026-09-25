@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">청구서만 저장하세요. 확인은 8단계 첨부 파일로 이루어집니다.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">저장됨</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">저장된 모든 PI</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">저장된 견적은 작업 지시서로 변환할 준비가 되었습니다</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">저장된 견적. 실시간 상태는 작업 지시, 납품, 세금계산서를 따릅니다.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">참조, 회사, 고객, 프로젝트 검색</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">섹션</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">감지된 색상 ▾</sys:String>
@@ -2719,5 +2719,45 @@
     <sys:String x:Key="Void.ShowVoidedTip">취소된(소프트 클로즈) 문서를 목록에 포함합니다. 취소된 문서는 항상 보고서 및 감사 추적에 표시됩니다.</sys:String>
     <sys:String x:Key="Void.ThisDocument">이 문서</sys:String>
     <sys:String x:Key="Void.Title">문서 취소</sys:String>
+
+    <sys:String x:Key="Setup.Title">ProGlass Setup</sys:String>
+    <sys:String x:Key="Setup.Ffmpeg">FFmpeg</sys:String>
+    <sys:String x:Key="Setup.FfmpegNeed">Recording needs ffmpeg.exe and ffprobe.exe.</sys:String>
+    <sys:String x:Key="Setup.FfmpegBody">Downloads the Windows essentials zip, checks it, and places both tools in the tools folder.</sys:String>
+    <sys:String x:Key="Setup.DownloadInstall">Download and install</sys:String>
+    <sys:String x:Key="Setup.Recheck">Recheck</sys:String>
+    <sys:String x:Key="Setup.Skip">Skip</sys:String>
+    <sys:String x:Key="Setup.Next">Next</sys:String>
+    <sys:String x:Key="Setup.Back">Back</sys:String>
+    <sys:String x:Key="Setup.LocalModel">Offline AI model</sys:String>
+    <sys:String x:Key="Setup.LocalModelBody">Install once. Answers stay on this computer.</sys:String>
+    <sys:String x:Key="Setup.Install">Install</sys:String>
+    <sys:String x:Key="Setup.License">License</sys:String>
+    <sys:String x:Key="Setup.Cancel">Cancel</sys:String>
+    <sys:String x:Key="Setup.Close">Close</sys:String>
+    <sys:String x:Key="Setup.Recommended">Recommended</sys:String>
+    <sys:String x:Key="Setup.Downloading">Downloading the model.</sys:String>
+    <sys:String x:Key="Setup.NothingUploaded">nothing is uploaded.</sys:String>
+    <sys:String x:Key="Setup.OpenInstaller">Open installer</sys:String>
+    <sys:String x:Key="Setup.Ready">Ready</sys:String>
+    <sys:String x:Key="Setup.NotInstalled">Not installed</sys:String>
+
+    <sys:String x:Key="Setup.FfmpegReady">FFmpeg is ready.</sys:String>
+    <sys:String x:Key="Setup.FfmpegMissing">FFmpeg is not installed.</sys:String>
+    <sys:String x:Key="Setup.ModelDone">Installed. Answers from this model stay on this computer.</sys:String>
+    <sys:String x:Key="Setup.ModelFailed">The model did not install. Check disk space and the connection, then try again.</sys:String>
+    <sys:String x:Key="Setup.DownloadCancelled">Download cancelled. No partial file was kept.</sys:String>
+    <sys:String x:Key="Setup.LocalDownload">Local model download</sys:String>
+    <sys:String x:Key="Setup.Installing">Installing</sys:String>
+
+    <sys:String x:Key="Settings.Reset">재설정</sys:String>
+    <sys:String x:Key="Shell.AiAnswersOnly">Answers questions. Does not change records.</sys:String>
+    <sys:String x:Key="Shell.AgentAsksFirst">Reads your ERP data. Asks before it writes.</sys:String>
+    <sys:String x:Key="Shell.More">More</sys:String>
+    <sys:String x:Key="Shell.OpenFullSettings">Open full settings</sys:String>
+    <sys:String x:Key="Shell.ActivityToday">Today</sys:String>
+    <sys:String x:Key="Shell.ActivityAll">All</sys:String>
+    <sys:String x:Key="Shell.NoActivityToday">No activity today.</sys:String>
+    <sys:String x:Key="Shell.ThemeStudioHint">Family, light or dark</sys:String>
 
 </ResourceDictionary>

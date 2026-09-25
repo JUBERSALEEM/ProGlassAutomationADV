@@ -12,14 +12,20 @@
              xmlns:features="clr-namespace:ProGlassAutomation.Services.Features"
              xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared"
              FontFamily="{DynamicResource AppFontFamily}"
-             UseLayoutRounding="True" SnapsToDevicePixels="True">
+             UseLayoutRounding="True" SnapsToDevicePixels="True"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <!-- 2026-09-14: Was BasedOn="{StaticResource {x:Type TextBox}}" — an implicit
              TextBox style that does not exist anywhere in the app, so loading this
              view threw (XamlParseException) the moment the PI wizard opened step 1.
              Base on the app's canonical TextBox style instead. -->
         <Style TargetType="TextBox" BasedOn="{StaticResource Input.TextBox}"/>
+            </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>

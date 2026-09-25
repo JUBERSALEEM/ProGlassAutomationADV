@@ -3,24 +3,28 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Shared — notifications / activity popup
 //
-// Non-blocking popup for the top-bar notification icon. Shows the most
-// recent audit-trail activity, loaded on open. A badge footer links to the
-// full Logs & Activity (Diagnostics) module when clicked.
+// Last 20 audit rows. Today / All is a filter on that list. There is no
+// unread store, so this panel does not mark rows read and does not show
+// a badge. Session ids stay off the row.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Audit;
 using ProGlassAutomation.Services.Audit;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 
 namespace ProGlassAutomation.Views.Shared
 {
     public partial class ActivityPanel : UserControl
     {
+        private List<ActivityLogEntry> _loaded = new();
+        private bool _todayOnly;
+
         public ActivityPanel()
         {
             InitializeComponent();
@@ -32,16 +36,40 @@ namespace ProGlassAutomation.Views.Shared
             await LoadAsync();
         }
 
+        private void TodayFilter_Click(object sender, RoutedEventArgs e)
+        {
+            _todayOnly = true;
+            Render();
+        }
+
+        private void AllFilter_Click(object sender, RoutedEventArgs e)
+        {
+            _todayOnly = false;
+            Render();
+        }
+
         public async Task LoadAsync()
         {
-            ActivityList.Children.Clear();
             var entries = await AuditService.GetRecentAsync(20);
+            _loaded = entries?.ToList() ?? new List<ActivityLogEntry>();
+            Render();
+        }
 
-            if (entries == null || entries.Count == 0)
+        private void Render()
+        {
+            PaintFilters();
+            ActivityList.Children.Clear();
+
+            IEnumerable<ActivityLogEntry> rows = _loaded;
+            if (_todayOnly)
+                rows = _loaded.Where(e => e.TimestampUtc.ToLocalTime().Date == DateTime.Today);
+
+            var list = rows.ToList();
+            if (list.Count == 0)
             {
                 ActivityList.Children.Add(new TextBlock
                 {
-                    Text = "No activity yet.",
+                    Text = _todayOnly ? TodayEmptyText() : "No activity yet.",
                     FontSize = 12,
                     Foreground = (Brush)FindResource("MutedForegroundBrush"),
                     Margin = new Thickness(4, 8, 4, 8)
@@ -49,8 +77,32 @@ namespace ProGlassAutomation.Views.Shared
                 return;
             }
 
-            foreach (var entry in entries)
+            foreach (var entry in list)
                 ActivityList.Children.Add(BuildRow(entry));
+        }
+
+        private void PaintFilters()
+        {
+            Paint(TodayFilter, _todayOnly);
+            Paint(AllFilter, !_todayOnly);
+        }
+
+        private string TodayEmptyText()
+        {
+            try
+            {
+                if (TryFindResource("Shell.NoActivityToday") is string text && text.Length > 0)
+                    return text;
+            }
+            catch { }
+            return "No activity today.";
+        }
+
+        private void Paint(Button button, bool selected)
+        {
+            button.Background = (Brush)FindResource(selected ? "AccentBrush" : "SurfacePrimaryBrush");
+            button.Foreground = (Brush)FindResource(selected ? "OnAccentForegroundBrush" : "TextPrimaryBrush");
+            button.BorderBrush = (Brush)FindResource(selected ? "AccentBrush" : "BorderDefaultBrush");
         }
 
         private Border BuildRow(ActivityLogEntry e)
@@ -67,22 +119,24 @@ namespace ProGlassAutomation.Views.Shared
             var stack = new StackPanel();
 
             var actionLine = new StackPanel { Orientation = Orientation.Horizontal };
-            var dot = new Border
+            actionLine.Children.Add(new Border
             {
                 Width = 6, Height = 6, CornerRadius = new CornerRadius(3),
                 Background = (Brush)FindResource("AccentBrush"),
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(0, 0, 8, 0)
-            };
-            var section = new TextBlock
+            });
+            var title = string.IsNullOrWhiteSpace(e.Action)
+                ? e.Section
+                : $"{e.Section} · {e.Action}";
+            actionLine.Children.Add(new TextBlock
             {
-                Text = e.Section,
+                Text = title,
                 FontSize = 11,
                 FontWeight = FontWeights.SemiBold,
-                Foreground = (Brush)FindResource("PrimaryForegroundBrush")
-            };
-            actionLine.Children.Add(dot);
-            actionLine.Children.Add(section);
+                Foreground = (Brush)FindResource("PrimaryForegroundBrush"),
+                TextWrapping = TextWrapping.Wrap
+            });
             stack.Children.Add(actionLine);
 
             string actor = string.IsNullOrWhiteSpace(e.UserDisplayName)
@@ -92,40 +146,41 @@ namespace ProGlassAutomation.Views.Shared
             if (!string.IsNullOrWhiteSpace(e.UserRole))
                 actor += $" ({e.UserRole})";
 
-            var whoWhat = new TextBlock
+            stack.Children.Add(new TextBlock
             {
-                Text = $"{actor} · {e.Action}",
+                Text = actor,
                 FontSize = 10.5,
                 FontWeight = FontWeights.SemiBold,
                 Foreground = (Brush)FindResource("PrimaryForegroundBrush"),
                 TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(14, 3, 0, 0),
-                MaxHeight = 32
-            };
-            stack.Children.Add(whoWhat);
+                Margin = new Thickness(14, 3, 0, 0)
+            });
 
-            var detail = new TextBlock
+            if (!string.IsNullOrWhiteSpace(e.Details))
             {
-                Text = string.IsNullOrWhiteSpace(e.Details) ? "No details captured" : e.Details,
-                FontSize = 10.5,
-                Foreground = (Brush)FindResource("SecondaryForegroundBrush"),
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(14, 2, 0, 0),
-                MaxHeight = 34
-            };
-            stack.Children.Add(detail);
+                stack.Children.Add(new TextBlock
+                {
+                    Text = e.Details,
+                    FontSize = 10.5,
+                    Foreground = (Brush)FindResource("SecondaryForegroundBrush"),
+                    TextWrapping = TextWrapping.Wrap,
+                    Margin = new Thickness(14, 2, 0, 0),
+                    MaxHeight = 34
+                });
+            }
 
-            string record = string.IsNullOrWhiteSpace(e.EntityId)
-                ? "No record id"
-                : $"{e.EntityType} {e.EntityId}".Trim();
-            var time = new TextBlock
+            string when = e.TimestampUtc.ToLocalTime().ToString("dd MMM HH:mm");
+            string record = $"{e.EntityType} {e.EntityId}".Trim();
+            if (!string.IsNullOrWhiteSpace(record))
+                when += " · " + record;
+
+            stack.Children.Add(new TextBlock
             {
-                Text = $"{e.TimestampUtc.ToLocalTime():dd MMM HH:mm} · {record} · {e.SessionId}",
+                Text = when,
                 FontSize = 9,
                 Foreground = (Brush)FindResource("MutedForegroundBrush"),
                 Margin = new Thickness(14, 4, 0, 0)
-            };
-            stack.Children.Add(time);
+            });
 
             row.Child = stack;
             return row;

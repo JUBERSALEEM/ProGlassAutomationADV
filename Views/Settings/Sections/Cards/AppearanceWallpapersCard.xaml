@@ -11,8 +11,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -39,62 +39,58 @@
                              width below it with its own three-column grid. -->
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
 
-                            <!-- Global wallpaper — one card, all controls on one line -->
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEB9F;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.GlobalWallpaper}"/>
-                                    </StackPanel>
-                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Text="{DynamicResource Settings.AppliedSystemWideBehindModuleModuleOverrides}"/>
-                                    <!-- Single line: SET / CLEAR on the left, visibility
-                                         slider on the right, so global wallpaper + its
-                                         visibility no longer take two separate tiles. -->
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="200"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Button Grid.Column="0"
-                                                Style="{StaticResource OutlinedPillButton}"
-                                                Tag="&#xE728;" Content="{DynamicResource Settings.SET}"
-                                                Command="{Binding SetWallpaperCommand}"
-                                                VerticalAlignment="Center"/>
-                                        <Button Grid.Column="1"
-                                                Style="{StaticResource RowOutlinedButton}"
-                                                Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
-                                                Command="{Binding ClearWallpaperCommand}"
-                                                Margin="{StaticResource SettingsIconTextMargin}"
-                                                VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="3"
-                                                   Text="{DynamicResource Settings.Visibility}"
-                                                   Style="{StaticResource Typography.Label}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="{StaticResource SettingsInlineGap8R}"/>
-                                        <Slider Grid.Column="4"
-                                        AutomationProperties.Name="{DynamicResource Settings.GlobalWallpaper}"
-                                                Value="{Binding WallpaperOpacity}"
-                                                Style="{StaticResource ModernSliderStyle}"
-                                                Minimum="0.3" Maximum="1"
-                                                VerticalAlignment="Center"/>
-                                    </Grid>
-                                    <TextBlock Text="{Binding WallpaperStatus}"
-                                               Style="{StaticResource SettingsRowMetaStyle}"/>
+                            <!-- Global wallpaper — all controls on one line directly on card canvas -->
+                            <StackPanel Margin="{StaticResource SettingsStackBottom14}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xEB9F;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.GlobalWallpaper}"/>
                                 </StackPanel>
-                            </Border>
+                                <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                           Text="{DynamicResource Settings.AppliedSystemWideBehindModuleModuleOverrides}"/>
+                                <!-- Single line: SET / CLEAR on the left, visibility
+                                     slider on the right, so global wallpaper + its
+                                     visibility no longer take two separate tiles. -->
+                                <Grid Margin="{StaticResource SettingsStackGap8}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0"
+                                            Style="{StaticResource OutlinedPillButton}"
+                                            Tag="&#xE728;" Content="{DynamicResource Settings.SET}"
+                                            Command="{Binding SetWallpaperCommand}"
+                                            VerticalAlignment="Center"/>
+                                    <Button Grid.Column="1"
+                                            Style="{StaticResource RowOutlinedButton}"
+                                            Tag="&#xE711;" Content="{DynamicResource Action.Clear}"
+                                            Command="{Binding ClearWallpaperCommand}"
+                                            Margin="{StaticResource SettingsIconTextMargin}"
+                                            VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3"
+                                               Text="{DynamicResource Settings.Visibility}"
+                                               Style="{StaticResource Typography.Label}"
+                                               VerticalAlignment="Center"
+                                               Margin="{StaticResource SettingsInlineGap8R}"/>
+                                    <Slider Grid.Column="4"
+                                    AutomationProperties.Name="{DynamicResource Settings.GlobalWallpaper}"
+                                            Value="{Binding WallpaperOpacity}"
+                                            Style="{StaticResource ModernSliderStyle}"
+                                            Minimum="0.3" Maximum="1"
+                                            VerticalAlignment="Center"/>
+                                </Grid>
+                                <TextBlock Text="{Binding WallpaperStatus}"
+                                           Style="{StaticResource SettingsRowMetaStyle}"/>
+                            </StackPanel>
 
-                            <!-- Per-module wallpapers — three columns under one card so
-                                 the list no longer grows the page by 17 stacked rows. -->
-                            <Border Margin="{StaticResource SettingsStackGap14}" Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B9;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.ModuleWallpapers}"/>
-                                    </StackPanel>
+                            <!-- Per-module wallpapers — clean items control directly on card -->
+                            <StackPanel Margin="{StaticResource SettingsStackGap14}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8B9;"/>
+                                    <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.ModuleWallpapers}"/>
+                                </StackPanel>
                                     <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                                Text="{DynamicResource Settings.GiveModuleBackgroundImageListSplitThree}"/>
 
@@ -180,8 +176,7 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                </StackPanel>
-                            </Border>
+                            </StackPanel>
 
                         </StackPanel>
 
@@ -189,14 +184,14 @@
                              Dynamic theme-linked scenes (code-drawn, accent-aware),
                              six built-in designs, one-tap 4K downloads with a
                              persistent local library. -->
-                        <Border Style="{StaticResource SettingsInnerTileStyle}" Margin="{StaticResource SettingsStackBottom10}">
+                        <Border Style="{StaticResource SettingsRowSeparatorStyle}"/>
+                        <StackPanel Margin="{StaticResource SettingsStackGap14}">
                             <StackPanel>
-                                <StackPanel>
-                                    <TextBlock
-                                               Text="{DynamicResource Settings.WallpaperStudio}"/>
-                                    <TextBlock TextWrapping="Wrap"
-                                               Text="{DynamicResource Settings.WallpaperStudioCaption}"/>
-                                </StackPanel>
+                                <TextBlock
+                                           Text="{DynamicResource Settings.WallpaperStudio}"/>
+                                <TextBlock TextWrapping="Wrap"
+                                           Text="{DynamicResource Settings.WallpaperStudioCaption}"/>
+                            </StackPanel>
 
                                 <!-- Mode: dynamic / file / pinned scene -->
                                 <TextBlock Text="{DynamicResource Settings.WallpaperMode}"
@@ -212,7 +207,7 @@
                                                FontWeight="{DynamicResource Weight.Bold}"
                                                Foreground="{DynamicResource TextPrimaryBrush}"
                                                VerticalAlignment="Center"/>
-                                    <TextBlock Text="Code-drawn, 4K resolution-independent scenes paired per visual theme"
+                                    <TextBlock Text="Industrial pattern wallpaper, plus one distinct type per theme family"
                                                Style="{StaticResource SettingsRowMetaStyle}"
                                                HorizontalAlignment="Right"
                                                VerticalAlignment="Center"/>
@@ -237,9 +232,11 @@
                                                 <Button.Template>
                                                     <ControlTemplate TargetType="Button">
                                                         <Border x:Name="CardBd"
-                                                                Style="{StaticResource SettingsInnerTileStyle}"
+                                                                Background="{DynamicResource Ios26AccentSoftBrush}"
+                                                                BorderBrush="{DynamicResource Ios26AccentBrush}"
+                                                                BorderThickness="1.5"
                                                                 Padding="8"
-                                                                CornerRadius="{DynamicResource CardCornerRadius}">
+                                                                CornerRadius="{DynamicResource Radius.Large}">
                                                             <StackPanel>
                                                                 <!-- Live Scene Gradient Viewport -->
                                                                 <Border Height="80"
@@ -251,13 +248,13 @@
                                                                     <Grid Margin="{StaticResource SettingsInset4}">
                                                                         <Border HorizontalAlignment="Right"
                                                                                 VerticalAlignment="Top"
-                                                                                Background="{DynamicResource SurfaceGlassOverlayBrush}"
+                                                                                Background="{DynamicResource LiquidOverlayBrush}"
                                                                                 CornerRadius="{DynamicResource Radius.XSmall}"
                                                                                 Padding="5,2">
-                                                                            <TextBlock Text="4K Scene"
+                                                                            <TextBlock Text="Scene"
                                                                                        FontSize="{DynamicResource FontSize.Caption}"
                                                                                        FontWeight="{DynamicResource Weight.SemiBold}"
-                                                                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                                                       Foreground="{DynamicResource Ios26AccentBrush}"/>
                                                                         </Border>
                                                                     </Grid>
                                                                 </Border>
@@ -275,9 +272,10 @@
                                                                                HorizontalAlignment="Right"
                                                                                VerticalAlignment="Center"/>
                                                                 </DockPanel>
-                                                                <TextBlock Text="{Binding Key}"
+                                                                <TextBlock Text="{Binding TypeLabel}"
                                                                            FontSize="{DynamicResource FontSize.Caption}"
-                                                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                           Foreground="{DynamicResource Ios26AccentBrush}"
+                                                                           TextWrapping="Wrap"
                                                                            Margin="{StaticResource SettingsDockCaptionMargin}"/>
                                                             </StackPanel>
                                                         </Border>
@@ -417,11 +415,6 @@
                                            Foreground="{DynamicResource TextSecondaryBrush}"
                                            TextWrapping="Wrap" Margin="{StaticResource SettingsStackGap2}"/>
                             </StackPanel>
-                        </Border>
-
-
-                        
-
 
                     </StackPanel>
                 </Border>

@@ -26,12 +26,10 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="16,16,16,12">
-            <TextBlock Text="Profitability &amp; P&amp;L" Style="{StaticResource Sl.Title}"/>
-            <TextBlock Text="Per-proforma profit and loss from Step-9 glass &amp; production costing: revenue, cost, margin and cost-basis health." Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,4,0,0"/>
-        </StackPanel>
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header -->
+        <StackPanel Grid.Row="0" Visibility="Collapsed"/>
 
-        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,0,16,14">
+        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,6,16,14">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -58,7 +56,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="REVENUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalRevenue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalRevenue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Text="net of VAT" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -71,7 +71,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="COST" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalCost, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalCost, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Text="glass + production" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -84,7 +86,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="PROFIT" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalProfit, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalProfit, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="{Binding AvgMargin, Mode=OneWay, StringFormat={}{0:0.#}}"/><Run Text="% avg margin"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
@@ -97,7 +101,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="COST COVERAGE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="{Binding WithCost, Mode=OneWay}"/><Run Text=" costed"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="{Binding WithCost, Mode=OneWay}"/><Run Text=" costed"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="{Binding WithoutCost, Mode=OneWay}"/><Run Text=" missing"/></TextBlock>
                             </StackPanel>
                         </StackPanel>

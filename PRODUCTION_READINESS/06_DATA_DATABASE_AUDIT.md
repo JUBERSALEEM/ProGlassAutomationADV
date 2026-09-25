@@ -1,0 +1,1 @@
+Multiple SQLite databases. `EnsureCreated` plus `SchemaMigrationRunner` (backup, single transaction, version unchanged on failure). Cross-database success reporting was not runtime-tested. Status: UNVERIFIED.

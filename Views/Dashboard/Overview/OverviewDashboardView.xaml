@@ -19,18 +19,18 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                   CanContentScroll="False" PanningMode="VerticalOnly" Focusable="False"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <StackPanel Margin="28,26,28,30">
+        <StackPanel Margin="28,14,28,30">
             <!-- Header: actual commands/data, never the illustration's sample figures. -->
-            <Grid x:Name="HeroHeader" Margin="0,0,0,24">
+            <Grid x:Name="HeroHeader" Margin="0,0,0,14">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <StackPanel x:Name="HeroIdentity">
+                <StackPanel x:Name="HeroIdentity" Visibility="Collapsed">
                     <TextBlock Text="{DynamicResource Dashboard.FactoryPulse}" Style="{StaticResource Ov.Title}"/>
                     <TextBlock Text="{DynamicResource Dashboard.OperationalAnalyticsInvoicesJobsDelivery}"
                                Style="{StaticResource Ov.Meta}" Margin="0,7,16,0"/>
                 </StackPanel>
                 <StackPanel x:Name="HeroActions" Grid.Column="1" VerticalAlignment="Center">
-                    <WrapPanel HorizontalAlignment="Right" Margin="0,0,0,12">
+                    <WrapPanel HorizontalAlignment="Right" Margin="0,0,0,8">
                         <Border x:Name="SnapshotBadge" Background="{DynamicResource Ov.Soft}" CornerRadius="6" Padding="8,3" Margin="0,0,10,0">
                             <Border.Style>
                                 <Style TargetType="Border">

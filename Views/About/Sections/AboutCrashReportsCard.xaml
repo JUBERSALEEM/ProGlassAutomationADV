@@ -34,7 +34,7 @@
          (2026-09-15 datacontext-hijack fix). -->
     <Border x:Name="CardRoot" Style="{StaticResource Ios26CardStyle}">
         <StackPanel>
-            <Grid Margin="0,0,0,14">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="12"/>
@@ -70,11 +70,11 @@
                             VerticalAlignment="Center">
                     <Button Style="{StaticResource AboutPillButtonStyle}"
                             Content="{DynamicResource Action.Refresh}"
-                            Margin="0,0,8,0"
+                            Margin="0,0,10,0"
                             Command="{Binding RefreshCommand}"/>
                     <Button Style="{StaticResource AboutPillButtonStyle}"
                             Content="{DynamicResource About.OPENFolder}"
-                            Margin="0,0,8,0"
+                            Margin="0,0,10,0"
                             Command="{Binding OpenFolderCommand}"/>
                     <Button Style="{StaticResource AboutPillButtonStyle}"
                             Content="{DynamicResource About.Clear}"
@@ -92,7 +92,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <Border Grid.Row="0" Padding="2,11">
+                            <Border Grid.Row="0" Padding="2,6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>

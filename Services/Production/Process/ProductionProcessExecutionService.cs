@@ -36,6 +36,8 @@ namespace ProGlassAutomation.Services.Production.Process
         public static string BuildExecutionId(string jobRef, int specGroup, int serial, ProductionProcessType processType, int sequence)
             => ProductionProcessRoutingService.BuildExecutionId(jobRef, specGroup, serial, processType, sequence);
 
+        private static void NotifyFloor() => ProductionRepository.NotifyWorkItemsChanged();
+
         /// <summary>
         /// Start process execution — gating check predecessor must be complete, idempotent deterministic.
         /// </summary>
@@ -87,10 +89,23 @@ namespace ProGlassAutomation.Services.Production.Process
                     return (false, $"Process {processType} cannot begin — predecessor {prev} not complete (gating).", null);
                 }
 
-                // Idempotency: check existing execution with same deterministic id sequence 0
-                string executionId = BuildExecutionId(jobRef, specGroupNumber, serialNumber, processType, sequence: 0);
+                // Prefer the released Pending row (work-item id, then positioned id, then legacy id).
+                string executionId = ProductionProcessProjection.BuildProjectedExecutionId(
+                    jobRef, specGroupNumber, serialNumber, processType, position);
+                string legacyId = BuildExecutionId(jobRef, specGroupNumber, serialNumber, processType, sequence: 0);
 
-                var existing = await db.ProcessExecutions.FirstOrDefaultAsync(e => e.ExecutionId == executionId, ct).ConfigureAwait(false);
+                SavedProcessExecution? existing = null;
+                if (outputWorkItemId > 0)
+                {
+                    existing = await db.ProcessExecutions.FirstOrDefaultAsync(
+                        e => e.OutputWorkItemId == outputWorkItemId
+                            && e.ProcessType == (int)processType
+                            && e.ReworkSequence == 0, ct).ConfigureAwait(false);
+                }
+                if (existing == null)
+                    existing = await db.ProcessExecutions.FirstOrDefaultAsync(e => e.ExecutionId == executionId, ct).ConfigureAwait(false);
+                if (existing == null && executionId != legacyId)
+                    existing = await db.ProcessExecutions.FirstOrDefaultAsync(e => e.ExecutionId == legacyId, ct).ConfigureAwait(false);
                 if (existing != null)
                 {
                     if (existing.Status == (int)WorkItemStatus.Completed)
@@ -104,6 +119,7 @@ namespace ProGlassAutomation.Services.Production.Process
                     existing.StartedAt = DateTime.Now;
                     existing.UpdatedAt = DateTime.Now;
                     await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                    NotifyFloor();
                     return (true, $"Resumed {processType} for {pieceId}", existing);
                 }
 
@@ -163,6 +179,7 @@ namespace ProGlassAutomation.Services.Production.Process
                 }
 
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                NotifyFloor();
 
                 AppLogService.Info($"[ProcessExecution] Started {processType} {executionId} {pieceId}",
                     new LogContext { Module = "Production", Class = nameof(ProductionProcessExecutionService), Operation = nameof(StartAsync) });
@@ -191,6 +208,7 @@ namespace ProGlassAutomation.Services.Production.Process
                 exec.Reason = reason;
                 exec.UpdatedAt = DateTime.Now;
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                NotifyFloor();
                 return (true, $"Paused {exec.ProcessType} {executionId}");
             }
             catch (Exception ex)
@@ -255,6 +273,7 @@ namespace ProGlassAutomation.Services.Production.Process
                 // ApplyDoneQtyOnTrackedItem. Completing an execution must not
                 // independently increment the floor quantity.
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                NotifyFloor();
 
                 AppLogService.Info($"[ProcessExecution] Completed {exec.ProcessType} {executionId} QtyDone {newDone}/{exec.QtyRequired}",
                     new LogContext { Module = "Production", Class = nameof(ProductionProcessExecutionService), Operation = nameof(CompleteAsync) });
@@ -295,6 +314,7 @@ namespace ProGlassAutomation.Services.Production.Process
                 exec.IsFoc = isFoc;
                 exec.UpdatedAt = DateTime.Now;
                 await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                NotifyFloor();
 
                 // Reuse Phase14 breakage service for WorkItem replacement
                 if (exec.OutputWorkItemId > 0)
@@ -339,6 +359,7 @@ namespace ProGlassAutomation.Services.Production.Process
                         };
                         db.ProcessExecutions.Add(newExec);
                         await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                        NotifyFloor();
 
                         return (true, $"Breakage recorded: {msg} — replacement execution {newExecId} traceable Original {exec.PieceId} → Breakage {executionId} → Replacement {replacement?.ReplacementId}");
                     }

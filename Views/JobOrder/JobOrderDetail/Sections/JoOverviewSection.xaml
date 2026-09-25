@@ -58,19 +58,19 @@
             <sections:JoProductionSection/>
 
             <Border
-                    Margin="0,4,0,14"
+                    Margin="0,2,0,8"
                     Padding="0,0,0,0">
                 <StackPanel>
 
                     <!-- ══════════ 2. IDENTITY STRIP ══════════ -->
                     <TextBlock Text="{DynamicResource JobOrder.SourceInvoice}"
                                Style="{StaticResource Field.Label}"
-                               Margin="0,0,0,8"/>
+                               Margin="0,0,0,6"/>
                     <Border Style="{StaticResource ModuleListKpiStripStyle}"
                             BorderBrush="{DynamicResource BorderDefaultBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Margin="0,0,0,12">
+                            Margin="0,0,0,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -128,10 +128,12 @@
 
                             <StackPanel Grid.Column="6" VerticalAlignment="Center" MinWidth="120">
                                 <TextBlock Text="{DynamicResource JobOrder.InvoiceValue}" Style="{StaticResource Field.Label}"/>
-                                <TextBlock Text="{Binding GrandTotalDisplay}"
-                                           FontSize="{DynamicResource FontSize.Kpi}"
-                                           FontWeight="{DynamicResource Weight.Bold}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="32" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding GrandTotalDisplay}"
+                                               FontSize="{DynamicResource FontSize.Kpi}"
+                                               FontWeight="{DynamicResource Weight.Bold}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </StackPanel>
                         </Grid>
                     </Border>

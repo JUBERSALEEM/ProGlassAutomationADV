@@ -9,6 +9,10 @@ using ProGlassAutomation.ViewModels.CompanyCenter;
 using ProGlassAutomation.ViewModels.UserCenter;
 using ProGlassAutomation.ViewModels.AI;
 using ProGlassAutomation.ViewModels.Dashboard;
+using ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard;
+using ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard;
+using ProGlassAutomation.ViewModels.Dashboard.Statement;
+using ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard;
 using ProGlassAutomation.ViewModels.DeliveryNote;
 using ProGlassAutomation.ViewModels.JobOrder;
 using ProGlassAutomation.ViewModels.Inquiry;
@@ -226,6 +230,7 @@ namespace ProGlassAutomation.ViewModels
                     IsUserSwitchOpen = false;
                     IsScreenRecordOpen = false;
                     IsStorageOpen = false;
+                    IsShellMoreOpen = false;
                 }
             }
         }
@@ -265,6 +270,30 @@ namespace ProGlassAutomation.ViewModels
             set { if (_isScreenRecordOpen == value) return; _isScreenRecordOpen = value; OnPropertyChanged(); }
         }
 
+        // More holds Screenshot, Record, About and Experience so the
+        // professional bar can stay one row. Opening it closes the other
+        // shell popups; closing it does not reopen them.
+        private bool _isShellMoreOpen;
+        public bool IsShellMoreOpen
+        {
+            get => _isShellMoreOpen;
+            set
+            {
+                if (_isShellMoreOpen == value) return;
+                _isShellMoreOpen = value;
+                OnPropertyChanged();
+                if (!value) return;
+                IsSettingsOpen = false;
+                IsNotificationsOpen = false;
+                IsScreenshotOpen = false;
+                IsUserSwitchOpen = false;
+                IsScreenRecordOpen = false;
+                IsStorageOpen = false;
+                IsAgentChatOpen = false;
+                try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
+            }
+        }
+
         public ScreenRecordPanelViewModel ScreenRecordVM => ScreenRecordPanelViewModel.Shared;
 
         public ICommand ToggleSettingsCommand { get; private set; }
@@ -281,6 +310,8 @@ namespace ProGlassAutomation.ViewModels
                 _currentViewModel = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentModuleTitle));
+                OnPropertyChanged(nameof(CurrentModuleHeaderTitle));
+                OnPropertyChanged(nameof(CurrentModuleSubText));
                 UpdateAiScreenContext();
                 // GB-P14: republish the experience-scoped content hosts
                 // (ProfessionalContent/PersonalContent) so module
@@ -297,6 +328,80 @@ namespace ProGlassAutomation.ViewModels
                 var raw = _currentViewModel?.GetType().Name.Replace("ViewModel", "") ?? "";
                 var pretty = PrettyModuleName(raw);
                 return string.IsNullOrWhiteSpace(pretty) ? "MODULE" : pretty.ToUpperInvariant();
+            }
+        }
+
+        public string CurrentModuleHeaderTitle
+        {
+            get
+            {
+                if (_currentViewModel is DashboardViewModel db)
+                {
+                    if (db.ActivePage is OverviewDashboardViewModel) return "Plant Operations Overview";
+                    if (db.ActivePage is SheetStoreDashboardViewModel) return "Sheet Store Warehouse";
+                    if (db.ActivePage is PiDashboardViewModel) return "Proforma Invoice Ledger";
+                    if (db.ActivePage is JoDashboardViewModel) return "Job Order Production";
+                    if (db.ActivePage is DnDashboardViewModel) return "Delivery Note Logistics";
+                    if (db.ActivePage is TiDashboardViewModel) return "Tax Invoice Billing";
+                    if (db.ActivePage is StDashboardViewModel) return "Account Statements";
+                    return "Plant Operations Overview";
+                }
+                if (_currentViewModel is ProformaInvoiceViewModel) return "Proforma Invoice Operations";
+                if (_currentViewModel is InquiryListViewModel) return "Inquiry Management";
+                if (_currentViewModel is JobOrderViewModel) return "Job Order Operations";
+                if (_currentViewModel is DeliveryNoteViewModel) return "Delivery Note Logistics";
+                if (_currentViewModel is TaxInvoiceViewModel) return "Tax Invoice Accounting";
+                if (_currentViewModel is SheetStoreViewModel) return "Sheet Store Warehouse";
+                if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Glass Specifications";
+                if (_currentViewModel is OptimizationViewModel) return "Glass Cutting Optimization";
+                if (_currentViewModel is ProductionControlCenterViewModel || _currentViewModel is ProductionStageViewModelBase) return "Factory Floor Control";
+                if (_currentViewModel is SalesReportViewModel) return "Executive Reports & Analytics";
+                if (_currentViewModel is StatementModuleViewModel) return "Customer Statement Module";
+                if (_currentViewModel is SettingsViewModel) return "System Configuration";
+                if (_currentViewModel is AboutViewModel) return "About ProGlass Automation";
+                if (_currentViewModel is SystemCenterViewModel) return "System Diagnostic Center";
+                if (_currentViewModel is CompanyCenterViewModel) return "Company Profile & Identity";
+                if (_currentViewModel is UserCenterViewModel) return "User Management Center";
+
+                var raw = _currentViewModel?.GetType().Name.Replace("ViewModel", "") ?? "";
+                var pretty = PrettyModuleName(raw);
+                return string.IsNullOrWhiteSpace(pretty) ? "Plant Operations Overview" : pretty;
+            }
+        }
+
+        public string CurrentModuleSubText
+        {
+            get
+            {
+                if (_currentViewModel is DashboardViewModel db)
+                {
+                    if (db.ActivePage is OverviewDashboardViewModel) return "Real-time production metrics, live dispatch schedules & glass inventory yield";
+                    if (db.ActivePage is SheetStoreDashboardViewModel) return "Stock levels, inventory valuation & glass pack movements";
+                    if (db.ActivePage is PiDashboardViewModel) return "Commercial quotations, conversion pipeline & pricing schedules";
+                    if (db.ActivePage is JoDashboardViewModel) return "Live shop floor routing, machine work centers & tempering queue";
+                    if (db.ActivePage is DnDashboardViewModel) return "Gate passes, site deliveries & driver dispatch schedules";
+                    if (db.ActivePage is TiDashboardViewModel) return "FTA VAT 5% compliant invoices, collections & revenue ledger";
+                    if (db.ActivePage is StDashboardViewModel) return "Client balances, ageing analysis & payment reconciliation";
+                    return "Real-time production metrics, live dispatch schedules & glass inventory yield";
+                }
+                if (_currentViewModel is ProformaInvoiceViewModel) return "Commercial glass cutting, tempering, laminating & billing schedules";
+                if (_currentViewModel is InquiryListViewModel) return "Customer inquiries, architectural specifications & quotation intake";
+                if (_currentViewModel is JobOrderViewModel) return "Shop floor routing, cutting schedules & work center queue";
+                if (_currentViewModel is DeliveryNoteViewModel) return "Fleet dispatch, site deliveries & customer proof of receipt";
+                if (_currentViewModel is TaxInvoiceViewModel) return "FTA VAT 5% compliant invoicing, settlements & ledger";
+                if (_currentViewModel is SheetStoreViewModel) return "Raw glass inventory, stock replenishment & yield analysis";
+                if (_currentViewModel is ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel) return "Technical glass definitions, tints & processing rules";
+                if (_currentViewModel is OptimizationViewModel) return "2D Nesting algorithms, scrap minimization & sheet yield";
+                if (_currentViewModel is ProductionControlCenterViewModel || _currentViewModel is ProductionStageViewModelBase) return "Work center scheduling, tempering furnaces & autoclave lines";
+                if (_currentViewModel is SalesReportViewModel) return "Executive summaries, order book analysis & financial statements";
+                if (_currentViewModel is StatementModuleViewModel) return "Client ledger statements, balance summaries & credit audits";
+                if (_currentViewModel is SettingsViewModel) return "Personalization, localization, storage & preferences";
+                if (_currentViewModel is AboutViewModel) return "Platform telemetry, version status & system diagnostics";
+                if (_currentViewModel is SystemCenterViewModel) return "System logs, database health & engine diagnostics";
+                if (_currentViewModel is CompanyCenterViewModel) return "Corporate details, tax registration & branch information";
+                if (_currentViewModel is UserCenterViewModel) return "Role-based access control, operator profiles & credentials";
+
+                return "Integrated Enterprise Glass Processing & Automation Platform";
             }
         }
 
@@ -736,6 +841,14 @@ namespace ProGlassAutomation.ViewModels
             // file rather than assumed.
             // Each GetService falls back to `new` if not registered (migration safety)
             DashboardVM = ResolveOrNew<DashboardViewModel>();
+            DashboardVM.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(DashboardVM.ActivePage))
+                {
+                    OnPropertyChanged(nameof(CurrentModuleHeaderTitle));
+                    OnPropertyChanged(nameof(CurrentModuleSubText));
+                }
+            };
             InquiryVM = ResolveOrNew<InquiryListViewModel>();
             ProformaInvoiceVM = ResolveOrNew<ProformaInvoiceViewModel>();
             SettingsVM = ResolveOrNew<SettingsViewModel>();
@@ -785,6 +898,7 @@ namespace ProGlassAutomation.ViewModels
                     IsUserSwitchOpen = false;
                     IsScreenRecordOpen = false;
                     IsStorageOpen = false;
+                    IsShellMoreOpen = false;
                     try { if (AiChatVM != null) AiChatVM.IsOpen = false; } catch { }
                 }
                 IsAgentChatOpen = willOpen;
@@ -814,6 +928,7 @@ namespace ProGlassAutomation.ViewModels
                             IsUserSwitchOpen = false;
                             IsScreenRecordOpen = false;
                             IsStorageOpen = false;
+                            IsShellMoreOpen = false;
                         }
                     };
                 }
@@ -912,6 +1027,15 @@ namespace ProGlassAutomation.ViewModels
             {
                 Navigate("Optimization");
                 _ = OptimizationVM.ShowLatestRunAsync(documentKey);
+            };
+
+            // Saved-invoice next step "Open job order". Navigate applies the
+            // license gate; open the job only if that navigation landed.
+            ProformaInvoiceVM.SavedInvoicesListVM.OnOpenJobRequested = jobId =>
+            {
+                Navigate("JobOrder");
+                if (CurrentModuleKey == "JobOrder")
+                    _ = JobOrderVM.OpenJobOrderAsync(jobId);
             };
 
             // Cross-check hardening: the stock-ledger → Step 4 refresh
@@ -1114,6 +1238,13 @@ namespace ProGlassAutomation.ViewModels
                 if (string.IsNullOrWhiteSpace(proformaId) || _invoices == null) return;
                 var pi = await _invoices.GetByProformaIdAsync(proformaId);
                 if (pi == null) return;
+       ;
+            };
+            StatementModuleVM.OnOpenProformaByNumber = async proformaId =>
+            {
+                if (string.IsNullOrWhiteSpace(proformaId) || _invoices == null) return;
+                var pi = await _invoices.GetByProformaIdAsync(proformaId);
+                if (pi == null) return;
                 Navigate("ProformaInvoice");
                 await ProformaInvoiceVM.OpenSavedInvoiceAsync(pi.Id);
             };
@@ -1150,8 +1281,13 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("ProformaInvoice");
                 try { ProformaInvoiceVM.TriggerNewInvoice(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] TriggerNewInvoice after navigation failed: " + ExceptionMessages.Deep(ex)); }
             });
-            ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; IsMenuOpen = false; });
-            ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; IsMenuOpen = false; });
+            ShowAboutCommand = new RelayCommand(_ =>
+            {
+                CloseAllPopups();
+                CurrentModuleKey = "About";
+                CurrentViewModel = AboutVM;
+            });
+            ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; });
             OpenLicenseSettingsCommand = new RelayCommand(_ => OpenSettingsPage("License"));
 
             // Senior-audit fix (Aug 2026): sign-out + forget-this-device
@@ -1189,8 +1325,9 @@ namespace ProGlassAutomation.ViewModels
                 _connectivity.ConnectivityChanged += _connectivityHandler;
             }
 
-            CurrentViewModel = ProformaInvoiceVM;
-            ApplyModuleWallpaper("ProformaInvoice");
+            CurrentModuleKey = "Dashboard";
+            CurrentViewModel = DashboardVM;
+            ApplyModuleWallpaper("Dashboard");
             StartClock();
             RefreshCurrentUser();
             RefreshStorage();
@@ -1208,6 +1345,11 @@ namespace ProGlassAutomation.ViewModels
             {
                 AppLogService.Warning($"[MainViewModel] agent wiring failed: {ExceptionMessages.Deep(ex)}",
                     new LogContext { Module = "Main", Operation = "AgentWiring" });
+            }
+        }
+    }
+}
+xt { Module = "Main", Operation = "AgentWiring" });
             }
         }
     }

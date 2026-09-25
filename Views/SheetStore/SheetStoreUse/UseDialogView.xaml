@@ -1,13 +1,6 @@
 <!-- ═══════════════════════════════════════════════════════════════
-     MIGRATION LOG — Button Standardization (master prompt v1.0)
-     Date: 2026-08-15 — SheetStore module batch
-     • All buttons -> centralized PrimaryPill/SuccessPill/OutlinedPill/
-       DangerButton styles with MDL2 Tag glyphs + UPPERCASE content
-     • Removed legacy local styles (ActionBtn, HeaderActionBtn,
-       QtyButtonStyle, Cancel/Save/ConfirmButtonStyle,
-       FilterActionButtonStyle, CancelImportBtn)
-     • Decorative emojis (search/clock/empty/mailbox) -> MDL2 glyphs
-     Commands/bindings preserved; no ViewModel changes.
+     USE STOCK DIALOG — Indigo Studio Bento Redesign
+     Clean Bento fieldsets, traceability cards, standardized 36px controls.
 ═══════════════════════════════════════════════════════════════ -->
 <dialogs:ThemedDialogWindow x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreUse.UseDialogView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,255 +8,221 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:dialogs="clr-namespace:ProGlassAutomation.Views.Shared.Dialogs"
              Title="{DynamicResource SheetStore.USEStock}"
-             Width="520"
+             Width="540"
              DialogIcon="&#xE713;"
              DialogSubtitle="{DynamicResource SheetStore.ConsumeSheetsInventoryProduction}"
              FontFamily="{DynamicResource AppFontFamily}">
 
-    <!-- 2026-09 dialog audit: chrome (card/header/footer) comes from
-         ThemedDialogWindow; this file keeps only the form body. -->
     <StackPanel>
-
-            <!-- Sheet info card -->
-            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="16,12" Margin="0,0,0,16">
-                <StackPanel>
-                    <TextBlock Text="{Binding Sheet.Category}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource AccentBrush}"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding Sheet.Color}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <TextBlock Text="{DynamicResource SheetStore.Available}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="{Binding Sheet.Balance}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text="{DynamicResource SheetStore.Sheets}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <!-- AREA FIX: was "AED 45.70 SQM" — an area through the currency
-                             converter plus a literal unit. The row keeps its literal
-                             " SQM", so the value renders as plain digits. -->
-                        <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text=" SQM" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-
-            <!-- Job Order Reference -->
-            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource SheetStore.JOBOrderReferenceOptional}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,6"/>
-                    <TextBox behaviors:TextBoxBehaviors.SelectAllOnFocus="True" Text="{Binding JobOrderReference, UpdateSourceTrigger=PropertyChanged}"
-                             MinHeight="{DynamicResource DensityInputHeight}" FontSize="{DynamicResource FontSize.Title}" Padding="12,6"
-                             VerticalContentAlignment="Center"
-                             Background="{DynamicResource DialogInsetBrush}"
-                             Foreground="{DynamicResource TextPrimaryBrush}"
-                             BorderThickness="1"
-                             BorderBrush="{DynamicResource SurfaceTertiaryBrush}"
-                             ToolTip="{DynamicResource SheetStore.EGJO2025001CustomerName}"/>
-                    <TextBlock Text="{DynamicResource SheetStore.TrackWhichJobOrderCustomerConsumingSheets}"
-                               FontSize="{DynamicResource FontSize.BodySmall}" FontStyle="Italic" Margin="4,4,0,0"
+        <!-- Card 1: Sheet Identity & Available Balance -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="{Binding Sheet.Category}"
+                           Style="{StaticResource Ov.CardTitle}"
+                           Foreground="{DynamicResource AccentBrush}"/>
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding Sheet.Color}" FontSize="{DynamicResource FontSize.Body}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="{DynamicResource FontSize.Body}"
                                Foreground="{DynamicResource TextSecondaryBrush}"/>
-
-                    <!--
-                        CONSUMPTION TRACEABILITY.
-                        Pre-filled from the invoice being worked on, but
-                        editable: stock is also issued for samples and
-                        remakes that have no live document. These land on
-                        the history row so a Sheet Store report can answer
-                        "which salesman's customer's project consumed how
-                        many sheets".
-                    -->
-                    <Grid Margin="0,12,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Grid.Row="0" Grid.Column="0"
-                                   Text="{DynamicResource SheetStore.Customer}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-                        <TextBlock Grid.Row="0" Grid.Column="2"
-                                   Text="{DynamicResource SheetStore.Project}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
-
-                        <TextBox behaviors:TextBoxBehaviors.SelectAllOnFocus="True" Grid.Row="1" Grid.Column="0"
-                                 Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
-                                 MinHeight="{DynamicResource DensityInputHeight}" Padding="10,4" VerticalContentAlignment="Center"
-                                 Background="{DynamicResource DialogInsetBrush}"
-                                 Foreground="{DynamicResource TextPrimaryBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}"/>
-                        <TextBox behaviors:TextBoxBehaviors.SelectAllOnFocus="True" Grid.Row="1" Grid.Column="2"
-                                 Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
-                                 MinHeight="{DynamicResource DensityInputHeight}" Padding="10,4" VerticalContentAlignment="Center"
-                                 Background="{DynamicResource DialogInsetBrush}"
-                                 Foreground="{DynamicResource TextPrimaryBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}"/>
-
-                        <TextBlock Grid.Row="2" Grid.Column="0"
-                                   Text="{DynamicResource SheetStore.Salesman}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,10,0,4"/>
-                        <TextBlock Grid.Row="2" Grid.Column="2"
-                                   Text="{DynamicResource SheetStore.Pane}"
-                                   FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,10,0,4"/>
-
-                        <TextBox behaviors:TextBoxBehaviors.SelectAllOnFocus="True" Grid.Row="3" Grid.Column="0"
-                                 Text="{Binding Salesman, UpdateSourceTrigger=PropertyChanged}"
-                                 MinHeight="{DynamicResource DensityInputHeight}" Padding="10,4" VerticalContentAlignment="Center"
-                                 Background="{DynamicResource DialogInsetBrush}"
-                                 Foreground="{DynamicResource TextPrimaryBrush}"
-                                 BorderThickness="1" BorderBrush="{DynamicResource SurfaceTertiaryBrush}"/>
-                        <ComboBox Grid.Row="3" Grid.Column="2"
-                                  Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource ModernEditableComboBoxStyle}"
-                                  behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"
-                                 
-                                  Padding="12,0"
-                                  MaxDropDownHeight="320">
-                            <ComboBoxItem Content="Outer"/>
-                            <ComboBoxItem Content="Inner"/>
-                        </ComboBox>
-                    </Grid>
                 </StackPanel>
-            </Border>
+                <Grid Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Background="{DynamicResource Ov.WarningSoft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="0,0,4,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource SheetStore.Available}" Style="{StaticResource Ov.Meta}" Foreground="{DynamicResource WarningBrush}"/>
+                            <TextBlock Text="{Binding Sheet.Balance, StringFormat={}{0} Sheets}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource WarningBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Background="{DynamicResource Ov.Soft}" CornerRadius="{DynamicResource Radius.Medium}" Padding="8,6" Margin="4,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Total Area Available" Style="{StaticResource Ov.Meta}"/>
+                            <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2} SQM}" FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </StackPanel>
+        </Border>
 
-            <!-- Quantity selector -->
-            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource SheetStore.QuantityUSESheets}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,8"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="50"/>
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                                Content="−" MinWidth="58"
-                                ToolTip="{DynamicResource SheetStore.DecreaseQuantity}"
-                                Command="{Binding DecreaseCommand}"/>
-                        <!-- Raw text binding: an int binding cannot observe
-                             an empty box (conversion fails, setter never
-                             runs). AcceptIntegersOnly was also missing here,
-                             so letters reached the field. -->
-                        <TextBox Grid.Column="1"
-                                 Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
-                                 behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
-                                 behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                 FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}" TextAlignment="Center"
-                                 VerticalContentAlignment="Center" Height="44"
-                                 Background="{DynamicResource DialogInsetBrush}"
-                                 Foreground="{DynamicResource TextPrimaryBrush}"
-                                 Margin="8,0">
-                            <TextBox.Style>
-                                <Style TargetType="TextBox">
-                                    <Setter Property="BorderThickness" Value="0"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
-                                            <Setter Property="BorderThickness" Value="2"/>
-                                            <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBox.Style>
-                        </TextBox>
-                        <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
-                                Content="+" MinWidth="58"
-                                ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"
-                                Command="{Binding IncreaseCommand}"/>
-                    </Grid>
+        <!-- Card 2: Job Order Allocation & Traceability -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource SheetStore.JOBOrderReferenceOptional}"
+                           Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                           Margin="0,0,0,4"/>
+                <TextBox behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                         Text="{Binding JobOrderReference, UpdateSourceTrigger=PropertyChanged}"
+                         MinHeight="36" FontSize="{DynamicResource FontSize.Body}" Padding="10,6"
+                         VerticalContentAlignment="Center"
+                         Background="{DynamicResource Ov.Soft}"
+                         Foreground="{DynamicResource TextPrimaryBrush}"
+                         BorderThickness="0"
+                         ToolTip="{DynamicResource SheetStore.EGJO2025001CustomerName}"/>
 
-                    <!-- Inline field error, attached to the offending box. -->
-                    <TextBlock Text="{Binding QuantityError}"
-                               Foreground="{DynamicResource DangerBrush}"
-                               FontSize="{DynamicResource FontSize.BodySmall}"
-                               FontWeight="{DynamicResource Weight.SemiBold}"
-                               TextWrapping="Wrap"
-                               Margin="0,8,0,0"
-                               Visibility="{Binding HasQuantityError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                </StackPanel>
-            </Border>
+                <!-- 2-Column Traceability Grid -->
+                <Grid Margin="0,8,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-            <!-- Preview -->
-            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource DialogInsetBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
-                <StackPanel>
-                    <TextBlock Text="{DynamicResource SheetStore.UsagePreview}" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,10"/>
-                    <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="{DynamicResource SheetStore.SQMUsed}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <!-- AREA FIX: "SQM used" showed "AED 12.30". -->
-                        <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"
-                                   HorizontalAlignment="Right"/>
-                    </DockPanel>
-                    <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="{DynamicResource SheetStore.RemainingBalance}" FontSize="{DynamicResource FontSize.Body}"
-                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
-                        <TextBlock Text="{Binding RemainingBalance}"
-                                   FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Right"/>
-                    </DockPanel>
-                    <Separator Opacity="0.3" Margin="0,6"/>
-                    <DockPanel Margin="0,8,0,0">
-                        <TextBlock Text="{DynamicResource SheetStore.ValueConsumed}" FontSize="{DynamicResource FontSize.H3}" FontWeight="{DynamicResource Weight.SemiBold}"
-                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource SheetStore.Customer}"
+                               Style="{StaticResource Ov.Meta}" Margin="0,0,0,3"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2" Text="{DynamicResource SheetStore.Project}"
+                               Style="{StaticResource Ov.Meta}" Margin="0,0,0,3"/>
+
+                    <TextBox Grid.Row="1" Grid.Column="0" behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                             Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="34" Padding="8,4" VerticalContentAlignment="Center"
+                             Background="{DynamicResource Ov.Soft}" BorderThickness="0"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                             Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="34" Padding="8,4" VerticalContentAlignment="Center"
+                             Background="{DynamicResource Ov.Soft}" BorderThickness="0"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource SheetStore.Salesman}"
+                               Style="{StaticResource Ov.Meta}" Margin="0,8,0,3"/>
+                    <TextBlock Grid.Row="2" Grid.Column="2" Text="{DynamicResource SheetStore.Pane}"
+                               Style="{StaticResource Ov.Meta}" Margin="0,8,0,3"/>
+
+                    <TextBox Grid.Row="3" Grid.Column="0" behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                             Text="{Binding Salesman, UpdateSourceTrigger=PropertyChanged}"
+                             MinHeight="34" Padding="8,4" VerticalContentAlignment="Center"
+                             Background="{DynamicResource Ov.Soft}" BorderThickness="0"/>
+                    <ComboBox Grid.Row="3" Grid.Column="2"
+                              Text="{Binding PanePosition, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource ModernEditableComboBoxStyle}"
+                              behaviors:EditableComboBoxTypingBehavior.IsEnabled="True"
+                              MaxDropDownHeight="320">
+                        <ComboBoxItem Content="Outer"/>
+                        <ComboBoxItem Content="Inner"/>
+                    </ComboBox>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Card 3: Quantity Selector -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,10">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource SheetStore.QuantityUSESheets}"
+                           Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                           Margin="0,0,0,8"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="48"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="48"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                            Height="40" Content="−" FontSize="{DynamicResource FontSize.H3}"
+                            ToolTip="{DynamicResource SheetStore.DecreaseQuantity}"
+                            Command="{Binding DecreaseCommand}"/>
+                    <TextBox Grid.Column="1"
+                             Text="{Binding QuantityText, UpdateSourceTrigger=PropertyChanged}"
+                             behaviors:TextBoxBehaviors.SelectAllOnFocus="True"
+                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                             FontSize="{DynamicResource FontSize.Display}" FontWeight="{DynamicResource Weight.Bold}" TextAlignment="Center"
+                             VerticalContentAlignment="Center" Height="40"
+                             Background="{DynamicResource Ov.Soft}"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             BorderThickness="0"
+                             Margin="8,0">
+                        <TextBox.Style>
+                            <Style TargetType="TextBox">
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasQuantityError}" Value="True">
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBox.Style>
+                    </TextBox>
+                    <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                            Height="40" Content="+" FontSize="{DynamicResource FontSize.H3}"
+                            ToolTip="{DynamicResource SheetStore.IncreaseQuantity}"
+                            Command="{Binding IncreaseCommand}"/>
+                </Grid>
+
+                <TextBlock Text="{Binding QuantityError}"
+                           Foreground="{DynamicResource DangerBrush}"
+                           FontSize="{DynamicResource FontSize.BodySmall}"
+                           FontWeight="{DynamicResource Weight.SemiBold}"
+                           TextWrapping="Wrap"
+                           Margin="0,6,0,0"
+                           Visibility="{Binding HasQuantityError, Converter={StaticResource BoolToVisibilityConverter}}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Card 4: Consumption Impact Preview -->
+        <Border Style="{StaticResource Ov.CardCompact}" Margin="0,0,0,6">
+            <StackPanel>
+                <TextBlock Text="{DynamicResource SheetStore.UsagePreview}"
+                           Style="{StaticResource Ov.Meta}" FontWeight="{DynamicResource Weight.Bold}"
+                           Margin="0,0,0,8"/>
+                <DockPanel Margin="0,0,0,4">
+                    <TextBlock Text="{DynamicResource SheetStore.SQMUsed}" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{Binding TotalSqm, Converter={StaticResource CurrencyConverter}, ConverterParameter=area}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" HorizontalAlignment="Right"/>
+                </DockPanel>
+                <DockPanel Margin="0,0,0,8">
+                    <TextBlock Text="{DynamicResource SheetStore.RemainingBalance}" Style="{StaticResource Ov.Meta}"/>
+                    <TextBlock Text="{Binding RemainingBalance, StringFormat={}{0} Sheets}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Right"/>
+                </DockPanel>
+                <Border Height="1" Background="{DynamicResource Ov.Line}" Margin="0,2,0,8"/>
+                <DockPanel>
+                    <TextBlock Text="{DynamicResource SheetStore.ValueConsumed}"
+                               FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
+                    <Viewbox MaxHeight="26" HorizontalAlignment="Right">
                         <TextBlock Text="{Binding TotalValue, Converter={StaticResource CurrencyConverter}, ConverterParameter=suffix}"
-                                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                                   Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right"/>
-                    </DockPanel>
-                </StackPanel>
-            </Border>
+                                   Style="{StaticResource Ov.Value}" Foreground="{DynamicResource AccentBrush}"/>
+                    </Viewbox>
+                </DockPanel>
+            </StackPanel>
+        </Border>
 
-            <!-- Error -->
-            <Border BorderBrush="{DynamicResource BorderDefaultBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="12,8" Margin="0,0,0,10"
-                    Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Body}"/>
-            </Border>
-
-            <!-- Buttons -->
-                </StackPanel>
+        <!-- Error Banner -->
+        <Border Background="{DynamicResource Ov.DangerSoft}" BorderBrush="{DynamicResource DangerBrush}"
+                BorderThickness="1" CornerRadius="{DynamicResource Radius.Medium}" Padding="10,8" Margin="0,6,0,0"
+                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+            <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" FontSize="{DynamicResource FontSize.Body}"/>
+        </Border>
+    </StackPanel>
 
     <dialogs:ThemedDialogWindow.FooterContent>
-<Grid Margin="0,4,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
-                        Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
-                        ToolTip="{DynamicResource SheetStore.CloseWithoutUsingStock}"
-                        Command="{Binding CancelCommand}"/>
-                <Button Grid.Column="2" Style="{StaticResource SuccessPillButton}"
-                        Tag="&#xE73E;" Content="{DynamicResource SheetStore.ConfirmUSE}"
-                        ToolTip="{DynamicResource SheetStore.ConfirmStockUsage}"
-                        Command="{Binding ConfirmCommand}"/>
-            </Grid>
+        <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                    Height="36"
+                    Tag="&#xE711;" Content="{DynamicResource Action.Cancel}"
+                    ToolTip="{DynamicResource SheetStore.CloseWithoutUsingStock}"
+                    Command="{Binding CancelCommand}"/>
+            <Button Grid.Column="2" Style="{StaticResource SuccessPillButton}"
+                    Height="36"
+                    Tag="&#xE73E;" Content="{DynamicResource SheetStore.ConfirmUSE}"
+                    ToolTip="{DynamicResource SheetStore.ConfirmStockUsage}"
+                    Command="{Binding ConfirmCommand}"/>
+        </Grid>
     </dialogs:ThemedDialogWindow.FooterContent>
 </dialogs:ThemedDialogWindow>

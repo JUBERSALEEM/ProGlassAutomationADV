@@ -26,12 +26,10 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="16,16,16,12">
-            <TextBlock Text="Glass Specifications &amp; Traceability" Style="{StaticResource Sl.Title}"/>
-            <TextBlock Text="Every glass row from every proforma, carried end-to-end (PI → JO → DN → TI) with dimensions, value and delivery status." Style="{StaticResource Sl.Subtitle}" TextWrapping="Wrap" HorizontalAlignment="Left" Margin="0,4,0,0"/>
-        </StackPanel>
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header -->
+        <StackPanel Grid.Row="0" Visibility="Collapsed"/>
 
-        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,0,16,14">
+        <Border Grid.Row="1" Style="{StaticResource Sl.Shell}" Margin="16,6,16,14">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -58,7 +56,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GLASS ROWS" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="{Binding DistinctSpecs, Mode=OneWay}"/><Run Text=" distinct specs"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
@@ -71,7 +71,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="QUANTITY" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding TotalQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N1}}"/><Run Text=" m² total"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
@@ -84,7 +86,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="VALUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalValue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Style="{StaticResource ModuleListKpiValueStyle}"><Run Text="AED "/><Run Text="{Binding TotalValue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
+                                </Viewbox>
                                 <TextBlock Text="all glass rows" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -97,7 +101,9 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="BALANCE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding BalanceQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding BalanceQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                </Viewbox>
                                 <TextBlock Text="pcs awaiting delivery" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>

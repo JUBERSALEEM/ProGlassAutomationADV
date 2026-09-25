@@ -24,7 +24,8 @@ namespace ProGlassAutomation.Services.Optimization
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(DatabaseFilePath)!);
+            // Shared-aware folder ensure (2026-09-24) — see AppDataRoot.
+            AppDataRoot.EnsureCurrentFolder();
             SqliteResilience.ConfigureFor(options, DatabaseFilePath);
         }
 

@@ -36,16 +36,16 @@
     <!-- ── Headline + detail block ───────────────────────────────────── -->
     <StackPanel>
         <TextBlock Text="{DynamicResource CrashReports.SomethingWentWrong}"
-                   FontSize="{DynamicResource FontSize.H1}" FontWeight="{DynamicResource Weight.SemiBold}"
+                   FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.SemiBold}"
                    Foreground="{DynamicResource DangerBrush}"
                    TextWrapping="Wrap"/>
-        <Border Margin="0,14,0,0" Padding="16,14"
+        <Border Margin="0,8,0,0" Padding="12,10"
             Background="{DynamicResource SurfaceSecondaryBrush}"
             BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="{DynamicResource Border.HairlineThickness}"
             CornerRadius="{DynamicResource Radius.Small}">
         <StackPanel>
-            <Grid Margin="0,0,0,10">
+            <Grid Margin="0,0,0,6">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"/>
                     <ColumnDefinition Width="*"/>

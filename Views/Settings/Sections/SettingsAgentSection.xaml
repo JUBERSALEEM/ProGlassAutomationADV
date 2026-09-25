@@ -37,8 +37,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -69,7 +69,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — AGENT & WORKFLOW ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -77,17 +77,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE99A;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE99A;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Autonomous Agent &amp; Workflow" Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="Autonomy tiers, tool permissions, vector knowledge retrieval, and offline brain" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            <TextBlock Text="Autonomous Agent &amp; Workflow" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="Autonomy tiers, tool permissions, vector knowledge retrieval, and offline brain" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
-                        <Border Grid.Column="2" Style="{StaticResource SettingsChipGreenStyle}" VerticalAlignment="Center">
-                            <TextBlock Text="Supervised Tier" Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Supervised Tier" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                         </Border>
                     </Grid>
                 </Border>

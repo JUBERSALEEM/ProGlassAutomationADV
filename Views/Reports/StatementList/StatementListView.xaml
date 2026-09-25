@@ -45,18 +45,19 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Margin="16,16,16,8">
+        <!-- Reclaimed vertical space: module title/subtitle lives in shell header; StatusMessage preserved -->
+        <Grid Grid.Row="0" Margin="16,4,16,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
-                <TextBlock Text="{DynamicResource Reports.AccountStatements}" Style="{StaticResource Sl.Title}" />
-                <TextBlock Text="{DynamicResource Nav.StatementGenerator}" Style="{StaticResource Sl.Subtitle}" />
+                <TextBlock Text="{DynamicResource Reports.AccountStatements}" Style="{StaticResource Sl.Title}" Visibility="Collapsed" />
+                <TextBlock Text="{DynamicResource Nav.StatementGenerator}" Style="{StaticResource Sl.Subtitle}" Visibility="Collapsed" />
                 <TextBlock
                     Text="{Binding StatusMessage}"
                     Style="{StaticResource Sl.Subtitle}"
-                    Margin="0,4,0,0"
+                    Margin="0"
                     Typography.NumeralAlignment="Tabular" />
             </StackPanel>
         </Grid>
@@ -78,14 +79,16 @@
                                                 Style="{StaticResource Sl.Label}"
                                                 TextWrapping="Wrap"
                                                 Foreground="{DynamicResource Ov.OnAccent}" />
-                                            <TextBlock
-                                                Text="{Binding TotalOutstandingDisplay}"
-                                                Style="{StaticResource Sl.Value}"
-                                                Foreground="{DynamicResource Ov.OnAccent}"
-                                                TextWrapping="Wrap"
-                                                FontSize="30"
-                                                Typography.NumeralAlignment="Tabular"
-                                                ToolTip="{Binding TotalOutstandingDisplay}" />
+                                            <Viewbox MaxHeight="30" HorizontalAlignment="Left">
+                                                <TextBlock
+                                                    Text="{Binding TotalOutstandingDisplay}"
+                                                    Style="{StaticResource Sl.Value}"
+                                                    Foreground="{DynamicResource Ov.OnAccent}"
+                                                    TextWrapping="Wrap"
+                                                    FontSize="30"
+                                                    Typography.NumeralAlignment="Tabular"
+                                                    ToolTip="{Binding TotalOutstandingDisplay}" />
+                                            </Viewbox>
                                             <TextBlock
                                                 Text="{DynamicResource Reports.TotalBalanceDue}"
                                                 Style="{StaticResource Sl.Subtitle}"
@@ -108,11 +111,13 @@
                                                 Text="{DynamicResource Dashboard.Statements}"
                                                 Style="{StaticResource Sl.Label}"
                                                 TextWrapping="Wrap" />
-                                            <TextBlock
-                                                Text="{Binding TotalStatements, StringFormat=N0}"
-                                                Style="{StaticResource Sl.Value}"
-                                                TextWrapping="Wrap"
-                                                Typography.NumeralAlignment="Tabular" />
+                                            <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                                <TextBlock
+                                                    Text="{Binding TotalStatements, StringFormat=N0}"
+                                                    Style="{StaticResource Sl.Value}"
+                                                    TextWrapping="Wrap"
+                                                    Typography.NumeralAlignment="Tabular" />
+                                            </Viewbox>
                                             <TextBlock
                                                 Text="{DynamicResource Reports.TotalSaved}"
                                                 Style="{StaticResource Sl.Subtitle}"
@@ -127,13 +132,15 @@
                                                 Text="{DynamicResource Reports.TotalInvoiced}"
                                                 Style="{StaticResource Sl.Label}"
                                                 TextWrapping="Wrap" />
-                                            <TextBlock
-                                                Text="{Binding TotalInvoicedDisplay}"
-                                                Style="{StaticResource Sl.Value}"
-                                                Foreground="{DynamicResource Ov.Success}"
-                                                TextWrapping="Wrap"
-                                                Typography.NumeralAlignment="Tabular"
-                                                ToolTip="{Binding TotalInvoicedDisplay}" />
+                                            <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                                <TextBlock
+                                                    Text="{Binding TotalInvoicedDisplay}"
+                                                    Style="{StaticResource Sl.Value}"
+                                                    Foreground="{DynamicResource Ov.Success}"
+                                                    TextWrapping="Wrap"
+                                                    Typography.NumeralAlignment="Tabular"
+                                                    ToolTip="{Binding TotalInvoicedDisplay}" />
+                                            </Viewbox>
                                             <TextBlock
                                                 Text="{DynamicResource Reports.Statements}"
                                                 Style="{StaticResource Sl.Subtitle}"
@@ -148,18 +155,20 @@
                                                 Text="{DynamicResource Common.Overdue}"
                                                 Style="{StaticResource Sl.Label}"
                                                 TextWrapping="Wrap" />
-                                            <TextBlock Text="{Binding TotalOverdueDisplay}" TextWrapping="Wrap" Typography.NumeralAlignment="Tabular">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock" BasedOn="{StaticResource Sl.Value}">
-                                                        <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}" />
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                                                <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}" />
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
+                                            <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                                <TextBlock Text="{Binding TotalOverdueDisplay}" TextWrapping="Wrap" Typography.NumeralAlignment="Tabular">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource Sl.Value}">
+                                                            <Setter Property="Foreground" Value="{DynamicResource Ov.Muted}" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HasOverdue}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource Ov.Danger}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Viewbox>
                                             <TextBlock
                                                 Text="{DynamicResource Reports.PastDueDate}"
                                                 Style="{StaticResource Sl.Subtitle}"

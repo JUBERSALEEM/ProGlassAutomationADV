@@ -21,8 +21,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -44,7 +44,7 @@
             <StackPanel Margin="{StaticResource SettingsPagePadding}">
 
                 <!-- ═══ BENTO HERO BANNER — DATA & BACKUP ═══ -->
-                <Border Style="{StaticResource SettingsPageCardStyle}" Margin="{StaticResource SettingsCardMargin}">
+                <Border Style="{StaticResource SettingsHeroCardStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -52,17 +52,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Style="{StaticResource SettingsIconTileStyle}">
-                            <TextBlock Text="&#xE8B7;" Style="{StaticResource SettingsIconGlyphStyle}"/>
+                        <Border Grid.Column="0" Style="{StaticResource SettingsHeroIconTileStyle}">
+                            <TextBlock Text="&#xE8B7;" Style="{StaticResource SettingsHeroIconGlyphStyle}"/>
                         </Border>
 
                         <StackPanel Grid.Column="1" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center">
-                            <TextBlock Text="Data Management &amp; Automated Backups" Style="{StaticResource SettingsCardTitleStyle}"/>
-                            <TextBlock Text="SQLite transaction logging, automated backup rotation, and schema integrity validation" Style="{StaticResource SettingsCardNoteStyle}"/>
+                            <TextBlock Text="Data Management &amp; Automated Backups" Style="{StaticResource SettingsHeroTitleStyle}"/>
+                            <TextBlock Text="SQLite transaction logging, automated backup rotation, and schema integrity validation" Style="{StaticResource SettingsHeroNoteStyle}"/>
                         </StackPanel>
 
-                        <Border Grid.Column="2" Style="{StaticResource SettingsChipGreenStyle}" VerticalAlignment="Center">
-                            <TextBlock Text="Verified Storage" Style="{StaticResource SettingsChipGreenTextStyle}"/>
+                        <Border Grid.Column="2" Style="{StaticResource SettingsHeroBadgeStyle}">
+                            <TextBlock Text="Verified Storage" Style="{StaticResource SettingsHeroBadgeTextStyle}"/>
                         </Border>
                     </Grid>
                 </Border>
@@ -70,11 +70,11 @@
                 <!-- ═══ BENTO ROW — COMPANY LAN & SAMPLE DATA ═══ -->
                 <Grid Margin="{StaticResource SettingsBentoRowMargin}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.65*"/>
+                        <ColumnDefinition Width="1.35*"/>
                     </Grid.ColumnDefinitions>
-                    <cards:DataRootCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
-                    <cards:DataSampleCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                    <cards:DataRootCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+                    <cards:DataSampleCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
                 </Grid>
 
                 <!-- ═══ CARD — BACKUP & RESTORE ═══ -->

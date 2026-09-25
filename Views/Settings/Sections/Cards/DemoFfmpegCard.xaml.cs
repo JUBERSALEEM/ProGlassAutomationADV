@@ -4,7 +4,9 @@
 // MODULE: Settings v3 — DemoFfmpegCard: pure presentation card.
 // ═══════════════════════════════════════════════════════════════════
 
+using System.Windows;
 using System.Windows.Controls;
+using ProGlassAutomation.Views.Setup;
 
 namespace ProGlassAutomation.Views.Settings.Sections.Cards
 {
@@ -13,6 +15,11 @@ namespace ProGlassAutomation.Views.Settings.Sections.Cards
         public DemoFfmpegCard()
         {
             InitializeComponent();
+        }
+
+        private void OpenInstaller_Click(object sender, RoutedEventArgs e)
+        {
+            ComponentInstallerWindow.Show(Window.GetWindow(this));
         }
     }
 }

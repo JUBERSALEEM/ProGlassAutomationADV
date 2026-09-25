@@ -45,8 +45,8 @@
                 <!-- The module design system: cards, tiles, chips, pills,
                      type roles, spacing scale. Declared before the section
                      styles so both are resolvable by the sections. -->
-                <ResourceDictionary Source="SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
                 <!-- v3 lazy host: one DataTemplate per page (SettingsPageTemplates.xaml) -->
                 <ResourceDictionary Source="SettingsPageTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -96,8 +96,11 @@
         <!-- Rail — shares SettingsPageCardStyle crystal material with the
              page cards; exactly 232px wide matching approved design specification. -->
         <Border Grid.Column="0"
-                Margin="18,14,6,18"
+                Margin="14,10,6,14"
                 Width="232"
+                Background="{DynamicResource Ios26AccentSoftBrush}"
+                BorderBrush="{DynamicResource Ios26AccentBrush}"
+                BorderThickness="1.5"
                 Visibility="{Binding IsSettingsRailOpen,
                     Converter={StaticResource BoolToVisibilityConverter}}"
                 RenderOptions.EdgeMode="Aliased"
@@ -262,7 +265,7 @@
                  edge as the rail (14), and an 8 + 14 = 22 gap to the first card,
                  which is exactly the card-to-card rhythm.
             ══════════════════════════════════════════════════════════ -->
-            <Border Grid.Row="0" Margin="18,14,18,8" Padding="14,12"
+            <Border Grid.Row="0" Margin="14,10,14,6" Padding="12,8"
                     Style="{StaticResource SettingsPageCardStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>

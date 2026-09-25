@@ -22,11 +22,13 @@
              SnapsToDevicePixels="True"
              HorizontalAlignment="Stretch"
              VerticalAlignment="Stretch"
-             Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}">
+             Visibility="{Binding IsDetailOpen, Converter={StaticResource BoolToVisibilityConverter}}"
+             Background="{DynamicResource Ov.Canvas}">
 
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Views/Production/Controls/ProductionUnitDetailTemplates.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
@@ -41,36 +43,40 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Inventory-style header: glyph · title · close -->
-        <Grid Grid.Row="0" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Border Width="40" Height="40" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    Background="{DynamicResource AccentBrush}">
-                <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource FontFamily.Icon}"
-                           FontSize="{DynamicResource FontSize.H2}" Foreground="{DynamicResource OnAccentForegroundBrush}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Border>
-            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,12,0">
-                <TextBlock Text="{Binding ModuleName}"
-                           FontSize="{DynamicResource FontSize.Body}" FontWeight="{DynamicResource Weight.Bold}"
-                           Foreground="{DynamicResource AccentBrush}"/>
-                <TextBlock Text="{Binding SelectedSerialLabel}"
-                           FontSize="{DynamicResource FontSize.Title}" FontWeight="{DynamicResource Weight.SemiBold}"
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
-            </StackPanel>
-            <Button Grid.Column="2"
-                    Style="{StaticResource OutlinedPillButton}"
-                    Tag="&#xE711;" Content="CLOSE"
-                    MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
-                    VerticalAlignment="Top"
-                    Command="{Binding CloseDetailCommand}"
-                    ToolTip="Close panel"/>
-        </Grid>
+        <Border Grid.Row="0" Style="{StaticResource OptHeroCard}" Margin="0,0,0,16" Padding="18,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Width="44" Height="44" CornerRadius="12"
+                        Background="{StaticResource OptOnIndigoChip}" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}" FontFamily="{DynamicResource FontFamily.Icon}"
+                               FontSize="20" Foreground="{StaticResource OptOnIndigo}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,12,0">
+                    <TextBlock Text="{Binding ModuleName}"
+                               FontSize="12" FontWeight="Bold"
+                               Foreground="{StaticResource OptOnIndigoMuted}"/>
+                    <TextBlock Text="{Binding SelectedSerialLabel}"
+                               FontSize="20" FontWeight="SemiBold"
+                               Foreground="{StaticResource OptOnIndigo}"
+                               TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
+                    <TextBlock Text="{Binding SelectedCustomer}"
+                               FontSize="12" Foreground="{StaticResource OptOnIndigoMuted}"
+                               TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Margin="0,4,0,0"/>
+                </StackPanel>
+                <Button Grid.Column="2"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE711;" Content="CLOSE"
+                        MinHeight="40" Height="{DynamicResource DensityButtonHeight}"
+                        VerticalAlignment="Center"
+                        Command="{Binding CloseDetailCommand}"
+                        ToolTip="Close panel"/>
+            </Grid>
+        </Border>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
@@ -105,62 +111,48 @@
                 </StackPanel>
 
                 <!-- ══ Completed-KPI strip ═════════════════════════════ -->
-                <Border Background="{DynamicResource SurfacePrimaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="16,12" Margin="0,12,0,0">
-                    <UniformGrid Columns="2">
-                        <Border Background="{DynamicResource TintBlueBrush}"
-                                BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                Padding="12,8" Margin="0,0,6,8" MinHeight="72">
+                <UniformGrid Columns="2" Margin="-6,6,-6,0">
+                        <Border Style="{StaticResource OptKpiCard}" Margin="6" Padding="14,12" MinHeight="88">
                             <StackPanel>
                                 <TextBlock Text="TOTAL" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding SelectedUnitTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitTotalLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Viewbox>
                                 <TextBlock Text="{Binding HeroMetricCaption}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource TintGreenBrush}"
-                                BorderBrush="{DynamicResource SuccessBrush}"
-                                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                Padding="12,8" Margin="6,0,0,8" MinHeight="72">
+                        <Border Style="{StaticResource OptKpiCard}" Margin="6" Padding="14,12" MinHeight="88">
                             <StackPanel>
                                 <TextBlock Text="DONE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding SelectedUnitDoneLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitDoneLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                                 <TextBlock Text="marked completed" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource TintAmberBrush}"
-                                BorderBrush="{DynamicResource WarningBrush}"
-                                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                Padding="12,8" Margin="0,0,6,0" MinHeight="72">
+                        <Border Style="{StaticResource OptKpiCard}" Margin="6" Padding="14,12" MinHeight="88">
                             <StackPanel>
                                 <TextBlock Text="BALANCE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding SelectedUnitBalanceLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitBalanceLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Viewbox>
                                 <TextBlock Text="remaining at this stage" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Background="{DynamicResource TintBlueBrush}"
-                                BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="{DynamicResource Border.HairlineThickness}"
-                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                                Padding="12,8" Margin="6,0,0,0" MinHeight="72">
+                        <Border Style="{StaticResource OptKpiCard}" Margin="6" Padding="14,12" MinHeight="88">
                             <StackPanel>
                                 <TextBlock Text="COMPLETED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding SelectedUnitCompletedPctLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <Viewbox MaxHeight="24" HorizontalAlignment="Left">
+                                    <TextBlock Text="{Binding SelectedUnitCompletedPctLabel}" Style="{StaticResource ModuleListKpiValueStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                </Viewbox>
                                 <TextBlock Text="of job progress" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </Border>
                     </UniformGrid>
-                </Border>
 
                 <Grid Margin="0,12,0,0">
                     <Grid.ColumnDefinitions>
@@ -301,10 +293,14 @@
                                 <TextBlock Grid.Column="1" Text="TOTALS" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                            Foreground="{DynamicResource TextTertiaryBrush}" HorizontalAlignment="Left"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
-                                <TextBlock Grid.Column="4" Text="{Binding CompletedTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                <TextBlock Grid.Column="5" Text="{Binding CompletedDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
-                                           FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                <Viewbox Grid.Column="4" MaxHeight="18">
+                                    <TextBlock Text="{Binding CompletedTotalSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </Viewbox>
+                                <Viewbox Grid.Column="5" MaxHeight="18">
+                                    <TextBlock Text="{Binding CompletedDoneSum}" Style="{StaticResource LineItemsReadonlyStyle}"
+                                               FontWeight="{DynamicResource Weight.Bold}" Foreground="{DynamicResource SuccessBrush}"/>
+                                </Viewbox>
                             </Grid>
                         </Border>
                     </StackPanel>
@@ -320,7 +316,7 @@
                 </StackPanel>
 
                 <!-- ══ Recent entries log ══════════════════════════════ -->
-                <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,12,0,0" Padding="16,12">
+                <Border Style="{StaticResource OptPanelCard}" Margin="0,12,0,0" Padding="16,12">
                     <StackPanel>
                         <TextBlock Text="RECENT ENTRIES" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                    Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,8"/>
@@ -346,7 +342,7 @@
                 </Border>
 
                 <!-- ══ Dispatch ════════════════════════════════════════ -->
-                <Border Style="{StaticResource SurfaceSecondaryStyle}" Margin="0,12,0,0" Padding="16,12"
+                <Border Style="{StaticResource OptPanelCard}" Margin="0,12,0,0" Padding="16,12"
                         Visibility="{Binding HasDispatchPanel, Converter={StaticResource BoolToVisibilityConverter}}">
                     <StackPanel>
                         <TextBlock Text="DISPATCH" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"

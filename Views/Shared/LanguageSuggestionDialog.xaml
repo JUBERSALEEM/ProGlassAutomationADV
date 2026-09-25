@@ -40,7 +40,7 @@
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap"
                    TextAlignment="Center"
-                   Margin="0,10,0,0"/>
+                   Margin="0,6,0,0"/>
 
         <TextBlock x:Name="ExplainText"
                    FontSize="{DynamicResource FontSize.Body}"
@@ -48,7 +48,7 @@
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap"
                    TextAlignment="Center"
-                   Margin="0,10,0,0"/>
+                   Margin="0,6,0,0"/>
 
         <TextBlock Text="You can change this any time in Settings › Appearance."
                    FontSize="{DynamicResource FontSize.Body}"
@@ -56,7 +56,7 @@
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap"
                    TextAlignment="Center"
-                   Margin="0,14,0,0"/>
+                   Margin="0,8,0,0"/>
     </StackPanel>
 
     <dialogs:ThemedDialogWindow.FooterContent>

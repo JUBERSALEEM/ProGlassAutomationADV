@@ -11,8 +11,8 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="../../SettingsCardStyles.xaml"/>
-                <ResourceDictionary Source="../../SettingsSectionStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -41,61 +41,61 @@
                             </Border>
                         </Grid>
                         <StackPanel Margin="{StaticResource SettingsRowMargin}">
-                            <Border Style="{StaticResource SettingsInnerTileStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Typography.Icon}" Text="&#xE8F7;"/>
-                                        <TextBlock Style="{StaticResource SettingsRowTitleStyle}" Margin="{StaticResource SettingsIconTextMargin}" VerticalAlignment="Center" Text="{DynamicResource Settings.AgentData}"/>
-                                    </StackPanel>
-                                    <Border 
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                        <UniformGrid Columns="2">
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE78C;"
-                                                Content="{DynamicResource Settings.ExportKnowledge}"
-                                                HorizontalAlignment="Stretch"
-                                                Command="{Binding ExportKnowledgeCommand}"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE896;"
-                                                Content="{DynamicResource Settings.ImportKnowledge}"
-                                                HorizontalAlignment="Stretch"
-                                                Margin="0"
-                                                Command="{Binding ImportKnowledgeCommand}"/>
-                                        </UniformGrid>
-                                    </Border>
-                                    <Border Margin="{StaticResource SettingsStackGap4}"
-                Style="{StaticResource SurfacePanelTileStyle}">
-                                        <UniformGrid Columns="2">
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE74D;"
-                                                Content="{DynamicResource Settings.ClearMemory}"
-                                                HorizontalAlignment="Stretch"
-                                                Command="{Binding ClearMemoryCommand}"/>
-                                            <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                                Tag="&#xE74D;"
-                                                Content="{DynamicResource Settings.ClearKnowledge}"
-                                                HorizontalAlignment="Stretch"
-                                                Margin="0"
-                                                Command="{Binding ClearKnowledgeCommand}"/>
-                                        </UniformGrid>
-                                    </Border>
+                            <Grid Margin="{StaticResource SettingsStackGap10}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="10"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="8"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Button Grid.Row="0" Grid.Column="0"
+                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                    Height="36" Margin="0"
+                                    Tag="&#xE78C;"
+                                    Content="{DynamicResource Settings.ExportKnowledge}"
+                                    HorizontalAlignment="Stretch"
+                                    Command="{Binding ExportKnowledgeCommand}"/>
+                                <Button Grid.Row="0" Grid.Column="2"
+                                    Style="{StaticResource SettingsActionButtonStyle}"
+                                    Height="36" Margin="0"
+                                    Tag="&#xE896;"
+                                    Content="{DynamicResource Settings.ImportKnowledge}"
+                                    HorizontalAlignment="Stretch"
+                                    Command="{Binding ImportKnowledgeCommand}"/>
+                                <Button Grid.Row="2" Grid.Column="0"
+                                    Style="{StaticResource DangerButton}"
+                                    Height="36" Margin="0"
+                                    Tag="&#xE74D;"
+                                    Content="{DynamicResource Settings.ClearMemory}"
+                                    HorizontalAlignment="Stretch"
+                                    Command="{Binding ClearMemoryCommand}"/>
+                                <Button Grid.Row="2" Grid.Column="2"
+                                    Style="{StaticResource DangerButton}"
+                                    Height="36" Margin="0"
+                                    Tag="&#xE74D;"
+                                    Content="{DynamicResource Settings.ClearKnowledge}"
+                                    HorizontalAlignment="Stretch"
+                                    Command="{Binding ClearKnowledgeCommand}"/>
+                            </Grid>
 
-                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="{StaticResource SettingsStackGap12}"
-                                               TextTrimming="CharacterEllipsis"
-                                               ToolTip="{Binding AgentDatabasePath, Mode=OneWay}">
-                                        <Run Text="{DynamicResource Settings.AgentDatabase}"/>
-                                        <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
-                                    </TextBlock>
-                                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
-                                               Margin="{StaticResource SettingsNoteTightMargin}"
-                                               TextTrimming="CharacterEllipsis"
-                                               ToolTip="{Binding SettingsFilePath, Mode=OneWay}">
-                                        <Run Text="{DynamicResource Settings.AgentSettings}"/>
-                                        <Run Text="{Binding SettingsFilePath, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Border>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                       Margin="{StaticResource SettingsStackGap12}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding AgentDatabasePath, Mode=OneWay}">
+                                <Run Text="{DynamicResource Settings.AgentDatabase}"/>
+                                <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                       Margin="{StaticResource SettingsNoteTightMargin}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding SettingsFilePath, Mode=OneWay}">
+                                <Run Text="{DynamicResource Settings.AgentSettings}"/>
+                                <Run Text="{Binding SettingsFilePath, Mode=OneWay}"/>
+                            </TextBlock>
                         </StackPanel>
 
                         <!-- Status line -->

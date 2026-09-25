@@ -17,10 +17,10 @@
 1. Double-click the Setup.exe your vendor sent you.
 2. Windows SmartScreen will warn you that the file is from an unknown publisher (until the vendor's code-signing certificate is set up — see the signing notes in your vendor's release kit).
 3. Click **More info → Run anyway** to continue.
-4. Accept the licence terms.
-5. Choose the install folder (default: `C:\Program Files\ProGlass Automation\`).
-6. Choose the data folder. **Important:** if you have an existing install, pick the same data folder so your existing records are picked up.
-7. Click **Install**. The Setup pulls down a few files (less than 200 MB total for a fresh install), then launches ProGlass.
+4. Read the readme, then accept the licence terms.
+5. Choose who the install is for: just you, or all users. All users asks Windows for administrator approval. There is no separate data-folder page. Records stay in `%AppData%\ProGlassAutomation\`.
+6. Click **Install**. The wizard copies the files, then you can launch ProGlass.
+7. FFmpeg and the offline AI model are not in this wizard. The app offers them once, after sign-in. Nothing downloads until you click Install.
 8. On first launch, the welcome view appears — see `FIRST_RUN.md`.
 
 ### From a portable .zip (developer build)

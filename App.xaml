@@ -201,6 +201,9 @@
                          via {StaticResource ...} without duplication.
                     ═══════════════════════════════════════════════════════════════ -->
                 <ResourceDictionary Source="pack://application:,,,/Views/Reports/StatementGenerator/Styles/WizardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Production/Controls/ProductionUnitDetailTemplates.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsCardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Views/Settings/SettingsSectionStyles.xaml"/>
 
                 <!-- ── DEFAULT LANGUAGE (2026-09-05 — XDG-0001 cleanup).
                      Language keys (Splash.* / Shell.* / module captions) were

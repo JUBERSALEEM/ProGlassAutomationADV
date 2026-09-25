@@ -1346,7 +1346,7 @@
     <sys:String x:Key="ProformaInvoice.SaveInvoiceConfirmationHappensStep8">Solo guardar la factura. La confirmación ocurre mediante los adjuntos del paso 8.</sys:String>
     <sys:String x:Key="ProformaInvoice.Saved">GUARDADO</sys:String>
     <sys:String x:Key="ProformaInvoice.SavedPis">Todas las PIs guardadas</sys:String>
-    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Cotizaciones guardadas listas para convertir en órdenes de trabajo</sys:String>
+    <sys:String x:Key="ProformaInvoice.SavedQuotationsReadyConvertJobOrders">Cotizaciones guardadas. El estado en vivo sigue el pedido, la entrega y la factura fiscal.</sys:String>
     <sys:String x:Key="ProformaInvoice.SearchRefCompanyCustomerProject">Buscar ref, empresa, cliente, proyecto</sys:String>
     <sys:String x:Key="ProformaInvoice.Sections">SECCIONES</sys:String>
     <sys:String x:Key="ProformaInvoice.SelectDetectedColour">COLOR DETECTADO ▾</sys:String>
@@ -2719,5 +2719,45 @@
     <sys:String x:Key="Void.ShowVoidedTip">Incluir documentos anulados (cierre suave) en la lista. Los documentos anulados siempre son visibles para los informes y la pista de auditoría.</sys:String>
     <sys:String x:Key="Void.ThisDocument">este documento</sys:String>
     <sys:String x:Key="Void.Title">Anular documento</sys:String>
+
+    <sys:String x:Key="Setup.Title">ProGlass Setup</sys:String>
+    <sys:String x:Key="Setup.Ffmpeg">FFmpeg</sys:String>
+    <sys:String x:Key="Setup.FfmpegNeed">Recording needs ffmpeg.exe and ffprobe.exe.</sys:String>
+    <sys:String x:Key="Setup.FfmpegBody">Downloads the Windows essentials zip, checks it, and places both tools in the tools folder.</sys:String>
+    <sys:String x:Key="Setup.DownloadInstall">Download and install</sys:String>
+    <sys:String x:Key="Setup.Recheck">Recheck</sys:String>
+    <sys:String x:Key="Setup.Skip">Skip</sys:String>
+    <sys:String x:Key="Setup.Next">Next</sys:String>
+    <sys:String x:Key="Setup.Back">Back</sys:String>
+    <sys:String x:Key="Setup.LocalModel">Offline AI model</sys:String>
+    <sys:String x:Key="Setup.LocalModelBody">Install once. Answers stay on this computer.</sys:String>
+    <sys:String x:Key="Setup.Install">Install</sys:String>
+    <sys:String x:Key="Setup.License">License</sys:String>
+    <sys:String x:Key="Setup.Cancel">Cancel</sys:String>
+    <sys:String x:Key="Setup.Close">Close</sys:String>
+    <sys:String x:Key="Setup.Recommended">Recommended</sys:String>
+    <sys:String x:Key="Setup.Downloading">Downloading the model.</sys:String>
+    <sys:String x:Key="Setup.NothingUploaded">nothing is uploaded.</sys:String>
+    <sys:String x:Key="Setup.OpenInstaller">Open installer</sys:String>
+    <sys:String x:Key="Setup.Ready">Ready</sys:String>
+    <sys:String x:Key="Setup.NotInstalled">Not installed</sys:String>
+
+    <sys:String x:Key="Setup.FfmpegReady">FFmpeg is ready.</sys:String>
+    <sys:String x:Key="Setup.FfmpegMissing">FFmpeg is not installed.</sys:String>
+    <sys:String x:Key="Setup.ModelDone">Installed. Answers from this model stay on this computer.</sys:String>
+    <sys:String x:Key="Setup.ModelFailed">The model did not install. Check disk space and the connection, then try again.</sys:String>
+    <sys:String x:Key="Setup.DownloadCancelled">Download cancelled. No partial file was kept.</sys:String>
+    <sys:String x:Key="Setup.LocalDownload">Local model download</sys:String>
+    <sys:String x:Key="Setup.Installing">Installing</sys:String>
+
+    <sys:String x:Key="Settings.Reset">Restablecer</sys:String>
+    <sys:String x:Key="Shell.AiAnswersOnly">Answers questions. Does not change records.</sys:String>
+    <sys:String x:Key="Shell.AgentAsksFirst">Reads your ERP data. Asks before it writes.</sys:String>
+    <sys:String x:Key="Shell.More">More</sys:String>
+    <sys:String x:Key="Shell.OpenFullSettings">Open full settings</sys:String>
+    <sys:String x:Key="Shell.ActivityToday">Today</sys:String>
+    <sys:String x:Key="Shell.ActivityAll">All</sys:String>
+    <sys:String x:Key="Shell.NoActivityToday">No activity today.</sys:String>
+    <sys:String x:Key="Shell.ThemeStudioHint">Family, light or dark</sys:String>
 
 </ResourceDictionary>

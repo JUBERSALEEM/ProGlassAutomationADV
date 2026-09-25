@@ -21,13 +21,10 @@
              "Search anything…" and fine purple (#8E82D8) focus rim
            • Far right exact text "22 Sep 2026 / 10:30", one thin crescent
              moon icon, user chip circle "U" with tiny stacked "User" and "Role"
-       - SECONDARY UTILITY RIBBON:
-           • Slim inset soft lavender (#E6E1F4) rounded inlay following the
-             full horizontal leg of the L below the primary row
-           • Eight labeled actions with tiny elegant thin-line icons & exact labels:
-             "AI Chat", "AI Agent", "Activity", "Settings", "Screenshot",
-             "Record", "About", "Experience"
-           • Far right: one neutral grey network node glyph (no status color)
+       - UTILITIES (same row, icon buttons):
+           AI, Agent, Activity, Settings, More.
+           Screenshot, Record, About and Experience live in More.
+           No second ribbon. No hardcoded Live Active pill.
        - OPEN LEFT SIDEBAR:
            • Continuous porcelain surface through the inner elbow
            • "Menu" + one X close icon only (no logo)
@@ -241,271 +238,245 @@
                                   Visibility="{Binding IsPersonalExperience,
                                     Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             TOP HEADER — CONCEPT 30 PORCELAIN FLOW (Study 07 Editorial Wordmark)
-             Continuous porcelain-white (#FCFCFE) surface
-             Primary Top Row (52px) + Secondary Utility Ribbon (36px)
-             + Nested double keylines along bottom edge (#D9D5E6)
-        ═══════════════════════════════════════════════════════════════ -->
+        <!-- Professional shell bar: one 56px row. Screenshot, Record,
+             About and Experience live in More. Hidden in Glass Blush. -->
         <Border Grid.Row="0"
-                Style="{StaticResource PgTopBarStyle}"
+                Height="56"
                 Panel.ZIndex="300"
-                SnapsToDevicePixels="True"
-                Visibility="{Binding IsPersonalExperience,
-                          Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                SnapsToDevicePixels="True">
+            <Border.Style>
+                <Style TargetType="Border" BasedOn="{StaticResource PgTopBarStyle}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsPersonalExperience}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <Grid Background="{DynamicResource SurfacePrimaryBrush}">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="52"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="3"/>
-                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- PRIMARY TOP ROW (left to right) -->
-                <Grid Grid.Row="0" Margin="14,0,16,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/><!-- 1. Hamburger -->
-                        <ColumnDefinition Width="Auto"/><!-- 2. Oversized serif wordmark ProGlass + AUTOMATION SUITE -->
-                        <ColumnDefinition Width="*"/><!-- 3. Search island (rounded outline dropdown + purple-rimmed field) -->
-                        <ColumnDefinition Width="Auto"/><!-- 4. Right cluster: Date/time + Crescent moon + User initials chip -->
-                    </Grid.ColumnDefinitions>
+                <Button Grid.Column="0"
+                        Style="{StaticResource PgTopIconButtonStyle}"
+                        Content="&#xE700;"
+                        Command="{Binding ToggleMenuCommand}"
+                        ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                        Margin="10,0,8,0"
+                        VerticalAlignment="Center"/>
 
-                    <!-- 1. THIN HAMBURGER ICON -->
-                    <Button Grid.Column="0"
-                            Style="{StaticResource PgTopIconButtonStyle}"
-                            Content="&#xE700;"
-                            Command="{Binding ToggleMenuCommand}"
-                            ToolTip="{DynamicResource ToolTip.ToggleMenu}"
-                            Margin="0,0,14,0"
+                <StackPanel x:Name="LogoPanel"
+                            Grid.Column="1"
+                            Orientation="Horizontal"
                             VerticalAlignment="Center"
-                            Panel.ZIndex="80"
-                            IsHitTestVisible="True"
-                            Focusable="True"/>
+                            Margin="0,0,12,0"
+                            Cursor="Hand"
+                            behaviors:ClickToCommandBehavior.Command="{Binding LogoClickCommand}"
+                            ToolTip="{DynamicResource ToolTip.About}">
+                    <TextBlock Text="ProGlass"
+                               Style="{StaticResource PgBrandTitleStyle}"
+                               FontSize="16"/>
+                    <Border Margin="8,0,0,0"
+                            Padding="6,1"
+                            CornerRadius="4"
+                            VerticalAlignment="Center"
+                            Background="{DynamicResource SurfaceSecondaryBrush}"
+                            BorderBrush="{DynamicResource BorderDefaultBrush}"
+                            BorderThickness="1">
+                        <TextBlock Text="SUITE"
+                                   FontSize="9"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                    </Border>
+                </StackPanel>
 
-                    <!-- 2. OVERSIZED ELEGANT SERIF-DISPLAY WORDMARK "ProGlass" + TINY LETTER-SPACED CAPS "AUTOMATION SUITE" -->
-                    <StackPanel x:Name="LogoPanel"
-                                Grid.Column="1"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                Margin="0,0,20,0"
-                                Cursor="Hand"
-                                behaviors:ClickToCommandBehavior.Command="{Binding LogoClickCommand}"
-                                ToolTip="{DynamicResource ToolTip.About}">
-                        <TextBlock Text="ProGlass"
-                                   Style="{StaticResource PgBrandTitleStyle}"/>
-                        <TextBlock Text="AUTOMATION SUITE"
-                                   Style="{StaticResource PgBrandSubStyle}"/>
-                    </StackPanel>
+                <TextBlock Grid.Column="2"
+                           Text="{Binding CurrentModuleHeaderTitle, FallbackValue='ProGlass'}"
+                           FontFamily="{DynamicResource AppFontFamily}"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource TextPrimaryBrush}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,12,0"
+                           MaxWidth="240"
+                           TextTrimming="CharacterEllipsis"/>
 
-                    <!-- 3. SEARCH ISLAND — wide rounded white inset with fine purple (#8E82D8) focus rim and "All Modules" dropdown -->
-                    <globalSearch:GlobalSearchBar Grid.Column="2"
-                                                   MinWidth="240"
-                                                   MaxWidth="560"
-                                                   HorizontalAlignment="Stretch"
-                                                   Margin="12,0"
-                                                   VerticalAlignment="Center"
-                                                   DataContext="{Binding GlobalSearchVM}"/>
+                <globalSearch:GlobalSearchBar Grid.Column="3"
+                                               MinWidth="140"
+                                               HorizontalAlignment="Stretch"
+                                               Margin="0,0,12,0"
+                                               VerticalAlignment="Center"
+                                               DataContext="{Binding GlobalSearchVM}"/>
 
-                    <!-- 4. RIGHT CLUSTER: "22 Sep 2026 / 10:30", Crescent Moon, User Chip Circle "U" -->
-                    <StackPanel Grid.Column="3"
-                                Orientation="Horizontal"
-                                VerticalAlignment="Center"
-                                Margin="16,0,0,0">
-
-                        <!-- Exact text: "22 Sep 2026 / 10:30" -->
-                        <Border Margin="0,0,14,0" VerticalAlignment="Center"
+                <StackPanel Grid.Column="4"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0"
                                 ToolTip="{DynamicResource ToolTip.DateTime}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding CurrentDateText, FallbackValue='22 Sep 2026'}"
-                                           FontSize="12"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text=" / "
-                                           FontSize="12"
-                                           Foreground="{DynamicResource TextSecondaryBrush}"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding CurrentTimeText, FallbackValue='10:30'}"
-                                           FontSize="12"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- ONE THIN CRESCENT MOON ICON -->
-                        <Button x:Name="DarkModeButton"
-                                Margin="0,0,12,0"
-                                ToolTip="{DynamicResource ToolTip.ToggleTheme}"
-                                Command="{Binding ToggleThemeCommand}">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
-                                    <Setter Property="Content" Value="&#xE708;"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
-                                            <Setter Property="Content" Value="&#xE706;"/>
-                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-
-                        <!-- USER CHIP CIRCLE "U" with tiny stacked "User" and "Role" -->
-                        <Button x:Name="UserCardButton"
-                                Style="{StaticResource PgUserCardStyle}"
-                                Command="{Binding TogglePopupCommand}" CommandParameter="UserSwitch"
-                                ToolTip="{DynamicResource ToolTip.SwitchUser}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Style="{StaticResource PgAvatarStyle}"
-                                        Margin="0,0,8,0">
-                                    <TextBlock Text="{Binding CurrentUserInitials, FallbackValue='U'}"
-                                               FontSize="11"
-                                               FontWeight="Bold"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue='User'}"
-                                               FontSize="11"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource TextPrimaryBrush}"
-                                               TextTrimming="CharacterEllipsis"
-                                               MaxWidth="100"/>
-                                    <TextBlock Text="{Binding CurrentUserRole, FallbackValue='Role'}"
-                                               FontSize="9.5"
-                                               FontWeight="Normal"
-                                               Foreground="{DynamicResource TextSecondaryBrush}"
-                                               TextTrimming="CharacterEllipsis"
-                                               MaxWidth="100"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Button>
-
+                        <TextBlock Text="{Binding CurrentDateText, FallbackValue='22 Sep 2026'}"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text=" " FontSize="11" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding CurrentTimeText, FallbackValue='10:30'}"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center"/>
                     </StackPanel>
-                </Grid>
 
-                <!-- SECONDARY UTILITY RIBBON (soft lavender #E6E1F4 rounded inlay) -->
-                <Border Grid.Row="1"
-                        Height="34"
-                        Margin="12,0,14,6"
-                        Background="{DynamicResource SurfaceSecondaryBrush}"
-                        BorderBrush="{DynamicResource BorderDefaultBrush}"
-                        BorderThickness="1"
-                        CornerRadius="7"
-                        Padding="6,0"
-                        SnapsToDevicePixels="True">
-                    <DockPanel LastChildFill="False">
-                        <!-- Eight labeled actions -->
-                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" VerticalAlignment="Center">
-                            <!-- 1. AI Chat -->
-                            <Button x:Name="AiBotButton"
-                                    Style="{StaticResource PgRibbonActionStyle}"
-                                    Command="{Binding AiChatVM.ToggleChatCommand}"
-                                    ToolTip="{DynamicResource ToolTip.AiChat}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE99A;" Style="{StaticResource PgRibbonIconStyle}"/>
-                                    <TextBlock Text="AI Chat" Style="{StaticResource PgRibbonLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
+                    <Button x:Name="DarkModeButton"
+                            Margin="0,0,4,0"
+                            ToolTip="{DynamicResource ToolTip.ToggleTheme}"
+                            Command="{Binding ToggleThemeCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
+                                <Setter Property="Content" Value="&#xE708;"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
+                                        <Setter Property="Content" Value="&#xE706;"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
 
-                            <!-- 2. AI Agent -->
-                            <Button x:Name="AgentPillButton"
-                                    Style="{StaticResource PgRibbonActionStyle}"
-                                    Command="{Binding ToggleAgentChatCommand}"
-                                    ToolTip="{DynamicResource ToolTip.Agent}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE946;" Style="{StaticResource PgRibbonIconStyle}"/>
-                                    <TextBlock Text="AI Agent" Style="{StaticResource PgRibbonLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- 3. Activity -->
-                            <Button x:Name="NotificationButton"
-                                    Style="{StaticResource PgRibbonActionStyle}"
-                                    Command="{Binding TogglePopupCommand}" CommandParameter="Notifications"
-                                    ToolTip="{DynamicResource ToolTip.RecentActivity}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xEA8F;" Style="{StaticResource PgRibbonIconStyle}"/>
-                                    <TextBlock Text="Activity" Style="{StaticResource PgRibbonLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- 4. Settings -->
-                            <Button x:Name="SettingsButton"
-                                    Style="{StaticResource PgRibbonActionStyle}"
-                                    Command="{Binding TogglePopupCommand}" CommandParameter="Settings"
-                                    ToolTip="{DynamicResource ToolTip.Settings}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE713;" Style="{StaticResource PgRibbonIconStyle}"/>
-                                    <TextBlock Text="Settings" Style="{StaticResource PgRibbonLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- 5. Screenshot -->
-                            <Button x:Name="ScreenshotButton"
-                                    Style="{StaticResource PgRibbonActionStyle}"
-                                    Command="{Binding TogglePopupCommand}" CommandParameter="Screenshot"
-                                    ToolTip="{DynamicResource ToolTip.Screenshot}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xEB9F;" Style="{StaticResource PgRibbonIconStyle}"/>
-                                    <TextBlock Text="Screenshot" Style="{StaticResource PgRibbonLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- 6. Record -->
-                            <Button x:Name="RecordButton"
-                                    Style="{StaticResource PgRibbonActionStyle}"
-                                    Command="{Binding TogglePopupCommand}" CommandParameter="ScreenRecord"
-                                    ToolTip="{DynamicResource ToolTip.ScreenRecording}"
-                                    AutomationProperties.AutomationId="Shell.ScreenRecord">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE714;" Style="{StaticResource PgRibbonIconStyle}"/>
-                                    <TextBlock Text="Record" Style="{StaticResource PgRibbonLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- 7. About -->
-                            <Button x:Name="AboutButton"
-                                    Style="{StaticResource PgRibbonActionStyle}"
-                                    Command="{Binding ShowAboutCommand}"
-                                    ToolTip="{DynamicResource ToolTip.About}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE949;" Style="{StaticResource PgRibbonIconStyle}"/>
-                                    <TextBlock Text="About" Style="{StaticResource PgRibbonLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
-
-                            <!-- 8. Experience -->
-                            <Button x:Name="ExperienceSwitchButton"
-                                    Style="{StaticResource PgRibbonActionStyle}"
-                                    Command="{Binding ToggleExperienceCommand}"
-                                    ToolTip="Personal UI (Glass Blush)"
-                                    AutomationProperties.AutomationId="Shell.ExperienceSwitch">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE771;" Style="{StaticResource PgRibbonIconStyle}"/>
-                                    <TextBlock Text="Experience" Style="{StaticResource PgRibbonLabelStyle}"/>
-                                </StackPanel>
-                            </Button>
+                    <Button x:Name="UserCardButton"
+                            Style="{StaticResource PgUserCardStyle}"
+                            Margin="0,0,6,0"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="UserSwitch"
+                            ToolTip="{DynamicResource ToolTip.SwitchUser}">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource PgAvatarStyle}" Margin="0,0,8,0">
+                                <TextBlock Text="{Binding CurrentUserInitials, FallbackValue='U'}"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue='User'}"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="88"/>
+                                <TextBlock Text="{Binding CurrentUserRole, FallbackValue='Role'}"
+                                           FontSize="9.5"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="88"/>
+                            </StackPanel>
                         </StackPanel>
+                    </Button>
 
-                        <!-- Neutral grey network node glyph (no status color) -->
-                        <Border DockPanel.Dock="Right" VerticalAlignment="Center" Margin="0,0,8,0"
-                                ToolTip="{Binding ConnectivityLabel, FallbackValue='Network node'}">
-                            <TextBlock Text="&#xE701;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource TextSecondaryBrush}"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                    </DockPanel>
-                </Border>
+                    <Border Width="1" Height="20" Margin="2,0,6,0"
+                            Background="{DynamicResource BorderDefaultBrush}"
+                            VerticalAlignment="Center"/>
 
-                <!-- NESTED DOUBLE KEYLINES along bottom of Top Header (#D9D5E6) -->
-                <Grid Grid.Row="2" VerticalAlignment="Bottom" Height="3">
-                    <Border Height="1" VerticalAlignment="Top" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
-                    <Border Height="1" VerticalAlignment="Bottom" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
-                </Grid>
+                    <Button x:Name="AiBotButton"
+                            Content="&#xE99A;"
+                            Command="{Binding AiChatVM.ToggleChatCommand}"
+                            ToolTip="{DynamicResource ToolTip.AiChat}"
+                            AutomationProperties.Name="AI">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding AiChatVM.IsOpen}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button x:Name="AgentPillButton"
+                            Content="&#xE946;"
+                            Margin="2,0,0,0"
+                            Command="{Binding ToggleAgentChatCommand}"
+                            ToolTip="{DynamicResource ToolTip.Agent}"
+                            AutomationProperties.Name="Agent">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAgentChatOpen}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button x:Name="NotificationButton"
+                            Content="&#xEA8F;"
+                            Margin="2,0,0,0"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="Notifications"
+                            ToolTip="{DynamicResource ToolTip.RecentActivity}"
+                            AutomationProperties.Name="Activity">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsNotificationsOpen}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button x:Name="SettingsButton"
+                            Content="&#xE713;"
+                            Margin="2,0,0,0"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="Settings"
+                            ToolTip="{DynamicResource ToolTip.Settings}"
+                            AutomationProperties.Name="Settings">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button x:Name="MoreButton"
+                            Content="&#xE712;"
+                            Margin="2,0,0,0"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="More"
+                            ToolTip="{DynamicResource Shell.More}"
+                            AutomationProperties.Name="More">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PgTopIconButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsShellMoreOpen}" Value="True">
+                                        <Setter Property="Background" Value="{StaticResource PgLavenderRibbonBrush}"/>
+                                        <Setter Property="Foreground" Value="{StaticResource PgFocusRimBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </StackPanel>
+
+                <Border Grid.ColumnSpan="5"
+                        Height="1"
+                        VerticalAlignment="Bottom"
+                        Background="{DynamicResource BorderDefaultBrush}"
+                        SnapsToDevicePixels="True"/>
             </Grid>
         </Border>
 
@@ -961,11 +932,11 @@
                     </viewsAi:AiChatView.Style>
                 </viewsAi:AiChatView>
 
-                <!-- AGENT CHAT FLOATING CARD -->
+                <!-- AGENT CHAT FLOATING CARD (Bento Indigo Surface) -->
                 <Border x:Name="ProAgentChatHost"
                         Panel.ZIndex="210"
-                        Width="560"
-                        Height="680"
+                        Width="520"
+                        Height="640"
                         MaxHeight="{Binding ActualHeight,
                                     RelativeSource={RelativeSource AncestorType=Window},
                                     Converter={StaticResource WindowInsetConverter},
@@ -973,11 +944,15 @@
                         Margin="0,16,24,24"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Bottom"
-                        CornerRadius="12"
-                        ClipToBounds="False"
-                        BorderBrush="{DynamicResource AccentBrush}"
+                        CornerRadius="14"
+                        ClipToBounds="True"
+                        BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="1"
-                        Background="#FFFFFF">
+                        Background="{DynamicResource SurfacePrimaryBrush}">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="24" ShadowDepth="4"
+                                          Opacity="0.14" Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
+                    </Border.Effect>
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -992,11 +967,14 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Border CornerRadius="12"
-                            ClipToBounds="True"
-                            Background="#FFFFFF">
-                        <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
-                    </Border>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="4"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="{DynamicResource AccentBrush}"/>
+                        <agentUi:AgentChatView Grid.Column="1" DataContext="{Binding AgentChatVM}"/>
+                    </Grid>
                 </Border>
 
             </Grid>
@@ -1009,8 +987,7 @@
         <!-- USER-SWITCH POPUP -->
         <Popup x:Name="UserSwitchPopup"
                PlacementTarget="{Binding ElementName=UserCardButton}"
-               Placement="Bottom"
-               VerticalOffset="8"
+               Placement="Custom"
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
@@ -1025,23 +1002,27 @@
             <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"/>
         </Popup>
 
-        <!-- QUICK-SETTINGS POPUP -->
+        <!-- QUICK-SETTINGS POPUP. Right edge meets the gear. Experience-gated
+             so a collapsed professional bar cannot float this at the origin. -->
         <Popup x:Name="SettingsPopup"
                PlacementTarget="{Binding ElementName=SettingsButton}"
-               Placement="Bottom"
-               VerticalOffset="8"
+               Placement="Custom"
                AllowsTransparency="True"
                StaysOpen="True"
-               PopupAnimation="Fade"
-               IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}">
-            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="360"/>
+               PopupAnimation="Fade">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}">
+                    <Binding Path="IsSettingsOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="320"/>
         </Popup>
 
         <!-- NOTIFICATIONS / ACTIVITY POPUP -->
         <Popup x:Name="NotificationsPopup"
                PlacementTarget="{Binding ElementName=NotificationButton}"
-               Placement="Bottom"
-               VerticalOffset="8"
+               Placement="Custom"
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade"
@@ -1055,11 +1036,99 @@
             <viewsShared:ActivityPanel x:Name="ActivityPanelHost"/>
         </Popup>
 
-        <!-- SCREENSHOT POPUP -->
+        <!-- MORE: Screenshot, Record, About, Experience. The screenshot and
+             record popups anchor to MoreButton, which stays visible after
+             this menu closes. -->
+        <Popup x:Name="ShellMorePopup"
+               PlacementTarget="{Binding ElementName=MoreButton}"
+               Placement="Custom"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade">
+            <Popup.IsOpen>
+                <MultiBinding Converter="{StaticResource ExperienceGatedConverter}">
+                    <Binding Path="IsShellMoreOpen"/>
+                    <Binding Path="IsPersonalExperience"/>
+                </MultiBinding>
+            </Popup.IsOpen>
+            <Border x:Name="ShellMorePanel"
+                    Width="232"
+                    Margin="8"
+                    CornerRadius="12"
+                    Background="{DynamicResource ShellLiquidBrush}"
+                    BorderBrush="{DynamicResource BorderDefaultBrush}"
+                    BorderThickness="1"
+                    Padding="6,6,6,8"
+                    SnapsToDevicePixels="True">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="18" ShadowDepth="3" Opacity="0.16"
+                                      Color="{DynamicResource LiquidShadowColor}" Direction="270"/>
+                </Border.Effect>
+                <StackPanel>
+                    <Button x:Name="ScreenshotButton"
+                            Style="{StaticResource PgShellMenuRowStyle}"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="Screenshot"
+                            ToolTip="{DynamicResource ToolTip.Screenshot}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xEB9F;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                       Width="20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Screenshot" Margin="8,0,0,0" FontSize="12"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="RecordButton"
+                            Style="{StaticResource PgShellMenuRowStyle}"
+                            Command="{Binding TogglePopupCommand}" CommandParameter="ScreenRecord"
+                            ToolTip="{DynamicResource ToolTip.ScreenRecording}"
+                            AutomationProperties.AutomationId="Shell.ScreenRecord">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE714;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                       Width="20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Record" Margin="8,0,0,0" FontSize="12"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="AboutButton"
+                            Style="{StaticResource PgShellMenuRowStyle}"
+                            Command="{Binding ShowAboutCommand}"
+                            ToolTip="{DynamicResource ToolTip.About}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE949;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                       Width="20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="About" Margin="8,0,0,0" FontSize="12"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="ExperienceSwitchButton"
+                            Style="{StaticResource PgShellMenuRowStyle}"
+                            Command="{Binding ToggleExperienceCommand}"
+                            ToolTip="Personal UI (Glass Blush)"
+                            AutomationProperties.AutomationId="Shell.ExperienceSwitch">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE771;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                       Width="20" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Experience" Margin="8,0,0,0" FontSize="12"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        </StackPanel>
+                    </Button>
+                    <Border Height="1" Margin="8,6" Background="{DynamicResource BorderDefaultBrush}"/>
+                    <StackPanel Orientation="Horizontal" Margin="12,2,8,4"
+                                ToolTip="{Binding ConnectivityLabel, FallbackValue='Network node'}">
+                        <TextBlock Text="&#xE701;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                   Foreground="{DynamicResource TextSecondaryBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ConnectivityLabel, FallbackValue='Network node'}"
+                                   Margin="8,0,0,0" FontSize="11"
+                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Popup>
+
+        <!-- SCREENSHOT POPUP. Anchored to More so it stays on screen after More closes. -->
         <Popup x:Name="ScreenshotPopup"
-               PlacementTarget="{Binding ElementName=ScreenshotButton}"
-               Placement="Bottom"
-               VerticalOffset="0"
+               PlacementTarget="{Binding ElementName=MoreButton}"
+               Placement="Custom"
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade">
@@ -1074,9 +1143,8 @@
 
         <!-- SCREEN RECORD POPUP -->
         <Popup x:Name="ScreenRecordPopup"
-               PlacementTarget="{Binding ElementName=RecordButton}"
-               Placement="Bottom"
-               VerticalOffset="8"
+               PlacementTarget="{Binding ElementName=MoreButton}"
+               Placement="Custom"
                AllowsTransparency="True"
                StaysOpen="True"
                PopupAnimation="Fade">

@@ -263,7 +263,7 @@
             Background="Transparent"
             behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="{DynamicResource Ds.PageMargin}">
-                <layout:IndigoDashboardPanel Margin="0,0,0,18" MaxColumns="2" MinimumColumnWidth="390" FirstColumnWeight="1" Gap="20">
+                <layout:IndigoDashboardPanel Margin="0,0,0,8" MaxColumns="2" MinimumColumnWidth="390" FirstColumnWeight="1" Gap="20">
                     <StackPanel>
                         <TextBlock
                             Text="{DynamicResource Dashboard.TaxInvoices}"
@@ -426,10 +426,10 @@
                     </layout:IndigoDashboardPanel>
                 </StackPanel>
                 <StackPanel Style="{StaticResource Ds.Content}">
-                    <StackPanel Margin="0,0,0,18" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                        <Border Margin="0,0,0,18" Background="Transparent" BorderThickness="0" Padding="0">
+                    <StackPanel Margin="0,0,0,10" Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <Border Margin="0,0,0,10" Background="Transparent" BorderThickness="0" Padding="0">
                             <DockPanel>
-                                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                                     <TextBlock
                                         Text="{DynamicResource Dashboard.CollectionsPulse}"
                                         Style="{StaticResource Ds.CardTitleStyle}"
@@ -437,7 +437,7 @@
                                     <TextBlock
                                         Text="{DynamicResource Dashboard.InvoicedVATPaidPending}"
                                         Style="{StaticResource Ds.CardSubStyle}"
-                                        Margin="0,2,0,0"
+                                        Margin="0,1,0,0"
                                         TextWrapping="Wrap" />
                                 </StackPanel>
                                 <ItemsControl
@@ -521,21 +521,21 @@
                         MaxColumns="2"
                         MinimumColumnWidth="340"
                         FirstColumnWeight="1"
-                        Margin="0,0,0,18">
+                        Margin="0,0,0,10">
                         <Border Style="{StaticResource Ds.CardStyle}">
                             <DockPanel>
-                                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,10">
+                                <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                                     <TextBlock
                                         Text="{DynamicResource Dashboard.RevenueTrend}"
                                         Style="{StaticResource Ds.CardTitleStyle}"
                                         TextWrapping="Wrap"
-                                        Margin="0,0,16,8" />
+                                        Margin="0,0,16,6" />
                                     <TextBlock
                                         Text="{Binding RevenueChartTitle}"
                                         Style="{StaticResource Ds.MetaStyle}"
                                         HorizontalAlignment="Right"
                                         TextWrapping="Wrap"
-                                        Margin="0,0,16,8" />
+                                        Margin="0,0,16,6" />
                                 </WrapPanel>
                                 <Grid>
                                     <Border
@@ -607,14 +607,14 @@
                         </Border>
                     </layout:IndigoDashboardPanel>
                     <layout:IndigoDashboardPanel
-                        Margin="0,0,0,18"
+                        Margin="0,0,0,10"
                         Visibility="{Binding IsLoading, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                         MaxColumns="2"
                         MinimumColumnWidth="340"
                         FirstColumnWeight="1">
                         <Border Style="{StaticResource Ds.CardStyle}">
                             <DockPanel>
-                                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <StackPanel DockPanel.Dock="Top" Margin="0,0,0,6">
                                     <TextBlock
                                         Text="{DynamicResource Dashboard.TopCustomers}"
                                         Style="{StaticResource Ds.CardTitleStyle}"
@@ -622,7 +622,7 @@
                                     <TextBlock
                                         Text="Monthly invoiced value · AED"
                                         Style="{StaticResource Ds.CardSubStyle}"
-                                        Margin="0,2,0,0"
+                                        Margin="0,1,0,0"
                                         TextWrapping="Wrap" />
                                 </StackPanel>
                                 <ScrollViewer

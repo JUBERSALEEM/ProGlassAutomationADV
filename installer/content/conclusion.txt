@@ -1,0 +1,1 @@
+ProGlass Automation is installed. Launch it to sign in. FFmpeg and the offline model wait until you ask for them.
