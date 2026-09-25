@@ -1349,8 +1349,3 @@ namespace ProGlassAutomation.ViewModels
         }
     }
 }
-xt { Module = "Main", Operation = "AgentWiring" });
-            }
-        }
-    }
-}
