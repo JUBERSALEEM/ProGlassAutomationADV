@@ -261,10 +261,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             ResultEffortLabel = stage == "OPTIMIZE"
                 ? string.Format(CultureInfo.InvariantCulture,
-                      "Optimization level {0} of 5 (from SETTINGS)", _lastRunEffort)
+                      "Optimization level {0} of 5 · {1} (from SETTINGS)", _lastRunEffort, PlatePatternStamp())
                 : string.Format(CultureInfo.InvariantCulture,
-                      "Quick single pass — SETTINGS level {0} available via Upgrade to Optimize",
-                      _lastRunEffort);
+                      "Quick single pass · {1} — SETTINGS level {0} available via Upgrade to Optimize",
+                      _lastRunEffort, PlatePatternStamp());
 
             bool isUpgrade = stage == "OPTIMIZE"
                 && string.Equals(_previousRunStage, "QUICK", StringComparison.Ordinal)

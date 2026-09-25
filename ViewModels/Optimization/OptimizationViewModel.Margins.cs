@@ -202,59 +202,162 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
         }
 
-        public ObservableCollection<string> StageStrategies { get; } = new()
-        {
-            "Stage 1: QUICK (Quantity Patterns + Smart Fit)",
-            "Stage 2: Effort 2 (Area Patterns + Multi-Order Grid)",
-            "Stage 3: Effort 3 (Min-Side Patterns + Smart Search)",
-            "Stage 4: Effort 4 (Height Patterns + Best-Split)",
-            "Stage 5: Effort 5 (Wide Patterns + Deep Smart Search)"
-        };
+        public const string YieldPlatePatternLabel = "Yield";
+        public const string FillFirstPlatePatternLabel = "Fill first plate";
 
-        private string _selectedStageStrategy = "Stage 3: Effort 3 (Min-Side Patterns + Smart Search)";
+        /// <summary>
+        /// One main-screen label per stage and plate pattern. Yield is the
+        /// even item of each pair; Fill first plate is the odd item.
+        /// </summary>
+        public static string StageStrategyLabel(int stage, bool fillFirstPlate)
+        {
+            if (stage < 1 || stage > 5) stage = 3;
+            return fillFirstPlate
+                ? "Stage " + stage.ToString(CultureInfo.InvariantCulture) + " · Fill first plate"
+                : "Stage " + stage.ToString(CultureInfo.InvariantCulture) + " · Yield";
+        }
+
+        public ObservableCollection<string> StageStrategies { get; } = BuildStageStrategies();
+
+        private static ObservableCollection<string> BuildStageStrategies()
+        {
+            var items = new ObservableCollection<string>();
+            for (int stage = 1; stage <= 5; stage++)
+            {
+                items.Add(StageStrategyLabel(stage, false));
+                items.Add(StageStrategyLabel(stage, true));
+            }
+            return items;
+        }
+
+        private string _selectedStageStrategy = "Stage 3 · Yield";
+        private bool _syncingStrategy;
+
         public string SelectedStageStrategy
         {
             get => _selectedStageStrategy;
             set
             {
-                if (_selectedStageStrategy != value)
-                {
-                    _selectedStageStrategy = value;
-                    OnPropertyChanged();
-                    SyncEffortFromStageStrategy(value);
-                }
+                if (string.Equals(_selectedStageStrategy, value, StringComparison.Ordinal)) return;
+                _selectedStageStrategy = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedStageStrategyHint));
+                if (_syncingStrategy) return;
+                ApplyStrategyLabel(value);
             }
         }
+
+        public string SelectedStageStrategyHint =>
+            CurrentPlatePattern == PlatePattern.FillFirstPlate
+                ? "Fill first plate at this stage fills sheet 1 before opening another. It does not add sheets or leave more pieces out."
+                : "Yield at this stage keeps today's winner: fewest pieces left out, then fewest sheets. A fuller first sheet does not replace it.";
 
         private void SyncStageStrategyFromEffort(string effort)
         {
-            _selectedStageStrategy = effort switch
-            {
-                "1" => StageStrategies[0],
-                "2" => StageStrategies[1],
-                "3" => StageStrategies[2],
-                "4" => StageStrategies[3],
-                "5" => StageStrategies[4],
-                _ => StageStrategies[2]
-            };
-            OnPropertyChanged(nameof(SelectedStageStrategy));
+            if (_syncingStrategy) return;
+            SelectStrategy(ParseEffort(effort), CurrentPlatePattern == PlatePattern.FillFirstPlate);
         }
 
-        private void SyncEffortFromStageStrategy(string strategy)
+        private void ApplyStrategyLabel(string strategy)
         {
-            if (string.IsNullOrWhiteSpace(strategy)) return;
-            string effort = strategy.StartsWith("Stage 1", StringComparison.OrdinalIgnoreCase) ? "1"
-                          : strategy.StartsWith("Stage 2", StringComparison.OrdinalIgnoreCase) ? "2"
-                          : strategy.StartsWith("Stage 3", StringComparison.OrdinalIgnoreCase) ? "3"
-                          : strategy.StartsWith("Stage 4", StringComparison.OrdinalIgnoreCase) ? "4"
-                          : strategy.StartsWith("Stage 5", StringComparison.OrdinalIgnoreCase) ? "5"
-                          : "3";
-            if (_selectedEffortLevel != effort)
+            int stage = ParseStage(strategy);
+            bool fill = strategy != null
+                && strategy.IndexOf(FillFirstPlatePatternLabel, StringComparison.OrdinalIgnoreCase) >= 0;
+            string effort = stage.ToString(CultureInfo.InvariantCulture);
+            string pattern = fill ? FillFirstPlatePatternLabel : YieldPlatePatternLabel;
+            _syncingStrategy = true;
+            try
             {
-                _selectedEffortLevel = effort;
-                OnPropertyChanged(nameof(SelectedEffortLevel));
+                if (!string.Equals(_selectedEffortLevel, effort, StringComparison.Ordinal))
+                {
+                    _selectedEffortLevel = effort;
+                    OnPropertyChanged(nameof(SelectedEffortLevel));
+                }
+                if (!string.Equals(_selectedPlatePattern, pattern, StringComparison.Ordinal))
+                {
+                    _selectedPlatePattern = pattern;
+                    OnPropertyChanged(nameof(SelectedPlatePattern));
+                    OnPropertyChanged(nameof(CurrentPlatePattern));
+                    OnPropertyChanged(nameof(SelectedStageStrategyHint));
+                }
+                string canonical = StageStrategyLabel(stage, fill);
+                if (!string.Equals(_selectedStageStrategy, canonical, StringComparison.Ordinal))
+                {
+                    _selectedStageStrategy = canonical;
+                    OnPropertyChanged(nameof(SelectedStageStrategy));
+                }
+            }
+            finally
+            {
+                _syncingStrategy = false;
             }
         }
+
+        private void SelectStrategy(int stage, bool fill)
+        {
+            string label = StageStrategyLabel(stage, fill);
+            if (string.Equals(_selectedStageStrategy, label, StringComparison.Ordinal)) return;
+            _syncingStrategy = true;
+            try
+            {
+                _selectedStageStrategy = label;
+                OnPropertyChanged(nameof(SelectedStageStrategy));
+                OnPropertyChanged(nameof(SelectedStageStrategyHint));
+            }
+            finally
+            {
+                _syncingStrategy = false;
+            }
+        }
+
+        private static int ParseStage(string strategy)
+        {
+            if (string.IsNullOrWhiteSpace(strategy)) return 3;
+            if (strategy.StartsWith("Stage 1", StringComparison.OrdinalIgnoreCase)) return 1;
+            if (strategy.StartsWith("Stage 2", StringComparison.OrdinalIgnoreCase)) return 2;
+            if (strategy.StartsWith("Stage 3", StringComparison.OrdinalIgnoreCase)) return 3;
+            if (strategy.StartsWith("Stage 4", StringComparison.OrdinalIgnoreCase)) return 4;
+            if (strategy.StartsWith("Stage 5", StringComparison.OrdinalIgnoreCase)) return 5;
+            return 3;
+        }
+
+        private static int ParseEffort(string effort) =>
+            int.TryParse(effort, NumberStyles.Integer, CultureInfo.InvariantCulture, out int stage)
+            && stage >= 1 && stage <= 5
+                ? stage
+                : 3;
+
+        public ObservableCollection<string> PlatePatterns { get; } = new()
+        {
+            YieldPlatePatternLabel,
+            FillFirstPlatePatternLabel
+        };
+
+        private string _selectedPlatePattern = YieldPlatePatternLabel;
+        public string SelectedPlatePattern
+        {
+            get => _selectedPlatePattern;
+            set
+            {
+                string next = string.IsNullOrWhiteSpace(value) ? YieldPlatePatternLabel : value;
+                if (string.Equals(_selectedPlatePattern, next, StringComparison.Ordinal)) return;
+                _selectedPlatePattern = next;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentPlatePattern));
+                OnPropertyChanged(nameof(SelectedStageStrategyHint));
+                if (_syncingStrategy) return;
+                SelectStrategy(ParseEffort(_selectedEffortLevel),
+                    string.Equals(next, FillFirstPlatePatternLabel, StringComparison.Ordinal));
+            }
+        }
+
+        public PlatePattern CurrentPlatePattern =>
+            string.Equals(SelectedPlatePattern, FillFirstPlatePatternLabel, StringComparison.Ordinal)
+                ? PlatePattern.FillFirstPlate
+                : PlatePattern.Yield;
+
+        private string PlatePatternStamp() =>
+            CurrentPlatePattern == PlatePattern.FillFirstPlate ? "fill first plate" : "yield";
 
         // ── margins ────────────────────────────────────────────────────
 

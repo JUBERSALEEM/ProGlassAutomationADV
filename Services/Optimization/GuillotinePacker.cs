@@ -18,6 +18,9 @@
 //                  placement policy, see GuillotinePacker.SmartPlacement.cs),
 //                  each consolidated, best run wins by sheets then
 //                  utilization. Level = iteration budget.
+//   PlatePattern — optional, default Yield. FillFirstPlate is applied
+//                  after that winner (GuillotinePacker.FillFirstPlate.cs)
+//                  and cannot replace it with more sheets or unplaced pieces.
 //   PackSmart    — one capacity-preserving pass: every placement is scored
 //                  by what SURVIVES it (least area condemned to sub-breakout
 //                  trim, then the largest remaining free rectangle), both
@@ -177,7 +180,9 @@ namespace ProGlassAutomation.Services.Optimization
             RotationPolicy rotation,
             SplitMode split = SplitMode.HorizontalFirst,
             CancellationToken cancellationToken = default,
-            IProgress<OptimizeProgress> progress = null)
+            IProgress<OptimizeProgress> progress = null,
+            PlatePattern platePattern = PlatePattern.Yield,
+            int fillEffort = 1)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -186,7 +191,9 @@ namespace ProGlassAutomation.Services.Optimization
             cancellationToken.ThrowIfCancellationRequested();
 
             if (pieces.Count >= IndustrialQuantityThreshold)
-                return PackIndustrialPatterns(pieces, stocks, margins, rotation, 1, cancellationToken, progress);
+                return NoteFillSkipped(
+                    PackIndustrialPatterns(pieces, stocks, margins, rotation, 1, cancellationToken, progress),
+                    platePattern);
 
             // 2026-09-16: was OrderBy.MaxSide, which cost a whole sheet on the
             // owner's own benchmark. MaxSide packs the Low-E group into 18
@@ -225,6 +232,8 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken), pieces, margins, cancellationToken));
             if (quickWatch.Elapsed >= plan.TimeBudget)
                 result.ScaleNotes.Add("QUICK pattern budget reached; retained the best validated candidate found.");
+            result = ApplyPlatePattern(result, pieces, stocks, margins, rotation,
+                fillEffort, platePattern, cancellationToken, progress);
             if (result.HasValidationFailure)
                 result.ScaleNotes.Add("WARNING: no valid QUICK candidate — inspection only, not exportable.");
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
@@ -245,7 +254,8 @@ namespace ProGlassAutomation.Services.Optimization
             RotationPolicy rotation,
             int effortLevel = 3,
             CancellationToken cancellationToken = default,
-            IProgress<OptimizeProgress> progress = null)
+            IProgress<OptimizeProgress> progress = null,
+            PlatePattern platePattern = PlatePattern.Yield)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -253,11 +263,14 @@ namespace ProGlassAutomation.Services.Optimization
             if (margins == null) throw new ArgumentNullException(nameof(margins));
 
             if (pieces.Count >= IndustrialQuantityThreshold)
-                return PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress);
+                return NoteFillSkipped(
+                    PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress),
+                    platePattern);
 
             if (effortLevel <= 1)
                 return PackQuick(pieces, stocks, margins, rotation,
-                    cancellationToken: cancellationToken, progress: progress);
+                    cancellationToken: cancellationToken, progress: progress,
+                    platePattern: platePattern, fillEffort: 1);
 
             var plan = OptimizationSearchGovernor.PlanForOptimize(pieces.Count, effortLevel);
             var scale = ScaleProfile.For(pieces.Count, effortLevel);
@@ -528,6 +541,8 @@ namespace ProGlassAutomation.Services.Optimization
             // say what was actually checked and the export / Step 6 feed paths
             // can refuse a plan that failed conservation.
             final.RecordValidation(problems, conservationChecked: true, geometryChecked: true);
+            final = ApplyPlatePattern(final, pieces, stocks, margins, rotation,
+                effortLevel, platePattern, cancellationToken, progress);
 
             progress?.Report(OptimizeProgress.Of("done", comboList.Count, comboList.Count,
                 $"{final.Sheets.Count} sheets"));

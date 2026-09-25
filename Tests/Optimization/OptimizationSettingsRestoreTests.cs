@@ -63,11 +63,35 @@ public sealed class OptimizationSettingsRestoreTests
     public void Five_stage_selector_and_saved_effort_are_bidirectional(int stage)
     {
         using var vm = new OptimizationViewModel(true);
-        Assert.Equal(5, vm.StageStrategies.Count);
-        vm.SelectedStageStrategy = vm.StageStrategies[stage - 1];
+        Assert.Equal(10, vm.StageStrategies.Count);
+        vm.SelectedStageStrategy = OptimizationViewModel.StageStrategyLabel(stage, false);
         Assert.Equal(stage.ToString(), vm.SelectedEffortLevel);
+        Assert.Equal(PlatePattern.Yield, vm.CurrentPlatePattern);
         vm.SelectedEffortLevel = (6 - stage).ToString();
-        Assert.Equal(vm.StageStrategies[5 - stage], vm.SelectedStageStrategy);
+        Assert.Equal(OptimizationViewModel.StageStrategyLabel(6 - stage, false), vm.SelectedStageStrategy);
+    }
+
+    [Fact]
+    public void Main_dropdown_lists_both_patterns_on_every_stage()
+    {
+        using var vm = new OptimizationViewModel(true);
+        Assert.Equal(10, vm.StageStrategies.Count);
+        Assert.Equal("Stage 3 · Yield", vm.SelectedStageStrategy);
+        Assert.Equal("3", vm.SelectedEffortLevel);
+        Assert.Equal(PlatePattern.Yield, vm.CurrentPlatePattern);
+
+        vm.SelectedStageStrategy = "Stage 4 · Fill first plate";
+        Assert.Equal("4", vm.SelectedEffortLevel);
+        Assert.Equal(PlatePattern.FillFirstPlate, vm.CurrentPlatePattern);
+        Assert.Equal("Stage 4 · Fill first plate", vm.SelectedStageStrategy);
+
+        vm.SelectedEffortLevel = "2";
+        Assert.Equal("Stage 2 · Fill first plate", vm.SelectedStageStrategy);
+        Assert.Equal(PlatePattern.FillFirstPlate, vm.CurrentPlatePattern);
+
+        vm.SelectedStageStrategy = "Stage 1 · Yield";
+        Assert.Equal("1", vm.SelectedEffortLevel);
+        Assert.Equal(PlatePattern.Yield, vm.CurrentPlatePattern);
     }
 
     [Theory]

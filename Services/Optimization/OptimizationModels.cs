@@ -41,6 +41,20 @@ namespace ProGlassAutomation.Services.Optimization
     }
 
     /// <summary>
+    /// Which plate the operator wants a stage to prefer. Yield is the
+    /// historical winner and the default every existing caller keeps.
+    /// FillFirstPlate is applied after that winner and can replace it only
+    /// when the replacement is legal and does not add sheets or unplaced pieces.
+    /// </summary>
+    public enum PlatePattern
+    {
+        /// <summary>Fewest unplaced, then fewest sheets, then utilization. An equal sheet count keeps the incumbent.</summary>
+        Yield = 0,
+        /// <summary>Same sheet and unplaced limits, then the fuller leading sheet.</summary>
+        FillFirstPlate = 1
+    }
+
+    /// <summary>
     /// Cutting allowances for one glass thickness. Margins are the edge
     /// trims cut off the raw stock before piece placement; kerf is the
     /// blade gap between cuts; MinBreakout is the narrowest offcut worth

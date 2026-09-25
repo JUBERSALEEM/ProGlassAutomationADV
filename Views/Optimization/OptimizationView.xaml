@@ -44,6 +44,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Grid VerticalAlignment="Center">
@@ -97,45 +98,50 @@
                         </UniformGrid>
                     </Grid>
 
-                    <Grid Grid.Row="1" Margin="0,8,0,0">
+                    <Grid Grid.Row="1" Margin="0,12,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*" MinWidth="220"/>
-                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" MinWidth="420"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="STRATEGY" FontSize="10" FontWeight="Bold"
                                    Foreground="{StaticResource OptOnIndigoMuted}"
-                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <ComboBox Grid.Column="1"
-                                  ItemsSource="{Binding StageStrategies}"
-                                  SelectedItem="{Binding SelectedStageStrategy}"
-                                  Style="{StaticResource OptComboStyle}"
-                                  HorizontalAlignment="Stretch"
-                                  IsEnabled="{Binding CanRun}"
-                                  ToolTip="{Binding SelectedStageStrategy}"
-                                  AutomationProperties.Name="Optimize effort and strategy stage"/>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                            <Button Content="Run Quick" Style="{StaticResource OptOutlinedButton}"
-                                    Command="{Binding RunQuickCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
-                                    ToolTip="One fast deterministic pass (guillotine shelves) — completes in seconds"/>
-                            <Button Content="Run Optimize" Style="{StaticResource OptPrimaryButton}"
-                                    Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
-                                    BorderBrush="{StaticResource OptOnIndigo}"
-                                    Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
-                                    ToolTip="Runs the strategy selected to the left"/>
-                            <Button Content="Cancel" Style="{StaticResource OptOutlinedButton}"
-                                    Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
-                                    ToolTip="Stop the current run — engine checks for cancellation once per part"/>
-                            <Button Content="Upgrade to Optimize" Style="{StaticResource OptPrimaryButton}"
-                                    Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
-                                    BorderBrush="{StaticResource OptOnIndigo}"
-                                    Command="{Binding UpgradeToOptimizeCommand}" Margin="8,0,0,0"
-                                    Visibility="{Binding CanUpgradeToOptimize, Converter={StaticResource BoolToVisibilityConverter}}"
-                                    ToolTip="Re-run this cutting list through OPTIMIZE at the selected strategy"/>
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <StackPanel Grid.Column="1">
+                            <ComboBox ItemsSource="{Binding StageStrategies}"
+                                      SelectedItem="{Binding SelectedStageStrategy}"
+                                      Style="{StaticResource OptComboStyle}"
+                                      HorizontalAlignment="Stretch"
+                                      IsEnabled="{Binding CanRun}"
+                                      ToolTip="{Binding SelectedStageStrategyHint}"
+                                      AutomationProperties.Name="Optimize stage and plate pattern"/>
+                            <TextBlock Text="{Binding SelectedStageStrategyHint}"
+                                       FontSize="11" TextWrapping="Wrap"
+                                       Foreground="{StaticResource OptOnIndigoMuted}"
+                                       Margin="2,4,0,0"/>
                         </StackPanel>
                     </Grid>
 
-                    <StackPanel Grid.Row="2">
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Button Content="Run Quick" Style="{StaticResource OptOutlinedButton}"
+                                Command="{Binding RunQuickCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
+                                ToolTip="Runs the stage and plate pattern selected above. Yield stays the fast portfolio unless Fill first plate is selected."/>
+                        <Button Content="Run Optimize" Style="{StaticResource OptPrimaryButton}"
+                                Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
+                                BorderBrush="{StaticResource OptOnIndigo}"
+                                Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
+                                ToolTip="Runs the stage and plate pattern selected above"/>
+                        <Button Content="Cancel" Style="{StaticResource OptOutlinedButton}"
+                                Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
+                                ToolTip="Stop the current run — engine checks for cancellation once per part"/>
+                        <Button Content="Upgrade to Optimize" Style="{StaticResource OptPrimaryButton}"
+                                Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
+                                BorderBrush="{StaticResource OptOnIndigo}"
+                                Command="{Binding UpgradeToOptimizeCommand}" Margin="8,0,0,0"
+                                Visibility="{Binding CanUpgradeToOptimize, Converter={StaticResource BoolToVisibilityConverter}}"
+                                ToolTip="Re-run this cutting list through OPTIMIZE at the selected stage and plate pattern"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3">
                         <TextBlock Text="{Binding RunStageLabel}" FontSize="11" FontWeight="SemiBold"
                                    Foreground="{StaticResource OptOnIndigo}" Margin="0,6,0,0"
                                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>

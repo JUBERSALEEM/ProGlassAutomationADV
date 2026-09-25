@@ -568,16 +568,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         }
                         if (stage != "OPTIMIZE")
                             return GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
-                                rotation, SplitMode.HorizontalFirst, ct, groupProgress);
+                                rotation, SplitMode.HorizontalFirst, ct, groupProgress,
+                                platePattern: CurrentPlatePattern, fillEffort: effort);
                         // The preserved partitioner gives each batch the rack cap independently.
                         // Finite inventory must use the globally capped advanced search instead.
                         bool finiteStock = groupStocks.Any(stock => stock.MaxSheets > 0
                             && stock.MaxSheets < StockSize.EffectivelyUnlimitedSheets);
                         var packed = finiteStock
                             ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
-                                rotation, effort, ct, groupProgress)
+                                rotation, effort, ct, groupProgress, CurrentPlatePattern)
                             : GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
-                                rotation, effort, ct, groupProgress);
+                                rotation, effort, ct, groupProgress, platePattern: CurrentPlatePattern);
                         if (finiteStock) packed.ScaleNotes.Add("Finite inventory: global advanced search preserves the shared rack cap.");
                         return packed;
                     }, ct).ConfigureAwait(true);
@@ -698,9 +699,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             int totalProblems = runs.Sum(r => r.ProblemCount);
 
             string rotationLabel = rotation == RotationPolicy.Free90 ? "rotation ON" : "rotation LOCKED";
+            string patternLabel = PlatePatternStamp();
             ResultStage = stage == "OPTIMIZE"
-                ? $"OPTIMIZE · level {SelectedEffortLevel} · {rotationLabel} · {runs.Count} cutting group(s)"
-                : $"QUICK · {rotationLabel} · {runs.Count} cutting group(s)";
+                ? $"OPTIMIZE · level {SelectedEffortLevel} · {patternLabel} · {rotationLabel} · {runs.Count} cutting group(s)"
+                : $"QUICK · {patternLabel} · {rotationLabel} · {runs.Count} cutting group(s)";
             // Stamps the SETTINGS level onto this result and, when this run was
             // an upgrade of a previous QUICK result, reports what it bought.
             UpdateUpgradeSummary(stage, totalSheets);
