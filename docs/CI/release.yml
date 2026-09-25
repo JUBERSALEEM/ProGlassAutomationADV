@@ -86,6 +86,10 @@ jobs:
             }
           }
 
+      - name: Bundle FFmpeg into the installer payload
+        shell: pwsh
+        run: ./scripts/bundle-ffmpeg.ps1 -PublishDir publish
+
       # ── Package: portable zip ───────────────────────────────────────
       - name: Package (zip)
         shell: pwsh

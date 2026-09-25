@@ -51,6 +51,7 @@ param(
     [string]$PackTitle = "ProGlass Automation",
     [string]$PackAuthors = "Juber Saleem",
     [switch]$SkipTests,
+    [switch]$SkipFfmpeg,
     [switch]$Clean
 )
 
@@ -144,6 +145,15 @@ if ($LASTEXITCODE -ne 0) { exit 3 }
 # Engineering evidence must never ride along in a customer pack.
 $leaked = Join-Path $PublishDir "PRODUCTION_READINESS"
 if (Test-Path $leaked) { Remove-Item -Recurse -Force $leaked }
+
+# FFmpeg rides inside Setup.exe. Settings can still download it later.
+if (-not $SkipFfmpeg) {
+    Write-Host "> Bundling FFmpeg essentials into the installer payload..." -ForegroundColor Yellow
+    & (Join-Path $PSScriptRoot "bundle-ffmpeg.ps1") -PublishDir $PublishDir
+    if (-not $?) { exit 3 }
+} else {
+    Write-Warning "Skipping the FFmpeg bundle (-SkipFfmpeg). Setup.exe will not contain ffmpeg.exe."
+}
 
 # -- 5. Velopack pack ----------------------------------------------
 Write-Host "> Running vpk pack..." -ForegroundColor Yellow

@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{DynamicResource Setup.Title}"
-        Width="680" Height="700"
+        Width="520" Height="460"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -102,9 +102,7 @@
                         <ControlTemplate TargetType="ListBoxItem">
                             <Border x:Name="Bd"
                                     Background="Transparent"
-                                    BorderBrush="{StaticResource Prism.LineBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="{DynamicResource Radius.Large}"
+                                    BorderThickness="0"
                                     Padding="{TemplateBinding Padding}">
                                 <ContentPresenter/>
                             </Border>
@@ -122,283 +120,196 @@
     </Window.Resources>
 
     <Grid Background="{StaticResource Prism.CanvasBrush}">
-        <StackPanel Width="560" VerticalAlignment="Center">
-            <TextBlock x:Name="Caption"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,14"
-                       FontSize="{DynamicResource FontSize.Title}"
-                       Foreground="{StaticResource Prism.MutedBrush}"
-                       Text="{DynamicResource Setup.Ffmpeg}"/>
-
+        <Border Width="480"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Background="{StaticResource Prism.CardBrush}"
+                BorderBrush="{StaticResource Prism.LineBrush}"
+                BorderThickness="1"
+                CornerRadius="{DynamicResource Radius.2XLarge}"
+                Padding="24">
             <Grid>
-                <Border CornerRadius="{DynamicResource Radius.2XLarge}" Height="520">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="28" ShadowDepth="10" Opacity="0.22"
-                                          Color="{StaticResource Prism.IndigoColor}"/>
-                    </Border.Effect>
-                    <Grid>
-                        <Border CornerRadius="{DynamicResource Radius.2XLarge}"
-                                Background="{StaticResource Prism.PanelBrush}"/>
-                        <Ellipse Width="220" Height="180" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                 Margin="28,36,0,0" Fill="{StaticResource Prism.BlobViolet}" IsHitTestVisible="False"/>
-                        <Ellipse Width="230" Height="190" HorizontalAlignment="Right" VerticalAlignment="Top"
-                                 Margin="0,32,28,0" Fill="{StaticResource Prism.BlobCyan}" IsHitTestVisible="False"/>
-                        <Ellipse Width="200" Height="150" HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                                 Margin="0,0,32,36" Fill="{StaticResource Prism.BlobAmber}" IsHitTestVisible="False"/>
-                    </Grid>
-                </Border>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <Border Width="72" Height="72"
-                        HorizontalAlignment="Center" VerticalAlignment="Top"
-                        Margin="0,22,0,0"
-                        CornerRadius="{DynamicResource Radius.Large}"
-                        Background="{StaticResource Prism.BadgeBrush}"
-                        BorderBrush="{StaticResource Prism.CyanBrush}"
-                        BorderThickness="1"
-                        Panel.ZIndex="2">
-                    <Viewbox Width="36" Height="36">
-                        <Grid Width="24" Height="24">
-                            <Path Stroke="{StaticResource Prism.CyanBrush}"
-                                  StrokeThickness="1.6"
-                                  Data="M12,2 L21,7.2 L21,16.8 L12,22 L3,16.8 L3,7.2 Z"/>
-                            <TextBlock Text="PGA"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                <DockPanel LastChildFill="False" Margin="0,0,0,18">
+                    <Image Width="36" Height="36" DockPanel.Dock="Left"
+                           Source="pack://application:,,,/Resources/proglass_icon_256.png"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock Text="ProGlass"
+                               Margin="10,0,0,0"
+                               VerticalAlignment="Center"
+                               FontSize="{DynamicResource FontSize.H2}"
+                               FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{StaticResource Prism.InkBrush}"/>
+                    <Button DockPanel.Dock="Right"
+                            Content="&#xE8BB;"
+                            FontFamily="Segoe MDL2 Assets"
+                            Style="{StaticResource PrismQuietButton}"
+                            Click="Skip_Click"
+                            AutomationProperties.Name="Close"/>
+                </DockPanel>
+
+                <DockPanel Grid.Row="1">
+                    <Border Width="44" Height="44" DockPanel.Dock="Left"
+                            CornerRadius="{DynamicResource Radius.Large}"
+                            Background="{StaticResource Prism.CyanBrush}">
+                        <TextBlock x:Name="ColorIcon"
+                                   Text="&#xE714;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="18"
+                                   Foreground="{StaticResource Prism.InkBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="Caption"
+                                   FontSize="{DynamicResource FontSize.H2}"
+                                   FontWeight="{DynamicResource Weight.Bold}"
+                                   Foreground="{StaticResource Prism.InkBrush}"/>
+                        <TextBlock x:Name="Subtitle"
+                                   Margin="0,4,0,0"
+                                   TextWrapping="Wrap"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   Foreground="{StaticResource Prism.MutedBrush}"/>
+                    </StackPanel>
+                </DockPanel>
+
+                <Grid Grid.Row="2" Margin="0,20,0,0">
+                    <StackPanel x:Name="FfmpegPage">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid x:Name="FfmpegTrack" Height="8" VerticalAlignment="Center" SizeChanged="Track_SizeChanged">
+                                <Border CornerRadius="{DynamicResource Radius.Pill}"
+                                        Background="{StaticResource Prism.WashBrush}"/>
+                                <Border x:Name="FfmpegFill" HorizontalAlignment="Left" Width="0"
+                                        CornerRadius="{DynamicResource Radius.Pill}"
+                                        Background="{StaticResource Prism.BarBrush}"/>
+                            </Grid>
+                            <TextBlock x:Name="FfmpegPercent" Grid.Column="1" Margin="10,0,0,0"
+                                       VerticalAlignment="Center"
                                        FontSize="{DynamicResource FontSize.Caption}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{StaticResource Prism.CyanBrush}"/>
-                        </Grid>
-                    </Viewbox>
-                </Border>
-
-                <Border Margin="36,64,36,28"
-                        CornerRadius="{DynamicResource Radius.2XLarge}"
-                        Background="{StaticResource Prism.CardBrush}"
-                        Padding="22,20"
-                        Panel.ZIndex="1">
-                    <Grid>
-                        <StackPanel x:Name="FfmpegPage">
-                            <TextBlock Text="{DynamicResource Setup.Ffmpeg}"
-                                       FontSize="{DynamicResource FontSize.H2}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{StaticResource Prism.InkBrush}"/>
-                            <TextBlock Text="{DynamicResource Setup.FfmpegNeed}"
-                                       Margin="0,8,0,0" TextWrapping="Wrap"
-                                       FontSize="{DynamicResource FontSize.Title}"
                                        FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{StaticResource Prism.InkBrush}"/>
-                            <TextBlock Text="{DynamicResource Setup.FfmpegBody}"
-                                       Margin="0,8,0,0" TextWrapping="Wrap"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{StaticResource Prism.MutedBrush}"/>
-                            <Grid Margin="0,18,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid x:Name="FfmpegTrack" Height="10" VerticalAlignment="Center" SizeChanged="Track_SizeChanged">
-                                    <Border CornerRadius="{DynamicResource Radius.Pill}"
-                                            Background="{StaticResource Prism.WashBrush}"/>
-                                    <Border x:Name="FfmpegFill" HorizontalAlignment="Left" Width="0"
-                                            CornerRadius="{DynamicResource Radius.Pill}"
-                                            Background="{StaticResource Prism.BarBrush}"/>
-                                </Grid>
-                                <Border Grid.Column="1" Margin="10,0,0,0"
-                                        Padding="8,2"
+                        </Grid>
+                        <TextBlock x:Name="FfmpegState"
+                                   Margin="0,8,0,0"
+                                   TextWrapping="Wrap"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{StaticResource Prism.MutedBrush}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+                            <Button Content="{DynamicResource Setup.Recheck}"
+                                    Style="{StaticResource PrismOutlineButton}"
+                                    Margin="0,0,8,0"
+                                    Click="Recheck_Click"/>
+                            <Button x:Name="FfmpegInstallButton"
+                                    Content="{DynamicResource Setup.DownloadInstall}"
+                                    Style="{StaticResource PrismPrimaryButton}"
+                                    Click="InstallFfmpeg_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <DockPanel x:Name="ModelPage" Visibility="Collapsed">
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+                            <Button Content="{DynamicResource Setup.License}"
+                                    Style="{StaticResource PrismOutlineButton}"
+                                    Margin="0,0,8,0"
+                                    Click="License_Click"/>
+                            <Button x:Name="ModelInstallButton"
+                                    Content="{DynamicResource Setup.Install}"
+                                    Style="{StaticResource PrismPrimaryButton}"
+                                    Click="InstallModel_Click"/>
+                        </StackPanel>
+                        <ListBox x:Name="ModelList"
+                                 MaxHeight="180"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 ItemContainerStyle="{StaticResource PrismRowStyle}"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ItemsSource="{Binding Models}"
+                                 SelectedItem="{Binding SelectedModel, Mode=TwoWay}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel>
+                                        <TextBlock Text="{Binding SizeLine}"
+                                                   DockPanel.Dock="Right"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="{DynamicResource FontSize.Caption}"
+                                                   Foreground="{StaticResource Prism.MutedBrush}"/>
+                                        <TextBlock Text="{Binding ShortTitle}"
+                                                   FontSize="{DynamicResource FontSize.Body}"
+                                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                                   Foreground="{StaticResource Prism.InkBrush}"/>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
+                    <StackPanel x:Name="ProgressPage" Visibility="Collapsed">
+                        <TextBlock x:Name="ProgressTitle"
+                                   TextWrapping="Wrap"
+                                   FontSize="{DynamicResource FontSize.Body}"
+                                   FontWeight="{DynamicResource Weight.SemiBold}"
+                                   Foreground="{StaticResource Prism.InkBrush}"/>
+                        <TextBlock x:Name="ProgressMeta"
+                                   Margin="0,4,0,0"
+                                   TextWrapping="Wrap"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{StaticResource Prism.MutedBrush}"/>
+                        <Grid Margin="0,12,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid x:Name="ModelTrack" Height="8" VerticalAlignment="Center">
+                                <Border CornerRadius="{DynamicResource Radius.Pill}"
+                                        Background="{StaticResource Prism.WashBrush}"/>
+                                <Border x:Name="ModelFill" HorizontalAlignment="Left" Width="0"
                                         CornerRadius="{DynamicResource Radius.Pill}"
-                                        Background="{StaticResource Prism.WashBrush}">
-                                    <TextBlock x:Name="FfmpegPercent"
-                                               FontSize="{DynamicResource FontSize.Caption}"
-                                               FontWeight="{DynamicResource Weight.SemiBold}"
-                                               Foreground="{StaticResource Prism.InkBrush}"/>
-                                </Border>
+                                        Background="{StaticResource Prism.BarBrush}"/>
                             </Grid>
-                            <TextBlock x:Name="FfmpegState"
-                                       Margin="0,10,0,0"
-                                       TextWrapping="Wrap"
+                            <TextBlock x:Name="ModelPercent" Grid.Column="1" Margin="10,0,0,0"
+                                       VerticalAlignment="Center"
                                        FontSize="{DynamicResource FontSize.Caption}"
-                                       Foreground="{StaticResource Prism.VioletBrush}"/>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
-                                <Button Content="{DynamicResource Setup.Recheck}"
-                                        Style="{StaticResource PrismOutlineButton}"
-                                        Margin="0,0,8,0"
-                                        Click="Recheck_Click"/>
-                                <Button x:Name="FfmpegInstallButton"
-                                        Content="{DynamicResource Setup.DownloadInstall}"
-                                        Style="{StaticResource PrismPrimaryButton}"
-                                        Click="InstallFfmpeg_Click"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <DockPanel x:Name="ModelPage" Visibility="Collapsed">
-                            <TextBlock DockPanel.Dock="Top"
-                                       Text="{DynamicResource Setup.LocalModel}"
-                                       HorizontalAlignment="Center"
-                                       FontSize="{DynamicResource FontSize.H2}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
+                                       FontWeight="{DynamicResource Weight.SemiBold}"
                                        Foreground="{StaticResource Prism.InkBrush}"/>
-                            <TextBlock DockPanel.Dock="Top"
-                                       Text="{DynamicResource Setup.LocalModelBody}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,12"
-                                       TextWrapping="Wrap" TextAlignment="Center"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{StaticResource Prism.MutedBrush}"/>
-                            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
-                                <Button Content="{DynamicResource Setup.License}"
-                                        Style="{StaticResource PrismOutlineButton}"
-                                        Margin="0,0,8,0"
-                                        Click="License_Click"/>
-                                <Button x:Name="ModelInstallButton"
-                                        Content="{DynamicResource Setup.Install}"
-                                        Style="{StaticResource PrismPrimaryButton}"
-                                        Click="InstallModel_Click"/>
-                            </StackPanel>
-                            <ListBox x:Name="ModelList"
-                                     BorderThickness="0"
-                                     Background="Transparent"
-                                     ItemContainerStyle="{StaticResource PrismRowStyle}"
-                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                     ItemsSource="{Binding Models}"
-                                     SelectedItem="{Binding SelectedModel, Mode=TwoWay}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Path Grid.Column="0" Width="12" Height="12" Margin="0,2,8,0"
-                                                  VerticalAlignment="Top"
-                                                  Stroke="{StaticResource Prism.InkBrush}"
-                                                  StrokeThickness="1.8"
-                                                  Data="M1,6 L4.2,9.2 L11,2"
-                                                  Stretch="Uniform">
-                                                <Path.Style>
-                                                    <Style TargetType="Path">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
-                                                                <Setter Property="Visibility" Value="Visible"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </Path.Style>
-                                            </Path>
-                                            <StackPanel Grid.Column="1">
-                                                <TextBlock Text="{Binding ShortTitle}"
-                                                           FontSize="{DynamicResource FontSize.Title}"
-                                                           FontWeight="{DynamicResource Weight.SemiBold}"
-                                                           Foreground="{StaticResource Prism.InkBrush}"/>
-                                                <TextBlock Text="{Binding Detail}"
-                                                           Margin="0,2,0,0"
-                                                           TextWrapping="Wrap"
-                                                           FontSize="{DynamicResource FontSize.Caption}"
-                                                           Foreground="{StaticResource Prism.InkBrush}">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
-                                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                            </StackPanel>
-                                            <TextBlock Grid.Column="2"
-                                                       Text="{Binding SizeLine}"
-                                                       Margin="8,0,0,0"
-                                                       VerticalAlignment="Center"
-                                                       FontSize="{DynamicResource FontSize.Caption}"
-                                                       Foreground="{StaticResource Prism.MutedBrush}">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Value="True">
-                                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-                        </DockPanel>
+                        </Grid>
+                        <TextBlock x:Name="ProgressState"
+                                   Margin="0,8,0,0"
+                                   TextWrapping="Wrap"
+                                   FontSize="{DynamicResource FontSize.Caption}"
+                                   Foreground="{StaticResource Prism.MutedBrush}"/>
+                    </StackPanel>
+                </Grid>
 
-                        <StackPanel x:Name="ProgressPage" Visibility="Collapsed" VerticalAlignment="Center">
-                            <TextBlock Text="{DynamicResource Setup.LocalDownload}"
-                                       HorizontalAlignment="Center"
-                                       FontSize="{DynamicResource FontSize.Caption}"
-                                       Foreground="{StaticResource Prism.MutedBrush}"/>
-                            <TextBlock x:Name="ProgressTitle"
-                                       Margin="0,8,0,0"
-                                       TextAlignment="Center"
-                                       TextWrapping="Wrap"
-                                       FontSize="{DynamicResource FontSize.H2}"
-                                       FontWeight="{DynamicResource Weight.Bold}"
-                                       Foreground="{StaticResource Prism.InkBrush}"/>
-                            <TextBlock x:Name="ProgressMeta"
-                                       Margin="0,8,0,0"
-                                       TextAlignment="Center"
-                                       TextWrapping="Wrap"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{StaticResource Prism.MutedBrush}"/>
-                            <Grid Margin="0,16,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid x:Name="ModelTrack" Height="10" VerticalAlignment="Center">
-                                    <Border CornerRadius="{DynamicResource Radius.Pill}"
-                                            Background="{StaticResource Prism.WashBrush}"/>
-                                    <Border x:Name="ModelFill" HorizontalAlignment="Left" Width="0"
-                                            CornerRadius="{DynamicResource Radius.Pill}"
-                                            Background="{StaticResource Prism.BarBrush}"/>
-                                </Grid>
-                                <TextBlock x:Name="ModelPercent" Grid.Column="1" Margin="10,0,0,0"
-                                           VerticalAlignment="Center"
-                                           FontSize="{DynamicResource FontSize.Caption}"
-                                           FontWeight="{DynamicResource Weight.SemiBold}"
-                                           Foreground="{StaticResource Prism.InkBrush}"/>
-                            </Grid>
-                            <TextBlock x:Name="ProgressState"
-                                       Margin="0,12,0,0"
-                                       TextAlignment="Center"
-                                       TextWrapping="Wrap"
-                                       FontSize="{DynamicResource FontSize.Body}"
-                                       Foreground="{StaticResource Prism.InkBrush}"
-                                       Text="{DynamicResource Setup.Downloading}"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <Button x:Name="CancelButton"
-                        Content="{DynamicResource Setup.Cancel}"
-                        Style="{StaticResource PrismOutlineButton}"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Bottom"
-                        Margin="0,0,0,8"
-                        Visibility="Collapsed"
-                        Panel.ZIndex="3"
-                        Click="Cancel_Click"/>
+                <DockPanel Grid.Row="3" Margin="0,8,0,0" LastChildFill="False">
+                    <Button x:Name="BackButton"
+                            Content="{DynamicResource Setup.Back}"
+                            Style="{StaticResource PrismQuietButton}"
+                            Visibility="Collapsed"
+                            Click="Back_Click"
+                            DockPanel.Dock="Left"/>
+                    <Button x:Name="CancelButton"
+                            Content="{DynamicResource Setup.Cancel}"
+                            Style="{StaticResource PrismQuietButton}"
+                            Visibility="Collapsed"
+                            Click="Cancel_Click"
+                            DockPanel.Dock="Right"/>
+                    <Button x:Name="SkipButton"
+                            Content="{DynamicResource Setup.Close}"
+                            Style="{StaticResource PrismQuietButton}"
+                            Click="Skip_Click"
+                            DockPanel.Dock="Right"/>
+                </DockPanel>
             </Grid>
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
-                <Button x:Name="BackButton"
-                        Content="{DynamicResource Setup.Back}"
-                        Style="{StaticResource PrismQuietButton}"
-                        Visibility="Collapsed"
-                        Click="Back_Click"/>
-                <Button x:Name="SkipButton"
-                        Content="{DynamicResource Setup.Skip}"
-                        Style="{StaticResource PrismQuietButton}"
-                        Click="Skip_Click"/>
-            </StackPanel>
-        </StackPanel>
+        </Border>
     </Grid>
 </Window>

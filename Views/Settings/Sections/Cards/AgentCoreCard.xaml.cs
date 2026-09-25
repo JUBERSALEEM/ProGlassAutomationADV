@@ -70,7 +70,7 @@ namespace ProGlassAutomation.Views.Settings.Sections.Cards
 
         private void OpenInstaller_Click(object sender, RoutedEventArgs e)
         {
-            ComponentInstallerWindow.Show(Window.GetWindow(this));
+            ComponentInstallerWindow.Show(Window.GetWindow(this), models: true);
         }
     }
 }

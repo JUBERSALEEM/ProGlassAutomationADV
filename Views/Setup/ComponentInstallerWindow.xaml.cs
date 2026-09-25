@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Setup/ComponentInstallerWindow.xaml.cs
-// The approved Prism card for the two optional downloads. FFmpeg and
-// the offline model are not MSI pages. Nothing starts until the user
+// One card, opened from Settings only. The main window does not show
+// this. FFmpeg ships inside Setup.exe. Nothing starts until the user
 // clicks Install.
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -20,12 +20,12 @@ namespace ProGlassAutomation.Views.Setup
     {
         private readonly ComponentInstallerViewModel _vm = new();
 
-        public ComponentInstallerWindow()
+        public ComponentInstallerWindow(bool models = false)
         {
             InitializeComponent();
             DataContext = _vm;
             _vm.ApplyRecommendedLabel((string)FindResource("Setup.Recommended"));
-            if (_vm.FfmpegReady && !_vm.AnyModelInstalled)
+            if (models)
                 _vm.ShowModelCommand.Execute(null);
             _vm.PropertyChanged += OnVmChanged;
             Apply();
@@ -50,7 +50,7 @@ namespace ProGlassAutomation.Views.Setup
             }
         }
 
-        public static void Show(Window? owner)
+        public static void Show(Window? owner, bool models = false)
         {
             foreach (Window open in Application.Current.Windows)
             {
@@ -60,7 +60,7 @@ namespace ProGlassAutomation.Views.Setup
                     return;
                 }
             }
-            var window = new ComponentInstallerWindow();
+            var window = new ComponentInstallerWindow(models);
             if (owner != null && owner.IsLoaded)
                 window.Owner = owner;
             window.ShowDialog();
@@ -129,12 +129,22 @@ namespace ProGlassAutomation.Views.Setup
             BackButton.IsEnabled = !_vm.IsBusy;
 
             if (_vm.Page == 0)
+            {
                 Caption.Text = Line("Setup.Ffmpeg", "FFmpeg");
+                Subtitle.Text = Line("Setup.FfmpegBody", "Downloads the Windows essentials zip and places both tools in the tools folder.");
+                ColorIcon.Text = "\uE714";
+            }
             else if (_vm.Page == 1)
+            {
                 Caption.Text = Line("Setup.LocalModel", "Offline AI model");
+                Subtitle.Text = Line("Setup.LocalModelBody", "Install once. Answers stay on this computer.");
+                ColorIcon.Text = "\uE9D9";
+            }
             else
             {
                 Caption.Text = Line("Setup.LocalDownload", "Local model download");
+                Subtitle.Text = Line("Setup.NothingUploaded", "nothing is uploaded.");
+                ColorIcon.Text = "\uE896";
                 var row = _vm.SelectedModel;
                 ProgressTitle.Text = Line("Setup.Installing", "Installing") + " " + (row?.ShortTitle ?? "");
                 ProgressMeta.Text = row == null
@@ -165,11 +175,7 @@ namespace ProGlassAutomation.Views.Setup
 
         private void Back_Click(object sender, RoutedEventArgs e) => _vm.ShowFfmpegCommand.Execute(null);
 
-        private void Skip_Click(object sender, RoutedEventArgs e)
-        {
-            if (_vm.Page == 0) _vm.ShowModelCommand.Execute(null);
-            else Close();
-        }
+        private void Skip_Click(object sender, RoutedEventArgs e) => Close();
 
         private void Cancel_Click(object sender, RoutedEventArgs e)
         {

@@ -279,6 +279,11 @@
                             Cursor="Hand"
                             behaviors:ClickToCommandBehavior.Command="{Binding LogoClickCommand}"
                             ToolTip="{DynamicResource ToolTip.About}">
+                    <Image Width="28" Height="28" Margin="0,0,8,0"
+                           VerticalAlignment="Center"
+                           Source="pack://application:,,,/Resources/proglass_icon_256.png"
+                           RenderOptions.BitmapScalingMode="HighQuality"
+                           AutomationProperties.Name="ProGlass"/>
                     <TextBlock Text="ProGlass"
                                Style="{StaticResource PgBrandTitleStyle}"
                                FontSize="16"/>

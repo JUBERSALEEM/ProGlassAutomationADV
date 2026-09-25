@@ -18,7 +18,6 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels;
-using ProGlassAutomation.Views.Setup;
 using System;
 using System.Windows;
 using System.Windows.Automation;
@@ -95,22 +94,6 @@ namespace ProGlassAutomation
             // open them. Previously Professional AiChatView was visible
             // via InverseBool converter regardless of IsOpen, and Personal
             // shell could carry IsOpen=true across experience switch.
-            Loaded += (_, _) =>
-            {
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    try
-                    {
-                        if (ComponentInstallerWindow.ShouldOffer())
-                            ComponentInstallerWindow.Show(this);
-                    }
-                    catch (Exception ex)
-                    {
-                        AppLogService.Debug("[MainWindow] component installer offer skipped: " + ex.Message);
-                    }
-                }), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            };
-
             Loaded += (_, _) =>
             {
                 try
