@@ -88,6 +88,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             AddStockCommand = new RelayCommand(_ => AddStock());
             RemoveStockCommand = new RelayCommand(p => RemoveStock(p as StockEntryVm));
+            Stocks.CollectionChanged += (_, _) => RebuildAllocationRows();
             ImportStockFromStep4Command = new RelayCommand(_ => ImportStockFromStep4());
 
             LoadHouseDefaultsCommand = new RelayCommand(_ => LoadHouseDefaults());
