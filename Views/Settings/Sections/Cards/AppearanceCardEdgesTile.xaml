@@ -51,15 +51,7 @@
         <!-- Local corner proof. The page cards use the same brush; this
              one sits next to the plate so a colour that misses the arc
              is obvious without leaving the card. -->
-        <Border Height="36" Margin="0,8,0,4"
-                Background="{DynamicResource Surface.Primary.LiveFill}"
-                BorderBrush="{DynamicResource SettingsCardEdgeBrush}"
-                BorderThickness="{DynamicResource CardEdgeThickness}"
-                CornerRadius="{DynamicResource Ios26RadiusCard}"
-                SnapsToDevicePixels="False"
-                RenderOptions.EdgeMode="Unspecified"
-                behaviors:RoundedEdgeStrokeBehavior.IsEnabled="True"
-                HorizontalAlignment="Stretch"/>
+        <Border Style="{StaticResource EdgeProofStyle}"/>
         <!-- Edge colour plate -->
         <TextBlock Margin="{StaticResource SettingsStackGap16Bottom4}"
                    Style="{StaticResource SettingsRowMetaStyle}"

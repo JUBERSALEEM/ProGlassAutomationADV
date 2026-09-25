@@ -48,7 +48,7 @@
     <StackPanel>
 
         <!-- ═══ ROW 1 · IDENTITY & LICENSING | TECHNICAL SPECIFICATIONS ═══ -->
-        <Grid Margin="0,0,0,10">
+        <Grid Margin="0,0,0,14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="16"/>
@@ -200,7 +200,7 @@
         </Grid>
 
         <!-- ═══ ROW 2 · ACTIVE MODULES PREVIEW | END-TO-END WORKFLOW ═══ -->
-        <Grid Margin="0,0,0,10">
+        <Grid Margin="0,0,0,14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1.15*"/>
                 <ColumnDefinition Width="16"/>
@@ -360,7 +360,7 @@
         </Grid>
 
         <!-- ═══ ROW 3 · STORY & COMPLIANCE ═══ -->
-        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,10">
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="Architecture &amp; Legal Compliance"
                            FontSize="{DynamicResource Ios26FontSizeCardTitle}"

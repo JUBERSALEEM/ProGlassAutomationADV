@@ -38,6 +38,24 @@ namespace ProGlassAutomation.Behaviors
         public static bool GetIsEnabled(DependencyObject element)
             => (bool)element.GetValue(IsEnabledProperty);
 
+        /// <summary>
+        /// Live edge colour. When set, a thick ring is drawn from this brush
+        /// and the native border stroke is hidden, so the card does not
+        /// paint a second line over the first.
+        /// </summary>
+        public static readonly DependencyProperty EdgeBrushProperty =
+            DependencyProperty.RegisterAttached(
+                "EdgeBrush",
+                typeof(Brush),
+                typeof(RoundedEdgeStrokeBehavior),
+                new PropertyMetadata(null, OnEdgeBrushChanged));
+
+        public static void SetEdgeBrush(DependencyObject element, Brush? value)
+            => element.SetValue(EdgeBrushProperty, value);
+
+        public static Brush? GetEdgeBrush(DependencyObject element)
+            => (Brush?)element.GetValue(EdgeBrushProperty);
+
         private static readonly DependencyPropertyDescriptor ThicknessDescriptor =
             DependencyPropertyDescriptor.FromProperty(Border.BorderThicknessProperty, typeof(Border));
 
@@ -54,6 +72,8 @@ namespace ProGlassAutomation.Behaviors
             public RoundedStrokeAdorner? Adorner;
             public bool Listening;
             public bool WatchingSize;
+            public bool Updating;
+            public bool NativeStrokeSuppressed;
         }
 
         private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -119,6 +139,20 @@ namespace ProGlassAutomation.Behaviors
 
             UnwatchSize(border, state);
             RemoveAdorner(border, state);
+            RestoreNativeStroke(border, state);
+        }
+
+        private static void RestoreNativeStroke(Border border, StrokeState state)
+        {
+            if (!state.NativeStrokeSuppressed) return;
+            border.ClearValue(Border.BorderBrushProperty);
+            state.NativeStrokeSuppressed = false;
+        }
+
+        private static void OnEdgeBrushChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            if (d is Border border && States.TryGetValue(border, out var state))
+                UpdateAdorner(border, state);
         }
 
         private static void OnChromeChanged(object? sender, EventArgs e)
@@ -139,19 +173,39 @@ namespace ProGlassAutomation.Behaviors
 
         private static void UpdateAdorner(Border border, StrokeState state)
         {
+            if (state.Updating) return;
+            state.Updating = true;
+            try
+            {
+                UpdateAdornerCore(border, state);
+            }
+            finally
+            {
+                state.Updating = false;
+            }
+        }
+
+        private static void UpdateAdornerCore(Border border, StrokeState state)
+        {
             var thickness = border.BorderThickness;
             bool uniform = Nearly(thickness.Left, thickness.Top)
                 && Nearly(thickness.Left, thickness.Right)
                 && Nearly(thickness.Left, thickness.Bottom);
+            var edgeBrush = GetEdgeBrush(border);
             // Hairline stays the native stroke (no extra visual). A defined
             // edge is 2–100 DIP; that is where the arc gaps, so only then
-            // is the ring worth an adorner.
+            // is the ring worth an adorner. EdgeBrush lets the native stroke
+            // be hidden without losing live colour. Cards that have not set
+            // it still get the corner fill on top of the native stroke.
+            bool hasBrush = edgeBrush != null
+                || (!state.NativeStrokeSuppressed && border.BorderBrush != null);
             bool needsRing = uniform
                 && thickness.Left >= 2.0
                 && border.CornerRadius.TopLeft > 0.5
-                && border.BorderBrush != null;
+                && hasBrush;
             if (!needsRing)
             {
+                RestoreNativeStroke(border, state);
                 UnwatchSize(border, state);
                 RemoveAdorner(border, state);
                 return;
@@ -159,6 +213,15 @@ namespace ProGlassAutomation.Behaviors
 
             var layer = AdornerLayer.GetAdornerLayer(border);
             if (layer == null) return;
+
+            if (edgeBrush != null && !state.NativeStrokeSuppressed)
+            {
+                // Hide the native stroke only once the ring can paint.
+                // ClearValue restores the style setter on a hairline.
+                border.SetValue(Border.BorderBrushProperty, Brushes.Transparent);
+                state.NativeStrokeSuppressed = true;
+            }
+
             if (state.Adorner == null)
             {
                 state.Adorner = new RoundedStrokeAdorner(border);
@@ -203,7 +266,7 @@ namespace ProGlassAutomation.Behaviors
                 double width = border.ActualWidth;
                 double height = border.ActualHeight;
                 if (width < 2 || height < 2) return;
-                var brush = border.BorderBrush;
+                var brush = GetEdgeBrush(border) ?? border.BorderBrush;
                 if (brush == null) return;
                 double thick = border.BorderThickness.Left;
                 if (thick < 0.5) return;
@@ -215,7 +278,11 @@ namespace ProGlassAutomation.Behaviors
                     new Rect(thick, thick, Math.Max(0, width - thick * 2), Math.Max(0, height - thick * 2)),
                     innerRadius,
                     innerRadius);
+                // Clip to the card. An unclipped ring on the window adorner
+                // layer paints over the next module when the edge is thick.
+                dc.PushClip(outer);
                 dc.DrawGeometry(brush, null, new CombinedGeometry(GeometryCombineMode.Exclude, outer, inner));
+                dc.Pop();
             }
         }
     }

@@ -49,6 +49,9 @@
     <CornerRadius x:Key="Ios26RadiusTile">10</CornerRadius>
     <CornerRadius x:Key="Ios26RadiusChip">12</CornerRadius>
     <CornerRadius x:Key="Ios26RadiusSmall">6</CornerRadius>
+    <!-- Hairline size. ThemeManager grows it with the defined edge so a
+         thick stroke does not sit on the module title. -->
+    <Thickness x:Key="AboutCardPadding">18,14,18,14</Thickness>
 
     <!-- ═══ CARD SHADOW (one shared, frozen instance) ═══
          2026-09-16: moved here from Views/About so the Settings module can

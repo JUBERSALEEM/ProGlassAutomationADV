@@ -104,7 +104,7 @@
         </Border>
 
         <!-- ═══ HERO · LICENSE & WORKSTATION ENTITLEMENTS (Screen 02) ═══ -->
-        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,8">
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>
                 <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
@@ -335,7 +335,7 @@
         <!-- ═══ 2 · LICENSE DETAILS ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}"
                 Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
-                Margin="0,0,0,8">
+                Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="{DynamicResource About.LicenseDetails}"
                            Style="{StaticResource Ios26CardTitleStyle}"
@@ -490,7 +490,7 @@
         <!-- ═══ 3 · FEATURES ═══ -->
         <Border Style="{StaticResource Ios26CardStyle}"
                 Visibility="{Binding HasPayloadDetails, Converter={StaticResource BoolToVisibilityConverter}}"
-                Margin="0,0,0,8">
+                Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="{DynamicResource Settings.SecFeatures}"
                            Style="{StaticResource Ios26CardTitleStyle}"

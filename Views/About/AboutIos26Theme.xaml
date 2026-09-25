@@ -114,13 +114,29 @@
     <Style x:Key="Ios26CardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
+        <!-- Live brush for the corner ring. The native stroke is hidden
+             while this is drawn, so a defined edge is one line, not two. -->
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.EdgeBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
-        <Setter Property="Padding" Value="18,14"/>
+        <Setter Property="Padding" Value="{DynamicResource AboutCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
         <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
         <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
         <Setter Property="Effect" Value="{DynamicResource Ios26CardShadow}"/>
+    </Style>
+
+    <!-- Sidebar card. Same edge as the page cards, no inset and no shadow,
+         so the rail does not eat the nav or paint over the content column. -->
+    <Style x:Key="AboutRailSurfaceStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.EdgeBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
+        <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
     </Style>
 
     <!-- ═══ INNER TILE — solid white panel inside a card.

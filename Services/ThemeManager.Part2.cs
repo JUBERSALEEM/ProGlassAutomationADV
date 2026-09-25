@@ -83,6 +83,7 @@ namespace ProGlassAutomation.Services
             resources["CardEdgePaddingStat"] = new Thickness(18 + extra, 16 + extra, 18 + extra, 16 + extra);
             resources["CardEdgePaddingTask"] = new Thickness(18 + extra, 14 + extra, 18 + extra, 14 + extra);
             resources["CardEdgePaddingList"] = new Thickness(16 + extra, 12 + extra, 16 + extra, 12 + extra);
+            resources["AboutCardPadding"] = new Thickness(18 + extra, 14 + extra, 18 + extra, 14 + extra);
         }
 
         /// <summary>Re-applies the saved card-edge weight after a theme swap.</summary>

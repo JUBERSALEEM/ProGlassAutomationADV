@@ -173,7 +173,8 @@
          end-to-end workflow card). Item = WorkflowStage(Icon, Title, Description). -->
     <DataTemplate x:Key="WorkflowCardTemplate">
         <Border Style="{StaticResource Ios26InnerTileStyle}"
-                Margin="0,0,10,10">
+                Margin="0,0,10,10"
+                ClipToBounds="True">
             <StackPanel>
                 <Border Width="30" Height="30"
                         Style="{StaticResource Ios26IconTileStyle}"
@@ -191,11 +192,13 @@
                            FontWeight="{DynamicResource Weight.SemiBold}"
                            Foreground="{DynamicResource Ios26TextTitleBrush}"
                            TextWrapping="Wrap"
+                           TextTrimming="CharacterEllipsis"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
                            FontSize="{DynamicResource Ios26FontSizeLabel}"
                            Foreground="{DynamicResource Ios26TextMutedBrush}"
                            TextWrapping="Wrap"
+                           TextTrimming="CharacterEllipsis"
                            Margin="0,3,0,0"
                            IsHitTestVisible="False"/>
             </StackPanel>

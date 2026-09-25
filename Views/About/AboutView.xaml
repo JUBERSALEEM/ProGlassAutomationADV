@@ -102,18 +102,11 @@
             </Grid.ColumnDefinitions>
 
             <!-- Floating rounded rail, same card the Settings sidebar uses.
-                 A full-bleed hairline panel ignored the plate and had no arc. -->
-            <Border Grid.Column="0"
-                    Margin="12,10,8,14"
-                    Background="{DynamicResource SettingsCardFaceBrush}"
-                    BorderBrush="{DynamicResource SettingsCardEdgeBrush}"
-                    BorderThickness="{DynamicResource CardEdgeThickness}"
-                    CornerRadius="{DynamicResource Ios26RadiusCard}"
-                    SnapsToDevicePixels="False"
-                    RenderOptions.EdgeMode="Unspecified"
-                    behaviors:RoundedEdgeStrokeBehavior.IsEnabled="True">
+                 The decorator keeps the edge stroke inside this column. -->
+            <AdornerDecorator Grid.Column="0" Margin="12,10,8,14">
+            <Border>
                 <Border.Style>
-                    <Style TargetType="Border">
+                    <Style TargetType="Border" BasedOn="{StaticResource AboutRailSurfaceStyle}">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsRailOpen}" Value="False">
                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -295,6 +288,7 @@
                     </Border>
                 </Grid>
             </Border>
+            </AdornerDecorator>
 
             <!-- ═══ CONTENT STAGE (Right Column) ═══ -->
             <ScrollViewer Grid.Column="1"
@@ -307,6 +301,7 @@
                           Focusable="False"
                           FocusVisualStyle="{x:Null}">
 
+                <AdornerDecorator>
                 <StackPanel Margin="24,20,24,28">
 
                     <!-- Header Strip: Hamburger + Current Tab Title -->
@@ -508,6 +503,7 @@
                     </Grid>
 
                 </StackPanel>
+                </AdornerDecorator>
             </ScrollViewer>
         </Grid>
     </Grid>

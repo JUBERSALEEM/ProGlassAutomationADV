@@ -222,6 +222,7 @@
     <Style x:Key="SettingsPageCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource SettingsCardFaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.EdgeBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
         <Setter Property="Padding" Value="{StaticResource SettingsCardPadding}"/>
@@ -253,6 +254,23 @@
                 </BeginStoryboard>
             </EventTrigger>
         </Style.Triggers>
+    </Style>
+
+    <!-- Live strip beside the edge and frost plates. Style setters, not
+         local brushes, so the single ring can be removed without dropping
+         the colour when the edge returns to a hairline. -->
+    <Style x:Key="EdgeProofStyle" TargetType="Border">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Margin" Value="0,8,0,4"/>
+        <Setter Property="Background" Value="{DynamicResource Surface.Primary.LiveFill}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.EdgeBrush" Value="{DynamicResource SettingsCardEdgeBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardEdgeThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource Ios26RadiusCard}"/>
+        <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
     </Style>
 
     <!-- Bento Compact Card primitive (Rule 2: Small forms, toggle pairs, compact options) -->
@@ -350,6 +368,7 @@
     <Style x:Key="SettingsDangerCardStyle" TargetType="Border"
            BasedOn="{StaticResource SettingsPageCardStyle}">
         <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.EdgeBrush" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="Background" Value="{DynamicResource Ios26TileBrush}"/>
     </Style>
 

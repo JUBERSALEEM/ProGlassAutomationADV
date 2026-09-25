@@ -46,7 +46,7 @@
     <StackPanel>
 
         <!-- ═══ HERO · DIAGNOSTICS & APPLICATION HEALTH (Screen 06) ═══ -->
-        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,8">
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>
                 <Grid Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
@@ -119,10 +119,10 @@
         </Border>
 
         <!-- ═══ CRASH REPORTS (self-contained card) ═══ -->
-        <aboutSections:AboutCrashReportsCard Margin="0,0,0,8"/>
+        <aboutSections:AboutCrashReportsCard Margin="0,0,0,14"/>
 
         <!-- ═══ RECORDING HEALTH ═══ -->
-        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,8">
+        <Border Style="{StaticResource Ios26CardStyle}" Margin="0,0,0,14">
             <StackPanel>
                 <TextBlock Text="{DynamicResource About.RecordingHealth}"
                            FontSize="{DynamicResource Ios26FontSizeCardTitle}"
