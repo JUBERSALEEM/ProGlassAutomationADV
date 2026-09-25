@@ -46,9 +46,30 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string Composition { get; set; } = string.Empty;
             public string ThicknessLabel { get; set; } = string.Empty;
             public string SpecName { get; set; } = string.Empty;
+            public string ColorLabel { get; set; } = string.Empty;
+            public string OuterColor { get; set; } = string.Empty;
+            public string InnerColor { get; set; } = string.Empty;
+            public bool HasColorPair =>
+                OuterColor.Length > 0 && InnerColor.Length > 0
+                && !string.Equals(OuterColor, InnerColor, StringComparison.OrdinalIgnoreCase);
+            public int SpecGroupNumber { get; set; }
+            public string Side { get; set; } = string.Empty;
             public List<IndustrialUtilizationLineVm> Utilization { get; } = new();
             public List<IndustrialReportPieceVm> Pieces { get; } = new();
             public bool HasUtilization => Utilization.Count > 0;
+        }
+
+        /// <summary>
+        /// One report row. A spec with two colours is Outer (left) and
+        /// Inner (right). A single colour spans the row. This is the
+        /// cutting-popup column contract, not a left-stacked list.
+        /// </summary>
+        public sealed class IndustrialReportBandVm
+        {
+            public IndustrialReportSpecVm Outer { get; set; } = null!;
+            public IndustrialReportSpecVm? Inner { get; set; }
+            public bool HasInner => Inner != null;
+            public bool IsSingle => Inner == null;
         }
 
         /// <summary>One owner-format utilization line, e.g.
@@ -92,6 +113,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         public ObservableCollection<IndustrialReportSpecVm> IndustrialReport { get; } = new();
+
+        /// <summary>Display rows for the report tab. Export still reads
+        /// <see cref="IndustrialReport"/>.</summary>
+        public ObservableCollection<IndustrialReportBandVm> IndustrialReportBands { get; } = new();
 
         private bool _hasIndustrialReport;
         public bool HasIndustrialReport { get => _hasIndustrialReport; private set { _hasIndustrialReport = value; OnPropertyChanged(); } }
@@ -577,6 +602,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private void RebuildIndustrialReport()
         {
             IndustrialReport.Clear();
+            IndustrialReportBands.Clear();
 
             foreach (var grp in Pieces
                 .Where(p => p.TryParse(out _, out _, out _))
@@ -591,7 +617,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     Composition = composition,
                     ThicknessLabel = FormatThicknessLabel(composition),
-                    SpecName = FormatSpecName(composition)
+                    SpecName = FormatSpecName(composition),
+                    ColorLabel = FormatColorLabel(grp),
+                    OuterColor = FirstColor(grp, IsFirstPane),
+                    InnerColor = FirstColor(grp, IsSecondPane),
+                    SpecGroupNumber = grp.Select(p => p.SpecGroupNumber).FirstOrDefault(n => n > 0),
+                    Side = DominantSide(grp)
                 };
 
                 // ── piece table (Step 5 style): one row per glass ref,
@@ -658,7 +689,79 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 IndustrialReport.Add(spec);
             }
 
+            PairIndustrialBands();
             HasIndustrialReport = IndustrialReport.Count > 0;
+        }
+
+        /// <summary>
+        /// Outer left, inner right, one row. Same spec group only — two
+        /// unrelated colours are not forced into a pair. A spec that has
+        /// no partner stays a single full-width column.
+        /// </summary>
+        private void PairIndustrialBands()
+        {
+            var used = new HashSet<IndustrialReportSpecVm>();
+            foreach (var spec in IndustrialReport)
+            {
+                if (!used.Add(spec)) continue;
+
+                IndustrialReportSpecVm? partner = null;
+                if (spec.SpecGroupNumber > 0)
+                {
+                    bool specInner = IsSecondPane(spec.Side);
+                    partner = IndustrialReport.FirstOrDefault(other =>
+                        other != spec
+                        && !used.Contains(other)
+                        && other.SpecGroupNumber == spec.SpecGroupNumber
+                        && (specInner ? IsFirstPane(other.Side) : IsSecondPane(other.Side)));
+                }
+
+                if (partner != null)
+                    used.Add(partner);
+
+                var outer = spec;
+                var inner = partner;
+                if (partner != null && IsSecondPane(spec.Side) && IsFirstPane(partner.Side))
+                {
+                    outer = partner;
+                    inner = spec;
+                }
+                else if (partner != null && IsSecondPane(spec.Side) && !IsFirstPane(partner.Side))
+                {
+                    outer = partner;
+                    inner = spec;
+                }
+
+                IndustrialReportBands.Add(new IndustrialReportBandVm
+                {
+                    Outer = outer,
+                    Inner = inner,
+                });
+            }
+        }
+
+        private static string FirstColor(IEnumerable<PieceEntryVm> pieces, Func<string?, bool> side)
+        {
+            string color = pieces
+                .Where(p => side(p.Position))
+                .Select(p => (p.Color ?? string.Empty).Trim())
+                .FirstOrDefault(c => c.Length > 0) ?? string.Empty;
+            return color.Length == 0 ? string.Empty : color.ToUpperInvariant();
+        }
+
+        private static string FormatColorLabel(IEnumerable<PieceEntryVm> pieces)
+        {
+            string color = pieces
+                .Select(p => (p.Color ?? string.Empty).Trim())
+                .FirstOrDefault(c => c.Length > 0) ?? string.Empty;
+            return color.Length == 0 ? string.Empty : color.ToUpperInvariant();
+        }
+
+        private static string DominantSide(IEnumerable<PieceEntryVm> pieces)
+        {
+            if (pieces.Any(p => IsFirstPane(p.Position))) return "Outer";
+            if (pieces.Any(p => IsSecondPane(p.Position))) return "Inner";
+            return string.Empty;
         }
 
         // ── formatting helpers ───────────────────────────────────────
