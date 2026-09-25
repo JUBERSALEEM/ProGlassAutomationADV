@@ -11,14 +11,16 @@
        - Nested thin keylines (#D9D5E6 double hairlines) following the L edges.
        - Black-violet ink #211D31 typography on straight baselines.
        - PRIMARY TOP ROW:
-           • Thin hamburger icon (ToggleMenuCommand)
+           • Thin hamburger icon (ToggleMenuCommand). One click closes
+             the sidebar and this bar together. A floating pill reopens both.
+             The module heading is centered in the free column, with its subtitle.
            • OVERSIZED elegant serif-display wordmark "ProGlass" (about three
              times normal size, typographic hero) with tiny letter-spaced caps
              "AUTOMATION SUITE" aligned to its right on the same baseline
            • Rounded outline dropdown labeled exactly "All Modules" (A-l-l)
              with tiny down chevron
-           • Wide rounded white inset search field with placeholder
-             "Search anything…" and fine purple (#8E82D8) focus rim
+           • Search is a fixed island (max 260), right of the heading.
+             It must not sit in a star column. Placeholder "Search anything…"
            • Far right exact text "22 Sep 2026 / 10:30", one thin crescent
              moon icon, user chip circle "U" with tiny stacked "User" and "Role"
        - UTILITIES (same row, icon buttons):
@@ -238,8 +240,63 @@
                                   Visibility="{Binding IsPersonalExperience,
                                     Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-        <!-- Professional shell bar: one 56px row. Screenshot, Record,
-             About and Experience live in More. Hidden in Glass Blush. -->
+        <!-- One click on the hamburger closes the sidebar and the top bar
+             together (IsMenuOpen). The module then fills the window. This
+             pill is the reopen control, so the page is not trapped.
+             Hidden while the shell is open, and hidden in Glass Blush. -->
+        <Border Grid.Row="0" Grid.RowSpan="2"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="16,12,0,0"
+                Panel.ZIndex="600"
+                Background="{DynamicResource SurfacePrimaryBrush}"
+                BorderBrush="{DynamicResource AccentPrimaryBrush}"
+                BorderThickness="1.5"
+                CornerRadius="16"
+                Padding="10,6,14,6"
+                SnapsToDevicePixels="True">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#211D31" BlurRadius="16" ShadowDepth="2" Opacity="0.12"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding IsMenuOpen}" Value="False"/>
+                                <Condition Binding="{Binding IsPersonalExperience}" Value="False"/>
+                            </MultiDataTrigger.Conditions>
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <Button Command="{Binding ToggleMenuCommand}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    FocusVisualStyle="{x:Null}"
+                    ToolTip="{DynamicResource ToolTip.ToggleMenu}"
+                    AutomationProperties.Name="Open shell">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE700;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="15"
+                               Foreground="{DynamicResource AccentPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Text="ProGlass"
+                               Margin="8,0,0,0"
+                               FontSize="12.5"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
+        </Border>
+
         <Border Grid.Row="0"
                 Height="56"
                 Panel.ZIndex="300"
@@ -251,6 +308,9 @@
                         <DataTrigger Binding="{Binding IsPersonalExperience}" Value="True">
                             <Setter Property="Visibility" Value="Collapsed"/>
                         </DataTrigger>
+                        <DataTrigger Binding="{Binding IsMenuOpen}" Value="False">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
@@ -258,8 +318,8 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
@@ -301,21 +361,38 @@
                     </Border>
                 </StackPanel>
 
-                <TextBlock Grid.Column="2"
-                           Text="{Binding CurrentModuleHeaderTitle, FallbackValue='ProGlass'}"
-                           FontFamily="{DynamicResource AppFontFamily}"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource TextPrimaryBrush}"
-                           VerticalAlignment="Center"
-                           Margin="0,0,12,0"
-                           MaxWidth="240"
-                           TextTrimming="CharacterEllipsis"/>
+                <!-- Title sits in the free column, centered across the bar,
+                     not pinned next to the logo. Search stays a fixed island. -->
+                <StackPanel Grid.Column="2"
+                            Orientation="Vertical"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Margin="12,0">
+                    <TextBlock Text="{Binding CurrentModuleHeaderTitle, FallbackValue='Plant Operations Overview'}"
+                               FontFamily="{DynamicResource AppFontFamily}"
+                               FontSize="14.5"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               HorizontalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               MaxWidth="520"/>
+                    <TextBlock Text="{Binding CurrentModuleSubText}"
+                               FontFamily="{DynamicResource AppFontFamily}"
+                               FontSize="10"
+                               Foreground="{DynamicResource TextSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap"
+                               MaxWidth="520"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
 
                 <globalSearch:GlobalSearchBar Grid.Column="3"
-                                               MinWidth="140"
-                                               HorizontalAlignment="Stretch"
-                                               Margin="0,0,12,0"
+                                               Width="260"
+                                               MinWidth="180"
+                                               MaxWidth="260"
+                                               HorizontalAlignment="Right"
+                                               Margin="8,0,12,0"
                                                VerticalAlignment="Center"
                                                DataContext="{Binding GlobalSearchVM}"/>
 
