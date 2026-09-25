@@ -23,10 +23,10 @@
     <SolidColorBrush x:Key="SuccessBrush" Color="{Binding Color, Source={StaticResource Ov.Success}}"/>
     <SolidColorBrush x:Key="WarningBrush" Color="{Binding Color, Source={StaticResource Ov.Warning}}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{Binding Color, Source={StaticResource Ov.Danger}}"/>
-    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
-    <SolidColorBrush x:Key="BorderBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
-    <SolidColorBrush x:Key="SurfacePrimaryBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
+    <SolidColorBrush x:Key="SurfacePrimaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
+    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
     <SolidColorBrush x:Key="SurfaceTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
     <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.OnAccent}}"/>
@@ -36,35 +36,25 @@
     <SolidColorBrush x:Key="TintRedBrush" Color="{Binding Color, Source={StaticResource Ov.DangerSoft}}"/>
     <SolidColorBrush x:Key="TintAmberBrush" Color="{Binding Color, Source={StaticResource Ov.WarningSoft}}"/>
     <SolidColorBrush x:Key="TintGreenBrush" Color="{Binding Color, Source={StaticResource Ov.SuccessSoft}}"/>
-    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
+    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
 
     <!-- Bento Card Styles for Tax Invoice -->
     <Style x:Key="SurfaceDetailStyle" TargetType="Border" BasedOn="{StaticResource Ov.CardCompact}">
-        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
-        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="14"/>
         <Setter Property="Padding" Value="14,12"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="CompactStatTileStyle" TargetType="Border" BasedOn="{StaticResource Ov.CardMicro}">
         <Setter Property="Margin" Value="0"/>
         <Setter Property="Padding" Value="12,10"/>
         <Setter Property="CornerRadius" Value="12"/>
-        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
-        <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <Style x:Key="SpecGroupCardStyle" TargetType="Border" BasedOn="{StaticResource Ov.Card}">
         <Setter Property="Margin" Value="0,0,0,16"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="ClipToBounds" Value="True"/>
-        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
-        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="18"/>
     </Style>
 
@@ -79,9 +69,6 @@
         <Setter Property="Padding" Value="16,10"/>
         <Setter Property="Margin" Value="0,0,0,8"/>
         <Setter Property="CornerRadius" Value="18"/>
-        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
-        <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
     <!-- Family Navigation & Row Elements -->

@@ -912,6 +912,10 @@ namespace ProGlassAutomation.Services
                     MixFill(baseColor, tint, tint == null ? 0 : 0.36, null, 0, secondaryOpacity));
                 SetOverrideBrush(resources, "SurfaceTertiaryBrush",
                     MixFill(baseColor, tint, tint == null ? 0 : 0.22, null, 0, detailOpacity));
+                // Studio lists and the three detail modules alias their card
+                // face at this colour. Writing the app key is what those
+                // aliases read; they do not see SurfacePrimaryBrush.
+                PublishStudioColor(resources, "Appearance.StudioFaceColor", "Appearance.StudioFace", face);
             }
             else
             {
@@ -920,6 +924,7 @@ namespace ProGlassAutomation.Services
                 RestoreThemeBrush(resources, "SurfacePrimaryBrush");
                 RestoreThemeBrush(resources, "SurfaceSecondaryBrush");
                 RestoreThemeBrush(resources, "SurfaceTertiaryBrush");
+                PublishStudioColor(resources, "Appearance.StudioFaceColor", "Appearance.StudioFace", StudioFaceRest);
             }
 
             PublishSurfaceShadow(resources, appearance?.UsePrimarySurfaceElevation == true);
@@ -989,6 +994,20 @@ namespace ProGlassAutomation.Services
             FreezeAndSet(resources, "Surface.Primary.BorderBrush", stroke);
             FreezeAndSet(resources, "Surface.Secondary.BorderBrush", stroke);
             FreezeAndSet(resources, "Surface.Detail.BorderBrush", stroke);
+            Color studioEdge = _definedOutline && _publishedEdgeColor is Color defined
+                ? defined
+                : StudioEdgeRest;
+            PublishStudioColor(resources, "Appearance.StudioEdgeColor", "Appearance.StudioEdge", studioEdge);
+        }
+
+        private static readonly Color StudioFaceRest = Color.FromRgb(0xFF, 0xFE, 0xFC);
+        private static readonly Color StudioEdgeRest = Color.FromRgb(0xE2, 0xDB, 0xEF);
+
+        private static void PublishStudioColor(
+            ResourceDictionary resources, string colorKey, string brushKey, Color color)
+        {
+            resources[colorKey] = color;
+            FreezeAndSet(resources, brushKey, color);
         }
 
         private static void ReattachCachedFills(ResourceDictionary resources)

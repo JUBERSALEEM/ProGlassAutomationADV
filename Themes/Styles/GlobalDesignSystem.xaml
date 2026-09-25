@@ -452,6 +452,13 @@
     <SolidColorBrush x:Key="Surface.Primary.LiveFill" Color="#F8FAFC"/>
     <SolidColorBrush x:Key="Surface.Secondary.LiveFill" Color="#F3F0FA"/>
     <SolidColorBrush x:Key="Surface.Detail.LiveFill" Color="#FFFFFF"/>
+    <!-- Studio module cards keep this face until a frost plate is chosen.
+         Local dictionaries alias their surface keys at this colour, so a
+         plate writes here and those cards move without a tree walk. -->
+    <Color x:Key="Appearance.StudioFaceColor">#FFFEFC</Color>
+    <Color x:Key="Appearance.StudioEdgeColor">#E2DBEF</Color>
+    <SolidColorBrush x:Key="Appearance.StudioFace" Color="#FFFEFC"/>
+    <SolidColorBrush x:Key="Appearance.StudioEdge" Color="#E2DBEF"/>
     <SolidColorBrush x:Key="Surface.Primary.BorderBrush" Color="#2EFFFFFF"/>
     <SolidColorBrush x:Key="Surface.Secondary.BorderBrush" Color="#FFCBD5E1"/>
     <SolidColorBrush x:Key="Surface.Detail.BorderBrush" Color="#FFCBD5E1"/>

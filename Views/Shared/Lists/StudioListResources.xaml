@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
                     xmlns:local="clr-namespace:ProGlassAutomation.Views.Shared.Lists">
     <!-- Approved Studio Bento list system. Scoped to the five list views, never App.xaml. -->
     <ResourceDictionary.MergedDictionaries>
@@ -24,10 +25,10 @@
     <SolidColorBrush x:Key="SuccessBrush" Color="{Binding Color, Source={StaticResource Ov.Success}}"/>
     <SolidColorBrush x:Key="WarningBrush" Color="{Binding Color, Source={StaticResource Ov.Warning}}"/>
     <SolidColorBrush x:Key="DangerBrush" Color="{Binding Color, Source={StaticResource Ov.Danger}}"/>
-    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
-    <SolidColorBrush x:Key="BorderBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
-    <SolidColorBrush x:Key="SurfacePrimaryBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
+    <SolidColorBrush x:Key="BorderDefaultBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
+    <SolidColorBrush x:Key="BorderBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
+    <SolidColorBrush x:Key="SurfacePrimaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
+    <SolidColorBrush x:Key="SurfaceSecondaryBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
     <SolidColorBrush x:Key="SurfaceTertiaryBrush" Color="{Binding Color, Source={StaticResource Ov.Soft}}"/>
     <SolidColorBrush x:Key="PopupSurfaceBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
     <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.OnAccent}}"/>
@@ -37,11 +38,11 @@
     <SolidColorBrush x:Key="TintRedBrush" Color="{Binding Color, Source={StaticResource Ov.DangerSoft}}"/>
     <SolidColorBrush x:Key="TintAmberBrush" Color="{Binding Color, Source={StaticResource Ov.WarningSoft}}"/>
     <SolidColorBrush x:Key="TintGreenBrush" Color="{Binding Color, Source={StaticResource Ov.SuccessSoft}}"/>
-    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
+    <SolidColorBrush x:Key="Surface.Primary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
+    <SolidColorBrush x:Key="Surface.Secondary.BackgroundBrush" Color="{DynamicResource Appearance.StudioFaceColor}"/>
 
     <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
-    <SolidColorBrush x:Key="OutlineBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
+    <SolidColorBrush x:Key="OutlineBrush" Color="{DynamicResource Appearance.StudioEdgeColor}"/>
     <SolidColorBrush x:Key="MutedForegroundBrush" Color="{Binding Color, Source={StaticResource Ov.Muted}}"/>
     <SolidColorBrush x:Key="SurfaceInputBrush" Color="{Binding Color, Source={StaticResource Ov.Surface}}"/>
     <SolidColorBrush x:Key="InputBorderBrush" Color="{Binding Color, Source={StaticResource Ov.Line}}"/>
@@ -63,11 +64,14 @@
         <Setter Property="Margin" Value="0,5,0,3"/>
     </Style>
     <Style x:Key="Sl.Card" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource Ov.Surface}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource Ov.Line}"/>
+        <Setter Property="Background" Value="{DynamicResource Appearance.StudioFace}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource Appearance.StudioEdge}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="18"/>
         <Setter Property="Padding" Value="18"/>
+        <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
+        <Setter Property="behaviors:RoundedEdgeStrokeBehavior.IsEnabled" Value="True"/>
     </Style>
     <Style x:Key="Sl.Hero" TargetType="Border" BasedOn="{StaticResource Sl.Card}">
         <Setter Property="Background" Value="{DynamicResource Ov.Accent}"/>
