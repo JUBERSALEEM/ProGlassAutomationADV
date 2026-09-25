@@ -249,7 +249,7 @@
                 VerticalAlignment="Top"
                 Margin="16,12,0,0"
                 Panel.ZIndex="600"
-                Background="{DynamicResource SurfacePrimaryBrush}"
+                Background="{DynamicResource SettingsCardFaceBrush}"
                 BorderBrush="{DynamicResource AccentPrimaryBrush}"
                 BorderThickness="1.5"
                 CornerRadius="16"
@@ -314,7 +314,7 @@
                     </Style.Triggers>
                 </Style>
             </Border.Style>
-            <Grid Background="{DynamicResource SurfacePrimaryBrush}">
+            <Grid Background="{DynamicResource SettingsCardFaceBrush}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
@@ -582,7 +582,7 @@
             ═══════════════════════════════════════════════════════════════ -->
             <Border Grid.Column="0"
                     Width="260"
-                    Background="{DynamicResource SurfacePrimaryBrush}"
+                    Background="{DynamicResource SettingsCardFaceBrush}"
                     Panel.ZIndex="10"
                     SnapsToDevicePixels="True">
                 <Border.Style>
@@ -595,7 +595,7 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <Grid Background="{DynamicResource SurfacePrimaryBrush}">
+                <Grid Background="{DynamicResource SettingsCardFaceBrush}">
                     <!-- Right edge nested double keylines -->
                     <Grid Width="3" HorizontalAlignment="Right" Panel.ZIndex="15">
                         <Border Width="1" HorizontalAlignment="Left" Background="{DynamicResource BorderDefaultBrush}" SnapsToDevicePixels="True"/>
