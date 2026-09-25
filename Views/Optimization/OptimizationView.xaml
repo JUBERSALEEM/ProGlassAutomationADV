@@ -3,9 +3,9 @@
      PROJECT: ProGlassAutomation
      MODULE: Optimization Engine — Full Light Studio Bento Redesign
 
-     Shell: Bento Hero banner with run controls, Studio capsule navigation
-     rail, 4-card KPI metric strip, tab host workspace, and in-flight
-     progress modal. 100% Light Theme isolation, pure vector geometry.
+     Shell: one indigo banner (four stats in the center, strategy before
+     Run), capsule navigation, tab workspace, and in-flight progress.
+     The old KPI strip is gone so the 2D sheet can use that height.
 ═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Optimization.OptimizationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -15,105 +15,149 @@
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
-             SnapsToDevicePixels="True">
+             SnapsToDevicePixels="True"
+             Background="{DynamicResource WindowBackgroundBrush}"
+             Foreground="{DynamicResource TextPrimaryBrush}">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid Background="Transparent">
         <Grid Margin="16,12,16,16">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- ══ 1. BENTO HERO BANNER: Title, Diagnostics & Engine Controls ══ -->
-            <Border Grid.Row="0" Style="{StaticResource OptPanelCard}" Margin="0,0,0,14" Padding="20,16">
+            <!-- One compact indigo band. Stats sit in the empty center.
+                 Strategy is on the action row, before Run, so the 2D sheet
+                 keeps the height the old KPI strip used. -->
+            <Border Grid.Row="0" Style="{StaticResource OptHeroCard}" Padding="16,10" Margin="0,0,0,8">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <!-- Left: Identity, Subtitle, and In-Flight Messages -->
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Width="36" Height="36" CornerRadius="8"
-                                    Background="{DynamicResource AccentSoftBrush}"
-                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
-                                    Margin="0,0,12,0" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-
-                            <TextBlock Text="OPTIMIZATION ENGINE" FontSize="18" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
-
-                            <Border Background="{DynamicResource AccentSoftBrush}"
-                                    BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
-                                    CornerRadius="6" Padding="8,3" Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="GUILLOTINE 2D" FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Text="Optimization" FontSize="18" FontWeight="SemiBold"
+                                       Foreground="{StaticResource OptOnIndigo}" VerticalAlignment="Center"
+                                       ToolTip="Industrial cutting plans that minimize waste — pieces in, sheets out, verified layouts."/>
+                            <Border Background="{StaticResource OptOnIndigoChip}" CornerRadius="8" Padding="8,2" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Guillotine 2D" FontSize="10" FontWeight="Bold"
+                                           Foreground="{StaticResource OptOnIndigo}"/>
                             </Border>
                         </StackPanel>
 
-                        <TextBlock Text="Industrial cutting plans that minimize waste — pieces in, sheets out, verified layouts."
-                                   FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}"
-                                   Margin="48,3,0,0"/>
+                        <UniformGrid Grid.Column="1" Columns="4" Margin="16,0,8,0" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                                <TextBlock Text="&#xE821;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Foreground="{StaticResource OptOnIndigo}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="CONFIRMED JOBS" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OptOnIndigoMuted}"/>
+                                    <TextBlock Text="{Binding KpiJobs}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource OptOnIndigo}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                                <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Foreground="{StaticResource OptOnIndigo}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="PIECES" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OptOnIndigoMuted}"/>
+                                    <TextBlock Text="{Binding KpiPieces}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource OptOnIndigo}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Foreground="{StaticResource OptOnIndigo}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="TOTAL GLASS" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OptOnIndigoMuted}"/>
+                                    <TextBlock Text="{Binding KpiGlass}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource OptOnIndigo}"/>
+                                </StackPanel>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                                <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                           Foreground="{StaticResource OptOnIndigo}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                <StackPanel>
+                                    <TextBlock Text="CUTTING GROUPS" FontSize="9" FontWeight="Bold" Foreground="{StaticResource OptOnIndigoMuted}"/>
+                                    <TextBlock Text="{Binding KpiGroups}" FontSize="15" FontWeight="SemiBold" Foreground="{StaticResource OptOnIndigo}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </UniformGrid>
+                    </Grid>
 
-                        <!-- Diagnostic and Upgrade Messages -->
-                        <TextBlock Text="{Binding RunMessage}" FontSize="12"
-                                   FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"
-                                   TextWrapping="Wrap" Margin="48,4,0,0"
+                    <Grid Grid.Row="1" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" MinWidth="220"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="STRATEGY" FontSize="10" FontWeight="Bold"
+                                   Foreground="{StaticResource OptOnIndigoMuted}"
+                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding StageStrategies}"
+                                  SelectedItem="{Binding SelectedStageStrategy}"
+                                  Style="{StaticResource OptComboStyle}"
+                                  HorizontalAlignment="Stretch"
+                                  IsEnabled="{Binding CanRun}"
+                                  ToolTip="{Binding SelectedStageStrategy}"
+                                  AutomationProperties.Name="Optimize effort and strategy stage"/>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                            <Button Content="Run Quick" Style="{StaticResource OptOutlinedButton}"
+                                    Command="{Binding RunQuickCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
+                                    ToolTip="One fast deterministic pass (guillotine shelves) — completes in seconds"/>
+                            <Button Content="Run Optimize" Style="{StaticResource OptPrimaryButton}"
+                                    Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
+                                    BorderBrush="{StaticResource OptOnIndigo}"
+                                    Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
+                                    ToolTip="Runs the strategy selected to the left"/>
+                            <Button Content="Cancel" Style="{StaticResource OptOutlinedButton}"
+                                    Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
+                                    ToolTip="Stop the current run — engine checks for cancellation once per part"/>
+                            <Button Content="Upgrade to Optimize" Style="{StaticResource OptPrimaryButton}"
+                                    Background="{StaticResource OptOnIndigo}" Foreground="{StaticResource OptIndigo}"
+                                    BorderBrush="{StaticResource OptOnIndigo}"
+                                    Command="{Binding UpgradeToOptimizeCommand}" Margin="8,0,0,0"
+                                    Visibility="{Binding CanUpgradeToOptimize, Converter={StaticResource BoolToVisibilityConverter}}"
+                                    ToolTip="Re-run this cutting list through OPTIMIZE at the selected strategy"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="{Binding RunStageLabel}" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{StaticResource OptOnIndigo}" Margin="0,6,0,0"
+                                   Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <ProgressBar Height="4" IsIndeterminate="True" Margin="0,4,0,0"
+                                     Foreground="{StaticResource OptOnIndigo}"
+                                     Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        <TextBlock Text="{Binding RunMessage}" FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{StaticResource OptOnIndigo}" TextWrapping="Wrap" Margin="0,6,0,0"
                                    Visibility="{Binding HasRunMessage, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
                         <TextBlock Text="{Binding ResultEffortLabel}" FontSize="11"
-                                   Foreground="{DynamicResource TextTertiaryBrush}" TextWrapping="Wrap" Margin="48,3,0,0"
+                                   Foreground="{StaticResource OptOnIndigoMuted}" TextWrapping="Wrap" Margin="0,2,0,0"
                                    Visibility="{Binding HasResultEffort, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                        <TextBlock Text="{Binding UpgradeSummaryLabel}" FontSize="11"
-                                   FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"
-                                   TextWrapping="Wrap" Margin="48,2,0,0"
+                        <TextBlock Text="{Binding UpgradeSummaryLabel}" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{StaticResource OptOnIndigo}" TextWrapping="Wrap" Margin="0,2,0,0"
                                    Visibility="{Binding HasUpgradeSummary, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    </StackPanel>
-
-                    <!-- Right: In-Flight Stage Progress & Action Buttons -->
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <StackPanel VerticalAlignment="Center" Margin="0,0,16,0"
-                                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="{Binding RunStageLabel}" FontSize="11"
-                                       FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"
-                                       HorizontalAlignment="Right" Margin="0,0,0,4"/>
-                            <ProgressBar Height="4" IsIndeterminate="True" Width="160"
-                                         Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right"/>
-                        </StackPanel>
-
-                        <Button Content="Run Quick" Style="{StaticResource OptOutlinedButton}"
-                                Command="{Binding RunQuickCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
-                                ToolTip="One fast deterministic pass (guillotine shelves) — completes in seconds"/>
-
-                        <Button Content="Run Optimize" Style="{StaticResource OptPrimaryButton}"
-                                Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}"
-                                ToolTip="Multi-start search across effort levels 1–5 — maximizes plate yield"/>
-
-                        <Button Content="Cancel" Style="{StaticResource OptOutlinedButton}"
-                                Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}"
-                                Margin="8,0,0,0"
-                                ToolTip="Stop the current run — engine checks for cancellation once per part"/>
-
-                        <Button Content="Upgrade to Optimize" Style="{StaticResource OptPrimaryButton}"
-                                Command="{Binding UpgradeToOptimizeCommand}" Margin="8,0,0,0"
-                                Visibility="{Binding CanUpgradeToOptimize, Converter={StaticResource BoolToVisibilityConverter}}"
-                                ToolTip="Re-run this cutting list through OPTIMIZE at the configured effort level"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <!-- ══ 2. STUDIO BENTO MODULE TAB RAIL ══ -->
-            <Border Grid.Row="1" Background="{DynamicResource SurfaceSecondaryBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                    CornerRadius="10" Padding="6" Margin="0,0,0,14">
-                <StackPanel Orientation="Horizontal">
+            <Border Grid.Row="1" Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,8">
+                <WrapPanel Orientation="Horizontal">
                     <RadioButton GroupName="OptTabs" Tag="&#xE821;" Content="JOBS"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
                                  Style="{StaticResource OptRailTab}"/>
@@ -138,97 +182,11 @@
                     <RadioButton GroupName="OptTabs" Tag="&#xE9F9;" Content="REPORT"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
                                  Style="{StaticResource OptRailTab}" Margin="0"/>
-                </StackPanel>
+                </WrapPanel>
             </Border>
 
-            <!-- ══ 3. STUDIO BENTO KPI METRIC QUAD ══ -->
-            <Grid Grid.Row="2" Margin="0,0,0,16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- CARD 1: CONFIRMED JOBS -->
-                <Border Grid.Column="0" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptInfoBg}">
-                            <TextBlock Text="&#xE821;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{StaticResource OptInfoInk}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="CONFIRMED JOBS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiJobs}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- CARD 2: PIECES -->
-                <Border Grid.Column="1" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptSuccessBg}">
-                            <TextBlock Text="&#xE80A;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{StaticResource OptSuccessInk}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="PIECES" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiPieces}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- CARD 3: TOTAL GLASS -->
-                <Border Grid.Column="2" Style="{StaticResource OptKpiCard}" Margin="0,0,12,0">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{StaticResource OptWarningBg}">
-                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{StaticResource OptWarningInk}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="TOTAL GLASS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiGlass}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- CARD 4: CUTTING GROUPS -->
-                <Border Grid.Column="3" Style="{StaticResource OptKpiCard}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Style="{StaticResource OptKpiBadge}" Background="{DynamicResource AccentSoftBrush}">
-                            <TextBlock Text="&#xE8A7;" FontFamily="Segoe MDL2 Assets" FontSize="18"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="CUTTING GROUPS" Style="{StaticResource OptHeader}"/>
-                            <TextBlock Text="{Binding KpiGroups}" Style="{StaticResource OptKpiValue}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-            </Grid>
-
-            <!-- ══ 4. TAB HOST WORKSPACE ══ -->
-            <Grid Grid.Row="3" IsEnabled="{Binding CanRun}">
+            <!-- Workspace takes the height the KPI strip used to occupy. -->
+            <Grid Grid.Row="2" IsEnabled="{Binding CanRun}">
                 <tabs:JobsTabView/>
                 <tabs:SizesTabView/>
                 <tabs:CutListTabView/>

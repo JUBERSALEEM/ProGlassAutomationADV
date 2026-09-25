@@ -17,7 +17,16 @@
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
-             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}">
+             Visibility="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
+             Background="Transparent">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../../Dashboard/Overview/IndigoStudioResources.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid>
         <Border Style="{StaticResource OptPanelCard}">
@@ -130,6 +139,9 @@
                                 <ComboBox ItemsSource="{Binding StageStrategies}"
                                           SelectedItem="{Binding SelectedStageStrategy}"
                                           Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"/>
+                                <TextBlock Text="Same five stages as the banner, before Run. Changing either updates the run."
+                                           FontSize="11" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
                     </Grid>
