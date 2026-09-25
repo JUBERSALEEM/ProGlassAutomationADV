@@ -101,13 +101,10 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
         }
 
         /// <summary>
-        /// Derives a Job Order ID from a Proforma Invoice ID.
-        /// e.g. "PI-2026-001" → "JOB-2026-001"
-        ///
-        /// If the source ID doesn't start with "PI-", falls back to
-        /// "JOB-{sourceId}".
+        /// Job-order name copied from the embedded project: identifier, then
+        /// the descriptive reference, then the contract number. Never a type name.
         /// </summary>
-        private static string ResolveProjectName(ProjectSnapshot? project)
+        public static string ResolveProjectName(ProjectSnapshot? project)
         {
             if (project == null) return string.Empty;
             if (!string.IsNullOrWhiteSpace(project.ProjectIdentifierName))
@@ -117,6 +114,13 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
             return project.ProjectContractNo?.Trim() ?? string.Empty;
         }
 
+        /// <summary>
+        /// Derives a Job Order ID from a Proforma Invoice ID.
+        /// e.g. "PI-2026-001" → "JOB-2026-001"
+        ///
+        /// If the source ID doesn't start with "PI-", falls back to
+        /// "JOB-{sourceId}".
+        /// </summary>
         public static string DeriveJobOrderId(string? proformaId)
         {
             if (string.IsNullOrWhiteSpace(proformaId))

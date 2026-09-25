@@ -316,7 +316,7 @@ namespace ProGlassAutomation.ViewModels.Production
 
             var items = units.SelectMany(u => u.FlowItems).ToList();
             var first = items.FirstOrDefault()?.Item;
-            SelectedProject = first?.ProjectName ?? "";
+            SelectedProject = ProductionReleaseSource.UsableJobOrderName(first?.ProjectName);
             SelectedRef = "";
 
             // Single-glass job → one centered grid; pane builds → OUTER/INNER.

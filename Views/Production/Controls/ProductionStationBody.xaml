@@ -100,15 +100,16 @@
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
-                            <DataGridTemplateColumn Header="JOB NO" Width="168" MinWidth="140">
+                            <DataGridTemplateColumn Header="JOB ORDER" Width="220" MinWidth="160">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <StackPanel VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding JobRef}" FontWeight="{DynamicResource Weight.SemiBold}"
+                                        <StackPanel VerticalAlignment="Center" ToolTip="{Binding JobTitle}">
+                                            <TextBlock Text="{Binding JobTitle}" FontWeight="{DynamicResource Weight.SemiBold}"
                                                        Foreground="{DynamicResource TextPrimaryBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Text="{Binding UnitsLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
-                                                       Foreground="{DynamicResource TextTertiaryBrush}"/>
+                                            <TextBlock Text="{Binding JobCaption}" FontSize="{DynamicResource FontSize.BodySmall}"
+                                                       Foreground="{DynamicResource TextTertiaryBrush}"
+                                                       TextTrimming="CharacterEllipsis"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>

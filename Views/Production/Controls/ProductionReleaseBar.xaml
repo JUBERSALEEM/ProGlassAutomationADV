@@ -32,14 +32,24 @@
                            Foreground="{DynamicResource TextPrimaryBrush}"
                            VerticalAlignment="Center"
                            Margin="0,6,12,6"/>
+                <!-- ItemTemplate, not DisplayMemberPath. DisplayMemberPath on the
+                     themed combo rendered the CLR type name ("…ProductionReleaseSource"
+                     / "String") instead of the job-order name. Do not set both. -->
                 <ComboBox ItemsSource="{Binding Sources}"
                           SelectedItem="{Binding SelectedSource}"
-                          DisplayMemberPath="DisplayLabel"
                           Style="{StaticResource ModuleListFilterComboStyle}"
-                          Width="320" MinWidth="180"
+                          Width="460" MinWidth="240"
                           Margin="0,6,8,6"
                           VerticalAlignment="Center"
-                          ToolTip="Released / In-Production Job Orders (confirmed PIs only — drafts never reach the floor)"/>
+                          ToolTip="Released / In-Production job orders. The name shown is the job-order name, then the job number.">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DisplayLabel}"
+                                       TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding DisplayLabel}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
                 <Button Style="{StaticResource PrimaryPillButton}"
                         Command="{Binding ReleaseCommand}"
                         Tag="&#xE768;"

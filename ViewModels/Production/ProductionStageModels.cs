@@ -207,6 +207,20 @@ namespace ProGlassAutomation.ViewModels.Production
     }
 
     /// <summary>
+    /// One entry in the station job filter. <see cref="JobRef"/> is the
+    /// filter key; <see cref="Label"/> is the job-order name the floor sees.
+    /// </summary>
+    public sealed class ProductionJobFilterChoice
+    {
+        public string JobRef { get; init; } = "";
+        public string Label { get; init; } = "";
+
+        /// <summary>Never the CLR type name if a combo falls back to ToString.</summary>
+        public override string ToString() =>
+            string.IsNullOrWhiteSpace(Label) ? JobRef : Label;
+    }
+
+    /// <summary>
     /// One master-list row: a unit with its full Step-5 envelope and this
     /// stage's piece flow (IN / DONE / BALANCE).
     /// </summary>
@@ -219,6 +233,12 @@ namespace ProGlassAutomation.ViewModels.Production
         public string StatusGlyph { get; init; } = "";
         public string StatusLabel { get; init; } = "";
         public string JobRef { get; init; } = "";
+        /// <summary>Job-order name (project). Empty when the order has no name.</summary>
+        public string ProjectName { get; init; } = "";
+        /// <summary>Bold line: the job-order name, or the job number when unnamed.</summary>
+        public string JobTitle { get; init; } = "";
+        /// <summary>Second line: job number plus unit count, or units only.</summary>
+        public string JobCaption { get; init; } = "";
         public string PiNo { get; init; } = "";
         public string Customer { get; init; } = "";
         public string Salesman { get; init; } = "";

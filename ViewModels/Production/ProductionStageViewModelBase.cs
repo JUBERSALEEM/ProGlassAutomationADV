@@ -182,16 +182,18 @@ namespace ProGlassAutomation.ViewModels.Production
 
         // ── Filters ──────────────────────────────────────────────────────
 
-        public ObservableCollection<string> JobFilters { get; } = new();
+        public ObservableCollection<ProductionJobFilterChoice> JobFilters { get; } = new();
 
+        private bool _rebuildingJobFilters;
         private string _selectedJobFilter = AllJobsFilter;
         public string SelectedJobFilter
         {
             get => _selectedJobFilter;
             set
             {
+                if (_rebuildingJobFilters) return;
                 if (_selectedJobFilter == value) return;
-                _selectedJobFilter = value;
+                _selectedJobFilter = string.IsNullOrWhiteSpace(value) ? AllJobsFilter : value;
                 OnPropertyChanged();
                 AsyncUtility.SafeFireAndForget(LoadListAsync, "Production job filter");
             }
@@ -635,18 +637,40 @@ namespace ProGlassAutomation.ViewModels.Production
                 (readyUnits > 0 ? $" · {readyUnits.ToString(CultureInfo.InvariantCulture)} unit(s) complete" : "");
 
             // Job filter picker (preserve current choice when it survives).
-            var jobRefs = await Task.Run(async () =>
-                (await ProductionRepository.GetReleasesAsync().ConfigureAwait(false))
-                    .Select(r => r.JobRef).Distinct().OrderBy(r => r).ToList())
-                .ConfigureAwait(true);
+            // Label is the job-order name, not the CLR type and not only the id.
+            var releases = await Task.Run(ProductionRepository.GetReleasesAsync).ConfigureAwait(true);
+            var choices = releases
+                .Where(r => !string.IsNullOrWhiteSpace(r.JobRef))
+                .GroupBy(r => r.JobRef, StringComparer.OrdinalIgnoreCase)
+                .Select(g => g.First())
+                .OrderBy(r => r.JobRef, StringComparer.OrdinalIgnoreCase)
+                .Select(r =>
+                {
+                    string name = ProductionReleaseSource.UsableJobOrderName(r.ProjectName);
+                    return new ProductionJobFilterChoice
+                    {
+                        JobRef = r.JobRef,
+                        Label = name.Length == 0 ? r.JobRef : name + " · " + r.JobRef
+                    };
+                })
+                .ToList();
 
             string previous = _selectedJobFilter;
-            JobFilters.Clear();
-            JobFilters.Add(AllJobsFilter);
-            foreach (var jobRefEntry in jobRefs) JobFilters.Add(jobRefEntry);
-
-            _selectedJobFilter = jobRefs.Contains(previous) ? previous : AllJobsFilter;
-            OnPropertyChanged(nameof(SelectedJobFilter));
+            bool previousSurvives = string.Equals(previous, AllJobsFilter, StringComparison.Ordinal)
+                || choices.Any(c => string.Equals(c.JobRef, previous, StringComparison.OrdinalIgnoreCase));
+            _rebuildingJobFilters = true;
+            try
+            {
+                JobFilters.Clear();
+                JobFilters.Add(new ProductionJobFilterChoice { JobRef = AllJobsFilter, Label = AllJobsFilter });
+                foreach (var choice in choices) JobFilters.Add(choice);
+                _selectedJobFilter = previousSurvives ? previous : AllJobsFilter;
+                OnPropertyChanged(nameof(SelectedJobFilter));
+            }
+            finally
+            {
+                _rebuildingJobFilters = false;
+            }
 
             // If the selected job disappeared (release removed), the list
             // was filtered by it — resync the list to the reset filter.
@@ -685,6 +709,13 @@ namespace ProGlassAutomation.ViewModels.Production
             var first = group.Units[0];
             int unitCount = group.Units.Count;
             int specCount = group.Units.Select(u => u.SpecGroupNumber).Distinct().Count();
+            string unitsLabel = $"{unitCount.ToString(CultureInfo.InvariantCulture)} unit(s) · " +
+                                $"{specCount.ToString(CultureInfo.InvariantCulture)} spec(s)";
+            string projectName = ProductionReleaseSource.UsableJobOrderName(first.ProjectName);
+            string jobTitle = projectName.Length > 0 ? projectName : group.JobRef;
+            string jobCaption = projectName.Length > 0
+                ? group.JobRef + " · " + unitsLabel
+                : unitsLabel;
 
             string size = first.W1 > 0 && first.H1 > 0
                 ? $"{first.W1.ToString(CultureInfo.InvariantCulture)}×{first.H1.ToString(CultureInfo.InvariantCulture)}"
@@ -717,12 +748,14 @@ namespace ProGlassAutomation.ViewModels.Production
                 StatusGlyph = glyph,
                 StatusLabel = statusLabel,
                 JobRef = group.JobRef,
+                ProjectName = projectName,
+                JobTitle = jobTitle,
+                JobCaption = jobCaption,
                 PiNo = first.SourceProformaId,
                 Customer = first.CustomerName,
                 Salesman = first.Salesman,
                 IndexLabel = index.ToString(CultureInfo.InvariantCulture),
-                UnitsLabel = $"{unitCount.ToString(CultureInfo.InvariantCulture)} unit(s) · " +
-                             $"{specCount.ToString(CultureInfo.InvariantCulture)} spec(s)",
+                UnitsLabel = unitsLabel,
                 SizeLabel = size,
                 GlassLabel = glass,
                 LmLabel = lm.ToString("0.##", CultureInfo.InvariantCulture) + " LM",

@@ -38,6 +38,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
@@ -100,7 +101,7 @@ namespace ProGlassAutomation.Services.Production
                 JobRef = jobRef ?? "",
                 SourceProformaId = snapshot?.Company?.ProformaId ?? "",
                 CustomerName = snapshot?.Client?.CustomerName ?? "",
-                ProjectName = snapshot?.Project?.ProjectIdentifierName ?? "",
+                ProjectName = JobOrderMapper.ResolveProjectName(snapshot?.Project),
                 Salesman = snapshot?.Client?.SalesRepresentative ?? ""
             };
 

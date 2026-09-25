@@ -19,8 +19,10 @@
 
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
+using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Services.JobOrder.Database;
+using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
@@ -40,9 +42,49 @@ namespace ProGlassAutomation.Services.Production
         public string Status { get; init; } = "";
         public DateTime SortDate { get; init; }
 
-        public string DisplayLabel =>
-            $"{Reference} · {(string.IsNullOrWhiteSpace(CustomerName) ? "—" : CustomerName)}" +
-            (string.IsNullOrWhiteSpace(Status) ? "" : $" ({Status})");
+        /// <summary>
+        /// Job-order name first, then the job number and customer. A picker
+        /// that falls back to <see cref="object.ToString"/> must still show
+        /// this — never the CLR type name.
+        /// </summary>
+        public string DisplayLabel
+        {
+            get
+            {
+                string name = UsableJobOrderName(ProjectName);
+                string reference = (Reference ?? "").Trim();
+                string customer = (CustomerName ?? "").Trim();
+                var parts = new List<string>(3);
+                if (name.Length > 0) parts.Add(name);
+                if (reference.Length > 0
+                    && !string.Equals(reference, name, StringComparison.OrdinalIgnoreCase))
+                    parts.Add(reference);
+                if (customer.Length > 0) parts.Add(customer);
+                string core = parts.Count == 0 ? "Job order" : string.Join(" · ", parts);
+                string status = (Status ?? "").Trim();
+                return status.Length == 0 ? core : core + " (" + status + ")";
+            }
+        }
+
+        /// <summary>Defence against the release picker showing a type name.</summary>
+        public override string ToString() => DisplayLabel;
+
+        /// <summary>
+        /// A stored name that is blank or a CLR type name ("String",
+        /// "System.String", "ProGlassAutomation.…") is not a job-order name.
+        /// </summary>
+        public static string UsableJobOrderName(string? value)
+        {
+            string name = (value ?? "").Trim();
+            if (name.Length == 0) return "";
+            if (name.Equals("String", StringComparison.OrdinalIgnoreCase)
+                || name.Equals("System.String", StringComparison.OrdinalIgnoreCase))
+                return "";
+            if (name.StartsWith("ProGlassAutomation.", StringComparison.Ordinal)
+                || name.StartsWith("System.", StringComparison.Ordinal))
+                return "";
+            return name;
+        }
     }
 
     public static class ProductionReleaseService
@@ -70,21 +112,46 @@ namespace ProGlassAutomation.Services.Production
                     .ToListAsync()
                     .ConfigureAwait(false);
 
-                // Status comparison via JobOrderStatusValues — the house rule
-                // (the InProduction/legacy "In Production" spelling split).
-                sources.AddRange(jobs
+                var releasable = jobs
                     .Where(j => JobOrderStatusValues.Is(j.Status, JobOrderStatusValues.Released)
                              || JobOrderStatusValues.IsInProduction(j.Status))
-                    .Select(j => new ProductionReleaseSource
+                    .ToList();
+
+                // Indexed ProjectName is the name. When that column is blank or
+                // a type-name leak, read the embedded project (identifier, then
+                // reference, then contract) — only for those rows.
+                var needsName = new List<string>();
+                foreach (var job in releasable)
+                {
+                    if (string.IsNullOrWhiteSpace(job.JobOrderId)) continue;
+                    if (ProductionReleaseSource.UsableJobOrderName(job.ProjectName).Length == 0)
+                        needsName.Add(job.JobOrderId);
+                }
+                var namesFromSnapshot = needsName.Count == 0
+                    ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    : await ResolveNamesFromSnapshotsAsync(db, needsName).ConfigureAwait(false);
+
+                // Status comparison via JobOrderStatusValues — the house rule
+                // (the InProduction/legacy "In Production" spelling split).
+                sources.AddRange(releasable.Select(j =>
+                {
+                    string stored = ProductionReleaseSource.UsableJobOrderName(j.ProjectName);
+                    string project = stored.Length > 0
+                        ? stored
+                        : (namesFromSnapshot.TryGetValue(j.JobOrderId ?? "", out string? resolved)
+                            ? resolved
+                            : "");
+                    return new ProductionReleaseSource
                     {
                         Reference = j.JobOrderId ?? "",
                         CustomerName = j.CustomerName ?? "",
-                        ProjectName = j.ProjectName ?? "",
+                        ProjectName = project,
                         Status = JobOrderStatusValues.IsInProduction(j.Status)
                             ? JobOrderStatusValues.InProductionDisplay
                             : j.Status ?? "",
                         SortDate = j.UpdatedAt
-                    }));
+                    };
+                }));
             }
             catch (Exception ex)
             {
@@ -152,7 +219,7 @@ namespace ProGlassAutomation.Services.Production
                     });
 
                 return (true,
-                    $"{source.Reference} released: {result.Inserted} new work item(s), " +
+                    $"{source.DisplayLabel} released: {result.Inserted} new work item(s), " +
                     $"{result.Updated} refreshed, {result.RemovedStalePending} stale pending removed.",
                     result);
             }
@@ -169,6 +236,33 @@ namespace ProGlassAutomation.Services.Production
                     });
                 return (false, $"Release failed: {ex.Message}", null);
             }
+        }
+
+        private static async Task<Dictionary<string, string>> ResolveNamesFromSnapshotsAsync(
+            JobOrdersDbContext db, List<string> jobOrderIds)
+        {
+            var names = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            var rows = await db.JobOrders
+                .AsNoTracking()
+                .Where(j => jobOrderIds.Contains(j.JobOrderId))
+                .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
+                .ToListAsync()
+                .ConfigureAwait(false);
+
+            foreach (var row in rows)
+            {
+                if (string.IsNullOrWhiteSpace(row.JobOrderId)) continue;
+                var snap = JobOrderMapper.DeserializeSnapshot(new SavedJobOrder
+                {
+                    JobOrderId = row.JobOrderId,
+                    FullSnapshotJson = row.FullSnapshotJson ?? ""
+                });
+                string name = ProductionReleaseSource.UsableJobOrderName(
+                    JobOrderMapper.ResolveProjectName(snap?.EmbeddedInvoice?.Project));
+                if (name.Length > 0) names[row.JobOrderId] = name;
+            }
+
+            return names;
         }
 
         private static async Task<string?> LoadJobOrderJsonAsync(

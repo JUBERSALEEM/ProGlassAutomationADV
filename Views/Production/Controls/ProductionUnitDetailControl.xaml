@@ -85,8 +85,39 @@
                 <StackPanel>
                     <TextBlock Text="JOB" FontSize="{DynamicResource FontSize.BodySmall}" FontWeight="{DynamicResource Weight.Bold}"
                                Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
-                    <TextBlock Text="{Binding SelectedJobNo}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
-                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                    <TextBlock Text="{Binding SelectedProject}" FontSize="{DynamicResource FontSize.H2}" FontWeight="{DynamicResource Weight.Bold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap"
+                               ToolTip="{Binding SelectedProject}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedProject}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedProject}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Text="{Binding SelectedJobNo}" FontWeight="{DynamicResource Weight.SemiBold}"
+                               Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,2,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="FontSize" Value="{DynamicResource FontSize.Title}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedProject}" Value="">
+                                        <Setter Property="FontSize" Value="{DynamicResource FontSize.H2}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding SelectedProject}" Value="{x:Null}">
+                                        <Setter Property="FontSize" Value="{DynamicResource FontSize.H2}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                     <TextBlock Text="{Binding SelectedCustomer}" FontSize="{DynamicResource FontSize.Title}"
                                Foreground="{DynamicResource TextPrimaryBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                     <TextBlock Text="{Binding SelectedSpecLabel}" FontSize="{DynamicResource FontSize.BodySmall}"
