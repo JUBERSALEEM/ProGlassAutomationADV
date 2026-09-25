@@ -31,6 +31,7 @@
             </Viewbox>
         </StackPanel>
         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   TextWrapping="Wrap"
                    Text="{DynamicResource Settings.AddsStrongDarkOutlineRoundedCardsPillButtons}"/>
         <ToggleButton HorizontalAlignment="Left" Margin="{StaticResource SettingsStackGap8}"
                       AutomationProperties.Name="{DynamicResource Settings.DefinedCardEdges}"
@@ -74,16 +75,19 @@
         </ItemsControl>
 
         <!-- Custom edge colour -->
-        <StackPanel Orientation="Horizontal" Margin="{StaticResource SettingsStackGap12}">
-            <Ellipse Width="14" Height="14"
-                     Fill="{Binding CardEdgeSwatch}"
-                     Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
-                     VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
-            <TextBox Text="{Binding CardEdgeColor, UpdateSourceTrigger=PropertyChanged}"
-                     Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Body}"
-                     FontFamily="{DynamicResource FontFamily.Code}" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
-            <TextBlock VerticalAlignment="Center" Margin="{StaticResource SettingsIconTextMargin}"
+        <StackPanel Margin="{StaticResource SettingsStackGap12}">
+            <StackPanel Orientation="Horizontal">
+                <Ellipse Width="14" Height="14"
+                         Fill="{Binding CardEdgeSwatch}"
+                         Stroke="{DynamicResource BorderDefaultBrush}" StrokeThickness="1"
+                         VerticalAlignment="Center" Margin="{StaticResource SettingsInlineGap10R}"/>
+                <TextBox Text="{Binding CardEdgeColor, UpdateSourceTrigger=PropertyChanged}"
+                         Width="110" Padding="8,6" FontSize="{DynamicResource FontSize.Body}"
+                         FontFamily="{DynamicResource FontFamily.Code}" VerticalAlignment="Center" Style="{StaticResource TextBoxStyle}"/>
+            </StackPanel>
+            <TextBlock Margin="0,6,0,0"
                        Style="{StaticResource SettingsRowMetaStyle}"
+                       TextWrapping="Wrap"
                        Text="{DynamicResource Settings.CardEdgeColorHint}"/>
         </StackPanel>
     </StackPanel>

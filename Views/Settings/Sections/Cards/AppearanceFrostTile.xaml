@@ -31,7 +31,12 @@
             </Viewbox>
         </StackPanel>
         <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   TextWrapping="Wrap"
                    Text="Blurs the module wallpaper behind every screen. Cards stay sharp. 1 = light frost, 50 = professional, 100 = max. Colour plate tints the shared card fill."/>
+        <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                   Text="Reduced motion is on, so wallpaper blur stays off. Turn it off in Language &amp; Currency to see the frost."
+                   TextWrapping="Wrap"
+                   Visibility="{Binding ReducedMotion, Converter={StaticResource BoolToVisibilityConverter}}"/>
         <Slider Style="{StaticResource ModernSliderStyle}"
                 AutomationProperties.Name="{DynamicResource Settings.CardCornerRadius}"
                 Minimum="1" Maximum="100"

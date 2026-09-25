@@ -73,7 +73,7 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- ═══ CARD — PROVIDERS ═══ -->
-                    <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}">
+                    <Border Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" Style="{StaticResource SettingsPageCardStyle}" VerticalAlignment="Top">
                         <StackPanel>
                             <Grid Margin="{StaticResource SettingsStackBottom8}">
                                 <Grid.ColumnDefinitions>
@@ -136,7 +136,7 @@
                     </Border>
 
                     <!-- ═══ CARD — DEFAULTS ═══ -->
-                    <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}">
+                    <Border Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" Style="{StaticResource SettingsPageCardStyle}" VerticalAlignment="Top">
                         <StackPanel>
                             <Grid Margin="{StaticResource SettingsStackBottom8}">
                                 <Grid.ColumnDefinitions>

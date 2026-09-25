@@ -95,7 +95,16 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.CardEdgeColor = value;
                 ThemeManager.ApplyCardEdgeColor(value);
-                ThemeManager.ApplyOutline(UseDefinedOutline);
+                // A plate or hex pick is ignored while Defined Card Edges is
+                // off (ApplyOutline only uses the custom colour when the
+                // edge is on). Turn it on so the plate the operator just
+                // chose is actually painted.
+                bool parsedEdge = ProGlassAutomation.Services.Theme.AccentPresets
+                    .TryParseHex(value) != null;
+                if (parsedEdge && !UseDefinedOutline)
+                    UseDefinedOutline = true;
+                else
+                    ThemeManager.ApplyOutline(UseDefinedOutline);
                 ScheduleDebouncedSave();
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CardEdgeSwatch));
@@ -220,6 +229,11 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 _config.Appearance.CardEdgeThickness = v;
                 ThemeManager.ApplyCardEdgeThickness(v);
+                // Thickness is collapsed to the hairline while the edge is
+                // off, so a slider move has to engage the edge or it looks
+                // broken. The equality guard above skips the load-time write.
+                if (!UseDefinedOutline)
+                    UseDefinedOutline = true;
                 ThemeManager.ApplySemanticSurfaces(_config.Appearance);
                 OnPropertyChanged(nameof(SurfacePrimaryBorderThickness));
                 ScheduleDebouncedSave(auditBorder: true);

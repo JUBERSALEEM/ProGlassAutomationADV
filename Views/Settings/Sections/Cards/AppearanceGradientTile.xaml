@@ -20,7 +20,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="{StaticResource SettingsRowMargin}">
@@ -29,6 +29,7 @@
         </StackPanel>
         <TextBlock Grid.Row="1"
                    Style="{StaticResource SettingsRowMetaStyle}"
+                   TextWrapping="Wrap"
                    Text="{DynamicResource Settings.RendersMonetGlassCardsWindowBackgroundAccent}"/>
         <ToggleButton Grid.Row="3"
                       AutomationProperties.Name="{DynamicResource Settings.GradientSurfaces}"

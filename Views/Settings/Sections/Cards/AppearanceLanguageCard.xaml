@@ -72,11 +72,11 @@
                 <!-- Language -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">
@@ -111,11 +111,11 @@
                 <!-- Currency -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">
@@ -150,11 +150,11 @@
                 <!-- Phone Country -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">
@@ -191,18 +191,17 @@
 
             <!-- ── SECTION 2: PREFERENCE FEATURES ────────────────────
                  Auto-suggest country · Reset to English · Reduced motion —
-                 three 12px rounded tiles with controls pinned to the
-                 bottom edge. -->
+                 three 12px rounded tiles sized to their content. -->
             <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
                 <!-- Auto-suggest by country -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">
@@ -242,11 +241,11 @@
                 <!-- Reset to English -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">
@@ -281,11 +280,11 @@
                 <!-- Reduced motion -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">

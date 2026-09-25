@@ -99,10 +99,10 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <!-- ═══ CARD — PRIVACY ═══ -->
-                    <cards:AgentCoreCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
+                    <cards:AgentCoreCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
 
                     <!-- ═══ CARD — MEMORY & KNOWLEDGE ═══ -->
-                    <cards:AgentDataCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                    <cards:AgentDataCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
                 </Grid>
 
             </StackPanel>

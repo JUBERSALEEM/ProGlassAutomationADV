@@ -158,7 +158,8 @@
 
             <!-- ── SECTION 1: SURFACE ARCHITECTURE ───────────────────
                  Primary / Secondary / Detail surface cards — fixed 3-up
-                 grid with the module's 14px tile gutters. -->
+                 grid with the module's 14px tile gutters. Tiles size to content;
+                 a longer caption must not open a hole above the sliders. -->
             <Grid Margin="{StaticResource SettingsStackBottom8}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -175,6 +176,43 @@
                 </StackPanel>
             </Grid>
 
+            <!-- Material / shape / elevation were dropped with the 2026-09-24
+                 rewrite. They still drive ThemeManager; Solid material also
+                 turns wallpaper frost off, so the choice has to stay visible. -->
+            <UniformGrid Columns="4" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Material"/>
+                    <ComboBox ItemsSource="{Binding SurfaceMaterialOptions}"
+                              SelectedItem="{Binding SurfaceMaterialMode}"
+                              AutomationProperties.Name="Material"
+                              Padding="8,5" Height="32"
+                              FontSize="{DynamicResource FontSize.Body}"
+                              Style="{StaticResource ComboBoxStyle}"/>
+                </StackPanel>
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Rounded surfaces"/>
+                    <ToggleButton HorizontalAlignment="Left"
+                                  AutomationProperties.Name="Rounded surfaces"
+                                  IsChecked="{Binding UseRoundedSurfaces, Mode=TwoWay}"
+                                  Style="{StaticResource ModernToggleSwitch}"/>
+                </StackPanel>
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Primary elevation"/>
+                    <ToggleButton HorizontalAlignment="Left"
+                                  AutomationProperties.Name="Primary elevation"
+                                  IsChecked="{Binding UsePrimarySurfaceElevation, Mode=TwoWay}"
+                                  Style="{StaticResource ModernToggleSwitch}"/>
+                </StackPanel>
+                <StackPanel Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
+                    <TextBlock Style="{StaticResource SettingsRowMetaStyle}" Text="Primary overlay"/>
+                    <Slider Style="{StaticResource ModernSliderStyle}"
+                            AutomationProperties.Name="Primary overlay"
+                            Minimum="0" Maximum="0.35" TickFrequency="0.05"
+                            IsSnapToTickEnabled="True"
+                            Value="{Binding PrimarySurfaceOverlayOpacity, Mode=TwoWay}"/>
+                </StackPanel>
+            </UniformGrid>
+
             <UniformGrid Columns="3" Margin="{StaticResource SettingsTileGridBleedKeepTop}">
 
                 <!-- Primary surface card -->
@@ -182,11 +220,11 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                         CornerRadius="{DynamicResource Radius.Large}" Padding="12,10"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
                             <TextBlock Text="Primary" FontWeight="{DynamicResource Weight.Bold}"
@@ -198,7 +236,7 @@
                                        TextWrapping="Wrap"
                                        Margin="{StaticResource SettingsStackBottom4}"/>
                         </StackPanel>
-                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                        <StackPanel Grid.Row="1" VerticalAlignment="Top">
                             <StackPanel Margin="{StaticResource SettingsAxisRowMargin}">
                                 <TextBlock Text="Opacity" FontSize="{DynamicResource FontSize.Body}"
                                            Margin="{StaticResource SettingsAxisLabelMargin}"/>
@@ -232,11 +270,11 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                         CornerRadius="{DynamicResource Radius.Large}" Padding="12,10"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
                             <TextBlock Text="Secondary" FontWeight="{DynamicResource Weight.Bold}"
@@ -248,7 +286,7 @@
                                        TextWrapping="Wrap"
                                        Margin="{StaticResource SettingsStackBottom4}"/>
                         </StackPanel>
-                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                        <StackPanel Grid.Row="1" VerticalAlignment="Top">
                             <StackPanel Margin="{StaticResource SettingsAxisRowMargin}">
                                 <TextBlock Text="Opacity" FontSize="{DynamicResource FontSize.Body}"
                                            Margin="{StaticResource SettingsAxisLabelMargin}"/>
@@ -282,11 +320,11 @@
                         BorderBrush="{DynamicResource BorderDefaultBrush}"
                         BorderThickness="{DynamicResource Border.HairlineThickness}"
                         CornerRadius="{DynamicResource Radius.Large}" Padding="12,10"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0">
                             <TextBlock Text="Detail" FontWeight="{DynamicResource Weight.Bold}"
@@ -298,7 +336,7 @@
                                        TextWrapping="Wrap"
                                        Margin="{StaticResource SettingsStackBottom4}"/>
                         </StackPanel>
-                        <StackPanel Grid.Row="1" VerticalAlignment="Bottom">
+                        <StackPanel Grid.Row="1" VerticalAlignment="Top">
                             <StackPanel Margin="{StaticResource SettingsAxisRowMargin}">
                                 <TextBlock Text="Opacity" FontSize="{DynamicResource FontSize.Body}"
                                            Margin="{StaticResource SettingsAxisLabelMargin}"/>
@@ -332,7 +370,8 @@
 
             <!-- ── SECTION 2: SYSTEM & RENDERING PREFERENCES ─────────
                  UI Scale / PDF Layout / Motion tiles — same 14px gutter
-                 grid; content clusters pin to the tile bottom. -->
+                 grid. Tiles size to content so a taller neighbour does not
+                 open a hole above the control. -->
             <Grid Margin="{StaticResource SettingsStackBottom8}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -351,11 +390,11 @@
                 <!-- UI Scale -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">
@@ -402,11 +441,11 @@
                 <!-- PDF Layout -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">
@@ -430,6 +469,10 @@
                                       Style="{StaticResource ComboBoxStyle}"
                                       Margin="0,2,0,8"/>
                             <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
+                                       Text="{Binding PdfLayoutHint}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,0,0,4"/>
+                            <TextBlock Style="{StaticResource SettingsRowMetaStyle}"
                                        Text="{DynamicResource Settings.AppliesPIJODNTaxInvoiceStatementSheetStore}"
                                        TextWrapping="Wrap"/>
                         </StackPanel>
@@ -439,11 +482,11 @@
                 <!-- Motion &amp; Display Performance -->
                 <Border Style="{StaticResource SettingsInnerTileStyle}" Padding="12,10"
                         CornerRadius="{DynamicResource Radius.Large}"
-                        Margin="{StaticResource SettingsTileGridMargin}">
+                        Margin="{StaticResource SettingsTileGridMargin}" VerticalAlignment="Top">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0" Margin="{StaticResource SettingsStackBottom8}">

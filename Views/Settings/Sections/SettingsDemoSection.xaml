@@ -74,8 +74,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <cards:DemoRecordCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
-                    <cards:DemoQualityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                    <cards:DemoRecordCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+                    <cards:DemoQualityCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
                 </Grid>
 
                 <!-- ═══ BENTO ROW — WORKFLOW & ISOLATION ═══ -->
@@ -84,8 +84,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <cards:DemoWorkflowCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
-                    <cards:DemoIsolationCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                    <cards:DemoWorkflowCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+                    <cards:DemoIsolationCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
                 </Grid>
 
                 <!-- ═══ CARD — RESET DEMO DATA ═══ -->
@@ -110,8 +110,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <cards:DemoHistoryCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}"/>
-                    <cards:DemoOutputCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}"/>
+                    <cards:DemoHistoryCard Grid.Column="0" Margin="{StaticResource SettingsBentoColLeft}" VerticalAlignment="Top"/>
+                    <cards:DemoOutputCard Grid.Column="1" Margin="{StaticResource SettingsBentoColRight}" VerticalAlignment="Top"/>
                 </Grid>
 
             </StackPanel>
