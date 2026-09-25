@@ -45,6 +45,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <Grid VerticalAlignment="Center">
@@ -106,22 +107,40 @@
                         <TextBlock Text="STRATEGY" FontSize="10" FontWeight="Bold"
                                    Foreground="{StaticResource OptOnIndigoMuted}"
                                    VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding StageStrategies}"
+                                  SelectedItem="{Binding SelectedStageStrategy}"
+                                  Style="{StaticResource OptComboStyle}"
+                                  HorizontalAlignment="Stretch"
+                                  IsEnabled="{Binding CanRun}"
+                                  ToolTip="{Binding SelectedStageStrategy}"
+                                  AutomationProperties.Name="Optimize effort and strategy stage"/>
+                    </Grid>
+
+                    <Grid Grid.Row="2" Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*" MinWidth="420"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="PLATE" FontSize="10" FontWeight="Bold"
+                                   Foreground="{StaticResource OptOnIndigoMuted}"
+                                   VerticalAlignment="Center" Margin="0,0,12,0"/>
                         <StackPanel Grid.Column="1">
-                            <ComboBox ItemsSource="{Binding StageStrategies}"
-                                      SelectedItem="{Binding SelectedStageStrategy}"
+                            <ComboBox ItemsSource="{Binding PlatePatterns}"
+                                      SelectedItem="{Binding SelectedPlatePattern}"
                                       Style="{StaticResource OptComboStyle}"
                                       HorizontalAlignment="Stretch"
                                       IsEnabled="{Binding CanRun}"
-                                      ToolTip="{Binding SelectedStageStrategyHint}"
-                                      AutomationProperties.Name="Optimize stage and plate pattern"/>
-                            <TextBlock Text="{Binding SelectedStageStrategyHint}"
+                                      ToolTip="{Binding SelectedPlatePatternHint}"
+                                      AutomationProperties.Name="Plate pattern"/>
+                            <TextBlock Text="{Binding SelectedPlatePatternHint}"
                                        FontSize="11" TextWrapping="Wrap"
                                        Foreground="{StaticResource OptOnIndigoMuted}"
                                        Margin="2,4,0,0"/>
                         </StackPanel>
                     </Grid>
 
-                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,0">
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,0">
                         <Button Content="Run Quick" Style="{StaticResource OptOutlinedButton}"
                                 Command="{Binding RunQuickCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
                                 ToolTip="Runs the stage and plate pattern selected above. Yield stays the fast portfolio unless Fill first plate is selected."/>
@@ -141,7 +160,7 @@
                                 ToolTip="Re-run this cutting list through OPTIMIZE at the selected stage and plate pattern"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="3">
+                    <StackPanel Grid.Row="4">
                         <TextBlock Text="{Binding RunStageLabel}" FontSize="11" FontWeight="SemiBold"
                                    Foreground="{StaticResource OptOnIndigo}" Margin="0,6,0,0"
                                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibilityConverter}}"/>
