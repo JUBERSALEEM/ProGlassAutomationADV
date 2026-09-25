@@ -621,8 +621,10 @@ namespace ProGlassAutomation.Services
 
             // Box kernel is the cheap blur. Gaussian on a full-window
             // wallpaper is the frame hitch the slider used to cause.
-            // Reuse the frozen effect when the radius has not moved.
-            double radius = Math.Min(18.0, intensity * 24.0);
+            // Cap at 8. A radius of 18 on a maximized window is a
+            // full-screen shader large enough to time out the display
+            // driver on the first shell frame.
+            double radius = Math.Min(8.0, intensity * 16.0);
             if (_cachedWallpaperBlur != null && Math.Abs(_cachedWallpaperBlurRadius - radius) < 0.05)
             {
                 resources["ModuleSkinBlurEffect"] = _cachedWallpaperBlur;

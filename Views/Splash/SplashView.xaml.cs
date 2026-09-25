@@ -34,9 +34,11 @@
 //     CaptionEnterprise, CaptionSecure, TermsPanel, TermsBar, etc.
 //
 // PERFORMANCE:
-//   • One DispatcherTimer for progress rotation (30ms) + Storyboards for
-//     bouncy blobs (WPF composition thread) — no per-frame allocations
-//   • BlurEffects are cached (cheap — 4 large + 6 small)
+//   • One DispatcherTimer for progress rotation + storyboards for the
+//     blobs. The large blobs must NOT carry a BlurEffect: they move for
+//     the whole time this maximized topmost window is up, and a live
+//     blur is recomputed every frame. That stalled the display driver
+//     and froze the machine at launch. The radial fill already fades.
 // ═══════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIConfig;
@@ -260,6 +262,13 @@ namespace ProGlassAutomation.Views.Splash
 
             try
             {
+            // Moving shapes must not carry a blur. A leftover effect here
+            // is re-run every frame on a maximized topmost window.
+            BgBlob1.Effect = null;
+            BgBlob2.Effect = null;
+            BgBlob3.Effect = null;
+            BgBlob4.Effect = null;
+
             // ─── 1) CAPTION — MADE IN INDIA quiet fade ─────────────────
             FadeIn(CaptionMadeIn, fromMs: 0, durationMs: 400);
             // Enterprise/Secure are collapsed in v4 but keep fade for compat

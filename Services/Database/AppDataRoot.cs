@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.Database
 {
@@ -191,11 +192,30 @@ namespace ProGlassAutomation.Services.Database
         /// </summary>
         internal static bool TryEnsureSharedFolder(string folder, out string failure)
         {
+            // Directory.CreateDirectory on a dead UNC path blocks inside the
+            // SMB redirector. That call used to run on the UI thread at
+            // launch, so a host that was off froze this process and could
+            // stall Explorer with it. Four seconds, then local data.
             try
             {
-                Directory.CreateDirectory(folder);
+                var probe = Task.Run(() => Directory.CreateDirectory(folder));
+                probe.ContinueWith(
+                    t => { _ = t.Exception; },
+                    TaskContinuationOptions.OnlyOnFaulted);
+                if (!probe.Wait(TimeSpan.FromSeconds(4)))
+                {
+                    failure = "The shared folder did not respond within 4 seconds — the host " +
+                        "computer may be off or the network is down.";
+                    return false;
+                }
+
                 failure = "";
                 return true;
+            }
+            catch (AggregateException ex)
+            {
+                failure = DescribeShareFailure(ex.GetBaseException());
+                return false;
             }
             catch (Exception ex)
             {

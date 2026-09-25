@@ -1081,11 +1081,43 @@ namespace ProGlassAutomation.Services.Theme
             image.BeginInit();
             image.CacheOption = BitmapCacheOption.OnLoad;
             image.UriSource = new Uri(fullPath, UriKind.Absolute);
+            // A phone photo decoded at full size, then blurred across the
+            // maximized shell, has exhausted memory and stalled the GPU
+            // before the first window could paint. 1600px on the long
+            // edge is enough for a backdrop.
+            ApplyWallpaperDecodeCap(image, fullPath);
             image.EndInit();
             image.Freeze();
 
             _wallpaperImageCache[fullPath] = new WallpaperCacheEntry(lastWrite, image);
             return image;
+        }
+
+        private const int WallpaperDecodeMaxEdge = 1600;
+
+        private static void ApplyWallpaperDecodeCap(BitmapImage image, string fullPath)
+        {
+            try
+            {
+                using var probe = File.OpenRead(fullPath);
+                var frame = BitmapDecoder.Create(
+                    probe,
+                    BitmapCreateOptions.DelayCreation,
+                    BitmapCacheOption.None).Frames[0];
+                int w = frame.PixelWidth;
+                int h = frame.PixelHeight;
+                if (w <= WallpaperDecodeMaxEdge && h <= WallpaperDecodeMaxEdge)
+                    return;
+                if (w >= h)
+                    image.DecodePixelWidth = WallpaperDecodeMaxEdge;
+                else
+                    image.DecodePixelHeight = WallpaperDecodeMaxEdge;
+            }
+            catch
+            {
+                // Unknown size. Still refuse a full decode of an unseen file.
+                image.DecodePixelWidth = WallpaperDecodeMaxEdge;
+            }
         }
 
         // ── MONET — colour-adaptive glass (Material-You style) ──────────
