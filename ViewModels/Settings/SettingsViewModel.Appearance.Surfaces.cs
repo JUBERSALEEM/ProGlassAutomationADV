@@ -216,7 +216,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public double SurfacePrimaryOpacity
         {
             get => _config?.Appearance?.SurfacePrimaryOpacity ?? 0.82;
-            set => SetSurfaceDouble(value, 0.30, 1.0,
+            set => SetSurfaceDouble(value, 0, 1.0,
                 v => _config!.Appearance.SurfacePrimaryOpacity = v,
                 () => _config!.Appearance.SurfacePrimaryOpacity,
                 nameof(SurfacePrimaryOpacity));
@@ -225,7 +225,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public double SurfaceSecondaryOpacity
         {
             get => _config?.Appearance?.SurfaceSecondaryOpacity ?? 0.94;
-            set => SetSurfaceDouble(value, 0.25, 1.0,
+            set => SetSurfaceDouble(value, 0, 1.0,
                 v => _config!.Appearance.SurfaceSecondaryOpacity = v,
                 () => _config!.Appearance.SurfaceSecondaryOpacity,
                 nameof(SurfaceSecondaryOpacity));
@@ -234,7 +234,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public double SurfaceDetailOpacity
         {
             get => _config?.Appearance?.SurfaceDetailOpacity ?? 0.86;
-            set => SetSurfaceDouble(value, 0.15, 1.0,
+            set => SetSurfaceDouble(value, 0, 1.0,
                 v => _config!.Appearance.SurfaceDetailOpacity = v,
                 () => _config!.Appearance.SurfaceDetailOpacity,
                 nameof(SurfaceDetailOpacity));
