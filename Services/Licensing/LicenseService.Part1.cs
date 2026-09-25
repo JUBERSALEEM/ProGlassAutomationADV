@@ -271,6 +271,24 @@ namespace ProGlassAutomation.Services.Licensing
         if (!verify.IsValid || verify.Document == null || verify.Response == null)
             return MapVerificationFailure(verify);
 
+        if (!TryReadLicenseClock(DataRoot, out DateTime? activationLastSeen, out string? activationClockError))
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = activationClockError
+            };
+        }
+
+        if (IsClockRolledBack(activationLastSeen, DateTime.UtcNow))
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = "System clock rollback beyond the 24 hour tolerance was detected. Correct the system time and try again."
+            };
+        }
+
         OfflineActivationStore.SaveActivationState(
             DataRoot,
             pending.InstallationId,
@@ -282,6 +300,7 @@ namespace ProGlassAutomation.Services.Licensing
             trimmed,
             DateTime.UtcNow);
         OfflineActivationStore.ClearPendingRequest(DataRoot);
+        OfflineActivationStore.AdvanceLicenseClock(DataRoot, DateTime.UtcNow);
         // One active license at a time: the new activation response
         // replaces any previously installed license key.
         OfflineActivationStore.ClearLicenseKeyState(DataRoot);
@@ -363,7 +382,7 @@ namespace ProGlassAutomation.Services.Licensing
             };
         }
 
-        if (keyText.Length > 700_000)
+        if (keyText.Length > LicenseFormat.MaxArmorCharacters)
         {
             return new LicenseVerificationResult
             {
@@ -401,7 +420,7 @@ namespace ProGlassAutomation.Services.Licensing
             };
         }
 
-        if (licenseJson.Length > 512_000)
+        if (licenseJson.Length > LicenseFormat.MaxJsonCharacters)
         {
             return new LicenseVerificationResult
             {
@@ -410,10 +429,19 @@ namespace ProGlassAutomation.Services.Licensing
             };
         }
 
+        if (!TryReadLicenseClock(DataRoot, out DateTime? lastSeen, out string? clockError))
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = clockError
+            };
+        }
+
         LicenseValidationResult validation;
         try
         {
-            validation = ProGlassLicense.VerifyText(licenseJson);
+            validation = ProGlassLicense.VerifyText(licenseJson, lastSeen);
         }
         catch (Exception ex)
         {
@@ -434,6 +462,7 @@ namespace ProGlassAutomation.Services.Licensing
             validation.SigningKeyId ?? "",
             licenseJson,
             DateTime.UtcNow);
+        OfflineActivationStore.AdvanceLicenseClock(DataRoot, DateTime.UtcNow);
         OfflineActivationStore.ClearActivationState(DataRoot);
 
         try
@@ -473,7 +502,7 @@ namespace ProGlassAutomation.Services.Licensing
         try
         {
             var info = new FileInfo(sourcePath);
-            if (info.Length > 700_000L)
+            if (info.Length > LicenseFormat.MaxArmorCharacters)
             {
                 return new LicenseVerificationResult
                 {
@@ -676,7 +705,7 @@ namespace ProGlassAutomation.Services.Licensing
 
         if (verify.IsValid && doc != null)
         {
-            var rollback = CheckClockRollback(stored.LastValidatedUtc, doc.OfflinePolicy, DateTime.UtcNow);
+            var rollback = CheckInstalledClock(dataRoot, stored.LastValidatedUtc, doc.OfflinePolicy, DateTime.UtcNow);
             if (!string.IsNullOrWhiteSpace(rollback))
             {
                 return new LicenseVerificationResult
@@ -687,13 +716,14 @@ namespace ProGlassAutomation.Services.Licensing
                 };
             }
 
+            OfflineActivationStore.AdvanceLicenseClock(dataRoot, DateTime.UtcNow);
             OfflineActivationStore.UpdateLastValidatedUtc(dataRoot, DateTime.UtcNow);
             return BuildRuntimeStatus(doc, payload);
         }
 
         if (verify.ErrorCode == OfflineActivationErrorCode.Expired && doc != null)
         {
-            var rollback = CheckClockRollback(stored.LastValidatedUtc, doc.OfflinePolicy, DateTime.UtcNow);
+            var rollback = CheckInstalledClock(dataRoot, stored.LastValidatedUtc, doc.OfflinePolicy, DateTime.UtcNow);
             if (!string.IsNullOrWhiteSpace(rollback))
             {
                 return new LicenseVerificationResult
@@ -746,10 +776,19 @@ namespace ProGlassAutomation.Services.Licensing
     private static LicenseVerificationResult VerifyInstalledKey(
         OfflineActivationStore.LicenseKeyState keyState, string dataRoot)
     {
+        if (!TryReadLicenseClock(dataRoot, out DateTime? lastSeen, out string? clockError))
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = clockError
+            };
+        }
+
         LicenseValidationResult validation;
         try
         {
-            validation = ProGlassLicense.VerifyText(keyState.LicenseJson);
+            validation = ProGlassLicense.VerifyText(keyState.LicenseJson, lastSeen);
         }
         catch (Exception ex)
         {
@@ -764,6 +803,7 @@ namespace ProGlassAutomation.Services.Licensing
             return MapKeyValidationFailure(validation);
 
         var doc = validation.Document;
+        OfflineActivationStore.AdvanceLicenseClock(dataRoot, DateTime.UtcNow);
         OfflineActivationStore.UpdateLicenseKeyLastValidatedUtc(dataRoot, DateTime.UtcNow);
         return BuildKeyRuntimeStatus(doc, ProjectKeyPayload(doc));
     }
@@ -793,6 +833,70 @@ namespace ProGlassAutomation.Services.Licensing
         };
     }
 
+    private static bool TryReadLicenseClock(string dataRoot, out DateTime? lastSeenUtc, out string? error)
+    {
+        lastSeenUtc = null;
+        error = null;
+
+        var clock = OfflineActivationStore.ReadLicenseClock(dataRoot);
+        if (clock.Exists && !clock.Success)
+        {
+            error = "The local license clock could not be read. The license was not accepted.";
+            return false;
+        }
+
+        if (clock.Value != null)
+            lastSeenUtc = LaterUtc(lastSeenUtc, clock.Value.LastSeenUtc);
+
+        var key = OfflineActivationStore.ReadLicenseKeyStateDetailed(dataRoot);
+        if (key.Exists && key.Success && key.Value != null)
+            lastSeenUtc = LaterUtc(lastSeenUtc, key.Value.LastValidatedUtc);
+
+        var activation = OfflineActivationStore.ReadActivationStateDetailed(dataRoot);
+        if (activation.Exists && activation.Success && activation.Value != null)
+            lastSeenUtc = LaterUtc(lastSeenUtc, activation.Value.LastValidatedUtc);
+
+        return true;
+    }
+
+    private static DateTime? LaterUtc(DateTime? current, DateTime candidate)
+    {
+        if (candidate == default)
+            return current;
+
+        DateTime utc = candidate.Kind == DateTimeKind.Unspecified
+            ? DateTime.SpecifyKind(candidate, DateTimeKind.Utc)
+            : candidate.ToUniversalTime();
+        if (current == null || utc > current.Value)
+            return utc;
+        return current;
+    }
+
+    private static bool IsClockRolledBack(DateTime? lastSeenUtc, DateTime utcNow)
+    {
+        if (!lastSeenUtc.HasValue || lastSeenUtc.Value == default)
+            return false;
+
+        return lastSeenUtc.Value.ToUniversalTime() - ProGlass.Licensing.LicenseService.DefaultClockRollbackTolerance
+            > utcNow.ToUniversalTime();
+    }
+
+    private static string CheckInstalledClock(
+        string dataRoot,
+        DateTime stateLastSeenUtc,
+        OfflineActivationPolicy? policy,
+        DateTime nowUtc)
+    {
+        if (!TryReadLicenseClock(dataRoot, out DateTime? clockSeen, out string? clockError))
+            return clockError ?? "The local license clock could not be read. The license was not accepted.";
+
+        DateTime anchor = stateLastSeenUtc;
+        if (clockSeen.HasValue && (anchor == default || clockSeen.Value > anchor))
+            anchor = clockSeen.Value;
+
+        return CheckClockRollback(anchor, policy, nowUtc);
+    }
+
     private static LicenseVerificationResult MapKeyValidationFailure(LicenseValidationResult validation)
     {
         return validation.ErrorCode switch
@@ -811,6 +915,11 @@ namespace ProGlassAutomation.Services.Licensing
             {
                 Status = LicenseStatus.Invalid,
                 ErrorDetail = validation.Message ?? "The license key is not valid yet."
+            },
+            LicenseErrorCode.ClockRollbackDetected => new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = validation.Message ?? "System clock rollback was detected. The license key was not accepted."
             },
             _ => new LicenseVerificationResult
             {

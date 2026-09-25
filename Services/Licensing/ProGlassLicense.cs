@@ -47,13 +47,14 @@ public static class ProGlassLicense
             TrustedLicenseKeys.All,
             currentFingerprint: MachineFingerprint.ComputeCurrent());
 
-    public static LicenseValidationResult VerifyText(string licenseJson) =>
+    public static LicenseValidationResult VerifyText(string licenseJson, DateTime? lastSeenUtc = null) =>
         ContractLicenseService.VerifyAndValidate(
             ContractLicenseReader.Read(licenseJson),
             AppVersion,
             DateTime.UtcNow,
             TrustedLicenseKeys.All,
-            currentFingerprint: MachineFingerprint.ComputeCurrent());
+            currentFingerprint: MachineFingerprint.ComputeCurrent(),
+            lastSeenUtc: lastSeenUtc);
 
     public static bool HasFeature(LicenseDocument? doc, string featureId) =>
         ContractLicenseValidator.HasFeature(doc, featureId);

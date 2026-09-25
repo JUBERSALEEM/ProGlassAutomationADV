@@ -167,8 +167,20 @@ public static class LicenseService
     }
 
     /// <summary>
+    /// Clock-rollback window used when the caller supplies a last-seen time
+    /// and does not pass its own tolerance. Matches the offline activation
+    /// default (24 hours). The license document cannot widen this window.
+    /// Small skew is tolerated so a laptop clock correction does not brick
+    /// a genuine key. A larger rollback is rejected.
+    /// </summary>
+    public static readonly TimeSpan DefaultClockRollbackTolerance = TimeSpan.FromHours(24);
+
+    /// <summary>
     /// Parse + verify signature + validate. This is the authoritative read
     /// path used by the app (and by the generator for self-verification).
+    /// Every failure returns a structured rejection. This method never throws
+    /// a successful result, and it never selects a public key or algorithm
+    /// from anything other than the explicit allow-list below.
     /// </summary>
     public static LicenseValidationResult VerifyAndValidate(
         string licenseJson,
@@ -177,32 +189,58 @@ public static class LicenseService
         IReadOnlyDictionary<string, string> trustedPublicKeys,
         string? currentFingerprint = null,
         int currentDeviceCount = 1,
-        string productId = ProductIds.ProGlassAutomation)
+        string productId = ProductIds.ProGlassAutomation,
+        DateTime? lastSeenUtc = null,
+        TimeSpan? clockRollbackTolerance = null)
     {
-        var read = LicenseReader.Read(licenseJson);
-        if (read.Status == LicenseReadStatus.UnsupportedFormat)
-            return new LicenseValidationResult { IsValid = false, ErrorCode = LicenseErrorCode.UnsupportedFormat, Message = read.Error };
+        if (trustedPublicKeys is null || trustedPublicKeys.Count == 0)
+            return Fail(LicenseErrorCode.MissingKey, "No trusted public keys were supplied.");
 
-        if (read.License is null)
-            return new LicenseValidationResult { IsValid = false, ErrorCode = LicenseErrorCode.InvalidPayload, Message = read.Error ?? "Could not parse license." };
+        try
+        {
+            var read = LicenseReader.Read(licenseJson);
+            if (read.Status == LicenseReadStatus.UnsupportedFormat)
+                return Fail(LicenseErrorCode.UnsupportedFormat, read.Error ?? "Unsupported license format.");
 
-        var signed = read.License;
+            if (read.License?.Document is null || read.License.Signature is null)
+                return Fail(LicenseErrorCode.InvalidPayload, read.Error ?? "Could not parse license.");
 
-        // Find the trusted key by keyId (or fall back to any single key).
-        string keyId = signed.Signature.KeyId ?? "";
-        string? pub = trustedPublicKeys.TryGetValue(keyId, out var k) ? k : (trustedPublicKeys.Count == 1 ? trustedPublicKeys.Values.First() : null);
-        if (pub is null)
-            return new LicenseValidationResult { IsValid = false, ErrorCode = LicenseErrorCode.UnknownKey, Message = "No trusted key for keyId '" + keyId + "'." };
+            var signed = read.License;
+            var signature = signed.Signature;
 
-        // Reconstruct canonical bytes for the DOCUMENT and verify.
-        byte[] canonical = LicenseCanonical.SerializeUtf8(signed.Document);
-        bool ok = LicenseCrypto.VerifyCanonical(canonical, signed.Signature.Value, pub);
-        if (!ok)
-            return new LicenseValidationResult { IsValid = false, ErrorCode = LicenseErrorCode.InvalidSignature, Message = "Signature does not match the document (tampered?).", License = signed };
+            // The algorithm is an allow-list, not a field the license may choose.
+            // A changed algorithm string is rejected even when the old signature
+            // bytes would still verify under the only permitted scheme.
+            if (!string.Equals(signature.Algorithm, LicenseCrypto.Algorithm, StringComparison.Ordinal))
+                return Fail(LicenseErrorCode.InvalidAlgorithm, "The license signature algorithm is not allowed.");
 
-        // Signature valid → apply business rules.
-        var v = LicenseValidator.Validate(signed, appVersion, utcNow, currentFingerprint, productId, currentDeviceCount);
-        return v;
+            if (string.IsNullOrWhiteSpace(signature.Value))
+                return Fail(LicenseErrorCode.InvalidPayload, "License signature is missing.");
+
+            // Exact keyId lookup only. A single trusted key must not be used
+            // as a fallback for an unknown, missing, or rewritten keyId.
+            if (string.IsNullOrWhiteSpace(signature.KeyId)
+                || !trustedPublicKeys.TryGetValue(signature.KeyId, out string? pub)
+                || string.IsNullOrWhiteSpace(pub))
+            {
+                return Fail(LicenseErrorCode.UnknownKey, "No trusted public key is registered for this license keyId.");
+            }
+
+            byte[] canonical = LicenseCanonical.SerializeUtf8(signed.Document);
+            if (!LicenseCrypto.VerifyCanonical(canonical, signature.Value, pub))
+                return Fail(LicenseErrorCode.InvalidSignature, "Signature does not match the document (tampered?).");
+
+            var clock = CheckClockRollback(lastSeenUtc, utcNow, clockRollbackTolerance);
+            if (clock != null)
+                return clock;
+
+            return LicenseValidator.Validate(
+                signed, appVersion, utcNow, currentFingerprint, productId, currentDeviceCount);
+        }
+        catch (Exception)
+        {
+            return Fail(LicenseErrorCode.InvalidPayload, "License verification failed.");
+        }
     }
 
     /// <summary>Overload when the caller already parsed the license (e.g. app holds it in memory).</summary>
@@ -213,14 +251,54 @@ public static class LicenseService
         IReadOnlyDictionary<string, string> trustedPublicKeys,
         string? currentFingerprint = null,
         int currentDeviceCount = 1,
-        string productId = ProductIds.ProGlassAutomation)
+        string productId = ProductIds.ProGlassAutomation,
+        DateTime? lastSeenUtc = null,
+        TimeSpan? clockRollbackTolerance = null)
     {
+        if (read is null)
+            return Fail(LicenseErrorCode.InvalidPayload, "Could not parse license.");
         if (read.Status == LicenseReadStatus.UnsupportedFormat)
-            return new LicenseValidationResult { IsValid = false, ErrorCode = LicenseErrorCode.UnsupportedFormat, Message = read.Error };
+            return Fail(LicenseErrorCode.UnsupportedFormat, read.Error ?? "Unsupported license format.");
         if (read.License is null)
-            return new LicenseValidationResult { IsValid = false, ErrorCode = LicenseErrorCode.InvalidPayload, Message = read.Error ?? "Could not parse." };
-        return VerifyAndValidate(LicenseWriter.ToJson(read.License), appVersion, utcNow, trustedPublicKeys, currentFingerprint, currentDeviceCount, productId);
+            return Fail(LicenseErrorCode.InvalidPayload, read.Error ?? "Could not parse.");
+        return VerifyAndValidate(
+            LicenseWriter.ToJson(read.License),
+            appVersion,
+            utcNow,
+            trustedPublicKeys,
+            currentFingerprint,
+            currentDeviceCount,
+            productId,
+            lastSeenUtc,
+            clockRollbackTolerance);
     }
+
+    private static LicenseValidationResult? CheckClockRollback(
+        DateTime? lastSeenUtc,
+        DateTime utcNow,
+        TimeSpan? clockRollbackTolerance)
+    {
+        if (!lastSeenUtc.HasValue || lastSeenUtc.Value == default)
+            return null;
+
+        TimeSpan tolerance = clockRollbackTolerance ?? DefaultClockRollbackTolerance;
+        if (tolerance < TimeSpan.Zero)
+            tolerance = TimeSpan.Zero;
+
+        DateTime seen = lastSeenUtc.Value.ToUniversalTime();
+        DateTime now = utcNow.ToUniversalTime();
+        if (seen - tolerance > now)
+        {
+            return Fail(
+                LicenseErrorCode.ClockRollbackDetected,
+                "System clock rollback beyond the 24 hour tolerance was detected. Correct the system time and try again.");
+        }
+
+        return null;
+    }
+
+    private static LicenseValidationResult Fail(LicenseErrorCode code, string message) =>
+        new() { IsValid = false, ErrorCode = code, Message = message };
 
     private static bool IsExpiringType(string t)
     {

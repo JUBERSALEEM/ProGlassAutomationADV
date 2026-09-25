@@ -68,7 +68,15 @@ public static class LicenseCrypto
 
             using var rsa = RSA.Create(KeySizeBits);
             rsa.FromXmlString(publicKeyXml);
+            // Production licenses are RSA-2048. A future rotation may add a
+            // larger key beside it. Anything smaller is rejected here, and the
+            // license document is never allowed to select a weaker algorithm.
+            if (rsa.KeySize < KeySizeBits)
+                return false;
+
             byte[] sig = Convert.FromBase64String(signatureBase64);
+            if (sig.Length != rsa.KeySize / 8)
+                return false;
 
             return rsa.VerifyData(canonical, sig, Hash, RSASignaturePadding.Pss);
         }
@@ -77,6 +85,10 @@ public static class LicenseCrypto
             return false;
         }
         catch (FormatException)
+        {
+            return false;
+        }
+        catch (ArgumentException)
         {
             return false;
         }

@@ -26,6 +26,7 @@ internal static class OfflineActivationStore
     public const string PendingRequestStateFileName = "offline-request.bin";
     public const string ActivationStateFileName = "offline-activation.bin";
     public const string LicenseKeyStateFileName = "license-key.bin";
+    public const string LicenseClockFileName = "license-clock.bin";
 
     private const int StateFormatVersion = 1;
 
@@ -259,6 +260,47 @@ internal static class OfflineActivationStore
         };
 
         WriteProtected(Path.Combine(dataRoot, LicenseKeyStateFileName), state);
+    }
+
+    /// <summary>
+    /// Machine clock high-water mark for installed license keys. This file is
+    /// not deleted when a key or activation response is replaced, so re-pasting
+    /// a key cannot reset the rollback anchor. A missing file is a first run.
+    /// A file that exists but cannot be unprotected is tamper evidence.
+    /// </summary>
+    internal sealed class LicenseClockState
+    {
+        [JsonPropertyName("lastSeenUtc")]
+        public DateTime LastSeenUtc { get; set; }
+    }
+
+    public static ProtectedReadResult<LicenseClockState> ReadLicenseClock(string dataRoot) =>
+        ReadProtected<LicenseClockState>(Path.Combine(dataRoot, LicenseClockFileName));
+
+    /// <summary>
+    /// Move the clock anchor forward only. A tampered anchor is left untouched
+    /// so a failed read cannot be replaced with an older timestamp.
+    /// </summary>
+    public static void AdvanceLicenseClock(string dataRoot, DateTime utcNow)
+    {
+        try
+        {
+            var current = ReadLicenseClock(dataRoot);
+            if (current.Exists && !current.Success)
+                return;
+
+            DateTime now = utcNow.ToUniversalTime();
+            DateTime next = current.Value != null && current.Value.LastSeenUtc > now
+                ? current.Value.LastSeenUtc
+                : now;
+            WriteProtected(
+                Path.Combine(dataRoot, LicenseClockFileName),
+                new LicenseClockState { LastSeenUtc = next });
+        }
+        catch (Exception ex)
+        {
+            ProGlassAutomation.Services.Logging.AppLogService.Debug("AdvanceLicenseClock suppressed: " + ex.Message);
+        }
     }
 
     public static void UpdateLicenseKeyLastValidatedUtc(string dataRoot, DateTime lastValidatedUtc)

@@ -262,7 +262,7 @@ namespace ProGlassAutomation.Views.Licensing
             try
             {
                 var info = new FileInfo(dialog.FileName);
-                if (info.Length > 700_000L)
+                if (info.Length > ProGlass.Licensing.LicenseFormat.MaxArmorCharacters)
                 {
                     ShowError("License key file exceeds the safe size limit.");
                     return;

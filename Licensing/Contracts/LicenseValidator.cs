@@ -50,11 +50,36 @@ public static class LicenseValidator
             return Fail(LicenseErrorCode.WrongProduct,
                 "License is for product '" + doc.ProductId + "', expected '" + productId + "'.");
 
+        if (!IsKnownLicenseType(doc.LicenseType))
+            return Fail(LicenseErrorCode.InvalidLicenseType, "Unsupported license type.");
+
+        if (doc.IssuedAtUtc == default)
+            return Fail(LicenseErrorCode.InvalidPolicy, "License has no issue time.");
+
+        DateTime issued = doc.IssuedAtUtc.ToUniversalTime();
+        if (issued.Year < 2020 || issued.Year > 2100)
+            return Fail(LicenseErrorCode.InvalidPolicy, "License issue time is outside the accepted range.");
+
+        if (doc.ExpiresAtUtc.HasValue)
+        {
+            DateTime expires = doc.ExpiresAtUtc.Value.ToUniversalTime();
+            if (expires <= issued || expires.Year > 2100)
+                return Fail(LicenseErrorCode.InvalidPolicy, "License expiry is not after the issue time or is outside the accepted range.");
+        }
+        else if (RequiresExpiry(doc.LicenseType))
+        {
+            return Fail(LicenseErrorCode.InvalidPolicy, "This license type requires an expiry.");
+        }
+
+        var bindingError = CheckDeviceBinding(doc.DevicePolicy);
+        if (bindingError != null)
+            return bindingError;
+
         // Time / expiry (UTC internally).
-        if (doc.IssuedAtUtc != default && doc.IssuedAtUtc.ToUniversalTime() > utcNow)
+        if (issued > utcNow.ToUniversalTime())
             return Fail(LicenseErrorCode.NotYetValid, "License is not valid yet (issued in the future).");
 
-        if (doc.ExpiresAtUtc.HasValue && doc.ExpiresAtUtc.Value.ToUniversalTime() < utcNow)
+        if (doc.ExpiresAtUtc.HasValue && doc.ExpiresAtUtc.Value.ToUniversalTime() < utcNow.ToUniversalTime())
             return Fail(LicenseErrorCode.Expired,
                 "License expired at " + doc.ExpiresAtUtc.Value.ToUniversalTime().ToString("O") + " UTC.");
 
@@ -95,9 +120,33 @@ public static class LicenseValidator
     /// <summary>Which features the license grants (unknown ones are tolerated).</summary>
     public static bool HasFeature(LicenseDocument doc, string featureId)
     {
-        if (doc?.Features is null) return false;
+        if (doc?.Features is null || string.IsNullOrWhiteSpace(featureId)) return false;
         return doc.Features.Any(f => string.Equals(f, featureId, StringComparison.Ordinal))
             || doc.Features.Any(f => string.Equals(f, "*", StringComparison.Ordinal));
+    }
+
+    private static bool IsKnownLicenseType(string? licenseType) =>
+        !string.IsNullOrWhiteSpace(licenseType)
+        && Enum.GetNames<LicenseType>().Contains(licenseType, StringComparer.Ordinal);
+
+    private static bool RequiresExpiry(string licenseType) =>
+        string.Equals(licenseType, nameof(LicenseType.Trial), StringComparison.Ordinal)
+        || string.Equals(licenseType, nameof(LicenseType.Subscription), StringComparison.Ordinal)
+        || string.Equals(licenseType, nameof(LicenseType.Enterprise), StringComparison.Ordinal);
+
+    private static LicenseValidationResult? CheckDeviceBinding(DevicePolicy? policy)
+    {
+        if (policy is null)
+            return Fail(LicenseErrorCode.InvalidPolicy, "License has no device policy.");
+
+        if (string.Equals(policy.Binding, "Unbound", StringComparison.Ordinal)
+            || string.Equals(policy.Binding, "SingleDevice", StringComparison.Ordinal)
+            || string.Equals(policy.Binding, "MultiDevice", StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return Fail(LicenseErrorCode.InvalidPolicy, "Unsupported device binding.");
     }
 
     private static LicenseValidationResult? CheckVersionPolicy(VersionPolicy? vp, string appVersion)

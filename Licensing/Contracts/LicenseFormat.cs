@@ -33,6 +33,22 @@ public static class LicenseFormat
     public const int Version = 1;
     public const string FileExtension = ".proglasslicense";
 
+    /// <summary>
+    /// Hard cap for a signed license JSON document. A real PGKEY1 document
+    /// is a few kilobytes; anything larger is rejected before parse.
+    /// </summary>
+    public const int MaxJsonCharacters = 64 * 1024;
+
+    /// <summary>
+    /// Hard cap for a pasted or file-backed PGKEY1 armor block, including
+    /// whitespace. Sized to hold a max-length JSON document after base64url
+    /// expansion, and nothing larger.
+    /// </summary>
+    public const int MaxArmorCharacters = 96 * 1024;
+
+    /// <summary>Maximum JSON nesting accepted in a license document.</summary>
+    public const int MaxJsonDepth = 16;
+
     public static readonly int[] SupportedVersions = { 1 };
 }
 
@@ -58,22 +74,32 @@ public static class LicenseReader
         if (string.IsNullOrWhiteSpace(json))
             return new LicenseReadResult { Status = LicenseReadStatus.Parsed, Error = "Empty license text." };
 
+        if (json.Length > LicenseFormat.MaxJsonCharacters)
+            return new LicenseReadResult { Status = LicenseReadStatus.Parsed, Error = "License text exceeds the safe size limit." };
+
         SignedLicense? license;
         try
         {
-            // JsonSerializerOptions: ignore unknown properties (forward
-            // compatibility) + case-insensitive so hand-edited keys still parse.
+            // Unknown properties are ignored (forward compatibility). Property
+            // names are matched exactly, comments and trailing commas are
+            // rejected, and depth is capped so a hostile document cannot
+            // choose a looser parser than the one that signed it.
             var opts = new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true,
-                ReadCommentHandling = JsonCommentHandling.Skip,
-                AllowTrailingCommas = true
+                PropertyNameCaseInsensitive = false,
+                ReadCommentHandling = JsonCommentHandling.Disallow,
+                AllowTrailingCommas = false,
+                MaxDepth = LicenseFormat.MaxJsonDepth
             };
             license = JsonSerializer.Deserialize<SignedLicense>(json, opts);
         }
         catch (JsonException ex)
         {
             return new LicenseReadResult { Status = LicenseReadStatus.Parsed, Error = "Malformed JSON: " + ex.Message };
+        }
+        catch (Exception)
+        {
+            return new LicenseReadResult { Status = LicenseReadStatus.Parsed, Error = "License text could not be parsed." };
         }
 
         if (license == null || license.Document == null || string.IsNullOrWhiteSpace(license.Signature.Value))
@@ -93,9 +119,21 @@ public static class LicenseReader
 
     public static LicenseReadResult ReadFile(string path)
     {
-        if (!File.Exists(path))
-            return new LicenseReadResult { Status = LicenseReadStatus.Parsed, Error = "File does not exist: " + path };
-        return Read(File.ReadAllText(path));
+        try
+        {
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                return new LicenseReadResult { Status = LicenseReadStatus.Parsed, Error = "File does not exist: " + path };
+
+            var info = new FileInfo(path);
+            if (info.Length > LicenseFormat.MaxJsonCharacters * 4L)
+                return new LicenseReadResult { Status = LicenseReadStatus.Parsed, Error = "License file exceeds the safe size limit." };
+
+            return Read(File.ReadAllText(path));
+        }
+        catch (Exception)
+        {
+            return new LicenseReadResult { Status = LicenseReadStatus.Parsed, Error = "License file could not be read." };
+        }
     }
 }
 

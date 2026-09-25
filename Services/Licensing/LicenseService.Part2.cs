@@ -212,7 +212,10 @@ namespace ProGlassAutomation.Services.Licensing
         if (lastValidatedUtc == default)
             return string.Empty;
 
-        int toleranceMinutes = Math.Max(0, policy?.ClockRollbackToleranceMinutes ?? 1440);
+        // A signed policy may tighten the window. It must not widen it past
+        // the application maximum, or the license could disable rollback detection.
+        int requestedMinutes = Math.Max(0, policy?.ClockRollbackToleranceMinutes ?? 1440);
+        int toleranceMinutes = Math.Min(requestedMinutes, (int)ProGlass.Licensing.LicenseService.DefaultClockRollbackTolerance.TotalMinutes);
         if (lastValidatedUtc.ToUniversalTime().AddMinutes(-toleranceMinutes) > nowUtc.ToUniversalTime())
         {
             return

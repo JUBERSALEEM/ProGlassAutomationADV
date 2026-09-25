@@ -62,7 +62,7 @@ public static class LicenseKeyArmor
     /// </summary>
     public static bool IsArmoredBlock(string? text)
     {
-        if (string.IsNullOrWhiteSpace(text))
+        if (string.IsNullOrWhiteSpace(text) || text.Length > LicenseFormat.MaxArmorCharacters)
             return false;
 
         string compact = string.Concat(text.Where(c => !char.IsWhiteSpace(c)));
@@ -97,7 +97,7 @@ public static class LicenseKeyArmor
     /// </summary>
     public static string? TryExtractJson(string? text)
     {
-        if (string.IsNullOrWhiteSpace(text))
+        if (string.IsNullOrWhiteSpace(text) || text.Length > LicenseFormat.MaxArmorCharacters)
             return null;
 
         string trimmed = text.Trim();

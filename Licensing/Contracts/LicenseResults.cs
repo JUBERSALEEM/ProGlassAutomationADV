@@ -32,7 +32,11 @@ public enum LicenseErrorCode
     UnboundFingerprintRequired = 13,
     FeatureNotRequested = 14,
     NonCanonicalData = 15,
-    EmptyDocument = 16
+    EmptyDocument = 16,
+    InvalidAlgorithm = 17,
+    InvalidLicenseType = 18,
+    InvalidPolicy = 19,
+    ClockRollbackDetected = 20
 }
 
 /// <summary>
