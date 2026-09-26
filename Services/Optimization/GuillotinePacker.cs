@@ -1627,23 +1627,6 @@ namespace ProGlassAutomation.Services.Optimization
         }
 
         /// <summary>
-        /// PHASE 0 fallback: reconstructs a sheet's guillotine cut sequence
-        /// from the pieces already sitting on it.
-        ///
-        /// Needed because three packing paths stamp pieces straight onto a
-        /// layout instead of going through Commit — the repeat-pattern
-        /// stamper, the MaxRects candidates and the skyline placer — so their
-        /// sheets would otherwise carry no cut sequence at all, and a CNC
-        /// export would silently have nothing to write for them.
-        ///
-        /// It finds a straight line that splits the region's pieces into two
-        /// non-empty groups without crossing any piece — the definition of a
-        /// guillotine cut — and recurses. It never INVENTS cuts: when no such
-        /// line exists the layout is not guillotine-cuttable, and the sheet is
-        /// deliberately left with an empty cut list. That is a finding in its
-        /// own right, and on a glass table it is one that matters.
-        /// </summary>
-        /// <summary>
         /// E4.1. True when every sheet that holds panes has a cut sequence, or
         /// one can be derived for it. Sheets with nothing on them are trivially
         /// fine, and sheets that already carry cuts are trusted — the only two
@@ -1664,6 +1647,23 @@ namespace ProGlassAutomation.Services.Optimization
             return true;
         }
 
+        /// <summary>
+        /// PHASE 0 fallback: reconstructs a sheet's guillotine cut sequence
+        /// from the pieces already sitting on it.
+        ///
+        /// Needed because three packing paths stamp pieces straight onto a
+        /// layout instead of going through Commit — the repeat-pattern
+        /// stamper, the MaxRects candidates and the skyline placer — so their
+        /// sheets would otherwise carry no cut sequence at all, and a CNC
+        /// export would silently have nothing to write for them.
+        ///
+        /// It finds a straight line that splits the region's pieces into two
+        /// non-empty groups without crossing any piece — the definition of a
+        /// guillotine cut — and recurses. It never INVENTS cuts: when no such
+        /// line exists the layout is not guillotine-cuttable, and the sheet is
+        /// deliberately left with an empty cut list. That is a finding in its
+        /// own right, and on a glass table it is one that matters.
+        /// </summary>
         internal static bool TryDeriveGuillotineCuts(SheetLayout sheet)
         {
             if (sheet == null || sheet.Pieces.Count == 0) return false;

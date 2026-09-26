@@ -267,13 +267,25 @@ namespace ProGlassAutomation.ViewModels.Optimization
             return RunNoteSeverity.Info;
         }
 
-        private void PublishRunNotes(IEnumerable<string> notes)
+        private void PublishRunNotes(IEnumerable<string> notes, IEnumerable<GroupRun> runs)
         {
             RunNotes.Clear();
 
-            foreach (var note in notes
-                         .Where(n => !string.IsNullOrWhiteSpace(n))
-                         .Distinct()
+            var all = new List<string>(
+                notes.Where(n => !string.IsNullOrWhiteSpace(n)).Distinct());
+
+            // The engine never writes a note for pieces it could not place, so
+            // an incomplete job surfaced only as a number on a KPI card. That
+            // is the one result an operator should not have to go looking for:
+            // it means the customer's glass is not all cut.
+            int unplaced = runs?.Sum(r => r.Result?.Unplaced?.Count ?? 0) ?? 0;
+            if (unplaced > 0)
+                all.Add(string.Format(CultureInfo.InvariantCulture,
+                    "UNPLACED: {0} piece(s) could not be fitted on any available plate. "
+                    + "This run is incomplete - check the stock sizes against the largest "
+                    + "pieces before releasing the cutting list.", unplaced));
+
+            foreach (var note in all
                          .Select(n => new RunNoteVm { Text = n, Severity = ClassifyNote(n) })
                          .OrderByDescending(n => n.Severity))
                 RunNotes.Add(note);
@@ -787,7 +799,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 // Kept alongside RunMessage, not instead of it: the joined
                 // string is what the header shows, and the operator may have
                 // grown used to reading it there.
-                PublishRunNotes(scaleNotes);
+                PublishRunNotes(scaleNotes, runs);
 
                 // Same append-never-replace rule: the summary ApplyResults wrote
                 // is what the operator reads first.

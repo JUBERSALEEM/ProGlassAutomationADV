@@ -293,6 +293,29 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         /// <summary>
+        /// What the higher settings cost. Nothing in the module said so, and
+        /// a stage-5 run on a large job taking minutes instead of seconds looks
+        /// like a hang rather than a search.
+        /// </summary>
+        private string CostWarning
+        {
+            get
+            {
+                if (UseAutoEffort) return string.Empty;
+                if (string.Equals(_selectedStageStrategy, Stage5StrategyLabel, StringComparison.Ordinal)
+                    || SelectedEffortLevel == "5")
+                    return " Stage 5 and effort 5 evaluate every ordering against "
+                         + "every generator — expect minutes on a large job, not seconds. "
+                         + "Run QUICK first to get a number, then decide whether the "
+                         + "extra sheets are worth the wait.";
+                if (string.Equals(_selectedStageStrategy, Stage4StrategyLabel, StringComparison.Ordinal)
+                    || SelectedEffortLevel == "4")
+                    return " Noticeably slower than the default stage 3.";
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
         /// Says what the chosen family runs, and that effort is a separate
         /// axis. This used to read the effort level and describe the stage it
         /// implied, because the two were one control.
@@ -325,7 +348,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     + " is how hard it searches INSIDE that family — time budget, "
                     + "shuffles, and consolidation sweeps. The two are independent: "
                     + "stage 3 at effort 5 searches harder, it does not run the "
-                    + "stage-5 portfolio.";
+                    + "stage-5 portfolio."
+                    + CostWarning;
             }
         }
 
