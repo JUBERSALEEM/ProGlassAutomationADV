@@ -562,12 +562,13 @@
         <Setter Property="Margin" Value="0,0,0,4"/>
     </Style>
 
-    <!-- ROW 3 · compact 32px dropdown painted on indigo.
+    <!-- ROW 3 · 36px dropdown painted on indigo — same height as the action
+         buttons it sits beside, so the control cluster shares one baseline.
          The open popup stays on the light PopupSurface so the items keep
          dark ink — only the closed field is translucent white. -->
     <Style x:Key="OptHeroComboStyle" TargetType="ComboBox">
-        <Setter Property="Height" Value="32"/>
-        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="MinHeight" Value="36"/>
         <Setter Property="Background" Value="#26FFFFFF"/>
         <Setter Property="BorderBrush" Value="#4DFFFFFF"/>
         <Setter Property="BorderThickness" Value="1"/>
