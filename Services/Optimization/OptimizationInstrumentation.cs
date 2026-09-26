@@ -109,9 +109,13 @@ namespace ProGlassAutomation.Services.Optimization
                 double uw = stock.WidthMm - margins.LeftMm - margins.RightMm;
                 double uh = stock.HeightMm - margins.TopMm - margins.BottomMm;
                 if (uw <= 0 || uh <= 0) continue;
-                double area = uw * uh;
-                if (area <= bestArea) continue;
-                bestArea = area;
+                // plateArea, not area: the method scope below declares 'area'
+                // for the total pane area, and C# forbids a nested scope from
+                // re-using a name the enclosing scope declares - even when the
+                // enclosing declaration comes later in the file (CS0136).
+                double plateArea = uw * uh;
+                if (plateArea <= bestArea) continue;
+                bestArea = plateArea;
                 bestW = uw;
                 bestH = uh;
             }
