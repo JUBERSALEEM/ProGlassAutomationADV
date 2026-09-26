@@ -242,20 +242,46 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="CNC MACHINE PROTOCOLS:" Style="{StaticResource OptHeader}"
                                            VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                <!-- CNC protocols. Each pill exports the finished plan in that
+                                     format. Formats whose specification is not public explain what
+                                     would finish them instead of writing a file nobody can vouch
+                                     for — see Services/Reporting/CncExport/CncExportFormats.cs. -->
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                    <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4" Margin="0,0,8,0">
-                                        <TextBlock Text="Bottero .OPT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    </Border>
-                                    <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4" Margin="0,0,8,0">
-                                        <TextBlock Text="Lisec .DAT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                    </Border>
-                                    <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4" Margin="0,0,8,0">
-                                        <TextBlock Text="Intermac .ISO" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    </Border>
-                                    <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
-                                            CornerRadius="6" Padding="10,4">
-                                        <TextBlock Text="Generic DXF" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    </Border>
+                                    <Button Command="{Binding ExportCncCommand}" CommandParameter="bottero"
+                                            Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,8,0" Cursor="Hand"
+                                            ToolTip="Bottero .OPT — not implemented. Click for what would finish it.">
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4">
+                                            <TextBlock Text="Bottero .OPT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </Border>
+                                    </Button>
+                                    <Button Command="{Binding ExportCncCommand}" CommandParameter="lisec"
+                                            Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,8,0" Cursor="Hand"
+                                            ToolTip="Lisec .DAT — not implemented. Click for what would finish it.">
+                                        <Border Background="{DynamicResource AccentSoftBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4">
+                                            <TextBlock Text="Lisec .DAT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        </Border>
+                                    </Button>
+                                    <Button Command="{Binding ExportCncCommand}" CommandParameter="intermac"
+                                            Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,8,0" Cursor="Hand"
+                                            ToolTip="Intermac .ISO — not implemented. Click for what would finish it.">
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4">
+                                            <TextBlock Text="Intermac .ISO" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </Border>
+                                    </Button>
+                                    <Button Command="{Binding ExportCncCommand}" CommandParameter="dxf"
+                                            Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,8,0" Cursor="Hand"
+                                            ToolTip="Generic DXF (R12) — sheet outline, every pane, and the cut sequence in execution order.">
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4">
+                                            <TextBlock Text="Generic DXF" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </Border>
+                                    </Button>
+                                    <Button Command="{Binding ExportCncCommand}" CommandParameter="cutlist"
+                                            Background="Transparent" BorderThickness="0" Padding="0" Cursor="Hand"
+                                            ToolTip="Cut list CSV — one row per cut: sheet, sequence, axis, position, stage, trim.">
+                                        <Border Background="{DynamicResource SurfacePrimaryBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="10,4">
+                                            <TextBlock Text="Cut list CSV" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </Border>
+                                    </Button>
                                 </StackPanel>
                             </Grid>
                         </Border>
