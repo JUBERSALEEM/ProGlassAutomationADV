@@ -1022,7 +1022,11 @@ namespace ProGlassAutomation.Services.Optimization
 
         // ── one packing pass ─────────────────────────────────────────────
 
-        private enum OrderBy { MaxSide, Area, MinSide, Height, Width, Perimeter }
+        /// <summary>Piece-ordering key. internal, not private: RunBestSplitBeam
+        /// is internal so the generator census can call it, and CS0051 forbids
+        /// an internal signature from naming a private type. Widening this is
+        /// safe — loosening accessibility can never introduce an error.</summary>
+        internal enum OrderBy { MaxSide, Area, MinSide, Height, Width, Perimeter }
 
         internal static OptimizationResult RunPass(
             IReadOnlyList<CutPiece> orderedPieces,
