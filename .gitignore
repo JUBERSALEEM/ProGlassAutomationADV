@@ -446,3 +446,10 @@ mockups/**/*.png
 *.splash.png
 splash_*.png
 ios_*.png
+
+# 2026-09-26 owner directive: AI-generated redesign mockup images are review
+# artefacts. They live outside the repo (e.g. /home/user/optimization-top-card-mockups/)
+# and must never be committed even if a copy is dropped inside the tree.
+optimization-top-card-mockups/
+**/optimization-top-card-mockups/**
+*-mockup-*.png
