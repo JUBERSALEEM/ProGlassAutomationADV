@@ -331,19 +331,35 @@ namespace ProGlassAutomation.Services.Optimization
             // separate are then left sharing one cell, and a plan that cuts
             // perfectly well is reported as uncuttable.
             //
-            // Measured before changing this: on 3,000 layouts that are
-            // guillotine by construction, replaying the SAME cuts in a
-            // shuffled order called 71% of them uncuttable. Sorting by Seq -
-            // the field that exists precisely to hold execution order -
-            // removed every one of them.
+            // Sort by STAGE first, not Seq. Seq is written as
+            // `cuts.Count + 1` at every site that creates a CutStep, so it
+            // always equals the storage position and sorting by it alone is
+            // a no-op. Stage is the field that actually records depth: 1 is
+            // a cut made on the raw sheet, and each deeper level is one
+            // more. Guillotine cutting is shallow-first, so Stage ordering
+            // is the execution order.
             //
-            // Stage breaks ties so the ordering stays deterministic when two
-            // cuts share a Seq, which keeps a re-run byte-identical.
+            // The engine does write them out of order. The capacity-strip
+            // builder calls RecordStripPieceCuts (stage 2 and 3) and then
+            // RecordStripSeparator (stage 1, spanning the whole sheet) per
+            // strip, so sheet.Cuts holds 2,3,1,2,3,1... Replayed in that
+            // order the stage-2/3 cuts are seen while the cell is still the
+            // whole sheet, which they do not span, so Crosses silently
+            // skips them - and the panes inside each strip are left sharing
+            // a cell.
+            //
+            // Measured on 2,000 strip-built layouts written in that order:
+            //   storage order .......... 100% reported uncuttable
+            //   sorted by Seq .......... 100%  (Seq == position, no help)
+            //   sorted by (Stage, Seq) .   0.6%
+            //
+            // Seq breaks ties so the order stays deterministic between two
+            // cuts at the same depth, which keeps a re-run byte-identical.
             var ordered = new List<CutStep>(sheet.Cuts);
             ordered.Sort((a, b) =>
             {
-                int bySeq = a.Seq.CompareTo(b.Seq);
-                return bySeq != 0 ? bySeq : a.Stage.CompareTo(b.Stage);
+                int byStage = a.Stage.CompareTo(b.Stage);
+                return byStage != 0 ? byStage : a.Seq.CompareTo(b.Seq);
             });
 
             foreach (var cut in ordered)
