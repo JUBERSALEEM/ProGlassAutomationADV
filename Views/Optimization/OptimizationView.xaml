@@ -41,14 +41,21 @@
                    ROW 1 · identity — heading + chip, with ONE status line
                           right-aligned ("Ready — 3 cutting groups staged"),
                    ROW 2 · four translucent stat pills,
-                   ROW 3 · two compact 210px selects + the run actions.
+                   ROW 3 · STRATEGY / PLATE sit immediately before the run
+                          actions as ONE right-aligned cluster, with the
+                          module sub-heading filling the freed left side.
 
                  What changed and why:
                    • The four stats leave the heading row and become pills on
                      their own row, so the title is never crowded.
                    • STRATEGY / PLATE drop from a 420px combo + a helper
-                     paragraph each to a 210px combo with a 9px caption; the
-                     hints are ToolTips now, which is where they belonged.
+                     paragraph each to a 9px caption over a 36px combo, and
+                     they move off to the left edge to sit right in front of
+                     the actions. STRATEGY is 350px because its option texts
+                     run to 56 characters ("Stage 1: QUICK — area shelf,
+                     strips, and bounded patterns") and 210px clipped them;
+                     PLATE stays 190px because its values are "Yield" and
+                     "Fill first plate". The hints are ToolTips now.
                    • The four stacked message blocks collapse into the single
                      HeroStatusLabel line (see OptimizationViewModel.HeroStatus.cs);
                      the indeterminate bar is gone because the in-flight
@@ -146,15 +153,34 @@
                         </Border>
                     </Grid>
 
-                    <!-- ROW 3 · strategy + plate selects, then the run actions -->
+                    <!-- ROW 3 · one right-aligned control cluster, with the
+                         module sub-heading filling the space the selects used
+                         to occupy on the left.
+
+                         Order is deliberate: STRATEGY and PLATE sit
+                         immediately BEFORE the actions, so the operator reads
+                         "pick the settings, then run" as one gesture. The
+                         strategy field is the widest control because its
+                         labels are the longest strings in the card — e.g.
+                         "Stage 1: QUICK — area shelf, strips, and bounded
+                         patterns" — and a 210px field clipped them. PLATE
+                         stays narrow: its values are "Yield" and
+                         "Fill first plate". -->
                     <Grid Grid.Row="2" Margin="0,14,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Bottom">
-                            <StackPanel Width="210" Margin="0,0,12,0">
+                        <TextBlock Grid.Column="0"
+                                   Text="Industrial cutting plans that minimize waste — pieces in, sheets out, verified layouts."
+                                   FontSize="11" Foreground="{StaticResource OptOnIndigoMuted}"
+                                   TextTrimming="CharacterEllipsis" TextWrapping="NoWrap"
+                                   VerticalAlignment="Bottom" Margin="0,0,16,10"
+                                   ToolTip="Industrial cutting plans that minimize waste — pieces in, sheets out, verified layouts."/>
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
+                            <StackPanel Width="350" Margin="0,0,12,0">
                                 <TextBlock Text="STRATEGY" Style="{StaticResource OptHeroFieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding StageStrategies}"
                                           SelectedItem="{Binding SelectedStageStrategy}"
@@ -164,7 +190,7 @@
                                           AutomationProperties.Name="Optimize effort and strategy stage"/>
                             </StackPanel>
 
-                            <StackPanel Width="210">
+                            <StackPanel Width="190" Margin="0,0,16,0">
                                 <TextBlock Text="PLATE" Style="{StaticResource OptHeroFieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding PlatePatterns}"
                                           SelectedItem="{Binding SelectedPlatePattern}"
@@ -173,22 +199,23 @@
                                           ToolTip="{Binding SelectedPlatePatternHint}"
                                           AutomationProperties.Name="Plate pattern"/>
                             </StackPanel>
-                        </StackPanel>
 
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom"
-                                    Margin="16,0,0,0">
                             <Button Content="Run Quick" Style="{StaticResource OptHeroGhostButton}"
                                     Command="{Binding RunQuickCommand}" IsEnabled="{Binding CanRun}" Margin="0,0,8,0"
+                                    VerticalAlignment="Bottom"
                                     ToolTip="Always runs the quick portfolio. The stage above applies to Run Optimize. Fill first plate, if selected, uses that stage only to widen its own search."/>
                             <Button Content="Cancel" Style="{StaticResource OptHeroGhostButton}"
                                     Command="{Binding CancelRunCommand}" IsEnabled="{Binding CanCancel}" Margin="0,0,8,0"
+                                    VerticalAlignment="Bottom"
                                     ToolTip="Stop the current run — engine checks for cancellation once per part"/>
                             <Button Content="Upgrade to Optimize" Style="{StaticResource OptHeroGhostButton}"
                                     Command="{Binding UpgradeToOptimizeCommand}" Margin="0,0,8,0"
+                                    VerticalAlignment="Bottom"
                                     Visibility="{Binding CanUpgradeToOptimize, Converter={StaticResource BoolToVisibilityConverter}}"
                                     ToolTip="Re-run this cutting list through OPTIMIZE at the selected stage. Auto chooses an existing stage. The plate pattern stays as selected."/>
                             <Button Content="Run Optimize" Style="{StaticResource OptHeroPillButton}"
                                     Command="{Binding RunOptimizeCommand}" IsEnabled="{Binding CanRun}"
+                                    VerticalAlignment="Bottom"
                                     ToolTip="Runs the stage selected above. Auto chooses an existing stage for each cutting group. Yield stays the winner unless Fill first plate is selected."/>
                         </StackPanel>
                     </Grid>
