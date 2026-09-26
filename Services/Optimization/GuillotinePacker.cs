@@ -205,7 +205,8 @@ namespace ProGlassAutomation.Services.Optimization
             IProgress<OptimizeProgress> progress = null,
             PlatePattern platePattern = PlatePattern.Yield,
             int fillEffort = 1,
-            CutPolicy policy = null)
+            CutPolicy policy = null,
+            bool reuseOffcuts = false)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -282,6 +283,11 @@ namespace ProGlassAutomation.Services.Optimization
                 if (result.Sheets[i].Cuts.Count == 0)
                     TryDeriveGuillotineCuts(result.Sheets[i]);
 
+            // PHASE 2 part 2: use the offcuts before reporting them. Off by
+            // default, so the default run is untouched.
+            if (reuseOffcuts)
+                NoteOffcutReuse(result, ConsolidateIntoOffcuts(result, pieces, margins, rotation));
+
             // PHASE 2: register what the plan leaves behind. Derived from the
             // cut sequence, so it reads the finished plan and cannot move a
             // single piece. Anything at least as big as the smallest pane the
@@ -325,7 +331,8 @@ namespace ProGlassAutomation.Services.Optimization
             IProgress<OptimizeProgress> progress = null,
             PlatePattern platePattern = PlatePattern.Yield,
             CutPolicy policy = null,
-            int maxStage = 0)
+            int maxStage = 0,
+            bool reuseOffcuts = false)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -640,6 +647,10 @@ namespace ProGlassAutomation.Services.Optimization
             for (int i = 0; i < final.Sheets.Count; i++)
                 if (final.Sheets[i].Cuts.Count == 0)
                     TryDeriveGuillotineCuts(final.Sheets[i]);
+
+            // PHASE 2 part 2: see PackQuick.
+            if (reuseOffcuts)
+                NoteOffcutReuse(final, ConsolidateIntoOffcuts(final, pieces, margins, rotation));
 
             // PHASE 2: see PackQuick. Derived from cuts, never from placements.
             DeriveLeftovers(final, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
