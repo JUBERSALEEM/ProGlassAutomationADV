@@ -406,6 +406,65 @@ engine we already own on small jobs. Sequence the work that way.
 - Jobs of 100,000 pieces or more take the industrial path, which cannot be
   stage-bounded; such a run returns a free-guillotine plan and says so in
   its scale notes instead of pretending.
-- The complexity choice is not yet persisted with a saved session.
-- `CutComplexity.ComplexTrims` currently permits trims but does not yet
-  GENERATE them (no remnant extraction). Phase 2.
+- RESOLVED: the complexity choice and the minimum trim width are persisted
+  with the saved session (they ride in `MarginsJson`, because the Sessions
+  table cannot gain columns — `EnsureCreated` never migrates and a drifted
+  database fails every insert).
+- PARTLY RESOLVED: offcuts are now extracted and registered (see Phase 2
+  below). Trims are still not GENERATED as such, and the rectangles are not
+  yet fed back in as stock.
+
+### Phase 2 — offcut registration (PART 1 DONE, PART 2 NOT STARTED)
+
+- `Services/Optimization/GuillotinePacker.Remnants.cs`: replay the recorded
+  cut sequence — start with the usable rectangle, split at every cut, and
+  whatever no pane occupies at the end is a leftover. Reads the plan; cannot
+  move a piece, so the DGU benchmark is untouched.
+- Kerf is subtracted from the remainder side, so an offcut is measured from
+  after the blade rather than from the cut line.
+- `SheetLayout.Leftovers` + `GuillotinePacker.UsableRemnants` (biggest first).
+  `IsUsable` means both sides clear the run's minimum breakout.
+- Oracles: area conservation (panes + leftovers = usable area − kerf), no
+  leftover may contain a pane, idempotent re-derivation, and an unchanged
+  placement signature.
+- STILL TO DO: feeding those rectangles back in as stock for later sheets.
+  That changes packing, so it needs its own gate (off by default), its own
+  oracle and its own benchmark run before it can ship.
+
+### Phase 4 — machine-file export (DONE, with three formats refused)
+
+- `Services/Reporting/CncExport/`: DXF R12 (AC1009) and a cut-list CSV are
+  implemented; both are written against a published specification.
+  Layers: SHEET, PIECES, CUTS, REMNANTS, WASTE, TEXT. Only `$ACADVER` is
+  written — `$INSUNITS` and `$MEASUREMENT` are R2000 additions an R12
+  controller may reject.
+- Lisec .DAT, Bottero .OPT and Intermac .ISO are proprietary and
+  undocumented, and public vendor format lists disagree with even the
+  extensions this UI claims (they name Lisec as OPT101.CNC and Bottero as
+  *.CUT). They are listed, named, and explained — `IsReady` is false and the
+  writer is null, so no path can emit a machine file nobody can vouch for.
+  Each asks for the one thing that would finish it: a sample file from that
+  machine.
+- The REPORT tab pills are wired to `ExportCncCommand`. One file per cutting
+  group; the cut pattern stamped into the file is resolved from the group's
+  own glass, so a laminated group reports that trims were refused.
+
+### Phase 5 — plate patterns (DONE)
+
+- Six patterns: yield, fill-first-plate, fewest cuts, minimise stock changes,
+  remnant-first, balanced spread. Unplaced pieces and sheet count still
+  dominate the comparison, so no pattern can buy its preference with an extra
+  sheet — asserted by a theory test over all four new ones.
+- Applied at the two public entry points only. The deep internal passes keep
+  comparing on yield, because the engine streams a single incumbent rather
+  than holding every candidate.
+
+### Still outstanding
+
+- **The build has never been compiled.** There is no .NET SDK in this
+  environment and none is obtainable (all download endpoints fail TLS).
+  Everything above is verified by grep, XML parsing, a C#-aware brace
+  tokenizer and written tests — none of it has been through a compiler.
+- **The DGU calibration benchmark has never been confirmed byte-identical.**
+  Nothing in phases 2, 4 or 5 should disturb it; phase 2 part 1 is
+  provably read-only, but that is reasoning, not a measurement.
