@@ -65,6 +65,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 or nameof(TopMarginText) or nameof(BottomMarginText) or nameof(KerfText)
                 or nameof(MinBreakoutText) or nameof(RotationEnabled) or nameof(SelectedEffortLevel)
                 or nameof(SelectedStageStrategy) or nameof(SelectedPlatePattern)
+                or nameof(UseOffcutReuse)
                 or nameof(SelectedCutComplexity) or nameof(MinTrimWidthText))
                 InvalidateInputs();
         }

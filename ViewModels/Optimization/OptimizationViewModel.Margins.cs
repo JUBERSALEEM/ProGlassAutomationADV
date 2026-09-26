@@ -212,6 +212,32 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public const string MinimiseStockChangesPatternLabel = "Minimise stock changes";
         public const string RemnantFirstPatternLabel = "Remnant-first (leave reusable offcuts)";
         public const string BalancedSpreadPatternLabel = "Balanced spread";
+        private bool _useOffcutReuse;
+
+        /// <summary>
+        /// PHASE 2 part 2. When true the run moves the panes off the emptiest
+        /// plate into the offcuts the other plates left, and drops any plate
+        /// that ends up empty. Off by default: it changes the plan, so it is a
+        /// choice, never a surprise.
+        /// </summary>
+        public bool UseOffcutReuse
+        {
+            get => _useOffcutReuse;
+            set
+            {
+                if (_useOffcutReuse == value) return;
+                _useOffcutReuse = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>What the switch does and what it costs, said plainly.</summary>
+        public string OffcutReuseHint =>
+            "Move the panes on the emptiest plate into the offcuts the other plates already "
+            + "left, and skip any plate that ends up empty. Every pane is checked again after it "
+            + "moves, and the whole attempt is rolled back if the plan stops verifying. Off by "
+            + "default, because it changes the plan.";
+
         public const string AutoStageStrategyLabel = "Auto — choose the existing stage from this cutting list";
         public const string Stage1StrategyLabel = "Stage 1: QUICK — area shelf, strips, and bounded patterns";
         public const string Stage2StrategyLabel = "Stage 2: three orderings, best-split, and smart placement";

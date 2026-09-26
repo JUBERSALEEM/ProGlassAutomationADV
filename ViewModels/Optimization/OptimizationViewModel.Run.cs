@@ -611,7 +611,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             var quick = GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
                                 rotation, SplitMode.HorizontalFirst, ct, groupProgress,
                                 platePattern: CurrentPlatePattern, fillEffort: groupEffort,
-                                policy: cutPolicy);
+                                policy: cutPolicy, reuseOffcuts: UseOffcutReuse);
                             if (autoEffort && CurrentPlatePattern == PlatePattern.FillFirstPlate)
                                 quick.ScaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
                                     "Auto effort widened Fill first plate to stage {0}. The quick yield search was unchanged.",
@@ -629,7 +629,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         var packed = (finiteStock || stagedRun)
                             ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
                                 rotation, groupEffort, ct, groupProgress, CurrentPlatePattern, cutPolicy,
-                                maxStage: CurrentMaxStage)
+                                maxStage: CurrentMaxStage, reuseOffcuts: UseOffcutReuse)
                             : GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
                                 rotation, groupEffort, ct, groupProgress, platePattern: CurrentPlatePattern,
                                 maxStage: CurrentMaxStage);

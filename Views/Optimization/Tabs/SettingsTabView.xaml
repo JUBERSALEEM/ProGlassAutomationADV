@@ -164,7 +164,7 @@
                                           SelectedItem="{Binding SelectedStageStrategy}"
                                           Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"
                                           AutomationProperties.Name="Optimize effort and strategy stage"/>
-                                <TextBlock Text="Same list as the banner, including Auto. Auto calls an existing stage. It does not change the plate pattern."
+                                <TextBlock Text="Family and effort are independent: this picks which engines run, the effort level picks how hard they search. Stage 3 at effort 5 searches harder, it does not run the stage-5 portfolio. Auto hands the choice back to the engine."
                                            FontSize="11" TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
 
@@ -175,6 +175,14 @@
                                           ToolTip="{Binding SelectedPlatePatternHint}"
                                           AutomationProperties.Name="Plate pattern"/>
                                 <TextBlock Text="{Binding SelectedPlatePatternHint}"
+                                           FontSize="11" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+
+                                <TextBlock Text="OFFCUT REUSE" Style="{StaticResource OptHeader}" Margin="0,14,0,6"/>
+                                <CheckBox IsChecked="{Binding UseOffcutReuse}"
+                                          Content="Reuse offcuts within this run"
+                                          AutomationProperties.Name="Reuse offcuts within this run"/>
+                                <TextBlock Text="{Binding OffcutReuseHint}"
                                            FontSize="11" TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
                             </StackPanel>

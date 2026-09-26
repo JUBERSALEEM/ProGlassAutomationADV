@@ -145,6 +145,8 @@ namespace ProGlassAutomation.ViewModels.Optimization
             // which phase 5a split away from the effort level. Absent in
             // sessions saved before then — see the migration on restore.
             public string StageStrategy { get; set; } = string.Empty;
+            // JSON only. Phase 2 part 2: reuse the offcuts inside the same run.
+            public bool ReuseOffcuts { get; set; }
             // JSON only, for the same reason PlatePattern is: the Sessions table
             // cannot gain columns on an existing database. Int value of
             // CutComplexity; a missing or unknown value restores to Free
@@ -481,6 +483,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 PlatePattern = PlatePatternName(),
                 AutoEffort = UseAutoEffort,
                 StageStrategy = SelectedStageStrategy,
+                ReuseOffcuts = UseOffcutReuse,
                 CutComplexity = (int)CurrentCutComplexity,
                 MinTrimWidthMm = CurrentMinTrimWidthMm
             };
@@ -685,6 +688,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             SelectedCutComplexity = LabelForComplexity((CutComplexity)(margins?.CutComplexity ?? 0));
             int trim = margins?.MinTrimWidthMm ?? 0;
             MinTrimWidthText = (trim > 0 ? trim : 80).ToString(CultureInfo.InvariantCulture);
+            UseOffcutReuse = margins?.ReuseOffcuts == true;
             SelectedCuttingGroup = AllCuttingGroups;
 
             // Restore the cutting list.
