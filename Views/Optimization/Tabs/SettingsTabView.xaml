@@ -117,7 +117,7 @@
                                 <TextBlock Text="MINIMUM BREAKOUT (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding MinBreakoutText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}" Margin="0,0,0,14"
-                                         ToolTip="Narrowest strip the operator can break out by hand, in millimetres. A layout needing anything thinner is rejected rather than sent to the floor."/>
+                                         ToolTip="Narrowest strip the floor can break out by hand, in millimetres. PackSmart scores placements to avoid leaving anything thinner, but it cannot guarantee none appear: any that slip through are listed as BREAKOUT WASTE in the run notes on the SUMMARY tab. That is wasted glass, not an illegal layout - the plan still cuts - so check the notes before releasing it."/>
 
                                 <!-- ══ CUTTING COMPLEXITY (PHASE 1, 2026-09-26) ══
                                      Production constraint, not a yield feature: every level
@@ -214,7 +214,7 @@
                             <Grid>
                                 <Button Content="Load House Defaults" Style="{StaticResource OptOutlinedButton}"
                                         Command="{Binding LoadHouseDefaultsCommand}" HorizontalAlignment="Left"
-                                        ToolTip="Replace every setting on this card with the house defaults for the current thickness. You will be asked to confirm first, because anything you have changed here is discarded."/>
+                                        ToolTip="Replace every setting on this card with the house defaults for the current thickness. You are asked to confirm first if you have changed anything - if the fields already hold the house numbers it reloads silently, because there is nothing of yours to lose."/>
                                 <TextBlock Text="{Binding ThicknessSourceHint}" HorizontalAlignment="Right" VerticalAlignment="Center"
                                            FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </Grid>

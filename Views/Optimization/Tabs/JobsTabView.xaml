@@ -160,7 +160,7 @@
                         <Button Content="Select All" Style="{StaticResource OptOutlinedButton}"
                                 Command="{Binding SelectAllPanesCommand}" Margin="0,0,8,0"
                                 ToolTip="Tick every pane in the breakdown."/>
-                        <Button Content="Clear All" Style="{StaticResource OptOutlinedButton}"
+                        <Button Content="Clear Ticks" Style="{StaticResource OptOutlinedButton}"
                                 Command="{Binding ClearPaneSelectionCommand}"
                                 ToolTip="Untick every pane in the breakdown. The piece list is left alone - this only clears the ticks."/>
                     </StackPanel>

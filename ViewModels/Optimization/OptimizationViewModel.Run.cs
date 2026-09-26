@@ -267,6 +267,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 || note.Contains("BUDGET", StringComparison.OrdinalIgnoreCase)
                 || note.Contains("REDUCED", StringComparison.OrdinalIgnoreCase)
                 || note.Contains("SKIPPED", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("BREAKOUT WASTE", StringComparison.OrdinalIgnoreCase)
                 || note.Contains("WARNING", StringComparison.OrdinalIgnoreCase)
                 || note.Contains("NO VALID", StringComparison.OrdinalIgnoreCase))
                 return RunNoteSeverity.Warning;
@@ -314,10 +315,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         ? run.Composition
                         : run.Composition + " " + run.Thickness;
 
+                // Not every problem VerifyComprehensive returns is a failure.
+                // It also pulls in AuditBreakout, and the engine is explicit
+                // that a thin offcut is wasted glass rather than an illegal
+                // layout. Labelling that an error would put a "this plan
+                // cannot be cut" popup on a plan that cuts perfectly well,
+                // so the two are tagged apart and rated differently.
                 foreach (var p in problems
                              .Where(p => !string.IsNullOrWhiteSpace(p))
                              .Distinct())
-                    all.Add("VALIDATION FAILURE (" + group + "): " + p);
+                {
+                    bool thinOffcut = p.Contains("minimum breakout",
+                        StringComparison.OrdinalIgnoreCase);
+
+                    all.Add((thinOffcut ? "BREAKOUT WASTE" : "VALIDATION FAILURE")
+                            + " (" + group + "): " + p);
+                }
             }
 
             // Distinct again: the notes above were appended after the list was
