@@ -349,7 +349,8 @@ namespace ProGlassAutomation.Services.Optimization
             bool enableSwaps = false,
             bool remainderAware = false,
             bool wideBeam = false,
-            bool parallelEval = false)
+            bool parallelEval = false,
+            bool requireGuillotine = false)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -458,18 +459,77 @@ namespace ProGlassAutomation.Services.Optimization
             // pass build their own rectangles and cannot honour a stage budget.
             bool staged = policy != null && policy.IsDepthConstrained;
 
+            int guillotineRejects = 0;
+
             OptimizationResult best = PackQuick(pieces, stocks, margins, rotation,
                 cancellationToken: cancellationToken, policy: policy);
             if (!staged)
             {
-                best = ImprovePatterns(best, pieces, stocks, margins, rotation, 2, effortLevel,
+                var improved = ImprovePatterns(best, pieces, stocks, margins, rotation, 2, effortLevel,
                     cancellationToken, BudgetExhausted);
+                if (Accepts(improved)) best = improved;
                 if (!BudgetExhausted())
-                    best = Better(best, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, effortLevel,
-                        cancellationToken), pieces, margins, cancellationToken), platePattern);
+                {
+                    var repeated = CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins,
+                        rotation, effortLevel, cancellationToken), pieces, margins, cancellationToken);
+                    if (Accepts(repeated)) best = Better(best, repeated, platePattern);
+                }
             }
-            void Consider(OptimizationResult candidate) =>
-                best = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken), platePattern);
+
+            // PHASE E4.1 — A PLAN THAT CANNOT BE CUT IS NOT A PLAN.
+            //
+            // Finding F1: RunMaxRects is documented as non-guillotine, it runs
+            // by default at effort 3 or deeper, and nothing checked the
+            // consequence. TryDeriveGuillotineCuts leaves a sheet with an EMPTY
+            // cut list when no sequence of straight cuts produces its layout,
+            // and the call site at the end of this method discarded that
+            // result. So a non-guillotine candidate could win the comparison
+            // and ship as a plan with pieces on it and no way to cut them out.
+            //
+            // The fix is a REJECTION AT THE CANDIDATE BOUNDARY, which is the
+            // only place a policy like this belongs: a plan is either
+            // admissible or it is not considered. It is deliberately not a
+            // repair — there is no way to nudge a pinwheel into a guillotine
+            // layout without moving panes, and moving panes mid-search is what
+            // turns a packer into something nobody can reason about.
+            //
+            // Two things make this safe by construction rather than by hope:
+            //   - best is seeded from PackQuick, which is guillotine by
+            //     construction, so rejecting every candidate still leaves the
+            //     default QUICK plan standing. This switch can never produce
+            //     an invalid layout and can never lose a pane.
+            //   - the check derives cuts as a side effect, so an accepted
+            //     candidate arrives at the export path already cuttable.
+            //
+            // It is OFF BY DEFAULT because it changes results: an uncuttable
+            // plan that used one sheet fewer will now be refused. That is the
+            // whole point, and it is why it is a decision for the operator
+            // rather than something to slip into the default path.
+            bool Accepts(OptimizationResult candidate)
+            {
+                if (!requireGuillotine) return true;
+                if (AllSheetsCuttable(candidate)) return true;
+                guillotineRejects++;
+                return false;
+            }
+
+            void Consider(OptimizationResult candidate)
+            {
+                var next = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken),
+                    platePattern);
+
+                // Nothing changed, or there was nothing to compare against.
+                if (next == null || ReferenceEquals(next, best)) { best = next; return; }
+
+                // It won the comparison, so it is the plan that would ship.
+                // Refuse it here rather than repair it: best is left standing,
+                // which is the PackQuick seed (guillotine by construction) or
+                // an earlier admissible winner. Checking only the winner keeps
+                // the derivation cost proportional to the number of times the
+                // plan actually improves, not to the size of the pool.
+                if (!Accepts(next)) return;
+                best = next;
+            }
             // PHASE E3.1 — EVALUATE THE POOL IN PARALLEL.
             //
             // Multi-start is embarrassingly parallel, and the reduction is a
@@ -696,6 +756,14 @@ namespace ProGlassAutomation.Services.Optimization
             // exactly what was skipped and why, next to the sheet count.
             if (scale.IsReduced) final.ScaleNotes.Add(scale.Summary);
 
+            // A refusal the operator cannot see is worse than no policy at all:
+            // the sheet count would look worse for no stated reason.
+            if (requireGuillotine && guillotineRejects > 0)
+                final.ScaleNotes.Add("GUILLOTINE POLICY: " + guillotineRejects
+                    + " candidate plan(s) were refused because no sequence of straight cuts "
+                    + "produces their layout. The plan shown is the best one a guillotine "
+                    + "table can actually cut, which is not always the fewest sheets.");
+
             // Same rule for the time budget. A truncated search that reported
             // nothing would look like a complete one, and the operator would have
             // no way to know that raising the effort level or splitting the job
@@ -744,8 +812,20 @@ namespace ProGlassAutomation.Services.Optimization
             // say what was actually checked and the export / Step 6 feed paths
             // can refuse a plan that failed conservation.
             final.RecordValidation(problems, conservationChecked: true, geometryChecked: true);
+            var beforePlatePattern = final;
             final = ApplyPlatePattern(final, pieces, stocks, margins, rotation,
                 effortLevel, platePattern, cancellationToken, progress, policy);
+
+            // E4.1: the fill-first-plate branch chooses between plans OUTSIDE
+            // the candidate gate above, so it is held to the same rule here
+            // rather than being allowed to reintroduce what the gate removed.
+            // Reverting to beforePlatePattern is always safe: that plan was
+            // admitted by the gate.
+            if (requireGuillotine && !AllSheetsCuttable(final))
+            {
+                final = beforePlatePattern;
+                guillotineRejects++;
+            }
 
             for (int i = 0; i < final.Sheets.Count; i++)
                 if (final.Sheets[i].Cuts.Count == 0)
@@ -1559,6 +1639,27 @@ namespace ProGlassAutomation.Services.Optimization
         /// deliberately left with an empty cut list. That is a finding in its
         /// own right, and on a glass table it is one that matters.
         /// </summary>
+        /// <summary>
+        /// E4.1. True when every sheet that holds panes has a cut sequence, or
+        /// one can be derived for it. Sheets with nothing on them are trivially
+        /// fine, and sheets that already carry cuts are trusted — the only two
+        /// producers of cuts are the guillotine split path and the derivation
+        /// below, so an existing sequence is already known to be guillotine.
+        /// </summary>
+        internal static bool AllSheetsCuttable(OptimizationResult result)
+        {
+            if (result == null) return false;
+
+            for (int i = 0; i < result.Sheets.Count; i++)
+            {
+                var sheet = result.Sheets[i];
+                if (sheet.Pieces.Count == 0) continue;   // nothing to cut
+                if (sheet.Cuts.Count > 0) continue;      // sequence already known
+                if (!TryDeriveGuillotineCuts(sheet)) return false;
+            }
+            return true;
+        }
+
         internal static bool TryDeriveGuillotineCuts(SheetLayout sheet)
         {
             if (sheet == null || sheet.Pieces.Count == 0) return false;
