@@ -449,7 +449,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             var blocked = SelectedJobs.FirstOrDefault(j => !j.CanOptimizeMaterial);
             if (blocked != null)
             {
-                RunMessage = "Cannot optimize: " + blocked.MaterialInvalidReason;
+                Blocked("Cannot optimize: " + blocked.MaterialInvalidReason, "Cannot optimize");
                 _openToReportAfterRun = false;
                 return false;
             }
@@ -472,7 +472,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (groups.Count == 0)
                 {
                     _openToReportAfterRun = false;
-                    RunMessage = "The selected cutting group has no valid pieces.";
+                    Blocked("The selected cutting group has no valid pieces.", "Cannot optimize");
                     return false;
                 }
             }
@@ -481,7 +481,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 if (ResolveGroupStocks(group.Composition, stockPool, out _).Count == 0)
                 {
-                    RunMessage = $"No matching stock for {group.Composition}. Import its Step 4 sheet or add a manual rack.";
+                    Blocked($"No matching stock for {group.Composition}. Import its Step 4 sheet or add a manual rack.", "Cannot optimize");
                     _openToReportAfterRun = false;
                     return false;
                 }

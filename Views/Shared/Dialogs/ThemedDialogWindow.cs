@@ -51,6 +51,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shell;
 
 namespace ProGlassAutomation.Views.Shared.Dialogs
@@ -318,6 +319,59 @@ namespace ProGlassAutomation.Views.Shared.Dialogs
             // re-measured the window larger than the monitor.
             base.OnContentRendered(e);
             ClampToWorkArea();
+            PlayEntrance();
+        }
+
+        /// <summary>
+        /// Scale-and-fade entrance: the dialog grows past its final size and
+        /// settles back, which is what reads as a "pop" rather than a fade.
+        ///
+        /// RenderTransform, not LayoutTransform — a layout transform would
+        /// re-measure the window every frame and fight SizeToContent.
+        ///
+        /// Everything is set up HERE, never in the constructor. A dialog whose
+        /// OnContentRendered does not run must stay a plain visible window;
+        /// the one thing this must never do is leave a dialog at Opacity 0
+        /// with no animation running to bring it back.
+        /// </summary>
+        private void PlayEntrance()
+        {
+            // Honour the Windows "animate controls and elements" setting.
+            // Skipping here also skips the Opacity = 0 below, so a machine
+            // with animation off can never end up with an invisible dialog.
+            if (!SystemParameters.ClientAreaAnimation) return;
+
+            const double from = 0.88;      // start smaller than final
+            const double overshoot = 1.03; // the bounce
+            var total = TimeSpan.FromMilliseconds(260);
+            var peak = TimeSpan.FromMilliseconds(165);
+
+            RenderTransformOrigin = new Point(0.5, 0.5);
+            var scale = new ScaleTransform(1, 1); // base = settled, so a
+            RenderTransform = scale;              // stopped animation is safe
+
+            var overshootEase = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.4 };
+            var settleEase = new QuadraticEase { EasingMode = EasingMode.EaseOut };
+
+            foreach (var prop in new[] { ScaleTransform.ScaleXProperty, ScaleTransform.ScaleYProperty })
+            {
+                var anim = new DoubleAnimationUsingKeyFrames();
+                anim.KeyFrames.Add(new EasingDoubleKeyFrame(from, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+                anim.KeyFrames.Add(new EasingDoubleKeyFrame(overshoot, KeyTime.FromTimeSpan(peak)) { EasingFunction = overshootEase });
+                anim.KeyFrames.Add(new EasingDoubleKeyFrame(1.0, KeyTime.FromTimeSpan(total)) { EasingFunction = settleEase });
+                scale.BeginAnimation(prop, anim);
+            }
+
+            Opacity = 0;
+            var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(150));
+            // Belt and braces: however the animation ends, the dialog ends up
+            // fully opaque with no animation still holding the property.
+            fade.Completed += (_, _) =>
+            {
+                BeginAnimation(UIElement.OpacityProperty, null);
+                Opacity = 1;
+            };
+            BeginAnimation(UIElement.OpacityProperty, fade);
         }
 
         /// <summary>

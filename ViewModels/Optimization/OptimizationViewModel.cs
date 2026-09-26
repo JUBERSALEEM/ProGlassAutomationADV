@@ -199,5 +199,24 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (IsHeadlessHost) return true;
             return _dialogs.Confirm(message, caption);
         }
+
+        /// <summary>
+        /// Refuses an action and says why, in front of the operator.
+        ///
+        /// These messages all answer the same question — "why did nothing
+        /// happen when I pressed that button?" The operator is looking at the
+        /// button, not at the hero card at the top of the module, so the
+        /// answer belongs where they are looking. That is the whole split
+        /// between this and RunMessage: RunMessage reports the OUTCOME of a
+        /// run that happened; this reports a run that never started.
+        ///
+        /// Falls back to the hero card when there is no dialog service, so a
+        /// headless host still records the reason instead of dropping it.
+        /// </summary>
+        private void Blocked(string message, string caption)
+        {
+            if (_dialogs == null || IsHeadlessHost) { RunMessage = message; return; }
+            _dialogs.Warning(message, caption);
+        }
     }
 }

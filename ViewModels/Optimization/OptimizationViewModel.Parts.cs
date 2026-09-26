@@ -165,7 +165,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             if (!NewPiece.TryParse(out _, out _, out _))
             {
-                RunMessage = "Piece needs a label, positive W×H (mm) and qty ≥ 1.";
+                Blocked("Piece needs a label, positive W×H (mm) and qty ≥ 1.", "Piece not added");
                 return;
             }
 

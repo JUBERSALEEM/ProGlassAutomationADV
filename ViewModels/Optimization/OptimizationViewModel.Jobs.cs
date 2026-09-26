@@ -787,7 +787,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 Pieces.Select(p => (p.JobOrderId, p.SpecGroupNumber, p.Position, p.GlassRef, p.PieceLabel, p.WidthText, p.HeightText)));
             if (selected.Count == 0)
             {
-                RunMessage = "Tick at least one pane box (outer / inner) to add.";
+                Blocked("Tick at least one pane box (outer / inner) to add.", "Nothing to add");
                 return;
             }
 

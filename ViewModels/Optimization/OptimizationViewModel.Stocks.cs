@@ -178,7 +178,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 !int.TryParse(NewStock.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int h) ||
                 w <= 0 || h <= 0)
             {
-                RunMessage = "Stock needs positive W×H in mm.";
+                Blocked("Stock needs positive W×H in mm.", "Rack not added");
                 return;
             }
             var row = new StockEntryVm(

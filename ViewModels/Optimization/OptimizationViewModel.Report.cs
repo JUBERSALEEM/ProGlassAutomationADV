@@ -208,7 +208,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             if (!HasResult || IsRunning)
             {
-                RunMessage = "Run optimization again before exporting a cutting plan.";
+                Blocked("Run optimization again before exporting a cutting plan.", "Nothing to export");
                 return false;
             }
             if (_groupRuns.Count == 0) return true;
@@ -294,7 +294,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             if (!HasResult || SheetRows.Count == 0)
             {
-                RunMessage = "Run a cut first — the layout summary has no sheets yet.";
+                Blocked("Run a cut first — the layout summary has no sheets yet.", "Nothing to export");
                 return;
             }
 
@@ -315,7 +315,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             if (!HasPieces || SizeGroups.Count == 0)
             {
-                RunMessage = "The cutting list is empty — add pieces before exporting the parts summary.";
+                Blocked("The cutting list is empty — add pieces before exporting the parts summary.", "Nothing to export");
                 return;
             }
             AsyncUtility.SafeFireAndForget(
@@ -334,7 +334,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             if (Stocks.Count == 0)
             {
-                RunMessage = "The stock pool is empty — select a job order to import its Step 4 sheets.";
+                Blocked("The stock pool is empty — select a job order to import its Step 4 sheets.", "Nothing to export");
                 return;
             }
             AsyncUtility.SafeFireAndForget(
@@ -369,7 +369,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             if (!HasIndustrialReport)
             {
-                RunMessage = "Nothing to export — add pieces (JOBS tab) and run a cut first.";
+                Blocked("Nothing to export — add pieces (JOBS tab) and run a cut first.", "Nothing to export");
                 return;
             }
 
@@ -437,7 +437,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
         {
             if (!HasResult && !HasPieces && Stocks.Count == 0)
             {
-                RunMessage = "Nothing to export — add pieces, select job orders and run a cut first.";
+                Blocked("Nothing to export — add pieces, select job orders and run a cut first.", "Nothing to export");
                 return;
             }
 
@@ -581,7 +581,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             if (rows.Count == 0)
             {
-                RunMessage = "Nothing to export — the session summaries are empty.";
+                Blocked("Nothing to export — the session summaries are empty.", "Nothing to export");
                 return;
             }
 

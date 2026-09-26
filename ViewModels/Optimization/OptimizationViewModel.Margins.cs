@@ -782,14 +782,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 if (!row.TryParse(out _, out _, out int quantity))
                 {
-                    RunMessage = $"Piece \"{row.PieceLabel}\" needs positive whole-mm dimensions and quantity.";
+                    Blocked($"Piece \"{row.PieceLabel}\" needs positive whole-mm dimensions and quantity.", "Cannot optimize");
                     return false;
                 }
                 totalUnits += quantity;
             }
             if (totalUnits > MaxExpandedParts)
             {
-                RunMessage = $"This list expands to {totalUnits:N0} pieces; the supported admission limit is {MaxExpandedParts:N0}. Split the job before running.";
+                Blocked($"This list expands to {totalUnits:N0} pieces; the supported admission limit is {MaxExpandedParts:N0}. Split the job before running.", "Cannot optimize");
                 return false;
             }
             pieces.Capacity = (int)totalUnits;
@@ -797,7 +797,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             {
                 if (!p.TryParse(out int w, out int h, out int q))
                 {
-                    RunMessage = $"Piece \"{p.PieceLabel}\" is invalid — needs positive W×H and qty.";
+                    Blocked($"Piece \"{p.PieceLabel}\" is invalid — needs positive W×H and qty.", "Cannot optimize");
                     return false;
                 }
                 for (int i = 0; i < q; i++)
@@ -833,7 +833,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             if (pieces.Count == 0)
             {
-                RunMessage = "Add pieces first (JOBS tab) or load the reference job.";
+                Blocked("Add pieces first (JOBS tab) or load the reference job.", "Nothing to optimize");
                 return false;
             }
 
@@ -847,7 +847,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     !int.TryParse(s.HeightText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int h) ||
                     w <= 0 || h <= 0)
                 {
-                    RunMessage = "Stock pool has an invalid size (STOCKS tab).";
+                    Blocked("Stock pool has an invalid size (STOCKS tab).", "Nothing to optimize");
                     return false;
                 }
                 string available = (s.AvailableText ?? "").Trim();
@@ -855,7 +855,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (available.Length == 0 || available == "∞") max = StockSize.UnlimitedSheets;
                 else if (!int.TryParse(available, NumberStyles.Integer, CultureInfo.InvariantCulture, out max) || max < 0)
                 {
-                    RunMessage = "Stock availability must be a non-negative whole number, blank or ∞ (STOCKS tab).";
+                    Blocked("Stock availability must be a non-negative whole number, blank or ∞ (STOCKS tab).", "Nothing to optimize");
                     return false;
                 }
                 else if (max == 0) continue; // zero balance is not unlimited stock
@@ -867,7 +867,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
             if (stocks.Count == 0)
             {
-                RunMessage = "Add at least one stock size and tick it for use (STOCKS tab).";
+                Blocked("Add at least one stock size and tick it for use (STOCKS tab).", "Nothing to optimize");
                 return false;
             }
 
@@ -876,7 +876,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 if (int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value) && value >= 0)
                     return value;
                 value = -1;
-                RunMessage = $"{name} must be a whole number ≥ 0 (MARGINS tab).";
+                Blocked($"{name} must be a whole number ≥ 0 (MARGINS tab).", "Cannot optimize");
                 return value;
             }
 
