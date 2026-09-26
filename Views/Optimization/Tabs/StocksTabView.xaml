@@ -79,18 +79,22 @@
 
                         <TextBlock Grid.Column="0" Text="W (MM)" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBox Grid.Column="1" Text="{Binding NewStock.WidthText, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource OptIntInput}" Margin="0,0,16,0"/>
+                                 Style="{StaticResource OptIntInput}" Margin="0,0,16,0"
+                                 ToolTip="Plate width in millimetres, as it sits on the table."/>
 
                         <TextBlock Grid.Column="2" Text="H (MM)" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBox Grid.Column="3" Text="{Binding NewStock.HeightText, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource OptIntInput}" Margin="0,0,16,0"/>
+                                 Style="{StaticResource OptIntInput}" Margin="0,0,16,0"
+                                 ToolTip="Plate height in millimetres, as it sits on the table."/>
 
                         <TextBlock Grid.Column="4" Text="AVAILABLE" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBox Grid.Column="5" Text="{Binding NewStock.AvailableText, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource OptIntInput}" Margin="0,0,16,0"/>
+                                 Style="{StaticResource OptIntInput}" Margin="0,0,16,0"
+                                 ToolTip="How many sheets of this size the run may use. Leave 0 for no limit. When the cap is reached the engine stops opening this size and moves to the next."/>
 
                         <Button Grid.Column="6" Content="+ Add Stock" Style="{StaticResource OptPrimaryButton}"
-                                Command="{Binding AddStockCommand}" Margin="0,0,8,0"/>
+                                Command="{Binding AddStockCommand}" Margin="0,0,8,0"
+                                ToolTip="Add this size to the pool the run may cut from. Adding a size can only widen the search, never narrow it."/>
 
                         <Button Grid.Column="7" Content="Import Step 4 Sheets" Style="{StaticResource OptOutlinedButton}"
                                 Command="{Binding ImportStockFromStep4Command}"
@@ -177,7 +181,8 @@
                                             <Button Grid.Column="6" Content="Remove" Style="{StaticResource OptGhostButton}"
                                                     HorizontalAlignment="Right"
                                                     Command="{Binding DataContext.RemoveStockCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}"/>
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="Drop this size from the run. You will be asked to confirm. The rack itself stays in the sheet store - only this run stops using it."/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

@@ -71,23 +71,28 @@
 
                                 <TextBlock Text="GLASS THICKNESS (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding ThicknessText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"
+                                         ToolTip="Glass thickness in millimetres. Margins, kerf and breakout defaults are stored per thickness, so changing this reloads the house numbers for that thickness."/>
 
                                 <TextBlock Text="LEFT MARGIN LM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding LeftMarginText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"
+                                         ToolTip="Unusable trim along the LEFT edge of every plate, in millimetres. No piece is ever placed inside it."/>
 
                                 <TextBlock Text="RIGHT MARGIN RM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding RightMarginText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"
+                                         ToolTip="Unusable trim along the RIGHT edge of every plate, in millimetres. No piece is ever placed inside it."/>
 
                                 <TextBlock Text="TOP MARGIN TM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding TopMarginText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"
+                                         ToolTip="Unusable trim along the TOP edge of every plate, in millimetres. No piece is ever placed inside it."/>
 
                                 <TextBlock Text="BOTTOM MARGIN BM (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding BottomMarginText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}"/>
+                                         Style="{StaticResource OptIntInput}"
+                                         ToolTip="Unusable trim along the BOTTOM edge of every plate, in millimetres. No piece is ever placed inside it."/>
                             </StackPanel>
                         </Border>
 
@@ -106,11 +111,13 @@
 
                                 <TextBlock Text="KERF / BLADE GAP (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding KerfText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"
+                                         ToolTip="Width of glass the blade removes, in millimetres. Every cut consumes it, so a wider kerf costs yield on every sheet of every run."/>
 
                                 <TextBlock Text="MINIMUM BREAKOUT (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                 <TextBox Text="{Binding MinBreakoutText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
+                                         Style="{StaticResource OptIntInput}" Margin="0,0,0,14"
+                                         ToolTip="Narrowest strip the operator can break out by hand, in millimetres. A layout needing anything thinner is rejected rather than sent to the floor."/>
 
                                 <!-- ══ CUTTING COMPLEXITY (PHASE 1, 2026-09-26) ══
                                      Production constraint, not a yield feature: every level
@@ -130,7 +137,8 @@
                                             Margin="0,8,0,14">
                                     <TextBlock Text="MINIMUM TRIM WIDTH (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                     <TextBox Text="{Binding MinTrimWidthText, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource OptIntInput}" Width="120" HorizontalAlignment="Left"/>
+                                             Style="{StaticResource OptIntInput}" Width="120" HorizontalAlignment="Left"
+                                             ToolTip="Narrowest strip worth cutting purely to release a remnant worth racking. Below this, the offcut is treated as waste."/>
                                     <TextBlock Text="Narrowest strip worth cutting to release a reusable remnant."
                                                FontSize="11" TextWrapping="Wrap"
                                                Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
@@ -141,7 +149,8 @@
                                     <TextBlock Text="BREAKOUT CHOICE (9MM AND ABOVE)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
                                     <ComboBox ItemsSource="{Binding BreakoutOptions}"
                                               SelectedItem="{Binding SelectedBreakoutOption}"
-                                              Style="{StaticResource OptComboStyle}" Width="180" HorizontalAlignment="Left"/>
+                                              Style="{StaticResource OptComboStyle}" Width="180" HorizontalAlignment="Left"
+                                              ToolTip="{Binding BreakoutHint}"/>
                                     <TextBlock Text="{Binding BreakoutHint}"
                                                FontSize="11" TextWrapping="Wrap"
                                                Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
@@ -152,7 +161,8 @@
                                         BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                                         CornerRadius="8" Padding="12,10" Margin="0,0,0,14">
                                     <CheckBox IsChecked="{Binding RotationEnabled}"
-                                              Style="{StaticResource LiquidGlassCheckBox}">
+                                              Style="{StaticResource LiquidGlassCheckBox}"
+                                              ToolTip="Let pieces be placed turned by 90 degrees. This usually raises yield. Turn it OFF when the glass has a direction - coated, patterned or rolled - because a turned piece would face the wrong way.">
                                         <TextBlock Text="Allow rotation (0° / 90° mix) — piece turns adaptively to maximize sheet yield"
                                                    TextWrapping="Wrap" FontSize="12"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="8,0,0,0"/>
@@ -163,6 +173,7 @@
                                 <ComboBox ItemsSource="{Binding StageStrategies}"
                                           SelectedItem="{Binding SelectedStageStrategy}"
                                           Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"
+                                          ToolTip="{Binding SelectedStageStrategyHint}"
                                           AutomationProperties.Name="Optimize effort and strategy stage"/>
                                 <TextBlock Text="Family and effort are independent: this picks which engines run, the effort level picks how hard they search. Stage 3 at effort 5 searches harder, it does not run the stage-5 portfolio. Auto hands the choice back to the engine."
                                            FontSize="11" TextWrapping="Wrap"
@@ -181,6 +192,7 @@
                                 <TextBlock Text="OFFCUT REUSE" Style="{StaticResource OptHeader}" Margin="0,14,0,6"/>
                                 <CheckBox IsChecked="{Binding UseOffcutReuse}"
                                           Content="Reuse offcuts within this run"
+                                          ToolTip="{Binding OffcutReuseHint}"
                                           AutomationProperties.Name="Reuse offcuts within this run"/>
                                 <TextBlock Text="{Binding OffcutReuseHint}"
                                            FontSize="11" TextWrapping="Wrap"
@@ -196,7 +208,8 @@
                         <StackPanel>
                             <Grid>
                                 <Button Content="Load House Defaults" Style="{StaticResource OptOutlinedButton}"
-                                        Command="{Binding LoadHouseDefaultsCommand}" HorizontalAlignment="Left"/>
+                                        Command="{Binding LoadHouseDefaultsCommand}" HorizontalAlignment="Left"
+                                        ToolTip="Replace every setting on this card with the house defaults for the current thickness. You will be asked to confirm first, because anything you have changed here is discarded."/>
                                 <TextBlock Text="{Binding ThicknessSourceHint}" HorizontalAlignment="Right" VerticalAlignment="Center"
                                            FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource TextTertiaryBrush}"/>
                             </Grid>

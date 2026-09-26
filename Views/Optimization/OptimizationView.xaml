@@ -227,28 +227,36 @@
                 <WrapPanel Orientation="Horizontal">
                     <RadioButton GroupName="OptTabs" Tag="&#xE821;" Content="JOBS"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=0}"
-                                 Style="{StaticResource OptRailTab}"/>
+                                 Style="{StaticResource OptRailTab}"
+                                 ToolTip="JOBS — Choose which confirmed Job Orders this run cuts from, then tick the panes to include. The source list is locked to approved JOs, so nothing can be pulled in from an unapproved order."/>
                     <RadioButton GroupName="OptTabs" Tag="&#xE8A7;" Content="SIZES"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=1}"
-                                 Style="{StaticResource OptRailTab}"/>
+                                 Style="{StaticResource OptRailTab}"
+                                 ToolTip="SIZES — Thickness and colour summary of the piece list. Read-only: it is derived from the panes you ticked on JOBS."/>
                     <RadioButton GroupName="OptTabs" Tag="&#xE70F;" Content="CUT LIST"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=7}"
-                                 Style="{StaticResource OptRailTab}"/>
+                                 Style="{StaticResource OptRailTab}"
+                                 ToolTip="CUT LIST — Enter sizes by hand when a run is not driven by a Job Order. Rows you add here feed the engine exactly like imported panes."/>
                     <RadioButton GroupName="OptTabs" Tag="&#xE7B8;" Content="STOCKS"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=2}"
-                                 Style="{StaticResource OptRailTab}"/>
+                                 Style="{StaticResource OptRailTab}"
+                                 ToolTip="STOCKS — The sheet sizes this run may cut from, taken from the ticked Job Orders' Step 4 racks. Untick a size to hold it back from the run."/>
                     <RadioButton GroupName="OptTabs" Tag="&#xE713;" Content="SETTINGS"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=3}"
-                                 Style="{StaticResource OptRailTab}"/>
+                                 Style="{StaticResource OptRailTab}"
+                                 ToolTip="SETTINGS — Margins, kerf, minimum breakout, rotation, cutting complexity, search effort and plate pattern, for the thickness currently in use."/>
                     <RadioButton GroupName="OptTabs" Tag="&#xE9D9;" Content="SUMMARY"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=4}"
-                                 Style="{StaticResource OptRailTab}"/>
+                                 Style="{StaticResource OptRailTab}"
+                                 ToolTip="SUMMARY — Sheets used, utilisation and unplaced pieces for every cutting group, ordered highest to lowest utilisation."/>
                     <RadioButton GroupName="OptTabs" Tag="&#xE80A;" Content="2D VIEW"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=5}"
-                                 Style="{StaticResource OptRailTab}"/>
+                                 Style="{StaticResource OptRailTab}"
+                                 ToolTip="2D VIEW — Sheet-by-sheet layout with the margin and breakout overlay drawn to scale. Use it to check a plan before it reaches the table."/>
                     <RadioButton GroupName="OptTabs" Tag="&#xE9F9;" Content="REPORT"
                                  IsChecked="{Binding SelectedTabIndex, Converter={StaticResource IndexEqualsConverter}, ConverterParameter=6}"
-                                 Style="{StaticResource OptRailTab}" Margin="0"/>
+                                 Style="{StaticResource OptRailTab}"
+                                 ToolTip="REPORT — Layout, parts and stocks summaries with CSV export." Margin="0"/>
                 </WrapPanel>
             </Border>
 

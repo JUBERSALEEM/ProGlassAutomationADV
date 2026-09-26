@@ -61,7 +61,8 @@
                 <ListBox x:Name="JobPicker" Grid.Row="2" ItemsSource="{Binding FilteredJobs}"
                          SelectedItem="{Binding SelectedJob, Mode=TwoWay}"
                          Style="{StaticResource OptListBox}"
-                         ItemContainerStyle="{StaticResource OptListBoxItem}">
+                         ItemContainerStyle="{StaticResource OptListBoxItem}"
+                         ToolTip="Confirmed Job Orders this run may cut from. Tick one to reveal its pane breakdown on the right. The list is locked to approved orders, so nothing unapproved can be pulled in.">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Style="{StaticResource OptInnerCard}">
@@ -127,7 +128,8 @@
                                TextWrapping="Wrap" Foreground="{DynamicResource TextTertiaryBrush}"
                                Margin="0,0,0,8"/>
                     <Button Content="Refresh Orders" Style="{StaticResource OptOutlinedButton}"
-                            Command="{Binding RefreshJobsCommand}" HorizontalAlignment="Left"/>
+                            Command="{Binding RefreshJobsCommand}" HorizontalAlignment="Left"
+                            ToolTip="Reload the Job Order list from the database. Use it after an order was approved or amended in another module."/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -156,9 +158,11 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10"
                                 Visibility="{Binding HasPaneChecklist, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Button Content="Select All" Style="{StaticResource OptOutlinedButton}"
-                                Command="{Binding SelectAllPanesCommand}" Margin="0,0,8,0"/>
+                                Command="{Binding SelectAllPanesCommand}" Margin="0,0,8,0"
+                                ToolTip="Tick every pane in the breakdown."/>
                         <Button Content="Clear All" Style="{StaticResource OptOutlinedButton}"
-                                Command="{Binding ClearPaneSelectionCommand}"/>
+                                Command="{Binding ClearPaneSelectionCommand}"
+                                ToolTip="Untick every pane in the breakdown. The piece list is left alone - this only clears the ticks."/>
                     </StackPanel>
 
                     <!-- Checklist Header -->
@@ -203,7 +207,8 @@
                                             </Grid.ColumnDefinitions>
                                             <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                       VerticalAlignment="Center"
-                                                      Style="{StaticResource LiquidGlassCheckBox}"/>
+                                                      Style="{StaticResource LiquidGlassCheckBox}"
+                                                      ToolTip="Include this pane in the run. Ticking a pane does not add it yet - use the Add button below to move the ticked panes into the piece list."/>
                                             <TextBlock Grid.Column="1" Text="{Binding Sub}" FontSize="12"
                                                        FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center" Margin="0,0,8,0"/>
@@ -230,6 +235,7 @@
                             Command="{Binding AddSelectedPanesCommand}"
                             Content="{Binding AddPanesButtonLabel}"
                             Style="{StaticResource OptPrimaryButton}"
+                            ToolTip="Add every ticked pane to the piece list, at the quantity shown. Panes already on the list are not duplicated."
                             HorizontalAlignment="Left" Margin="0,12,0,0"
                             Visibility="{Binding HasSelectedPanes, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </StackPanel>
@@ -257,9 +263,11 @@
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                             <Button Content="Sizes View →" Style="{StaticResource OptOutlinedButton}"
-                                    Command="{Binding OpenImportedSizesCommand}" Margin="0,0,8,0"/>
+                                    Command="{Binding OpenImportedSizesCommand}" Margin="0,0,8,0"
+                                    ToolTip="Jump to the SIZES tab for the thickness and colour summary of the current piece list."/>
                             <Button Content="Clear List" Style="{StaticResource OptGhostButton}"
-                                    Command="{Binding ClearPiecesCommand}"/>
+                                    Command="{Binding ClearPiecesCommand}"
+                                    ToolTip="Remove every piece from the list. You will be asked to confirm first, because the run results go with it."/>
                         </StackPanel>
                     </Grid>
 
@@ -285,15 +293,19 @@
                                      behaviors:TextBoxBehaviors.AcceptIntegersOnly="False" ToolTip="Piece label or ref"/>
                             <TextBlock Grid.Column="2" Text="W (MM)" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                             <TextBox Grid.Column="3" Text="{Binding NewPiece.WidthText, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource OptIntInput}" Margin="0,0,12,0"/>
+                                     Style="{StaticResource OptIntInput}" Margin="0,0,12,0"
+                                     ToolTip="Piece width in millimetres. Enter the finished size the customer receives - the engine adds margins and kerf itself."/>
                             <TextBlock Grid.Column="4" Text="H (MM)" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                             <TextBox Grid.Column="5" Text="{Binding NewPiece.HeightText, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource OptIntInput}" Margin="0,0,12,0"/>
+                                     Style="{StaticResource OptIntInput}" Margin="0,0,12,0"
+                                     ToolTip="Piece height in millimetres. Enter the finished size the customer receives - the engine adds margins and kerf itself."/>
                             <TextBlock Grid.Column="6" Text="QTY" Style="{StaticResource OptHeader}" VerticalAlignment="Center" Margin="0,0,6,0"/>
                             <TextBox Grid.Column="7" Text="{Binding NewPiece.QtyText, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource OptIntInput}" Margin="0,0,12,0"/>
+                                     Style="{StaticResource OptIntInput}" Margin="0,0,12,0"
+                                     ToolTip="How many of this piece to cut."/>
                             <Button Grid.Column="8" Content="+ Add Piece" Style="{StaticResource OptPrimaryButton}"
-                                    Command="{Binding AddPieceCommand}"/>
+                                    Command="{Binding AddPieceCommand}"
+                                    ToolTip="Add this size to the piece list. Use it for one-off sizes that are not on a Job Order."/>
                         </Grid>
                     </Border>
 
@@ -362,7 +374,8 @@
                                             <Button Grid.Column="4" Content="Remove" Style="{StaticResource OptGhostButton}"
                                                     HorizontalAlignment="Right"
                                                     Command="{Binding DataContext.RemovePieceCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}"/>
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="Remove this piece from the list. Only the piece list changes - the Job Order it came from is untouched."/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

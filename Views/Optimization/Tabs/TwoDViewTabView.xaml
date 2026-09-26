@@ -61,7 +61,8 @@
                         <StackPanel Orientation="Horizontal">
                             <!-- Single Sheet Focus Mode -->
                             <Button Command="{Binding SwitchToSingleViewCommand}"
-                                    Cursor="Hand" Padding="14,6" BorderThickness="0">
+                                    Cursor="Hand" Padding="14,6" BorderThickness="0"
+                                    ToolTip="Show one sheet at a time, large, with the margin and breakout overlay drawn to scale. Use this to check a single layout before it reaches the table.">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Background" Value="Transparent"/>
@@ -88,7 +89,8 @@
 
                             <!-- Multi-Sheet Gallery Mode -->
                             <Button Command="{Binding SwitchToGalleryViewCommand}"
-                                    Cursor="Hand" Padding="14,6" BorderThickness="0" Margin="2,0,0,0">
+                                    Cursor="Hand" Padding="14,6" BorderThickness="0" Margin="2,0,0,0"
+                                    ToolTip="Show every sheet as a thumbnail, so you can compare layouts across the run at a glance.">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Background" Value="Transparent"/>
@@ -178,11 +180,14 @@
                                            Foreground="{DynamicResource TextTertiaryBrush}"
                                            VerticalAlignment="Center" Margin="6,0,4,0"/>
                                 <Button Content="4" Command="{Binding SetGalleryPageSizeCommand}" CommandParameter="4"
-                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"/>
+                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"
+                                        ToolTip="Show 4 sheets per gallery page."/>
                                 <Button Content="8" Command="{Binding SetGalleryPageSizeCommand}" CommandParameter="8"
-                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"/>
+                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"
+                                        ToolTip="Show 8 sheets per gallery page."/>
                                 <Button Content="12" Command="{Binding SetGalleryPageSizeCommand}" CommandParameter="12"
-                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"/>
+                                        Style="{StaticResource OptGhostButton}" Padding="8,4" FontSize="11"
+                                        ToolTip="Show 12 sheets per gallery page."/>
                             </StackPanel>
                         </Border>
 
@@ -647,7 +652,8 @@
                                                     <Button Grid.Column="1" Content="Inspect CAD →"
                                                             Style="{StaticResource OptOutlinedButton}" FontSize="10" Height="28" Padding="10,0"
                                                             Command="{Binding DataContext.FocusGallerySheetCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                            CommandParameter="{Binding Index}"/>
+                                                            CommandParameter="{Binding Index}"
+                                                            ToolTip="Open this sheet full size in the single-sheet view."/>
                                                 </Grid>
                                             </StackPanel>
                                         </Border>
