@@ -84,6 +84,9 @@ namespace ProGlassAutomation.Services.Optimization
         {
             public List<PlacedPiece> Pieces;
             public List<FreeRect> Free;
+            // PHASE 0: cuts are part of the sheet state being rolled back. A
+            // trial that is undone must not leave its cut behind.
+            public List<CutStep> Cuts;
             public long Area;
         }
 
@@ -99,6 +102,7 @@ namespace ProGlassAutomation.Services.Optimization
         {
             Pieces = sheet.Layout.Pieces.ToList(),
             Free = sheet.Free.ToList(),
+            Cuts = sheet.Layout.Cuts.ToList(),
             Area = sheet.PlacedArea
         };
 
@@ -108,6 +112,8 @@ namespace ProGlassAutomation.Services.Optimization
             sheet.Layout.Pieces.AddRange(snap.Pieces);
             sheet.Free.Clear();
             sheet.Free.AddRange(snap.Free);
+            sheet.Layout.Cuts.Clear();
+            sheet.Layout.Cuts.AddRange(snap.Cuts);
             sheet.RefreshAll();
         }
 
@@ -384,6 +390,24 @@ namespace ProGlassAutomation.Services.Optimization
                         Rotated = piece.Rotated
                     });
                 }
+                // PHASE 0: the clone is a repack of an already-cut plan, so it
+                // inherits that plan's cut sequence rather than losing it.
+                for (int c = 0; c < sheet.Cuts.Count; c++)
+                {
+                    var cut = sheet.Cuts[c];
+                    layout.Cuts.Add(new CutStep
+                    {
+                        Seq = cut.Seq,
+                        Axis = cut.Axis,
+                        AtMm = cut.AtMm,
+                        FromX = cut.FromX,
+                        FromY = cut.FromY,
+                        FromW = cut.FromW,
+                        FromH = cut.FromH,
+                        Stage = cut.Stage,
+                        IsTrim = cut.IsTrim
+                    });
+                }
                 copy.Sheets.Add(layout);
             }
             return copy;
@@ -626,7 +650,8 @@ namespace ProGlassAutomation.Services.Optimization
             int fillEffort,
             PlatePattern platePattern,
             CancellationToken cancellationToken,
-            IProgress<OptimizeProgress> progress)
+            IProgress<OptimizeProgress> progress,
+            CutPolicy policy = null)
         {
             if (platePattern != PlatePattern.FillFirstPlate || current == null)
                 return current;
@@ -634,6 +659,17 @@ namespace ProGlassAutomation.Services.Optimization
                 return current;
             if (pieces.Count >= IndustrialQuantityThreshold)
                 return NoteFillSkipped(current, platePattern);
+
+            // PHASE 1: fill-first-plate rebuilds a sheet by re-pack trials that
+            // score placements without the stage budget, so it cannot honour a
+            // staged pattern. It is skipped rather than allowed to dilute it.
+            if (policy != null && policy.IsDepthConstrained)
+            {
+                current.ScaleNotes.Add(
+                    "Fill first plate skipped: it cannot hold a staged cut pattern. " +
+                    "Choose Free guillotine to use it.");
+                return current;
+            }
 
             var fill = PackFillFirstPlate(pieces, stocks, margins, rotation, fillEffort,
                 cancellationToken, progress);

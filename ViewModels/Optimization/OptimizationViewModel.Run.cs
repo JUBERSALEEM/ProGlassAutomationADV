@@ -596,11 +596,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
                             ? OptimizationSearchGovernor.RecommendEffort(groupPieces.Count, stockSizes, finiteStock)
                             : default;
                         int groupEffort = autoEffort ? recommendation.Stage : effort;
+
+                        // PHASE 1: the cut policy is resolved per group because
+                        // the laminate rule depends on the glass, and glass is
+                        // exactly what defines a cutting group.
+                        var cutPolicy = CutPolicy.ResolveFor(
+                            CurrentCutComplexity,
+                            GuillotinePacker.GroupIsLaminated(groupPieces),
+                            CurrentMinTrimWidthMm);
+                        bool stagedRun = cutPolicy.IsDepthConstrained;
+
                         if (stage != "OPTIMIZE")
                         {
                             var quick = GuillotinePacker.PackQuick(groupPieces, groupStocks, groupMargins,
                                 rotation, SplitMode.HorizontalFirst, ct, groupProgress,
-                                platePattern: CurrentPlatePattern, fillEffort: groupEffort);
+                                platePattern: CurrentPlatePattern, fillEffort: groupEffort,
+                                policy: cutPolicy);
                             if (autoEffort && CurrentPlatePattern == PlatePattern.FillFirstPlate)
                                 quick.ScaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
                                     "Auto effort widened Fill first plate to stage {0}. The quick yield search was unchanged.",
@@ -611,12 +622,20 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         }
                         // The preserved partitioner gives each batch the rack cap independently.
                         // Finite inventory must use the globally capped advanced search instead.
-                        var packed = finiteStock
+                        // A staged pattern cannot be held by the partitioned
+                        // (very large job) path, so a staged run takes the
+                        // advanced search instead and says so — never silently
+                        // hands back a free-guillotine plan.
+                        var packed = (finiteStock || stagedRun)
                             ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
-                                rotation, groupEffort, ct, groupProgress, CurrentPlatePattern)
+                                rotation, groupEffort, ct, groupProgress, CurrentPlatePattern, cutPolicy)
                             : GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
                                 rotation, groupEffort, ct, groupProgress, platePattern: CurrentPlatePattern);
                         if (finiteStock) packed.ScaleNotes.Add("Finite inventory: global advanced search preserves the shared rack cap.");
+                        if (stagedRun && !finiteStock)
+                            packed.ScaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
+                                "Staged cut pattern ({0}): used the advanced search, because the very-large-job path cannot hold a staged pattern.",
+                                cutPolicy.Describe()));
                         if (autoEffort)
                             packed.ScaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
                                 "Auto effort: stage {0} — {1}", groupEffort, recommendation.Reason));

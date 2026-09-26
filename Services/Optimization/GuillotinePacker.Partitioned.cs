@@ -543,10 +543,13 @@ namespace ProGlassAutomation.Services.Optimization
                     int iy = Math.Max(p.Y, r.Y);
                     int ix2 = Math.Min(p.X + pw, r.X + r.W);
                     int iy2 = Math.Min(p.Y + ph, r.Y + r.H);
-                    if (iy > r.Y) next.Add(new FreeRect(r.X, r.Y, r.W, iy - r.Y));
-                    if (iy2 < r.Y + r.H) next.Add(new FreeRect(r.X, iy2, r.W, r.Y + r.H - iy2));
-                    if (ix > r.X) next.Add(new FreeRect(r.X, iy, ix - r.X, iy2 - iy));
-                    if (ix2 < r.X + r.W) next.Add(new FreeRect(ix2, iy, r.X + r.W - ix2, iy2 - iy));
+                    // PHASE 0: carved out of r by one more cut, so they carry r's
+                    // stage plus one — the depth ledger stays meaningful here too.
+                    int d = r.Depth + 1;
+                    if (iy > r.Y) next.Add(new FreeRect(r.X, r.Y, r.W, iy - r.Y, d));
+                    if (iy2 < r.Y + r.H) next.Add(new FreeRect(r.X, iy2, r.W, r.Y + r.H - iy2, d));
+                    if (ix > r.X) next.Add(new FreeRect(r.X, iy, ix - r.X, iy2 - iy, d));
+                    if (ix2 < r.X + r.W) next.Add(new FreeRect(ix2, iy, r.X + r.W - ix2, iy2 - iy, d));
                 }
                 PruneFree(next);
                 state.Free.Clear();

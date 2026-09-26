@@ -347,3 +347,52 @@ engine we already own on small jobs. Sequence the work that way.
 - Gethke Glas case study — Dynopt, remake pool, Re-Opt, ~3 % waste reduction: [4](https://www.glass-international.com/news/german-manufacturer-uses-lisec-software-tool)
 - Wu (2021) — 2SHP / 2SGP / 3SHP / 3SGP staged families and the utilization-vs-complexity trade-off: [3](https://hindawi.com/journals/amse/2021/3732720)
 - Cutting Optimization Pro — multi-stage guillotine, edge band and trim management: [5](https://cutting-optimization-pro.soft112.com/)
+
+## 8. Implementation status
+
+### Phase 0 — cut-sequence capture (DONE)
+
+- `CutAxis`, `CutStep` and `SheetLayout.Cuts` in `Services/Optimization/OptimizationModels.cs`.
+- Recorded inside `SplitRemainder` — the same code that decides the free
+  rectangles — so the cut list and the free-rect ledger cannot disagree.
+  A placement emits at most two cuts: the first spans the host rectangle,
+  the second runs inside the strip the first one created.
+- Cut lists roll back with the pieces they belong to, at both rollback
+  sites: consolidation (`SnapshotBeforeWrite`) and the fill-first-plate
+  trial loop (`CaptureSheet` / `RestoreSheet`). `ClonePlan` copies them.
+- No consumer yet: this phase only makes the data exist (unblocks
+  phases 1, 2 and 4).
+
+### Phase 1 — cutting complexity (DONE)
+
+- `CutComplexity` (FreeGuillotine / SimpleFirstX / SimpleFirstY / Simple /
+  ThreeStage / ComplexTrims) and the immutable `CutPolicy` it resolves to.
+  Deliberately NOT on `MarginProfile` — that type is per-thickness and is
+  serialized into saved sessions.
+- `FreeRect.Depth` records which cut stage produced a rectangle; a staged
+  policy refuses to keep a rectangle that has no stage left to cut it with.
+  That leftover becomes waste — the documented yield cost of a staged
+  pattern, and the reason `FreeGuillotine` stays the default.
+- Forced first direction is applied inside `SplitRemainder`, so the ledger
+  and the cut list agree on which way the sheet was cut first. A piece that
+  spans the sheet's full height is treated as cut out of a single strip, so
+  its separating cut is a stage-2 cut and never contradicts the pattern.
+- `ValidateCutPattern` is a third oracle, beside `Verify` (geometry/kerf)
+  and `ValidateResult` (conservation): it checks the CUTS, not the layout.
+- Per-material rule: Z/W trims are refused on laminated stock
+  (`CutPolicy.ResolveFor` + `GuillotinePacker.GroupIsLaminated`).
+- Settings-tab control under MINIMUM BREAKOUT, with a hint that states the
+  yield cost as well as the benefit.
+
+### Known limits, stated rather than hidden
+
+- Under a staged policy the alternative engines (capacity strips, best-split
+  beam, smart placement, fill-first-plate, repeated patterns) are SKIPPED,
+  because they build their own free rectangles and cannot honour a stage
+  budget. Skipping candidates costs yield, never correctness.
+- Jobs of 100,000 pieces or more take the industrial path, which cannot be
+  stage-bounded; such a run returns a free-guillotine plan and says so in
+  its scale notes instead of pretending.
+- The complexity choice is not yet persisted with a saved session.
+- `CutComplexity.ComplexTrims` currently permits trims but does not yet
+  GENERATE them (no remnant extraction). Phase 2.

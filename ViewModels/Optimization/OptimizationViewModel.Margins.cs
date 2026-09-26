@@ -366,6 +366,110 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private string PlatePatternStamp() =>
             CurrentPlatePattern == PlatePattern.FillFirstPlate ? "fill first plate" : "yield";
 
+        // ── cutting complexity (PHASE 1, 2026-09-26) ─────────────────────
+        //
+        // Kept OUT of MarginProfile on purpose: that type is per-thickness and
+        // travels inside saved sessions, so growing it would force a session
+        // migration. The complexity choice lives here instead and defaults to
+        // free guillotine, which is exactly what the engine has always done.
+
+        public const string FreeGuillotineLabel = "Free guillotine — unlimited stages";
+        public const string SimpleFirstXLabel = "Simple — first X cut (2-stage)";
+        public const string SimpleFirstYLabel = "Simple — first Y cut (2-stage)";
+        public const string SimpleComplexityLabel = "Simple (2-stage, direction auto)";
+        public const string ThreeStageLabel = "3-stage";
+        public const string ComplexTrimsLabel = "Complex — trims allowed (Z/W)";
+
+        public ObservableCollection<string> CutComplexities { get; } = new()
+        {
+            FreeGuillotineLabel,
+            SimpleFirstXLabel,
+            SimpleFirstYLabel,
+            SimpleComplexityLabel,
+            ThreeStageLabel,
+            ComplexTrimsLabel
+        };
+
+        private string _selectedCutComplexity = FreeGuillotineLabel;
+
+        /// <summary>
+        /// The cutting-complexity level the floor will run. Free guillotine is
+        /// the default and reproduces today's plans exactly; every other level
+        /// is a production constraint that trades yield for simpler cutting.
+        /// </summary>
+        public string SelectedCutComplexity
+        {
+            get => _selectedCutComplexity;
+            set
+            {
+                string next = string.IsNullOrWhiteSpace(value) ? FreeGuillotineLabel : value;
+                if (string.Equals(_selectedCutComplexity, next, StringComparison.Ordinal)) return;
+                _selectedCutComplexity = next;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CutComplexityHint));
+                OnPropertyChanged(nameof(ShowTrimWidth));
+            }
+        }
+
+        public CutComplexity CurrentCutComplexity =>
+            string.Equals(SelectedCutComplexity, SimpleFirstXLabel, StringComparison.Ordinal)
+                ? CutComplexity.SimpleFirstX
+                : string.Equals(SelectedCutComplexity, SimpleFirstYLabel, StringComparison.Ordinal)
+                    ? CutComplexity.SimpleFirstY
+                    : string.Equals(SelectedCutComplexity, SimpleComplexityLabel, StringComparison.Ordinal)
+                        ? CutComplexity.Simple
+                        : string.Equals(SelectedCutComplexity, ThreeStageLabel, StringComparison.Ordinal)
+                            ? CutComplexity.ThreeStage
+                            : string.Equals(SelectedCutComplexity, ComplexTrimsLabel, StringComparison.Ordinal)
+                                ? CutComplexity.ComplexTrims
+                                : CutComplexity.FreeGuillotine;
+
+        /// <summary>
+        /// What the choice costs and buys. Staged patterns are honest about
+        /// losing yield — the operator is deciding between material and table
+        /// time, and a hint that only promised the upside would be a lie.
+        /// </summary>
+        public string CutComplexityHint => CurrentCutComplexity switch
+        {
+            CutComplexity.SimpleFirstX =>
+                "Two stages, every sheet cut horizontally (along the width) first. Fewer, longer cuts — costs some yield.",
+            CutComplexity.SimpleFirstY =>
+                "Two stages, every sheet cut vertically (along the height) first. Fewer, longer cuts — costs some yield.",
+            CutComplexity.Simple =>
+                "The classic 2-stage pattern: strips, then pieces. Simplest cutting, lowest utilization.",
+            CutComplexity.ThreeStage =>
+                "Three stages. Recovers some of the yield 2-stage gives up, for one more cutting pass.",
+            CutComplexity.ComplexTrims =>
+                "Unlimited stages, plus Z/W trims that release reusable remnants. Never applied to laminated stock.",
+            _ =>
+                "Today's engine: unlimited cut stages, no trim cuts. Best yield — keep this unless the floor asks for simpler cutting."
+        };
+
+        /// <summary>The trim-width field only means anything when trims are on.</summary>
+        public bool ShowTrimWidth => CurrentCutComplexity == CutComplexity.ComplexTrims;
+
+        private string _minTrimWidthText = "80";
+
+        /// <summary>
+        /// Narrowest strip worth cutting to release a remnant. Only read when
+        /// the complexity level allows trims.
+        /// </summary>
+        public string MinTrimWidthText
+        {
+            get => _minTrimWidthText;
+            set
+            {
+                if (string.Equals(_minTrimWidthText, value, StringComparison.Ordinal)) return;
+                _minTrimWidthText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Trim width as the engine will read it: unparseable or
+        /// non-positive falls back to 80mm, the house starting point.</summary>
+        public int CurrentMinTrimWidthMm =>
+            TryParseWholeMm(MinTrimWidthText, out int w) && w > 0 ? w : 80;
+
         // ── margins ────────────────────────────────────────────────────
 
         /// <summary>

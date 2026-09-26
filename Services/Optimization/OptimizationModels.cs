@@ -54,6 +54,178 @@ namespace ProGlassAutomation.Services.Optimization
         FillFirstPlate = 1
     }
 
+    /// <summary>Direction a guillotine cut line runs.</summary>
+    public enum CutAxis
+    {
+        /// <summary>Cut line runs horizontally (constant Y) — splits a rectangle
+        /// into a top and a bottom part.</summary>
+        Horizontal = 0,
+        /// <summary>Cut line runs vertically (constant X) — splits a rectangle
+        /// into a left and a right part.</summary>
+        Vertical = 1
+    }
+
+    /// <summary>
+    /// One guillotine cut, in the order the floor executes it.
+    ///
+    /// PHASE 0 (2026-09-26). Before this existed a sheet knew WHERE its pieces
+    /// sat but not HOW the table had to cut them out, so there was nothing to
+    /// hand a CNC file, nothing to count Z/W trims from, and nothing to prove
+    /// a staged pattern was honoured. Cuts are recorded by SplitRemainder —
+    /// the same code that decides the free rectangles — so the cut list and
+    /// the free-rect ledger can never disagree.
+    /// </summary>
+    public sealed class CutStep
+    {
+        /// <summary>1-based execution order on the table.</summary>
+        public int Seq { get; init; }
+
+        /// <summary>Direction of the cut line.</summary>
+        public CutAxis Axis { get; init; }
+
+        /// <summary>Position of the cut line in mm from the sheet origin: the Y
+        /// of a horizontal cut, the X of a vertical cut. The score sits on the
+        /// piece's trailing edge; kerf is consumed from the remainder side.</summary>
+        public int AtMm { get; init; }
+
+        /// <summary>Rectangle the cut passes through, in sheet coordinates.</summary>
+        public int FromX { get; init; }
+        public int FromY { get; init; }
+        public int FromW { get; init; }
+        public int FromH { get; init; }
+
+        /// <summary>1-based cut stage: 1 is the first cut made on the raw sheet.</summary>
+        public int Stage { get; init; }
+
+        /// <summary>True when the far side of this cut yields no usable stock,
+        /// i.e. the cut exists only to separate the piece from material that
+        /// becomes waste. Phase 2 will add remnant-releasing trims, which are
+        /// NOT marked this way because they do produce usable glass.</summary>
+        public bool IsTrim { get; init; }
+    }
+
+    /// <summary>
+    /// How complex a cut sequence the floor is willing to run — the
+    /// industry's cutting-complexity levels (CutGLib ships 2 XY / 3 two-stage
+    /// XY / 4 XYZ / 5 XYZW / 6 Standard; GlasSave offers X, Y, Z and W cuts
+    /// with trim cuts on the sheet sides).
+    ///
+    /// These are PRODUCTION constraints, not yield features. Staged levels
+    /// trade material utilization for fewer, simpler cuts: the literature is
+    /// explicit that two-stage patterns have the lowest utilization and the
+    /// simplest cutting, three-stage the opposite.
+    /// </summary>
+    public enum CutComplexity
+    {
+        /// <summary>Unlimited guillotine depth, no trim cuts. Today's behaviour
+        /// and the default — every existing run is bit-identical under it.</summary>
+        FreeGuillotine = 0,
+        /// <summary>Two stages, first cut horizontal (along the sheet width),
+        /// producing stacked strips.</summary>
+        SimpleFirstX = 1,
+        /// <summary>Two stages, first cut vertical (along the sheet height),
+        /// producing side-by-side columns.</summary>
+        SimpleFirstY = 2,
+        /// <summary>Two stages, first direction chosen per sheet (2SGP).</summary>
+        Simple = 3,
+        /// <summary>Three stages (3SGP) — the fullest of the staged family.</summary>
+        ThreeStage = 4,
+        /// <summary>Unlimited depth PLUS permission to cut trims (Z/W cuts) that
+        /// release reusable remnants.</summary>
+        ComplexTrims = 5
+    }
+
+    /// <summary>
+    /// Immutable, resolved form of a <see cref="CutComplexity"/> — the numbers
+    /// the packer actually reads.
+    ///
+    /// Deliberately NOT part of <see cref="MarginProfile"/>: that type is
+    /// per-thickness and is serialized into saved sessions, so extending it
+    /// would force a session migration. This travels beside it and defaults to
+    /// <see cref="Free"/>, which reproduces today's engine exactly.
+    /// </summary>
+    public sealed class CutPolicy
+    {
+        /// <summary>Unlimited depth, no trims. The default, and the only policy
+        /// under which existing calibration figures are guaranteed exact.</summary>
+        public static readonly CutPolicy Free =
+            new CutPolicy(CutComplexity.FreeGuillotine, int.MaxValue, false, false, false, 0);
+
+        private CutPolicy(CutComplexity complexity, int maxStages, bool forceFirstHorizontal,
+            bool forceFirstVertical, bool allowTrimCuts, int minTrimWidthMm)
+        {
+            Complexity = complexity;
+            MaxStages = maxStages;
+            ForceFirstCutHorizontal = forceFirstHorizontal;
+            ForceFirstCutVertical = forceFirstVertical;
+            AllowTrimCuts = allowTrimCuts;
+            MinTrimWidthMm = minTrimWidthMm;
+        }
+
+        public CutComplexity Complexity { get; }
+        public int MaxStages { get; }
+        public bool ForceFirstCutHorizontal { get; }
+        public bool ForceFirstCutVertical { get; }
+        public bool AllowTrimCuts { get; }
+        public int MinTrimWidthMm { get; }
+
+        /// <summary>True when the pattern limits how deep the guillotine tree may
+        /// grow. Only these levels are subject to staged enforcement; the free
+        /// levels take no constraint path at all.</summary>
+        public bool IsDepthConstrained => MaxStages < int.MaxValue;
+
+        /// <summary>Resolves a complexity level into the numbers the packer reads.
+        /// <paramref name="minTrimWidthMm"/> only applies to
+        /// <see cref="CutComplexity.ComplexTrims"/> — the narrowest strip worth
+        /// cutting to release a remnant.</summary>
+        public static CutPolicy For(CutComplexity complexity, int minTrimWidthMm = 0)
+        {
+            int width = minTrimWidthMm > 0 ? minTrimWidthMm : 0;
+            switch (complexity)
+            {
+                case CutComplexity.SimpleFirstX:
+                    return new CutPolicy(complexity, 2, true, false, false, 0);
+                case CutComplexity.SimpleFirstY:
+                    return new CutPolicy(complexity, 2, false, true, false, 0);
+                case CutComplexity.Simple:
+                    return new CutPolicy(complexity, 2, false, false, false, 0);
+                case CutComplexity.ThreeStage:
+                    return new CutPolicy(complexity, 3, false, false, false, 0);
+                case CutComplexity.ComplexTrims:
+                    return new CutPolicy(complexity, int.MaxValue, false, false, true, width);
+                default:
+                    return Free;
+            }
+        }
+
+        /// <summary>
+        /// Resolves the policy for one cutting group.
+        ///
+        /// LAMINATE RULE: Z/W trims are never cut into laminated stock. The
+        /// plies are not hand-broken at the table, so a trim cut would leave an
+        /// unseparated edge — which is why commercial optimisers (GlasSave
+        /// among them) let the operator switch W and Z cuts off for laminate.
+        /// Refusing is the safe direction: a refused trim costs a little yield,
+        /// a trim cut into laminate costs the sheet.
+        /// </summary>
+        public static CutPolicy ResolveFor(CutComplexity complexity, bool isLaminatedGroup,
+            int minTrimWidthMm = 0) =>
+            isLaminatedGroup && complexity == CutComplexity.ComplexTrims
+                ? Free
+                : For(complexity, minTrimWidthMm);
+
+        /// <summary>Short human label for report stamping and export headers.</summary>
+        public string Describe() => Complexity switch
+        {
+            CutComplexity.SimpleFirstX => "Simple — first X cut (2-stage)",
+            CutComplexity.SimpleFirstY => "Simple — first Y cut (2-stage)",
+            CutComplexity.Simple => "Simple (2-stage, direction auto)",
+            CutComplexity.ThreeStage => "3-stage",
+            CutComplexity.ComplexTrims => "Complex — trims allowed (Z/W)",
+            _ => "Free guillotine"
+        };
+    }
+
     /// <summary>
     /// Cutting allowances for one glass thickness. Margins are the edge
     /// trims cut off the raw stock before piece placement; kerf is the
@@ -336,6 +508,26 @@ namespace ProGlassAutomation.Services.Optimization
         public int UsableHeight { get; init; }
 
         public List<PlacedPiece> Pieces { get; } = new();
+
+        /// <summary>
+        /// The guillotine cut sequence that produces <see cref="Pieces"/>, in
+        /// execution order. Empty for plans produced before cut capture existed
+        /// and for paths that rebuild a sheet, so consumers must treat an empty
+        /// list as "not recorded" rather than "no cuts needed".
+        /// </summary>
+        public List<CutStep> Cuts { get; } = new();
+
+        /// <summary>How many of this sheet's cuts release no usable stock.</summary>
+        public int TrimCutCount
+        {
+            get
+            {
+                int n = 0;
+                for (int i = 0; i < Cuts.Count; i++)
+                    if (Cuts[i].IsTrim) n++;
+                return n;
+            }
+        }
 
         public decimal UsedSqm =>
             System.Math.Round(Pieces.Sum(p => (decimal)p.WidthMm * p.HeightMm) / 1_000_000m,

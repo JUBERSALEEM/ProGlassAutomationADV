@@ -32,7 +32,7 @@ namespace ProGlassAutomation.Services.Optimization
         private static SheetState OpenBlank(
             IReadOnlyList<StockSize> stocks, int[] sheetsPerStock,
             CutPiece piece, MarginProfile margins, RotationPolicy rotation,
-            int alreadyOpen)
+            int alreadyOpen, CutPolicy policy = null)
         {
             var byPreference = Enumerable.Range(0, stocks.Count)
                 .Where(i => sheetsPerStock[i] < stocks[i].MaxSheets || stocks[i].MaxSheets == 0)
@@ -58,7 +58,7 @@ namespace ProGlassAutomation.Services.Optimization
                     UsableHeight = usableH
                 };
                 sheetsPerStock[i]++;
-                return new SheetState(layout, i);
+                return new SheetState(layout, i, policy);
             }
             return null;
         }
@@ -299,10 +299,14 @@ namespace ProGlassAutomation.Services.Optimization
                 int iy = Math.Max(p.Y, r.Y);
                 int ix2 = Math.Min(p.X + pw, r.X + r.W);
                 int iy2 = Math.Min(p.Y + ph, r.Y + r.H);
-                if (iy > r.Y) next.Add(new FreeRect(r.X, r.Y, r.W, iy - r.Y));
-                if (iy2 < r.Y + r.H) next.Add(new FreeRect(r.X, iy2, r.W, r.Y + r.H - iy2));
-                if (ix > r.X) next.Add(new FreeRect(r.X, iy, ix - r.X, iy2 - iy));
-                if (ix2 < r.X + r.W) next.Add(new FreeRect(ix2, iy, r.X + r.W - ix2, iy2 - iy));
+                // PHASE 0: these sub-rectangles are one cut deeper than the
+                // rectangle they were carved out of, so the depth ledger stays
+                // meaningful even on paths that do not go through SplitRemainder.
+                int d = r.Depth + 1;
+                if (iy > r.Y) next.Add(new FreeRect(r.X, r.Y, r.W, iy - r.Y, d));
+                if (iy2 < r.Y + r.H) next.Add(new FreeRect(r.X, iy2, r.W, r.Y + r.H - iy2, d));
+                if (ix > r.X) next.Add(new FreeRect(r.X, iy, ix - r.X, iy2 - iy, d));
+                if (ix2 < r.X + r.W) next.Add(new FreeRect(ix2, iy, r.X + r.W - ix2, iy2 - iy, d));
             }
             PruneFree(next);
             target.Free.Clear();

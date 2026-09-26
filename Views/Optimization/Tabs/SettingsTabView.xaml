@@ -112,6 +112,30 @@
                                 <TextBox Text="{Binding MinBreakoutText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource OptIntInput}" Margin="0,0,0,14"/>
 
+                                <!-- ══ CUTTING COMPLEXITY (PHASE 1, 2026-09-26) ══
+                                     Production constraint, not a yield feature: every level
+                                     below Free guillotine trades material for simpler cutting,
+                                     so the hint says what the choice costs as well as buys. -->
+                                <TextBlock Text="CUTTING COMPLEXITY" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                <ComboBox ItemsSource="{Binding CutComplexities}"
+                                          SelectedItem="{Binding SelectedCutComplexity}"
+                                          Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"
+                                          ToolTip="{Binding CutComplexityHint}"
+                                          AutomationProperties.Name="Cutting complexity"/>
+                                <TextBlock Text="{Binding CutComplexityHint}"
+                                           FontSize="11" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+
+                                <StackPanel Visibility="{Binding ShowTrimWidth, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            Margin="0,8,0,14">
+                                    <TextBlock Text="MINIMUM TRIM WIDTH (MM)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>
+                                    <TextBox Text="{Binding MinTrimWidthText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource OptIntInput}" Width="120" HorizontalAlignment="Left"/>
+                                    <TextBlock Text="Narrowest strip worth cutting to release a reusable remnant."
+                                               FontSize="11" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+
                                 <StackPanel Visibility="{Binding HasBreakoutChoice, Converter={StaticResource BoolToVisibilityConverter}}"
                                             Margin="0,0,0,14">
                                     <TextBlock Text="BREAKOUT CHOICE (9MM AND ABOVE)" Style="{StaticResource OptHeader}" Margin="0,0,0,6"/>

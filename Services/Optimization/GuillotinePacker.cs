@@ -59,7 +59,20 @@ namespace ProGlassAutomation.Services.Optimization
         internal struct FreeRect
         {
             public int X, Y, W, H;
-            public FreeRect(int x, int y, int w, int h) { X = x; Y = y; W = w; H = h; }
+
+            /// <summary>
+            /// Which cut stage PRODUCED this rectangle: 0 for the raw usable
+            /// sheet, 1 for a strip separated by the sheet's first cut, and so
+            /// on. A rect at depth d can host a placement whose first cut is
+            /// stage d+1 — that is the rule staged patterns are enforced with.
+            ///
+            /// The four-argument constructor is kept and defaults to 0, so
+            /// every pre-existing construction site is unchanged.
+            /// </summary>
+            public int Depth;
+
+            public FreeRect(int x, int y, int w, int h) { X = x; Y = y; W = w; H = h; Depth = 0; }
+            public FreeRect(int x, int y, int w, int h, int depth) { X = x; Y = y; W = w; H = h; Depth = depth; }
         }
 
         private sealed class SheetState
@@ -90,10 +103,19 @@ namespace ProGlassAutomation.Services.Optimization
             /// consolidation stop recomputing a LINQ Sum per comparison.</summary>
             public long PlacedArea;
 
-            public SheetState(SheetLayout layout, int stockIndex)
+            /// <summary>
+            /// Cut-complexity policy this sheet is packed under. Read by Commit
+            /// (which splits the remainder) and by TryPlaceCore (which decides
+            /// whether a placement is legal), so the policy never has to be
+            /// threaded through every helper — it rides on the sheet.
+            /// </summary>
+            public CutPolicy Policy { get; }
+
+            public SheetState(SheetLayout layout, int stockIndex, CutPolicy policy = null)
             {
                 Layout = layout;
                 StockIndex = stockIndex;
+                Policy = policy ?? CutPolicy.Free;
                 Free.Add(new FreeRect(layout.UsableX, layout.UsableY,
                     layout.UsableWidth, layout.UsableHeight));
                 RefreshAll();
@@ -182,7 +204,8 @@ namespace ProGlassAutomation.Services.Optimization
             CancellationToken cancellationToken = default,
             IProgress<OptimizeProgress> progress = null,
             PlatePattern platePattern = PlatePattern.Yield,
-            int fillEffort = 1)
+            int fillEffort = 1,
+            CutPolicy policy = null)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -191,9 +214,14 @@ namespace ProGlassAutomation.Services.Optimization
             cancellationToken.ThrowIfCancellationRequested();
 
             if (pieces.Count >= IndustrialQuantityThreshold)
-                return NoteFillSkipped(
+            {
+                var industrialPlan = NoteFillSkipped(
                     PackIndustrialPatterns(pieces, stocks, margins, rotation, 1, cancellationToken, progress),
                     platePattern);
+                if (policy != null && policy.IsDepthConstrained)
+                    industrialPlan.ScaleNotes.Add(IndustrialStagedUnsupportedNote);
+                return industrialPlan;
+            }
 
             // 2026-09-16: was OrderBy.MaxSide, which cost a whole sheet on the
             // owner's own benchmark. MaxSide packs the Low-E group into 18
@@ -209,31 +237,58 @@ namespace ProGlassAutomation.Services.Optimization
             int window = plan.OpenSheetWindow;
             var result = RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation, split,
                 cancellationToken, plan.MaxConsolidationSweeps,
-                progress == null ? null : new QuickShelfProgress(progress), window);
+                progress == null ? null : new QuickShelfProgress(progress), window,
+                policy: policy);
             // Name the pass it actually was. The generic "GRID (...)" default
             // from RunPass would obscure which QUICK candidate actually won.
             result.Strategy = $"QUICK SHELF (Area / {split})";
 
             result = CheckCandidate(result, pieces, margins, cancellationToken);
-            foreach (bool transpose in new[] { false, true })
+
+            // PHASE 1: capacity strips and the best-split beam both build their
+            // own free rectangles and know nothing about the stage budget, so a
+            // staged pattern is served by the policy-aware shelf pass alone.
+            // Skipping candidates can only cost yield, never correctness.
+            bool staged = policy != null && policy.IsDepthConstrained;
+
+            if (!staged)
             {
-                progress?.Report(OptimizeProgress.Of("capacity", transpose ? 80 : 60, 100,
-                    transpose ? "Capacity-aware row strips" : "Capacity-aware column strips"));
-                var strips = RunCapacityStrips(pieces, stocks, margins, rotation, transpose, cancellationToken);
-                result = Better(result, CheckCandidate(strips, pieces, margins, cancellationToken));
+                foreach (bool transpose in new[] { false, true })
+                {
+                    progress?.Report(OptimizeProgress.Of("capacity", transpose ? 80 : 60, 100,
+                        transpose ? "Capacity-aware row strips" : "Capacity-aware column strips"));
+                    var strips = RunCapacityStrips(pieces, stocks, margins, rotation, transpose, cancellationToken);
+                    result = Better(result, CheckCandidate(strips, pieces, margins, cancellationToken));
+                }
+                progress?.Report(OptimizeProgress.Of("pattern", 90, 100,
+                    "Bounded Best-Split pattern search (beam 4 + 8)"));
+                result = ImprovePatterns(result, pieces, stocks, margins, rotation, 1, 1,
+                    cancellationToken, () => quickWatch.Elapsed >= plan.TimeBudget);
             }
-            progress?.Report(OptimizeProgress.Of("pattern", 90, 100,
-                "Bounded Best-Split pattern search (beam 4 + 8)"));
-            result = ImprovePatterns(result, pieces, stocks, margins, rotation, 1, 1,
-                cancellationToken, () => quickWatch.Elapsed >= plan.TimeBudget);
             progress?.Report(OptimizeProgress.Of("repeat", 95, 100,
                 "Balancing reusable patterns against whole-order quantities"));
-            result = Better(result, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, 1,
-                cancellationToken), pieces, margins, cancellationToken));
+            if (!staged)
+                result = Better(result, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, 1,
+                    cancellationToken), pieces, margins, cancellationToken));
             if (quickWatch.Elapsed >= plan.TimeBudget)
                 result.ScaleNotes.Add("QUICK pattern budget reached; retained the best validated candidate found.");
             result = ApplyPlatePattern(result, pieces, stocks, margins, rotation,
-                fillEffort, platePattern, cancellationToken, progress);
+                fillEffort, platePattern, cancellationToken, progress, policy);
+
+            // A staged plan that does not honour its own pattern is as useless
+            // as one that loses pieces, so it is reported the same way.
+            if (staged)
+            {
+                var cutProblems = ValidateCutPattern(result, policy);
+                if (cutProblems.Count > 0)
+                {
+                    result.ValidationProblems.AddRange(cutProblems);
+                    result.ScaleNotes.Add(
+                        "CUT PATTERN: the requested staged pattern was not fully held — " +
+                        "inspection only, not exportable.");
+                }
+            }
+
             if (result.HasValidationFailure)
                 result.ScaleNotes.Add("WARNING: no valid QUICK candidate — inspection only, not exportable.");
             progress?.Report(OptimizeProgress.Of("done", 100, 100,
@@ -255,7 +310,8 @@ namespace ProGlassAutomation.Services.Optimization
             int effortLevel = 3,
             CancellationToken cancellationToken = default,
             IProgress<OptimizeProgress> progress = null,
-            PlatePattern platePattern = PlatePattern.Yield)
+            PlatePattern platePattern = PlatePattern.Yield,
+            CutPolicy policy = null)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -263,9 +319,14 @@ namespace ProGlassAutomation.Services.Optimization
             if (margins == null) throw new ArgumentNullException(nameof(margins));
 
             if (pieces.Count >= IndustrialQuantityThreshold)
-                return NoteFillSkipped(
+            {
+                var industrialPlan = NoteFillSkipped(
                     PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress),
                     platePattern);
+                if (policy != null && policy.IsDepthConstrained)
+                    industrialPlan.ScaleNotes.Add(IndustrialStagedUnsupportedNote);
+                return industrialPlan;
+            }
 
             if (effortLevel <= 1)
                 return PackQuick(pieces, stocks, margins, rotation,
@@ -345,13 +406,20 @@ namespace ProGlassAutomation.Services.Optimization
 
             // Every level includes the same validated QUICK portfolio. Deeper
             // search can improve it but cannot replace it with an invalid plan.
+            // PHASE 1: same rule as QUICK — the beam and the repeated-pattern
+            // pass build their own rectangles and cannot honour a stage budget.
+            bool staged = policy != null && policy.IsDepthConstrained;
+
             OptimizationResult best = PackQuick(pieces, stocks, margins, rotation,
-                cancellationToken: cancellationToken);
-            best = ImprovePatterns(best, pieces, stocks, margins, rotation, 2, effortLevel,
-                cancellationToken, BudgetExhausted);
-            if (!BudgetExhausted())
-                best = Better(best, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, effortLevel,
-                    cancellationToken), pieces, margins, cancellationToken));
+                cancellationToken: cancellationToken, policy: policy);
+            if (!staged)
+            {
+                best = ImprovePatterns(best, pieces, stocks, margins, rotation, 2, effortLevel,
+                    cancellationToken, BudgetExhausted);
+                if (!BudgetExhausted())
+                    best = Better(best, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, effortLevel,
+                        cancellationToken), pieces, margins, cancellationToken));
+            }
             void Consider(OptimizationResult candidate) =>
                 best = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken));
             for (int ci = 0; ci < comboList.Count; ci++)
@@ -389,7 +457,7 @@ namespace ProGlassAutomation.Services.Optimization
                 int window = plan.OpenSheetWindow;
                 var candidate = RunPass(ordered, stocks, margins, rotation, split,
                     cancellationToken, plan.MaxConsolidationSweeps,
-                    comboList.Count == 1 ? progress : null, window);
+                    comboList.Count == 1 ? progress : null, window, policy: policy);
                 // Tag with the EXACT candidate this plan came from — the
                 // ordering and (for effort 4/5) the deterministic shuffle
                 // index. RunPass's default "GRID ({split})" hides the
@@ -438,22 +506,24 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken.ThrowIfCancellationRequested();
                 progress?.Report(OptimizeProgress.Of("smart", comboList.Count, smartTotal,
                     "Smart placement: capacity-preserving, breakout-aware"));
-                Consider(PackSmart(pieces, stocks, margins, rotation,
-                    SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
-                    progress: null, candidateWindowSize: windowSize));
+                if (!staged)
+                    Consider(PackSmart(pieces, stocks, margins, rotation,
+                        SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
+                        progress: null, candidateWindowSize: windowSize));
 
                 if (effortLevel >= 4)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
                         "Smart placement: vertical-split preference"));
-                    Consider(PackSmart(pieces, stocks, margins, rotation,
-                        SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken,
-                        progress: null, candidateWindowSize: windowSize));
+                    if (!staged)
+                        Consider(PackSmart(pieces, stocks, margins, rotation,
+                            SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken,
+                            progress: null, candidateWindowSize: windowSize));
                 }
             }
 
-            if (effortLevel >= 3 && !budgetStopped)
+            if (effortLevel >= 3 && !budgetStopped && !staged)
             {
                 // Math.Min with an unlimited cap leaves the standard band
                 // exactly as it was (6 orderings at effort 5, 3 below).
@@ -488,7 +558,7 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
-            var final = best ?? PackQuick(pieces, stocks, margins, rotation);
+            var final = best ?? PackQuick(pieces, stocks, margins, rotation, policy: policy);
 
             // Never let a size-driven reduction be invisible: the operator sees
             // exactly what was skipped and why, next to the sheet count.
@@ -514,7 +584,8 @@ namespace ProGlassAutomation.Services.Optimization
             var problems = VerifyComprehensive(final, pieces, margins);
             if (problems.Count > 0)
             {
-                var quick = PackQuick(pieces, stocks, margins, rotation, cancellationToken: cancellationToken);
+                var quick = PackQuick(pieces, stocks, margins, rotation,
+                    cancellationToken: cancellationToken, policy: policy);
                 var quickProblems = VerifyComprehensive(quick, pieces, margins);
                 if (quickProblems.Count == 0)
                 {
@@ -542,7 +613,19 @@ namespace ProGlassAutomation.Services.Optimization
             // can refuse a plan that failed conservation.
             final.RecordValidation(problems, conservationChecked: true, geometryChecked: true);
             final = ApplyPlatePattern(final, pieces, stocks, margins, rotation,
-                effortLevel, platePattern, cancellationToken, progress);
+                effortLevel, platePattern, cancellationToken, progress, policy);
+
+            if (staged)
+            {
+                var cutProblems = ValidateCutPattern(final, policy);
+                if (cutProblems.Count > 0)
+                {
+                    final.ValidationProblems.AddRange(cutProblems);
+                    final.ScaleNotes.Add(
+                        "CUT PATTERN: the requested staged pattern was not fully held — " +
+                        "inspection only, not exportable.");
+                }
+            }
 
             progress?.Report(OptimizeProgress.Of("done", comboList.Count, comboList.Count,
                 $"{final.Sheets.Count} sheets"));
@@ -581,7 +664,8 @@ namespace ProGlassAutomation.Services.Optimization
             CancellationToken cancellationToken = default,
             int consolidationSweeps = int.MaxValue,
             IProgress<OptimizeProgress> progress = null,
-            int openSheetWindow = int.MaxValue)
+            int openSheetWindow = int.MaxValue,
+            CutPolicy policy = null)
         {
             if (orderedPieces == null) throw new ArgumentNullException(nameof(orderedPieces));
             if (stocks == null || stocks.Count == 0)
@@ -620,7 +704,7 @@ namespace ProGlassAutomation.Services.Optimization
 
                 if (!PlaceOnOpenSheets(sheets, piece, margins, rotation, split))
                 {
-                    if (!OpenNewSheet(sheets, sheetsPerStock, stocks, piece, margins, rotation, split, result, ctx))
+                    if (!OpenNewSheet(sheets, sheetsPerStock, stocks, piece, margins, rotation, split, result, ctx, policy))
                         result.Unplaced.Add(piece);
                 }
 
@@ -750,7 +834,7 @@ namespace ProGlassAutomation.Services.Optimization
             {
                 var sheet = sheets[si];
                 if (sheet.IsClosed) continue;
-                if (!TryPlaceCore(sheet, piece, rotation, out var candidate)) continue;
+                if (!TryPlaceCore(sheet, piece, rotation, out var candidate, split)) continue;
 
                 if (!found
                     || candidate.FitRank < bestCand.FitRank
@@ -848,7 +932,7 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         private static bool TryPlaceCore(
             SheetState sheet, CutPiece piece, RotationPolicy rotation,
-            out PlacementCandidate best)
+            out PlacementCandidate best, SplitMode split = SplitMode.HorizontalFirst)
         {
             best = default;
 
@@ -890,6 +974,11 @@ namespace ProGlassAutomation.Services.Optimization
                 {
                     var rect = sheet.Free[i];
                     if (w > rect.W || h > rect.H) continue;
+
+                    // PHASE 1: a staged policy can make this rectangle an
+                    // illegal host even though the piece fits — see
+                    // StagedPlacementAllowed. CutPolicy.Free short-circuits it.
+                    if (!StagedPlacementAllowed(rect, w, h, split, sheet.Policy)) continue;
 
                     bool exactW = w == rect.W;
                     bool exactH = h == rect.H;
@@ -967,7 +1056,8 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         internal static void SplitRemainder(
             in FreeRect host, int pieceW, int pieceH, int kerf, int minBreakout,
-            SplitMode split, List<FreeRect> output)
+            SplitMode split, List<FreeRect> output,
+            CutPolicy policy = null, List<CutStep> cuts = null)
         {
             int rightW = host.W - pieceW - kerf;
             int bottomH = host.H - pieceH - kerf;
@@ -975,20 +1065,288 @@ namespace ProGlassAutomation.Services.Optimization
             bool verticalFirst = split == SplitMode.VerticalFirst ||
                 (split == SplitMode.LongerLeftover && rightW >= bottomH);
 
+            // PHASE 1 (2026-09-26): pin the first cut direction when the
+            // operator chose one. Applied HERE, where the split is actually
+            // decided, so the free-rect ledger and the recorded cut sequence
+            // can never disagree about which way the sheet was cut first.
+            bool forcedFirst = false;
+            if (host.Depth == 0 && policy != null)
+            {
+                if (policy.ForceFirstCutVertical) { verticalFirst = true; forcedFirst = true; }
+                else if (policy.ForceFirstCutHorizontal) { verticalFirst = false; forcedFirst = true; }
+            }
+
+            // A placement makes at most two cuts. The FIRST spans the whole
+            // host rectangle; the SECOND runs inside the strip the first one
+            // created, so it is one stage deeper. When the piece already spans
+            // the host along that axis the first cut is not needed at all, and
+            // the single remaining cut is a stage-(depth+1) cut, not depth+2.
+            int stageFirst = host.Depth + 1;
+
             if (verticalFirst)
             {
-                if (rightW > 0 && Keepable(rightW, host.H, minBreakout))
-                    output.Add(new FreeRect(host.X + pieceW + kerf, host.Y, rightW, host.H));
-                if (bottomH > 0 && Keepable(pieceW, bottomH, minBreakout))
-                    output.Add(new FreeRect(host.X, host.Y + pieceH + kerf, pieceW, bottomH));
+                bool needsFirst = rightW > 0;
+                if (needsFirst)
+                {
+                    // Vertical cut, full height: splits off the right-hand strip.
+                    bool kept = Keepable(rightW, host.H, minBreakout) && RectCanHost(stageFirst, policy);
+                    if (kept)
+                        output.Add(new FreeRect(host.X + pieceW + kerf, host.Y, rightW, host.H, stageFirst));
+                    RecordCut(cuts, CutAxis.Vertical, host.X + pieceW,
+                        host.X, host.Y, host.W, host.H, stageFirst, !kept);
+                }
+                if (bottomH > 0)
+                {
+                    // Horizontal cut inside the left column: frees the piece.
+                    // When the first direction is forced, that column is a
+                    // STRIP even if it happens to be the whole sheet (the
+                    // piece spans the sheet height) — no stage-1 cut is needed
+                    // to make it, but the cut that frees the piece is still a
+                    // stage-2 cut, so a forced first direction is never
+                    // quietly contradicted by a stray stage-1 vertical cut.
+                    int stage = (needsFirst || forcedFirst) ? stageFirst + 1 : stageFirst;
+                    bool kept = Keepable(pieceW, bottomH, minBreakout) && RectCanHost(stage, policy);
+                    if (kept)
+                        output.Add(new FreeRect(host.X, host.Y + pieceH + kerf, pieceW, bottomH, stage));
+                    RecordCut(cuts, CutAxis.Horizontal, host.Y + pieceH,
+                        host.X, host.Y, needsFirst ? pieceW : host.W, host.H, stage, !kept);
+                }
             }
             else
             {
-                if (bottomH > 0 && Keepable(host.W, bottomH, minBreakout))
-                    output.Add(new FreeRect(host.X, host.Y + pieceH + kerf, host.W, bottomH));
-                if (rightW > 0 && Keepable(rightW, pieceH, minBreakout))
-                    output.Add(new FreeRect(host.X + pieceW + kerf, host.Y, rightW, pieceH));
+                bool needsFirst = bottomH > 0;
+                if (needsFirst)
+                {
+                    // Horizontal cut, full width: splits off the bottom strip.
+                    bool kept = Keepable(host.W, bottomH, minBreakout) && RectCanHost(stageFirst, policy);
+                    if (kept)
+                        output.Add(new FreeRect(host.X, host.Y + pieceH + kerf, host.W, bottomH, stageFirst));
+                    RecordCut(cuts, CutAxis.Horizontal, host.Y + pieceH,
+                        host.X, host.Y, host.W, host.H, stageFirst, !kept);
+                }
+                if (rightW > 0)
+                {
+                    // Vertical cut inside the top strip: frees the piece. Same
+                    // single-strip reasoning as the branch above.
+                    int stage = (needsFirst || forcedFirst) ? stageFirst + 1 : stageFirst;
+                    bool kept = Keepable(rightW, pieceH, minBreakout) && RectCanHost(stage, policy);
+                    if (kept)
+                        output.Add(new FreeRect(host.X + pieceW + kerf, host.Y, rightW, pieceH, stage));
+                    RecordCut(cuts, CutAxis.Vertical, host.X + pieceW,
+                        host.X, host.Y, host.W, needsFirst ? pieceH : host.H, stage, !kept);
+                }
             }
+        }
+
+        /// <summary>
+        /// True when a rectangle produced by a stage-<paramref name="stage"/>
+        /// cut may host another placement. A rect made by a stage-S cut can
+        /// only be cut again at stage S+1, so under an N-stage pattern a
+        /// stage-N rectangle is the end of the line: it stays out of the free
+        /// ledger and its area becomes waste. That is the documented yield
+        /// cost of choosing a staged pattern, and it is why
+        /// <see cref="CutPolicy.Free"/> (unlimited) remains the default.
+        /// </summary>
+        internal static bool RectCanHost(int stage, CutPolicy policy) =>
+            policy == null || !policy.IsDepthConstrained || stage < policy.MaxStages;
+
+        /// <summary>
+        /// Appends one cut to a sheet's cut sequence. No-op when the caller is
+        /// not recording (every pre-existing call site), so cut capture costs
+        /// nothing on paths that do not ask for it.
+        /// </summary>
+        private static void RecordCut(List<CutStep> cuts, CutAxis axis, int atMm,
+            int x, int y, int w, int h, int stage, bool isTrim)
+        {
+            if (cuts == null) return;
+            cuts.Add(new CutStep
+            {
+                Seq = cuts.Count + 1,
+                Axis = axis,
+                AtMm = atMm,
+                FromX = x,
+                FromY = y,
+                FromW = w,
+                FromH = h,
+                Stage = stage,
+                IsTrim = isTrim
+            });
+        }
+
+        /// <summary>
+        /// True when a staged policy allows placing a <paramref name="w"/> x
+        /// <paramref name="h"/> piece into this rectangle.
+        ///
+        /// Only binds on depth-constrained levels. Cut #2 of a placement is one
+        /// stage deeper than cut #1, so on the LAST permitted stage a placement
+        /// may not leave material on both axes — there would be no stage left
+        /// to make that second cut with, and the piece could not be freed.
+        ///
+        /// Conservative on kerf: a gap of one kerf or less leaves nothing worth
+        /// cutting, but deciding that needs the margin profile, which this
+        /// helper does not carry. Rejecting it costs a sliver at worst.
+        /// </summary>
+        private static bool StagedPlacementAllowed(in FreeRect rect, int w, int h,
+            SplitMode split, CutPolicy policy)
+        {
+            if (policy == null || !policy.IsDepthConstrained) return true;
+            if (rect.Depth + 2 <= policy.MaxStages) return true;
+
+            bool verticalFirst = split == SplitMode.VerticalFirst ||
+                (split == SplitMode.LongerLeftover && (rect.W - w) >= (rect.H - h));
+            return verticalFirst ? rect.H - h <= 0 : rect.W - w <= 0;
+        }
+
+        /// <summary>
+        /// PHASE 1 oracle: does this plan obey the cut policy it was built
+        /// under? Deliberately separate from <see cref="Verify"/> (geometry,
+        /// kerf, overlaps) and ValidateResult (conservation): it checks a
+        /// different property — not whether the layout is legal, but whether
+        /// the CUTS that produce it are the ones the operator asked for.
+        ///
+        /// Returns the list of violations; empty means the pattern holds.
+        /// </summary>
+        /// <summary>
+        /// True when any piece in this cutting group is laminated, from the
+        /// piece's own glass type ("LAM", "DGU+LAM") or — when that field was
+        /// never filled in — from an interlayer named in its glass reference
+        /// (PVB / EVA / SGP / LAM). Matched as whole tokens so a reference like
+        /// "LAMINATED CLEAR" reads as laminate while an unrelated word that
+        /// merely contains those letters does not.
+        ///
+        /// Used for one decision only: refusing trim cuts on laminated stock.
+        /// Erring towards laminate is the safe direction.
+        /// </summary>
+        public static bool GroupIsLaminated(IReadOnlyList<CutPiece> pieces)
+        {
+            if (pieces == null) return false;
+            for (int i = 0; i < pieces.Count; i++)
+            {
+                var piece = pieces[i];
+                string type = piece.GlassType ?? string.Empty;
+                if (type.Equals("LAM", StringComparison.OrdinalIgnoreCase)
+                    || type.Equals("DGU+LAM", StringComparison.OrdinalIgnoreCase)
+                    || type.Equals("LAMINATED", StringComparison.OrdinalIgnoreCase))
+                    return true;
+
+                if (ReferenceNamesLaminate(piece.GlassRef)) return true;
+            }
+            return false;
+        }
+
+        private static bool ReferenceNamesLaminate(string? glassRef)
+        {
+            if (string.IsNullOrWhiteSpace(glassRef)) return false;
+            string token = string.Empty;
+            string text = glassRef + " ";
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (char.IsLetterOrDigit(c))
+                {
+                    token += c;
+                    continue;
+                }
+                if (token.Length > 0)
+                {
+                    if (token.Equals("LAM", StringComparison.OrdinalIgnoreCase)
+                        || token.Equals("PVB", StringComparison.OrdinalIgnoreCase)
+                        || token.Equals("EVA", StringComparison.OrdinalIgnoreCase)
+                        || token.Equals("SGP", StringComparison.OrdinalIgnoreCase)
+                        || token.Equals("LAMINATE", StringComparison.OrdinalIgnoreCase)
+                        || token.Equals("LAMINATED", StringComparison.OrdinalIgnoreCase))
+                        return true;
+                    token = string.Empty;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// PHASE 1 oracle: does this plan obey the cut policy it was built
+        /// under? Deliberately separate from <see cref="Verify"/> (geometry,
+        /// kerf, overlaps) and ValidateResult (conservation): it checks a
+        /// different property — not whether the layout is legal, but whether
+        /// the CUTS that produce it are the ones the operator asked for.
+        ///
+        /// Returns the list of violations; empty means the pattern holds.
+        /// </summary>
+        public static List<string> ValidateCutPattern(OptimizationResult result, CutPolicy policy)
+        {
+            var problems = new List<string>();
+            if (result == null) return problems;
+            policy = policy ?? CutPolicy.Free;
+
+            for (int si = 0; si < result.Sheets.Count; si++)
+            {
+                var sheet = result.Sheets[si];
+                var cuts = sheet.Cuts;
+                if (cuts.Count == 0) continue;
+
+                if (sheet.Pieces.Count == 0)
+                {
+                    problems.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                        "Sheet {0} carries {1} cut(s) but no pieces — its cut list is stale.",
+                        sheet.SheetNo, cuts.Count));
+                    continue;
+                }
+
+                int ux = sheet.UsableX, uy = sheet.UsableY;
+                int expectedSeq = 1;
+
+                for (int ci = 0; ci < cuts.Count; ci++)
+                {
+                    var cut = cuts[ci];
+                    string where = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                        "sheet {0} cut {1}", sheet.SheetNo, ci + 1);
+
+                    if (cut.Seq != expectedSeq)
+                    {
+                        problems.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "Cut sequence is not contiguous at {0}: Seq {1}, expected {2}.",
+                            where, cut.Seq, expectedSeq));
+                        expectedSeq = cut.Seq;
+                    }
+                    expectedSeq++;
+
+                    if (policy.IsDepthConstrained && cut.Stage > policy.MaxStages)
+                        problems.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "{0} is a stage-{1} cut but the chosen pattern allows {2} stage(s).",
+                            where, cut.Stage, policy.MaxStages));
+
+                    if (cut.Stage == 1 && policy.ForceFirstCutHorizontal && cut.Axis != CutAxis.Horizontal)
+                        problems.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "{0} is vertical but the pattern forces a first X (horizontal) cut.", where));
+                    if (cut.Stage == 1 && policy.ForceFirstCutVertical && cut.Axis != CutAxis.Vertical)
+                        problems.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "{0} is horizontal but the pattern forces a first Y (vertical) cut.", where));
+
+                    if (cut.FromX < ux || cut.FromY < uy
+                        || cut.FromX + cut.FromW > ux + sheet.UsableWidth
+                        || cut.FromY + cut.FromH > uy + sheet.UsableHeight)
+                    {
+                        problems.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "{0} lies outside the usable sheet area.", where));
+                        continue;
+                    }
+
+                    if (cut.Axis == CutAxis.Vertical)
+                    {
+                        if (cut.AtMm < cut.FromX || cut.AtMm > cut.FromX + cut.FromW)
+                            problems.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                                "{0} sits at X {1}, outside the rectangle it cuts through ({2}..{3}).",
+                                where, cut.AtMm, cut.FromX, cut.FromX + cut.FromW));
+                    }
+                    else if (cut.AtMm < cut.FromY || cut.AtMm > cut.FromY + cut.FromH)
+                    {
+                        problems.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                            "{0} sits at Y {1}, outside the rectangle it cuts through ({2}..{3}).",
+                            where, cut.AtMm, cut.FromY, cut.FromY + cut.FromH));
+                    }
+                }
+            }
+
+            return problems;
         }
 
         /// <summary>True when a remainder is wide enough in BOTH dimensions to
@@ -1091,8 +1449,12 @@ namespace ProGlassAutomation.Services.Optimization
 
             // minBreakout defaults to 0, which reproduces the previous behaviour
             // exactly: every positive remainder stayed available as stock.
+            //
+            // PHASE 0/1: the sheet now supplies the cut policy and the cut
+            // list, so every placement is recorded as the cuts that produce it.
+            // With CutPolicy.Free this call is bit-identical to before.
             SplitRemainder(rect, placed.WidthMm, placed.HeightMm, kerf, minBreakout,
-                split, sheet.Free);
+                split, sheet.Free, sheet.Policy, sheet.Layout.Cuts);
 
             sheet.Layout.Pieces.Add(placed);
 
@@ -1108,7 +1470,8 @@ namespace ProGlassAutomation.Services.Optimization
         private static bool OpenNewSheet(
             List<SheetState> sheets, int[] sheetsPerStock, IReadOnlyList<StockSize> stocks,
             CutPiece piece, MarginProfile margins, RotationPolicy rotation,
-            SplitMode split, OptimizationResult result, PackingContext? ctx = null)
+            SplitMode split, OptimizationResult result, PackingContext? ctx = null,
+            CutPolicy policy = null)
         {
             // "Best sheet size" rule: try the SMALLEST stock that fits the
             // piece first, so large racks are saved for the glass that
@@ -1139,7 +1502,7 @@ namespace ProGlassAutomation.Services.Optimization
                     UsableWidth = usableW,
                     UsableHeight = usableH
                 };
-                var state = new SheetState(layout, i);
+                var state = new SheetState(layout, i, policy);
                 sheets.Add(state);
                 sheetsPerStock[i]++;
                 if (ctx != null) RegisterOpenedSheet(ctx, state);
@@ -1171,12 +1534,18 @@ namespace ProGlassAutomation.Services.Optimization
             HashSet<SheetState> seen,
             List<SheetState> touched,
             List<List<PlacedPiece>> touchedPieces,
-            List<List<FreeRect>> touchedFree)
+            List<List<FreeRect>> touchedFree,
+            List<List<CutStep>> touchedCuts)
         {
             if (!seen.Add(sheet)) return;
             touched.Add(sheet);
             touchedPieces.Add(sheet.Layout.Pieces.ToList());
             touchedFree.Add(sheet.Free.ToList());
+            // PHASE 0: a rolled-back placement must take its cuts with it, or
+            // the sheet would keep a cut list describing cuts that no longer
+            // exist. Cuts are recorded by SplitRemainder, so they live and die
+            // with the free-rect ledger they were derived from.
+            touchedCuts.Add(sheet.Layout.Cuts.ToList());
         }
 
         private static void ConsolidateAll(
@@ -1243,9 +1612,10 @@ namespace ProGlassAutomation.Services.Optimization
                     var touched = new List<SheetState>();
                     var touchedPieces = new List<List<PlacedPiece>>();
                     var touchedFree = new List<List<FreeRect>>();
+                    var touchedCuts = new List<List<CutStep>>();
                     var seen = new HashSet<SheetState>();
 
-                    SnapshotBeforeWrite(donor, seen, touched, touchedPieces, touchedFree);
+                    SnapshotBeforeWrite(donor, seen, touched, touchedPieces, touchedFree, touchedCuts);
                     donor.Layout.Pieces.Clear();
                     donor.PlacedArea = 0;
                     bool allEvacuated = true;
@@ -1258,8 +1628,8 @@ namespace ProGlassAutomation.Services.Optimization
                             if (si == donorIndex) continue;
                             var host = sheets[si];
                             if (host.IsClosed) continue;
-                            if (!TryPlaceCore(host, victim.Piece, rotation, out var moved)) continue;
-                            SnapshotBeforeWrite(host, seen, touched, touchedPieces, touchedFree);
+                            if (!TryPlaceCore(host, victim.Piece, rotation, out var moved, split)) continue;
+                            SnapshotBeforeWrite(host, seen, touched, touchedPieces, touchedFree, touchedCuts);
                             Commit(host, moved.Materialize(victim.Piece), margins,
                                 split, minBreakout);
                             placed = true;
@@ -1286,6 +1656,8 @@ namespace ProGlassAutomation.Services.Optimization
                         touched[t].Layout.Pieces.AddRange(touchedPieces[t]);
                         touched[t].Free.Clear();
                         touched[t].Free.AddRange(touchedFree[t]);
+                        touched[t].Layout.Cuts.Clear();
+                        touched[t].Layout.Cuts.AddRange(touchedCuts[t]);
                         touched[t].RefreshAll();
                     }
                 }

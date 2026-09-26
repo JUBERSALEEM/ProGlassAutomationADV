@@ -51,6 +51,18 @@ namespace ProGlassAutomation.Services.Optimization
         private const int RepeatTypeWindow = 128;
         private const int RepeatColumnLimit = 8192;
         private const int IndustrialQuantityThreshold = 100000;
+
+        /// <summary>
+        /// Shown when a staged cut pattern is requested for a job big enough to
+        /// take the industrial path, which builds its own free rectangles and so
+        /// cannot be stage-bounded. Silently handing back a free-guillotine plan
+        /// is the one thing a production constraint must never do.
+        /// </summary>
+        private const string IndustrialStagedUnsupportedNote =
+            "STAGED PATTERN NOT APPLIED: jobs of 100,000 pieces or more use the " +
+            "industrial path, which builds its own rectangles and cannot be " +
+            "stage-bounded. This plan is free-guillotine. Split the job into " +
+            "smaller cutting groups to get a staged pattern.";
         private sealed class RepeatType
         {
             public int W, H, Thickness, Next;
