@@ -224,6 +224,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private void ClearCutList()
         {
             int removed = ManualCutList.ItemRows.Count;
+
+            // Guarded by Count so an empty list behaves exactly as before.
+            if (removed > 0
+                && !ConfirmDestructive(
+                    string.Format(CultureInfo.InvariantCulture,
+                        "Clear {0} row(s) from the manual cut list?\n\n"
+                        + "The engine's piece list is left alone.", removed),
+                    "Clear cut list")) return;
+
             foreach (GlassItemRow row in ManualCutList.ItemRows) row.ClearOptimizationStamp();
             ManualCutList.ItemRows.Clear();
             CutListStatus = string.Format(CultureInfo.InvariantCulture,

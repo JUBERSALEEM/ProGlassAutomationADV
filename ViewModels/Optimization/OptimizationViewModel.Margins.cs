@@ -618,6 +618,14 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private void LoadHouseDefaults()
         {
+            // Nothing of the operator's to lose: the fields already hold the
+            // house numbers, so reloading them cannot discard anything.
+            if (!FieldsAreHouseDefaults(CurrentThicknessMm)
+                && !ConfirmDestructive(
+                    "Replace the current margins, kerf and breakout with the house defaults?\n\n"
+                    + "Every SETTINGS value you have changed for this thickness is discarded.",
+                    "Load house defaults")) return;
+
             int thickness = CurrentThicknessMm;
 
             int? keepBreakout = TryParseWholeMm(MinBreakoutText, out int bo)

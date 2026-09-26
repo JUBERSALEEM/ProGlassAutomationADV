@@ -827,6 +827,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
         private void DeleteSession(SessionRowVm row)
         {
             if (row == null) return;
+
+            // The only action in this module that cannot be undone by simply
+            // re-running the job: DeleteSessionInternalAsync removes the row
+            // from the database, so there is nothing to recreate it from.
+            if (!ConfirmDestructive(
+                    "Delete this saved run?\n\n"
+                    + "The saved session is removed from the database for good. Anything "
+                    + "already exported from it is unaffected, but the saved run itself "
+                    + "cannot be recovered.",
+                    "Delete saved run")) return;
+
             AsyncUtility.SafeFireAndForget(
                 () => DeleteSessionInternalAsync(row),
                 $"[OptimizationViewModel] DeleteSession {row.Id}");

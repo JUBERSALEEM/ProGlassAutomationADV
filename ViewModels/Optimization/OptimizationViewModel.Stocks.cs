@@ -194,7 +194,19 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         private void RemoveStock(StockEntryVm entry)
         {
-            if (entry != null) Stocks.Remove(entry);
+            if (entry == null) return;
+
+            // The rack itself is untouched - only dropped from this run. Worth
+            // saying, because on a screen full of sheet sizes "remove" reads as
+            // though it deletes stock.
+            if (!ConfirmDestructive(
+                    "Remove this stock size from the run?\n\n"
+                    + "The rack stays in the sheet store. It is only dropped from "
+                    + "this cutting run, so any group that was packing against it "
+                    + "will need another size or will not cut.",
+                    "Remove stock")) return;
+
+            Stocks.Remove(entry);
         }
 
         /// <summary>

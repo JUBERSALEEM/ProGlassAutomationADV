@@ -207,7 +207,15 @@ namespace ProGlassAutomation.Services.DependencyInjection
             // parameterless fallback.
             services.AddTransient<
                 ProGlassAutomation.ViewModels.Specifications.SpecificationsCenterViewModel>();
-            services.AddTransient<OptimizationViewModel>();
+            // Explicit factory, so the dialog-aware ctor is the one the
+            // container uses. Left as AddTransient<T>(), MS.DI can settle on
+            // the parameterless overload and the module silently loses every
+            // confirmation on destructive actions - including the prompt
+            // before a saved run is deleted from the database. This is the
+            // same reason CompanyCenterViewModel is registered this way below.
+            services.AddTransient(sp => new OptimizationViewModel(
+                isHeadlessHost: false,
+                dialogs: sp.GetService<Services.Dialogs.IDialogService>()));
             services.AddTransient<CuttingViewModel>();
             services.AddTransient<CuttingWorkCenterViewModel>();
             services.AddTransient<ProcessWorkCenterViewModel>();

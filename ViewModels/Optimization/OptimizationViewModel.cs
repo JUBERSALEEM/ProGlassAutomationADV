@@ -38,6 +38,7 @@ using ProGlassAutomation.Models.Production;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.Dialogs;
 using ProGlassAutomation.Services.Optimization;
 using ProGlassAutomation.Services.Production;
 using ProGlassAutomation.Utilities;
@@ -55,13 +56,28 @@ namespace ProGlassAutomation.ViewModels.Optimization
             get => _selectedTabIndex;
             set { _selectedTabIndex = value; OnPropertyChanged(); }
         }
+        // ── confirmation seam ──────────────────────────────────────────
+        // Destructive actions in this module used to fire on a single click
+        // with nothing between the operator and the loss — including
+        // DeleteSession, which removes a saved run from the database for
+        // good. The seam below lets the module ask first without changing
+        // anything for the callers that cannot answer.
+        private readonly IDialogService? _dialogs;
+
         // ── ctor ───────────────────────────────────────────────────────
 
         public OptimizationViewModel() : this(false) { }
 
-        public OptimizationViewModel(bool isHeadlessHost)
+        /// <param name="isHeadlessHost">True when another module drives this
+        /// VM (the proforma costing host) instead of the Optimization screen.
+        /// No UI is shown in that mode.</param>
+        /// <param name="dialogs">Used to confirm before destroying work.
+        /// Optional and null by default, so every existing caller keeps
+        /// working unchanged; see <see cref="ConfirmDestructive"/>.</param>
+        public OptimizationViewModel(bool isHeadlessHost, IDialogService? dialogs = null)
         {
             IsHeadlessHost = isHeadlessHost;
+            _dialogs = dialogs;
             InitializeInputLifetime();
             // Breadcrumb for uncatchable crashes (e.g. a StackOverflowException
             // kills the process before any exception handler can run, so the
@@ -77,7 +93,18 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             AddPieceCommand = new RelayCommand(_ => AddPiece());
             RemovePieceCommand = new RelayCommand(p => RemovePiece(p as PieceEntryVm));
-            ClearPiecesCommand = new RelayCommand(_ => { Pieces.Clear(); RefreshDerived(); });
+            ClearPiecesCommand = new RelayCommand(_ =>
+            {
+                // Guarded by Count so an already-empty list does not prompt.
+                if (Pieces.Count > 0
+                    && !ConfirmDestructive(
+                        "Remove every piece from the list?\n\n"
+                        + "This clears the whole piece list, and the run results go with it. "
+                        + "There is no undo.",
+                        "Clear all pieces")) return;
+                Pieces.Clear();
+                RefreshDerived();
+            });
             LoadReferenceJobCommand = new RelayCommand(_ => LoadReferenceJob());
             RefreshJobsCommand = new RelayCommand(_ => LoadJobsAsync());
             AddSelectedPanesCommand = new RelayCommand(_ => AddSelectedPanes(),
@@ -155,6 +182,22 @@ namespace ProGlassAutomation.ViewModels.Optimization
                     Module = "Optimization",
                     Operation = "OpenModule"
                 });
+        }
+
+        /// <summary>
+        /// Asks before destroying work. Returns true when it is safe to proceed.
+        ///
+        /// Returns true when no dialog service is wired up, on purpose. Headless
+        /// hosts and unit tests would otherwise block on a window nobody will
+        /// answer, and a destructive action that silently stopped working is
+        /// worse than one that asks. The real module gets the prompt because DI
+        /// injects a service; nothing else in the codebase changes behaviour.
+        /// </summary>
+        private bool ConfirmDestructive(string message, string caption)
+        {
+            if (_dialogs == null) return true;
+            if (IsHeadlessHost) return true;
+            return _dialogs.Confirm(message, caption);
         }
     }
 }
