@@ -175,7 +175,12 @@
                                           Style="{StaticResource OptComboStyle}" HorizontalAlignment="Stretch"
                                           ToolTip="{Binding SelectedStageStrategyHint}"
                                           AutomationProperties.Name="Optimize effort and strategy stage"/>
-                                <TextBlock Text="Family and effort are independent: this picks which engines run, the effort level picks how hard they search. Stage 3 at effort 5 searches harder, it does not run the stage-5 portfolio. Auto hands the choice back to the engine."
+                                <!-- Bound, not typed out: the hero card shows the same
+                                     hint for the same setting. A static paragraph here
+                                     would silently disagree with it the moment the hint
+                                     changed, and the operator would be reading two
+                                     different explanations of one control. -->
+                                <TextBlock Text="{Binding SelectedStageStrategyHint}"
                                            FontSize="11" TextWrapping="Wrap"
                                            Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,4,0,0"/>
 
