@@ -255,6 +255,63 @@ guessed.
 
 ---
 
+## 6A. Implementation status — 2026-09-26
+
+Every phase in §6 is written and pushed. **None of it has been compiled or executed** —
+there is no .NET SDK on this machine and none obtainable. The status below is "written and
+reviewed", not "verified". §6's closing line still stands: an item has landed when it has a
+before/after benchmark number, and not one of these does yet.
+
+| Phase | Commit | Switch | Default | Changes the plan? |
+|---|---|---|---|---|
+| E1 — instrument | `87a0f32` | none, always on | on | No. Adds fields and notes only. |
+| E2 — local search | `28f85f1` | `localSearch`, `enableSwaps` | off | Yes, when on. |
+| E2.2 — remainder-aware split | `a69c8ef` | `remainderAware` | off | Yes, when on. |
+| E3.1 — parallel evaluation | `ae2916d` | `parallelEval` | off | Only when the time budget binds. |
+| E3.3 — wider beam | `ae2916d` | `wideBeam` | off | Yes, when on. Effort 5 only. |
+| E4.1 — guillotine policy | `9d0c1a6` | `requireGuillotine` | off | Yes, when on. That is the point. |
+
+E1 is the deliberate exception to "off by default": `Instrument` is called from both
+`PackQuick` and `PackOptimize`, so the cut-reachability audit and the sheets lower bound
+are always populated. F1 survived this long precisely because nothing looked.
+
+Every switch has a test asserting that passing it explicitly `false` produces the plan the
+engine produced before the phase existed. The default path is byte-for-byte unchanged.
+
+### E3.2 was deferred, not forgotten
+
+Pruning duplicate candidates is a pure speedup, and §2 says the pool is degenerate on the
+benchmark job. But "saves time" is only worth having once E1.3 shows the pool spending real
+time on candidates that never win on production jobs. Pruning a candidate that turns out
+*not* to be duplicate is a silent regression in plan quality — the one failure mode this
+roadmap cannot afford. Do it on census numbers, not on §2's.
+
+### What to measure, in order
+
+1. **Build and run the suite.** This is the gate. Nothing above is believed until it is green.
+2. **The DGU benchmark at default settings.** It must be identical to the pre-E1 plan. If it
+   is not, stop — that is a bug in a switch that was supposed to be inert.
+3. **E1.1 on a real job mix.** Read `UncuttableSheetCount` and `SheetsLowerBound`. A
+   non-zero uncuttable count on the *default* path is F1 firing in production, and it is
+   what decides E4.1.
+4. **Then the timer**, to confirm §2's claim that the bottleneck is the decoder and not the
+   search. If that is wrong, half of §5 needs rethinking.
+5. **Then E2, E2.2, E3.1 and E3.3, one at a time**, each with a before/after number.
+6. **E4.1 last**, once step 3 says how often it fires.
+
+### Two bugs found and fixed along the way
+
+Not in the original plan — found by reading while implementing E2.
+
+- **Kerf was dropped** — four `DeriveLeftovers(..., 0)` calls measured rectangles from the
+  cut line rather than after the blade, so a pane could sit closer than a kerf to its
+  neighbour.
+- **Stale rectangles after rollback** — `RestorePlan` restored pieces and cuts but not
+  `Leftovers`, so an undone move left rectangles behind and the report and DXF export could
+  draw space a pane was standing on.
+
+---
+
 ## 7. Deliberately not in this roadmap
 
 Recorded so the decision is on the record rather than re-litigated each time:
