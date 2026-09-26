@@ -153,11 +153,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public bool HasCostingPriceNote => !string.IsNullOrWhiteSpace(_costingPriceNote);
 
         /// <summary>
-        /// Rebuilds the priced plan from the runs just applied. Called from
-        /// ApplyResults immediately after RefreshStockUsage, so the sheet tally
-        /// and the costing always describe the same run.
-        /// </summary>
-        /// <summary>
         /// Names the Step 5 pane(s) a rack served. Deliberately says "shared"
         /// rather than picking one, because the engine cuts by composition and
         /// cannot say which of several specs on one rack took which sheet.
@@ -183,6 +178,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
             return specText + " · shared";
         }
 
+        /// <summary>
+        /// Rebuilds the priced plan from the runs just applied. Called from
+        /// ApplyResults immediately after RefreshStockUsage, so the sheet tally
+        /// and the costing always describe the same run.
+        /// </summary>
         private void RebuildCosting(List<GroupRun> runs)
         {
             CostingRows.Clear();

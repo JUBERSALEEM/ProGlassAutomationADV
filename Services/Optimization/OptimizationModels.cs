@@ -245,12 +245,6 @@ namespace ProGlassAutomation.Services.Optimization
     }
 
     /// <summary>
-    /// Cutting allowances for one glass thickness. Margins are the edge
-    /// trims cut off the raw stock before piece placement; kerf is the
-    /// blade gap between cuts; MinBreakout is the narrowest offcut worth
-    /// keeping (thinner strips are reported as trim waste).
-    /// </summary>
-    /// <summary>
     /// Which house-margin profile a glass thickness falls into.
     ///
     /// PHASE 1 (2026-09-20, owner-specified): the old table interpolated
@@ -269,6 +263,12 @@ namespace ProGlassAutomation.Services.Optimization
         Thick
     }
 
+    /// <summary>
+    /// Cutting allowances for one glass thickness. Margins are the edge
+    /// trims cut off the raw stock before piece placement; kerf is the
+    /// blade gap between cuts; MinBreakout is the narrowest offcut worth
+    /// keeping (thinner strips are reported as trim waste).
+    /// </summary>
     public sealed class MarginProfile
     {
         public int ThicknessMm { get; init; }

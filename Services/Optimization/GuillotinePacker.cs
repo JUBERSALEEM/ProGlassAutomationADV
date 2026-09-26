@@ -2011,10 +2011,6 @@ namespace ProGlassAutomation.Services.Optimization
         // ── consolidation — squeeze out the emptiest sheet ──────────────
 
         /// <summary>
-        /// Try to empty every sheet from sparsest to densest. One successful
-        /// evacuation restarts the scan — LiSEC-style leftover squeeze.
-        /// </summary>
-        /// <summary>
         /// Records a copy-on-write snapshot of <paramref name="sheet"/> the
         /// first time an operation is about to modify it. Repeat calls for the
         /// same sheet are no-ops, so the snapshot always holds the pre-attempt
@@ -2039,6 +2035,10 @@ namespace ProGlassAutomation.Services.Optimization
             touchedCuts.Add(sheet.Layout.Cuts.ToList());
         }
 
+        /// <summary>
+        /// Try to empty every sheet from sparsest to densest. One successful
+        /// evacuation restarts the scan — LiSEC-style leftover squeeze.
+        /// </summary>
         private static void ConsolidateAll(
             List<SheetState> sheets, MarginProfile margins, RotationPolicy rotation, SplitMode split,
             int maxSweeps = int.MaxValue, int minBreakout = 0,

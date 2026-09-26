@@ -520,12 +520,6 @@ namespace ProGlassAutomation.Services.Optimization
             return fallback;
         }
 
-        /// <summary>
-        /// Tri-state on purpose: null leaves the live flag alone, which is what a
-        /// failed refresh needs — it must not demote a live snapshot to "from
-        /// disk" just because a read threw, or the next refresh would happily
-        /// overwrite newer live figures with an older saved session.
-        /// </summary>
         /// <summary>Provenance line for a run read back from disk.</summary>
         private static string DescribeSavedRun(SavedOptimizationSession session, int rowCount) =>
             rowCount == 0
@@ -534,6 +528,13 @@ namespace ProGlassAutomation.Services.Optimization
                     "optimization run \"{0}\" · {1:yyyy-MM-dd HH:mm} · {2} pane row(s)",
                     session.Name, session.CreatedUtc.ToLocalTime(), rowCount);
 
+        /// <summary>Publishes one run as the current snapshot.</summary>
+        /// <param name="isLive">
+        /// Tri-state on purpose: null leaves the live flag alone, which is what a
+        /// failed refresh needs — it must not demote a live snapshot to "from
+        /// disk" just because a read threw, or the next refresh would happily
+        /// overwrite newer live figures with an older saved session.
+        /// </param>
         private static void Set(
             IReadOnlyList<OptimizationPaneResult> rows, string label, bool? isLive = null,
             string? documentKey = null,

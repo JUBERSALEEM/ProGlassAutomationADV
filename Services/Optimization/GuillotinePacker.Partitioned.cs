@@ -621,11 +621,8 @@ namespace ProGlassAutomation.Services.Optimization
 
         /// <summary>
         /// Dedicated 10-step unplaced-part recovery pipeline.
-        /// Tests rotation, open plates, remnant spaces, and local repacking before declaring unplaceable.
-        /// </summary>
-        /// <summary>
-        /// Dedicated 10-step unplaced-part recovery pipeline.
-        /// Executes full sequential recovery:
+        /// Tests rotation, open plates, remnant spaces, and local repacking
+        /// before declaring unplaceable. Executes full sequential recovery:
         /// 1. 90° rotation across existing sheets
         /// 2. Open compatible sheets on smallest fitting stock
         /// 3. Remnant rectangles exploration
