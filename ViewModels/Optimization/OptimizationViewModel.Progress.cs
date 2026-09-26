@@ -199,6 +199,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 _resultEffortLabel = value ?? string.Empty;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasResultEffort));
+                NotifyHeroStatusChanged();
             }
         }
 
@@ -233,6 +234,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 _upgradeSummaryLabel = value ?? string.Empty;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasUpgradeSummary));
+                NotifyHeroStatusChanged();
             }
         }
 

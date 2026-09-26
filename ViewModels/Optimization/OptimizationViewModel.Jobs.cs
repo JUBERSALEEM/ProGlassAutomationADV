@@ -288,7 +288,17 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public string KpiGlass { get => _kpiGlass; private set { if (_kpiGlass == value) return; _kpiGlass = value; OnPropertyChanged(); } }
 
         private string _kpiGroups = "0";
-        public string KpiGroups { get => _kpiGroups; private set { if (_kpiGroups == value) return; _kpiGroups = value; OnPropertyChanged(); } }
+        public string KpiGroups
+        {
+            get => _kpiGroups;
+            private set
+            {
+                if (_kpiGroups == value) return;
+                _kpiGroups = value;
+                OnPropertyChanged();
+                NotifyHeroStatusChanged();
+            }
+        }
 
         private int _selectedPaneCount;
         public int SelectedPaneCount

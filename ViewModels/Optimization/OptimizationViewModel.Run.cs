@@ -207,6 +207,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 _runMessage = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasRunMessage));
+                NotifyHeroStatusChanged();
             }
         }
 
@@ -225,6 +226,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 OnPropertyChanged(nameof(CanRun));
                 OnPropertyChanged(nameof(CanUpgradeToOptimize));
                 OnPropertyChanged(nameof(IsRunProgressVisible));
+                NotifyHeroStatusChanged();
             }
         }
 
@@ -254,7 +256,16 @@ namespace ProGlassAutomation.ViewModels.Optimization
         }
 
         private string _runStageLabel = string.Empty;
-        public string RunStageLabel { get => _runStageLabel; private set { _runStageLabel = value; OnPropertyChanged(); } }
+        public string RunStageLabel
+        {
+            get => _runStageLabel;
+            private set
+            {
+                _runStageLabel = value;
+                OnPropertyChanged();
+                NotifyHeroStatusChanged();
+            }
+        }
 
         /// <summary>The last successfully applied engine stage ("QUICK" /
         /// "OPTIMIZE") — session save uses it to name and later re-run the
