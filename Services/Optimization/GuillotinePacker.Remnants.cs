@@ -215,6 +215,12 @@ namespace ProGlassAutomation.Services.Optimization
             if (result == null) return 0;
             int bad = 0;
 
+            // Sheet numbers are collected, not just counted. "1 sheet is
+            // inconsistent" is a fact nobody can act on; naming it lets the
+            // operator open that sheet in the 2D view and see the pane that
+            // a cut runs through, or the two that were never separated.
+            var badSheets = new List<int>();
+
             for (int i = 0; i < result.Sheets.Count; i++)
             {
                 var sheet = result.Sheets[i];
@@ -223,7 +229,11 @@ namespace ProGlassAutomation.Services.Optimization
                 // it here as well would double-report every MaxRects sheet.
                 if (sheet.Cuts.Count == 0) continue;
 
-                if (!CutSequenceSeparates(sheet, kerfMm)) bad++;
+                if (!CutSequenceSeparates(sheet, kerfMm))
+                {
+                    bad++;
+                    badSheets.Add(sheet.SheetNo);
+                }
             }
 
             result.InconsistentCutSheetCount = bad;
@@ -231,7 +241,10 @@ namespace ProGlassAutomation.Services.Optimization
                 result.ScaleNotes.Add("CUT SEQUENCE: " + bad
                     + " sheet(s) carry a cut list that does not, when replayed, separate "
                     + "the panes the plan places on them. The CNC export would not match "
-                    + "the layout on screen.");
+                    + "the layout on screen. Sheet no "
+                    + string.Join(", ", badSheets)
+                    + " - open it in the 2D VIEW and check for a pane a cut line "
+                    + "runs through, or two panes with no cut between them.");
 
             return bad;
         }

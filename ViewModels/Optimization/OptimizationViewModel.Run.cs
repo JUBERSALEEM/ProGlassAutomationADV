@@ -355,18 +355,34 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
             if (critical.Count > 0)
             {
-                // Two very different causes reach this popup and they take
-                // different fixes. Telling someone to raise the effort level
-                // when the engine has lost pieces sends them chasing a setting
-                // that cannot possibly help.
+                // The cause decides the advice; generic advice wastes the
+                // operator's time. An earlier version of this told them to
+                // switch on a guillotine policy, which has no control in the
+                // UI at all - an instruction nobody could follow. These keys
+                // match what the engine actually writes into its notes.
                 bool lostWork = critical.Any(t => t.Contains(
                     "VALIDATION FAILURE", StringComparison.OrdinalIgnoreCase));
 
-                string advice = lostWork
-                    ? "Pieces were lost, or the plan breaks a sheet or stock limit. "
-                      + "Re-run the group, and report it if it repeats."
-                    : "Raise the effort level, or turn the guillotine policy on so "
-                      + "uncuttable plans are refused instead of offered.";
+                bool badSequence = critical.Any(t => t.Contains(
+                    "CUT SEQUENCE", StringComparison.OrdinalIgnoreCase))
+                    || critical.Any(t => t.Contains(
+                    "CUT REACHABILITY", StringComparison.OrdinalIgnoreCase));
+
+                string advice;
+                if (lostWork)
+                    advice = "Pieces were lost, or the plan breaks a sheet or stock "
+                           + "limit. Re-run the group, and report it if it repeats.";
+                else if (badSequence)
+                    advice = "The recorded cut list does not match the layout on "
+                           + "screen, which is a cut list left behind by an earlier "
+                           + "pass rather than anything a setting controls. Re-running "
+                           + "usually clears it. If the same sheet fails again, send "
+                           + "me the job - that is an engine bug, not something you "
+                           + "can configure away.";
+                else
+                    advice = "Try a different CUTTING COMPLEXITY on the SETTINGS tab, "
+                           + "or a higher effort level, so the search returns a plan "
+                           + "the table can actually cut.";
 
                 // A geometry sweep on a large job can return hundreds of lines;
                 // a popup that tall is unreadable, so it is capped.
