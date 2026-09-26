@@ -324,7 +324,8 @@ namespace ProGlassAutomation.Services.Optimization
             CancellationToken cancellationToken = default,
             IProgress<OptimizeProgress> progress = null,
             PlatePattern platePattern = PlatePattern.Yield,
-            CutPolicy policy = null)
+            CutPolicy policy = null,
+            int maxStage = 0)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -341,7 +342,17 @@ namespace ProGlassAutomation.Services.Optimization
                 return industrialPlan;
             }
 
-            if (effortLevel <= 1)
+            // PHASE 5a — two axes, kept apart.
+            //   stage  = WHICH engines and orderings run (the portfolio).
+            //   effort = HOW HARD they search (time budget, shuffles, beam,
+            //            consolidation sweeps).
+            // They were the same number, so "search harder" also silently meant
+            // "run a different portfolio". maxStage = 0 means "let effort decide
+            // both", which is exactly what this method has always done — every
+            // caller that does not opt in stays bit-for-bit identical.
+            int stage = maxStage > 0 ? maxStage : effortLevel;
+
+            if (stage <= 1)
                 return PackQuick(pieces, stocks, margins, rotation,
                     cancellationToken: cancellationToken, progress: progress,
                     platePattern: platePattern, fillEffort: 1);
@@ -378,17 +389,17 @@ namespace ProGlassAutomation.Services.Optimization
             };
 
             IEnumerable<(OrderBy o, SplitMode s, int shuffle)> combos;
-            if (effortLevel <= 1)
+            if (stage <= 1)
                 // Must mirror PackQuick exactly: Benchmark_OptimizeStage_
                 // NeverRegressesQuick asserts OPTIMIZE <= QUICK.
                 combos = new[] { (OrderBy.Area, SplitMode.HorizontalFirst, 0) };
-            else if (effortLevel == 2)
+            else if (stage == 2)
                 combos = orderings.Take(3).Select(o => (o, SplitMode.HorizontalFirst, 0));
-            else if (effortLevel == 3)
+            else if (stage == 3)
                 combos = orderings.Take(4).SelectMany(o => splits.Select(s => (o, s, 0)));
             else
             {
-                int shuffles = effortLevel >= 5 ? 6 : 3;
+                int shuffles = stage >= 5 ? 6 : 3;
                 shuffles = System.Math.Min(shuffles, plan.ShuffleCap);
                 combos = orderings.SelectMany(o => splits.SelectMany(s =>
                     Enumerable.Range(0, shuffles + 1).Select(k => (o, s, k))));
@@ -403,7 +414,7 @@ namespace ProGlassAutomation.Services.Optimization
             // back while the last candidates run. Zero at effort 1, so the total
             // is exactly what it was before and QUICK-equivalent runs are
             // unaffected.
-            int smartPasses = effortLevel >= 2 && scale.Tier != ScaleTier.Huge
+            int smartPasses = stage >= 2 && scale.Tier != ScaleTier.Huge
                 ? (effortLevel >= 4 && scale.Tier == ScaleTier.Standard ? 2 : 1)
                 : 0;
             int smartTotal = comboList.Count + smartPasses;
@@ -490,7 +501,7 @@ namespace ProGlassAutomation.Services.Optimization
 
             // With windowed candidate scanning, advanced strategies (BestSplit, SheetFill,
             // WallSeed, SmartPlacement) run in bounded O(K * N) time across all tiers.
-            if (effortLevel >= 2 && !budgetStopped)
+            if (stage >= 2 && !budgetStopped)
             {
                 int windowSize = scale.Tier == ScaleTier.Huge ? 300 : scale.Tier == ScaleTier.Large ? 400 : int.MaxValue;
 
@@ -523,7 +534,7 @@ namespace ProGlassAutomation.Services.Optimization
                     SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
                     progress: null, candidateWindowSize: windowSize, policy: policy));
 
-                if (effortLevel >= 4)
+                if (stage >= 4)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
@@ -534,12 +545,12 @@ namespace ProGlassAutomation.Services.Optimization
                 }
             }
 
-            if (effortLevel >= 3 && !budgetStopped && !staged)
+            if (stage >= 3 && !budgetStopped && !staged)
             {
                 // Math.Min with an unlimited cap leaves the standard band
                 // exactly as it was (6 orderings at effort 5, 3 below).
                 foreach (var order in orderings.Take(System.Math.Min(
-                             effortLevel >= 5 ? 6 : 3, scale.MaxRectsOrderings)))
+                             stage >= 5 ? 6 : 3, scale.MaxRectsOrderings)))
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     Consider(RunMaxRects(Sort(pieces, order), stocks, margins, rotation,
@@ -561,7 +572,7 @@ namespace ProGlassAutomation.Services.Optimization
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 4, cancellationToken));
-                    if (effortLevel >= 4)
+                    if (stage >= 4)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 8, cancellationToken));

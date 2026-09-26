@@ -30,7 +30,8 @@ namespace ProGlassAutomation.Services.Optimization
             CancellationToken cancellationToken = default,
             IProgress<OptimizeProgress> progress = null,
             SmartSearchConfiguration config = null,
-            PlatePattern platePattern = PlatePattern.Yield)
+            PlatePattern platePattern = PlatePattern.Yield,
+            int maxStage = 0)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -45,7 +46,12 @@ namespace ProGlassAutomation.Services.Optimization
                     PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress),
                     platePattern);
 
-            if (effortLevel <= 1)
+            // PHASE 5a: same two axes as PackOptimize — stage picks the
+            // portfolio, effort picks how hard it searches. 0 = uncapped,
+            // which is what this path has always done.
+            int stage = maxStage > 0 ? maxStage : effortLevel;
+
+            if (stage <= 1)
                 return PackQuick(pieces, stocks, margins, rotation,
                     cancellationToken: cancellationToken, progress: progress,
                     platePattern: platePattern, fillEffort: 1);
@@ -56,14 +62,14 @@ namespace ProGlassAutomation.Services.Optimization
             if (pieces.Count <= config.LargeJobThreshold)
             {
                 return PackOptimize(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress,
-                    platePattern);
+                    platePattern, maxStage: maxStage);
             }
 
             // A stock cap belongs to the complete job, not independently to
             // each parallel batch. This matches the VM's finite-inventory route.
             if (stocks.Any(s => s.MaxSheets > 0 && s.MaxSheets < StockSize.EffectivelyUnlimitedSheets))
                 return PackOptimize(pieces, stocks, margins, rotation, effortLevel, cancellationToken, progress,
-                    platePattern);
+                    platePattern, maxStage: maxStage);
 
             var sw = Stopwatch.StartNew();
             int totalParts = pieces.Count;

@@ -141,6 +141,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string PlatePattern { get; set; } = "Yield";
             // JSON only. True when the operator chose Auto effort. The stage number stays in EffortLevel.
             public bool AutoEffort { get; set; }
+            // JSON only, and the newest of these fields: the search FAMILY,
+            // which phase 5a split away from the effort level. Absent in
+            // sessions saved before then — see the migration on restore.
+            public string StageStrategy { get; set; } = string.Empty;
             // JSON only, for the same reason PlatePattern is: the Sessions table
             // cannot gain columns on an existing database. Int value of
             // CutComplexity; a missing or unknown value restores to Free
@@ -476,6 +480,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 MinBreakout = MinBreakoutText,
                 PlatePattern = PlatePatternName(),
                 AutoEffort = UseAutoEffort,
+                StageStrategy = SelectedStageStrategy,
                 CutComplexity = (int)CurrentCutComplexity,
                 MinTrimWidthMm = CurrentMinTrimWidthMm
             };
@@ -659,8 +664,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
             if (s.EffortLevel >= 1 && s.EffortLevel <= 5)
                 SelectedEffortLevel = s.EffortLevel.ToString(CultureInfo.InvariantCulture);
             SelectedPlatePattern = LabelForPlatePattern(margins?.PlatePattern);
-            if (margins?.AutoEffort == true)
+
+            // PHASE 5a migration. A session saved before family and effort were
+            // split has no StageStrategy, and back then the family WAS the
+            // effort level. So an old session restores to the family its effort
+            // implied, which makes it run exactly as it did when it was saved.
+            // Unknown names fall back to Auto, the choice that hands the
+            // portfolio back to the packer.
+            string? storedFamily = margins?.StageStrategy;
+            if (!string.IsNullOrWhiteSpace(storedFamily) && StageStrategies.Contains(storedFamily))
+                SelectedStageStrategy = storedFamily;
+            else if (margins?.AutoEffort == true)
                 SelectedStageStrategy = AutoStageStrategyLabel;
+            else
+                SelectedStageStrategy = LabelForStage(s.EffortLevel);
+
             // Restored AFTER the plate pattern so the hint text is current. An
             // unknown or absent value falls back to Free guillotine — the
             // setting that cannot make an old session behave differently.

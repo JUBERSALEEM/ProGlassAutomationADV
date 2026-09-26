@@ -197,7 +197,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 {
                     _selectedEffortLevel = value;
                     OnPropertyChanged();
-                    SyncStageStrategyFromEffort(value);
+
+                    // PHASE 5a: effort no longer drags the search family with
+                    // it. Effort is how hard the chosen family searches; the
+                    // family is chosen on its own control.
+                    OnPropertyChanged(nameof(SelectedStageStrategyHint));
                 }
             }
         }
@@ -226,7 +230,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
         };
 
         private string _selectedStageStrategy = Stage3StrategyLabel;
-        private bool _syncingStage;
         private bool _useAutoEffort;
 
         /// <summary>
@@ -254,71 +257,77 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 _selectedStageStrategy = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SelectedStageStrategyHint));
-                if (_syncingStage) return;
-                SyncEffortFromStageStrategy(value);
+                OnPropertyChanged(nameof(CurrentMaxStage));
+
+                // Auto is the one family that still hands the portfolio to the
+                // packer. Every other choice is a cap the operator set, and it
+                // deliberately leaves the effort level alone.
+                UseAutoEffort = IsAutoStage(value);
             }
         }
 
-        public string SelectedStageStrategyHint =>
-            UseAutoEffort
-                ? "Auto picks stage 3, 4, or 5 from the piece count, stock mix, and rack cap. It calls that existing stage. It does not change Yield and it does not select Fill first plate."
-                : SelectedEffortLevel switch
+        /// <summary>
+        /// Says what the chosen family runs, and that effort is a separate
+        /// axis. This used to read the effort level and describe the stage it
+        /// implied, because the two were one control.
+        /// </summary>
+        public string SelectedStageStrategyHint
+        {
+            get
+            {
+                if (UseAutoEffort)
+                    return "Auto picks stage 3, 4, or 5 from the piece count, stock "
+                         + "mix, and rack cap. It calls that existing stage. It does "
+                         + "not change Yield and it does not select Fill first plate.";
+
+                string family = _selectedStageStrategy switch
                 {
-                    "1" => "Stage 1 is the quick portfolio. Run Optimize at this stage is that same search.",
-                    "2" => "Stage 2 adds three orderings, best-split, sheet-fill, wall-seed, and smart placement.",
-                    "3" => "Stage 3 adds every split, MaxRects, and a width-4 beam. This is the default.",
-                    "4" => "Stage 4 adds all six orderings, shuffles, vertical smart placement, and a width-8 beam.",
-                    _ => "Stage 5 adds the widest shuffle set and MaxRects on every ordering. It cannot replace a better plan."
+                    Stage1StrategyLabel =>
+                        "the quick portfolio only — area shelf, strips, and bounded patterns.",
+                    Stage2StrategyLabel =>
+                        "three orderings, best-split, sheet-fill, wall-seed, and smart placement.",
+                    Stage3StrategyLabel =>
+                        "the full split grid, MaxRects, and a width-4 beam.",
+                    Stage4StrategyLabel =>
+                        "all six orderings, shuffles, vertical smart placement, and a width-8 beam.",
+                    Stage5StrategyLabel =>
+                        "the widest shuffle set and MaxRects on every ordering.",
+                    _ => "the portfolio its name describes."
                 };
 
-        private void SyncStageStrategyFromEffort(string effort)
-        {
-            if (UseAutoEffort) return;
-            string label = effort switch
-            {
-                "1" => StageStrategies[1],
-                "2" => StageStrategies[2],
-                "3" => StageStrategies[3],
-                "4" => StageStrategies[4],
-                "5" => StageStrategies[5],
-                _ => StageStrategies[3]
-            };
-            if (string.Equals(_selectedStageStrategy, label, StringComparison.Ordinal)) return;
-            _syncingStage = true;
-            try
-            {
-                _selectedStageStrategy = label;
-                OnPropertyChanged(nameof(SelectedStageStrategy));
-                OnPropertyChanged(nameof(SelectedStageStrategyHint));
-            }
-            finally
-            {
-                _syncingStage = false;
+                return "Family: " + family + " Effort " + SelectedEffortLevel
+                    + " is how hard it searches INSIDE that family — time budget, "
+                    + "shuffles, and consolidation sweeps. The two are independent: "
+                    + "stage 3 at effort 5 searches harder, it does not run the "
+                    + "stage-5 portfolio.";
             }
         }
 
-        private void SyncEffortFromStageStrategy(string strategy)
+        /// <summary>
+        /// The family label for a stage number, used when migrating sessions
+        /// saved before the family was its own setting. Out-of-range effort
+        /// levels fall back to stage 3, the default.
+        /// </summary>
+        public static string LabelForStage(int stage) => stage switch
         {
-            if (_syncingStage || string.IsNullOrWhiteSpace(strategy)) return;
-            if (IsAutoStage(strategy))
-            {
-                UseAutoEffort = true;
-                return;
-            }
+            1 => Stage1StrategyLabel,
+            2 => Stage2StrategyLabel,
+            4 => Stage4StrategyLabel,
+            5 => Stage5StrategyLabel,
+            _ => Stage3StrategyLabel
+        };
 
-            if (!TryParseStageNumber(strategy, out int stage)) return;
-            UseAutoEffort = false;
-            string effort = stage.ToString(CultureInfo.InvariantCulture);
-            if (string.Equals(_selectedEffortLevel, effort, StringComparison.Ordinal)) return;
-            _syncingStage = true;
-            try
+        /// <summary>
+        /// The portfolio cap handed to the packer. 0 means Auto — let the
+        /// packer choose the stage from the cutting list. 1..5 runs that
+        /// stage's family and nothing wider, whatever the effort level is.
+        /// </summary>
+        public int CurrentMaxStage
+        {
+            get
             {
-                _selectedEffortLevel = effort;
-                OnPropertyChanged(nameof(SelectedEffortLevel));
-            }
-            finally
-            {
-                _syncingStage = false;
+                if (IsAutoStage(_selectedStageStrategy)) return 0;
+                return TryParseStageNumber(_selectedStageStrategy, out int stage) ? stage : 0;
             }
         }
 

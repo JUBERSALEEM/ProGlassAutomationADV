@@ -628,9 +628,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         // hands back a free-guillotine plan.
                         var packed = (finiteStock || stagedRun)
                             ? GuillotinePacker.PackOptimize(groupPieces, groupStocks, groupMargins,
-                                rotation, groupEffort, ct, groupProgress, CurrentPlatePattern, cutPolicy)
+                                rotation, groupEffort, ct, groupProgress, CurrentPlatePattern, cutPolicy,
+                                maxStage: CurrentMaxStage)
                             : GuillotinePacker.PackOptimizePartitioned(groupPieces, groupStocks, groupMargins,
-                                rotation, groupEffort, ct, groupProgress, platePattern: CurrentPlatePattern);
+                                rotation, groupEffort, ct, groupProgress, platePattern: CurrentPlatePattern,
+                                maxStage: CurrentMaxStage);
                         if (finiteStock) packed.ScaleNotes.Add("Finite inventory: global advanced search preserves the shared rack cap.");
                         if (stagedRun && !finiteStock)
                             packed.ScaleNotes.Add(string.Format(CultureInfo.InvariantCulture,
