@@ -346,7 +346,8 @@ namespace ProGlassAutomation.Services.Optimization
             int maxStage = 0,
             bool reuseOffcuts = false,
             bool localSearch = false,
-            bool enableSwaps = false)
+            bool enableSwaps = false,
+            bool remainderAware = false)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -540,7 +541,8 @@ namespace ProGlassAutomation.Services.Optimization
                 // This is the candidate that takes the Clear group from 17
                 // sheets to the owner's reference 16.
                 Consider(RunBestSplit(pieces, stocks, margins, rotation,
-                    scale.ConsolidationSweeps, cancellationToken, windowSize));
+                    scale.ConsolidationSweeps, cancellationToken, windowSize,
+                    remainderAware: remainderAware));
 
                 // ── SMART PLACEMENT ──────────────────────────
                 // Capacity-preserving placement, per-placement split choice and

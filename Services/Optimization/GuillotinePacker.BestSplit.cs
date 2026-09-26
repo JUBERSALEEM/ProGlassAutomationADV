@@ -129,7 +129,8 @@ namespace ProGlassAutomation.Services.Optimization
             MarginProfile margins, RotationPolicy rotation,
             int consolidationSweeps = int.MaxValue,
             CancellationToken cancellationToken = default,
-            int candidateWindowSize = int.MaxValue)
+            int candidateWindowSize = int.MaxValue,
+            bool remainderAware = false)
         {
             var remaining = Sort(pieces, OrderBy.MaxSide);
             var sheets = new List<SheetState>();
@@ -145,6 +146,7 @@ namespace ProGlassAutomation.Services.Optimization
                 long bestArea = -1;
                 int bestCount = -1;
                 int bestSplit = int.MaxValue;
+                long bestRemainder = -1;
 
                 for (int si = 0; si < AllSplits.Length; si++)
                 {
@@ -156,13 +158,31 @@ namespace ProGlassAutomation.Services.Optimization
 
                     long area = PlacedArea(sheet);
                     int count = sheet.Layout.Pieces.Count;
-                    if (chosen == null
-                        || area > bestArea
-                        || (area == bestArea && count > bestCount)
-                        || (area == bestArea && count == bestCount && si < bestSplit))
+
+                    // PHASE E2.2 — REMAINDER-AWARE SPLIT CHOICE.
+                    // Two splits can put the same glass on this plate and leave
+                    // very different space behind: one a wide band the next
+                    // pane fits, the other three slivers. Greedy area cannot
+                    // see that, and area is what this loop has always
+                    // maximised. The largest remaining rectangle is the signal
+                    // it was missing.
+                    //
+                    // It is compared as ONE lexicographic key rather than a
+                    // chain of || conditions, because a chain is where this
+                    // kind of change ships a bug. With the switch off the
+                    // remainder term is 0 for every candidate, which collapses
+                    // the key to exactly (area, count, -index) — the
+                    // comparison this loop has always made, in that order.
+                    long remainder = remainderAware ? LargestFreeRect(sheet) : 0;
+
+                    var key = (area, remainder, (long)count, (long)-si);
+                    var best = (bestArea, bestRemainder, (long)bestCount, (long)-bestSplit);
+
+                    if (chosen == null || key.CompareTo(best) > 0)
                     {
                         chosen = sheet; chosenLeft = left; chosenPer = trialPer;
                         bestArea = area; bestCount = count; bestSplit = si;
+                        bestRemainder = remainder;
                     }
                 }
 
@@ -180,6 +200,27 @@ namespace ProGlassAutomation.Services.Optimization
             ConsolidateAll(sheets, margins, rotation, SplitMode.HorizontalFirst,
                   consolidationSweeps, cancellationToken: cancellationToken);
             return FinishFromSheets(sheets, unplaced, rotation, "BEST-SPLIT");
+        }
+
+        /// <summary>
+        /// The largest rectangle this plate still has, by area. Used only by
+        /// the remainder-aware split choice, and only as a TIE-BREAK below
+        /// placed area: a split that puts more glass on the plate still wins.
+        /// This only decides between splits that put the same glass on.
+        /// </summary>
+        private static long LargestFreeRect(SheetState sheet)
+        {
+            long best = 0;
+            if (sheet == null) return 0;
+            for (int i = 0; i < sheet.Free.Count; i++)
+            {
+                long w = sheet.Free[i].W;
+                long h = sheet.Free[i].H;
+                if (w <= 0 || h <= 0) continue;
+                long area = w * h;
+                if (area > best) best = area;
+            }
+            return best;
         }
 
         /// <summary>

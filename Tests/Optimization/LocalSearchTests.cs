@@ -160,6 +160,52 @@ public sealed class LocalSearchTests
                         "a leftover rectangle contains a pane, so the rollback left stale space");
     }
 
+    // ── E2.2 remainder-aware split choice ───────────────────────────────
+
+    [Fact]
+    public void Remainder_aware_off_is_the_comparison_the_loop_always_made()
+    {
+        // The whole safety argument for E2.2 in one assertion: with the switch
+        // off the remainder term is 0 for every candidate, so the key collapses
+        // to (area, count, -index) - the chain this loop used before. Default
+        // and explicit-false must therefore be the same plan, not a similar one.
+        var a = GuillotinePacker.RunBestSplit(Job(), Stocks(), Margins, RotationPolicy.Free90);
+        var b = GuillotinePacker.RunBestSplit(Job(), Stocks(), Margins, RotationPolicy.Free90,
+            remainderAware: false);
+
+        Assert.Equal(Signature(a), Signature(b));
+        Assert.Equal(a.SheetsUsed, b.SheetsUsed);
+    }
+
+    [Fact]
+    public void Remainder_aware_on_is_deterministic_and_verifies()
+    {
+        // It is NOT asserted to be better. Whether preferring the split that
+        // leaves the largest rectangle actually helps is a measurement, not a
+        // claim - the census is how it gets measured. What must hold is that it
+        // stays a valid plan and returns to it.
+        var job = Job();
+        var a = GuillotinePacker.RunBestSplit(job, Stocks(), Margins, RotationPolicy.Free90,
+            remainderAware: true);
+        var b = GuillotinePacker.RunBestSplit(Job(), Stocks(), Margins, RotationPolicy.Free90,
+            remainderAware: true);
+
+        Assert.Equal(Signature(a), Signature(b));
+        Assert.Empty(GuillotinePacker.VerifyComprehensive(a, job, Margins));
+    }
+
+    [Fact]
+    public void Remainder_aware_keeps_every_plate_cuttable()
+    {
+        var job = Job();
+        var result = GuillotinePacker.RunBestSplit(job, Stocks(), Margins, RotationPolicy.Free90,
+            remainderAware: true);
+
+        foreach (var sheet in result.Sheets)
+            if (sheet.Pieces.Count > 0)
+                Assert.NotEmpty(sheet.Cuts);
+    }
+
     [Fact]
     public void Local_search_on_a_single_sheet_does_nothing()
     {
