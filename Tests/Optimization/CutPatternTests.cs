@@ -337,6 +337,57 @@ public sealed class CutPatternTests
         HeightMm = h
     };
 
+    // ── Plate patterns ───────────────────────────────────────────────────
+
+    [Theory]
+    [InlineData(PlatePattern.FewestCuts)]
+    [InlineData(PlatePattern.MinimiseStockChanges)]
+    [InlineData(PlatePattern.RemnantFirst)]
+    [InlineData(PlatePattern.BalancedSpread)]
+    public void Plate_pattern_never_costs_a_sheet_or_a_piece(PlatePattern pattern)
+    {
+        // The load-bearing property of all four new patterns: they are
+        // TIE-BREAKS between plans that already use the same sheets and leave
+        // nothing out. A pattern that bought its preference with an extra
+        // sheet would not be a pattern, it would be a worse plan.
+        var pieces = Job();
+
+        var baseline = GuillotinePacker.PackOptimize(pieces, Stock(), Margins, RotationPolicy.Free90,
+            effortLevel: 2, platePattern: PlatePattern.Yield);
+        var chosen = GuillotinePacker.PackOptimize(pieces, Stock(), Margins, RotationPolicy.Free90,
+            effortLevel: 2, platePattern: pattern);
+
+        Assert.Equal(baseline.Unplaced.Count, chosen.Unplaced.Count);
+        Assert.Equal(baseline.SheetsUsed, chosen.SheetsUsed);
+        Assert.Empty(GuillotinePacker.VerifyComprehensive(chosen, pieces, Margins));
+    }
+
+    [Fact]
+    public void Fewest_cuts_pattern_does_not_add_cuts()
+    {
+        var pieces = Job();
+
+        var yield = GuillotinePacker.PackOptimize(pieces, Stock(), Margins, RotationPolicy.Free90,
+            effortLevel: 2, platePattern: PlatePattern.Yield);
+        var fewest = GuillotinePacker.PackOptimize(pieces, Stock(), Margins, RotationPolicy.Free90,
+            effortLevel: 2, platePattern: PlatePattern.FewestCuts);
+
+        Assert.True(GuillotinePacker.TotalCuts(fewest) <= GuillotinePacker.TotalCuts(yield));
+    }
+
+    [Fact]
+    public void Plate_pattern_metrics_measure_what_their_names_say()
+    {
+        var plan = GuillotinePacker.PackQuick(Job(), Stock(), Margins, RotationPolicy.Free90);
+
+        // One stock size in the fixture, so nothing to switch between.
+        Assert.True(GuillotinePacker.TotalCuts(plan) > 0);
+        Assert.Equal(1, GuillotinePacker.DistinctStockSizes(plan));
+        Assert.Equal(0, GuillotinePacker.StockSwitches(plan));
+        Assert.True(GuillotinePacker.LargestLeftover(plan) >= 0);
+        Assert.InRange(GuillotinePacker.UtilizationSpread(plan), 0m, 1m);
+    }
+
     // ── The policy object itself ─────────────────────────────────────────
 
     [Fact]

@@ -258,7 +258,7 @@ namespace ProGlassAutomation.Services.Optimization
                     progress?.Report(OptimizeProgress.Of("capacity", transpose ? 80 : 60, 100,
                         transpose ? "Capacity-aware row strips" : "Capacity-aware column strips"));
                     var strips = RunCapacityStrips(pieces, stocks, margins, rotation, transpose, cancellationToken);
-                    result = Better(result, CheckCandidate(strips, pieces, margins, cancellationToken));
+                    result = Better(result, CheckCandidate(strips, pieces, margins, cancellationToken), platePattern);
                 }
                 progress?.Report(OptimizeProgress.Of("pattern", 90, 100,
                     "Bounded Best-Split pattern search (beam 4 + 8)"));
@@ -269,7 +269,7 @@ namespace ProGlassAutomation.Services.Optimization
                 "Balancing reusable patterns against whole-order quantities"));
             if (!staged)
                 result = Better(result, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, 1,
-                    cancellationToken), pieces, margins, cancellationToken));
+                    cancellationToken), pieces, margins, cancellationToken), platePattern);
             if (quickWatch.Elapsed >= plan.TimeBudget)
                 result.ScaleNotes.Add("QUICK pattern budget reached; retained the best validated candidate found.");
             result = ApplyPlatePattern(result, pieces, stocks, margins, rotation,
@@ -425,10 +425,10 @@ namespace ProGlassAutomation.Services.Optimization
                     cancellationToken, BudgetExhausted);
                 if (!BudgetExhausted())
                     best = Better(best, CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins, rotation, effortLevel,
-                        cancellationToken), pieces, margins, cancellationToken));
+                        cancellationToken), pieces, margins, cancellationToken), platePattern);
             }
             void Consider(OptimizationResult candidate) =>
-                best = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken));
+                best = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken), platePattern);
             for (int ci = 0; ci < comboList.Count; ci++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -641,7 +641,18 @@ namespace ProGlassAutomation.Services.Optimization
             return final;
         }
 
-        private static OptimizationResult Better(OptimizationResult a, OptimizationResult b)
+        private static OptimizationResult Better(OptimizationResult a, OptimizationResult b) =>
+            Better(a, b, PlatePattern.Yield);
+
+        /// <summary>
+        /// Keeps the better of two plans. Unplaced pieces and sheet count
+        /// always dominate — no pattern may buy its preference by leaving a
+        /// piece out or adding a sheet. The plate pattern decides between plans
+        /// that are already equal on both, which is exactly the choice the
+        /// operator is making when they pick one.
+        /// </summary>
+        private static OptimizationResult Better(OptimizationResult a, OptimizationResult b,
+            PlatePattern pattern)
         {
             if (b == null) return a;
             if (a == null) return b;
@@ -651,13 +662,141 @@ namespace ProGlassAutomation.Services.Optimization
                 return b.Unplaced.Count < a.Unplaced.Count ? b : a;
             if (b.SheetsUsed != a.SheetsUsed)
                 return b.SheetsUsed < a.SheetsUsed ? b : a;
-            decimal Utilization(OptimizationResult r)
+
+            switch (pattern)
             {
-                decimal stock = r.Sheets.Sum(sheet => (decimal)sheet.Stock.WidthMm * sheet.Stock.HeightMm);
-                decimal glass = r.Sheets.Sum(sheet => sheet.Pieces.Sum(p => (decimal)p.WidthMm * p.HeightMm));
-                return stock == 0 ? 0 : glass / stock;
+                case PlatePattern.FewestCuts:
+                    int cutA = TotalCuts(a), cutB = TotalCuts(b);
+                    if (cutB != cutA) return cutB < cutA ? b : a;
+                    break;
+                case PlatePattern.MinimiseStockChanges:
+                    int sizeA = DistinctStockSizes(a), sizeB = DistinctStockSizes(b);
+                    if (sizeB != sizeA) return sizeB < sizeA ? b : a;
+                    int switchA = StockSwitches(a), switchB = StockSwitches(b);
+                    if (switchB != switchA) return switchB < switchA ? b : a;
+                    break;
+                case PlatePattern.RemnantFirst:
+                    long leftA = LargestLeftover(a), leftB = LargestLeftover(b);
+                    if (leftB != leftA) return leftB > leftA ? b : a;
+                    break;
+                case PlatePattern.BalancedSpread:
+                    decimal spreadA = UtilizationSpread(a), spreadB = UtilizationSpread(b);
+                    if (spreadB != spreadA) return spreadB < spreadA ? b : a;
+                    break;
             }
+
             return Utilization(b) > Utilization(a) ? b : a;
+        }
+
+        private static decimal Utilization(OptimizationResult r)
+        {
+            decimal stock = r.Sheets.Sum(sheet => (decimal)sheet.Stock.WidthMm * sheet.Stock.HeightMm);
+            decimal glass = r.Sheets.Sum(sheet => sheet.Pieces.Sum(p => (decimal)p.WidthMm * p.HeightMm));
+            return stock == 0 ? 0 : glass / stock;
+        }
+
+        /// <summary>
+        /// Total guillotine cuts across a plan. Sheets that were stamped rather
+        /// than split get their sequence reconstructed first, so a plan can
+        /// never win "fewest cuts" by having failed to record them.
+        /// </summary>
+        internal static int TotalCuts(OptimizationResult result)
+        {
+            int total = 0;
+            for (int i = 0; i < result.Sheets.Count; i++)
+            {
+                var sheet = result.Sheets[i];
+                if (sheet.Cuts.Count == 0 && sheet.Pieces.Count > 0)
+                    TryDeriveGuillotineCuts(sheet);
+                total += sheet.Cuts.Count;
+            }
+            return total;
+        }
+
+        /// <summary>How many different stock sizes a plan reaches for.</summary>
+        internal static int DistinctStockSizes(OptimizationResult result)
+        {
+            var seen = new HashSet<long>();
+            for (int i = 0; i < result.Sheets.Count; i++)
+            {
+                var stock = result.Sheets[i].Stock;
+                if (stock == null) continue;
+                seen.Add(StockKey(stock));
+            }
+            return seen.Count;
+        }
+
+        /// <summary>One number per stock size, so "same size" is a value test
+        /// rather than a string comparison per sheet.</summary>
+        private static long StockKey(StockSize stock) =>
+            ((long)stock.WidthMm << 32) | (uint)stock.HeightMm;
+
+        /// <summary>
+        /// How often consecutive sheets change stock size — the rack moves and
+        /// setups a floor actually pays for. Sheet order is the report order
+        /// (fullest first), which is the order the table sees them.
+        /// </summary>
+        internal static int StockSwitches(OptimizationResult result)
+        {
+            int switches = 0;
+            bool hasPrevious = false;
+            long previous = 0;
+            for (int i = 0; i < result.Sheets.Count; i++)
+            {
+                var stock = result.Sheets[i].Stock;
+                if (stock == null) continue;
+                long key = StockKey(stock);
+                if (hasPrevious && key != previous) switches++;
+                previous = key;
+                hasPrevious = true;
+            }
+            return switches;
+        }
+
+        /// <summary>
+        /// Largest single-sheet leftover area in mm^2. Maximised by the
+        /// remnant-first pattern: with the sheet count and the piece count
+        /// already equal, concentrating the waste on ONE sheet is what makes it
+        /// big enough to come off as a usable remnant rather than as several
+        /// slivers spread over every plate.
+        /// </summary>
+        internal static long LargestLeftover(OptimizationResult result)
+        {
+            long best = 0;
+            for (int i = 0; i < result.Sheets.Count; i++)
+            {
+                var sheet = result.Sheets[i];
+                long usable = (long)sheet.UsableWidth * sheet.UsableHeight;
+                long placed = 0;
+                for (int p = 0; p < sheet.Pieces.Count; p++)
+                    placed += (long)sheet.Pieces[p].WidthMm * sheet.Pieces[p].HeightMm;
+                long leftover = usable - placed;
+                if (leftover > best) best = leftover;
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// Gap between the fullest and the emptiest sheet, 0..1. Minimised by
+        /// the balanced-spread pattern.
+        /// </summary>
+        internal static decimal UtilizationSpread(OptimizationResult result)
+        {
+            if (result.Sheets.Count <= 1) return 0m;
+            decimal min = 1m, max = 0m;
+            for (int i = 0; i < result.Sheets.Count; i++)
+            {
+                var sheet = result.Sheets[i];
+                decimal stock = (decimal)sheet.Stock.WidthMm * sheet.Stock.HeightMm;
+                if (stock <= 0) continue;
+                decimal glass = 0m;
+                for (int p = 0; p < sheet.Pieces.Count; p++)
+                    glass += (decimal)sheet.Pieces[p].WidthMm * sheet.Pieces[p].HeightMm;
+                decimal u = glass / stock;
+                if (u < min) min = u;
+                if (u > max) max = u;
+            }
+            return max - min;
         }
 
         // ── one packing pass ─────────────────────────────────────────────

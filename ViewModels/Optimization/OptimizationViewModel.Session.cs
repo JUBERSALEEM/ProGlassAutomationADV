@@ -465,9 +465,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 })
                 .ToList();
 
-            string platePattern = CurrentPlatePattern == PlatePattern.FillFirstPlate
-                ? "FillFirstPlate"
-                : "Yield";
             var margins = new MarginDto
             {
                 Thickness = ThicknessText,
@@ -477,7 +474,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 Bottom = BottomMarginText,
                 Kerf = KerfText,
                 MinBreakout = MinBreakoutText,
-                PlatePattern = platePattern,
+                PlatePattern = PlatePatternName(),
                 AutoEffort = UseAutoEffort,
                 CutComplexity = (int)CurrentCutComplexity,
                 MinTrimWidthMm = CurrentMinTrimWidthMm
@@ -661,10 +658,7 @@ namespace ProGlassAutomation.ViewModels.Optimization
             RotationEnabled = s.RotationEnabled;
             if (s.EffortLevel >= 1 && s.EffortLevel <= 5)
                 SelectedEffortLevel = s.EffortLevel.ToString(CultureInfo.InvariantCulture);
-            SelectedPlatePattern = string.Equals(margins?.PlatePattern, "FillFirstPlate",
-                    StringComparison.Ordinal)
-                ? FillFirstPlatePatternLabel
-                : YieldPlatePatternLabel;
+            SelectedPlatePattern = LabelForPlatePattern(margins?.PlatePattern);
             if (margins?.AutoEffort == true)
                 SelectedStageStrategy = AutoStageStrategyLabel;
             // Restored AFTER the plate pattern so the hint text is current. An

@@ -204,6 +204,10 @@ namespace ProGlassAutomation.ViewModels.Optimization
 
         public const string YieldPlatePatternLabel = "Yield";
         public const string FillFirstPlatePatternLabel = "Fill first plate";
+        public const string FewestCutsPatternLabel = "Fewest cuts";
+        public const string MinimiseStockChangesPatternLabel = "Minimise stock changes";
+        public const string RemnantFirstPatternLabel = "Remnant-first (leave reusable offcuts)";
+        public const string BalancedSpreadPatternLabel = "Balanced spread";
         public const string AutoStageStrategyLabel = "Auto — choose the existing stage from this cutting list";
         public const string Stage1StrategyLabel = "Stage 1: QUICK — area shelf, strips, and bounded patterns";
         public const string Stage2StrategyLabel = "Stage 2: three orderings, best-split, and smart placement";
@@ -335,7 +339,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
         public ObservableCollection<string> PlatePatterns { get; } = new()
         {
             YieldPlatePatternLabel,
-            FillFirstPlatePatternLabel
+            FillFirstPlatePatternLabel,
+            FewestCutsPatternLabel,
+            MinimiseStockChangesPatternLabel,
+            RemnantFirstPatternLabel,
+            BalancedSpreadPatternLabel
         };
 
         private string _selectedPlatePattern = YieldPlatePatternLabel;
@@ -353,18 +361,76 @@ namespace ProGlassAutomation.ViewModels.Optimization
             }
         }
 
-        public string SelectedPlatePatternHint =>
-            CurrentPlatePattern == PlatePattern.FillFirstPlate
-                ? "Fill first plate fills sheet 1 before opening another. It does not add sheets or leave more pieces out."
-                : "Yield keeps today's winner: fewest pieces left out, then fewest sheets. A fuller first sheet does not replace it.";
+        /// <summary>
+        /// What the pattern changes. Every one of them is a tie-break between
+        /// plans that already use the same sheets and leave nothing out — none
+        /// of them may buy its preference by adding a sheet. That limit is the
+        /// point, and the hints say it.
+        /// </summary>
+        public string SelectedPlatePatternHint => CurrentPlatePattern switch
+        {
+            PlatePattern.FillFirstPlate =>
+                "Fills sheet 1 before opening another. It does not add sheets or leave more pieces out.",
+            PlatePattern.FewestCuts =>
+                "Between plans on the same sheet count, takes the one with fewer guillotine cuts — less table time, same material.",
+            PlatePattern.MinimiseStockChanges =>
+                "Between plans on the same sheet count, takes the one reaching for fewer stock sizes and switching between them less often.",
+            PlatePattern.RemnantFirst =>
+                "Between plans on the same sheet count, takes the one that concentrates its leftover on one sheet, so the waste is big enough to come off as a usable offcut. It chooses plans that leave reusable leftovers — it does not yet reuse them.",
+            PlatePattern.BalancedSpread =>
+                "Between plans on the same sheet count, takes the one whose sheets are most evenly loaded. Three even plates beat two full ones and a nearly empty one.",
+            _ =>
+                "Today's winner: fewest pieces left out, then fewest sheets. A fuller first sheet does not replace it."
+        };
 
         public PlatePattern CurrentPlatePattern =>
             string.Equals(SelectedPlatePattern, FillFirstPlatePatternLabel, StringComparison.Ordinal)
                 ? PlatePattern.FillFirstPlate
-                : PlatePattern.Yield;
+                : string.Equals(SelectedPlatePattern, FewestCutsPatternLabel, StringComparison.Ordinal)
+                    ? PlatePattern.FewestCuts
+                    : string.Equals(SelectedPlatePattern, MinimiseStockChangesPatternLabel, StringComparison.Ordinal)
+                        ? PlatePattern.MinimiseStockChanges
+                        : string.Equals(SelectedPlatePattern, RemnantFirstPatternLabel, StringComparison.Ordinal)
+                            ? PlatePattern.RemnantFirst
+                            : string.Equals(SelectedPlatePattern, BalancedSpreadPatternLabel, StringComparison.Ordinal)
+                                ? PlatePattern.BalancedSpread
+                                : PlatePattern.Yield;
 
-        private string PlatePatternStamp() =>
-            CurrentPlatePattern == PlatePattern.FillFirstPlate ? "fill first plate" : "yield";
+        /// <summary>
+        /// Stable name written into a saved session. Additive on purpose: a
+        /// name this build does not know restores to Yield, so a session saved
+        /// by a newer build still opens on an older one.
+        /// </summary>
+        public string PlatePatternName() => CurrentPlatePattern switch
+        {
+            PlatePattern.FillFirstPlate => "FillFirstPlate",
+            PlatePattern.FewestCuts => "FewestCuts",
+            PlatePattern.MinimiseStockChanges => "MinimiseStockChanges",
+            PlatePattern.RemnantFirst => "RemnantFirst",
+            PlatePattern.BalancedSpread => "BalancedSpread",
+            _ => "Yield"
+        };
+
+        /// <summary>Inverse of <see cref="PlatePatternName"/> for restore.</summary>
+        public static string LabelForPlatePattern(string? name) => name switch
+        {
+            "FillFirstPlate" => FillFirstPlatePatternLabel,
+            "FewestCuts" => FewestCutsPatternLabel,
+            "MinimiseStockChanges" => MinimiseStockChangesPatternLabel,
+            "RemnantFirst" => RemnantFirstPatternLabel,
+            "BalancedSpread" => BalancedSpreadPatternLabel,
+            _ => YieldPlatePatternLabel
+        };
+
+        private string PlatePatternStamp() => CurrentPlatePattern switch
+        {
+            PlatePattern.FillFirstPlate => "fill first plate",
+            PlatePattern.FewestCuts => "fewest cuts",
+            PlatePattern.MinimiseStockChanges => "minimise stock changes",
+            PlatePattern.RemnantFirst => "remnant-first",
+            PlatePattern.BalancedSpread => "balanced spread",
+            _ => "yield"
+        };
 
         // ── cutting complexity (PHASE 1, 2026-09-26) ─────────────────────
         //

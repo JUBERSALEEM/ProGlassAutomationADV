@@ -51,7 +51,25 @@ namespace ProGlassAutomation.Services.Optimization
         /// <summary>Fewest unplaced, then fewest sheets, then utilization. An equal sheet count keeps the incumbent.</summary>
         Yield = 0,
         /// <summary>Same sheet and unplaced limits, then the fuller leading sheet.</summary>
-        FillFirstPlate = 1
+        FillFirstPlate = 1,
+        /// <summary>Same sheet and unplaced limits, then the plan with fewer
+        /// guillotine cuts. Decides between plans that already use the same
+        /// number of sheets — it never buys a cut by adding a sheet.</summary>
+        FewestCuts = 2,
+        /// <summary>Same sheet and unplaced limits, then fewer distinct stock
+        /// sizes and fewer switches between them. Every switch is a rack move
+        /// and a setup on the floor.</summary>
+        MinimiseStockChanges = 3,
+        /// <summary>Same sheet and unplaced limits, then the plan that pushes
+        /// its leftover onto ONE sheet, so the waste is big enough to come off
+        /// as a usable remnant instead of several slivers. This is the pattern
+        /// WITHOUT the remnant inventory: it chooses plans that leave reusable
+        /// leftovers, it does not yet reuse them.</summary>
+        RemnantFirst = 4,
+        /// <summary>Same sheet and unplaced limits, then the plan whose sheets
+        /// are most evenly loaded — three even plates beat two full ones and a
+        /// nearly empty one.</summary>
+        BalancedSpread = 5
     }
 
     /// <summary>Direction a guillotine cut line runs.</summary>
