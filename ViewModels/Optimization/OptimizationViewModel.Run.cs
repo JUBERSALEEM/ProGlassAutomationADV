@@ -214,6 +214,91 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// <summary>True when a status/validation message should be shown in the header.</summary>
         public bool HasRunMessage => !string.IsNullOrWhiteSpace(_runMessage);
 
+        // ── run notes, classified ───────────────────────────────────────
+        // The engine writes 38 different notes into OptimizationResult.
+        // ScaleNotes. Until now the run pipeline joined them all into one
+        // RunMessage paragraph, so "this layout cannot be cut" sat in the same
+        // sentence as a utilisation percentage and read like background noise.
+        // They are surfaced separately here, rated, and the critical ones get
+        // a popup.
+
+        public enum RunNoteSeverity { Info, Warning, Error }
+
+        public sealed class RunNoteVm
+        {
+            public string Text { get; init; } = string.Empty;
+            public RunNoteSeverity Severity { get; init; } = RunNoteSeverity.Info;
+        }
+
+        /// <summary>Notes from the latest run, most severe first.</summary>
+        public ObservableCollection<RunNoteVm> RunNotes { get; } = new();
+
+        /// <summary>True when the latest run produced a plan that cannot be
+        /// produced as drawn. Drives the warning banner.</summary>
+        public bool HasCriticalRunNotes =>
+            RunNotes.Any(n => n.Severity == RunNoteSeverity.Error);
+
+        /// <summary>True when there is anything worth showing at all.</summary>
+        public bool HasRunNotes => RunNotes.Count > 0;
+
+        /// <summary>
+        /// Rates one engine note. Keyed on the note's own wording on purpose:
+        /// it covers notes from anywhere in the engine, including ones added
+        /// later, without the engine having to know about severities.
+        ///
+        /// Error is reserved for "this plan cannot be produced as drawn" —
+        /// the only category that must stop someone sending it to the table.
+        /// </summary>
+        private static RunNoteSeverity ClassifyNote(string note)
+        {
+            if (note.Contains("CUT REACHABILITY", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("CUT SEQUENCE", StringComparison.OrdinalIgnoreCase))
+                return RunNoteSeverity.Error;
+
+            if (note.Contains("GUILLOTINE POLICY", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("UNPLACED", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("BUDGET", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("REDUCED", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("SKIPPED", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("WARNING", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("NO VALID", StringComparison.OrdinalIgnoreCase))
+                return RunNoteSeverity.Warning;
+
+            return RunNoteSeverity.Info;
+        }
+
+        private void PublishRunNotes(IEnumerable<string> notes)
+        {
+            RunNotes.Clear();
+
+            foreach (var note in notes
+                         .Where(n => !string.IsNullOrWhiteSpace(n))
+                         .Distinct()
+                         .Select(n => new RunNoteVm { Text = n, Severity = ClassifyNote(n) })
+                         .OrderByDescending(n => n.Severity))
+                RunNotes.Add(note);
+
+            OnPropertyChanged(nameof(HasCriticalRunNotes));
+            OnPropertyChanged(nameof(HasRunNotes));
+
+            // A warning the operator never sees is not a warning. These mean
+            // the plan cannot be cut as drawn, so they interrupt rather than
+            // sit in a paragraph under a number.
+            var critical = RunNotes
+                .Where(n => n.Severity == RunNoteSeverity.Error)
+                .Select(n => n.Text)
+                .ToList();
+
+            if (critical.Count > 0)
+                _dialogs?.Warning(
+                    "This run produced a layout that cannot be cut as drawn:\n\n"
+                    + string.Join("\n\n", critical.Select(t => "\u2022 " + t))
+                    + "\n\nDo not send this plan to the table. Raise the effort level, "
+                    + "or turn the guillotine policy on so uncuttable plans are refused "
+                    + "instead of offered.",
+                    "Plan is not cuttable");
+        }
+
         // ── async run state (progress bar + button gating) ─────────────
         private bool _isRunning;
         public bool IsRunning
@@ -698,6 +783,11 @@ namespace ProGlassAutomation.ViewModels.Optimization
                         ? notes
                         : RunMessage + " " + notes;
                 }
+
+                // Kept alongside RunMessage, not instead of it: the joined
+                // string is what the header shows, and the operator may have
+                // grown used to reading it there.
+                PublishRunNotes(scaleNotes);
 
                 // Same append-never-replace rule: the summary ApplyResults wrote
                 // is what the operator reads first.

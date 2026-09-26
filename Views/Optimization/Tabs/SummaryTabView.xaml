@@ -131,6 +131,56 @@
                 <!-- ══ 2. DETAILED BREAKDOWN & SHEET SCHEDULE WORKSPACE ══ -->
                 <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
                     <StackPanel>
+
+                        <!-- ══ RUN NOTES ══
+                             The engine writes 38 different notes into
+                             OptimizationResult.ScaleNotes. The run pipeline
+                             used to join them all into one RunMessage
+                             paragraph, so "this layout cannot be cut" sat in
+                             the same sentence as a utilisation percentage and
+                             read as background noise. Shown here instead,
+                             rated by severity; the critical ones also raise a
+                             popup the moment the run finishes. -->
+                        <Border Margin="0,0,0,14" Padding="14,12" CornerRadius="8"
+                                Background="{DynamicResource SurfaceSecondaryBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                Visibility="{Binding HasRunNotes, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="RUN NOTES" Style="{StaticResource OptHeader}" Margin="0,0,0,10"/>
+                                <ItemsControl ItemsSource="{Binding RunNotes}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,9">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="4"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" CornerRadius="2" Margin="0,0,10,0">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="{DynamicResource TextTertiaryBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Severity}" Value="Warning">
+                                                                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Severity}" Value="Error">
+                                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                </Border>
+                                                <TextBlock Grid.Column="1" Text="{Binding Text}" FontSize="11"
+                                                           TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           ToolTip="{Binding Text}"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+
                         <!-- Per Cutting Group Breakdown Section -->
                         <TextBlock Text="PER-CUTTING-GROUP BREAKDOWN" Style="{StaticResource OptHeader}" Margin="0,0,0,10"/>
                         <ItemsControl ItemsSource="{Binding GroupResults}">
