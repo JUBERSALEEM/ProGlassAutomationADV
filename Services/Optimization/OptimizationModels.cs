@@ -768,6 +768,13 @@ namespace ProGlassAutomation.Services.Optimization
         /// value. See finding F1.</summary>
         public int UncuttableSheetCount { get; set; }
 
+        /// <summary>Sheets that DO carry a cut sequence, but whose sequence,
+        /// replayed, does not separate the panes the plan places on them. Zero
+        /// is the only good value. Distinct from
+        /// <see cref="UncuttableSheetCount"/>: that one is "no sequence could
+        /// be found", this one is "the recorded sequence is wrong".</summary>
+        public int InconsistentCutSheetCount { get; set; }
+
         /// <summary>Provable lower bound on the sheet count for this job.
         /// Deliberately weak (area only): the true minimum is at least this.
         /// See finding F2.</summary>

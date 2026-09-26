@@ -188,6 +188,146 @@ namespace ProGlassAutomation.Services.Optimization
             return list;
         }
 
+        /// <summary>
+        /// Replays every sheet's recorded cut sequence and counts the sheets
+        /// where the replay does not separate the panes the plan claims to
+        /// produce.
+        ///
+        /// Deliberately independent of <see cref="DeriveLeftovers"/>: an oracle
+        /// that reuses the code it is checking can only confirm that the code
+        /// agrees with itself. This rebuilds the cells from the cut list from
+        /// scratch and asks the one question a cutting table cares about — once
+        /// every cut on the list has been made, is each pane in a cell of its
+        /// own?
+        ///
+        /// Two failures are possible and both are real:
+        ///   two panes left sharing one cell, so they are never separated from
+        ///     each other and the plan cannot be produced as drawn;
+        ///   a pane outside every cell, which means a recorded cut line runs
+        ///     straight through it.
+        ///
+        /// It REPORTS ONLY. VerifyComprehensive is used as an acceptance
+        /// predicate in more than one place, and a check this strict belongs
+        /// behind a decision rather than quietly wired into one.
+        /// </summary>
+        internal static int AuditCutConsistency(OptimizationResult result, int kerfMm)
+        {
+            if (result == null) return 0;
+            int bad = 0;
+
+            for (int i = 0; i < result.Sheets.Count; i++)
+            {
+                var sheet = result.Sheets[i];
+                if (sheet.Pieces.Count == 0) continue;
+                // No sequence at all is E1.1's finding, not this one. Counting
+                // it here as well would double-report every MaxRects sheet.
+                if (sheet.Cuts.Count == 0) continue;
+
+                if (!CutSequenceSeparates(sheet, kerfMm)) bad++;
+            }
+
+            result.InconsistentCutSheetCount = bad;
+            if (bad > 0)
+                result.ScaleNotes.Add("CUT SEQUENCE: " + bad
+                    + " sheet(s) carry a cut list that does not, when replayed, separate "
+                    + "the panes the plan places on them. The CNC export would not match "
+                    + "the layout on screen.");
+
+            return bad;
+        }
+
+        /// <summary>
+        /// Replays the cut list and checks the resulting cells hold at most one
+        /// pane each and between them cover every pane.
+        /// </summary>
+        private static bool CutSequenceSeparates(SheetLayout sheet, int kerfMm)
+        {
+            var cells = new List<RemnantRegion>
+            {
+                new RemnantRegion
+                {
+                    SheetNo = sheet.SheetNo, X = sheet.UsableX, Y = sheet.UsableY,
+                    WidthMm = sheet.UsableWidth, HeightMm = sheet.UsableHeight
+                }
+            };
+
+            double kerf = kerfMm > 0 ? kerfMm : 0;
+
+            foreach (var cut in sheet.Cuts)
+            {
+                var next = new List<RemnantRegion>(cells.Count + 1);
+
+                for (int k = 0; k < cells.Count; k++)
+                {
+                    var r = cells[k];
+                    if (!Crosses(cut, r)) { next.Add(r); continue; }
+
+                    if (cut.Axis == CutAxis.Vertical)
+                    {
+                        double leftWidth = cut.AtMm - r.X;
+                        next.Add(new RemnantRegion
+                        {
+                            SheetNo = sheet.SheetNo, X = r.X, Y = r.Y,
+                            WidthMm = leftWidth, HeightMm = r.HeightMm
+                        });
+                        next.Add(new RemnantRegion
+                        {
+                            SheetNo = sheet.SheetNo, X = cut.AtMm + kerf, Y = r.Y,
+                            WidthMm = r.WidthMm - leftWidth - kerf, HeightMm = r.HeightMm
+                        });
+                    }
+                    else
+                    {
+                        double bottomHeight = cut.AtMm - r.Y;
+                        next.Add(new RemnantRegion
+                        {
+                            SheetNo = sheet.SheetNo, X = r.X, Y = r.Y,
+                            WidthMm = r.WidthMm, HeightMm = bottomHeight
+                        });
+                        next.Add(new RemnantRegion
+                        {
+                            SheetNo = sheet.SheetNo, X = r.X, Y = cut.AtMm + kerf,
+                            WidthMm = r.WidthMm, HeightMm = r.HeightMm - bottomHeight - kerf
+                        });
+                    }
+                }
+
+                cells = next;
+            }
+
+            double tol = (kerfMm > 0 ? kerfMm : 0) + 0.5;
+            var occupancy = new int[cells.Count];
+
+            for (int p = 0; p < sheet.Pieces.Count; p++)
+            {
+                var piece = sheet.Pieces[p];
+                int found = -1;
+
+                for (int c = 0; c < cells.Count; c++)
+                {
+                    var r = cells[c];
+                    if (piece.X >= r.X - tol
+                        && piece.Y >= r.Y - tol
+                        && piece.X + piece.WidthMm <= r.X + r.WidthMm + tol
+                        && piece.Y + piece.HeightMm <= r.Y + r.HeightMm + tol)
+                    {
+                        found = c;
+                        break;
+                    }
+                }
+
+                // Outside every cell: a recorded cut line crosses this pane.
+                if (found < 0) return false;
+                occupancy[found]++;
+            }
+
+            // Two panes in one cell were never separated from each other.
+            for (int c = 0; c < occupancy.Length; c++)
+                if (occupancy[c] > 1) return false;
+
+            return true;
+        }
+
         // ── geometry ────────────────────────────────────────────────────
 
         /// <summary>True when the cut line passes fully through the region.

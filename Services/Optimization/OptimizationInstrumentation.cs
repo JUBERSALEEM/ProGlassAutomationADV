@@ -42,6 +42,7 @@ namespace ProGlassAutomation.Services.Optimization
             if (result == null) return;
 
             AuditCutReachability(result);
+            GuillotinePacker.AuditCutConsistency(result, margins?.KerfMm ?? 0);
             MeasureOptimality(result, stocks, margins, rotation);
         }
 
