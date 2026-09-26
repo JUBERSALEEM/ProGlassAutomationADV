@@ -347,7 +347,9 @@ namespace ProGlassAutomation.Services.Optimization
             bool reuseOffcuts = false,
             bool localSearch = false,
             bool enableSwaps = false,
-            bool remainderAware = false)
+            bool remainderAware = false,
+            bool wideBeam = false,
+            bool parallelEval = false)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -468,57 +470,131 @@ namespace ProGlassAutomation.Services.Optimization
             }
             void Consider(OptimizationResult candidate) =>
                 best = Better(best, CheckCandidate(candidate, pieces, margins, cancellationToken), platePattern);
-            for (int ci = 0; ci < comboList.Count; ci++)
+            // PHASE E3.1 — EVALUATE THE POOL IN PARALLEL.
+            //
+            // Multi-start is embarrassingly parallel, and the reduction is a
+            // deterministic minimum over a total order, so the winner is the
+            // same plan the sequential loop would have produced — provided the
+            // search budget does not bind. When it binds it CHANGES the plan:
+            // the sequential loop stops adding candidates part-way through,
+            // this one finishes all of them. That is a better plan more
+            // slowly, which is a trade worth making deliberately, hence the
+            // switch.
+            //
+            // Two shared things had to be made safe first:
+            //   sortCache is a Dictionary written on first use. A concurrent
+            //   write can corrupt it, so every ordering is prepared up front,
+            //   on one thread, and the parallel section only reads it.
+            //   progress is not marshalled across threads, so the parallel
+            //   section reports nothing and the bar moves once at the end.
+            //
+            // THREAD-SAFETY OF RunPass ITSELF IS REASONED, NOT MEASURED. It
+            // takes its own piece list, treats stocks and margins as
+            // read-only, and keeps no state between calls — but that was
+            // established by reading it, and this environment cannot compile
+            // or run the suite. The switch exists so it can be validated on a
+            // machine that can.
+            void RunCombosParallel()
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                // Checked at the candidate boundary, never mid-placement: a plan
-                // half-built is worth nothing, a plan completed and then stopped
-                // is worth exactly what it always was.
-                if (BudgetExhausted())
+                var orderedBy = new List<CutPiece>[comboList.Count];
+                for (int ci = 0; ci < comboList.Count; ci++)
                 {
-                    budgetStopped = true;
-                    break;
+                    var (order, split, shuffle) = comboList[ci];
+                    if (!sortCache.TryGetValue(order, out var ordered))
+                    {
+                        ordered = Sort(pieces, order);
+                        sortCache[order] = ordered;
+                    }
+                    orderedBy[ci] = shuffle > 0
+                        ? ShuffleDeterministic(ordered, 17 + shuffle * 131 + (int)order * 7)
+                        : ordered;
                 }
 
-                var (order, split, shuffle) = comboList[ci];
+                var results = new OptimizationResult[comboList.Count];
+                System.Threading.Tasks.Parallel.For(0, comboList.Count,
+                    new System.Threading.Tasks.ParallelOptions { CancellationToken = cancellationToken },
+                    ci =>
+                    {
+                        var (order, split, shuffle) = comboList[ci];
+                        results[ci] = RunPass(orderedBy[ci], stocks, margins, rotation, split,
+                            cancellationToken, plan.MaxConsolidationSweeps, null,
+                            plan.OpenSheetWindow, policy: policy);
+                    });
 
-                if (!sortCache.TryGetValue(order, out var ordered))
+                // Fold in candidate order. Better() is a deterministic total
+                // preorder, so folding in a fixed order reaches the same
+                // winner the sequential loop would have reached.
+                for (int ci = 0; ci < results.Length; ci++)
                 {
-                    ordered = Sort(pieces, order);
-                    sortCache[order] = ordered;
+                    var candidate = results[ci];
+                    if (candidate == null) continue;
+
+                    var (order, split, shuffle) = comboList[ci];
+                    candidate.Strategy = $"GRID ({order} / {split}"
+                        + (shuffle > 0 ? $" / shuffle {shuffle}" : "") + ")";
+                    Consider(candidate);
                 }
-                if (shuffle > 0)
-                    ordered = ShuffleDeterministic(ordered, 17 + shuffle * 131 + (int)order * 7);
 
-                progress?.Report(OptimizeProgress.Of("pass", ci, smartTotal,
-                    $"Pass {ci + 1} of {comboList.Count}: {order} / {split}" +
-                    (shuffle > 0 ? $" / shuffle {shuffle}" : "")));
+                progress?.Report(OptimizeProgress.Of("pass", comboList.Count, smartTotal,
+                    $"Evaluated {comboList.Count} candidates in parallel"));
+            }
 
-                // A single-candidate search (effort 1) has no candidate
-                // sequence to drive the bar, so hand the sink to the pass
-                // itself: real per-part progress instead of one 0% → 100%
-                // jump. Multi-candidate runs keep the candidate-level reports
-                // above, which are already smooth, and pay no per-part cost.
-                int window = plan.OpenSheetWindow;
-                var candidate = RunPass(ordered, stocks, margins, rotation, split,
-                    cancellationToken, plan.MaxConsolidationSweeps,
-                    comboList.Count == 1 ? progress : null, window, policy: policy);
-                // Tag with the EXACT candidate this plan came from — the
-                // ordering and (for effort 4/5) the deterministic shuffle
-                // index. RunPass's default "GRID ({split})" hides the
-                // ordering, so a winning shuffled pass was indistinguishable
-                // from the plain one in the "Strategy breakdown" line.
-                //
-                // Effort 1 runs exactly the QUICK pass (that is the contract
-                // Benchmark_OptimizeStage_NeverRegressesQuick is built on),
-                // so it carries the same label QUICK does — a one-candidate
-                // run is not a grid.
-                candidate.Strategy = comboList.Count == 1
-                    ? $"QUICK SHELF ({order} / {split})"
-                    : $"GRID ({order} / {split}" +
-                      (shuffle > 0 ? $" / shuffle {shuffle}" : "") + ")";
-                Consider(candidate);
+            if (parallelEval && comboList.Count > 1)
+                RunCombosParallel();
+            else
+            {
+                for (int ci = 0; ci < comboList.Count; ci++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    // Checked at the candidate boundary, never mid-placement: a plan
+                    // half-built is worth nothing, a plan completed and then stopped
+                    // is worth exactly what it always was.
+                    if (BudgetExhausted())
+                    {
+                        budgetStopped = true;
+                        break;
+                    }
+
+                    var (order, split, shuffle) = comboList[ci];
+
+                    if (!sortCache.TryGetValue(order, out var ordered))
+                    {
+                        ordered = Sort(pieces, order);
+                        sortCache[order] = ordered;
+                    }
+                    if (shuffle > 0)
+                        ordered = ShuffleDeterministic(ordered, 17 + shuffle * 131 + (int)order * 7);
+
+                    progress?.Report(OptimizeProgress.Of("pass", ci, smartTotal,
+                        $"Pass {ci + 1} of {comboList.Count}: {order} / {split}" +
+                        (shuffle > 0 ? $" / shuffle {shuffle}" : "")));
+
+                    // A single-candidate search (effort 1) has no candidate
+                    // sequence to drive the bar, so hand the sink to the pass
+                    // itself: real per-part progress instead of one 0% → 100%
+                    // jump. Multi-candidate runs keep the candidate-level reports
+                    // above, which are already smooth, and pay no per-part cost.
+                    int window = plan.OpenSheetWindow;
+                    var candidate = RunPass(ordered, stocks, margins, rotation, split,
+                        cancellationToken, plan.MaxConsolidationSweeps,
+                        comboList.Count == 1 ? progress : null, window, policy: policy);
+                    // Tag with the EXACT candidate this plan came from — the
+                    // ordering and (for effort 4/5) the deterministic shuffle
+                    // index. RunPass's default "GRID ({split})" hides the
+                    // ordering, so a winning shuffled pass was indistinguishable
+                    // from the plain one in the "Strategy breakdown" line.
+                    //
+                    // Effort 1 runs exactly the QUICK pass (that is the contract
+                    // Benchmark_OptimizeStage_NeverRegressesQuick is built on),
+                    // so it carries the same label QUICK does — a one-candidate
+                    // run is not a grid.
+                    candidate.Strategy = comboList.Count == 1
+                        ? $"QUICK SHELF ({order} / {split})"
+                        : $"GRID ({order} / {split}" +
+                          (shuffle > 0 ? $" / shuffle {shuffle}" : "") + ")";
+                    Consider(candidate);
+                }
             }
 
             // With windowed candidate scanning, advanced strategies (BestSplit, SheetFill,
@@ -599,6 +675,17 @@ namespace ProGlassAutomation.Services.Optimization
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 8, cancellationToken));
+                    }
+
+                    // PHASE E3.3. Beam 16 at the top effort only, and behind a
+                    // switch, so nothing below effort 5 and nothing that does
+                    // not ask for it pays for it. It only ever ADDS a
+                    // candidate and Better() takes the minimum, so it cannot
+                    // make a plan worse - only slower.
+                    if (stage >= 5 && wideBeam)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 16, cancellationToken));
                     }
                 }
             }
