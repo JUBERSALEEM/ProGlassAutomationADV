@@ -206,7 +206,9 @@ namespace ProGlassAutomation.Services.Optimization
             PlatePattern platePattern = PlatePattern.Yield,
             int fillEffort = 1,
             CutPolicy policy = null,
-            bool reuseOffcuts = false)
+            bool reuseOffcuts = false,
+            bool localSearch = false,
+            bool enableSwaps = false)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -288,6 +290,12 @@ namespace ProGlassAutomation.Services.Optimization
             if (reuseOffcuts)
                 NoteOffcutReuse(result, ConsolidateIntoOffcuts(result, pieces, margins, rotation));
 
+            // PHASE E2: placement-level local search. Off by default, and the
+            // swap move has its own switch so relocation and swapping can be
+            // measured separately - combined, neither can be attributed.
+            if (localSearch)
+                NoteLocalSearch(result, LocalSearch(result, pieces, margins, rotation, enableSwaps));
+
             // PHASE 2: register what the plan leaves behind. Derived from the
             // cut sequence, so it reads the finished plan and cannot move a
             // single piece. Anything at least as big as the smallest pane the
@@ -336,7 +344,9 @@ namespace ProGlassAutomation.Services.Optimization
             PlatePattern platePattern = PlatePattern.Yield,
             CutPolicy policy = null,
             int maxStage = 0,
-            bool reuseOffcuts = false)
+            bool reuseOffcuts = false,
+            bool localSearch = false,
+            bool enableSwaps = false)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -655,6 +665,10 @@ namespace ProGlassAutomation.Services.Optimization
             // PHASE 2 part 2: see PackQuick.
             if (reuseOffcuts)
                 NoteOffcutReuse(final, ConsolidateIntoOffcuts(final, pieces, margins, rotation));
+
+            // PHASE E2: see PackQuick.
+            if (localSearch)
+                NoteLocalSearch(final, LocalSearch(final, pieces, margins, rotation, enableSwaps));
 
             // PHASE 2: see PackQuick. Derived from cuts, never from placements.
             DeriveLeftovers(final, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);

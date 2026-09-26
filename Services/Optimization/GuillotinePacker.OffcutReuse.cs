@@ -86,11 +86,12 @@ namespace ProGlassAutomation.Services.Optimization
                 if (result.Sheets.Count < 2) break;
             }
 
-            if (removed > 0)
-            {
-                RenumberSheets(result);
-                DeriveLeftovers(result, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
-            }
+            RenumberSheets(result);
+
+            // Unconditional, for the same reason as the local search: an
+            // attempt that was rolled back leaves rectangles that no longer
+            // exist, and both the report and the DXF export draw them.
+            DeriveLeftovers(result, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
 
             return removed;
         }
@@ -251,6 +252,13 @@ namespace ProGlassAutomation.Services.Optimization
                 sheet.Pieces.AddRange(entry.Pieces);
                 sheet.Cuts.Clear();
                 sheet.Cuts.AddRange(entry.Cuts);
+
+                // Leftovers are NOT part of the snapshot: they are derived,
+                // and an undone move must not leave its rectangles behind.
+                // Clearing them is what makes a rollback honest — the callers
+                // re-derive from the restored cuts.
+                sheet.Leftovers.Clear();
+
                 result.Sheets.Add(sheet);
             }
         }
