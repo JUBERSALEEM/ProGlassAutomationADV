@@ -360,6 +360,19 @@ engine we already own on small jobs. Sequence the work that way.
 - Cut lists roll back with the pieces they belong to, at both rollback
   sites: consolidation (`SnapshotBeforeWrite`) and the fill-first-plate
   trial loop (`CaptureSheet` / `RestoreSheet`). `ClonePlan` copies them.
+- Three paths stamp pieces straight onto a layout instead of going through
+  `Commit` (the repeat-pattern stamper, the MaxRects candidates, the skyline
+  placer). Their sheets are reconstructed from the finished layout by
+  `TryDeriveGuillotineCuts`, which finds a straight line that splits the
+  pieces without crossing one and recurses.
+- **Finding that fell out of this:** that reconstruction is also a
+  guillotine-validity test, and it can FAIL. MaxRects is a free-rectangle
+  decomposition, so it can produce layouts no guillotine table can cut. A
+  sheet like that is deliberately left with an EMPTY cut list rather than
+  given invented cuts — but it means the engine has been able to emit
+  uncuttable plans on a glass table. Worth a follow-up: either drop the
+  MaxRects candidate, or add guillotine validity to the oracle and refuse
+  such plans.
 - No consumer yet: this phase only makes the data exist (unblocks
   phases 1, 2 and 4).
 

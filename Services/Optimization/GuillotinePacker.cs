@@ -275,6 +275,13 @@ namespace ProGlassAutomation.Services.Optimization
             result = ApplyPlatePattern(result, pieces, stocks, margins, rotation,
                 fillEffort, platePattern, cancellationToken, progress, policy);
 
+            // PHASE 0: give every sheet a cut sequence. Paths that stamp
+            // pieces straight onto a layout leave it without one, and a plan
+            // nobody can cut is not a plan.
+            for (int i = 0; i < result.Sheets.Count; i++)
+                if (result.Sheets[i].Cuts.Count == 0)
+                    TryDeriveGuillotineCuts(result.Sheets[i]);
+
             // A staged plan that does not honour its own pattern is as useless
             // as one that loses pieces, so it is reported the same way.
             if (staged)
@@ -614,6 +621,10 @@ namespace ProGlassAutomation.Services.Optimization
             final.RecordValidation(problems, conservationChecked: true, geometryChecked: true);
             final = ApplyPlatePattern(final, pieces, stocks, margins, rotation,
                 effortLevel, platePattern, cancellationToken, progress, policy);
+
+            for (int i = 0; i < final.Sheets.Count; i++)
+                if (final.Sheets[i].Cuts.Count == 0)
+                    TryDeriveGuillotineCuts(final.Sheets[i]);
 
             if (staged)
             {
@@ -1198,15 +1209,6 @@ namespace ProGlassAutomation.Services.Optimization
         }
 
         /// <summary>
-        /// PHASE 1 oracle: does this plan obey the cut policy it was built
-        /// under? Deliberately separate from <see cref="Verify"/> (geometry,
-        /// kerf, overlaps) and ValidateResult (conservation): it checks a
-        /// different property — not whether the layout is legal, but whether
-        /// the CUTS that produce it are the ones the operator asked for.
-        ///
-        /// Returns the list of violations; empty means the pattern holds.
-        /// </summary>
-        /// <summary>
         /// True when any piece in this cutting group is laminated, from the
         /// piece's own glass type ("LAM", "DGU+LAM") or — when that field was
         /// never filled in — from an interlayer named in its glass reference
@@ -1261,6 +1263,112 @@ namespace ProGlassAutomation.Services.Optimization
             }
             return false;
         }
+
+        /// <summary>
+        /// PHASE 0 fallback: reconstructs a sheet's guillotine cut sequence
+        /// from the pieces already sitting on it.
+        ///
+        /// Needed because three packing paths stamp pieces straight onto a
+        /// layout instead of going through Commit — the repeat-pattern
+        /// stamper, the MaxRects candidates and the skyline placer — so their
+        /// sheets would otherwise carry no cut sequence at all, and a CNC
+        /// export would silently have nothing to write for them.
+        ///
+        /// It finds a straight line that splits the region's pieces into two
+        /// non-empty groups without crossing any piece — the definition of a
+        /// guillotine cut — and recurses. It never INVENTS cuts: when no such
+        /// line exists the layout is not guillotine-cuttable, and the sheet is
+        /// deliberately left with an empty cut list. That is a finding in its
+        /// own right, and on a glass table it is one that matters.
+        /// </summary>
+        internal static bool TryDeriveGuillotineCuts(SheetLayout sheet)
+        {
+            if (sheet == null || sheet.Pieces.Count == 0) return false;
+
+            var cuts = new List<CutStep>();
+            int budget = 20000;
+            bool ok = DeriveCuts(sheet.UsableX, sheet.UsableY, sheet.UsableWidth, sheet.UsableHeight,
+                new List<PlacedPiece>(sheet.Pieces), 1, cuts, ref budget);
+            if (!ok) return false;
+
+            sheet.Cuts.Clear();
+            for (int i = 0; i < cuts.Count; i++)
+                sheet.Cuts.Add(cuts[i]);
+            return true;
+        }
+
+        private static bool DeriveCuts(int x, int y, int w, int h, List<PlacedPiece> pieces,
+            int stage, List<CutStep> cuts, ref int budget)
+        {
+            if (pieces.Count <= 1) return true;
+            if (budget <= 0) return false;
+
+            for (int i = 0; i < pieces.Count; i++)
+            {
+                budget--;
+                int cutAt = pieces[i].X + pieces[i].WidthMm;
+                if (cutAt <= x || cutAt >= x + w) continue;
+                if (!SplitAt(pieces, vertical: true, cutAt, out var left, out var right)) continue;
+
+                int mark = cuts.Count;
+                cuts.Add(DerivedCut(cuts.Count + 1, CutAxis.Vertical, cutAt, x, y, w, h, stage));
+                if (DeriveCuts(x, y, cutAt - x, h, left, stage + 1, cuts, ref budget)
+                    && DeriveCuts(cutAt, y, x + w - cutAt, h, right, stage + 1, cuts, ref budget))
+                    return true;
+                cuts.RemoveRange(mark, cuts.Count - mark);
+            }
+
+            for (int i = 0; i < pieces.Count; i++)
+            {
+                budget--;
+                int cutAt = pieces[i].Y + pieces[i].HeightMm;
+                if (cutAt <= y || cutAt >= y + h) continue;
+                if (!SplitAt(pieces, vertical: false, cutAt, out var below, out var above)) continue;
+
+                int mark = cuts.Count;
+                cuts.Add(DerivedCut(cuts.Count + 1, CutAxis.Horizontal, cutAt, x, y, w, h, stage));
+                if (DeriveCuts(x, y, w, cutAt - y, below, stage + 1, cuts, ref budget)
+                    && DeriveCuts(x, cutAt, w, y + h - cutAt, above, stage + 1, cuts, ref budget))
+                    return true;
+                cuts.RemoveRange(mark, cuts.Count - mark);
+            }
+
+            return false;
+        }
+
+        /// <summary>Splits a piece list at a candidate cut line. False when the
+        /// line crosses a piece (not a guillotine cut) or leaves one side empty
+        /// (a cut that accomplishes nothing).</summary>
+        private static bool SplitAt(List<PlacedPiece> pieces, bool vertical, int at,
+            out List<PlacedPiece> low, out List<PlacedPiece> high)
+        {
+            low = new List<PlacedPiece>();
+            high = new List<PlacedPiece>();
+            for (int i = 0; i < pieces.Count; i++)
+            {
+                var p = pieces[i];
+                int start = vertical ? p.X : p.Y;
+                int end = start + (vertical ? p.WidthMm : p.HeightMm);
+                if (end <= at) low.Add(p);
+                else if (start >= at) high.Add(p);
+                else return false;
+            }
+            return low.Count > 0 && high.Count > 0;
+        }
+
+        private static CutStep DerivedCut(int seq, CutAxis axis, int atMm,
+            int x, int y, int w, int h, int stage) => new CutStep
+            {
+                Seq = seq,
+                Axis = axis,
+                AtMm = atMm,
+                FromX = x,
+                FromY = y,
+                FromW = w,
+                FromH = h,
+                Stage = stage,
+                IsTrim = false
+            };
 
         /// <summary>
         /// PHASE 1 oracle: does this plan obey the cut policy it was built

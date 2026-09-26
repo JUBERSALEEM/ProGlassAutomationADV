@@ -261,6 +261,82 @@ public sealed class CutPatternTests
         Assert.Empty(GuillotinePacker.VerifyComprehensive(staged, pieces, Margins));
     }
 
+    // ── Reconstruction of sheets that were stamped, not split ─────────────
+
+    [Fact]
+    public void Cut_reconstruction_recovers_a_simple_guillotine_layout()
+    {
+        // Two pieces side by side across the usable sheet: exactly one cut.
+        var sheet = new SheetLayout
+        {
+            SheetNo = 1, UsableX = 0, UsableY = 0, UsableWidth = 1000, UsableHeight = 800
+        };
+        sheet.Pieces.Add(At(Pane(400, 800, "a"), 0, 0, 400, 800));
+        sheet.Pieces.Add(At(Pane(600, 800, "b"), 400, 0, 600, 800));
+
+        Assert.True(GuillotinePacker.TryDeriveGuillotineCuts(sheet));
+
+        Assert.Single(sheet.Cuts);
+        Assert.Equal(CutAxis.Vertical, sheet.Cuts[0].Axis);
+        Assert.Equal(400, sheet.Cuts[0].AtMm);
+        Assert.Equal(1, sheet.Cuts[0].Stage);
+        Assert.Equal(1, sheet.Cuts[0].Seq);
+    }
+
+    [Fact]
+    public void Cut_reconstruction_walks_a_two_stage_layout_in_execution_order()
+    {
+        // Sheet cut into two columns at x = 500, then each column cut once:
+        // the column cut must be recorded BEFORE the cuts inside the columns.
+        var sheet = new SheetLayout
+        {
+            SheetNo = 1, UsableX = 0, UsableY = 0, UsableWidth = 1000, UsableHeight = 1000
+        };
+        sheet.Pieces.Add(At(Pane(500, 400, "a"), 0, 0, 500, 400));
+        sheet.Pieces.Add(At(Pane(500, 600, "b"), 0, 400, 500, 600));
+        sheet.Pieces.Add(At(Pane(500, 700, "c"), 500, 0, 500, 700));
+        sheet.Pieces.Add(At(Pane(500, 300, "d"), 500, 700, 500, 300));
+
+        Assert.True(GuillotinePacker.TryDeriveGuillotineCuts(sheet));
+        Assert.Equal(3, sheet.Cuts.Count);
+        Assert.Equal(1, sheet.Cuts[0].Seq);
+        Assert.Equal(1, sheet.Cuts[0].Stage);
+        Assert.Equal(CutAxis.Vertical, sheet.Cuts[0].Axis);
+        Assert.Equal(500, sheet.Cuts[0].AtMm);
+        Assert.All(sheet.Cuts, cut => Assert.True(cut.Stage <= 2));
+        Assert.Empty(GuillotinePacker.ValidateCutPattern(
+            new OptimizationResult { Sheets = { sheet } }, CutPolicy.For(CutComplexity.Simple)));
+    }
+
+    [Fact]
+    public void Cut_reconstruction_refuses_a_non_guillotine_layout()
+    {
+        // A pinwheel: every candidate cut line crosses a piece, so there is no
+        // guillotine sequence. The sheet must be left EMPTY rather than given
+        // invented cuts — a plan that cannot be cut on a guillotine table has
+        // to be visible, not papered over.
+        var sheet = new SheetLayout
+        {
+            SheetNo = 1, UsableX = 0, UsableY = 0, UsableWidth = 1000, UsableHeight = 1000
+        };
+        sheet.Pieces.Add(At(Pane(600, 400, "a"), 0, 0, 600, 400));
+        sheet.Pieces.Add(At(Pane(400, 600, "b"), 600, 0, 400, 600));
+        sheet.Pieces.Add(At(Pane(600, 400, "c"), 400, 600, 600, 400));
+        sheet.Pieces.Add(At(Pane(400, 600, "d"), 0, 400, 400, 600));
+
+        Assert.False(GuillotinePacker.TryDeriveGuillotineCuts(sheet));
+        Assert.Empty(sheet.Cuts);
+    }
+
+    private static PlacedPiece At(CutPiece piece, int x, int y, int w, int h) => new()
+    {
+        Piece = piece,
+        X = x,
+        Y = y,
+        WidthMm = w,
+        HeightMm = h
+    };
+
     // ── The policy object itself ─────────────────────────────────────────
 
     [Fact]

@@ -95,11 +95,20 @@ namespace ProGlassAutomation.Services.Optimization
                             WidthMm = transpose ? choice.V : choice.U,
                             HeightMm = transpose ? choice.U : choice.V
                         });
+                        // PHASE 0: this path writes PlacedPiece directly, so it
+                        // records its own cuts — see RecordStripPieceCuts.
+                        RecordStripPieceCuts(sheet, transpose, uOffset, stripWidth, vOffset, choice);
                         pool.Remove(selected);
                         vOffset += choice.V + gap;
                         selected = FindStripPiece(pool, frontier, ordered, stripWidth, usableV - vOffset,
                             rotation, transpose, gap, margins, capacitySeed: false, out choice, flushWidth: uOffset + stripWidth == usableU);
                     }
+                    // PHASE 0: the single cut that separates this strip from the
+                    // rest of the sheet. Emitted after the strip's own cuts —
+                    // a legal execution order, since each cut still crosses the
+                    // whole sub-rectangle it is made in.
+                    if (uOffset + stripWidth < usableU)
+                        RecordStripSeparator(sheet, transpose, uOffset + stripWidth);
                     uOffset += stripWidth + gap;
                     seed = FindStripPiece(pool, frontier, ordered, usableU - uOffset, usableV,
                         rotation, transpose, gap, margins, capacitySeed: true, out seedChoice);
@@ -111,6 +120,82 @@ namespace ProGlassAutomation.Services.Optimization
             result.Sheets.Sort((a, b) => b.UsedSqm.CompareTo(a.UsedSqm));
             for (int i = 0; i < result.Sheets.Count; i++) result.Sheets[i].SheetNo = i + 1;
             return result;
+        }
+
+        /// <summary>
+        /// PHASE 0: the strip builders write <see cref="PlacedPiece"/> directly
+        /// instead of going through Commit, so they have to record their own
+        /// cuts. Otherwise a QUICK plan that wins on capacity strips would
+        /// produce sheets with NO cut sequence at all — the CNC export would
+        /// have nothing to write for a third of the portfolio, and it would
+        /// fail silently.
+        ///
+        /// The order is the physical one: first the cut that separates this
+        /// piece from whatever follows it inside the strip, then — when the
+        /// piece is narrower than its strip — the cut that frees the sliver
+        /// beside it. Interior pieces are allowed to be narrower than the strip
+        /// (TryStripOrientation only applies the width-edge test to strip
+        /// seeds), so that sliver genuinely exists in the layout.
+        /// </summary>
+        private static void RecordStripPieceCuts(
+            SheetLayout sheet, bool transpose, long uOffset, int stripWidth, long vOffset,
+            StripChoice choice)
+        {
+            int px = sheet.UsableX + (int)(transpose ? vOffset : uOffset);
+            int py = sheet.UsableY + (int)(transpose ? uOffset : vOffset);
+            int pw = transpose ? choice.V : choice.U;
+            int ph = transpose ? choice.U : choice.V;
+
+            int sx = sheet.UsableX + (int)(transpose ? 0 : uOffset);
+            int sy = sheet.UsableY + (int)(transpose ? uOffset : 0);
+            int sw = transpose ? sheet.UsableWidth : stripWidth;
+            int sh = transpose ? stripWidth : sheet.UsableHeight;
+
+            if (!transpose)
+            {
+                // Columns: pieces stack downwards, the sliver sits to the right.
+                if (py + ph < sy + sh)
+                    AddStripCut(sheet, CutAxis.Horizontal, py + ph, sx, py, sw, sy + sh - py, 2);
+                if (px + pw < sx + sw)
+                    AddStripCut(sheet, CutAxis.Vertical, px + pw, px, py, sx + sw - px, ph, 3);
+            }
+            else
+            {
+                // Rows: pieces run rightwards, the sliver sits underneath.
+                if (px + pw < sx + sw)
+                    AddStripCut(sheet, CutAxis.Vertical, px + pw, px, py, sx + sw - px, sh, 2);
+                if (py + ph < sy + sh)
+                    AddStripCut(sheet, CutAxis.Horizontal, py + ph, px, py, pw, sy + sh - py, 3);
+            }
+        }
+
+        /// <summary>
+        /// The single full-length cut that separates one strip from the sheet
+        /// (stage 1). Drawn across the whole usable rectangle, which is what a
+        /// guillotine blade does.
+        /// </summary>
+        private static void RecordStripSeparator(SheetLayout sheet, bool transpose, long boundary)
+        {
+            int at = (transpose ? sheet.UsableY : sheet.UsableX) + (int)boundary;
+            AddStripCut(sheet, transpose ? CutAxis.Horizontal : CutAxis.Vertical, at,
+                sheet.UsableX, sheet.UsableY, sheet.UsableWidth, sheet.UsableHeight, 1);
+        }
+
+        private static void AddStripCut(SheetLayout sheet, CutAxis axis, int atMm,
+            int x, int y, int w, int h, int stage)
+        {
+            sheet.Cuts.Add(new CutStep
+            {
+                Seq = sheet.Cuts.Count + 1,
+                Axis = axis,
+                AtMm = atMm,
+                FromX = x,
+                FromY = y,
+                FromW = w,
+                FromH = h,
+                Stage = stage,
+                IsTrim = false
+            });
         }
 
         private static int WidenStrip(StripPool pool, List<int> frontier, List<CutPiece> pieces,
