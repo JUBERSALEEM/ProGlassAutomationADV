@@ -535,6 +535,12 @@ namespace ProGlassAutomation.Services.Optimization
         /// </summary>
         public List<CutStep> Cuts { get; } = new();
 
+        /// <summary>Rectangles the sheet is left holding once every cut is
+        /// made. Filled in by <see cref="GuillotinePacker.DeriveLeftovers(SheetLayout, int, int)"/>
+        /// at the end of the run; empty means the plan predates it, not that
+        /// there is no waste.</summary>
+        public List<RemnantRegion> Leftovers { get; } = new();
+
         /// <summary>How many of this sheet's cuts release no usable stock.</summary>
         public int TrimCutCount
         {

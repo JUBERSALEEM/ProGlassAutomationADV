@@ -85,8 +85,10 @@ public sealed class CncExportTests
         int cuts = plan.Result.Sheets.Sum(s => s.Cuts.Count);
 
         // Per sheet: stock outline + usable rectangle = 8 lines. Then four per
-        // piece and one per cut. Nothing else emits a LINE.
-        int expected = plan.Result.Sheets.Count * 8 + pieces * 4 + cuts;
+        // piece, four per leftover rectangle, one per cut. Nothing else emits
+        // a LINE.
+        int leftovers = plan.Result.Sheets.Sum(s => s.Leftovers.Count);
+        int expected = plan.Result.Sheets.Count * 8 + pieces * 4 + leftovers * 4 + cuts;
         Assert.True(pieces > 0);
         Assert.True(cuts > 0);
         Assert.Equal(expected, lines);

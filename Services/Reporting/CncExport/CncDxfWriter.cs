@@ -15,6 +15,10 @@
 //   Layer PIECES   — every placed pane, as a closed rectangle.
 //   Layer CUTS     — every guillotine cut, in execution order, as a single
 //                    line spanning the rectangle it crosses.
+//   Layer REMNANTS — what the plate is left holding, when the rectangle is
+//                    big enough to rack. Labelled with its size.
+//   Layer WASTE    — the same rectangles when they are too small to be worth
+//                    racking, so nobody mistakes a sliver for a stock plate.
 //   Layer TEXT     — the sheet number and the pane label, so the drawing
 //                    is readable by a human as well as a machine.
 //
@@ -75,6 +79,8 @@ namespace ProGlassAutomation.Services.Reporting.CncExport
             Layer(sb, "SHEET", 8);
             Layer(sb, "PIECES", 3);
             Layer(sb, "CUTS", 1);
+            Layer(sb, "REMNANTS", 4);
+            Layer(sb, "WASTE", 8);
             Layer(sb, "TEXT", 7);
 
             sb.Append("0\nENDTAB\n0\nENDSEC\n");
@@ -135,6 +141,22 @@ namespace ProGlassAutomation.Services.Reporting.CncExport
                     string label = piece.Piece?.PieceLabel;
                     if (!string.IsNullOrWhiteSpace(label))
                         Text(sb, label, originX + piece.X + 10, originY + piece.Y + 10, 12);
+                }
+
+                // What the plate is left holding. Usable offcuts go on their
+                // own layer with their size written on them, so the question
+                // "can I rack this?" is answered on the drawing instead of by
+                // measuring the waste by hand.
+                for (int li = 0; li < sheet.Leftovers.Count; li++)
+                {
+                    var remnant = sheet.Leftovers[li];
+                    Rectangle(sb, remnant.IsUsable ? "REMNANTS" : "WASTE",
+                        originX + remnant.X, originY + remnant.Y,
+                        remnant.WidthMm, remnant.HeightMm);
+
+                    if (remnant.IsUsable)
+                        Text(sb, "OFFCUT " + remnant.SizeLabel,
+                            originX + remnant.X + 10, originY + remnant.Y + 10, 14);
                 }
 
                 // Cuts, in the order the table executes them.

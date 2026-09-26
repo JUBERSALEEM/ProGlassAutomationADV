@@ -282,6 +282,12 @@ namespace ProGlassAutomation.Services.Optimization
                 if (result.Sheets[i].Cuts.Count == 0)
                     TryDeriveGuillotineCuts(result.Sheets[i]);
 
+            // PHASE 2: register what the plan leaves behind. Derived from the
+            // cut sequence, so it reads the finished plan and cannot move a
+            // single piece. Anything at least as big as the smallest pane the
+            // run allows is flagged worth racking.
+            DeriveLeftovers(result, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
+
             // A staged plan that does not honour its own pattern is as useless
             // as one that loses pieces, so it is reported the same way.
             if (staged)
@@ -623,6 +629,9 @@ namespace ProGlassAutomation.Services.Optimization
             for (int i = 0; i < final.Sheets.Count; i++)
                 if (final.Sheets[i].Cuts.Count == 0)
                     TryDeriveGuillotineCuts(final.Sheets[i]);
+
+            // PHASE 2: see PackQuick. Derived from cuts, never from placements.
+            DeriveLeftovers(final, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
 
             if (staged)
             {
