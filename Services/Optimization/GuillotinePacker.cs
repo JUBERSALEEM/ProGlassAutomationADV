@@ -282,8 +282,25 @@ namespace ProGlassAutomation.Services.Optimization
             // pieces straight onto a layout leave it without one, and a plan
             // nobody can cut is not a plan.
             for (int i = 0; i < result.Sheets.Count; i++)
-                if (result.Sheets[i].Cuts.Count == 0)
-                    TryDeriveGuillotineCuts(result.Sheets[i]);
+            {
+                var sheet = result.Sheets[i];
+                if (sheet.Cuts.Count != 0) continue;
+
+                // The return value used to be discarded (finding F1). That
+                // was worse than a bad plan: a failed derivation leaves the
+                // sheet with an EMPTY cut list, and the consistency audit
+                // deliberately skips empty sheets so it does not double
+                // report them. So the one plan that cannot be cut at all was
+                // the only one that said nothing. Rated a warning rather
+                // than an error: it is reported here, not refused, so the
+                // operator decides with the sheet in front of them.
+                if (!TryDeriveGuillotineCuts(sheet) && sheet.Pieces.Count > 0)
+                    result.ScaleNotes.Add(
+                        "WARNING: sheet " + sheet.SheetNo + " holds "
+                        + sheet.Pieces.Count + " pane(s) but no sequence of "
+                        + "straight cuts produces that layout. It cannot be cut "
+                        + "as drawn - open it in the 2D VIEW before exporting.");
+            }
 
             // PHASE 2 part 2: use the offcuts before reporting them. Off by
             // default, so the default run is untouched.
@@ -828,8 +845,25 @@ namespace ProGlassAutomation.Services.Optimization
             }
 
             for (int i = 0; i < final.Sheets.Count; i++)
-                if (final.Sheets[i].Cuts.Count == 0)
-                    TryDeriveGuillotineCuts(final.Sheets[i]);
+            {
+                var sheet = final.Sheets[i];
+                if (sheet.Cuts.Count != 0) continue;
+
+                // The return value used to be discarded (finding F1). That
+                // was worse than a bad plan: a failed derivation leaves the
+                // sheet with an EMPTY cut list, and the consistency audit
+                // deliberately skips empty sheets so it does not double
+                // report them. So the one plan that cannot be cut at all was
+                // the only one that said nothing. Rated a warning rather
+                // than an error: it is reported here, not refused, so the
+                // operator decides with the sheet in front of them.
+                if (!TryDeriveGuillotineCuts(sheet) && sheet.Pieces.Count > 0)
+                    final.ScaleNotes.Add(
+                        "WARNING: sheet " + sheet.SheetNo + " holds "
+                        + sheet.Pieces.Count + " pane(s) but no sequence of "
+                        + "straight cuts produces that layout. It cannot be cut "
+                        + "as drawn - open it in the 2D VIEW before exporting.");
+            }
 
             // PHASE 2 part 2: see PackQuick.
             if (reuseOffcuts)
