@@ -294,6 +294,10 @@ namespace ProGlassAutomation.Services.Optimization
             // run allows is flagged worth racking.
             DeriveLeftovers(result, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
 
+            // PHASE E1: measure the finished plan. Last, so the cut sequences
+            // exist and the reachability audit reads a settled result.
+            OptimizationInstrumentation.Instrument(result, stocks, margins, rotation);
+
             // A staged plan that does not honour its own pattern is as useless
             // as one that loses pieces, so it is reported the same way.
             if (staged)
@@ -655,6 +659,9 @@ namespace ProGlassAutomation.Services.Optimization
             // PHASE 2: see PackQuick. Derived from cuts, never from placements.
             DeriveLeftovers(final, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
 
+            // PHASE E1: see PackQuick.
+            OptimizationInstrumentation.Instrument(final, stocks, margins, rotation);
+
             if (staged)
             {
                 var cutProblems = ValidateCutPattern(final, policy);
@@ -834,7 +841,7 @@ namespace ProGlassAutomation.Services.Optimization
 
         private enum OrderBy { MaxSide, Area, MinSide, Height, Width, Perimeter }
 
-        private static OptimizationResult RunPass(
+        internal static OptimizationResult RunPass(
             IReadOnlyList<CutPiece> orderedPieces,
             IReadOnlyList<StockSize> stocks,
             MarginProfile margins,

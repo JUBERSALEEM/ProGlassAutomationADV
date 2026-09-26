@@ -68,7 +68,7 @@ namespace ProGlassAutomation.Services.Optimization
         /// the best BSSF score until the sheet is full, then open the next.
         /// Matches industrial "complete this plate before starting another".
         /// </summary>
-        private static OptimizationResult RunSheetFill(
+        internal static OptimizationResult RunSheetFill(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, SplitMode split,
             int consolidationSweeps = int.MaxValue,
@@ -144,7 +144,7 @@ namespace ProGlassAutomation.Services.Optimization
         /// Seed sheets with 3-across tall walls (~2130 mm), then fill
         /// leftovers and pack the rest with sheet-fill.
         /// </summary>
-        private static OptimizationResult RunWallSeed(
+        internal static OptimizationResult RunWallSeed(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, SplitMode split,
             int consolidationSweeps = int.MaxValue,
@@ -218,7 +218,7 @@ namespace ProGlassAutomation.Services.Optimization
         /// Non-guillotine MaxRects BSSF with kerf inflation. Kept as a
         /// candidate only — Verify still enforces kerf + margins.
         /// </summary>
-        private static OptimizationResult RunMaxRects(
+        internal static OptimizationResult RunMaxRects(
             IReadOnlyList<CutPiece> ordered, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation,
             CancellationToken cancellationToken = default)

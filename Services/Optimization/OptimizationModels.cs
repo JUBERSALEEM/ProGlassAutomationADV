@@ -756,6 +756,34 @@ namespace ProGlassAutomation.Services.Optimization
             GeometryVerified = GeometryChecked && !HasValidationFailure;
         }
 
+        // ── PHASE E1: instrumentation ─────────────────────────────────
+        // Written once at the end of a finished plan by
+        // OptimizationInstrumentation. Pure measurement: nothing in the engine
+        // reads these to make a decision, so filling them in cannot move a
+        // benchmark result. They exist so the two questions the engine could
+        // never answer about its own output have answers.
+
+        /// <summary>Sheets that hold panes but carry no cut sequence —
+        /// layouts no guillotine table can produce. Zero is the only good
+        /// value. See finding F1.</summary>
+        public int UncuttableSheetCount { get; set; }
+
+        /// <summary>Provable lower bound on the sheet count for this job.
+        /// Deliberately weak (area only): the true minimum is at least this.
+        /// See finding F2.</summary>
+        public int SheetsLowerBound { get; set; }
+
+        /// <summary>How far the plan is from that bound, in sheets. Zero means
+        /// no plan can use fewer plates. Never trusted to be negative — a
+        /// negative gap would mean the bound is wrong, not that the plan is
+        /// better than possible.</summary>
+        public int OptimalityGapSheets => SheetsUsed - SheetsLowerBound;
+
+        /// <summary>The same gap as a percentage of the bound.</summary>
+        public double OptimalityGapPercent => SheetsLowerBound <= 0
+            ? 0.0
+            : (double)OptimalityGapSheets / SheetsLowerBound * 100.0;
+
         public int SheetsUsed => Sheets.Count;
 
         public decimal TotalUsedSqm =>

@@ -124,7 +124,7 @@ namespace ProGlassAutomation.Services.Optimization
         /// the most glass; ties prefer more pieces, then the split rule's
         /// declaration order, so the run stays deterministic.
         /// </summary>
-        private static OptimizationResult RunBestSplit(
+        internal static OptimizationResult RunBestSplit(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation,
             int consolidationSweeps = int.MaxValue,
@@ -223,7 +223,7 @@ namespace ProGlassAutomation.Services.Optimization
         /// win on the owner's benchmark (beam 1 already reaches 16 sheets;
         /// the beam exists to protect the general case).
         /// </summary>
-        private static OptimizationResult RunBestSplitBeam(
+        internal static OptimizationResult RunBestSplitBeam(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, int beam,
             CancellationToken cancellationToken = default,

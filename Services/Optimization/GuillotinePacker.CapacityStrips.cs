@@ -18,7 +18,7 @@ namespace ProGlassAutomation.Services.Optimization
         /// Narrow pieces fill residual strips. No dimension, sheet count, job
         /// name or composition-specific pattern is encoded here.
         /// </summary>
-        private static OptimizationResult RunCapacityStrips(
+        internal static OptimizationResult RunCapacityStrips(
             IReadOnlyList<CutPiece> pieces, IReadOnlyList<StockSize> stocks,
             MarginProfile margins, RotationPolicy rotation, bool transpose,
             CancellationToken cancellationToken)
