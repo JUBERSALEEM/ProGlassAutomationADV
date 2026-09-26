@@ -513,20 +513,18 @@ namespace ProGlassAutomation.Services.Optimization
                 cancellationToken.ThrowIfCancellationRequested();
                 progress?.Report(OptimizeProgress.Of("smart", comboList.Count, smartTotal,
                     "Smart placement: capacity-preserving, breakout-aware"));
-                if (!staged)
-                    Consider(PackSmart(pieces, stocks, margins, rotation,
-                        SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
-                        progress: null, candidateWindowSize: windowSize));
+                Consider(PackSmart(pieces, stocks, margins, rotation,
+                    SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
+                    progress: null, candidateWindowSize: windowSize, policy: policy));
 
                 if (effortLevel >= 4)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
                         "Smart placement: vertical-split preference"));
-                    if (!staged)
-                        Consider(PackSmart(pieces, stocks, margins, rotation,
-                            SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken,
-                            progress: null, candidateWindowSize: windowSize));
+                    Consider(PackSmart(pieces, stocks, margins, rotation,
+                        SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken,
+                        progress: null, candidateWindowSize: windowSize, policy: policy));
                 }
             }
 

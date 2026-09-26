@@ -141,6 +141,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
             public string PlatePattern { get; set; } = "Yield";
             // JSON only. True when the operator chose Auto effort. The stage number stays in EffortLevel.
             public bool AutoEffort { get; set; }
+            // JSON only, for the same reason PlatePattern is: the Sessions table
+            // cannot gain columns on an existing database. Int value of
+            // CutComplexity; a missing or unknown value restores to Free
+            // guillotine, so every session saved before this existed keeps
+            // behaving exactly as it did.
+            public int CutComplexity { get; set; }
+            // JSON only. Narrowest trim worth cutting; read only when the
+            // complexity level allows trims.
+            public int MinTrimWidthMm { get; set; } = 80;
         }
 
         // ── load ───────────────────────────────────────────────────────
@@ -469,7 +478,9 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 Kerf = KerfText,
                 MinBreakout = MinBreakoutText,
                 PlatePattern = platePattern,
-                AutoEffort = UseAutoEffort
+                AutoEffort = UseAutoEffort,
+                CutComplexity = (int)CurrentCutComplexity,
+                MinTrimWidthMm = CurrentMinTrimWidthMm
             };
 
             int totalSheets = _groupRuns.Sum(r => r.Result.Sheets.Count);
@@ -656,6 +667,12 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 : YieldPlatePatternLabel;
             if (margins?.AutoEffort == true)
                 SelectedStageStrategy = AutoStageStrategyLabel;
+            // Restored AFTER the plate pattern so the hint text is current. An
+            // unknown or absent value falls back to Free guillotine — the
+            // setting that cannot make an old session behave differently.
+            SelectedCutComplexity = LabelForComplexity((CutComplexity)(margins?.CutComplexity ?? 0));
+            int trim = margins?.MinTrimWidthMm ?? 0;
+            MinTrimWidthText = (trim > 0 ? trim : 80).ToString(CultureInfo.InvariantCulture);
             SelectedCuttingGroup = AllCuttingGroups;
 
             // Restore the cutting list.

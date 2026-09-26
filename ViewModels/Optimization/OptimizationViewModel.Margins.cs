@@ -425,6 +425,21 @@ namespace ProGlassAutomation.ViewModels.Optimization
                                 : CutComplexity.FreeGuillotine;
 
         /// <summary>
+        /// Inverse of <see cref="CurrentCutComplexity"/>: the list label for a
+        /// level. Unknown values resolve to free guillotine, which is what a
+        /// session saved before this setting existed must restore to.
+        /// </summary>
+        public static string LabelForComplexity(CutComplexity complexity) => complexity switch
+        {
+            CutComplexity.SimpleFirstX => SimpleFirstXLabel,
+            CutComplexity.SimpleFirstY => SimpleFirstYLabel,
+            CutComplexity.Simple => SimpleComplexityLabel,
+            CutComplexity.ThreeStage => ThreeStageLabel,
+            CutComplexity.ComplexTrims => ComplexTrimsLabel,
+            _ => FreeGuillotineLabel
+        };
+
+        /// <summary>
         /// What the choice costs and buys. Staged patterns are honest about
         /// losing yield — the operator is deciding between material and table
         /// time, and a hint that only promised the upside would be a lie.

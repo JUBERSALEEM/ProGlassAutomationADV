@@ -100,7 +100,8 @@ namespace ProGlassAutomation.Services.Optimization
             int consolidationSweeps = int.MaxValue,
             CancellationToken cancellationToken = default,
             IProgress<OptimizeProgress> progress = null,
-            int candidateWindowSize = int.MaxValue)
+            int candidateWindowSize = int.MaxValue,
+            CutPolicy policy = null)
         {
             if (pieces == null) throw new ArgumentNullException(nameof(pieces));
             if (stocks == null || stocks.Count == 0)
@@ -135,7 +136,7 @@ namespace ProGlassAutomation.Services.Optimization
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                var state = OpenBlank(stocks, per, remaining[0], margins, rotation, sheets.Count);
+                var state = OpenBlank(stocks, per, remaining[0], margins, rotation, sheets.Count, policy);
                 if (state == null && remaining.Count > 1)
                 {
                     // The largest remaining piece can be bigger than any stock
@@ -148,9 +149,9 @@ namespace ProGlassAutomation.Services.Optimization
                     for (int i = 1; i < probeCount && state == null; i++)
                     {
                         var probePer = (int[])per.Clone();
-                        if (OpenBlank(stocks, probePer, remaining[i], margins, rotation, sheets.Count) == null)
+                        if (OpenBlank(stocks, probePer, remaining[i], margins, rotation, sheets.Count, policy) == null)
                             continue;
-                        state = OpenBlank(stocks, per, remaining[i], margins, rotation, sheets.Count);
+                        state = OpenBlank(stocks, per, remaining[i], margins, rotation, sheets.Count, policy);
                     }
                 }
 
@@ -336,14 +337,22 @@ namespace ProGlassAutomation.Services.Optimization
                             ? SplitMode.HorizontalFirst
                             : SplitMode.VerticalFirst;
 
+                        // PHASE 1: the same stage-budget guard TryPlaceCore
+                        // applies. This scorer has its own rect loop, so it
+                        // needs its own copy — otherwise it would happily pick
+                        // a placement whose second cut has no stage left.
+                        if (!StagedPlacementAllowed(rect, w, h, mode, sheet.Policy)) continue;
+
                         // What survives when the floor's minimum breakout is
                         // honoured, and what would have survived if it were not.
                         // The difference is the area this placement condemns to
                         // trim waste — the first thing the score minimises.
+                        // The policy is passed to both so the score sees the
+                        // same remainders the commit will actually produce.
                         kept.Clear();
-                        SplitRemainder(rect, w, h, kerf, breakout, mode, kept);
+                        SplitRemainder(rect, w, h, kerf, breakout, mode, kept, sheet.Policy);
                         unbounded.Clear();
-                        SplitRemainder(rect, w, h, kerf, 0, mode, unbounded);
+                        SplitRemainder(rect, w, h, kerf, 0, mode, unbounded, sheet.Policy);
 
                         long keptArea = 0, capacity = 0, capacitySide = 0;
                         for (int k = 0; k < kept.Count; k++)
