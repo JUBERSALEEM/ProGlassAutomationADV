@@ -414,7 +414,7 @@ engine we already own on small jobs. Sequence the work that way.
   below). Trims are still not GENERATED as such, and the rectangles are not
   yet fed back in as stock.
 
-### Phase 2 — offcut registration (PART 1 DONE, PART 2 NOT STARTED)
+### Phase 2 — offcut registration (PART 1) and offcut reuse (PART 2) — both DONE
 
 - `Services/Optimization/GuillotinePacker.Remnants.cs`: replay the recorded
   cut sequence — start with the usable rectangle, split at every cut, and
@@ -427,9 +427,34 @@ engine we already own on small jobs. Sequence the work that way.
 - Oracles: area conservation (panes + leftovers = usable area − kerf), no
   leftover may contain a pane, idempotent re-derivation, and an unchanged
   placement signature.
-- STILL TO DO: feeding those rectangles back in as stock for later sheets.
-  That changes packing, so it needs its own gate (off by default), its own
-  oracle and its own benchmark run before it can ship.
+- **Part 2 uses them.** `GuillotinePacker.OffcutReuse.cs`: the panes on the
+  emptiest sheet move into the offcuts the other plates left, and any plate
+  that ends up empty is dropped. A post-pass, not a placement rule — putting
+  offcuts into the stock pool would mean every placement site on every engine
+  knowing about a second pool, and a bug there loses panes.
+- Five rules: move only into a rectangle no pane occupies; every touched sheet
+  must re-derive a full guillotine cut sequence or the attempt is rolled back;
+  a sheet is dropped only when completely empty; the plan is re-verified AFTER
+  the move, because the run records its verdict BEFORE the pass runs; and it
+  is off by default, so the default run is untouched.
+- Exposed as an OFFCUT REUSE checkbox in the Optimization settings tab,
+  persisted with the other JSON-only settings.
+
+### Phase 5a — search family and search effort are separate axes (DONE)
+
+- Effort was doing two jobs in `PackOptimize`: gating WHICH engines ran
+  (repeated patterns at 2, MaxRects at 3, beam 8 and the wide shuffle set at
+  4-5) and setting HOW HARD they searched (governor budget, shuffles, sweeps).
+  "Search harder" silently meant "run a different portfolio", and the
+  stage-strategy combo fed nothing to the engine — it only set UseAutoEffort
+  as a side effect of being synced to the effort combo.
+- New optional `maxStage`. Inside, `stage = maxStage > 0 ? maxStage : effortLevel`
+  and every portfolio gate reads `stage`; the depth knobs still read
+  `effortLevel`. Default 0 means effort decides both, so stage == effort and
+  callers that do not opt in are bit-for-bit unchanged.
+- The two-way sync is gone. Stage 3 at effort 5 now means what it says.
+- Sessions save the family; old sessions restore to the family their stored
+  effort implied, so they run as they did when saved.
 
 ### Phase 4 — machine-file export (DONE, with three formats refused)
 
