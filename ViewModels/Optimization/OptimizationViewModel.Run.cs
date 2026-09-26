@@ -251,8 +251,15 @@ namespace ProGlassAutomation.ViewModels.Optimization
         /// </summary>
         private static RunNoteSeverity ClassifyNote(string note)
         {
+            // NOT EXPORTABLE covers the two notes that end "inspection only,
+            // not exportable" - a staged pattern the plan did not hold, and a
+            // QUICK run that found no valid candidate. Both mean the plan on
+            // screen is not production work, which is what Error is for.
             if (note.Contains("CUT REACHABILITY", StringComparison.OrdinalIgnoreCase)
-                || note.Contains("CUT SEQUENCE", StringComparison.OrdinalIgnoreCase))
+                || note.Contains("CUT SEQUENCE", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("CUT PATTERN", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("NOT EXPORTABLE", StringComparison.OrdinalIgnoreCase)
+                || note.Contains("VALIDATION FAILURE", StringComparison.OrdinalIgnoreCase))
                 return RunNoteSeverity.Error;
 
             if (note.Contains("GUILLOTINE POLICY", StringComparison.OrdinalIgnoreCase)
@@ -274,18 +281,50 @@ namespace ProGlassAutomation.ViewModels.Optimization
             var all = new List<string>(
                 notes.Where(n => !string.IsNullOrWhiteSpace(n)).Distinct());
 
+            // Materialised once: it is enumerated for the unplaced total, the
+            // validation text and the critical-note check below.
+            var runList = (runs ?? Enumerable.Empty<GroupRun>())
+                .Where(r => r != null).ToList();
+
             // The engine never writes a note for pieces it could not place, so
             // an incomplete job surfaced only as a number on a KPI card. That
             // is the one result an operator should not have to go looking for:
             // it means the customer's glass is not all cut.
-            int unplaced = runs?.Sum(r => r.Result?.Unplaced?.Count ?? 0) ?? 0;
+            int unplaced = runList.Sum(r => r.Result?.Unplaced?.Count ?? 0);
             if (unplaced > 0)
                 all.Add(string.Format(CultureInfo.InvariantCulture,
                     "UNPLACED: {0} piece(s) could not be fitted on any available plate. "
                     + "This run is incomplete - check the stock sizes against the largest "
                     + "pieces before releasing the cutting list.", unplaced));
 
+            // ValidationProblems is the engine's second diagnostic channel,
+            // filled in three places and read nowhere: geometry violations,
+            // pieces lost between input and output, and stock-cap breaches.
+            // The KPI card counts them ("3 issue(s)") and the text that says
+            // WHICH three was never surfaced. The count alone is not enough to
+            // act on, so the detail is published here.
+            foreach (var run in runList)
+            {
+                var problems = run.Result?.ValidationProblems;
+                if (problems == null || problems.Count == 0) continue;
+
+                string group = string.IsNullOrWhiteSpace(run.Composition)
+                    ? "this group"
+                    : string.IsNullOrWhiteSpace(run.Thickness)
+                        ? run.Composition
+                        : run.Composition + " " + run.Thickness;
+
+                foreach (var p in problems
+                             .Where(p => !string.IsNullOrWhiteSpace(p))
+                             .Distinct())
+                    all.Add("VALIDATION FAILURE (" + group + "): " + p);
+            }
+
+            // Distinct again: the notes above were appended after the list was
+            // built, and one group can report the same violation twice.
             foreach (var note in all
+                         .Where(n => !string.IsNullOrWhiteSpace(n))
+                         .Distinct()
                          .Select(n => new RunNoteVm { Text = n, Severity = ClassifyNote(n) })
                          .OrderByDescending(n => n.Severity))
                 RunNotes.Add(note);
@@ -302,13 +341,35 @@ namespace ProGlassAutomation.ViewModels.Optimization
                 .ToList();
 
             if (critical.Count > 0)
+            {
+                // Two very different causes reach this popup and they take
+                // different fixes. Telling someone to raise the effort level
+                // when the engine has lost pieces sends them chasing a setting
+                // that cannot possibly help.
+                bool lostWork = critical.Any(t => t.Contains(
+                    "VALIDATION FAILURE", StringComparison.OrdinalIgnoreCase));
+
+                string advice = lostWork
+                    ? "Pieces were lost, or the plan breaks a sheet or stock limit. "
+                      + "Re-run the group, and report it if it repeats."
+                    : "Raise the effort level, or turn the guillotine policy on so "
+                      + "uncuttable plans are refused instead of offered.";
+
+                // A geometry sweep on a large job can return hundreds of lines;
+                // a popup that tall is unreadable, so it is capped.
+                const int MaxShown = 6;
+                var shown = critical.Take(MaxShown).Select(t => "\u2022 " + t).ToList();
+                if (critical.Count > MaxShown)
+                    shown.Add(string.Format(CultureInfo.InvariantCulture,
+                        "…and {0} more. The full list is in the RUN NOTES panel "
+                        + "on the SUMMARY tab.", critical.Count - MaxShown));
+
                 _dialogs?.Warning(
-                    "This run produced a layout that cannot be cut as drawn:\n\n"
-                    + string.Join("\n\n", critical.Select(t => "\u2022 " + t))
-                    + "\n\nDo not send this plan to the table. Raise the effort level, "
-                    + "or turn the guillotine policy on so uncuttable plans are refused "
-                    + "instead of offered.",
+                    "This run produced a layout that is not safe to cut:\n\n"
+                    + string.Join("\n\n", shown)
+                    + "\n\nDo not send this plan to the table. " + advice,
                     "Plan is not cuttable");
+            }
         }
 
         // ── async run state (progress bar + button gating) ─────────────
