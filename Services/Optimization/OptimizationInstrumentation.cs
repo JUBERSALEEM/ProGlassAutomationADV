@@ -42,6 +42,17 @@ namespace ProGlassAutomation.Services.Optimization
             if (result == null) return;
 
             AuditCutReachability(result);
+
+            // Repair BEFORE the audit, so the audit reports the plan as it is
+            // actually exported. Running it the other way round would count a
+            // sheet as inconsistent and then quietly fix it, leaving a warning
+            // describing a problem the operator can no longer see.
+            //
+            // A cut list recorded during placement can be stale by the time
+            // the plan settles, because later passes move panes. Re-deriving
+            // it from the final positions costs nothing and moves no pane.
+            GuillotinePacker.RepairStaleCutLists(result, margins?.KerfMm ?? 0);
+
             GuillotinePacker.AuditCutConsistency(result, margins?.KerfMm ?? 0);
             MeasureOptimality(result, stocks, margins, rotation);
         }

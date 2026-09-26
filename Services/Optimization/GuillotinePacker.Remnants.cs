@@ -250,6 +250,60 @@ namespace ProGlassAutomation.Services.Optimization
         }
 
         /// <summary>
+        /// Rebuilds the cut list of any sheet whose recorded cuts no longer
+        /// separate the panes it actually holds.
+        ///
+        /// Cuts are recorded as each piece is placed, so any later pass that
+        /// moves a pane - local search, offcut reuse, consolidation - can
+        /// leave a cut list describing where the panes USED to be. The layout
+        /// is often still perfectly cuttable; only the record of how to cut
+        /// it is stale. This re-derives that record from where the panes
+        /// ended up.
+        ///
+        /// It moves no pane and changes no layout, so it cannot make a plan
+        /// worse. If the re-derived sequence still does not separate the
+        /// panes, the original is put back and the sheet is left for the
+        /// audit to report honestly. A repair that is not verified is worse
+        /// than a failure that is.
+        /// </summary>
+        internal static int RepairStaleCutLists(OptimizationResult result, int kerfMm)
+        {
+            if (result == null) return 0;
+            int repaired = 0;
+
+            for (int i = 0; i < result.Sheets.Count; i++)
+            {
+                var sheet = result.Sheets[i];
+                if (sheet.Pieces.Count == 0) continue;
+                if (sheet.Cuts.Count == 0) continue;              // E1.1's finding
+                if (CutSequenceSeparates(sheet, kerfMm)) continue; // already sound
+
+                var original = new List<CutStep>(sheet.Cuts);
+
+                // TryDeriveGuillotineCuts leaves the sheet untouched when it
+                // fails, so the only state to guard is a success that still
+                // does not separate the panes.
+                if (TryDeriveGuillotineCuts(sheet) && CutSequenceSeparates(sheet, kerfMm))
+                {
+                    repaired++;
+                    continue;
+                }
+
+                sheet.Cuts.Clear();
+                for (int k = 0; k < original.Count; k++) sheet.Cuts.Add(original[k]);
+            }
+
+            if (repaired > 0)
+                result.ScaleNotes.Add(
+                    "Cut list rebuilt for " + repaired + " sheet(s) whose recorded cuts "
+                    + "no longer matched the pane positions - a later pass moved panes "
+                    + "after the cuts were recorded. The plan is cuttable and the new "
+                    + "sequence was verified against the final layout.");
+
+            return repaired;
+        }
+
+        /// <summary>
         /// Replays the cut list and checks the resulting cells hold at most one
         /// pane each and between them cover every pane.
         /// </summary>
