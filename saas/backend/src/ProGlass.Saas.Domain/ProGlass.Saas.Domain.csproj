@@ -8,4 +8,10 @@
     <Description>ProGlass SaaS domain model (WPF business rules, ported)</Description>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- WPF pattern: the engine's internals (FreeRect ledger, split
+         maths) are visible to the golden test assembly. -->
+    <InternalsVisibleTo Include="ProGlass.Saas.Domain.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,6 @@
 # SAAS DATABASE VERIFICATION REPORT (Phases 3–4)
 
-**Generated:** 2026-09-27T11:33:16.296901+00:00  
+**Generated:** 2026-09-27T11:41:32.059738+00:00  
 **PostgreSQL:** 16 (pgserver, live instance)  
 **Migrations applied:** 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql, 0014_production.sql, 0015_material_reservations.sql  
 **Result: 59/59 checks passed, 0 failed**
@@ -24,7 +24,7 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 12 | invalid status rejected (CHECK) | ✅ PASS | — |
 | 13 | FK to nonexistent proforma rejected | ✅ PASS | — |
 | 14 | cascade delete removes spec groups + items | ✅ PASS | — |
-| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 11:33:16.129820+00:00 → 2026-09-27 11:33:16.180515+00:00 |
+| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 11:41:31.927249+00:00 → 2026-09-27 11:41:31.977976+00:00 |
 | 16 | audit_logs UPDATE denied for app role | ✅ PASS | — |
 | 17 | stock_transactions DELETE denied for app role | ✅ PASS | — |
 | 18 | numeric money arithmetic exact | ✅ PASS | 1050.00 |

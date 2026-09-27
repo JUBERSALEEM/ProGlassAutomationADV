@@ -82,6 +82,15 @@ public abstract class TenantControllerBase : ControllerBase
         _ => BadRequest(new { code = "production.validation_failed", message = result.Message })
     };
 
+    protected IActionResult Fail<T>(OptimizationResult<T> result) => result.ErrorCode switch
+    {
+        OptimizationErrorCode.NotFound =>
+            NotFound(new { code = "optimization.not_found", message = result.Message }),
+        OptimizationErrorCode.Conflict =>
+            Conflict(new { code = "optimization.conflict", message = result.Message }),
+        _ => BadRequest(new { code = "optimization.validation_failed", message = result.Message })
+    };
+
     protected IActionResult Fail<T>(DeliveryResult<T> result) => result.ErrorCode switch
     {
         DeliveryErrorCode.NotFound =>

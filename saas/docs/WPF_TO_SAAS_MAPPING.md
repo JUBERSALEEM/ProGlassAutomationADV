@@ -363,6 +363,28 @@ upgraded the Phase 3 first-pass table to the WPF-faithful shape;
 | Production stages / pieces / QC / material reservation (the factory-floor engine) | Schema exists (0003/0004: production_pieces, production_events, material_reservations); the module is the next Phase 9 slice | Deferred, documented |
 | Permissions: JobOrder.Edit for create/update (OperationGuard) | Same (`JobOrder.View/.Edit/.Delete` vocabulary ported in Phase 4); reads open to authenticated users like every module | Same |
 
+### 1.6a Optimization — Phase 11 core slice (parity and deliberate scope)
+
+Ported 2026-09-27 from `Services/Optimization/OptimizationModels.cs` and
+`Services/Optimization/GuillotinePacker.cs` (the QUICK base pass).
+`OptimizationService`/`OptimizationStore`/`/api/v1/optimization`; the
+Phase 3 schema (optimization_sessions/sheets/placements/cuts/leftovers)
+already matched the WPF model — no migration.
+
+| WPF (source of truth) | SaaS (Phase 11 core) | Difference? |
+|---|---|---|
+| QUICK base pass: sort by AREA (the 2026-09-16 calibration — MaxSide cost a whole sheet on the owner's benchmark), shelf pass over open sheets, lexicographic best fit (fitRank, shortSide, waste, orientation rank, first sheet), perfect-fit shortcut | `GuillotinePacker.PackQuick` — ported verbatim | Same |
+| ADAPTIVE rotation (Free90): original orientation first, rotate only when needed; Locked policy | Same | Same |
+| SplitRemainder — ONE source of truth for the free-rect ledger AND the cut list; kerf consumed from the remainder side; HorizontalFirst the calibrated default; LongerLeftover by longer leftover | Same, verbatim (incl. cut stages and the trim flag) | Same |
+| OpenNewSheet: the SMALLEST stock that fits opens first (large racks saved for the glass that needs them); MaxSheets caps the pool (0 = the explicit ∞ sentinel) | Same | Same |
+| MarginProfile house table (owner-confirmed 2026-09-21): ≤6mm 15/15/15/15 kerf 3; 7–8mm 30 all kerf 3; ≥9mm 50/50/0/50 kerf 4, breakout 50 switchable to 40; unknown thickness → thin fallback; unlisted rounds UP | Same, verbatim | Same |
+| DeriveLeftovers: regions replayed through the cut sequence, kerf from the remainder side, piece-holding regions excluded (kerf tolerance), reusable = min side ≥ MinBreakout | Same, verbatim | Same |
+| Industrial safety net: bounds, dimension match, no overlap, no double placement, conservation (placed + unplaced = input) | Same — validated BEFORE persist; failures recorded on the session | Same |
+| Composition grouping: PaneDisplayName is the merge key (two specs sharing the same outer pane collapse into ONE cutting group) | Same — one session per composition; pieces derived from the job's CUTTING plan (the same pane routing as the floor, WPF ProductionOptimizationBridge) or supplied explicitly | Same |
+| QUICK portfolio's OTHER candidates: capacity strips, bounded best-split pattern beam, repeated patterns, plate patterns (Yield/FillFirstPlate/FewestCuts/MinimiseStockChanges/RemnantFirst/BalancedSpread), industrial patterns above the quantity threshold, the consolidation sweep, offcut reuse, local search | NOT ported — the SaaS plan runs the base shelf pass only (a valid, cuttable, deterministic plan, flagged in every session's scale notes) | **Deferred, documented** — the risk table's "port must be mechanical, file-by-file" applies |
+| OPTIMIZE multi-start (effort 1–5), staged cut policies (CutComplexity), remnant reuse | NOT ported | **Deferred, documented** |
+| Session persistence (OptimizationSessionRepository) + 2D view reads | `/run` persists session + sheets + placements + cuts + leftovers in one transaction; `GET sessions/{id}` + `/sheets` | Same |
+
 ### 1.7b Production core — Phase 9b (parity and deliberate differences)
 
 Ported 2026-09-27 from `Services/Production/ProductionDistributionEngine.cs`
