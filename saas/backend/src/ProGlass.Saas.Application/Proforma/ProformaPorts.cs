@@ -61,6 +61,21 @@ public interface IProformaStore
         ProformaInvoice invoice, IReadOnlyList<SpecGroupWithItems> groups,
         Guid actorId, CancellationToken ct);
 
+    Task ReplaceStep6Async(
+        Domain.Entities.ProformaInvoice invoice,
+        IReadOnlyList<Domain.Entities.OtherCharge> charges,
+        IReadOnlyList<Domain.Entities.WastageRow> wastages,
+        IReadOnlyList<Domain.Entities.CustomCharge> customs,
+        Guid actorId, CancellationToken ct);
+
+    Task<Step6Rows> GetStep6Async(Guid tenantId, Guid proformaId, CancellationToken ct);
+
     Task<IReadOnlyList<SpecGroupWithItems>> GetSpecGroupsAsync(
         Guid tenantId, Guid proformaId, CancellationToken ct);
 }
+
+/// <summary>The store's unit for reading the Step 6 section back.</summary>
+public sealed record Step6Rows(
+    IReadOnlyList<Domain.Entities.OtherCharge> Charges,
+    IReadOnlyList<Domain.Entities.WastageRow> Wastages,
+    IReadOnlyList<Domain.Entities.CustomCharge> Customs);

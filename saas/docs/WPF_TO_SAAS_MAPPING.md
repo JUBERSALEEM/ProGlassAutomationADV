@@ -110,6 +110,33 @@ from `SpecificationsRepository.cs` and `SpecificationLedgerService.cs`
 | Reconcile triggers: startup + debounced after every invoice write + Center Refresh | After every grid save + reconcile endpoint (SaaS has no long-lived app process to run startup passes) | Same triggers, SaaS-native timing |
 | `SpecCatalogNotifier.NotifyChanged()` (UI dropdown refresh) | N/A — HTTP responses carry the fresh state | Architectural translation |
 
+### 1.3b Step 6 — Other Charges / Wastages / Custom Charges (Phase 7b)
+
+Ported 2026-09-27 from `OtherChargeRow` / `WastageRow` / `CustomChargeRow`,
+`SpecTargetSelection` / `SpecCheckOption` / `MetricOption`,
+`MetricDiscoveryHubViewModel`, `WastagesSectionViewModel.SyncSourcesForRow`,
+`ProformaChargeMetricsCalculator` and the mapper's Step 6 snapshot contract.
+
+| WPF (source of truth) | SaaS (Phase 7b) | Difference? |
+|---|---|---|
+| Metric registry: LM1/LM2/LM_COMBINED, SQM1/SQM2/SQM_COMBINED, DGU_CAVITY, QTY, DOUBLE_GLASS (+ legacy aliases TOTAL_PIECES/TOTAL_QTY→QTY) | `MetricKeys` — verbatim | Same |
+| ComputedValue = Σ checked specs' metric (per-spec 2 dp read model over 3 dp grid footers) | `ChargeMetrics.TargetedMetric` — verbatim | Same |
+| Pane factor: DGU+LAM=3, DGU/LAM=2, else 1; effective type = spec-name markers first, then the type field, SGU fallback | `SpecGrammar.ResolveEffectiveGlassType` — verbatim | Same |
+| Polish: 12 sub-type formulas + Custom (manual qty); both panes of a double build; same-glass LAM doubles the single measurement; 3 dp total | `PolishSubTypes` + `ChargeMetrics.PolishLm` — verbatim | Same |
+| DELIVERY row: MetricQty hardcoded 1 TRIP, target selection ignored (Chat 7 Bug 4c; multi-trip = custom charges) | Same | Same |
+| Charge amount = IsActive ? MoneyRounding.Round(qty × rate) : 0 | `ChargeMetrics.ChargeAmount` — verbatim | Same |
+| Wastage manual: Σ checked source SQM × rate, `Math.Round(x, 2)` (the WPF's plain banker's rounding — an in-WPF inconsistency vs MoneyRounding, preserved) | `WastageFormula.CalculateManual` | Same (documented quirk) |
+| Wastage optimization: Section1 = price ÷ opt% (6 dp), Section2 = price ÷ 85% (6 dp), rate = gap, amount = Round(rate × sqm); any non-positive input zeroes the row; rate is DERIVED and overwrites the display | `WastageFormula.CalculateOptimization` (ported in Phase 4 with WPF goldens); the derived rate is stored at numeric(18,6) | Same |
+| Wastage sources: per spec group — Outer always; Inner when DGU/LAM or the grid carries W2/H2 (inner SQM = ΣSQM2 if >0 else ΣSQM1); middle panes for 3+ pane builds ("Middle (W2/H2)" / "Middle n (W2/H2)"); DGU+LAM = Outer + Lam Outer + Lam Inner; persistence key "{spec}-{SideLabel}" | `ChargeMetrics.SourcesForGroup` + `WastageSource.Key` — verbatim | Same |
+| Source colours: parsed from the spec name first, then the group's explicit colours, then the live Step 4 panel (UI-time) | Parsed name → group's SAVED colours (the Step 4 panel sync already ran when the grid was saved) | Same values, normalized provenance |
+| Custom charges: qty × rate, MoneyRounding | `custom_charges` table + `ChargeMetrics.ChargeAmount` | Same |
+| Subtotal (RecalculateTotal): Σ active predefined + wastage + custom, `Math.Round(x, 2)` (banker's — preserved verbatim) | `ChargeMetrics.OtherChargesSubtotal` → `proforma_invoices.other_charges_subtotal` | Same |
+| Save contract (mapper snapshots): template identity, unit, metric key, checked spec numbers, rate, polish sub-type + custom polish fields; wastage: colour, checked source keys, is_manually_added, use_optimization_formula, formula price, optimization %, sheet qty; custom: name/qty/unit/rate | Migration 0009 columns on `other_charges`/`wastage_rows` + new `custom_charges` (RLS) — normalized instead of one JSON blob | Same fields, normalized storage |
+| Metric qty is always RECOMPUTED live from the grid (never stored from the UI) | Recomputed SERVER-SIDE on every save from the saved Step 5 grid (never trusted from the client) | Same rule, enforced at the API boundary |
+| Advanced automation (suggestions engine), optimization feed, inventory auto-use, manual-override tracking | Not ported yet (UI-time assists; follow-up 7b item — the saved rows persist whatever the assist produced) | **Deferred (documented)** |
+| Wastage rows survive Step 5 edits (sources re-synced, missing keys silently dropped) | Stale source keys at save → **400** ("re-fetch the section after saving the grid") | **Different (documented)** — a stale key would silently under-count; the client re-fetches sources after every grid save |
+| Phase-3 schema guesses fixed by 0009: metric keys 'SQM'/'Fixed' → real registry; wastage stock_sqm/glass_sqm/spec_group_id dropped (no WPF counterpart); wastage rate widened to 6 dp (the derived rate truncated at 2 dp); spec_group_items.perimeter_factor added (LM round-trip — the 7a read path recomputed with the default factor); spec_groups Step 4 provenance columns (colours + per-side stock sheets, SpecGroupSnapshot Phase G) | | Schema correction, WPF-aligned |
+
 ### 1.4 Pricing engine (cross-cutting — single service, master prompt §40)
 | WPF | SaaS |
 |---|---|

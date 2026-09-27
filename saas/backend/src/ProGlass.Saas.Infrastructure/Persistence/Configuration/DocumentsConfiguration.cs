@@ -92,7 +92,7 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.ParamsJson).HasColumnName("params_json").HasColumnType("jsonb");
             builder.Property(x => x.RatePerSqm).HasColumnName("rate_per_sqm").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
             builder.Property(x => x.CostBasisPerSqm).HasColumnName("cost_basis_per_sqm").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
-            builder.Property(x => x.UsageCount).HasColumnName("usage_count").HasColumnType("integer").HasDefaultValue(1);
+            builder.Property(x => x.UsageCount).HasColumnName("usage_count").HasColumnType("integer").HasDefaultValue(0);
             builder.Property(x => x.LastUsedAt).HasColumnName("last_used_at").HasColumnType("timestamptz");
             builder.Property(x => x.IsActive).HasColumnName("is_active").HasColumnType("boolean").HasDefaultValue(true);
             builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
@@ -289,6 +289,18 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.OuterGlassColor).HasColumnName("outer_glass_color").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.InnerGlassColor).HasColumnName("inner_glass_color").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ThirdGlassColor).HasColumnName("third_glass_color").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.OuterSheetWidthMm).HasColumnName("outer_sheet_width_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.OuterSheetHeightMm).HasColumnName("outer_sheet_height_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.InnerSheetWidthMm).HasColumnName("inner_sheet_width_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.InnerSheetHeightMm).HasColumnName("inner_sheet_height_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.ThirdSheetWidthMm).HasColumnName("third_sheet_width_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.ThirdSheetHeightMm).HasColumnName("third_sheet_height_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.OuterSheetPricePerSqm).HasColumnName("outer_sheet_price_per_sqm").HasColumnType("numeric(18,4)").HasDefaultValue(0m);
+            builder.Property(x => x.InnerSheetPricePerSqm).HasColumnName("inner_sheet_price_per_sqm").HasColumnType("numeric(18,4)").HasDefaultValue(0m);
+            builder.Property(x => x.ThirdSheetPricePerSqm).HasColumnName("third_sheet_price_per_sqm").HasColumnType("numeric(18,4)").HasDefaultValue(0m);
             builder.HasIndex(x => new { x.TenantId, x.ProformaId })
                 .HasDatabaseName("ix_spec_groups_tenant_proforma");
             builder.HasOne(x => x.Proforma)
@@ -329,6 +341,7 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.PerimeterFactor).HasColumnName("perimeter_factor").HasColumnType("integer").HasDefaultValue(2);
             builder.HasIndex(x => new { x.TenantId, x.SpecGroupId })
                 .HasDatabaseName("ix_spec_group_items_tenant_group");
             builder.HasOne(x => x.SpecGroup)
@@ -348,7 +361,7 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
             builder.Property(x => x.ProformaId).HasColumnName("proforma_id").HasColumnType("uuid");
             builder.Property(x => x.ChargeName).HasColumnName("charge_name").HasColumnType("text");
-            builder.Property(x => x.MetricKey).HasColumnName("metric_key").HasColumnType("text").HasDefaultValue("Fixed");
+            builder.Property(x => x.MetricKey).HasColumnName("metric_key").HasColumnType("text").HasDefaultValue("");
             builder.Property(x => x.CheckedSpecGroupNumbers).HasColumnName("checked_spec_group_numbers").HasColumnType("jsonb").HasDefaultValue("[]");
             builder.Property(x => x.Rate).HasColumnName("rate").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
             builder.Property(x => x.Amount).HasColumnName("amount").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
@@ -358,6 +371,13 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.TemplateKey).HasColumnName("template_key").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Description).HasColumnName("description").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Unit).HasColumnName("unit").HasColumnType("text").HasDefaultValue("Qty");
+            builder.Property(x => x.MetricQty).HasColumnName("metric_qty").HasColumnType("numeric(18,3)").HasDefaultValue(0m);
+            builder.Property(x => x.PolishSubType).HasColumnName("polish_sub_type").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CustomPolishDescription).HasColumnName("custom_polish_description").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CustomPolishQty).HasColumnName("custom_polish_qty").HasColumnType("numeric(18,3)").HasDefaultValue(0m);
             builder.HasIndex(x => new { x.TenantId, x.ProformaId })
                 .HasDatabaseName("ix_other_charges_tenant_proforma");
             builder.HasOne(x => x.Proforma)
@@ -376,30 +396,57 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
             builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
             builder.Property(x => x.ProformaId).HasColumnName("proforma_id").HasColumnType("uuid");
-            builder.Property(x => x.SpecGroupId).HasColumnName("spec_group_id").HasColumnType("uuid");
             builder.Property(x => x.ColorName).HasColumnName("color_name").HasColumnType("text").HasDefaultValue("");
-            builder.Property(x => x.StockSqm).HasColumnName("stock_sqm").HasColumnType("numeric(12,4)").HasDefaultValue(0m);
-            builder.Property(x => x.GlassSqm).HasColumnName("glass_sqm").HasColumnType("numeric(12,4)").HasDefaultValue(0m);
             builder.Property(x => x.OptimizationPercent).HasColumnName("optimization_percent").HasColumnType("numeric(6,3)").HasDefaultValue(0m);
             builder.Property(x => x.SheetQuantity).HasColumnName("sheet_quantity").HasColumnType("integer").HasDefaultValue(0);
-            builder.Property(x => x.FormulaPricePerSqm).HasColumnName("formula_price_per_sqm").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
-            builder.Property(x => x.Rate).HasColumnName("rate").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.FormulaPricePerSqm).HasColumnName("formula_price_per_sqm").HasColumnType("numeric(18,4)").HasDefaultValue(0m);
+            builder.Property(x => x.Rate).HasColumnName("rate").HasColumnType("numeric(18,6)").HasDefaultValue(0m);
             builder.Property(x => x.ResultAmount).HasColumnName("result_amount").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
             builder.Property(x => x.IsActive).HasColumnName("is_active").HasColumnType("boolean").HasDefaultValue(true);
             builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.TotalSqm).HasColumnName("total_sqm").HasColumnType("numeric(12,3)").HasDefaultValue(0m);
+            builder.Property(x => x.IsManuallyAdded).HasColumnName("is_manually_added").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.UseOptimizationFormula).HasColumnName("use_optimization_formula").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.CheckedSourceKeys).HasColumnName("checked_source_keys").HasColumnType("jsonb").HasDefaultValue("[]");
+            builder.Property(x => x.SortOrder).HasColumnName("sort_order").HasColumnType("integer").HasDefaultValue(0);
             builder.HasIndex(x => new { x.TenantId, x.ProformaId })
                 .HasDatabaseName("ix_wastage_rows_tenant_proforma");
             builder.HasOne(x => x.Proforma)
                 .WithMany()
                 .HasForeignKey(x => x.ProformaId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(x => x.SpecGroup)
+        }
+    }
+
+    public sealed class CustomChargeConfiguration : IEntityTypeConfiguration<CustomCharge>
+    {
+        public void Configure(EntityTypeBuilder<CustomCharge> builder)
+        {
+            builder.ToTable("custom_charges", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.ProformaId).HasColumnName("proforma_id").HasColumnType("uuid");
+            builder.Property(x => x.ChargeName).HasColumnName("charge_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Qty).HasColumnName("qty").HasColumnType("numeric(18,3)").HasDefaultValue(1m);
+            builder.Property(x => x.Unit).HasColumnName("unit").HasColumnType("text").HasDefaultValue("Qty");
+            builder.Property(x => x.Rate).HasColumnName("rate").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.Amount).HasColumnName("amount").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.IsActive).HasColumnName("is_active").HasColumnType("boolean").HasDefaultValue(true);
+            builder.Property(x => x.SortOrder).HasColumnName("sort_order").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
+            builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.HasIndex(x => new { x.TenantId, x.ProformaId })
+                .HasDatabaseName("ix_custom_charges_tenant_proforma");
+            builder.HasOne(x => x.Proforma)
                 .WithMany()
-                .HasForeignKey(x => x.SpecGroupId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .HasForeignKey(x => x.ProformaId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

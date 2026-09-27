@@ -71,6 +71,7 @@ public sealed class SaasDbContext : DbContext
     public DbSet<SpecGroupItem> SpecGroupItems => Set<SpecGroupItem>();
     public DbSet<OtherCharge> OtherCharges => Set<OtherCharge>();
     public DbSet<WastageRow> WastageRows => Set<WastageRow>();
+    public DbSet<CustomCharge> CustomCharges => Set<CustomCharge>();
     public DbSet<JobOrder> JobOrders => Set<JobOrder>();
     public DbSet<ProductionPiece> ProductionPieces => Set<ProductionPiece>();
     public DbSet<ProductionEvent> ProductionEvents => Set<ProductionEvent>();

@@ -12,7 +12,7 @@ WPF application at the repository root — no shared projects, no shared files.
 | `src/ProGlass.Saas.Infrastructure` | EF Core model (generated from the verified DDL), `SqlMigrationRunner`, `TenantSessionInterceptor` (RLS session), Argon2id hasher, JWT service, tenant-explicit auth stores, `MasterDataStore`, `PricingConfigStore` (tenant_pricing_config + tenant_vat_config in one transaction), `ProformaStore` (number-unique retry, revision chains, one-transaction Step 5 grid replace), `SpecificationsStore` (set-based ledger reconcile), platform-connection `TenantProvisioner`, `AuditWriter`. |
 | `src/ProGlass.Saas.Api` | API host — `/api/v1/auth/*` endpoints (Phase 4), JwtBearer authentication, permission authorization (`[HasPermission]`), `TenantContextMiddleware`, `/health`. |
 | `tests/ProGlass.Saas.Domain.Tests` | Unit tests — role/permission parity with WPF, money rounding, tenant context, **rate/spacer/wastage/SQM golden values from the WPF's own tests** (DGU+LAM chain 344.75, DGU basis 103.82, LAM 228.65, wastage 100.84), **proforma goldens** (number allocation incl. overflow degradation, the full lifecycle transition table, Step 5 dual-measurement row math). |
-| `tests/ProGlass.Saas.Application.Tests` | Unit tests — AuthService orchestration with in-memory fakes (lockout semantics, rotation, reuse detection, absolute lifetimes) + MasterDataService upsert semantics + PricingService config lifecycle/preview dispatch + ProformaService numbering/lifecycle/void/revision/grid cases + SpecificationsService APPLY/ledger cases + WPF PasswordPolicy cases ported. |
+| `tests/ProGlass.Saas.Application.Tests` | Unit tests — AuthService orchestration with in-memory fakes (lockout semantics, rotation, reuse detection, absolute lifetimes) + MasterDataService upsert semantics + PricingService config lifecycle/preview dispatch + ProformaService numbering/lifecycle/void/revision/grid/step6 cases + SpecificationsService APPLY/ledger cases + Step 6 domain goldens (metrics/polish/wastage/grammar) + WPF PasswordPolicy cases ported. |
 | `tests/ProGlass.Saas.IntegrationTests` | Database tests — tenant isolation (query filters + RLS), migration runner, **AuthFlowTests** (full register→lockout→login→refresh→reuse→password-change flow against live PostgreSQL), Argon2id + JWT contract tests.
 
 ## Build & test (needs .NET 8 SDK + NuGet access)
@@ -28,7 +28,7 @@ dotnet test ProGlass.Saas.sln
 > `saas/devbox/README.md`). Every file passes a tree-sitter C# syntax check
 > (`python3 saas/devbox/syntax_check_cs.py` — 100/100), and the schema +
 > identity constraints it maps to are verified against live PostgreSQL
-> (43/43 checks, `saas/database/verify/apply_and_test.py`), but the
+> (51/51 checks, `saas/database/verify/apply_and_test.py`), but the
 > solution has **not yet been compiled**. First build + `dotnet test` in a
 > proper .NET environment is the Phase 4 exit gate; flip
 > `TreatWarningsAsErrors` on in `Directory.Build.props` after that clean build.
@@ -102,7 +102,13 @@ list with status filter + number search),
 glassType+specName, smart-sorted list; apply/delete = Edit/Delete per the
 WPF guard), `GET …/{id}/usage-history`, `GET …/usage/recent`,
 `POST …/reconcile` (ledger re-derivation — also runs automatically after
-every grid save); `GET /health`.
+every grid save);
+`GET/PUT /api/v1/proforma-invoices/{id}/step6` — the Step 6 section:
+predefined charges + wastages + custom charges saved as one unit, every
+metric qty/amount recomputed server-side from the saved Step 5 grid
+(ProformaEdit; GET also returns the per-spec metrics strip + available
+wastage pane sources with Step 4 provenance);
+`GET /health`.
 Failures use the shared error envelope `{"code":"auth.invalid_credentials",
 "message":"…"}`; lockouts answer **423 + Retry-After** (API design §1).
 Also settable via `ConnectionStrings:Saas` / `ConnectionStrings:SaasPlatform` /

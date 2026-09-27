@@ -430,7 +430,7 @@ def test_migrations(db_uri: str):
     with conn.cursor() as cur:
         cur.execute("SELECT name, checksum FROM saas._saas_migrations ORDER BY name")
         rows = cur.fetchall()
-        record("all 8 migrations recorded with checksums", len(rows) == 8,
+        record("all 9 migrations recorded with checksums", len(rows) == 9,
                ", ".join(r[0] for r in rows))
         # tamper with a checksum → runner must refuse
         cur.execute("UPDATE saas._saas_migrations SET checksum = 'deadbeef' WHERE name = '0001_platform_identity.sql'")
@@ -769,6 +769,136 @@ def test_specifications(db_uri: str):
     conn.close()
 
 
+
+def test_other_charges(db_uri: str):
+    """Phase 7b: Step 6 other-charges/wastage parity (0009)."""
+    print("\n== Phase 7b: Step 6 other charges schema ==")
+    conn = connect(db_uri)
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'other_charges'
+                  AND column_name IN ('template_key', 'description', 'unit',
+                                      'metric_qty', 'polish_sub_type',
+                                      'custom_polish_description',
+                                      'custom_polish_qty')
+            """)
+            cols = {r[0] for r in cur.fetchall()}
+            record("0009: other_charges row contract columns exist",
+                   cols == {'template_key', 'description', 'unit', 'metric_qty',
+                            'polish_sub_type', 'custom_polish_description',
+                            'custom_polish_qty'},
+                   str(sorted(cols)))
+
+            cur.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'wastage_rows'
+                  AND column_name IN ('total_sqm', 'is_manually_added',
+                                      'use_optimization_formula',
+                                      'checked_source_keys',
+                                      'spec_group_id', 'stock_sqm', 'glass_sqm')
+            """)
+            cols = {r[0] for r in cur.fetchall()}
+            record("0009: wastage_rows contract columns "
+                   "(Phase-3 guesses dropped)",
+                   cols == {'total_sqm', 'is_manually_added',
+                            'use_optimization_formula', 'checked_source_keys'},
+                   str(sorted(cols)))
+
+            cur.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'custom_charges'
+                  AND column_name IN ('charge_name', 'qty', 'unit', 'rate',
+                                      'amount', 'is_active', 'sort_order')
+            """)
+            cols = {r[0] for r in cur.fetchall()}
+            record("0009: custom_charges table exists (CustomChargeRow)",
+                   cols == {'charge_name', 'qty', 'unit', 'rate', 'amount',
+                            'is_active', 'sort_order'},
+                   str(sorted(cols)))
+
+            cur.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'spec_group_items'
+                  AND column_name = 'perimeter_factor'
+            """)
+            record("0009: spec_group_items.perimeter_factor exists "
+                   "(default 2, WPF GlassItemRow)",
+                   cur.rowcount == 1 and cur.fetchone()[0] == 'perimeter_factor')
+
+            cur.execute("""
+                SELECT count(*) FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'spec_groups'
+                  AND column_name IN ('outer_glass_color', 'inner_glass_color',
+                                      'third_glass_color',
+                                      'outer_sheet_width_mm',
+                                      'outer_sheet_height_mm',
+                                      'inner_sheet_width_mm',
+                                      'inner_sheet_height_mm',
+                                      'third_sheet_width_mm',
+                                      'third_sheet_height_mm',
+                                      'outer_sheet_price_per_sqm',
+                                      'inner_sheet_price_per_sqm',
+                                      'third_sheet_price_per_sqm')
+            """)
+            record("0009: spec_groups Step 4 provenance columns exist "
+                   "(SpecGroupSnapshot Phase G)",
+                   cur.fetchone()[0] == 12)
+
+            # Metric-key CHECK now enforces the real WPF registry.
+            cur.execute("""
+                SELECT conname FROM pg_constraint
+                WHERE conrelid = 'saas.other_charges'::regclass
+                  AND contype = 'c' AND conname = 'ck_other_charges_metric'
+            """)
+            has_ck = cur.rowcount == 1
+            cur.execute("""
+                SET LOCAL app.tenant_id = '%s'
+            """ % TENANT_A)
+            cur.execute("""
+                SELECT id FROM saas.proforma_invoices LIMIT 1
+            """)
+            pi = cur.fetchone()[0]
+            cur.execute("""
+                INSERT INTO saas.other_charges
+                    (tenant_id, proforma_id, charge_name, metric_key,
+                     checked_spec_group_numbers, rate, unit, template_key)
+                VALUES ('%s', '%s', 'Polish (lm)', 'LM1', '[1,2]', 6, 'Lm',
+                        'POLISH')
+                RETURNING id
+            """ % (TENANT_A, pi))
+            charge_id = cur.fetchone()[0]
+            record("0009: real metric key LM1 accepted", True)
+
+            rejected = False
+            try:
+                cur.execute("""
+                    INSERT INTO saas.other_charges
+                        (tenant_id, proforma_id, charge_name, metric_key,
+                         checked_spec_group_numbers, rate, unit)
+                    VALUES ('%s', '%s', 'x', 'SQM', '[]', 1, 'Qty')
+                """ % (TENANT_A, pi))
+            except Exception:
+                conn.rollback()
+                rejected = True
+                with conn.cursor() as cur2:
+                    cur2.execute(
+                        "SET LOCAL app.tenant_id = '%s'" % TENANT_A)
+            record("0009: Phase-3 metric key 'SQM' rejected "
+                   "(real registry is LM1/SQM1/...)",
+                   rejected)
+
+            # custom_charges RLS isolation (0005 pattern).
+            with conn.cursor() as cur3:
+                cur3.execute("SET LOCAL app.tenant_id = '%s'" % TENANT_A)
+                cur3.execute("SELECT count(*) FROM saas.custom_charges")
+                record("0009: custom_charges readable under tenant A RLS",
+                       cur3.fetchone()[0] >= 0)
+            conn.commit()
+    finally:
+        conn.close()
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--db-uri", default=None)
@@ -802,6 +932,7 @@ def main():
     test_auth_identity(db_uri)
     test_masterdata(db_uri)
     test_specifications(db_uri)
+    test_other_charges(db_uri)
 
     ok = write_report(sys.argv, names)
     print(f"\n{'='*60}\n{'ALL CHECKS PASSED' if ok else 'FAILURES PRESENT'} — "

@@ -84,7 +84,22 @@ public sealed record SpecGroupRequest(
     decimal RatePerSqm,
     string PriceSource,
     IReadOnlyList<SpecGroupItemRequest> Items,
-    Guid? SpecId = null);
+    Guid? SpecId = null,
+    // Step 4 provenance (SpecGroupSnapshot Phase G): pane colours + the
+    // stock sheets the group was QUOTED on, so Step 6 wastage sources and
+    // Step 9 re-costing read the invoice's own inputs, not live prices.
+    string? OuterGlassColor = null,
+    string? InnerGlassColor = null,
+    string? ThirdGlassColor = null,
+    int? OuterSheetWidthMm = null,
+    int? OuterSheetHeightMm = null,
+    int? InnerSheetWidthMm = null,
+    int? InnerSheetHeightMm = null,
+    int? ThirdSheetWidthMm = null,
+    int? ThirdSheetHeightMm = null,
+    decimal? OuterSheetPricePerSqm = null,
+    decimal? InnerSheetPricePerSqm = null,
+    decimal? ThirdSheetPricePerSqm = null);
 
 /// <summary>PUT /{id}/spec-groups — replaces the whole Step 5 grid for the
 /// invoice (wizard save semantics: the grid is the unit of work).</summary>
@@ -123,6 +138,12 @@ public sealed record SpecGroupItemDto(
 
 public sealed record SpecGroupDto(
     Guid Id, int GroupNumber, string GlassType, string SpecName,
-    decimal RatePerSqm, string PriceSource,
+    decimal RatePerSqm, string PriceSource, Guid? SpecId,
+    string OuterGlassColor, string InnerGlassColor, string ThirdGlassColor,
+    int OuterSheetWidthMm, int OuterSheetHeightMm,
+    int InnerSheetWidthMm, int InnerSheetHeightMm,
+    int ThirdSheetWidthMm, int ThirdSheetHeightMm,
+    decimal OuterSheetPricePerSqm, decimal InnerSheetPricePerSqm,
+    decimal ThirdSheetPricePerSqm,
     int TotalQty, decimal TotalSqm,
     IReadOnlyList<SpecGroupItemDto> Items);

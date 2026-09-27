@@ -109,4 +109,33 @@ public sealed class ProformaInvoicesController(ProformaService proforma)
         var result = await proforma.GetSpecGroupsAsync(RequiredTenantId, id, ct);
         return result.Success ? Ok(result.Value) : Fail(result);
     }
+
+    /// <summary>
+    /// Replace the invoice's whole Step 6 section — predefined charges,
+    /// wastages and custom charges, saved as one unit like the grid.
+    /// Metric quantities and amounts are recomputed server-side from the
+    /// saved Step 5 grid (never trusted from the client); the wastage
+    /// optimization rate is derived, not supplied.
+    /// </summary>
+    [HttpPut("{id:guid}/step6")]
+    [HasPermission(AppPermissions.ProformaEdit)]
+    public async Task<IActionResult> SaveStep6(
+        Guid id, [FromBody] SaveStep6Request request, CancellationToken ct)
+    {
+        var result = await proforma.SaveStep6Async(
+            RequiredTenantId, id, RequiredUserId, ClientIp, request, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>
+    /// The saved Step 6 section + the derived read model: per-spec
+    /// metrics strip (LM1/LM2/SQM1/SQM2/Qty/pane factor) and the
+    /// available wastage pane sources ("{spec}-{SideLabel}" keys).
+    /// </summary>
+    [HttpGet("{id:guid}/step6")]
+    public async Task<IActionResult> GetStep6(Guid id, CancellationToken ct)
+    {
+        var result = await proforma.GetStep6Async(RequiredTenantId, id, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
 }

@@ -216,6 +216,18 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public string OuterGlassColor { get; set; } = null!;
+        public string InnerGlassColor { get; set; } = null!;
+        public string ThirdGlassColor { get; set; } = null!;
+        public int OuterSheetWidthMm { get; set; }
+        public int OuterSheetHeightMm { get; set; }
+        public int InnerSheetWidthMm { get; set; }
+        public int InnerSheetHeightMm { get; set; }
+        public int ThirdSheetWidthMm { get; set; }
+        public int ThirdSheetHeightMm { get; set; }
+        public decimal OuterSheetPricePerSqm { get; set; }
+        public decimal InnerSheetPricePerSqm { get; set; }
+        public decimal ThirdSheetPricePerSqm { get; set; }
         public ProformaInvoice Proforma { get; set; } = null!;
         public Specification? Spec { get; set; } = null;
     }
@@ -247,6 +259,7 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public int PerimeterFactor { get; set; }
         public SpecGroup SpecGroup { get; set; } = null!;
     }
 }
@@ -270,6 +283,13 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public string TemplateKey { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public string Unit { get; set; } = null!;
+        public decimal MetricQty { get; set; }
+        public string PolishSubType { get; set; } = null!;
+        public string CustomPolishDescription { get; set; } = null!;
+        public decimal CustomPolishQty { get; set; }
         public ProformaInvoice Proforma { get; set; } = null!;
     }
 }
@@ -282,10 +302,7 @@ namespace ProGlass.Saas.Domain.Entities
         public Guid Id { get; set; }
         public Guid TenantId { get; set; }
         public Guid ProformaId { get; set; }
-        public Guid? SpecGroupId { get; set; }
         public string ColorName { get; set; } = null!;
-        public decimal StockSqm { get; set; }
-        public decimal GlassSqm { get; set; }
         public decimal OptimizationPercent { get; set; }
         public int SheetQuantity { get; set; }
         public decimal FormulaPricePerSqm { get; set; }
@@ -296,8 +313,35 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public decimal TotalSqm { get; set; }
+        public bool IsManuallyAdded { get; set; }
+        public bool UseOptimizationFormula { get; set; }
+        public string CheckedSourceKeys { get; set; } = null!;
+        public int SortOrder { get; set; }
         public ProformaInvoice Proforma { get; set; } = null!;
-        public SpecGroup? SpecGroup { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.custom_charges.</summary>
+    public sealed class CustomCharge : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public Guid ProformaId { get; set; }
+        public string ChargeName { get; set; } = null!;
+        public decimal Qty { get; set; }
+        public string Unit { get; set; } = null!;
+        public decimal Rate { get; set; }
+        public decimal Amount { get; set; }
+        public bool IsActive { get; set; }
+        public int SortOrder { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public Guid? CreatedBy { get; set; }
+        public Guid? UpdatedBy { get; set; }
+        public ProformaInvoice Proforma { get; set; } = null!;
     }
 }
 

@@ -43,7 +43,8 @@ GROUPS = {
                   "tenant_pricing_config", "tenant_vat_config",
                   "proforma_invoices", "specification_usages",
                   "spec_groups", "spec_group_items",
-                  "other_charges", "wastage_rows", "job_orders",
+                  "other_charges", "wastage_rows", "custom_charges",
+                  "job_orders",
                   "production_pieces", "production_events",
                   "material_reservations", "delivery_notes",
                   "delivery_note_items"],
@@ -264,7 +265,79 @@ def parse_ddl() -> dict[str, Table]:
         for c in t.columns:
             if c.name == m.group(2):
                 c.not_null = True
+
+    # Late default changes: "ALTER TABLE ... ALTER COLUMN x SET DEFAULT v"
+    # replaces the CREATE-time default in the model config.
+    for m in re.finditer(
+            r"ALTER\s+TABLE\s+saas\.(\w+)\s+ALTER\s+COLUMN\s+(\w+)\s+SET\s+DEFAULT\s+(.+?)\s*;",
+            ddl, re.I):
+        t = tables.get(m.group(1))
+        if t is None or not t.has(m.group(2)):
+            raise ValueError(
+                f"SET DEFAULT on unknown column saas.{m.group(1)}.{m.group(2)}")
+        default = m.group(3)
+        if _is_simple_default(default):
+            for c in t.columns:
+                if c.name == m.group(2):
+                    c.default = default
+
+    # Late type changes: "ALTER TABLE ... ALTER COLUMN x TYPE t" —
+    # replaces the CREATE-time type in the model (e.g. a Phase-3 precision
+    # fix widening numeric(18,2) to numeric(18,6)).
+    for m in re.finditer(
+            r"ALTER\s+TABLE\s+saas\.(\w+)\s+ALTER\s+COLUMN\s+(\w+)\s+TYPE\s+"
+            r"(\w+(?:\(\d+(?:,\d+)?\))?)\s*;",
+            ddl, re.I):
+        t = tables.get(m.group(1))
+        if t is None or not t.has(m.group(2)):
+            raise ValueError(
+                f"TYPE change on unknown column saas.{m.group(1)}.{m.group(2)}")
+        for c in t.columns:
+            if c.name == m.group(2):
+                c.sql_type = m.group(3)
+                c.csharp_type, c.ef_type = parse_type(c.sql_type)
+
+    # Columns dropped after the fact: "ALTER TABLE ... DROP COLUMN x;".
+    # Runs after the ADD pass; a drop of a never-created column is a typo
+    # and must fail loudly rather than silently keep a dead column.
+    for m in re.finditer(
+            r"ALTER\s+TABLE\s+saas\.(\w+)\s+DROP\s+COLUMN\s+(\w+)\s*;",
+            ddl, re.I):
+        t = tables.get(m.group(1))
+        if t is None:
+            raise ValueError(f"DROP COLUMN on unknown table saas.{m.group(1)}")
+        if not t.has(m.group(2)):
+            raise ValueError(
+                f"DROP COLUMN on unknown column saas.{m.group(1)}.{m.group(2)}")
+        t.columns = [c for c in t.columns if c.name != m.group(2)]
+        t.fks = [f for f in t.fks if f["col"] != m.group(2)]
+        t.indexes = [(n, cols, u) for (n, cols, u) in t.indexes
+                     if m.group(2) not in cols]
+
+    # Constraints dropped after the fact (e.g. a Phase-3 FK guess removed
+    # by a parity migration): removes the FK navigation / unique index
+    # that CREATE TABLE originally declared.
+    for m in re.finditer(
+            r"ALTER\s+TABLE\s+saas\.(\w+)\s+DROP\s+CONSTRAINT\s+(\w+)\s*;",
+            ddl, re.I):
+        t = tables.get(m.group(1))
+        if t is None:
+            raise ValueError(f"DROP CONSTRAINT on unknown table saas.{m.group(1)}")
+        t.fks = [f for f in t.fks if f["col"] != m.group(2)]
+        t.uniques = [u for u in t.uniques if u[0] != m.group(2)]
+        if t.pk and m.group(2).startswith("pk_"):
+            t.pk = []
+
+    # Indexes dropped after the fact ("DROP INDEX ... ON saas.x").
+    for m in re.finditer(
+            r"DROP\s+INDEX\s+(?:IF\s+EXISTS\s+)?saas\.(\w+)\s*;",
+            ddl, re.I):
+        for t in tables.values():
+            t.indexes = [(n, cols, u) for (n, cols, u) in t.indexes
+                         if n != m.group(1)]
+
     return tables
+
 
 
 def _is_simple_default(value: str) -> bool:

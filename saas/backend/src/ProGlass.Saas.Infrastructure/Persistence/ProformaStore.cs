@@ -214,7 +214,87 @@ public sealed class ProformaStore : IProformaStore
             .ToList();
     }
 
+
+    // ── Step 6: other charges / wastages / custom charges ─────────
+
+    /// <summary>
+    /// Whole-section replace (the wizard saves Step 6 as one unit, like
+    /// the grid). ONE transaction: document + all three row tables.
+    /// </summary>
+    public async Task ReplaceStep6Async(
+        ProformaInvoice invoice,
+        IReadOnlyList<Domain.Entities.OtherCharge> charges,
+        IReadOnlyList<Domain.Entities.WastageRow> wastages,
+        IReadOnlyList<Domain.Entities.CustomCharge> customs,
+        Guid actorId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(invoice);
+
+        using var db = _factory.CreateForTenant(invoice.TenantId);
+        await using var transaction = await db.Database
+            .BeginTransactionAsync(ct).ConfigureAwait(false);
+
+        var tracked = await db.ProformaInvoices
+            .FirstAsync(p => p.Id == invoice.Id, ct)
+            .ConfigureAwait(false);
+
+        CopyDocumentFields(invoice, tracked);
+        tracked.RowVersion = tracked.RowVersion + 1;
+        tracked.UpdatedAt = DateTime.UtcNow;
+        tracked.UpdatedBy = actorId;
+
+        await db.OtherCharges
+            .Where(c => c.ProformaId == invoice.Id)
+            .ExecuteDeleteAsync(ct).ConfigureAwait(false);
+        await db.WastageRows
+            .Where(w => w.ProformaId == invoice.Id)
+            .ExecuteDeleteAsync(ct).ConfigureAwait(false);
+        await db.CustomCharges
+            .Where(c => c.ProformaId == invoice.Id)
+            .ExecuteDeleteAsync(ct).ConfigureAwait(false);
+
+        foreach (var charge in charges)
+        {
+            db.OtherCharges.Add(charge);
+        }
+
+        foreach (var wastage in wastages)
+        {
+            db.WastageRows.Add(wastage);
+        }
+
+        foreach (var custom in customs)
+        {
+            db.CustomCharges.Add(custom);
+        }
+
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        await transaction.CommitAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<Step6Rows> GetStep6Async(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = _factory.CreateForTenant(tenantId);
+
+        var charges = await db.OtherCharges.AsNoTracking()
+            .Where(c => c.ProformaId == proformaId)
+            .OrderBy(c => c.SortOrder)
+            .ToListAsync(ct).ConfigureAwait(false);
+        var wastages = await db.WastageRows.AsNoTracking()
+            .Where(w => w.ProformaId == proformaId)
+            .OrderBy(w => w.SortOrder)
+            .ToListAsync(ct).ConfigureAwait(false);
+        var customs = await db.CustomCharges.AsNoTracking()
+            .Where(c => c.ProformaId == proformaId)
+            .OrderBy(c => c.SortOrder)
+            .ToListAsync(ct).ConfigureAwait(false);
+
+        return new Step6Rows(charges, wastages, customs);
+    }
+
     // ── helpers ────────────────────────────────────────────────────
+
 
     /// <summary>Full-row field copy from a detached snapshot onto the
     /// tracked row (identity/audit-created columns stay).</summary>

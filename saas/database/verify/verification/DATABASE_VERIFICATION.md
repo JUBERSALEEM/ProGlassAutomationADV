@@ -1,9 +1,9 @@
 # SAAS DATABASE VERIFICATION REPORT (Phases 3–4)
 
-**Generated:** 2026-09-27T07:27:54.449365+00:00  
+**Generated:** 2026-09-27T08:01:06.756105+00:00  
 **PostgreSQL:** 16 (pgserver, live instance)  
 **Migrations applied:**   
-**Result: 43/43 checks passed, 0 failed**
+**Result: 51/51 checks passed, 0 failed**
 
 Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 (requires `pip install pgserver psycopg2-binary`; or pass `--db-uri`).
@@ -24,12 +24,12 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 12 | invalid status rejected (CHECK) | ✅ PASS | — |
 | 13 | FK to nonexistent proforma rejected | ✅ PASS | — |
 | 14 | cascade delete removes spec groups + items | ✅ PASS | — |
-| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 07:27:54.330362+00:00 → 2026-09-27 07:27:54.381304+00:00 |
+| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 08:01:06.617369+00:00 → 2026-09-27 08:01:06.668580+00:00 |
 | 16 | audit_logs UPDATE denied for app role | ✅ PASS | — |
 | 17 | stock_transactions DELETE denied for app role | ✅ PASS | — |
 | 18 | numeric money arithmetic exact | ✅ PASS | 1050.00 |
 | 19 | re-run is a no-op (idempotent) | ✅ PASS | applied 0 |
-| 20 | all 8 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql |
+| 20 | all 9 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql |
 | 21 | tampered migration detected | ✅ PASS | — |
 | 22 | runtime role cannot INSERT tenants | ✅ PASS | — |
 | 23 | runtime role can READ tenants | ✅ PASS | — |
@@ -53,3 +53,11 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 41 | 0008: duplicate (tenant, glass_type, spec_name) rejected | ✅ PASS | — |
 | 42 | 0008: same spec name allowed in another tenant | ✅ PASS | — |
 | 43 | 0008: usage pair UNIQUE (spec, proforma) — one verified use per pair | ✅ PASS | — |
+| 44 | 0009: other_charges row contract columns exist | ✅ PASS | ['custom_polish_description', 'custom_polish_qty', 'description', 'metric_qty', 'polish_sub_type', 'template_key', 'unit'] |
+| 45 | 0009: wastage_rows contract columns (Phase-3 guesses dropped) | ✅ PASS | ['checked_source_keys', 'is_manually_added', 'total_sqm', 'use_optimization_formula'] |
+| 46 | 0009: custom_charges table exists (CustomChargeRow) | ✅ PASS | ['amount', 'charge_name', 'is_active', 'qty', 'rate', 'sort_order', 'unit'] |
+| 47 | 0009: spec_group_items.perimeter_factor exists (default 2, WPF GlassItemRow) | ✅ PASS | — |
+| 48 | 0009: spec_groups Step 4 provenance columns exist (SpecGroupSnapshot Phase G) | ✅ PASS | — |
+| 49 | 0009: real metric key LM1 accepted | ✅ PASS | — |
+| 50 | 0009: Phase-3 metric key 'SQM' rejected (real registry is LM1/SQM1/...) | ✅ PASS | — |
+| 51 | 0009: custom_charges readable under tenant A RLS | ✅ PASS | — |

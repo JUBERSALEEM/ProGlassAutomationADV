@@ -3,6 +3,7 @@ using ProGlass.Saas.Application.Auth;
 using ProGlass.Saas.Application.Specifications;
 using ProGlass.Saas.Domain.Entities;
 using ProGlass.Saas.Domain.Pricing;
+using ProGlass.Saas.Domain.Pricing;
 using ProGlass.Saas.Domain.Proforma;
 
 namespace ProGlass.Saas.Application.Proforma;
@@ -513,6 +514,20 @@ public sealed class ProformaService
                 SpecId = g.SpecId,
                 RatePerSqm = g.RatePerSqm,
                 PriceSource = (g.PriceSource ?? "").Trim(),
+                // Step 4 provenance (SpecGroupSnapshot Phase G): the
+                // invoice re-costs against the sheets it was QUOTED on.
+                OuterGlassColor = g.OuterGlassColor?.Trim() ?? "",
+                InnerGlassColor = g.InnerGlassColor?.Trim() ?? "",
+                ThirdGlassColor = g.ThirdGlassColor?.Trim() ?? "",
+                OuterSheetWidthMm = g.OuterSheetWidthMm ?? 0,
+                OuterSheetHeightMm = g.OuterSheetHeightMm ?? 0,
+                InnerSheetWidthMm = g.InnerSheetWidthMm ?? 0,
+                InnerSheetHeightMm = g.InnerSheetHeightMm ?? 0,
+                ThirdSheetWidthMm = g.ThirdSheetWidthMm ?? 0,
+                ThirdSheetHeightMm = g.ThirdSheetHeightMm ?? 0,
+                OuterSheetPricePerSqm = g.OuterSheetPricePerSqm ?? 0,
+                InnerSheetPricePerSqm = g.InnerSheetPricePerSqm ?? 0,
+                ThirdSheetPricePerSqm = g.ThirdSheetPricePerSqm ?? 0,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 CreatedBy = actorId,
@@ -552,6 +567,8 @@ public sealed class ProformaService
                     W2 = item.W2,
                     H2 = item.H2,
                     Qty = item.Qty,
+                    PerimeterFactor = item.PerimeterFactor
+                        ?? SpecGroupRowMath.DefaultPerimeterFactor,
                     Sqm = math.Sqm1,
                     TotalSqm = math.TotalSqm,
                     UnitPrice = g.RatePerSqm,
@@ -618,6 +635,448 @@ public sealed class ProformaService
         var groups = await _store.GetSpecGroupsAsync(tenantId, id, ct);
         return ProformaResult<IReadOnlyList<SpecGroupDto>>.Ok(
             groups.Select(ToDto).ToList());
+    }
+
+
+    // ═════════════════════════════ STEP 6 ══════════════════════════
+
+    /// <summary>
+    /// Replace the invoice's whole Step 6 section (predefined charges +
+    /// wastages + custom charges) in one transaction, WPF-verbatim:
+    /// every metric qty and amount is RECOMPUTED here from the SAVED
+    /// Step 5 grid (MetricHub → SpecTargetSelection → row.Recalculate —
+    /// never trusted from the client), the wastage rate in optimization
+    /// mode is the derived 85%-baseline gap, and the subtotal lands on
+    /// the invoice (RecalculateTotal).
+    /// </summary>
+    public async Task<ProformaResult<Step6Dto>> SaveStep6Async(
+        Guid tenantId, Guid id, Guid actorId, string? ip,
+        SaveStep6Request? request, CancellationToken ct)
+    {
+        if (request is null)
+        {
+            return ProformaResult<Step6Dto>.Fail(
+                ProformaErrorCode.ValidationFailed, "Request body is required.");
+        }
+
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        if (invoice is null)
+        {
+            return ProformaResult<Step6Dto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        if (invoice.IsVoid)
+        {
+            return ProformaResult<Step6Dto>.Fail(
+                ProformaErrorCode.Conflict,
+                "A voided proforma invoice is terminal history — it cannot be edited.");
+        }
+
+        if (!InvoiceLifecycle.TryParseState(invoice.LifecycleState, out var current)
+            || !InvoiceLifecycle.IsEditable(current))
+        {
+            return ProformaResult<Step6Dto>.Fail(
+                ProformaErrorCode.Conflict,
+                $"Step 6 is only editable while the invoice is Draft or " +
+                $"Rejected (currently {invoice.LifecycleState}).");
+        }
+
+        var inputs = await LoadSpecGroupInputsAsync(tenantId, id, ct);
+        var groupNumbers = inputs.Select(g => g.GroupNumber).ToHashSet();
+        var availableSourceKeys = inputs
+            .SelectMany(ChargeMetrics.SourcesForGroup)
+            .Select(source => source.Key)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var error = ValidateStep6(request, inputs, groupNumbers, availableSourceKeys);
+        if (error is not null)
+        {
+            return ProformaResult<Step6Dto>.Fail(ProformaErrorCode.ValidationFailed, error);
+        }
+
+        var charges = new List<Domain.Entities.OtherCharge>();
+        var wastages = new List<Domain.Entities.WastageRow>();
+        var customs = new List<Domain.Entities.CustomCharge>();
+        var sort = 0;
+
+        // ── predefined rows: qty derived, amount = Round(qty × rate) ──
+        foreach (var row in request.Charges ?? Array.Empty<OtherChargeRowRequest>())
+        {
+            var templateKey = (row.TemplateKey ?? "").Trim();
+            var isDelivery = templateKey == ChargeTemplates.DeliveryKey;
+            var isPolish = templateKey is ChargeTemplates.PolishKey
+                or ChargeTemplates.MatchedLamPolishKey;
+            var polishSubType = (row.PolishSubType ?? "").Trim();
+            var checkedSpecs = (row.CheckedSpecGroupNumbers ?? Array.Empty<int>()).ToList();
+
+            decimal metricQty;
+            if (isDelivery)
+            {
+                // Chat 7 Bug 4c: delivery is per-invoice — 1 TRIP, the
+                // target selection is ignored (multi-trip = custom charges).
+                metricQty = 1m;
+            }
+            else if (isPolish && polishSubType == PolishSubTypes.Custom)
+            {
+                metricQty = row.CustomPolishQty ?? 0m;
+            }
+            else if (isPolish)
+            {
+                metricQty = ChargeMetrics.PolishLm(
+                    inputs, checkedSpecs, polishSubType,
+                    matchedSameGlassOnly: templateKey == ChargeTemplates.MatchedLamPolishKey);
+            }
+            else
+            {
+                metricQty = ChargeMetrics.TargetedMetric(
+                    inputs, checkedSpecs, (row.MetricKey ?? "").Trim());
+            }
+
+            var amount = ChargeMetrics.ChargeAmount(metricQty, row.Rate, row.IsActive);
+
+            charges.Add(new Domain.Entities.OtherCharge
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                ProformaId = invoice.Id,
+                ChargeName = (row.ChargeName ?? "").Trim(),
+                Description = (row.Description ?? "").Trim(),
+                TemplateKey = templateKey,
+                Unit = ParseUnit(row.Unit) ?? "Qty",
+                MetricKey = MetricKeys.Normalize(row.MetricKey),
+                CheckedSpecGroupNumbers = JsonSerializer.Serialize(checkedSpecs),
+                Rate = row.Rate,
+                MetricQty = metricQty,
+                Amount = amount,
+                IsActive = row.IsActive,
+                PolishSubType = polishSubType,
+                CustomPolishDescription = (row.CustomPolishDescription ?? "").Trim(),
+                CustomPolishQty = row.CustomPolishQty ?? 0m,
+                SortOrder = sort++,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CreatedBy = actorId,
+                UpdatedBy = actorId,
+            });
+        }
+
+        // ── wastage rows: SQM from the checked pane sources ───────────
+        sort = 0;
+        foreach (var row in request.Wastages ?? Array.Empty<WastageRowRequest>())
+        {
+            var checkedKeys = (row.CheckedSourceKeys ?? Array.Empty<string>())
+                .Where(k => !string.IsNullOrWhiteSpace(k))
+                .Select(k => k.Trim()).ToList();
+            var totalSqm = ChargeMetrics.WastageSqm(inputs, checkedKeys);
+
+            decimal rate;
+            decimal amount;
+            if (row.UseOptimizationFormula)
+            {
+                var result = WastageFormula.CalculateOptimization(
+                    row.FormulaPricePerSqm, row.OptimizationPercent, totalSqm);
+                rate = result.BaseResultValue; // derived — never client-owned
+                amount = row.IsActive ? result.ResultAmount : 0m;
+            }
+            else
+            {
+                rate = row.Rate;
+                amount = row.IsActive
+                    ? WastageFormula.CalculateManual(totalSqm, row.Rate) : 0m;
+            }
+
+            wastages.Add(new Domain.Entities.WastageRow
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                ProformaId = invoice.Id,
+                ColorName = (row.ColorName ?? "").Trim(),
+                CheckedSourceKeys = JsonSerializer.Serialize(checkedKeys),
+                TotalSqm = totalSqm,
+                IsManuallyAdded = row.IsManuallyAdded,
+                UseOptimizationFormula = row.UseOptimizationFormula,
+                FormulaPricePerSqm = row.FormulaPricePerSqm,
+                OptimizationPercent = row.OptimizationPercent,
+                SheetQuantity = row.SheetQuantity < 1 ? 1 : row.SheetQuantity,
+                Rate = rate,
+                ResultAmount = amount,
+                IsActive = row.IsActive,
+                SortOrder = sort++,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CreatedBy = actorId,
+                UpdatedBy = actorId,
+            });
+        }
+
+        // ── custom rows ───────────────────────────────────────────────
+        sort = 0;
+        foreach (var row in request.Customs ?? Array.Empty<CustomChargeRowRequest>())
+        {
+            customs.Add(new Domain.Entities.CustomCharge
+            {
+                Id = Guid.NewGuid(),
+                TenantId = tenantId,
+                ProformaId = invoice.Id,
+                ChargeName = (row.ChargeName ?? "").Trim(),
+                Qty = row.Qty,
+                Unit = ParseUnit(row.Unit) ?? "Qty",
+                Rate = row.Rate,
+                Amount = ChargeMetrics.ChargeAmount(row.Qty, row.Rate, row.IsActive),
+                IsActive = row.IsActive,
+                SortOrder = sort++,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CreatedBy = actorId,
+                UpdatedBy = actorId,
+            });
+        }
+
+        // RecalculateTotal: Σ active amounts, plain Round(x, 2) — the
+        // WPF's banker's rounding on this one line, preserved verbatim.
+        invoice.OtherChargesSubtotal = ChargeMetrics.OtherChargesSubtotal(
+            charges.Sum(c => c.Amount),
+            wastages.Sum(w => w.ResultAmount),
+            customs.Sum(c => c.Amount));
+
+        await _store.ReplaceStep6Async(invoice, charges, wastages, customs, actorId, ct);
+
+        await _audit.WriteAsync(
+            tenantId, actorId, "proforma.step6_saved", "proforma_invoices",
+            invoice.Id, ip, null, ct,
+            afterJson: JsonSerializer.Serialize(new
+            {
+                charges = charges.Count,
+                wastages = wastages.Count,
+                customs = customs.Count,
+                invoice.OtherChargesSubtotal,
+            }));
+
+        return await GetStep6SectionAsync(tenantId, invoice.Id, ct);
+    }
+
+    /// <summary>GET — the saved section + the derived read model
+    /// (per-spec metrics strip, available wastage sources, subtotal).</summary>
+    public async Task<ProformaResult<Step6Dto>> GetStep6Async(
+        Guid tenantId, Guid id, CancellationToken ct)
+    {
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        if (invoice is null)
+        {
+            return ProformaResult<Step6Dto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        return await GetStep6SectionAsync(tenantId, id, ct);
+    }
+
+    private async Task<ProformaResult<Step6Dto>> GetStep6SectionAsync(
+        Guid tenantId, Guid id, CancellationToken ct)
+    {
+        var rows = await _store.GetStep6Async(tenantId, id, ct);
+        var inputs = await LoadSpecGroupInputsAsync(tenantId, id, ct);
+
+        var metrics = inputs
+            .Select(g => (Input: g, Metrics: ChargeMetrics.ForGroup(g)))
+            .ToList();
+
+        var dto = new Step6Dto(
+            rows.Charges.Select(ToDto).ToList(),
+            rows.Wastages.Select(ToDto).ToList(),
+            rows.Customs.Select(ToDto).ToList(),
+            ChargeMetrics.OtherChargesSubtotal(
+                rows.Charges.Sum(c => c.Amount),
+                rows.Wastages.Sum(w => w.ResultAmount),
+                rows.Customs.Sum(c => c.Amount)),
+            metrics.Select(m => new SpecGroupMetricsDto(
+                m.Input.GroupNumber, m.Input.EffectiveGlassType, m.Input.SpecName,
+                m.Metrics.IsDoubleGlass, m.Metrics.PaneFactor,
+                m.Metrics.IsMatchedSameGlass,
+                m.Metrics.Lm1, m.Metrics.Lm2,
+                m.Metrics.Sqm1, m.Metrics.Sqm2, m.Metrics.Qty)).ToList(),
+            inputs
+                .SelectMany(ChargeMetrics.SourcesForGroup)
+                .Select(source => new WastageSourceDto(
+                    source.Key, source.SpecNumber, source.SideLabel,
+                    source.ColorName, source.SqmValue,
+                    source.SheetWidthMm, source.SheetHeightMm,
+                    source.PricePerSqm)).ToList());
+
+        return ProformaResult<Step6Dto>.Ok(dto);
+    }
+
+    /// <summary>The Step 6 math's view of the saved grid (rows + Step 4
+    /// provenance), shared by save and read.</summary>
+    private async Task<IReadOnlyList<SpecGroupInput>> LoadSpecGroupInputsAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        var groups = await _store.GetSpecGroupsAsync(tenantId, proformaId, ct);
+        return groups.Select(g => new SpecGroupInput(
+            g.Group.GroupNumber,
+            g.Group.GlassType,
+            g.Group.SpecName,
+            g.Group.OuterGlassColor,
+            g.Group.InnerGlassColor,
+            g.Items.Select(i => new GridRow(
+                i.W1, i.H1, i.W2, i.H2, i.Qty, i.PerimeterFactor)).ToList(),
+            g.Group.OuterSheetWidthMm, g.Group.OuterSheetHeightMm,
+            g.Group.InnerSheetWidthMm, g.Group.InnerSheetHeightMm,
+            g.Group.ThirdSheetWidthMm, g.Group.ThirdSheetHeightMm,
+            g.Group.OuterSheetPricePerSqm, g.Group.InnerSheetPricePerSqm,
+            g.Group.ThirdSheetPricePerSqm)).ToList();
+    }
+
+    private static string? ParseUnit(string? unit) =>
+        Enum.TryParse<OtherChargeUnit>((unit ?? "").Trim(), ignoreCase: true, out var parsed)
+            ? parsed.ToString()
+            : null;
+
+    private static string? ValidateStep6(
+        SaveStep6Request request,
+        IReadOnlyList<SpecGroupInput> inputs,
+        HashSet<int> groupNumbers,
+        HashSet<string> availableSourceKeys)
+    {
+        var index = 0;
+        foreach (var row in request.Charges ?? Array.Empty<OtherChargeRowRequest>())
+        {
+            index++;
+
+            if (ParseUnit(row.Unit) is null)
+            {
+                return $"Charge {index}: unit must be Sqm, Lm or Qty.";
+            }
+
+            var templateKey = (row.TemplateKey ?? "").Trim();
+            if (templateKey.Length > 0 && ChargeTemplates.Find(templateKey) is null)
+            {
+                return $"Charge {index}: unknown template key '{templateKey}'.";
+            }
+
+            if (row.Rate < 0)
+            {
+                return $"Charge {index}: rate cannot be negative.";
+            }
+
+            // Polish rows are driven by their sub-type and delivery rows
+            // are a fixed 1 TRIP — neither needs a metric key (WPF:
+            // "Polish uses sub-type, not source dropdown"). Any key that
+            // IS supplied must still be a real one.
+            var isPolishRow = templateKey is ChargeTemplates.PolishKey
+                or ChargeTemplates.MatchedLamPolishKey;
+            var isDeliveryRow = templateKey == ChargeTemplates.DeliveryKey;
+            var metricKey = MetricKeys.Normalize(row.MetricKey);
+            if (metricKey.Length == 0 && !isPolishRow && !isDeliveryRow)
+            {
+                return $"Charge {index}: a metric key is required. " +
+                       $"Valid: {string.Join(", ", MetricKeys.All)}.";
+            }
+
+            if (metricKey.Length > 0 && !MetricKeys.All.Contains(metricKey))
+            {
+                return $"Charge {index}: unknown metric key '{row.MetricKey}'. " +
+                       $"Valid: {string.Join(", ", MetricKeys.All)}.";
+            }
+
+            var polishSubType = (row.PolishSubType ?? "").Trim();
+            if (polishSubType.Length > 0
+                && !PolishSubTypes.All.Contains(polishSubType))
+            {
+                return $"Charge {index}: unknown polish sub-type '{row.PolishSubType}'.";
+            }
+
+            foreach (var spec in row.CheckedSpecGroupNumbers ?? Array.Empty<int>())
+            {
+                if (!groupNumbers.Contains(spec))
+                {
+                    return $"Charge {index}: spec group {spec} does not exist " +
+                           "on this invoice's Step 5 grid.";
+                }
+            }
+        }
+
+        index = 0;
+        foreach (var row in request.Wastages ?? Array.Empty<WastageRowRequest>())
+        {
+            index++;
+
+            if (row.Rate < 0 || row.FormulaPricePerSqm < 0 || row.OptimizationPercent < 0)
+            {
+                return $"Wastage {index}: rates and percentages cannot be negative.";
+            }
+
+            foreach (var key in row.CheckedSourceKeys ?? Array.Empty<string>())
+            {
+                if (!availableSourceKeys.Contains((key ?? "").Trim()))
+                {
+                    return $"Wastage {index}: source key '{key}' does not exist " +
+                           "on this invoice's Step 5 grid — re-fetch the section " +
+                           "after saving the grid.";
+                }
+            }
+        }
+
+        index = 0;
+        foreach (var row in request.Customs ?? Array.Empty<CustomChargeRowRequest>())
+        {
+            index++;
+
+            if (ParseUnit(row.Unit) is null)
+            {
+                return $"Custom charge {index}: unit must be Sqm, Lm or Qty.";
+            }
+
+            if (row.Qty < 0 || row.Rate < 0)
+            {
+                return $"Custom charge {index}: qty and rate cannot be negative.";
+            }
+        }
+
+        return null;
+    }
+
+    private static OtherChargeDto ToDto(Domain.Entities.OtherCharge c) => new(
+        c.Id, c.TemplateKey, c.ChargeName, c.Description, c.Unit, c.IsActive,
+        c.MetricKey,
+        DeserializeNumbers(c.CheckedSpecGroupNumbers),
+        c.Rate, c.MetricQty, c.Amount,
+        c.PolishSubType, c.CustomPolishDescription, c.CustomPolishQty,
+        c.SortOrder);
+
+    private static WastageRowDto ToDto(Domain.Entities.WastageRow w) => new(
+        w.Id, w.IsActive, w.ColorName,
+        DeserializeStrings(w.CheckedSourceKeys),
+        w.TotalSqm, w.IsManuallyAdded, w.UseOptimizationFormula,
+        w.FormulaPricePerSqm, w.OptimizationPercent, w.SheetQuantity,
+        w.Rate, w.ResultAmount, w.SortOrder);
+
+    private static CustomChargeDto ToDto(Domain.Entities.CustomCharge c) => new(
+        c.Id, c.IsActive, c.ChargeName, c.Qty, c.Unit, c.Rate, c.Amount,
+        c.SortOrder);
+
+    private static IReadOnlyList<int> DeserializeNumbers(string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<IReadOnlyList<int>>(json ?? "[]") ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
+    }
+
+    private static IReadOnlyList<string> DeserializeStrings(string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<IReadOnlyList<string>>(json ?? "[]") ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 
     /// <summary>A phantom row: no position and every dimension zero
@@ -735,15 +1194,27 @@ public sealed class ProformaService
     private static SpecGroupDto ToDto(SpecGroupWithItems group) => new(
         group.Group.Id, group.Group.GroupNumber, group.Group.GlassType,
         group.Group.SpecName, group.Group.RatePerSqm, group.Group.PriceSource,
+        group.Group.SpecId,
+        group.Group.OuterGlassColor, group.Group.InnerGlassColor,
+        group.Group.ThirdGlassColor,
+        group.Group.OuterSheetWidthMm, group.Group.OuterSheetHeightMm,
+        group.Group.InnerSheetWidthMm, group.Group.InnerSheetHeightMm,
+        group.Group.ThirdSheetWidthMm, group.Group.ThirdSheetHeightMm,
+        group.Group.OuterSheetPricePerSqm, group.Group.InnerSheetPricePerSqm,
+        group.Group.ThirdSheetPricePerSqm,
         group.Items.Sum(i => i.Qty),
         Math.Round(group.Items.Sum(i => i.TotalSqm), 3),
         group.Items.Select(ToDto).ToList());
 
     private static SpecGroupItemDto ToDto(Domain.Entities.SpecGroupItem item)
     {
+        // The saved per-row factor (0009) — LM/SQM2 must round-trip exactly
+        // as they were computed at save time.
         var math = SpecGroupRowMath.Calculate(
             item.W1, item.H1, item.W2, item.H2, item.Qty,
-            SpecGroupRowMath.DefaultPerimeterFactor, item.UnitPrice);
+            item.PerimeterFactor <= 0
+                ? SpecGroupRowMath.DefaultPerimeterFactor : item.PerimeterFactor,
+            item.UnitPrice);
         return new SpecGroupItemDto(
             item.Id, item.RowSerial, item.Position,
             item.W1, item.H1, item.W2, item.H2, item.Qty,

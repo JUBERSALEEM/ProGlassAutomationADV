@@ -598,6 +598,230 @@ public class ProformaServiceTests
         Assert.Equal(0m, row.Lm2);
     }
 
+
+    // ═════════════════════════════ STEP 6 ══════════════════════════
+
+    /// <summary>A DGU grid with one row: SQM1 6.00, SQM2 2.43,
+    /// LM1 18.00, LM2 10.80 — outer + inner wastage sources.</summary>
+    private static SaveSpecGroupsRequest Step6Grid() => new(
+        new List<SpecGroupRequest>
+        {
+            new(1, "DGU", "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                46m, "formula", new List<SpecGroupItemRequest>
+            {
+                new(1, "Front", 1000, 2000, 900, 900, 3, null, ""),
+            }),
+        });
+
+    private async Task<ProformaDto> CreateWithGridAsync()
+    {
+        var invoice = await CreateAsync();
+        var grid = await _sut.SaveSpecGroupsAsync(
+            Tenant, invoice.Id, Actor, null, Step6Grid(), CancellationToken.None);
+        Assert.True(grid.Success, grid.Message);
+        return invoice;
+    }
+
+    private static SaveStep6Request Step6(decimal rate = 45m) => new(
+        new List<OtherChargeRowRequest>
+        {
+            new("ARGON_GAS", "Argon Gas (Sqm)",
+                "Inert Argon gas infusion inside DGU cavity.", "Sqm", true,
+                "SQM1", new List<int> { 1 }, rate),
+        },
+        new List<WastageRowRequest>
+        {
+            new(true, "Clear", 12.5m, true, false, 0m, 0m, 1,
+                new List<string> { "1-Outer (W1/H1)" }),
+            new(true, "Clear", 0m, false, true, 52m, 78m, 2,
+                new List<string> { "1-Outer (W1/H1)", "1-Inner (W2/H2)" }),
+        },
+        new List<CustomChargeRowRequest>
+        {
+            new(true, "Crane rental", 2m, "Qty", 250m),
+        });
+
+    [Fact]
+    public async Task Step6_save_derives_every_qty_and_amount_from_the_grid()
+    {
+        var invoice = await CreateWithGridAsync();
+
+        var saved = await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, Step6(), CancellationToken.None);
+        Assert.True(saved.Success, saved.Message);
+
+        // ARGON_GAS: SQM1 of spec 1 = 6.00 × 45 = 270.00.
+        var argon = Assert.Single(saved.Value!.Charges);
+        Assert.Equal("ARGON_GAS", argon.TemplateKey);
+        Assert.Equal(6.000m, argon.MetricQty);
+        Assert.Equal(270.00m, argon.Amount);
+
+        // Manual wastage: 6.00 SQM × 12.5 = 75.00 (plain Math.Round).
+        var manual = saved.Value.Wastages[0];
+        Assert.Equal(6.000m, manual.TotalSqm);
+        Assert.Equal(12.5m, manual.Rate);
+        Assert.Equal(75.00m, manual.Amount);
+
+        // Optimization wastage: rate is DERIVED (85% baseline gap), the
+        // entered 0 is never stored — 5.490196 × 8.43 = 46.28.
+        var optimization = saved.Value.Wastages[1];
+        Assert.Equal(8.430m, optimization.TotalSqm);
+        Assert.Equal(5.490196m, optimization.Rate);
+        Assert.Equal(46.28m, optimization.Amount);
+
+        // Custom: 2 × 250 = 500.
+        var custom = Assert.Single(saved.Value.Customs);
+        Assert.Equal(500.00m, custom.Amount);
+
+        // RecalculateTotal lands on the invoice: 270 + 75 + 46.28 + 500.
+        Assert.Equal(891.28m, saved.Value.Subtotal);
+        var invoiceAfter = _store.Invoices.First(i => i.Id == invoice.Id);
+        Assert.Equal(891.28m, invoiceAfter.OtherChargesSubtotal);
+
+        // The WPF recalculates live; the SaaS saves the derivation.
+        Assert.Contains(_audit.Events, e => e.Action == "proforma.step6_saved");
+    }
+
+    [Fact]
+    public async Task Step6_delivery_is_one_trip_and_polish_uses_the_sub_type()
+    {
+        var invoice = await CreateWithGridAsync();
+
+        var saved = await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, new SaveStep6Request(
+                new List<OtherChargeRowRequest>
+                {
+                    // Chat 7 Bug 4c: per-invoice, target selection ignored.
+                    new("DELIVERY", "Delivery (per trip)", "", "Qty", true,
+                        "QTY", new List<int>(), 150m),
+                    // Polish: AllSidePolish over BOTH panes of the DGU —
+                    // (6 + 3.6) × 3 = 28.8 LM.
+                    new("POLISH", "Polish (lm)", "", "Lm", true,
+                        "", new List<int> { 1 }, 6m,
+                        PolishSubTypes.AllSidePolish),
+                },
+                new List<WastageRowRequest>(),
+                new List<CustomChargeRowRequest>()),
+            CancellationToken.None);
+
+        Assert.True(saved.Success, saved.Message);
+        Assert.Equal(1.000m, saved.Value!.Charges[0].MetricQty);
+        Assert.Equal(150.00m, saved.Value.Charges[0].Amount);
+        Assert.Equal(28.800m, saved.Value.Charges[1].MetricQty);
+        Assert.Equal(172.80m, saved.Value.Charges[1].Amount); // 28.8 × 6
+    }
+
+    [Fact]
+    public async Task Step6_inactive_rows_cost_nothing_but_are_kept()
+    {
+        var invoice = await CreateWithGridAsync();
+
+        var saved = await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, Step6() with { },
+            CancellationToken.None);
+        Assert.True(saved.Success);
+
+        // Re-save with everything off: rows persist, subtotal = 0.
+        var off = new SaveStep6Request(
+            new List<OtherChargeRowRequest>
+            {
+                new("ARGON_GAS", "Argon Gas (Sqm)", "", "Sqm", false,
+                    "SQM1", new List<int> { 1 }, 45m),
+            },
+            new List<WastageRowRequest>
+            {
+                new(false, "Clear", 12.5m, true, false, 0m, 0m, 1,
+                    new List<string> { "1-Outer (W1/H1)" }),
+            },
+            new List<CustomChargeRowRequest>
+            {
+                new(false, "Crane rental", 2m, "Qty", 250m),
+            });
+
+        var result = await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, off, CancellationToken.None);
+
+        Assert.True(result.Success, result.Message);
+        Assert.Single(result.Value!.Charges);
+        Assert.Equal(0m, result.Value.Charges[0].Amount);
+        Assert.Equal(0m, result.Value.Subtotal);
+    }
+
+    [Fact]
+    public async Task Step6_rejects_unknown_metrics_and_stale_sources()
+    {
+        var invoice = await CreateWithGridAsync();
+
+        var badMetric = await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, new SaveStep6Request(
+                new List<OtherChargeRowRequest>
+                {
+                    new("ARGON_GAS", "x", "", "Sqm", true, "SQM",
+                        new List<int> { 1 }, 45m),
+                }, null, null), CancellationToken.None);
+        Assert.False(badMetric.Success);
+        Assert.Contains("unknown metric key", badMetric.Message);
+
+        var badSpec = await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, new SaveStep6Request(
+                new List<OtherChargeRowRequest>
+                {
+                    new("ARGON_GAS", "x", "", "Sqm", true, "SQM1",
+                        new List<int> { 7 }, 45m),
+                }, null, null), CancellationToken.None);
+        Assert.False(badSpec.Success);
+        Assert.Contains("spec group 7 does not exist", badSpec.Message);
+
+        var staleSource = await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, new SaveStep6Request(
+                null,
+                new List<WastageRowRequest>
+                {
+                    new(true, "", 10m, true, false, 0m, 0m, 1,
+                        new List<string> { "1-Lam Inner (W2/H2)" }),
+                }, null), CancellationToken.None);
+        Assert.False(staleSource.Success);
+        Assert.Contains("does not exist", staleSource.Message);
+    }
+
+    [Fact]
+    public async Task Step6_refuses_voided_invoices()
+    {
+        var invoice = await CreateWithGridAsync();
+        var voided = await _sut.VoidAsync(
+            Tenant, invoice.Id, Actor, null, new VoidRequest("done"),
+            CancellationToken.None);
+        Assert.True(voided.Success, voided.Message);
+
+        var result = await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, Step6(), CancellationToken.None);
+
+        Assert.False(result.Success);
+        Assert.Equal(ProformaErrorCode.Conflict, result.ErrorCode);
+    }
+
+    [Fact]
+    public async Task Step6_get_returns_the_derived_read_model()
+    {
+        var invoice = await CreateWithGridAsync();
+        await _sut.SaveStep6Async(
+            Tenant, invoice.Id, Actor, null, Step6(), CancellationToken.None);
+
+        var section = await _sut.GetStep6Async(Tenant, invoice.Id, CancellationToken.None);
+
+        Assert.True(section.Success, section.Message);
+        // The per-spec metrics strip (the Step 6 top panel).
+        var metrics = Assert.Single(section.Value!.SpecMetrics);
+        Assert.True(metrics.IsDoubleGlass);
+        Assert.Equal(2, metrics.PaneFactor);
+        Assert.Equal(18.00m, metrics.Lm1);
+        Assert.Equal(2.43m, metrics.Sqm2);
+        // The available wastage sources for this grid.
+        Assert.Equal(2, section.Value.WastageSources.Count);
+        Assert.Contains(section.Value.WastageSources,
+            s => s.Key == "1-Inner (W2/H2)" && s.SqmValue == 2.43m);
+    }
+
     [Fact]
     public async Task Grid_save_stamps_the_referenced_spec_and_reconciles()
     {

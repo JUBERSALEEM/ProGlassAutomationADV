@@ -154,4 +154,30 @@ public sealed class FakeProformaStore : IProformaStore
                 : Array.Empty<SpecGroupWithItems>();
         return Task.FromResult(groups);
     }
+
+    private readonly Dictionary<Guid, Step6Rows> _step6 = new();
+
+    public Task ReplaceStep6Async(
+        ProformaInvoice invoice,
+        IReadOnlyList<Domain.Entities.OtherCharge> charges,
+        IReadOnlyList<Domain.Entities.WastageRow> wastages,
+        IReadOnlyList<Domain.Entities.CustomCharge> customs,
+        Guid actorId, CancellationToken ct)
+    {
+        _step6[invoice.Id] = new Step6Rows(
+            charges.OrderBy(c => c.SortOrder).ToList(),
+            wastages.OrderBy(w => w.SortOrder).ToList(),
+            customs.OrderBy(c => c.SortOrder).ToList());
+        return UpdateAsync(invoice, actorId, ct);
+    }
+
+    public Task<Step6Rows> GetStep6Async(Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        return Task.FromResult(_step6.TryGetValue(proformaId, out var rows)
+            ? rows
+            : new Step6Rows(
+                Array.Empty<Domain.Entities.OtherCharge>(),
+                Array.Empty<Domain.Entities.WastageRow>(),
+                Array.Empty<Domain.Entities.CustomCharge>()));
+    }
 }
