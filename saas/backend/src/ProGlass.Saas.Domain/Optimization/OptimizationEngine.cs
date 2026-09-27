@@ -296,6 +296,13 @@ public sealed class OptimizationResult
         }
         if (conservationChecked) ConservationChecked = true;
         if (geometryChecked) GeometryChecked = true;
+
+        // WPF verbatim (25b reconciliation): the verified flags are
+        // derived, never set by callers — CheckCandidate-carrying paths
+        // (QUICK candidates, the grid) used to leave them false, so
+        // clean plans were reported "Not verified" downstream.
+        ConservationVerified = ConservationChecked && !HasValidationFailure;
+        GeometryVerified = GeometryChecked && !HasValidationFailure;
     }
 
     public decimal TotalUsedSqm =>
@@ -423,14 +430,18 @@ public static partial class GuillotinePacker
 
     /// <summary>
     /// PackQuick core: sort by AREA (the 2026-09-16 calibration), run the
-    /// shelf pass, derive leftovers, validate. Deterministic.
+    /// shelf pass, then the bounded capacity-strip and pattern-beam
+    /// candidates, derive cuts and leftovers, validate. Deterministic.
     /// </summary>
     public static OptimizationResult PackQuick(
         IReadOnlyList<CutPiece> pieces,
         IReadOnlyList<StockSize> stocks,
         MarginProfile margins,
         RotationPolicy rotation,
-        SplitMode split = SplitMode.HorizontalFirst)
+        SplitMode split = SplitMode.HorizontalFirst,
+        CancellationToken cancellationToken = default,
+        PlatePattern platePattern = PlatePattern.Yield,
+        CutPolicy? policy = null)
     {
         if (pieces is null)
         {
@@ -445,30 +456,82 @@ public static partial class GuillotinePacker
         {
             throw new ArgumentNullException(nameof(margins));
         }
+        cancellationToken.ThrowIfCancellationRequested();
 
         // The governor bounds QUICK too (WPF PlanForQuick): consolidation
         // sweeps 3 below 2,000 parts, 2 above, 5-minute budget.
         var quickPlan = OptimizationSearchGovernor.PlanForQuick(pieces.Count);
+        var quickWatch = System.Diagnostics.Stopwatch.StartNew();
         var result = RunPass(SortByArea(pieces), stocks, margins, rotation, split,
             consolidationSweeps: quickPlan.MaxConsolidationSweeps,
             openSheetWindow: quickPlan.OpenSheetWindow);
         result.Strategy = $"QUICK SHELF (Area / {split})";
+
+        // The candidate gate at the QUICK boundary (WPF CheckCandidate).
+        result = CheckCandidate(result, pieces, margins, cancellationToken);
+
+        // PHASE 1: capacity strips and the best-split beam both build
+        // their own free rectangles and know nothing about the stage
+        // budget, so a staged pattern is served by the policy-aware
+        // shelf pass alone. Skipping candidates can only cost yield,
+        // never correctness.
+        bool staged = policy is { IsDepthConstrained: true };
+
+        if (!staged)
+        {
+            foreach (bool transpose in new[] { false, true })
+            {
+                var strips = RunCapacityStrips(pieces, stocks, margins, rotation,
+                    transpose, cancellationToken);
+                result = Better(result, CheckCandidate(strips, pieces, margins,
+                    cancellationToken), platePattern)!;
+            }
+            result = ImprovePatterns(result, pieces, stocks, margins, rotation, 1, 1,
+                cancellationToken, () => quickWatch.Elapsed >= quickPlan.TimeBudget);
+        }
+        // 25c (mapping §1.6b): the WPF then runs RunRepeatedPatterns and
+        // applies the plate pattern — the repeated/partitioned pattern
+        // family is the next slice.
+        if (quickWatch.Elapsed >= quickPlan.TimeBudget)
+            result.ScaleNotes.Add(
+                "QUICK pattern budget reached; retained the best validated candidate found.");
+
+        // Scope note (SaaS port, Phase 25b): QUICK now runs the WPF's
+        // candidate set — shelf pass, capacity strips (columns and
+        // rows) and the bounded pattern beam. The repeated-pattern and
+        // plate-pattern candidates remain a later slice (mapping §1.6b).
         result.ScaleNotes.Add(
-            "SaaS port (Phase 25a): the QUICK shelf pass with the " +
-            "consolidation sweep. The WPF's additional QUICK candidates " +
-            "(capacity strips, bounded pattern beam, repeated patterns, " +
-            "plate patterns) are later slices — documented in mapping " +
-            "§1.6b — so this plan is valid and cuttable but not yet the " +
-            "WPF's best candidate.");
+            "SaaS port (Phase 25b): QUICK runs the shelf pass, capacity " +
+            "strips (columns/rows) and the bounded pattern-beam candidates. " +
+            "The repeated-patterns and plate-patterns candidates are a later " +
+            "slice — documented in mapping §1.6b.");
+
+        // PHASE 0: give every sheet a cut sequence. Paths that stamp
+        // pieces straight onto a layout leave it without one, and a plan
+        // nobody can cut is not a plan. The return value is checked: a
+        // failed derivation leaves an EMPTY cut list, and reporting it
+        // beats silence (WPF finding F1).
+        for (int i = 0; i < result.Sheets.Count; i++)
+        {
+            var sheet = result.Sheets[i];
+            if (sheet.Cuts.Count != 0) continue;
+
+            if (!TryDeriveGuillotineCuts(sheet) && sheet.Pieces.Count > 0)
+                result.ScaleNotes.Add(
+                    "WARNING: sheet " + sheet.SheetNo + " holds "
+                    + sheet.Pieces.Count + " pane(s) but no sequence of "
+                    + "straight cuts produces that layout. It cannot be cut "
+                    + "as drawn - open it in the 2D VIEW before exporting.");
+        }
 
         // Give every sheet its leftover regions, derived from the cut
         // sequence (WPF DeriveLeftovers).
         DeriveLeftovers(result,
             Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
 
-        // Industrial safety net: a plan nobody validated is a plan nobody
-        // can cut (WPF CheckCandidate → ValidatePlan).
-        Validate(result, pieces, stocks, margins);
+        if (result.HasValidationFailure)
+            result.ScaleNotes.Add(
+                "WARNING: no valid QUICK candidate — inspection only, not exportable.");
         return result;
     }
 

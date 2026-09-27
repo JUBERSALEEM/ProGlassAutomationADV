@@ -455,6 +455,17 @@ public sealed class OptimizeChassisTests
         new(2250, 3210, 6, "Clear")
     };
 
+    private static bool IsKnownCandidate(string strategy) =>
+        strategy.StartsWith("QUICK SHELF") ||
+        strategy.StartsWith("GRID") ||
+        strategy.StartsWith("CAPACITY STRIPS") ||
+        strategy.StartsWith("PATTERN BEAM") ||
+        strategy.StartsWith("SHEET-FILL") ||
+        strategy.StartsWith("WALL-SEED") ||
+        strategy.StartsWith("BEST-SPLIT") ||
+        strategy.StartsWith("SMART PLACEMENT") ||
+        strategy.StartsWith("MAXRECTS-BSSF");
+
     [Fact]
     public void Optimize_stage1_is_exactly_quick()
     {
@@ -465,10 +476,13 @@ public sealed class OptimizeChassisTests
         var stage1 = GuillotinePacker.PackOptimize(pieces, Racks, margins, RotationPolicy.Free90,
             effortLevel: 1);
 
-        // The NeverRegressesQuick contract: stage 1 mirrors PackQuick.
+        // The NeverRegressesQuick contract: stage 1 mirrors PackQuick —
+        // the same deterministic call, so the same winning candidate and
+        // label (25b: QUICK's portfolio is shelf + capacity strips +
+        // pattern beam, and any of them can win).
         Assert.Equal(quick.SheetsUsed, stage1.SheetsUsed);
         Assert.Equal(quick.Unplaced.Count, stage1.Unplaced.Count);
-        Assert.StartsWith("QUICK SHELF", stage1.Strategy);
+        Assert.Equal(quick.Strategy, stage1.Strategy);
         Assert.Empty(GuillotinePacker.VerifyComprehensive(stage1, pieces, margins));
     }
 
@@ -491,13 +505,18 @@ public sealed class OptimizeChassisTests
             // Every sheet is cuttable — the E4.1 invariant, by construction
             // or by derivation.
             Assert.True(GuillotinePacker.AllSheetsCuttable(optimized));
-            // QUICK seeds the comparison and a grid candidate only
-            // replaces it by being strictly better — so the winner is
-            // either the QUICK plan or a GRID candidate, never unnamed.
-            Assert.True(
-                optimized.Strategy.StartsWith("QUICK SHELF") ||
-                optimized.Strategy.StartsWith("GRID"),
+            // QUICK seeds the comparison and a candidate only replaces
+            // it by being strictly better — so the winner is always one
+            // of the run's named candidates (25b widened the pool with
+            // the advanced families; the WPF's E4.1 guillotine gate is
+            // off by default, so a non-guillotine MAXRECTS winner is
+            // legal and carries the derivation warning instead).
+            Assert.True(IsKnownCandidate(optimized.Strategy),
                 $"unexpected strategy: {optimized.Strategy}");
+            Assert.True(
+                GuillotinePacker.AllSheetsCuttable(optimized) ||
+                optimized.ScaleNotes.Any(n => n.StartsWith("WARNING: sheet ")),
+                "non-cuttable winner without the E4.1 warning note");
         }
     }
 
@@ -587,7 +606,7 @@ public sealed class OptimizeChassisTests
         Assert.Empty(GuillotinePacker.VerifyComprehensive(quick, pieces, margins));
         // The scope note tells the operator exactly which WPF candidates
         // are still pending — no silent degradation.
-        Assert.Contains(quick.ScaleNotes, n => n.StartsWith("SaaS port (Phase 25a)"));
+        Assert.Contains(quick.ScaleNotes, n => n.StartsWith("SaaS port (Phase 25b)"));
         // Consolidation ran: every remaining sheet holds at least one
         // piece (no evacuated husks left behind).
         Assert.All(quick.Sheets, s => Assert.NotEmpty(s.Pieces));

@@ -738,7 +738,9 @@ public static partial class GuillotinePacker
         int stage = maxStage > 0 ? maxStage : effortLevel;
 
         if (stage <= 1)
-            return PackQuick(pieces, stocks, margins, rotation);
+            return PackQuick(pieces, stocks, margins, rotation,
+                cancellationToken: cancellationToken, platePattern: platePattern,
+                policy: policy);
 
         var plan = OptimizationSearchGovernor.PlanForOptimize(pieces.Count, effortLevel);
         var scale = ScaleProfile.For(pieces.Count, effortLevel);
@@ -788,6 +790,16 @@ public static partial class GuillotinePacker
 
         var comboList = combos.ToList();
 
+        // SMART PLACEMENT adds one or two more complete plans to the
+        // search (see OptimizationEngine.Candidates.cs). Counted up
+        // front so the bar keeps moving forward instead of reaching
+        // 100% and then dropping back while the last candidates run.
+        // Zero below stage 2 and in the Huge tier.
+        int smartPasses = stage >= 2 && scale.Tier != ScaleTier.Huge
+            ? (effortLevel >= 4 && scale.Tier == ScaleTier.Standard ? 2 : 1)
+            : 0;
+        int smartTotal = comboList.Count + smartPasses;
+
         // ── SCALE FIX 4: cache the base sorts. Sort(pieces, order) is a
         // pure function of the input and the ordering key; there are only
         // six distinct keys, so re-sorting for every combo is redundant.
@@ -795,7 +807,25 @@ public static partial class GuillotinePacker
 
         int guillotineRejects = 0;
 
-        OptimizationResult? best = PackQuick(pieces, stocks, margins, rotation);
+        OptimizationResult? best = PackQuick(pieces, stocks, margins, rotation,
+            cancellationToken: cancellationToken, policy: policy);
+
+        // PHASE 1: same rule as QUICK — the beam and the repeated-pattern
+        // pass build their own rectangles and cannot honour a stage
+        // budget. (Staged enforcement itself lands with the staged-cuts
+        // slice; the gate is already exact.)
+        bool staged = policy != null && policy.IsDepthConstrained;
+
+        // The bounded best-split pattern beam over the QUICK floor
+        // (WPF: ImprovePatterns(2, effortLevel), budget-gated).
+        if (!staged)
+        {
+            var improved = ImprovePatterns(best!, pieces, stocks, margins, rotation,
+                2, effortLevel, cancellationToken, BudgetExhausted);
+            if (Accepts(improved)) best = improved;
+            // 25c: the WPF then runs RunRepeatedPatterns here — the
+            // repeated/partitioned pattern family is the next slice.
+        }
 
         // E4.1 — a plan that cannot be cut is not a plan: a candidate is
         // admissible or it is not considered. best is seeded from
@@ -870,7 +900,7 @@ public static partial class GuillotinePacker
                 Consider(candidate);
             }
 
-            progress?.Report(OptimizeProgress.Of("pass", comboList.Count, comboList.Count,
+            progress?.Report(OptimizeProgress.Of("pass", comboList.Count, smartTotal,
                 $"Evaluated {comboList.Count} candidates in parallel"));
         }
 
@@ -903,7 +933,7 @@ public static partial class GuillotinePacker
                 if (shuffle > 0)
                     ordered = ShuffleDeterministic(ordered, 17 + shuffle * 131 + (int)order * 7);
 
-                progress?.Report(OptimizeProgress.Of("pass", ci, comboList.Count,
+                progress?.Report(OptimizeProgress.Of("pass", ci, smartTotal,
                     $"Pass {ci + 1} of {comboList.Count}: {order} / {split}" +
                     (shuffle > 0 ? $" / shuffle {shuffle}" : "")));
 
@@ -922,7 +952,92 @@ public static partial class GuillotinePacker
             }
         }
 
-        var final = best ?? PackQuick(pieces, stocks, margins, rotation);
+        // With windowed candidate scanning, advanced strategies (BestSplit,
+        // SheetFill, WallSeed, SmartPlacement) run in bounded O(K * N) time
+        // across all tiers (WPF verbatim).
+        if (stage >= 2 && !budgetStopped)
+        {
+            int windowSize = scale.Tier == ScaleTier.Huge ? 300 : scale.Tier == ScaleTier.Large ? 400 : int.MaxValue;
+
+            foreach (var split in splits)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                Consider(RunSheetFill(pieces, stocks, margins, rotation, split,
+                    scale.ConsolidationSweeps, cancellationToken, windowSize));
+                Consider(RunWallSeed(pieces, stocks, margins, rotation, split,
+                    scale.ConsolidationSweeps, cancellationToken, windowSize));
+            }
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Per-sheet split selection — see OptimizationEngine.Candidates.cs.
+            // This is the candidate that takes the WPF's Clear group from 17
+            // sheets to the owner's reference 16.
+            Consider(RunBestSplit(pieces, stocks, margins, rotation,
+                scale.ConsolidationSweeps, cancellationToken, windowSize,
+                remainderAware: remainderAware));
+
+            // ── SMART PLACEMENT ──────────────────────────
+            // Capacity-preserving placement, per-placement split choice and
+            // the configured minimum breakout enforced. Added as a candidate,
+            // never as a replacement: Better() keeps the minimum on unplaced,
+            // then sheets, then utilization, so this can only improve the
+            // chosen plan or lose.
+            cancellationToken.ThrowIfCancellationRequested();
+            progress?.Report(OptimizeProgress.Of("smart", comboList.Count, smartTotal,
+                "Smart placement: capacity-preserving, breakout-aware"));
+            Consider(PackSmart(pieces, stocks, margins, rotation,
+                SplitMode.HorizontalFirst, scale.ConsolidationSweeps, cancellationToken,
+                progress: null, candidateWindowSize: windowSize, policy: policy));
+
+            if (stage >= 4)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                progress?.Report(OptimizeProgress.Of("smart", comboList.Count + 1, smartTotal,
+                    "Smart placement: vertical-split preference"));
+                Consider(PackSmart(pieces, stocks, margins, rotation,
+                    SplitMode.VerticalFirst, scale.ConsolidationSweeps, cancellationToken,
+                    progress: null, candidateWindowSize: windowSize, policy: policy));
+            }
+        }
+
+        if (stage >= 3 && !budgetStopped && !staged)
+        {
+            // Math.Min with an unlimited cap leaves the standard band
+            // exactly as it was (6 orderings at effort 5, 3 below).
+            foreach (var order in orderings.Take(Math.Min(
+                         stage >= 5 ? 6 : 3, scale.MaxRectsOrderings)))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                Consider(RunMaxRects(Sort(pieces, order), stocks, margins, rotation,
+                        cancellationToken));
+            }
+
+            // Beam-corrected version: greedy per-sheet selection is myopic
+            // (measured worse than the shipped engine on 17 of 40
+            // randomized instances when used ALONE), so it is widened here.
+            // Adding candidates can never regress — Better() takes the min.
+            if (scale.AllowBeam)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 4, cancellationToken));
+                if (stage >= 4)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 8, cancellationToken));
+                }
+
+                // PHASE E3.3. Beam 16 at the top effort only, and behind a
+                // switch. It only ever ADDS a candidate and Better() takes
+                // the minimum, so it cannot make a plan worse - only slower.
+                if (stage >= 5 && wideBeam)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    Consider(RunBestSplitBeam(pieces, stocks, margins, rotation, 16, cancellationToken));
+                }
+            }
+        }
+
+        var final = best ?? PackQuick(pieces, stocks, margins, rotation, policy: policy);
 
         // Never let a size-driven reduction be invisible.
         if (scale.IsReduced) final.ScaleNotes.Add(scale.Summary);
@@ -952,7 +1067,8 @@ public static partial class GuillotinePacker
         var problems = VerifyComprehensive(final, pieces, margins);
         if (problems.Count > 0)
         {
-            var quick = PackQuick(pieces, stocks, margins, rotation);
+            var quick = PackQuick(pieces, stocks, margins, rotation,
+                cancellationToken: cancellationToken, policy: policy);
             var quickProblems = VerifyComprehensive(quick, pieces, margins);
             if (quickProblems.Count == 0)
             {
@@ -970,7 +1086,10 @@ public static partial class GuillotinePacker
         }
 
         // The verdict travels with the plan, so the run header can say
-        // what was actually checked.
+        // what was actually checked. RecordValidation derives the
+        // Verified flags (WPF verbatim, 25b reconciliation): the grid
+        // path validates through CheckCandidate, which used to leave
+        // them false so clean OPTIMIZE plans reported "Not verified".
         final.RecordValidation(problems, conservationChecked: true, geometryChecked: true);
 
         // PHASE 0: give every sheet a cut sequence. Paths that stamp
@@ -992,7 +1111,7 @@ public static partial class GuillotinePacker
         // Derived from cuts, never from placements (WPF PHASE 2).
         DeriveLeftovers(final, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
 
-        progress?.Report(OptimizeProgress.Of("done", comboList.Count, comboList.Count,
+        progress?.Report(OptimizeProgress.Of("done", smartTotal, smartTotal,
             $"{final.Sheets.Count} sheets"));
         return final;
     }

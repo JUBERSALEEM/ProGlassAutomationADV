@@ -194,7 +194,11 @@ GET  /api/v1/reports/vat?dateFrom=&dateTo=&status=    # VAT submission data + ex
 POST /api/v1/optimization/run              # { jobId? , pieces?, stocks?, rotation, split,
                                            #   minBreakoutMm?, effortLevel?, platePattern? }
                                            # effortLevel 1..5 (null → 3, the WPF OPTIMIZE default;
-                                           # 1 = the QUICK pass); platePattern = Yield |
+                                           # 1 = the QUICK pass — itself the shelf + capacity
+                                           # strips + bounded pattern beam portfolio, Phase 25b;
+                                           # effort ≥ 2 adds the grid families: sheet-fill,
+                                           # wall-seed, per-sheet best-split + beam, MaxRects
+                                           # (stage ≥ 3), SMART PLACEMENT); platePattern = Yield |
                                            # FillFirstPlate | FewestCuts | MinimiseStockChanges |
                                            # RemnantFirst | BalancedSpread (Phase 25a)
 POST /api/v1/optimization/validate         # server re-validation of any submitted layout

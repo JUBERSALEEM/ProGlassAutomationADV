@@ -70,8 +70,9 @@ importer, backups, audits) has run and passes.
 | 23 | Reporting core slice 5 — the CSV export path (generic layout + file namer verbatim + 3 export endpoints) and the reporting cache (30s TTL, tenant-prefixed keys, operator invalidation) | `5e13766` |
 | 24 | Attachments — the WPF `AttachmentService`/`AttachmentType` port (limits + S-8 sanitizer + BUG-27/28 rules verbatim; six entity types with per-entity permissions; root-jailed filesystem storage under `SAAS_ATTACHMENT_ROOT`), 5 API endpoints incl. the storage-usage counter, and migration module 13 (DN + inquiry attachment rows with bytes copied from the WPF data root) — **all 16 plan §2 modules** | `92f82e8` |
 | 25a | Optimization extras, the OPTIMIZE chassis — the adaptive search governor + scale profile + plate patterns, the multi-start grid (6 orderings × 3 splits × deterministic shuffles, sort cache), the Better comparison chain with the four pattern axes, ConsolidateAll + the bounded open-sheet window (closing the Phase 11 QUICK gap), the full oracle set, cut-sequence derivation, time budget, parallel evaluation, the guillotine gate, the honest industrial-threshold fallback; API gains effortLevel + platePattern | this commit |
+| 25b | Optimization extras, the grid candidate families — OptimizationEngine.Candidates.cs: sheet-fill, wall-seed (3-across), MaxRects (kerf-inflated, frame decomposition), per-sheet best-split + remainder-aware choice + the beam (lower-bound ranking, multiset dedup, stalled-beam contract), capacity strips (intrusive strip pool, own PHASE 0 cut recording), the bounded pattern beam, SMART PLACEMENT (scored by what survives, breakout honoured) — all wired into PackQuick and the OPTIMIZE grid stage portfolios; RecordValidation Verified-flag reconciliation (WPF verbatim); Smart.cs dead code deliberately not ported (the WPF's own header records it unreachable and measured not to help) | this commit |
 
-40 commits on the session branch from the base commit.
+41 commits on the session branch from the base commit.
 
 ## 3. Inventory (measured, not estimated)
 
@@ -79,10 +80,10 @@ importer, backups, audits) has run and passes.
 |---|---|
 | SQL migrations | 20 (0001–0020) |
 | PostgreSQL tables (saas schema) | 46 |
-| C# source files | 206 (all parse clean) |
+| C# source files | 210, all parse clean (src 150 + tests 60; the 25a row said 206 — remeasured with one find over src+tests, obj/bin excluded) |
 | EF entities | 44 |
 | API endpoints | 148 across 19 controllers (147 attribute-counted + `GET /health`; the Phase 23 line under-counted by the same `/health`) |
-| Test files | 41 files with tests (514 `[Fact]` + 53 `[Theory]` = 567 methods; measured by attribute count — Phase 25a adds OptimizeChassisTests, 23 facts) |
+| Test files | 42 files with tests (530 `[Fact]` + 53 `[Theory]` = 583 methods; measured by attribute count — Phase 25b adds CandidateFamiliesTests, 16 facts) |
 | Python tooling (harness, generator, importer, backup, audit) | 8 verified programs |
 | Mapping doc sections | 24 parity sections (§1.x) |
 | Migration tool modules | **16 implemented, 0 deferred** (all plan §2 modules; attachments landed in Phase 24) |
