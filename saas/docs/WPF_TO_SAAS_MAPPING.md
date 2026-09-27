@@ -363,6 +363,37 @@ upgraded the Phase 3 first-pass table to the WPF-faithful shape;
 | Production stages / pieces / QC / material reservation (the factory-floor engine) | Schema exists (0003/0004: production_pieces, production_events, material_reservations); the module is the next Phase 9 slice | Deferred, documented |
 | Permissions: JobOrder.Edit for create/update (OperationGuard) | Same (`JobOrder.View/.Edit/.Delete` vocabulary ported in Phase 4); reads open to authenticated users like every module | Same |
 
+### 1.7b Production core — Phase 9b (parity and deliberate differences)
+
+Ported 2026-09-27 from `Services/Production/ProductionDistributionEngine.cs`
+(the pure, deterministic routing engine), `DguDimensionSemantics.cs`,
+`Models/Production/ProductionModels.cs` (ProductionStage, WorkItemStatus),
+`SavedProductionPhase14Entities.cs` (ProductionEntryType, QcResult),
+`ProductionDbContext.cs` (the UNIQUE UniqueKey contract),
+`ProductionQcService.cs`, `ProductionCancellationService.cs`,
+`ProductionBreakageService.cs` (core) and `ProductionReleaseService.cs`.
+Migration 0014 upgraded the Phase 3 first-pass tables (greenfield — no
+rows had ever been written) to the WPF-faithful shape;
+`ProductionService`/`ProductionStore`/`/api/v1/production`.
+
+| WPF (source of truth) | SaaS (Phase 9b) | Difference? |
+|---|---|---|
+| Routing rules (owner-confirmed 2026-09-11): SGU → W1/H1 only; DGU → outer W1/H1 + inner W2/H2 (equal-size fallback); LAM → same split in lamination mode; DGU+LAM → mono outer + laminated pair; only the four families exist (no triple glazing) | `ProductionDistributionEngine` ported verbatim over the Phase 7b `SpecGrammar` parser | Same |
+| Tempering item only when the pane treatment is FT / Heat Strengthened / Heat Soaked (note "{TREATMENT} CYCLE") | Same | Same |
+| Build type precedence: the explicit Step 5 glass type first (the operator may know better than the name grammar), then the spec-name grammar; a CONTRADICTING selection is surfaced as a warning | Same, verbatim (incl. the mismatch warning text) | Same |
+| Pane occurrences: DGU outer = first pane, inner = LAST pane; DguLam = outer + laminated pair; unparsable names degrade to treatment-less slots with the "assume ANNEALED" warning | Same | Same |
+| Incomplete W2/H2 (0×500) → the pane is SKIPPED with a warning, never invented (DguDimensionSemantics) | Same, verbatim | Same |
+| Qty ≤ 0 → produced as 1 with the "fix the Step 5 qty" warning (legacy snapshot compat only) | Same | Same |
+| Charge fan-out: active FAN_HOLES/HOLES/CUTOUT/COUNTERSUNK_HOLES → Holes & Cutouts per pane (QTY metric, LM=0); POLISH/POLISH_MATCHED_LAM/EDGE_GRINDING → Polish (LM metric, sub-type label); MITRING → Mitring; ARGON/SILICON/U-INSERT/OVERLAP/SHUTTER → assembly notes; SANDBLASTING → manual-tracking warning; empty spec targets = ALL specs (Chat 20 contract) | Same, driven from the Step 6 `other_charges` rows (template key, metric qty, polish labels, checked specs CSV) | Same |
+| UniqueKey = `jobRef|spec|serial|position|stageCode(|CHG:key)` — a re-release produces the SAME keys so statuses survive | Same, persisted as `production_pieces.unique_key` with a partial UNIQUE index; release inserts only missing items | Same |
+| Release = plan → work items (SavedProductionRelease + WorkItems) | `POST /job-orders/{id}/release`; the plan itself is a pure read (`GET …/plan`) | Same contract; the release header row is not separately materialized (the job_orders row is the release identity) — documented |
+| Floor entries (SavedProductionEntry): Normal/Breakage/Rework/Foc/QcPassed/QcFailed/Cancelled + QtyDone | `production_events` (same vocab + Stage) with the WPF entry columns; `POST /{id}/stage` auto-statuses (any progress → InProgress, QtyDone ≥ Qty → Completed) | Same; auto-status derivation is the SaaS expression of the WPF stage-screen save |
+| QC (RecordQcAsync): cancelled work cannot be QC'd; deterministic sequence; Failed → QcFailed WITHOUT reverting QtyDone; Passed → Completed only when QtyDone ≥ Qty; Rework → Rework | Same rules; the QC history lives as typed events (sequence in the payload) instead of a dedicated table | Same behaviour, storage shape documented |
+| Cancellation (CancelWorkItemAsync): idempotent, reason defaults "Cancelled", completed work cancellable but warned, entry appended | Same | Same |
+| Breakage (RecordBreakageAsync core): qty + reason entry, qty > 0 | Same; the replacement-piece and FOC re-cut workflows are later slices | Core ported; **deferred, documented** |
+| Permissions: the WPF production services carry NO OperationGuard — the UI gates the floor through the Production role | Writes gated `[HasPermission(JobOrder.Edit)]` — the Production role's floor permission | **Documented difference**: the SaaS enforces at the API boundary (the WPF's desktop UI was the only gate) |
+| Process executions/pairings/assemblies, workstations, control holds/assignments/overrides, actual costs, reservation→allocation ledger, the inventory consistency scanner, the optimization bridge | Schema/materialization deferred | **Deferred, documented** |
+
 ### 1.8 Delivery — Phase 10 core (parity and deliberate differences)
 
 Ported 2026-09-27 from `Services/DeliveryNote/` —

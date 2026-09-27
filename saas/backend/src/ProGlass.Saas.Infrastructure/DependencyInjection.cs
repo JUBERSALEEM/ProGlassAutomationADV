@@ -5,6 +5,7 @@ using ProGlass.Saas.Application.MasterData;
 using ProGlass.Saas.Application.Security;
 using ProGlass.Saas.Application.JobOrders;
 using ProGlass.Saas.Application.Delivery;
+using ProGlass.Saas.Application.Production;
 using ProGlass.Saas.Application.Stock;
 using ProGlass.Saas.Infrastructure.Persistence;
 using ProGlass.Saas.Infrastructure.Security;
@@ -71,6 +72,7 @@ public static class DependencyInjection
         services.AddScoped<IStockStore, StockStore>();
         services.AddScoped<IJobOrderStore, JobOrderStore>();
         services.AddScoped<IDeliveryStore, DeliveryNoteStore>();
+        services.AddScoped<IProductionStore, ProductionStore>();
         services.AddScoped<ISpecificationsStore, SpecificationsStore>();
 
         return services;

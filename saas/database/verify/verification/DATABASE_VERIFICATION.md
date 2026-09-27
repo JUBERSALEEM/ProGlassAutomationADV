@@ -1,8 +1,8 @@
 # SAAS DATABASE VERIFICATION REPORT (Phases 3–4)
 
-**Generated:** 2026-09-27T09:50:12.604393+00:00  
+**Generated:** 2026-09-27T11:27:36.814254+00:00  
 **PostgreSQL:** 16 (pgserver, live instance)  
-**Migrations applied:** 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql  
+**Migrations applied:** 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql, 0014_production.sql  
 **Result: 59/59 checks passed, 0 failed**
 
 Run it yourself: `python3 saas/database/verify/apply_and_test.py`
@@ -24,12 +24,12 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 12 | invalid status rejected (CHECK) | ✅ PASS | — |
 | 13 | FK to nonexistent proforma rejected | ✅ PASS | — |
 | 14 | cascade delete removes spec groups + items | ✅ PASS | — |
-| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 09:50:12.429338+00:00 → 2026-09-27 09:50:12.480048+00:00 |
+| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 11:27:36.672741+00:00 → 2026-09-27 11:27:36.723369+00:00 |
 | 16 | audit_logs UPDATE denied for app role | ✅ PASS | — |
 | 17 | stock_transactions DELETE denied for app role | ✅ PASS | — |
 | 18 | numeric money arithmetic exact | ✅ PASS | 1050.00 |
 | 19 | re-run is a no-op (idempotent) | ✅ PASS | applied 0 |
-| 20 | all 13 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql |
+| 20 | all 14 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql, 0014_production.sql |
 | 21 | tampered migration detected | ✅ PASS | — |
 | 22 | runtime role cannot INSERT tenants | ✅ PASS | — |
 | 23 | runtime role can READ tenants | ✅ PASS | — |

@@ -591,6 +591,28 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.UniqueKey).HasColumnName("unique_key").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Position).HasColumnName("position").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.BuildType).HasColumnName("build_type").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecName).HasColumnName("spec_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.GlassRef).HasColumnName("glass_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.UnitSqm).HasColumnName("unit_sqm").HasColumnType("numeric(12,3)").HasDefaultValue(0m);
+            builder.Property(x => x.TotalSqm).HasColumnName("total_sqm").HasColumnType("numeric(12,3)").HasDefaultValue(0m);
+            builder.Property(x => x.TotalLm).HasColumnName("total_lm").HasColumnType("numeric(12,3)").HasDefaultValue(0m);
+            builder.Property(x => x.Treatment).HasColumnName("treatment").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.PredecessorStage).HasColumnName("predecessor_stage").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.QtyDone).HasColumnName("qty_done").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.ChargeTemplateKey).HasColumnName("charge_template_key").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ChargeMetricQty).HasColumnName("charge_metric_qty").HasColumnType("numeric(18,3)").HasDefaultValue(0m);
+            builder.Property(x => x.ChargeMetricUnit).HasColumnName("charge_metric_unit").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.PolishSubTypeLabel).HasColumnName("polish_sub_type_label").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.IsFoc).HasColumnName("is_foc").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.IsCancelled).HasColumnName("is_cancelled").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.CancelledAt).HasColumnName("cancelled_at").HasColumnType("timestamptz");
+            builder.Property(x => x.CancelledBy).HasColumnName("cancelled_by").HasColumnType("uuid");
+            builder.Property(x => x.CancelReason).HasColumnName("cancel_reason").HasColumnType("text").HasDefaultValue("");
             builder.HasIndex(x => new { x.TenantId, x.JobOrderId })
                 .HasDatabaseName("ix_production_pieces_tenant_job");
             builder.HasIndex(x => new { x.TenantId, x.Stage, x.Status })
@@ -618,6 +640,17 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.EventType).HasColumnName("event_type").HasColumnType("text");
             builder.Property(x => x.Payload).HasColumnName("payload").HasColumnType("jsonb");
             builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.JobOrderId).HasColumnName("job_order_id").HasColumnType("uuid");
+            builder.Property(x => x.Stage).HasColumnName("stage").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Position).HasColumnName("position").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecName).HasColumnName("spec_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.GlassRef).HasColumnName("glass_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Qty).HasColumnName("qty").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.DoneBy).HasColumnName("done_by").HasColumnType("uuid");
+            builder.Property(x => x.Reason).HasColumnName("reason").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.RelatedQcId).HasColumnName("related_qc_id").HasColumnType("text").HasDefaultValue("");
             builder.HasIndex(x => new { x.TenantId, x.ProductionPieceId, x.CreatedAt })
                 .HasDatabaseName("ix_production_events_tenant_piece");
             builder.HasOne(x => x.ProductionPiece)

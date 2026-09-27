@@ -460,6 +460,28 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public string UniqueKey { get; set; } = null!;
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string Position { get; set; } = null!;
+        public string BuildType { get; set; } = null!;
+        public string SpecName { get; set; } = null!;
+        public string GlassRef { get; set; } = null!;
+        public decimal UnitSqm { get; set; }
+        public decimal TotalSqm { get; set; }
+        public decimal TotalLm { get; set; }
+        public string Treatment { get; set; } = null!;
+        public string PredecessorStage { get; set; } = null!;
+        public int QtyDone { get; set; }
+        public string ChargeTemplateKey { get; set; } = null!;
+        public decimal ChargeMetricQty { get; set; }
+        public string ChargeMetricUnit { get; set; } = null!;
+        public string PolishSubTypeLabel { get; set; } = null!;
+        public bool IsFoc { get; set; }
+        public bool IsCancelled { get; set; }
+        public DateTime? CancelledAt { get; set; }
+        public Guid? CancelledBy { get; set; }
+        public string CancelReason { get; set; } = null!;
         public JobOrder JobOrder { get; set; } = null!;
         public SpecGroupItem? SpecGroupItem { get; set; } = null;
     }
@@ -476,6 +498,17 @@ namespace ProGlass.Saas.Domain.Entities
         public string EventType { get; set; } = null!;
         public string? Payload { get; set; }
         public DateTime CreatedAt { get; set; }
+        public Guid? JobOrderId { get; set; }
+        public string Stage { get; set; } = null!;
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string Position { get; set; } = null!;
+        public string SpecName { get; set; } = null!;
+        public string GlassRef { get; set; } = null!;
+        public int Qty { get; set; }
+        public Guid? DoneBy { get; set; }
+        public string Reason { get; set; } = null!;
+        public string RelatedQcId { get; set; } = null!;
         public ProductionPiece ProductionPiece { get; set; } = null!;
     }
 }
