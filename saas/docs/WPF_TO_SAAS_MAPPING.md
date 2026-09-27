@@ -559,6 +559,44 @@ feature catalog from the WPF edition tiers; `SubscriptionService`/
 
 
 
+### 1.12a Migration tooling — Phase 14 (the WPF data root → SaaS tenants)
+
+Built 2026-09-27 (`saas/migration/proglass_migrate`, plan document
+`SAAS_MIGRATION_PLAN.md`). The plan sketches a .NET 8 console worker;
+this environment has no .NET SDK, so the tool is implemented in Python
+with the same CLI shape (`import --source --db-uri --tenant
+--dry-run|--apply`, `validate`, `list-modules`), the same module order
+and the same transform rules — fully executable and tested end-to-end
+against live PostgreSQL (`saas/migration/tests/test_migration_tool.py`:
+fixture SQLite → disposable PG, dry-run==apply counts, findings,
+validate report). Porting the proven logic to the .NET worker later is
+mechanical.
+
+| Plan §2 module | Status | Transform notes (WPF source → SaaS target) |
+|---|---|---|
+| 1 audit.db Users | **Implemented** | WPF SHA-256 hashes CANNOT migrate → valid Argon2id hash of a random unknowable secret + must_reset_password (plan §3); roles pass through (the SaaS ck_users_role is the WPF catalog verbatim, incl. legacy Operator); unknown roles are reported + skipped, never remapped; WPF `Email ""` → NULL |
+| 2 masterdata.db | **Implemented** | Companies/clients/projects/salesmen → the Phase 5 tables; WPF projects reference clients by NAME → customer_id resolved by name (unresolved → null + warning finding, never a wrong link); usage counts preserved |
+| 3 proglass.db | **Implemented** | GlassSheets + SheetHistories → glass_sheets + the immutable stock_transactions ledger (Bought→purchase, Used→issue, balance_after reconstructed from history order); balances recomputed from history and COMPARED to stored Stock/Used (mismatch → warning finding, stored values import verbatim — the operator's ledger wins); InventoryItems with the category map (SpacerBar/Desiccant/PrimarySeal/SecondarySeal/Gas/Hardware → spacer/desiccant/sealant×2/gas/hardware); WPF 'Other'/'Film' categories have no SaaS bucket → error finding + skip |
+| 4 specifications.db | Deferred | priced-spec registry import — later slice |
+| 5 inquiries.db | Deferred | BOQ JSON → proforma_invoices (inquiry kind) — later slice |
+| 6 proformainvoices.db | Deferred | FullSnapshotJson → normalized spec groups/items — later slice |
+| 7 optimization.db | Deferred | sessions re-run through both oracles — later slice |
+| 8 joborders/production.db | Deferred | job order + cutting plan + production events — later slice |
+| 9 deliverynotes.db | Deferred | items + delivered/returned — later slice |
+| 10 taxinvoices.db / creditnotes.db | **Implemented** | Statuses pass through where the 0016 CHECK knows them (the WPF fiscal vocab IS the SaaS vocab); unknown statuses are reported + skipped — a deliberate difference from plan §3's "pass through" rule, which predates the CHECK-constrained vocabularies; totals re-verified by recomputation (VAT = round2(after×5%)) and mismatches REPORTED, stored values imported verbatim (a fiscal record is never "fixed" on import); WPF FullSnapshotJson preserved in tax_invoices.snapshot_json; credit notes carry no snapshot column (info finding); the ProformaId link lands when the proforma module imports (info finding per invoice) |
+| 11 statements.db | **Implemented** | WPF invoice-rows → the SaaS ledger (Invoice debit = GrandTotal, Payment credit = PaidAmount, running balance, line_no order); WPF totals (InvoiceCount/TotalInvoiced/TotalOutstanding/OverdueAmount) preserved in totals_json |
+| 12 audit.db ActivityLog | **Implemented** | TimestampUtc passes through UTC; user_id resolved from the imported users (unknown → null + info finding); ChangesJson → after_json when valid JSON, else the free-text Details preserved inside after_json (the SaaS audit row has no Details column); only true UUIDs land in entity_id |
+| 13 attachments | Deferred | disk files → object storage — later slice |
+| Machine licenses | NOT migrated | subscription created fresh at registration (Phase 13) — plan §3 |
+
+Engine semantics: source opened `mode=ro` (never written); apply = one
+transaction per module (a failed module rolls back only itself), a
+rejected row rolls back only itself (savepoint) and becomes an error
+finding — never half-loaded rows; dry-run = the whole run in ONE
+transaction (later modules' FKs resolve exactly as an apply would),
+discarded at the end; every finding (info/warning/error) lands in the
+HTML + JSON report.
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

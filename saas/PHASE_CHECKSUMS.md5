@@ -218,6 +218,13 @@ e878c3a96487169155d77850a647bd40  saas/devbox/syntax_check_cs.py
 1836a4739da1dbbe955230536bf68daf  saas/docs/SAAS_ARCHITECTURE.md
 92a22f89806bcc10c38adb8266c89340  saas/docs/SAAS_DATABASE_DESIGN.md
 c344c0c6ed9c9d651fdd410ada94555f  saas/docs/SAAS_MIGRATION_PLAN.md
-b844a01cde70c6f16254bf90429e8bae  saas/docs/SAAS_MIGRATION_PROGRESS.md
+17a3b9b12a3a8f0cca006a69a42923a7  saas/docs/SAAS_MIGRATION_PROGRESS.md
 d0487a44573943f80495921dc0803049  saas/docs/WPF_SYSTEM_AUDIT.md
-1a2b440b262a11feb80bdb781f0781d7  saas/docs/WPF_TO_SAAS_MAPPING.md
+a63ee11f4662861aa08e2f27fa1ba219  saas/docs/WPF_TO_SAAS_MAPPING.md
+30d04fdd091a701091553d80b1fb3482  saas/migration/README.md
+64890d8fb685cd089e3f63a8d957f2e5  saas/migration/proglass_migrate/__init__.py
+8a7887d5133bcc257bb6330b092076f0  saas/migration/proglass_migrate/cli.py
+712f95c9a60d2e62c19b02c7b362fe50  saas/migration/proglass_migrate/engine.py
+f66d819d8c9b46f582ae734b76f01bdc  saas/migration/proglass_migrate/modules.py
+6d220a039988f04c3ba608ea73b48078  saas/migration/tests/build_fixture.py
+27b48fbf36bb3bc14506a0dc25dd2246  saas/migration/tests/test_migration_tool.py
