@@ -1030,6 +1030,18 @@ verbatim — the rule text (yield divides the glass term only;
 processing/interlayer/spacer added after; margin multiplies
 everything) is stated in the UI.
 
+**Phase 38 — front end slice 11: material reservations (the
+Sheet-Store hold ledger, Phase 9c family).** Job-scoped page: the
+hold ledger (reservation key, sheet, spec/serial, size + thickness
++ colour, qty, status, notes, release timestamp + reason) with the
+three hold actions — release and cancel take an optional reason
+(consumed material is never released or cancelled), consume is
+terminal; the reserve form (sheet picker from stock with live
+balance, spec group/serial, glass ref/name, qty, notes) showing the
+availability math (Balance (Stock − Used) − other active holds =
+Available) as the sheet is picked; reserve is idempotent on the
+deterministic key and the row's key is echoed back in the notice.
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

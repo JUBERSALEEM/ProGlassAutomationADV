@@ -1194,3 +1194,36 @@ export interface PricingPreviewResult {
   costBasisPerSqm: number;
   warnings: string[];
 }
+
+// ── reservations (Phase 38 — the Sheet-Store hold ledger) ─────────────
+
+export interface Reservation {
+  id: string;
+  reservationKey: string;
+  jobOrderId: string;
+  jobOrderNo: string;
+  glassSheetId: string;
+  stockSizeLabel: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  glassRef: string;
+  specName: string;
+  widthMm: number;
+  heightMm: number;
+  thicknessMm: number;
+  color: string;
+  quantity: number;
+  status: string;
+  notes: string;
+  releasedAt: string | null;
+  releaseReason: string;
+  createdAt: string;
+}
+
+export interface SheetAvailability {
+  glassSheetId: string;
+  stockSizeLabel: string;
+  balance: number;
+  activeHolds: number;
+  available: number;
+}

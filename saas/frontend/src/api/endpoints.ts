@@ -789,3 +789,37 @@ export function updatePricingConfig(body: {
 export function previewPricing(body: Record<string, unknown>): Promise<_Preview> {
   return post<_Preview>("/api/v1/pricing/preview", body);
 }
+
+// ── reservations (Phase 38 — the Sheet-Store hold ledger) ─────────────
+
+import type {
+  Reservation as _Reservation,
+  SheetAvailability as _Availability,
+} from "./types";
+
+export function listReservations(jobOrderId: string): Promise<_Reservation[]> {
+  return get<_Reservation[]>(`/api/v1/reservations/job-orders/${jobOrderId}`);
+}
+
+/** Idempotent on the deterministic (job, spec, serial, sheet, session) key. */
+export function reserveSheet(body: Record<string, unknown>): Promise<_Reservation> {
+  return post<_Reservation>("/api/v1/reservations", body);
+}
+
+/** Availability for one sheet: Balance (Stock − Used) − active holds. */
+export function getSheetAvailability(sheetId: string): Promise<_Availability> {
+  return get<_Availability>(`/api/v1/reservations/sheets/${sheetId}/availability`);
+}
+
+export function releaseReservation(id: string, reason?: string): Promise<_Reservation> {
+  return post<_Reservation>(`/api/v1/reservations/${id}/release`, reason ? { reason } : {});
+}
+
+export function cancelReservation(id: string, reason?: string): Promise<_Reservation> {
+  return post<_Reservation>(`/api/v1/reservations/${id}/cancel`, reason ? { reason } : {});
+}
+
+/** Consume is terminal — the physical inventory consumption contract. */
+export function consumeReservation(id: string, reason?: string): Promise<_Reservation> {
+  return post<_Reservation>(`/api/v1/reservations/${id}/consume`, reason ? { reason } : {});
+}

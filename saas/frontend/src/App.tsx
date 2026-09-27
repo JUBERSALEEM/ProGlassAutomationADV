@@ -13,6 +13,7 @@ import DeliveryNotesPage from "./pages/DeliveryNotesPage";
 import FiscalPage from "./pages/FiscalPage";
 import MasterDataPage from "./pages/MasterDataPage";
 import ReportsPage from "./pages/ReportsPage";
+import ReservationsPage from "./pages/ReservationsPage";
 import SpecificationsPage from "./pages/SpecificationsPage";
 import PricingPage from "./pages/PricingPage";
 import ProductionBackOfficePage from "./pages/ProductionBackOfficePage";
@@ -101,6 +102,14 @@ export default function App() {
             element={
               <Protected>
                 <PricingPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/reservations"
+            element={
+              <Protected>
+                <ReservationsPage />
               </Protected>
             }
           />
