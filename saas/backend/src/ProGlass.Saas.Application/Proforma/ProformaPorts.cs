@@ -72,6 +72,29 @@ public interface IProformaStore
 
     Task<IReadOnlyList<SpecGroupWithItems>> GetSpecGroupsAsync(
         Guid tenantId, Guid proformaId, CancellationToken ct);
+
+    // ── Step 9 P&L ────────────────────────────────────────────────
+
+    /// <summary>
+    /// Replace the invoice's whole P&amp;L row set (delete + insert) and
+    /// apply the invoice-field changes (operator inputs, KPI snapshot,
+    /// pnl_calculated_at, row version) in ONE transaction.
+    /// </summary>
+    Task ReplaceStep9Async(
+        ProformaInvoice invoice,
+        IReadOnlyList<Domain.Entities.PnlRow> rows,
+        Guid actorId, CancellationToken ct);
+
+    Task<IReadOnlyList<Domain.Entities.PnlRow>> GetStep9Async(
+        Guid tenantId, Guid proformaId, CancellationToken ct);
+
+    /// <summary>
+    /// The tenant's Sheet Store glass rows (WPF
+    /// SheetStorePricingService.ReadAll — colour/thickness/size/prices).
+    /// Read-only; Step 9 prices panes from it.
+    /// </summary>
+    Task<IReadOnlyList<Domain.Proforma.SheetStockEntry>> GetSheetStockAsync(
+        Guid tenantId, CancellationToken ct);
 }
 
 /// <summary>The store's unit for reading the Step 6 section back.</summary>

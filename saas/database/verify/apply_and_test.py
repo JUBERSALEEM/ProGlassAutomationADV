@@ -430,7 +430,7 @@ def test_migrations(db_uri: str):
     with conn.cursor() as cur:
         cur.execute("SELECT name, checksum FROM saas._saas_migrations ORDER BY name")
         rows = cur.fetchall()
-        record("all 9 migrations recorded with checksums", len(rows) == 9,
+        record("all 11 migrations recorded with checksums", len(rows) == 11,
                ", ".join(r[0] for r in rows))
         # tamper with a checksum → runner must refuse
         cur.execute("UPDATE saas._saas_migrations SET checksum = 'deadbeef' WHERE name = '0001_platform_identity.sql'")
@@ -899,6 +899,129 @@ def test_other_charges(db_uri: str):
     finally:
         conn.close()
 
+
+def test_step9_pnl(db_uri: str):
+    """Phase 7b: Step 9 P&L schema (0010)."""
+    print("\n== Phase 7b: Step 9 P&L schema ==")
+    conn = connect(db_uri)
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'spec_groups'
+                  AND column_name IN ('step4_spacer_price_per_sqm',
+                                      'step4_interlayer_cost_per_sqm',
+                                      'step4_cutting_cost_per_sqm',
+                                      'step4_tempering_cost_per_sqm',
+                                      'u_insert_price_per_sqm')
+            """)
+            cols = {r[0] for r in cur.fetchall()}
+            record("0010: spec_groups Step 4 production provenance columns "
+                   "(nullable — Phase 1-AUDIT contract)",
+                   cols == {'step4_spacer_price_per_sqm',
+                            'step4_interlayer_cost_per_sqm',
+                            'step4_cutting_cost_per_sqm',
+                            'step4_tempering_cost_per_sqm',
+                            'u_insert_price_per_sqm'}
+                   and True, str(sorted(cols)))
+
+            cur.execute("""
+                SELECT is_nullable FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'spec_groups'
+                  AND column_name = 'step4_spacer_price_per_sqm'
+            """)
+            record("0010: provenance columns are NULLABLE (legacy groups "
+                   "read unknown, not zero-priced)",
+                   cur.fetchone()[0] == 'YES')
+
+            cur.execute("""
+                SELECT column_name, column_default FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'proforma_invoices'
+                  AND column_name IN ('pnl_wastage_percent',
+                                      'pnl_cost_at_selling_price',
+                                      'pnl_overall_margin_percent',
+                                      'pnl_calculated_at')
+                ORDER BY column_name
+            """)
+            rows = {r[0]: (r[1] or '') for r in cur.fetchall()}
+            record("0010: invoice P&L operator inputs (15% wastage, "
+                   "cost-at-selling default) + KPI columns exist",
+                   set(rows) == {'pnl_wastage_percent', 'pnl_cost_at_selling_price',
+                                 'pnl_overall_margin_percent', 'pnl_calculated_at'}
+                   and '15' in rows['pnl_wastage_percent']
+                   and 'true' in rows['pnl_cost_at_selling_price'])
+
+            cur.execute("""
+                SELECT count(*) FROM pg_policies
+                WHERE schemaname = 'saas' AND tablename = 'pnl_rows'
+                  AND policyname = 'tenant_isolation'
+            """)
+            record("0010: pnl_rows exists with RLS tenant isolation",
+                   cur.fetchone()[0] == 1)
+        conn.commit()
+    finally:
+        conn.close()
+
+def test_step7_summary(db_uri: str):
+    """Phase 7b: Step 7 summary operator inputs (0011)."""
+    print("\n== Phase 7b: Step 7 summary inputs ==")
+    conn = connect(db_uri)
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT column_name, column_default, is_nullable
+                FROM information_schema.columns
+                WHERE table_schema = 'saas' AND table_name = 'proforma_invoices'
+                  AND column_name IN ('discount_type', 'discount_value',
+                                      'is_vat_applicable', 'vat_percent')
+                ORDER BY column_name
+            """)
+            rows = {r[0]: (r[1] or '', r[2]) for r in cur.fetchall()}
+            record("0011: the four mapper-persisted operator inputs exist",
+                   set(rows) == {'discount_type', 'discount_value',
+                                 'is_vat_applicable', 'vat_percent'},
+                   str(sorted(rows)))
+            record("0011: WPF defaults (Percentage / 0 / VAT on / 5%)",
+                   "'Percentage'" in rows['discount_type'][0]
+                   and '0' in rows['discount_value'][0]
+                   and 'true' in rows['is_vat_applicable'][0]
+                   and '5' in rows['vat_percent'][0],
+                   str({k: v[0] for k, v in rows.items()}))
+
+            cur.execute("""
+                SELECT conname FROM pg_constraint
+                WHERE conrelid = 'saas.proforma_invoices'::regclass
+                  AND conname IN ('ck_proforma_discount_type',
+                                  'ck_proforma_discount_value',
+                                  'ck_proforma_vat_percent')
+                ORDER BY conname
+            """)
+            cons = [r[0] for r in cur.fetchall()]
+            record("0011: discount type vocabulary + non-negative value + "
+                   "0-100 VAT percent enforced",
+                   cons == ['ck_proforma_discount_type',
+                            'ck_proforma_discount_value',
+                            'ck_proforma_vat_percent'],
+                   str(cons))
+
+            # BUG-56 semantics live in the service; the CHECK keeps the
+            # stored input sane (a negative discount can never persist).
+            cur.execute("""
+                INSERT INTO saas.proforma_invoices
+                    (tenant_id, proforma_no, status, status_text,
+                     lifecycle_state, discount_value)
+                VALUES (%s, 'PI-TEST-0011', 'Draft', 'Draft', 'Draft', -1)
+            """, (TENANT_A,))
+            record("0011: a negative discount value is rejected",
+                   False, "INSERT should have failed")
+    except Exception as ex:
+        record("0011: a negative discount value is rejected",
+               type(ex).__name__ == "CheckViolation", type(ex).__name__)
+    finally:
+        conn.rollback()
+        conn.close()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--db-uri", default=None)
@@ -933,6 +1056,8 @@ def main():
     test_masterdata(db_uri)
     test_specifications(db_uri)
     test_other_charges(db_uri)
+    test_step9_pnl(db_uri)
+    test_step7_summary(db_uri)
 
     ok = write_report(sys.argv, names)
     print(f"\n{'='*60}\n{'ALL CHECKS PASSED' if ok else 'FAILURES PRESENT'} — "

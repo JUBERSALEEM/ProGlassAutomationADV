@@ -528,6 +528,11 @@ public sealed class ProformaService
                 OuterSheetPricePerSqm = g.OuterSheetPricePerSqm ?? 0,
                 InnerSheetPricePerSqm = g.InnerSheetPricePerSqm ?? 0,
                 ThirdSheetPricePerSqm = g.ThirdSheetPricePerSqm ?? 0,
+                Step4SpacerPricePerSqm = g.Step4SpacerPricePerSqm,
+                Step4InterlayerCostPerSqm = g.Step4InterlayerCostPerSqm,
+                Step4CuttingCostPerSqm = g.Step4CuttingCostPerSqm,
+                Step4TemperingCostPerSqm = g.Step4TemperingCostPerSqm,
+                UInsertPricePerSqm = g.UInsertPricePerSqm,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
                 CreatedBy = actorId,
@@ -924,7 +929,448 @@ public sealed class ProformaService
             g.Group.InnerSheetWidthMm, g.Group.InnerSheetHeightMm,
             g.Group.ThirdSheetWidthMm, g.Group.ThirdSheetHeightMm,
             g.Group.OuterSheetPricePerSqm, g.Group.InnerSheetPricePerSqm,
-            g.Group.ThirdSheetPricePerSqm)).ToList();
+            g.Group.ThirdSheetPricePerSqm,
+            g.Group.Step4SpacerPricePerSqm,
+            g.Group.Step4InterlayerCostPerSqm,
+            g.Group.Step4CuttingCostPerSqm,
+            g.Group.Step4TemperingCostPerSqm,
+            g.Group.UInsertPricePerSqm)).ToList();
+    }
+
+    // ═════════════════════════ STEP 7: SUMMARY ═══════════════════════
+
+    /// <summary>
+    /// PUT step7 — recompute the financial summary from the saved Step 5
+    /// and Step 6 subtotals plus the four operator inputs (the WPF
+    /// mapper's persisted set). Port of
+    /// InvoiceMainSummaryViewModel.Recalculate: discount off the net
+    /// first (BUG-56 clamp), VAT on the discounted value (BUG-58).
+    /// </summary>
+    public async Task<ProformaResult<Step7Dto>> SaveStep7Async(
+        Guid tenantId, Guid id, Guid actorId, string? ip,
+        SaveStep7Request? request, CancellationToken ct)
+    {
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        if (invoice is null)
+        {
+            return ProformaResult<Step7Dto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        if (invoice.IsVoid)
+        {
+            return ProformaResult<Step7Dto>.Fail(
+                ProformaErrorCode.Conflict,
+                "A voided proforma invoice is terminal history — it cannot be edited.");
+        }
+
+        if (!InvoiceLifecycle.TryParseState(invoice.LifecycleState, out var current)
+            || !InvoiceLifecycle.IsEditable(current))
+        {
+            return ProformaResult<Step7Dto>.Fail(
+                ProformaErrorCode.Conflict,
+                $"Step 7 is only editable while the invoice is Draft or " +
+                $"Rejected (currently {invoice.LifecycleState}).");
+        }
+
+        var inputs = ResolveStep7Inputs(invoice, request);
+        if (inputs.Error is not null)
+        {
+            return ProformaResult<Step7Dto>.Fail(
+                ProformaErrorCode.ValidationFailed, inputs.Error);
+        }
+
+        ApplySummary(invoice, inputs.Type, inputs.Value, inputs.VatApplicable, inputs.Percent);
+        await _store.UpdateAsync(invoice, actorId, ct);
+
+        await _audit.WriteAsync(
+            tenantId, actorId, "proforma.step7_saved", "proforma_invoices",
+            invoice.Id, ip, null, ct,
+            afterJson: JsonSerializer.Serialize(new
+            {
+                discountType = invoice.DiscountType,
+                discountValue = invoice.DiscountValue,
+                isVatApplicable = invoice.IsVatApplicable,
+                vatPercent = invoice.VatPercent,
+                grandTotal = invoice.GrandTotalVatInclusive,
+            }));
+
+        return ProformaResult<Step7Dto>.Ok(ToStep7Dto(invoice));
+    }
+
+    /// <summary>
+    /// POST step7/round-to — the WPF "round to target" tool: solve the
+    /// fixed-amount discount whose grand total equals the target, switch
+    /// the discount kind to FixedAmount and persist the recomputed
+    /// summary. Can only discount DOWN (the WPF tool's own rule).
+    /// </summary>
+    public async Task<ProformaResult<RoundToStep7Dto>> RoundToStep7Async(
+        Guid tenantId, Guid id, Guid actorId, string? ip,
+        RoundToStep7Request? request, CancellationToken ct)
+    {
+        if (request is null)
+        {
+            return ProformaResult<RoundToStep7Dto>.Fail(
+                ProformaErrorCode.ValidationFailed, "Request body is required.");
+        }
+
+        if (request.TargetGrandTotal < 0m)
+        {
+            return ProformaResult<RoundToStep7Dto>.Fail(
+                ProformaErrorCode.ValidationFailed,
+                "The target grand total cannot be negative.");
+        }
+
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        if (invoice is null)
+        {
+            return ProformaResult<RoundToStep7Dto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        if (invoice.IsVoid)
+        {
+            return ProformaResult<RoundToStep7Dto>.Fail(
+                ProformaErrorCode.Conflict,
+                "A voided proforma invoice is terminal history — it cannot be edited.");
+        }
+
+        if (!InvoiceLifecycle.TryParseState(invoice.LifecycleState, out var current)
+            || !InvoiceLifecycle.IsEditable(current))
+        {
+            return ProformaResult<RoundToStep7Dto>.Fail(
+                ProformaErrorCode.Conflict,
+                $"Step 7 is only editable while the invoice is Draft or " +
+                $"Rejected (currently {invoice.LifecycleState}).");
+        }
+
+        var net = invoice.GlassMaterialsSubtotal + invoice.OtherChargesSubtotal;
+        var maxGrand = InvoiceRoundTo.GrandFromDiscount(
+            net, 0m, invoice.VatPercent, invoice.IsVatApplicable);
+        if (request.TargetGrandTotal > maxGrand)
+        {
+            // WPF tool rule: it can only discount DOWN — a target above
+            // the undiscounted total is refused with the total in hand.
+            return ProformaResult<RoundToStep7Dto>.Fail(
+                ProformaErrorCode.ValidationFailed,
+                $"Cannot round up. Undiscounted total is AED {maxGrand:N2}.");
+        }
+
+        var solved = InvoiceRoundTo.DiscountOnNet(
+            net, invoice.VatPercent, invoice.IsVatApplicable, request.TargetGrandTotal);
+        var changed = solved != invoice.DiscountAmount
+                      || invoice.DiscountType != nameof(DiscountKind.FixedAmount);
+
+        // The tool switches the discount to a FIXED amount (WPF rule).
+        ApplySummary(invoice, DiscountKind.FixedAmount, solved,
+            invoice.IsVatApplicable, invoice.VatPercent);
+        await _store.UpdateAsync(invoice, actorId, ct);
+
+        await _audit.WriteAsync(
+            tenantId, actorId, "proforma.step7_round_to", "proforma_invoices",
+            invoice.Id, ip, null, ct,
+            afterJson: JsonSerializer.Serialize(new
+            {
+                target = request.TargetGrandTotal,
+                solvedDiscount = solved,
+                grandTotal = invoice.GrandTotalVatInclusive,
+            }));
+
+        return ProformaResult<RoundToStep7Dto>.Ok(
+            new RoundToStep7Dto(solved, changed, ToStep7Dto(invoice)));
+    }
+
+    /// <summary>GET step7 — the saved summary (readable in any state).</summary>
+    public async Task<ProformaResult<Step7Dto>> GetStep7Async(
+        Guid tenantId, Guid id, CancellationToken ct)
+    {
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        if (invoice is null)
+        {
+            return ProformaResult<Step7Dto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        return ProformaResult<Step7Dto>.Ok(ToStep7Dto(invoice));
+    }
+
+    /// <summary>
+    /// Resolve the effective inputs: request → saved invoice → WPF default
+    /// (Percentage / 0 / VAT on / 5 — the WPF field initializers; a fresh
+    /// invoice's column defaults are exactly these, so "null keeps the
+    /// saved value" and "first save uses the default" coincide).
+    /// </summary>
+    private static (string? Error, DiscountKind Type, decimal Value,
+        bool VatApplicable, decimal Percent) ResolveStep7Inputs(
+        ProformaInvoice invoice, SaveStep7Request? request)
+    {
+        DiscountKind type;
+        if (request?.DiscountType is null)
+        {
+            type = ParseDiscountKind(invoice.DiscountType) ?? DiscountKind.Percentage;
+        }
+        else if (!TryParseDiscountKind(request.DiscountType, out type))
+        {
+            return ($"Discount type must be 'Percentage' or 'FixedAmount' " +
+                    $"(got '{request.DiscountType}').",
+                default, default, default, default);
+        }
+
+        var value = request?.DiscountValue ?? invoice.DiscountValue;
+        if (value < 0m)
+        {
+            return ("Discount value cannot be negative.",
+                default, default, default, default);
+        }
+
+        var vatApplicable = request?.IsVatApplicable ?? invoice.IsVatApplicable;
+        var percent = request?.VatPercent ?? invoice.VatPercent;
+        if (percent is < 0m or > 100m)
+        {
+            return ("VAT percent must be between 0 and 100.",
+                default, default, default, default);
+        }
+
+        return (null, type, value, vatApplicable, percent);
+    }
+
+    private static void ApplySummary(
+        ProformaInvoice invoice, DiscountKind type, decimal value,
+        bool vatApplicable, decimal percent)
+    {
+        var summary = InvoiceSummaryMath.Calculate(
+            invoice.GlassMaterialsSubtotal, invoice.OtherChargesSubtotal,
+            type, value, vatApplicable, percent);
+
+        invoice.DiscountType = type.ToString();
+        invoice.DiscountValue = value;
+        invoice.IsVatApplicable = vatApplicable;
+        invoice.VatPercent = percent;
+        invoice.DiscountAmount = summary.DiscountAmount;
+        invoice.VatAmount = summary.VatAmount;
+        invoice.GrandTotalVatInclusive = summary.GrandTotalVatInclusive;
+    }
+
+    private static Step7Dto ToStep7Dto(ProformaInvoice invoice)
+    {
+        var summary = InvoiceSummaryMath.Calculate(
+            invoice.GlassMaterialsSubtotal, invoice.OtherChargesSubtotal,
+            ParseDiscountKind(invoice.DiscountType) ?? DiscountKind.Percentage,
+            invoice.DiscountValue, invoice.IsVatApplicable, invoice.VatPercent);
+
+        return new Step7Dto(
+            invoice.DiscountType, invoice.DiscountValue,
+            invoice.IsVatApplicable, invoice.VatPercent,
+            invoice.GlassMaterialsSubtotal, invoice.OtherChargesSubtotal,
+            summary.NetSubtotal, summary.DiscountAmount,
+            summary.SubtotalBeforeVat, summary.VatAmount,
+            summary.GrandTotalVatInclusive);
+    }
+
+    private static DiscountKind? ParseDiscountKind(string? text) =>
+        TryParseDiscountKind(text, out var kind) ? kind : null;
+
+    private static bool TryParseDiscountKind(string? text, out DiscountKind kind) =>
+        Enum.TryParse((text ?? "").Trim(), ignoreCase: true, out kind);
+
+    // ═════════════════════════ STEP 9: P&L ═════════════════════════
+
+    /// <summary>
+    /// POST step9 — recalculate the whole P&amp;L from the saved Steps 4–6
+    /// state, the tenant Sheet Store and the two operator inputs, persist
+    /// the rows + KPI snapshot. Port of
+    /// ProfitLossStepViewModel.RecalculateAsync (WPF-verbatim; the domain
+    /// PnLCalculator owns every formula — nothing numeric is client-owned).
+    /// </summary>
+    public async Task<ProformaResult<Step9Dto>> SaveStep9Async(
+        Guid tenantId, Guid id, Guid actorId, string? ip,
+        SaveStep9Request? request, CancellationToken ct)
+    {
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        if (invoice is null)
+        {
+            return ProformaResult<Step9Dto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        if (invoice.IsVoid)
+        {
+            return ProformaResult<Step9Dto>.Fail(
+                ProformaErrorCode.Conflict,
+                "A voided proforma invoice is terminal history — it cannot be edited.");
+        }
+
+        if (!InvoiceLifecycle.TryParseState(invoice.LifecycleState, out var current)
+            || !InvoiceLifecycle.IsEditable(current))
+        {
+            return ProformaResult<Step9Dto>.Fail(
+                ProformaErrorCode.Conflict,
+                $"Step 9 is only editable while the invoice is Draft or " +
+                $"Rejected (currently {invoice.LifecycleState}).");
+        }
+
+        // Operator inputs: WPF defaults 15% / cost-at-selling on first run;
+        // null keeps the saved value (a recalc without touching the knobs).
+        var wastagePercent = request?.WastagePercent
+            ?? (invoice.PnlCalculatedAt is null ? 15m : invoice.PnlWastagePercent);
+        var costAtSelling = request?.CostAtSellingPrice
+            ?? (invoice.PnlCalculatedAt is null ? true : invoice.PnlCostAtSellingPrice);
+
+        if (wastagePercent is < 0m or > 95m)
+        {
+            return ProformaResult<Step9Dto>.Fail(
+                ProformaErrorCode.ValidationFailed,
+                "Wastage percent must be between 0 and 95.");
+        }
+
+        var result = await RecalculatePnlAsync(tenantId, invoice, wastagePercent, costAtSelling, ct);
+
+        invoice.PnlWastagePercent = wastagePercent;
+        invoice.PnlCostAtSellingPrice = costAtSelling;
+        invoice.PnlGrossVatInclusive = result.Kpis.GrossVatInclusive;
+        invoice.PnlNetExVat = result.Kpis.NetExVat;
+        invoice.PnlTotalGlassCost = result.Kpis.TotalGlassCost;
+        invoice.PnlTotalProductionCost = result.Kpis.TotalProductionCost;
+        invoice.PnlProfit = result.Kpis.Profit;
+        invoice.PnlMarginPercent = result.Kpis.MarginPercent;
+        invoice.PnlOverallMarginPercent = result.Kpis.OverallMarginPercent;
+        invoice.PnlNetMarginPercent = result.Kpis.NetMarginPercent;
+        invoice.PnlUInsertCost = result.Kpis.UInsertCost;
+        invoice.PnlBasisCost = result.Kpis.BasisCost;
+        invoice.PnlCalculatedAt = DateTime.UtcNow;
+
+        var entities = result.Rows.Select((row, index) => new Domain.Entities.PnlRow
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            ProformaId = invoice.Id,
+            Kind = row.Kind,
+            SpecNumber = row.SpecNumber,
+            SpecName = row.SpecName,
+            Description = row.Description,
+            SheetWidthMm = row.SheetWidthMm,
+            SheetHeightMm = row.SheetHeightMm,
+            SheetSqm = row.SheetSqm,
+            Quantity = row.Quantity,
+            PricePerUnit = row.PricePerUnit,
+            UnitLabel = row.UnitLabel,
+            Amount = row.Amount,
+            SheetSource = row.SheetSource,
+            SortOrder = index,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            CreatedBy = actorId,
+            UpdatedBy = actorId,
+        }).ToList();
+
+        await _store.ReplaceStep9Async(invoice, entities, actorId, ct);
+
+        await _audit.WriteAsync(
+            tenantId, actorId, "proforma.step9_calculated", "proforma_invoices",
+            invoice.Id, ip, null, ct,
+            afterJson: JsonSerializer.Serialize(new
+            {
+                wastagePercent,
+                costAtSelling,
+                rows = entities.Count,
+                result.Kpis.Profit,
+                result.Kpis.OverallMarginPercent,
+            }));
+
+        return await GetStep9SectionAsync(tenantId, invoice.Id, ct);
+    }
+
+    /// <summary>GET step9 — the saved rows + KPI snapshot + operator
+    /// inputs (readable in any lifecycle state — history stays visible).</summary>
+    public async Task<ProformaResult<Step9Dto>> GetStep9Async(
+        Guid tenantId, Guid id, CancellationToken ct)
+    {
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        if (invoice is null)
+        {
+            return ProformaResult<Step9Dto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        return await GetStep9SectionAsync(tenantId, invoice.Id, ct);
+    }
+
+    private async Task<ProformaResult<Step9Dto>> GetStep9SectionAsync(
+        Guid tenantId, Guid id, CancellationToken ct)
+    {
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        var rows = await _store.GetStep9Async(tenantId, id, ct);
+
+        PnlKpisDto? kpis = null;
+        if (invoice?.PnlCalculatedAt is not null)
+        {
+            kpis = new PnlKpisDto(
+                invoice.PnlGrossVatInclusive,
+                invoice.PnlNetExVat,
+                invoice.PnlTotalGlassCost,
+                invoice.PnlTotalProductionCost,
+                invoice.PnlProfit,
+                invoice.PnlProfit < 0m && invoice.PnlGrossVatInclusive > 0m,
+                invoice.PnlMarginPercent,
+                invoice.PnlOverallMarginPercent,
+                invoice.PnlNetMarginPercent,
+                invoice.PnlUInsertCost,
+                invoice.PnlBasisCost);
+        }
+
+        var dto = new Step9Dto(
+            invoice?.PnlWastagePercent ?? 15m,
+            invoice?.PnlCostAtSellingPrice ?? true,
+            invoice?.PnlCalculatedAt is not null,
+            kpis,
+            rows.Select(r => new PnlRowDto(
+                r.Id, r.Kind, r.SpecNumber, r.SpecName, r.Description,
+                r.SheetWidthMm, r.SheetHeightMm, r.SheetSqm,
+                r.Quantity, r.PricePerUnit, r.UnitLabel, r.Amount,
+                r.SheetSource, r.SortOrder)).ToList());
+
+        return ProformaResult<Step9Dto>.Ok(dto);
+    }
+
+    /// <summary>Runs the domain P&amp;L port over the saved document.</summary>
+    private async Task<PnlResult> RecalculatePnlAsync(
+        Guid tenantId, ProformaInvoice invoice,
+        decimal wastagePercent, bool costAtSelling, CancellationToken ct)
+    {
+        var groups = await LoadSpecGroupInputsAsync(tenantId, invoice.Id, ct);
+        var step6 = await _store.GetStep6Async(tenantId, invoice.Id, ct);
+        var sheets = await _store.GetSheetStockAsync(tenantId, ct);
+
+        var charges = step6.Charges.Select(c => new PnlStep6Charge(
+            c.TemplateKey,
+            c.ChargeName,
+            c.MetricKey,
+            c.Unit,
+            DeserializeNumbers(c.CheckedSpecGroupNumbers),
+            c.Rate,
+            c.PolishSubType,
+            // The WPF marks the matched-lam double-charge row by template.
+            c.TemplateKey == ChargeTemplates.MatchedLamPolishKey,
+            c.IsActive)).ToList();
+
+        var wastages = step6.Wastages.Select(w => new PnlStep6Wastage(
+            DeserializeStrings(w.CheckedSourceKeys),
+            w.SheetQuantity,
+            w.OptimizationPercent,
+            w.IsActive)).ToList();
+
+        var customs = step6.Customs.Select(c => new PnlStep6Custom(
+            c.ChargeName, c.Qty, c.Rate, c.Unit, c.IsActive)).ToList();
+
+        // Gross: the WPF binds the Step 7 grand total (VAT-inclusive) as
+        // the provider — including the vestigial net-provider quirk, net
+        // stays gross / 1.05 inside the calculator.
+        return PnLCalculator.Recalculate(new PnLCalculator.Inputs(
+            groups, charges, wastages, customs,
+            new SheetStockIndex(sheets),
+            wastagePercent,
+            costAtSelling,
+            invoice.GrandTotalVatInclusive));
     }
 
     private static string? ParseUnit(string? unit) =>

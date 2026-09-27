@@ -293,6 +293,68 @@ public sealed class ProformaStore : IProformaStore
         return new Step6Rows(charges, wastages, customs);
     }
 
+    public async Task ReplaceStep9Async(
+        ProformaInvoice invoice,
+        IReadOnlyList<Domain.Entities.PnlRow> rows,
+        Guid actorId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(invoice);
+
+        using var db = _factory.CreateForTenant(invoice.TenantId);
+        await using var transaction = await db.Database
+            .BeginTransactionAsync(ct).ConfigureAwait(false);
+
+        var tracked = await db.ProformaInvoices
+            .FirstAsync(p => p.Id == invoice.Id, ct)
+            .ConfigureAwait(false);
+
+        CopyDocumentFields(invoice, tracked);
+        tracked.RowVersion = tracked.RowVersion + 1;
+        tracked.UpdatedAt = DateTime.UtcNow;
+        tracked.UpdatedBy = actorId;
+
+        await db.PnlRows
+            .Where(r => r.ProformaId == invoice.Id)
+            .ExecuteDeleteAsync(ct).ConfigureAwait(false);
+
+        foreach (var row in rows)
+        {
+            db.PnlRows.Add(row);
+        }
+
+        await db.SaveChangesAsync(ct).ConfigureAwait(false);
+        await transaction.CommitAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<Domain.Entities.PnlRow>> GetStep9Async(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = _factory.CreateForTenant(tenantId);
+
+        return await db.PnlRows.AsNoTracking()
+            .Where(r => r.ProformaId == proformaId)
+            .OrderBy(r => r.SortOrder)
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<Domain.Proforma.SheetStockEntry>> GetSheetStockAsync(
+        Guid tenantId, CancellationToken ct)
+    {
+        using var db = _factory.CreateForTenant(tenantId);
+
+        // The WPF pricing service reads the WHOLE table and filters in
+        // memory (Norm colour matching is not expressible in SQL); the
+        // Sheet Store is a small per-tenant table.
+        var sheets = await db.GlassSheets.AsNoTracking()
+            .Where(s => s.WidthMm > 0 && s.HeightMm > 0)
+            .ToListAsync(ct).ConfigureAwait(false);
+
+        return sheets.Select(s => new Domain.Proforma.SheetStockEntry(
+            s.Color, s.ThicknessMm, s.WidthMm, s.HeightMm,
+            s.PurchasePricePerSqm, s.SellPricePerSqm)).ToList();
+    }
+
+
     // ── helpers ────────────────────────────────────────────────────
 
 
@@ -328,6 +390,23 @@ public sealed class ProformaStore : IProformaStore
         target.ApprovedAt = source.ApprovedAt;
         target.ConfirmedAt = source.ConfirmedAt;
         target.JobOrderId = source.JobOrderId;
+        target.PnlWastagePercent = source.PnlWastagePercent;
+        target.PnlCostAtSellingPrice = source.PnlCostAtSellingPrice;
+        target.PnlGrossVatInclusive = source.PnlGrossVatInclusive;
+        target.PnlNetExVat = source.PnlNetExVat;
+        target.PnlTotalGlassCost = source.PnlTotalGlassCost;
+        target.PnlTotalProductionCost = source.PnlTotalProductionCost;
+        target.PnlProfit = source.PnlProfit;
+        target.PnlMarginPercent = source.PnlMarginPercent;
+        target.PnlOverallMarginPercent = source.PnlOverallMarginPercent;
+        target.PnlNetMarginPercent = source.PnlNetMarginPercent;
+        target.PnlUInsertCost = source.PnlUInsertCost;
+        target.PnlBasisCost = source.PnlBasisCost;
+        target.PnlCalculatedAt = source.PnlCalculatedAt;
+        target.DiscountType = source.DiscountType;
+        target.DiscountValue = source.DiscountValue;
+        target.IsVatApplicable = source.IsVatApplicable;
+        target.VatPercent = source.VatPercent;
     }
 
     /// <summary>PostgreSQL unique violation (23505) inside a

@@ -99,7 +99,15 @@ public sealed record SpecGroupRequest(
     int? ThirdSheetHeightMm = null,
     decimal? OuterSheetPricePerSqm = null,
     decimal? InnerSheetPricePerSqm = null,
-    decimal? ThirdSheetPricePerSqm = null);
+    decimal? ThirdSheetPricePerSqm = null,
+    // Step 4 production-cost provenance (0010): the rates THIS group was
+    // quoted with — Step 9 re-costs the job against them, never against a
+    // live Step 4 tab. Null = legacy group, the P&L falls back.
+    decimal? Step4SpacerPricePerSqm = null,
+    decimal? Step4InterlayerCostPerSqm = null,
+    decimal? Step4CuttingCostPerSqm = null,
+    decimal? Step4TemperingCostPerSqm = null,
+    decimal? UInsertPricePerSqm = null);
 
 /// <summary>PUT /{id}/spec-groups — replaces the whole Step 5 grid for the
 /// invoice (wizard save semantics: the grid is the unit of work).</summary>

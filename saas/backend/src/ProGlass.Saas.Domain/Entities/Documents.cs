@@ -165,6 +165,23 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public decimal PnlWastagePercent { get; set; }
+        public bool PnlCostAtSellingPrice { get; set; }
+        public decimal PnlGrossVatInclusive { get; set; }
+        public decimal PnlNetExVat { get; set; }
+        public decimal PnlTotalGlassCost { get; set; }
+        public decimal PnlTotalProductionCost { get; set; }
+        public decimal PnlProfit { get; set; }
+        public decimal PnlMarginPercent { get; set; }
+        public decimal PnlOverallMarginPercent { get; set; }
+        public decimal PnlNetMarginPercent { get; set; }
+        public decimal PnlUInsertCost { get; set; }
+        public decimal PnlBasisCost { get; set; }
+        public DateTime? PnlCalculatedAt { get; set; }
+        public string DiscountType { get; set; } = null!;
+        public decimal DiscountValue { get; set; }
+        public bool IsVatApplicable { get; set; }
+        public decimal VatPercent { get; set; }
         public ProformaInvoice? RootProforma { get; set; } = null;
         public Inquiry? Inquiry { get; set; } = null;
         public Company? Company { get; set; } = null;
@@ -228,6 +245,11 @@ namespace ProGlass.Saas.Domain.Entities
         public decimal OuterSheetPricePerSqm { get; set; }
         public decimal InnerSheetPricePerSqm { get; set; }
         public decimal ThirdSheetPricePerSqm { get; set; }
+        public decimal? Step4SpacerPricePerSqm { get; set; }
+        public decimal? Step4InterlayerCostPerSqm { get; set; }
+        public decimal? Step4CuttingCostPerSqm { get; set; }
+        public decimal? Step4TemperingCostPerSqm { get; set; }
+        public decimal? UInsertPricePerSqm { get; set; }
         public ProformaInvoice Proforma { get; set; } = null!;
         public Specification? Spec { get; set; } = null;
     }
@@ -336,6 +358,35 @@ namespace ProGlass.Saas.Domain.Entities
         public decimal Rate { get; set; }
         public decimal Amount { get; set; }
         public bool IsActive { get; set; }
+        public int SortOrder { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public Guid? CreatedBy { get; set; }
+        public Guid? UpdatedBy { get; set; }
+        public ProformaInvoice Proforma { get; set; } = null!;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.pnl_rows.</summary>
+    public sealed class PnlRow : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public Guid ProformaId { get; set; }
+        public string Kind { get; set; } = null!;
+        public int SpecNumber { get; set; }
+        public string SpecName { get; set; } = null!;
+        public string Description { get; set; } = null!;
+        public int SheetWidthMm { get; set; }
+        public int SheetHeightMm { get; set; }
+        public decimal SheetSqm { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal PricePerUnit { get; set; }
+        public string UnitLabel { get; set; } = null!;
+        public decimal Amount { get; set; }
+        public string SheetSource { get; set; } = null!;
         public int SortOrder { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }

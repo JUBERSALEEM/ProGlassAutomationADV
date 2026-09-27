@@ -138,4 +138,78 @@ public sealed class ProformaInvoicesController(ProformaService proforma)
         var result = await proforma.GetStep6Async(RequiredTenantId, id, ct);
         return result.Success ? Ok(result.Value) : Fail(result);
     }
+
+    /// <summary>
+    /// Recompute and persist the Step 7 financial summary from the saved
+    /// Step 5/Step 6 subtotals plus the operator inputs (discount type +
+    /// value, VAT applicability + percent — the WPF mapper's persisted
+    /// set). Amounts are derived server-side: discount comes off the net
+    /// first (BUG-56) and VAT applies to the discounted value (BUG-58).
+    /// </summary>
+    [HttpPut("{id:guid}/step7")]
+    [HasPermission(AppPermissions.ProformaEdit)]
+    public async Task<IActionResult> SaveStep7(
+        Guid id, [FromBody] SaveStep7Request request, CancellationToken ct)
+    {
+        var result = await proforma.SaveStep7Async(
+            RequiredTenantId, id, RequiredUserId, ClientIp, request, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>
+    /// The round-to-target tool (WPF InvoiceRoundTo): solve the
+    /// fixed-amount discount whose grand total equals the target. Can
+    /// only discount DOWN — a target above the undiscounted total is
+    /// refused. The solved discount is persisted with the recomputed
+    /// summary.
+    /// </summary>
+    [HttpPost("{id:guid}/step7/round-to")]
+    [HasPermission(AppPermissions.ProformaEdit)]
+    public async Task<IActionResult> RoundToStep7(
+        Guid id, [FromBody] RoundToStep7Request request, CancellationToken ct)
+    {
+        var result = await proforma.RoundToStep7Async(
+            RequiredTenantId, id, RequiredUserId, ClientIp, request, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>
+    /// The saved Step 7 summary: operator inputs and the recomputed
+    /// waterfall (net, discount, before-VAT, VAT, grand total).
+    /// </summary>
+    [HttpGet("{id:guid}/step7")]
+    public async Task<IActionResult> GetStep7(Guid id, CancellationToken ct)
+    {
+        var result = await proforma.GetStep7Async(RequiredTenantId, id, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>
+    /// Recalculate and persist the Step 9 Profit &amp; Loss from the saved
+    /// Steps 4–6 state, the tenant Sheet Store and the two operator inputs
+    /// (wastage %, cost basis). Every row, quantity and amount is computed
+    /// server-side (the port of the WPF RecalculateAsync) — a posted profit
+    /// figure is never trusted.
+    /// </summary>
+    [HttpPut("{id:guid}/step9")]
+    [HasPermission(AppPermissions.ProformaEdit)]
+    public async Task<IActionResult> SaveStep9(
+        Guid id, [FromBody] SaveStep9Request request, CancellationToken ct)
+    {
+        var result = await proforma.SaveStep9Async(
+            RequiredTenantId, id, RequiredUserId, ClientIp, request, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>
+    /// The saved Step 9 section: operator inputs, the KPI snapshot
+    /// (gross/net, glass + production cost, profit, the three margins,
+    /// U-insert and basis cost) and the calculated rows in build order.
+    /// </summary>
+    [HttpGet("{id:guid}/step9")]
+    public async Task<IActionResult> GetStep9(Guid id, CancellationToken ct)
+    {
+        var result = await proforma.GetStep9Async(RequiredTenantId, id, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
 }

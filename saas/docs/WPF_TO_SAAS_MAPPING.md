@@ -83,6 +83,24 @@ The wizard's document spine, ported 2026-09-27 from
 | `GlassPriceStamper` (sheet-store basis stamp: `{max(LastUpdated).Ticks}:{count}`) | Deferred to 7b/8 (needs the sheet store) | Deferred, documented |
 | Inquiry convert-to-PI, Step 4 APPLY → specifications registry + `SpecificationUsage` stamping, Step 6 other charges, Step 9 P&L, Step 7 PDF | Phase 7b | Deferred, documented |
 
+### 1.2b Step 7 — financial summary (Phase 7b)
+
+Ported 2026-09-27 from
+`Step7PrintPreview/InvoiceMainSummary/InvoiceMainSummaryViewModel.Recalculate`
+(BUG-56 discount cap, BUG-57 batch restore, BUG-58 UAE VAT law) and
+`Services/Reporting/InvoiceRoundTo.cs`.
+
+| WPF (source of truth) | SaaS (Phase 7b) | Difference? |
+|---|---|---|
+| Waterfall: net = glass + other charges; discount = Percentage ? Round(net×v/100) : v, clamped to [0, net]; beforeVat = net − discount; vat = applicable ? Round(beforeVat×pct/100) : 0; grand = Round(beforeVat + vat) | `Domain.Proforma.InvoiceSummaryMath.Calculate` — verbatim | Same (goldens: 1200/5%/5% → 60/1140/57/1197) |
+| Defaults: `IsVatApplicable = true`, `VatPercent = 5` (setter clamps 0–100), `DiscountType = Percentage` | Migration 0011 column defaults are exactly these; null request fields keep the saved values | Same |
+| Mapper persists DiscountType (string), DiscountValue, IsVatApplicable, VatPercent + computed amounts | Same four input columns (0011) + discount_amount/vat_amount/grand_total_vat_inclusive (0003) | Same |
+| VAT law: Article 34 — discounts come off the value of supply BEFORE VAT (BUG-58); a fixed discount can never exceed the net (BUG-56) | Enforced in `InvoiceSummaryMath` + CHECK constraints (non-negative discount value, VAT percent 0–100, type vocabulary) | Same |
+| Round-to tool (`InvoiceRoundTo.DiscountOnNet`): closed-form seed + ≤40 ±0.01 iterations; switches the discount to FixedAmount; refuses a target above the undiscounted grand ("Cannot round up. Undiscounted total is AED …") | `Domain.Proforma.InvoiceRoundTo` + `POST /{id}/step7/round-to` — verbatim incl. the refusal message | Same |
+| The summary recalculated LIVE in the wizard VM | `PUT /{id}/step7` recomputes from the SAVED Step 5/Step 6 subtotals (server-side, like every other derived amount) | Same math, REST shape |
+| Live VAT default from the open wizard context | Per-invoice persisted inputs only; `tenant_vat_config` is NOT consulted by Step 7 (the operator sets VAT per invoice — the WPF's default is the flat 5%) | **Documented**: tenant VAT config remains pricing-page master data |
+| Step 7 PDF layout / print preview | Deferred to its own 7b sub-item (needs the render surface) | Deferred, documented |
+
 ### 1.3 Specifications (price registry)
 | WPF | SaaS |
 |---|---|
@@ -136,6 +154,30 @@ Ported 2026-09-27 from `OtherChargeRow` / `WastageRow` / `CustomChargeRow`,
 | Advanced automation (suggestions engine), optimization feed, inventory auto-use, manual-override tracking | Not ported yet (UI-time assists; follow-up 7b item — the saved rows persist whatever the assist produced) | **Deferred (documented)** |
 | Wastage rows survive Step 5 edits (sources re-synced, missing keys silently dropped) | Stale source keys at save → **400** ("re-fetch the section after saving the grid") | **Different (documented)** — a stale key would silently under-count; the client re-fetches sources after every grid save |
 | Phase-3 schema guesses fixed by 0009: metric keys 'SQM'/'Fixed' → real registry; wastage stock_sqm/glass_sqm/spec_group_id dropped (no WPF counterpart); wastage rate widened to 6 dp (the derived rate truncated at 2 dp); spec_group_items.perimeter_factor added (LM round-trip — the 7a read path recomputed with the default factor); spec_groups Step 4 provenance columns (colours + per-side stock sheets, SpecGroupSnapshot Phase G) | | Schema correction, WPF-aligned |
+
+### 1.3c Step 9 — Profit & Loss (Phase 7b)
+
+Ported 2026-09-27 from `Step9ProfitLoss/ProfitLossStepViewModel.{Calculation,
+QuoteBasis,CalculationSupport}.cs`, `PnLMeasurement.cs`, `PnLSpecParser.cs`
+(grammar already ported as `SpecGrammar`), `Step6SheetAllocation.cs`,
+`Services/ProformaInvoice/OtherChargeAutomationRules.cs` (the U-insert
+suggestion) and `Services/ProformaInvoice/SheetStorePricingService.cs`.
+Design facts 85–95 in `SAAS_MIGRATION_PROGRESS.md`.
+
+| WPF (source of truth) | SaaS (Phase 7b) | Difference? |
+|---|---|---|
+| Live analysis over the saved document: rows rebuilt from Step 5 groups + Step 4 provenance + Sheet Store + Step 6 charges on every recalc; snapshot persisted | `PUT /{id}/step9` recalculates + persists (`pnl_rows` replace + KPI columns on the invoice, one transaction); `GET /{id}/step9` returns rows + KPIs | Same math, REST shape |
+| Measurement: cutSqm = Σ (CalculatePanel(W1,H1) [+ (W2,H2)]) × qty (the Step 5 0.5 m² billable floor); AreaWithWastage round4; WholeSheets ceil, min 1; yield = 1 − w/100 floor 0.05 | `PnLCalculator.MeasureGroup` / `AreaWithWastage` / `WholeSheetsRequired` / `EffectiveYieldFactor` — verbatim | Same |
+| Glass rows: Step 4 pane box price WINS over Sheet Store; exact store lookup = Norm(colour) + thickness + rotation-tolerant size, priced-first/cheapest; cost basis sell-vs-purchase; a Step 4-identified pane without a sheet handoff is a DATA-GAP row (never a catalogue-invented size); Step 6 wastage setup SHEET QTY is authoritative for the pane (shared rows split by the largest-remainder allocator; DISABLED rows still own the setup qty); SGU priced by required area, multi-pane by whole sheets; unpriced panes visible at amount 0, excluded from cost | `PnLCalculator.BuildGlassRow` + `SheetStockIndex` + `Step6SheetAllocation` — verbatim | Same |
+| Panes parsed from the spec name in order; `EnforceStep4PaneIdentity` replaces parsed colours with the group's explicit colours; a missing inner of a two-pane build is synthesised from the LIVE Step 4 panel; DGU+LAM panes come from the live panel | Parsed + enforced exactly; NO synthesis from a live panel (no server-side Step 4 tab — the WPF itself calls it "legacy fallback only"): an unparsed spec name yields no glass rows, the operator priced that build manually | **Documented difference (§1.3c header)** — data-gap rows instead of panel guesses |
+| Production rows: DGU+LAM = ASP per cavity + outsourced interlayer at BUY + processing on all three panes; DGU = ASP per SQM (includes production); LAM = interlayer + processing both panes; SGU = separate cutting + tempering; ALL rates read the GROUP's Step 4 provenance first (Phase 1-AUDIT) | Verbatim against the new nullable `spec_groups` provenance columns (0010) — a legacy group reads null → 0, never the live tab | Same; null-handling is the normalized form of "no handoff" |
+| Step 6 charges → production costs: ACTIVE rows, per checked spec at the same metric qty (polish via sub-type); excluded supplemental keys ARGON_GAS/FAN_HOLES/CUTOUT/HOLES/COUNTERSUNK_HOLES; DELIVERY = one invoice-wide TRIP; custom charges invoice-wide; wastage NEVER a P&L cost (2026-09-07 rule); U-insert tracked to avoid double-count | `PnLCalculator.AppendStep6Costs` — verbatim | Same |
+| KPIs: NetExVat = Round(gross / 1.05, 2) — VatDivisor hardcoded, the bound netRevenueProvider is vestigial (Calculation.cs:547 quirk); Profit; IsLoss only with revenue; three margins (cost-based on GROSS + basis, overall on NET + actual cost, net margin on net revenue); U-insert price-based (suggestion qty × seed→row→template-10 rate) else tracked production amount; basis = Σ QuoteBasis × area else actual − u-insert | `PnLCalculator.Recalculate` KPI block — verbatim, quirk preserved | Same (the /1.05 quirk documented, per §49) |
+| QuoteBasisFor: DGU = (outer+inner)/yield + spacer×cavities; LAM = (outer+inner)/yield + interlayer+cutting+tempering; DGU+LAM = (outer+lamOuter+lamInner)/yield + processing + spacer×cavities; SGU = outer/yield + cutting+tempering; missing input → 0 | Verbatim; lamOuter reads 0 server-side (the WPF's live-panel column has no group counterpart) | **Documented**: the only live-panel rate the WPF still reads (LamOuterBasePrice) has no persisted source — the DGU+LAM basis under-counts that pane by design until a lam-outer provenance column exists |
+| Advanced automation suggestion rows (AppendAdvancedSuggestedCharges for unchecked-but-present rows, UseAdvancedAutomation) | Deferred sub-item (documented); only explicitly saved Step 6 rows are costed. The U-insert KPI still recomputes from the suggestion rule verbatim | **Deferred (documented)** |
+| Target-pricing model (SpecTargetRowViewModel, 1059 lines) | Deferred to its own 7b sub-item | Deferred, documented |
+| `BuildStep9SpecDisplay`: spec-name colour tokens rewritten from the group's authoritative colours | Verbatim (glass/spacer/production rows); Step 6 charge rows keep the RAW spec name with the "SPEC n" fallback (WPF FindSpecName) | Same |
+| WPF `PricePerSqm`/`UnitLabel` on rows; UnitLabel defaults "SQM" | `pnl_rows` columns price_per_unit/unit_label | Same |
 
 ### 1.4 Pricing engine (cross-cutting — single service, master prompt §40)
 | WPF | SaaS |

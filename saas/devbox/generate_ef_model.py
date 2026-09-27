@@ -44,7 +44,7 @@ GROUPS = {
                   "proforma_invoices", "specification_usages",
                   "spec_groups", "spec_group_items",
                   "other_charges", "wastage_rows", "custom_charges",
-                  "job_orders",
+                  "pnl_rows", "job_orders",
                   "production_pieces", "production_events",
                   "material_reservations", "delivery_notes",
                   "delivery_note_items"],

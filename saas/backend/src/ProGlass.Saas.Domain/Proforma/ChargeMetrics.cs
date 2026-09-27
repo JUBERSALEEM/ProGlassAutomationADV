@@ -225,10 +225,25 @@ public sealed record SpecGroupInput(
     int ThirdSheetHeightMm = 0,
     decimal OuterSheetPricePerSqm = 0m,
     decimal InnerSheetPricePerSqm = 0m,
-    decimal ThirdSheetPricePerSqm = 0m)
+    decimal ThirdSheetPricePerSqm = 0m,
+    // Step 4 production-cost provenance (Phase 1-AUDIT): the rates THIS
+    // group was quoted with. Nullable — a legacy group reads unknown, not
+    // zero-priced, and the P&L falls back the WPF way.
+    decimal? Step4SpacerPricePerSqm = null,
+    decimal? Step4InterlayerCostPerSqm = null,
+    decimal? Step4CuttingCostPerSqm = null,
+    decimal? Step4TemperingCostPerSqm = null,
+    decimal? UInsertPricePerSqm = null)
 {
     public string EffectiveGlassType =>
         SpecGrammar.ResolveEffectiveGlassType(GlassType, SpecName);
+
+    /// <summary>WPF HasOuterSheet — a sheet was chosen in Step 4. The SaaS
+    /// request carries sheet geometry only when Step 4 chose one, so the
+    /// geometry itself is the flag (documented normalization).</summary>
+    public bool HasOuterSheet => OuterSheetWidthMm > 0 && OuterSheetHeightMm > 0;
+
+    public bool HasInnerSheet => InnerSheetWidthMm > 0 && InnerSheetHeightMm > 0;
 }
 
 /// <summary>

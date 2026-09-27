@@ -200,6 +200,23 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.PnlWastagePercent).HasColumnName("pnl_wastage_percent").HasColumnType("numeric(5,2)").HasDefaultValue(15m);
+            builder.Property(x => x.PnlCostAtSellingPrice).HasColumnName("pnl_cost_at_selling_price").HasColumnType("boolean").HasDefaultValue(true);
+            builder.Property(x => x.PnlGrossVatInclusive).HasColumnName("pnl_gross_vat_inclusive").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlNetExVat).HasColumnName("pnl_net_ex_vat").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlTotalGlassCost).HasColumnName("pnl_total_glass_cost").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlTotalProductionCost).HasColumnName("pnl_total_production_cost").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlProfit).HasColumnName("pnl_profit").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlMarginPercent).HasColumnName("pnl_margin_percent").HasColumnType("numeric(9,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlOverallMarginPercent).HasColumnName("pnl_overall_margin_percent").HasColumnType("numeric(9,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlNetMarginPercent).HasColumnName("pnl_net_margin_percent").HasColumnType("numeric(9,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlUInsertCost).HasColumnName("pnl_u_insert_cost").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlBasisCost).HasColumnName("pnl_basis_cost").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.PnlCalculatedAt).HasColumnName("pnl_calculated_at").HasColumnType("timestamptz");
+            builder.Property(x => x.DiscountType).HasColumnName("discount_type").HasColumnType("text").HasDefaultValue("Percentage");
+            builder.Property(x => x.DiscountValue).HasColumnName("discount_value").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.IsVatApplicable).HasColumnName("is_vat_applicable").HasColumnType("boolean").HasDefaultValue(true);
+            builder.Property(x => x.VatPercent).HasColumnName("vat_percent").HasColumnType("numeric(5,2)").HasDefaultValue(5.00m);
             builder.HasIndex(x => new { x.TenantId, x.ProformaNo })
                 .IsUnique().HasDatabaseName("uq_proforma_invoices_tenant_no");
             builder.HasIndex(x => new { x.TenantId, x.Status })
@@ -301,6 +318,11 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.OuterSheetPricePerSqm).HasColumnName("outer_sheet_price_per_sqm").HasColumnType("numeric(18,4)").HasDefaultValue(0m);
             builder.Property(x => x.InnerSheetPricePerSqm).HasColumnName("inner_sheet_price_per_sqm").HasColumnType("numeric(18,4)").HasDefaultValue(0m);
             builder.Property(x => x.ThirdSheetPricePerSqm).HasColumnName("third_sheet_price_per_sqm").HasColumnType("numeric(18,4)").HasDefaultValue(0m);
+            builder.Property(x => x.Step4SpacerPricePerSqm).HasColumnName("step4_spacer_price_per_sqm").HasColumnType("numeric(18,4)");
+            builder.Property(x => x.Step4InterlayerCostPerSqm).HasColumnName("step4_interlayer_cost_per_sqm").HasColumnType("numeric(18,4)");
+            builder.Property(x => x.Step4CuttingCostPerSqm).HasColumnName("step4_cutting_cost_per_sqm").HasColumnType("numeric(18,4)");
+            builder.Property(x => x.Step4TemperingCostPerSqm).HasColumnName("step4_tempering_cost_per_sqm").HasColumnType("numeric(18,4)");
+            builder.Property(x => x.UInsertPricePerSqm).HasColumnName("u_insert_price_per_sqm").HasColumnType("numeric(18,4)");
             builder.HasIndex(x => new { x.TenantId, x.ProformaId })
                 .HasDatabaseName("ix_spec_groups_tenant_proforma");
             builder.HasOne(x => x.Proforma)
@@ -443,6 +465,41 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
             builder.HasIndex(x => new { x.TenantId, x.ProformaId })
                 .HasDatabaseName("ix_custom_charges_tenant_proforma");
+            builder.HasOne(x => x.Proforma)
+                .WithMany()
+                .HasForeignKey(x => x.ProformaId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    public sealed class PnlRowConfiguration : IEntityTypeConfiguration<PnlRow>
+    {
+        public void Configure(EntityTypeBuilder<PnlRow> builder)
+        {
+            builder.ToTable("pnl_rows", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.ProformaId).HasColumnName("proforma_id").HasColumnType("uuid");
+            builder.Property(x => x.Kind).HasColumnName("kind").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecNumber).HasColumnName("spec_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SpecName).HasColumnName("spec_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Description).HasColumnName("description").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SheetWidthMm).HasColumnName("sheet_width_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SheetHeightMm).HasColumnName("sheet_height_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SheetSqm).HasColumnName("sheet_sqm").HasColumnType("numeric(12,4)").HasDefaultValue(0m);
+            builder.Property(x => x.Quantity).HasColumnName("quantity").HasColumnType("numeric(18,3)").HasDefaultValue(0m);
+            builder.Property(x => x.PricePerUnit).HasColumnName("price_per_unit").HasColumnType("numeric(18,4)").HasDefaultValue(0m);
+            builder.Property(x => x.UnitLabel).HasColumnName("unit_label").HasColumnType("text").HasDefaultValue("SQM");
+            builder.Property(x => x.Amount).HasColumnName("amount").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.SheetSource).HasColumnName("sheet_source").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SortOrder).HasColumnName("sort_order").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
+            builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.HasIndex(x => new { x.TenantId, x.ProformaId })
+                .HasDatabaseName("ix_pnl_rows_tenant_proforma");
             builder.HasOne(x => x.Proforma)
                 .WithMany()
                 .HasForeignKey(x => x.ProformaId)

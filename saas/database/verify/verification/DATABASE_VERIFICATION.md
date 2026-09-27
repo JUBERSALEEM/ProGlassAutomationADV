@@ -1,9 +1,9 @@
 # SAAS DATABASE VERIFICATION REPORT (Phases 3–4)
 
-**Generated:** 2026-09-27T08:01:06.756105+00:00  
+**Generated:** 2026-09-27T08:43:42.827240+00:00  
 **PostgreSQL:** 16 (pgserver, live instance)  
-**Migrations applied:**   
-**Result: 51/51 checks passed, 0 failed**
+**Migrations applied:** 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql  
+**Result: 59/59 checks passed, 0 failed**
 
 Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 (requires `pip install pgserver psycopg2-binary`; or pass `--db-uri`).
@@ -24,12 +24,12 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 12 | invalid status rejected (CHECK) | ✅ PASS | — |
 | 13 | FK to nonexistent proforma rejected | ✅ PASS | — |
 | 14 | cascade delete removes spec groups + items | ✅ PASS | — |
-| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 08:01:06.617369+00:00 → 2026-09-27 08:01:06.668580+00:00 |
+| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 08:43:42.669016+00:00 → 2026-09-27 08:43:42.719726+00:00 |
 | 16 | audit_logs UPDATE denied for app role | ✅ PASS | — |
 | 17 | stock_transactions DELETE denied for app role | ✅ PASS | — |
 | 18 | numeric money arithmetic exact | ✅ PASS | 1050.00 |
 | 19 | re-run is a no-op (idempotent) | ✅ PASS | applied 0 |
-| 20 | all 9 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql |
+| 20 | all 11 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql |
 | 21 | tampered migration detected | ✅ PASS | — |
 | 22 | runtime role cannot INSERT tenants | ✅ PASS | — |
 | 23 | runtime role can READ tenants | ✅ PASS | — |
@@ -61,3 +61,11 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 49 | 0009: real metric key LM1 accepted | ✅ PASS | — |
 | 50 | 0009: Phase-3 metric key 'SQM' rejected (real registry is LM1/SQM1/...) | ✅ PASS | — |
 | 51 | 0009: custom_charges readable under tenant A RLS | ✅ PASS | — |
+| 52 | 0010: spec_groups Step 4 production provenance columns (nullable — Phase 1-AUDIT contract) | ✅ PASS | ['step4_cutting_cost_per_sqm', 'step4_interlayer_cost_per_sqm', 'step4_spacer_price_per_sqm', 'step4_tempering_cost_per_sqm', 'u_insert_price_per_sqm'] |
+| 53 | 0010: provenance columns are NULLABLE (legacy groups read unknown, not zero-priced) | ✅ PASS | — |
+| 54 | 0010: invoice P&L operator inputs (15% wastage, cost-at-selling default) + KPI columns exist | ✅ PASS | — |
+| 55 | 0010: pnl_rows exists with RLS tenant isolation | ✅ PASS | — |
+| 56 | 0011: the four mapper-persisted operator inputs exist | ✅ PASS | ['discount_type', 'discount_value', 'is_vat_applicable', 'vat_percent'] |
+| 57 | 0011: WPF defaults (Percentage / 0 / VAT on / 5%) | ✅ PASS | {'discount_type': "'Percentage'::text", 'discount_value': '0', 'is_vat_applicable': 'true', 'vat_percent': '5.00'} |
+| 58 | 0011: discount type vocabulary + non-negative value + 0-100 VAT percent enforced | ✅ PASS | ['ck_proforma_discount_type', 'ck_proforma_discount_value', 'ck_proforma_vat_percent'] |
+| 59 | 0011: a negative discount value is rejected | ✅ PASS | CheckViolation |
