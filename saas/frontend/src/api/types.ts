@@ -959,3 +959,146 @@ export interface Workstation {
   isActive: boolean;
   description: string;
 }
+
+// ── production back-office (Phase 36 — 26b costs/integrity/reports) ───
+
+export interface Allocation {
+  id: string;
+  allocationId: string;
+  reservationKey: string;
+  jobRef: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  sheetNo: number;
+  placedPieceLabel: string;
+  glassRef: string;
+  widthMm: number;
+  heightMm: number;
+  quantity: number;
+  utilizationPct: number;
+  wastagePct: number;
+  status: string;
+  consumedAt: string | null;
+  createdAt: string;
+  notes: string;
+}
+
+export interface ActualCost {
+  id: string;
+  costId: string;
+  jobRef: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  glassRef: string;
+  specName: string;
+  costType: string;
+  quantity: number;
+  unitCost: number;
+  totalCost: number;
+  sellingValue: number;
+  isFoc: boolean;
+  createdAt: string;
+  notes: string;
+}
+
+export interface CostSummary {
+  estimated: number;
+  actualMaterial: number;
+  production: number;
+  wastage: number;
+  processing: number;
+  totalActual: number;
+  focImpact: number;
+}
+
+export interface Replacement {
+  id: string;
+  replacementId: string;
+  jobRef: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  glassRef: string;
+  specName: string;
+  position: string;
+  stage: string;
+  originalPieceId: string | null;
+  replacementPieceId: string | null;
+  entryType: string;
+  reason: string;
+  quantity: number;
+  isFoc: boolean;
+  replacementSequence: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface ConsistencyFinding {
+  kind: string;
+  code: string;
+  message: string;
+  glassSheetId: string | null;
+  reservationKey: string | null;
+  allocationId: string | null;
+  jobRef: string | null;
+  quantity: number;
+}
+
+export interface ConsistencyScan {
+  scannedAtUtc: string;
+  reservationRows: number;
+  allocationRows: number;
+  glassSheetRows: number;
+  activeHoldQuantity: number;
+  consumedQuantity: number;
+  findings: ConsistencyFinding[];
+  limitations: string[];
+}
+
+export interface SnapshotIntegrity {
+  jobOrderId: string;
+  jobRef: string;
+  kind: string;
+  message: string;
+  hasCutRows: boolean;
+}
+
+export interface ProcessStatusRow {
+  jobRef: string;
+  piRef: string;
+  specName: string;
+  pieceId: string;
+  processType: string;
+  previousStage: string;
+  nextStage: string;
+  status: string;
+  qtyRequired: number;
+  qtyDone: number;
+  remaining: number;
+  qcStatus: string;
+  operatorName: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  traceability: string;
+}
+
+export interface PairingAssemblyRow {
+  jobRef: string;
+  specName: string;
+  pairId: string;
+  outerPieceId: string;
+  innerPieceId: string;
+  assemblyLabel: string;
+  assemblyType: string;
+  components: string;
+  traceability: string;
+}
+
+export interface RouteReportRow {
+  jobRef: string;
+  specName: string;
+  buildType: string;
+  pieceId: string;
+  route: string;
+  currentStage: string;
+  status: string;
+}

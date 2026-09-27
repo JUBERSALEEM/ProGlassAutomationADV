@@ -996,6 +996,25 @@ control writes (start/pause/resume/hold/release/assign/priority/
 complete) and the executions/pairings/assemblies families stay
 API-only for now — documented as a later slice.
 
+**Phase 36 — front end slice 9: the production back-office (the
+remaining §1.7d surfaces).** Job-scoped tabs for the Phase 26b
+ledger/cost/integrity family: Costs (the per-bucket summary —
+Estimated / ActualMaterial / Production / Wastage / Processing /
+TotalActual / FocImpact — the actual-cost rows, and the
+derive-from-allocations action: piece sqm × the rack's purchase
+price per sqm); Allocations (the ledger in WPF order with the
+planning-consume action — the reservation flips to Consumed only
+when ALL its allocations are consumed); Replacements (the RPL:{n}
+lineage rows with entry type, reason, FOC); Integrity (the
+read-only Production ↔ Sheet Store consistency scan with its
+findings + limitations rendered verbatim, and the per-job snapshot
+verdict Missing/Corrupt/ValidEmpty/Valid); and Reports (process
+status with QC/operator/timestamps, the tenant-wide rework + QC
+queues, pairing/assembly traceability, and the route report).
+Manual allocations/cost recording and the breakage/rework writes
+stay API-only (the flows already have first-class UIs on the
+cutting floor and the job-order workbench) — documented.
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

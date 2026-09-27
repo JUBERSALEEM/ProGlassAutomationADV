@@ -686,3 +686,79 @@ export function createWorkstation(body: {
 export function seedWorkstations(): Promise<unknown> {
   return post("/api/v1/production/workstations/seed");
 }
+
+// ── production back-office (Phase 36 — 26b costs/integrity/reports) ───
+
+import type {
+  ActualCost as _ActualCost,
+  Allocation as _Allocation,
+  ConsistencyScan as _Scan,
+  CostSummary as _CostSummary,
+  PairingAssemblyRow as _Pairing,
+  ProcessStatusRow as _Process,
+  QueueItem as _QueueItem,
+  Replacement as _Replacement,
+  RouteReportRow as _Route,
+  SnapshotIntegrity as _Snapshot,
+} from "./types";
+
+export function listAllocations(jobOrderId: string): Promise<_Allocation[]> {
+  return get<_Allocation[]>(`/api/v1/production/allocations?jobOrderId=${jobOrderId}`);
+}
+
+export function consumeAllocation(allocationId: string): Promise<_Allocation> {
+  return post<_Allocation>(`/api/v1/production/allocations/${allocationId}/consume`);
+}
+
+export function listActualCosts(jobOrderId: string): Promise<_ActualCost[]> {
+  return get<_ActualCost[]>(`/api/v1/production/costs?jobOrderId=${jobOrderId}`);
+}
+
+export function getCostSummary(jobOrderId: string): Promise<_CostSummary> {
+  return get<_CostSummary>(`/api/v1/production/costs/summary?jobOrderId=${jobOrderId}`);
+}
+
+/** Derive ActualMaterial costs from the job's allocations (piece sqm ×
+ *  rack purchase price per sqm). */
+export function deriveCosts(jobOrderId: string): Promise<unknown> {
+  return post(`/api/v1/production/costs/derive?jobOrderId=${jobOrderId}`);
+}
+
+export function listReplacements(jobOrderId: string): Promise<_Replacement[]> {
+  return get<_Replacement[]>(`/api/v1/production/replacements?jobOrderId=${jobOrderId}`);
+}
+
+/** Read-only Production ↔ Sheet Store consistency scan (never writes). */
+export function runConsistencyScan(): Promise<_Scan> {
+  return get<_Scan>("/api/v1/production/consistency-scan");
+}
+
+export function checkSnapshotIntegrity(jobOrderId: string): Promise<_Snapshot> {
+  return get<_Snapshot>(`/api/v1/production/snapshot-integrity?jobOrderId=${jobOrderId}`);
+}
+
+export function getProcessStatusReport(jobOrderId: string): Promise<_Process[]> {
+  return get<_Process[]>(
+    `/api/v1/production/reports/process-status?jobOrderId=${jobOrderId}`,
+  );
+}
+
+export function getPairingAssemblyReport(
+  jobOrderId: string,
+): Promise<_Pairing[]> {
+  return get<_Pairing[]>(
+    `/api/v1/production/reports/pairing-assembly?jobOrderId=${jobOrderId}`,
+  );
+}
+
+export function getRouteReport(jobOrderId: string): Promise<_Route[]> {
+  return get<_Route[]>(`/api/v1/production/reports/route?jobOrderId=${jobOrderId}`);
+}
+
+export function getReworkQueueReport(): Promise<_QueueItem[]> {
+  return get<_QueueItem[]>("/api/v1/production/reports/rework-queue");
+}
+
+export function getQcQueueReport(): Promise<_QueueItem[]> {
+  return get<_QueueItem[]>("/api/v1/production/reports/qc-queue");
+}
