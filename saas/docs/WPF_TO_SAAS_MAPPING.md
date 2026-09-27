@@ -447,13 +447,43 @@ shape; `DeliveryService`/`DeliveryNoteStore`/`/api/v1/delivery-notes`.
 | Permissions: `DeliveryNote.Edit` for every write (OperationGuard) | Same (`DeliveryNote.View/.Edit` ported in Phase 4); reads open to authenticated users | Same |
 
 
-### 1.9 Tax Invoice / Credit Note / Statement / VAT
-| WPF | SaaS |
-|---|---|
-| `SavedTaxInvoice` (`Issued·Paid·Overdue`), family links PI/DN/JO, `InvoiceTotalsCalculator` | `TaxInvoice` entity + totals service (decimal, MoneyRounding) |
-| `SavedCreditNote` (fiscal correction; delete Manager/Admin-only) | `CreditNote`; void/delete gated by `TaxInvoice.Delete`-equivalent permission |
-| `SavedStatement` + filters + reconciliation (`OrderReconciliationService`) + workflow pipeline | Statement generator service + reconciliation; same filters |
-| VAT submission (`ReportingDataService.Vat` + `VatSubmissionView`) | VAT report endpoint + exports; per-tenant VAT rate config (default 5%) |
+### 1.9 Tax Invoice / Credit Note / Statement / VAT — Phase 12 fiscal core (parity and deliberate differences)
+
+Ported 2026-09-27 from `Services/TaxInvoice/` (`InvoiceTotalsCalculator.cs`,
+`PaymentTermsResolver.cs`, `TaxInvoiceFamilyService.cs`,
+`TaxInvoiceValidationService.cs`), `Services/Workflow/StatusTransitions.cs`
+(the TaxInvoice + CreditNote tables), `Services/CreditNote/` +
+`Models/CreditNote/SavedCreditNote/`, `Models/TaxInvoice/SavedTaxInvoice/`
+and `Services/Reporting/` (`VatCalculator.cs`, `MoneyRounding.cs`,
+`ReportingDataService.Vat.cs`/`.Statement.cs`/`.TaxInvoice.cs`). Migration
+0016 upgraded the Phase 3 first-pass tables to the WPF-faithful shape
+(status vocabularies, customer/project/terms/discount/void columns,
+statement line ordinal); `FiscalService`/`FiscalStore`/
+`/api/v1/fiscal`.
+
+| WPF (source of truth) | SaaS (Phase 12) | Difference? |
+|---|---|---|
+| Status vocab Draft/Issued/Paid/PartiallyPaid/Overdue/Cancelled/Void (`SavedTaxInvoice`) | Same (SQL CHECK-constrained, migration 0016 replaced the Phase 3 `Issued/Paid/Overdue` guess + dropped `status_text`) | Same |
+| THE FISCAL LOCK: a Tax Invoice is a FISCAL document — once Issued it is never edited, only voided or credited | `TaxInvoiceStateMachine` (WPF table verbatim) guards every transition; Issued→Draft is rejected 409; IsEditable = Draft only | Same |
+| StatusTransitions Kind.TaxInvoice: Draft→{Draft,Issued,Cancelled,Void}; Issued→{Issued,Paid,PartiallyPaid,Overdue,Cancelled,Void}; PartiallyPaid→{…,Paid,Overdue,…}; Paid terminal; Overdue→{Overdue,Paid,PartiallyPaid,Cancelled,Void}; Cancelled/Void terminal | Verbatim port + SQL CHECK vocab | Same |
+| StatusTransitions Kind.CreditNote: Draft→{Draft,Issued,Cancelled}; Issued→{Issued,Applied,Cancelled}; Applied terminal ("the value reduced the ledger"); Cancelled terminal | `CreditNoteStateMachine` verbatim + SQL CHECK (the Phase 3 lowercase draft/issued/void guess dropped) | Same |
+| `InvoiceTotalsCalculator`: Discount = Round(subtotal×%/100), AfterDiscount = subtotal−discount, VAT = Round(After×5%), Grand = After+VAT (MoneyRounding 2dp midpoint away-from-zero — "a half-fil does not banker's-round down") | `InvoiceTotalsCalculator` verbatim (single source of truth; the API recomputes from subtotal+% and never trusts client totals) | Same |
+| `PaymentTermsResolver`: Immediate 0, Net 7/15/30/45/60/90, unknown/Custom → 30; DueDate = IssueDate + days | Verbatim; default terms "Net 30" | Same |
+| Family numbering: `INV-{year}-{seq:D3}` UNIQUE; ALL invoices for one PI share the family — the second invoice for a PI is a revision `-A`, then `-B` (`TaxInvoiceFamilyService`, `SequenceLetter`) | Same: base number allocated per year with UNIQUE(tenant, invoice_no) + retry; later invoices for the same PI take the next revision letter (race-safe: letter derived from every used number) | Same |
+| A credit note NEVER exists on its own — `TaxInvoiceReference` required (`SavedCreditNote`) | `CreateCreditNoteAsync` rejects a missing invoice (404), requires a reason, and caps the credit at the invoice's after-discount amount | Same |
+| Credit numbering `CN-{year}-{seq:D3}` UNIQUE | Same, retry-on-unique-violation | Same |
+| Payments: PaidAmount/BalanceAmount tracked on the invoice; PartiallyPaid → Paid at zero balance | `POST /{id}/payments` — machine-guarded (Draft/Cancelled/Void/Paid reject); balance floors at 0 | Same |
+| Applied credit note reduces the corrected invoice's balance | `TransitionCreditNoteAsync` …→Applied settles GrandTotal against the invoice balance (floored at 0) | Same |
+| Void: reason recorded ("(no reason given)" default), the number is NEVER reused, row survives for the audit trail | Same: Void sets is_void/voided_at/void_reason; terminal; excluded from VAT + statements | Same |
+| VAT submission (`ReportingDataService.Vat` + `VatSubmissionView`): standard-rated supplies & output VAT over vatable invoices − credit-note adjustments | `GET /fiscal/vat-report?from&to` — vatable = Issued/PartiallyPaid/Paid/Overdue, non-void; credit notes Issued/Applied; NetVatPayable = Σ invoice VAT − Σ CN VAT | Same (VAT rate is the WPF-fixed 5%, not per-tenant config — matches `InvoiceTotalsCalculator`) |
+| Statement (`ReportingDataService.Statement`): the customer ledger — invoices as debits, payments + applied credit notes as credits, running balance; filters + persisted output | `POST /fiscal/statements` — same ledger shape, Draft/Cancelled/Void invoices excluded; persisted to statements + statement_lines with a line ordinal (migration 0016; the Phase 3 table had none) and read back via `GET /fiscal/statements/{id}` | **Documented difference** — the WPF also persists a rendered PDF (StorageKey); the SaaS persists the ledger rows only (PDF/print deferred) |
+| WPF statement filters: company/customer/project/salesman/date range | Customer + date range (the columns for the wider filters exist and are stored on the statement; the extra filter axes are not exposed yet) | **Deferred, documented** |
+| Tax Invoice link from Delivery Note (`DeliveryNoteReference` comma-separated DN list, empty = PI-only) | `delivery_note_reference` stored verbatim (string) + `job_order_id`/`proforma_id` family links | Same |
+| Bank fields (BankName/AccountNo/Iban/Swift) + company TRN on the invoice print | Not ported — print-surface data (no PDF/print slice yet) | **Deferred, documented** |
+| `FullSnapshotJson` (immutable print snapshot) | `snapshot_json` column reserved (Phase 3), not yet populated | **Deferred, documented** |
+| PDF/print exports (`ReportingExportService`, `TaxInvoicePdfService`), reporting cache (`ReportingCacheService`), executive summary + analytics dashboards, profitability, RowTraceability, CncExport, cutting/production-process reports | NOT ported | **Deferred, documented** — the fiscal DATA layer (invoices/credit notes/statements/VAT) is complete; every report renders from it |
+| Order reconciliation (`OrderReconciliationService`) | NOT ported (needs the wider statement filter axes) | **Deferred, documented** |
+| Permissions: TaxInvoice View/Edit/Export/Delete, Reports View/Export, StatementGenerate (Phase 4 catalog) | Same — writes gate `TaxInvoice.Edit`, reports gate `Reports.View`, statements gate `StatementGenerate` | Same |
 
 ### 1.9b Authentication (Phase 4) — parity and deliberate differences
 

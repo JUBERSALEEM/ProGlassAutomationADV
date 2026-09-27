@@ -19,7 +19,6 @@ namespace ProGlass.Saas.Domain.Entities
         public string DeliveryNoteReference { get; set; } = null!;
         public Guid? JobOrderId { get; set; }
         public string Status { get; set; } = null!;
-        public string StatusText { get; set; } = null!;
         public DateOnly? IssueDate { get; set; }
         public DateOnly? DueDate { get; set; }
         public decimal Subtotal { get; set; }
@@ -34,6 +33,13 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public string CustomerName { get; set; } = null!;
+        public string ProjectName { get; set; } = null!;
+        public string PaymentTerms { get; set; } = null!;
+        public decimal DiscountPercent { get; set; }
+        public bool IsVoid { get; set; }
+        public DateTime? VoidedAt { get; set; }
+        public string VoidReason { get; set; } = null!;
         public ProformaInvoice? Proforma { get; set; } = null;
         public JobOrder? JobOrder { get; set; } = null;
     }
@@ -111,6 +117,7 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public int LineNo { get; set; }
         public Statement Statement { get; set; } = null!;
     }
 }

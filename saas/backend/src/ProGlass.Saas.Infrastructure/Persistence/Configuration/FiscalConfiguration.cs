@@ -24,7 +24,6 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.DeliveryNoteReference).HasColumnName("delivery_note_reference").HasColumnType("text").HasDefaultValue("");
             builder.Property(x => x.JobOrderId).HasColumnName("job_order_id").HasColumnType("uuid");
             builder.Property(x => x.Status).HasColumnName("status").HasColumnType("text").HasDefaultValue("Issued");
-            builder.Property(x => x.StatusText).HasColumnName("status_text").HasColumnType("text").HasDefaultValue("");
             builder.Property(x => x.IssueDate).HasColumnName("issue_date").HasColumnType("date");
             builder.Property(x => x.DueDate).HasColumnName("due_date").HasColumnType("date");
             builder.Property(x => x.Subtotal).HasColumnName("subtotal").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
@@ -39,6 +38,13 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.CustomerName).HasColumnName("customer_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ProjectName).HasColumnName("project_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.PaymentTerms).HasColumnName("payment_terms").HasColumnType("text").HasDefaultValue("Net 30");
+            builder.Property(x => x.DiscountPercent).HasColumnName("discount_percent").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.IsVoid).HasColumnName("is_void").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.VoidedAt).HasColumnName("voided_at").HasColumnType("timestamptz");
+            builder.Property(x => x.VoidReason).HasColumnName("void_reason").HasColumnType("text").HasDefaultValue("");
             builder.HasIndex(x => new { x.TenantId, x.InvoiceNo })
                 .IsUnique().HasDatabaseName("uq_tax_invoices_tenant_no");
             builder.HasIndex(x => new { x.TenantId, x.Status })
@@ -145,6 +151,7 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.LineNo).HasColumnName("line_no").HasColumnType("integer").HasDefaultValue(0);
             builder.HasIndex(x => new { x.TenantId, x.StatementId })
                 .HasDatabaseName("ix_statement_lines_tenant_statement");
             builder.HasOne(x => x.Statement)

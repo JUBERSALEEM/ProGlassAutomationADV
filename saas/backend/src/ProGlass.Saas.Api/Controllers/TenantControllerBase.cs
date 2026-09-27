@@ -7,6 +7,7 @@ using ProGlass.Saas.Application.Proforma;
 using ProGlass.Saas.Application.Specifications;
 using ProGlass.Saas.Application.JobOrders;
 using ProGlass.Saas.Application.Stock;
+using ProGlass.Saas.Application.Fiscal;
 
 namespace ProGlass.Saas.Api.Controllers;
 
@@ -89,6 +90,17 @@ public abstract class TenantControllerBase : ControllerBase
         OptimizationErrorCode.Conflict =>
             Conflict(new { code = "optimization.conflict", message = result.Message }),
         _ => BadRequest(new { code = "optimization.validation_failed", message = result.Message })
+    };
+
+    protected IActionResult Fail<T>(FiscalResult<T> result) => result.ErrorCode switch
+    {
+        FiscalErrorCode.NotFound =>
+            NotFound(new { code = "fiscal.not_found", message = result.Message }),
+        FiscalErrorCode.Conflict or FiscalErrorCode.ConcurrencyConflict =>
+            Conflict(new { code = "fiscal.conflict", message = result.Message }),
+        FiscalErrorCode.NumberExhausted =>
+            Conflict(new { code = "fiscal.number_exhausted", message = result.Message }),
+        _ => BadRequest(new { code = "fiscal.validation_failed", message = result.Message })
     };
 
     protected IActionResult Fail<T>(DeliveryResult<T> result) => result.ErrorCode switch
