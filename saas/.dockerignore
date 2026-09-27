@@ -1,15 +1,20 @@
 # Docker build context = the saas/ directory (docker-compose.yml builds
-# with context: ..). Keep the context minimal: the API image needs ONLY
-# backend/ (sources; tests excluded — CI is the test gate) +
-# database/migrations (the embedded resources). Everything else — docs,
-# the migration tool, devbox tooling, local databases, attachment bytes —
-# never enters a build.
+# with context: ..). Keep the context minimal:
+#   api image      → backend/ (tests excluded — CI is the test gate)
+#                    + database/migrations (the embedded resources)
+#   frontend image → frontend/ (node_modules + dist never enter a build)
+# Everything else — docs, the migration tool, devbox tooling, local
+# databases, attachment bytes — never enters a build.
 *
 !backend/
 backend/tests/
 !database/
 database/*
 !database/migrations/
+!frontend/
+frontend/node_modules/
+frontend/dist/
 **/bin/
 **/obj/
 **/.venv/
+

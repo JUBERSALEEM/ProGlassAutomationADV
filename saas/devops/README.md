@@ -1,4 +1,4 @@
-# ProGlass SaaS — devops (Phase 27: the nginx/ops layer)
+# ProGlass SaaS — devops (Phase 27: the nginx/ops layer; Phase 28: the SPA rides the same edge)
 
 Everything an operator needs to run the SaaS. Two supported topologies,
 one edge:
@@ -9,12 +9,14 @@ client ─ nginx :80/:443 ── api (ASP.NET Core 8, Kestrel :8080)
                          │     SAAS_PLATFORM_DB = saas_owner_login (provisioning)
                          ├─ migrations: one-shot `migrate` step (owner login)
                          ├─ attachments: /var/lib/pglass/attachments (Phase 24)
-                         └─ db (PostgreSQL 16, pglass database)
+                         ├─ db (PostgreSQL 16, pglass database)
+                         └─ SPA bundle: built by frontend.Dockerfile into the
+                            nginx image (Phase 28)
 ```
 
 | Path | Files | When |
 |---|---|---|
-| Docker Compose | `docker-compose.yml`, `docker/api.Dockerfile`, `postgres/init/10-roles.sh`, `nginx/` | single host, fastest start |
+| Docker Compose | `docker-compose.yml`, `docker/api.Dockerfile`, `docker/frontend.Dockerfile`, `postgres/init/10-roles.sh`, `nginx/` | single host, fastest start |
 | Bare metal / VM | `systemd/pglass-api.{service,env}`, `systemd/pglass-{backup,restore-drill}.*`, `nginx/` (upstream → `127.0.0.1:8081`) | existing Postgres, no Docker |
 
 ## 1. Compose quickstart
@@ -24,8 +26,9 @@ cd saas/devops
 cp .env.example .env && vi .env        # 4 secrets — never commit .env
 docker compose up -d db                # first boot: roles bootstrap
 docker compose run --rm migrate        # applies all 22 migrations, exits
-docker compose up -d                   # api + nginx
+docker compose up -d --build           # api + nginx (with the built SPA)
 curl -f http://localhost/health        # {"status":"healthy","database":"connected"}
+# the SPA is at http://localhost/ — sign in with a tenant slug + account
 ```
 
 What happens on `db` first boot: `postgres/init/10-roles.sh` creates the
@@ -37,6 +40,13 @@ over the owner login (migrations are DDL); the serving `api` container
 keeps the DML-only login — the same RLS path CI exercises. Nothing in
 the repo creates login roles with passwords by design (no secrets in
 SQL); this bootstrap is the compose expression of that.
+
+The `nginx` service is BUILT from `docker/frontend.Dockerfile`: node 20
+runs `npm ci && npm run build` (tsc strict + vite — the same gate run
+in the devbox) and the bundle lands in the nginx image at
+`/usr/share/nginx/html`. The site config (`nginx/conf.d/proglass.conf`)
+serves it with `try_files … /index.html` and proxies `/api/` to the API
+— same-origin calls only, no CORS, no hardcoded hosts.
 
 ## 2. The API image (`docker/api.Dockerfile`)
 
@@ -85,9 +95,9 @@ keeps the default: off.
 
 ```bash
 cd saas && git pull
-docker compose build api                # or publish to /opt/pglass on bare metal
-docker compose run --rm migrate         # new migrations apply + exit
-docker compose up -d                    # recreates the api container
+docker compose build api nginx         # or publish to /opt/pglass on bare metal
+docker compose run --rm migrate        # new migrations apply + exit
+docker compose up -d                   # recreates the api + nginx (SPA) containers
 ```
 
 Bare metal: `systemctl stop pglass-api` → publish/copy → the

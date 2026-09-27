@@ -13,7 +13,7 @@ never linked**.
 |---|---|
 | `docs/` | All SaaS documentation — start with `WPF_SYSTEM_AUDIT.md` |
 | `backend/` | ASP.NET Core 8 API + Domain + Application + Infrastructure (Phase 3+) |
-| `frontend/` | React + TypeScript SPA (Phase 4+) |
+| `frontend/` | React + TypeScript SPA (Phase 28 — foundation + login/dashboard/job-orders workbench/stock; `npm run build` is the gate) |
 | `database/` | Migration SQL, seeds, diagrams |
 | `migration/` | WPF SQLite → PostgreSQL import/validation tooling (Phase 14) |
 | `devops/` | Docker, compose, CI |

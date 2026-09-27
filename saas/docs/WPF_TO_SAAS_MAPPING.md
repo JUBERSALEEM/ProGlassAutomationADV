@@ -21,7 +21,7 @@
 | Machine-fingerprint license | Tenant subscription (plans, limits, trial, feature flags) | §19 |
 | Local file attachments | Object-storage abstraction with generated keys | §26 |
 | Velopack auto-update | CI/CD containers | §44 |
-| WPF XAML views | React + TypeScript SPA (web-native UX, not XAML ports) | §15 |
+| WPF XAML views | React + TypeScript SPA (web-native UX, not XAML ports) — foundation + first screens delivered in Phase 28 (mapping §1.15); later modules land as pages against their already-shipped API | §15 |
 
 ---
 
@@ -863,6 +863,26 @@ web/database equivalents; `SAAS_DEPLOYMENT.md` is the operator's guide.
 | Machine fingerprint / license gate (read-only enforcement) | Phase 13 `SubscriptionGateMiddleware` | Already ported |
 | Velopack updates, crash helpers | CI/CD + the reverse proxy; out of scope here | Architectural translation |
 | One-click desktop installer → deployment story (Phase 27) | `saas/devops/`: docker-compose (db + one-shot migrate + api + nginx) with the role bootstrap script, the API Dockerfile (non-root, embedded migrations, healthcheck), the nginx edge (TLS-ready, 12 MB body guard, 600 s read timeouts for optimization runs, auth rate-limit zone, holding page until the Phase 28 SPA), systemd units (api + nightly backup + weekly restore drill) and the operator runbook; `SAAS_MIGRATE_AND_EXIT` release-step mode + `ASPNETCORE_FORWARDEDHEADERS_ENABLED` in Program.cs | **Architectural translation** — the desktop's "run setup.exe" becomes `docker compose up`; no WPF counterpart to port, the WPF-verbatim backup/drill constants ride the timers |
+
+### 1.15 Front end — Phase 28 (the SPA foundation + first screens)
+
+`saas/frontend/` — React 18 + TypeScript + Vite, react-router,
+TanStack Query, one hand-rolled stylesheet (no UI kit, no XAML ports —
+web-native UX per the stack decision). Verified with a REAL build:
+`npm ci && npm run build` (tsc strict + vite, 89 modules). Same-origin
+`/api/v1` only (the Vite dev proxy in development, the nginx edge in
+production — no host is ever hardcoded); the compose nginx image now
+carries the built bundle (`devops/docker/frontend.Dockerfile`; the
+holding page stays as the bare-metal fallback).
+
+| WPF (source of truth) | SaaS (Phase 28 slice) | Difference? |
+|---|---|---|
+| Login window (tenant-less local accounts) | LoginPage — POST /api/v1/auth/login { tenantSlug, username, password }; the 423 lockout and the { code, message } envelope render verbatim; imported WPF users see the must-reset note | Web-native: tenant slug + JWT (localStorage session, one silent refresh on 401, then sign-out) |
+| The 9-step PI wizard, all XAML views | NOT ported in this slice — Phase 28 is the SPA foundation + the production-floor workflow | **Deferred, documented**: the SPA covers login, the dashboard (job-order / low-stock / stock stats from the real endpoints), job orders (list/search/filter/paging), the job-order workbench (plan preview → release → pieces) and the stock sheet grid. Later modules land as pages against their already-shipped API |
+| Job order + production floor screens (Jobs/Daily Works) | JobOrderDetailPage — the plan preview (GET plan), Release (idempotent, with the projected-executions note), the pieces grid and the floor actions: +1 done (POST stage, auto-status), QC Passed/Rework (POST qc), breakage with qty + required reason (POST breakage), cancel (POST cancel) | Same server rules — the client only renders the server's own messages (gating/validation text comes from the API verbatim; the client never invents rules) |
+| Stock screen (SheetStore grid) | StockSheetsPage — GET /api/v1/stock/sheets with the search/color/thickness filters + paging + low-stock balance highlighting; the sidebar badge shows the low-stock count | Same |
+| NotifyFloor live refresh | TanStack Query invalidation after every action (explicit refetch, no sockets) | **Documented difference** (transport, not semantics — same as 26a/26b) |
+| Role-gated UI (the Production role gates the floor) | Server-enforced (JobOrder.Edit on writes); the UI shows the actions and surfaces the 403 envelope when the role lacks the permission | Same as the 9b documented difference — the API boundary is the gate |
 
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
