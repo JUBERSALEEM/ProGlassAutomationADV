@@ -87,7 +87,7 @@ Implemented (plan §2 order — all 15):
 | `joborders` | joborders.db | job_orders (NOT NULL source PI enforced; ProductionDetails from the snapshot; legacy "In Production" spelling collapsed; PI job_order_id backlink) |
 | `production` | production.db | production_pieces/production_events/material_reservations (the four §1.7b shapes); releases/allocations/QC/actual costs/replacements/cutting sessions/process/workstations/control tables counted + reported as the documented §1.7b deferrals |
 | `deliverynotes` | deliverynotes.db | delivery_notes/delivery_note_items (master + dispatch notes, spec-group-item links) |
-| `taxinvoices` | taxinvoices.db | tax_invoices (now LINKS to the imported proforma/job order) |
+| `taxinvoices` | taxinvoices.db | tax_invoices (links to the imported proforma/job order; print/bank/TRN columns from the WPF entity since 0019) |
 | `creditnotes` | creditnotes.db | credit_notes |
 | `statements` | statements.db | statements/statement_lines (ledger + running balance) |
 | `activitylog` | audit.db ActivityLog | audit_logs |

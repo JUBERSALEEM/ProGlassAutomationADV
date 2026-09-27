@@ -266,26 +266,6 @@ public sealed class FiscalStore(SaasDbContextFactory factory) : IFiscalStore
             .ToListAsync(ct).ConfigureAwait(false);
     }
 
-    public async Task<IReadOnlyList<TaxInvoice>> ListCustomerInvoicesAsync(
-        Guid tenantId, string customerName, DateOnly? from, DateOnly? to,
-        CancellationToken ct)
-    {
-        using var db = factory.CreateForTenant(tenantId);
-        var q = db.TaxInvoices.AsNoTracking()
-            .Where(i => i.CustomerName == customerName);
-        if (from.HasValue)
-        {
-            q = q.Where(i => i.IssueDate >= from.Value);
-        }
-
-        if (to.HasValue)
-        {
-            q = q.Where(i => i.IssueDate <= to.Value);
-        }
-
-        return await q.ToListAsync(ct).ConfigureAwait(false);
-    }
-
     public async Task<Statement> PersistStatementAsync(
         Guid tenantId, Guid actorId, Statement statement,
         IReadOnlyList<StatementLine> lines, CancellationToken ct)

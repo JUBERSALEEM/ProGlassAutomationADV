@@ -107,7 +107,9 @@ public sealed class FiscalFlowTests
         // 5. Statement for Acme: debits 945 + 2,100 (2,000 + 5% VAT),
         //    credits 105 (the applied CN) → balance 2,940.
         var statement = await _sut.GenerateStatementAsync(tenant, actor,
-            "Acme Glass Works", today.AddDays(-7), today,
+            new GenerateStatementRequest(
+                Customer: "Acme Glass Works",
+                From: today.AddDays(-7), To: today),
             null, CancellationToken.None);
         Assert.True(statement.Success, statement.Message);
         var st = statement.Value!;
@@ -330,7 +332,8 @@ public sealed class FiscalFlowTests
         Assert.Equal(0m, bReport.NetVatPayable);
 
         var bStatement = await _sut.GenerateStatementAsync(tenantB, actor,
-            "Shared Name Co", null, null, null, CancellationToken.None);
+            new GenerateStatementRequest(Customer: "Shared Name Co"),
+            null, CancellationToken.None);
         Assert.True(bStatement.Success);
         Assert.Empty(bStatement.Value!.Lines);
         Assert.Equal(0m, bStatement.Value.Balance);

@@ -4,8 +4,8 @@
 `arena/01a0e138-proglassautomationadv` · **Head at report time:**
 Phase 16 commit (this report's companion)
 **Scope:** the complete WPF → SaaS port, Phases 1–15 + the Phase 16
-migration-tool document modules, audited after all phases were applied
-and pushed.
+migration-tool document modules + the Phase 17 fiscal completion slice,
+audited after all phases were applied and pushed.
 
 ---
 
@@ -20,15 +20,16 @@ audit before code; no invented rules; no fake completions; WPF behavior
 preserved or the difference documented).
 
 All 15 planned phases are **complete**, plus **Phase 16** (the migration
-tool's document modules — the deferred slice whose only blocker was
-slice discipline). Every deferral is documented in
+tool's document modules) and **Phase 17** (the fiscal completion slice:
+snapshot population, bank/TRN print fields, all statement filter axes).
+Every deferral is documented in
 `WPF_TO_SAAS_MAPPING.md`. Final verification sweep, run against a live
 PostgreSQL 16 immediately before this report:
 
 | Verification | Result |
 |---|---|
-| C# syntax (tree-sitter, 182 files) | **182/182 clean** |
-| Database harness (`apply_and_test.py`, 18 migrations, RLS/constraints/runner) | **ALL CHECKS PASSED 59/59** |
+| C# syntax (tree-sitter, 183 files) | **183/183 clean** |
+| Database harness (`apply_and_test.py`, 19 migrations, RLS/constraints/runner) | **ALL CHECKS PASSED 59/59** |
 | Hardening audit (`hardening_audit.py`, 14 live checks) | **14/14** |
 | Migration tool end-to-end (fixture SQLite → live PG, **15 modules**) | **PASSED** |
 | Backup + restore drill (live PG, incl. corruption detection) | **PASSED** |
@@ -59,17 +60,18 @@ importer, backups, audits) has run and passes.
 | 13 | Subscriptions (trial seeding, plan/feature catalog, read-only gate, platform admin port) + 0017 | `67baf6b` |
 | 14 | Migration tooling (`proglass-migrate`, engine + 7 modules, dry-run/apply, reports) | `190d8b4` |
 | 15 | Production hardening (audit 14/14, 0018 FK indexes, backup + restore drill, API middlewares, deployment guide) | `bd24f00` |
-| 16 | Migration tool document modules — **all 15 plan §2 modules** (specifications, inquiries, proformas + FullSnapshotJson normalization, specusages, optimization, joborders, production, deliverynotes; tax invoices now link proforma/job; validate extended) | this commit |
+| 16 | Migration tool document modules — **all 15 plan §2 modules** (specifications, inquiries, proformas + FullSnapshotJson normalization, specusages, optimization, joborders, production, deliverynotes; tax invoices now link proforma/job; validate extended) | `26a0595` |
+| 17 | Fiscal completion — snapshot_json populated at create (WPF `TaxInvoiceSnapshot` shape verbatim, `AmountToWords` port, Header.Status rewrite on transitions), bank/TRN print columns (0019), ALL WPF statement filter axes (SafeContains semantics; customer exact→contains corrected), statements persist every axis incl. filter_statuses jsonb; migration tool fills the print columns | this commit |
 
-28 commits on the session branch from the base commit.
+30 commits on the session branch from the base commit.
 
 ## 3. Inventory (measured, not estimated)
 
 | Item | Count |
 |---|---|
-| SQL migrations | 18 (0001–0018) |
+| SQL migrations | 19 (0001–0019) |
 | PostgreSQL tables (saas schema) | 45 |
-| C# source files | 182 (all parse clean) |
+| C# source files | 183 (all parse clean) |
 | EF entities | 44 |
 | API endpoints (attribute-counted) | 125 across 15 controllers |
 | Test files | 53 (279 domain golden facts + 73 integration flow facts) |
@@ -106,7 +108,7 @@ MetricKeys.Normalize with its legacy aliases.
 | Optimization | QUICK portfolio extras (pattern beams, plate patterns, consolidation, offcut reuse, local search), OPTIMIZE multi-start, staged cuts, remnant reuse; **oracle re-runs of imported WPF sessions (geometry is not persisted in optimization.db — documented difference, validation_problems carries it)** |
 | Production | process executions/pairings/assemblies, workstations, control holds, actual costs, replacement pieces, consistency scanner, allocation ledger, FOC replacement (each counted + reported by the migration tool — never silent) |
 | Stock | CSV/Excel import, SheetStorePricing/SheetStockLink module links |
-| Fiscal | FullSnapshotJson population, bank/TRN print fields, wider statement filters |
+| Fiscal | — (Phase 17 closed the snapshot population, the bank/TRN print fields and the statement filter axes; PDF/print RENDERING remains deferred with the export slice) |
 | Subscriptions | payments/billing provider; invoice/storage/optimization-job limits (columns exist) |
 | Advanced automation | UseAdvancedAutomation P&L costing until the toggle is persisted |
 
@@ -163,7 +165,7 @@ detection), monitoring hooks, and the production checklist.
 
 | # | Risk / gap | Mitigation |
 |---|---|---|
-| 1 | **C# never compiled** (no SDK in the authoring environment) | Run `dotnet build && dotnet test` in .NET 8 before release — the standing gate since Phase 3; fix any compile-level findings there |
+| 1 | **C# never compiled** (no SDK in the authoring environment) | Run `dotnet build && dotnet test` in .NET 8 before release — the standing gate since Phase 3. Verified 2026-09-27: the sandbox network-blocks dot.net, download.visualstudio.microsoft.com, builds.dotnet.microsoft.com, packages.microsoft.com AND api.nuget.org (github.com/pypi.org reachable) — compile locally is impossible. `saas/devbox/dotnet-ci.yml` is the ready-to-activate GitHub Actions gate (postgres:16, roles, restore/build/test over the full solution); activation needs one commit by an account that may push workflows (the Arena App token may not — both git push and the Contents API reject workflow files) |
 | 2 | Middlewares (rate limit, headers, exception handler) are syntax-verified only | Same gate; the middleware logic is deliberately minimal |
 | 3 | PDF/print exports deferred | The fiscal DATA layer is complete; a render slice builds on it |
 | 4 | Payment provider absent | Plan changes are instant/free; the admin port is isolated for the provider |
@@ -176,7 +178,8 @@ detection), monitoring hooks, and the production checklist.
 
 The port is **structurally complete and verified to the maximum extent
 this environment allows**: 15/15 phases delivered plus the Phase 16
-document modules (15/16 migration modules; only attachments remains),
+document modules (15/16 migration modules; only attachments remains)
+and the Phase 17 fiscal completion slice,
 every deferral documented with its reason, the database layer proven
 against live PostgreSQL (59/59 harness, 14/14 hardening audit), and the
 operational tooling (importer, backups, audits) exercised end-to-end.

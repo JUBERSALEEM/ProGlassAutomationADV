@@ -139,6 +139,21 @@ def main() -> None:
     assert invoices[1] == ("INV-2026-002", Decimal(44), Decimal(944),
                            Decimal(944))     # mismatch PRESERVED + reported
 
+    # Phase 17: the print/bank/TRN columns round-trip from the WPF entity
+    # (0019) — populated for INV-2026-001, empty defaults for INV-2026-002.
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT company_name, company_trn, purchase_order_number,"
+            " bank_name, bank_account_number, iban, swift_code"
+            " FROM saas.tax_invoices ORDER BY invoice_no")
+        print_fields = cur.fetchall()
+    assert print_fields[0] == (
+        "ProGlass Automation LLC", "1001234567893", "PO-EM-4471",
+        "Emirates NBD", "AE-001-2345678",
+        "AE070331234567890123456", "EBILAEAD"), print_fields[0]
+    assert print_fields[1] == ("ProGlass Automation LLC", "1001234567893",
+                               "", "", "", "", ""), print_fields[1]
+
     # credit notes: both loaded; the second has a null invoice link.
     assert by_module["creditnotes"]["loaded"] == 2
     with conn.cursor() as cur:

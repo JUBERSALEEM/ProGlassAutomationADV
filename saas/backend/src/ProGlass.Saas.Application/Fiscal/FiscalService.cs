@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ProGlass.Saas.Application.Auth;
 using ProGlass.Saas.Domain.Entities;
+using ProGlass.Saas.Domain.Fiscal;
 using ProGlass.Saas.Domain.Proforma;
 
 namespace ProGlass.Saas.Application.Fiscal;
@@ -46,7 +47,37 @@ public sealed record CreateTaxInvoiceRequest(
     decimal Subtotal,
     decimal DiscountPercent = 0,
     string PaymentTerms = "Net 30",
-    DateOnly? IssueDate = null);
+    DateOnly? IssueDate = null,
+    InvoicePrintData? Print = null);
+
+/// <summary>Print-surface data for a tax invoice (Phase 17) — the WPF
+/// InvWizardState fields that feed the snapshot's Company/Customer/Project/
+/// Bank/PreparedBy sections and the SavedTaxInvoice print columns. All
+/// fields default to "" (the WPF defaults); every field is optional.</summary>
+public sealed record InvoicePrintData(
+    string CompanyName = "",
+    string CompanyTrn = "",
+    string CompanyAddress = "",
+    string CompanyLocation = "",
+    string CompanyPhone = "",
+    string CompanyEmail = "",
+    string CustomerTrn = "",
+    string CustomerAddress = "",
+    string CustomerPhone = "",
+    string CustomerEmail = "",
+    string ContactPerson = "",
+    string ProjectIdentifierName = "",
+    string ProjectContractNo = "",
+    string ProjectReference = "",
+    string SiteDeliveryLocation = "",
+    string BankName = "",
+    string BankAccountNumber = "",
+    string Iban = "",
+    string SwiftCode = "",
+    string PaymentNotes = "",
+    string PreparedByName = "",
+    string PreparedByTitle = "",
+    string PreparedByDepartment = "");
 
 public sealed record TaxInvoiceTransitionRequest(string ToStatus, string? Reason = null);
 public sealed record RecordPaymentRequest(decimal Amount, string? Notes = null);
@@ -58,8 +89,18 @@ public sealed record CreateCreditNoteRequest(
     decimal DiscountPercent = 0,
     string Reason = "");
 
+/// <summary>Statement filters (Phase 17) — the WPF StatementFilter axes:
+/// company/customer/project/salesman contain, date range on IssueDate, and
+/// a status multi-select (empty = all). At least one axis must be set (the
+/// WPF gates Generate on HasAnyFilter).</summary>
 public sealed record GenerateStatementRequest(
-    string CustomerName, DateOnly? From = null, DateOnly? To = null);
+    string? Customer = null,
+    string? Company = null,
+    string? Project = null,
+    string? Salesman = null,
+    IReadOnlyList<string>? Statuses = null,
+    DateOnly? From = null,
+    DateOnly? To = null);
 
 public sealed record TaxInvoiceDto(
     Guid Id,
@@ -82,7 +123,15 @@ public sealed record TaxInvoiceDto(
     decimal BalanceAmount,
     bool IsVoid,
     string VoidReason,
-    int RowVersion);
+    int RowVersion,
+    string CompanyName = "",
+    string CompanyTrn = "",
+    string PurchaseOrderNumber = "",
+    string BankName = "",
+    string BankAccountNumber = "",
+    string Iban = "",
+    string SwiftCode = "",
+    string? SnapshotJson = null);
 
 public sealed record CreditNoteDto(
     Guid Id,
@@ -116,7 +165,11 @@ public sealed record StatementDto(
     decimal TotalDebit,
     decimal TotalCredit,
     decimal Balance,
-    IReadOnlyList<StatementLineDto> Lines);
+    IReadOnlyList<StatementLineDto> Lines,
+    string Company = "",
+    string Project = "",
+    string Salesman = "",
+    IReadOnlyList<string>? Statuses = null);
 
 /// <summary>The UAE VAT return for a period (WPF VatSubmissionView core:
 /// standard-rated output VAT minus credit-note adjustments).</summary>
@@ -181,10 +234,6 @@ public interface IFiscalStore
 
     Task<IReadOnlyList<CreditNote>> ListVatableCreditNotesAsync(
         Guid tenantId, DateOnly from, DateOnly to, CancellationToken ct);
-
-    Task<IReadOnlyList<TaxInvoice>> ListCustomerInvoicesAsync(
-        Guid tenantId, string customerName, DateOnly? from, DateOnly? to,
-        CancellationToken ct);
 
     /// <summary>Persist statement + lines in one transaction.</summary>
     Task<Statement> PersistStatementAsync(
@@ -291,6 +340,13 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
         var issueDate = request.IssueDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
         var dueDate = issueDate.AddDays(
             PaymentTermsResolver.ResolveDays(request.PaymentTerms));
+        var print = request.Print ?? new InvoicePrintData();
+
+        // WPF financial snapshot inputs: the family's PRIOR invoices are the
+        // "previously invoiced" total; the balance left on the PI follows
+        // the WPF formula (floored at 0).
+        var previouslyInvoiced = family.Sum(i => i.GrandTotal);
+        var proformaTotal = pi?.GrandTotalVatInclusive ?? 0m;
 
         var now = DateTime.UtcNow;
         var invoice = new TaxInvoice
@@ -314,12 +370,103 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
             GrandTotal = totals.GrandTotal,
             PaidAmount = 0m,
             BalanceAmount = totals.GrandTotal,
+            CompanyName = print.CompanyName,
+            CompanyTrn = print.CompanyTrn,
+            PurchaseOrderNumber = request.PurchaseOrderNumber ?? "",
+            BankName = print.BankName,
+            BankAccountNumber = print.BankAccountNumber,
+            Iban = print.Iban,
+            SwiftCode = print.SwiftCode,
             RowVersion = 0,
             CreatedAt = now,
             UpdatedAt = now,
             CreatedBy = actorId,
             UpdatedBy = actorId
         };
+
+        // Phase 17 — the print snapshot (WPF TaxInvoiceMapper.BuildSnapshot):
+        // built for the CURRENT number and rebuilt whenever the allocation
+        // race forces a different one.
+        void AttachSnapshot()
+        {
+            var (sequenceLetter, sequenceNumber) = ParseSequence(invoice.InvoiceNo);
+            invoice.SnapshotJson = TaxInvoiceSnapshotCodec.Serialize(
+                new TaxInvoiceSnapshot
+                {
+                    Header = new InvHeaderSnapshot
+                    {
+                        InvoiceNumber = invoice.InvoiceNo,
+                        ProformaId = pi?.ProformaNo ?? "",
+                        DeliveryNoteReference = invoice.DeliveryNoteReference,
+                        JobOrderId = job?.JobNo ?? "",
+                        PurchaseOrderNumber = invoice.PurchaseOrderNumber,
+                        InvoiceType = sequenceLetter == "" ? "Full" : "Partial",
+                        SequenceLetter = sequenceLetter,
+                        SequenceNumber = sequenceNumber,
+                        Status = invoice.Status,
+                        IssueDate = issueDate.ToDateTime(TimeOnly.MinValue),
+                        DueDate = dueDate.ToDateTime(TimeOnly.MinValue)
+                    },
+                    Company = new InvCompanySnapshot
+                    {
+                        CompanyName = print.CompanyName,
+                        CompanyTrn = print.CompanyTrn,
+                        CompanyAddress = print.CompanyAddress,
+                        CompanyLocation = print.CompanyLocation,
+                        CompanyPhone = print.CompanyPhone,
+                        CompanyEmail = print.CompanyEmail
+                    },
+                    Customer = new InvCustomerSnapshot
+                    {
+                        CustomerName = request.CustomerName,
+                        CustomerTrn = print.CustomerTrn,
+                        CustomerAddress = print.CustomerAddress,
+                        CustomerPhone = print.CustomerPhone,
+                        CustomerEmail = print.CustomerEmail,
+                        ContactPerson = print.ContactPerson
+                    },
+                    Project = new InvProjectSnapshot
+                    {
+                        ProjectIdentifierName = print.ProjectIdentifierName,
+                        ProjectContractNo = print.ProjectContractNo,
+                        ProjectReference = print.ProjectReference,
+                        SiteDeliveryLocation = print.SiteDeliveryLocation
+                    },
+                    Financial = new InvFinancialSnapshot
+                    {
+                        Subtotal = invoice.Subtotal,
+                        DiscountPercent = invoice.DiscountPercent,
+                        DiscountAmount = invoice.DiscountAmount,
+                        AfterDiscount = invoice.Subtotal - invoice.DiscountAmount,
+                        VatAmount = invoice.VatAmount,
+                        GrandTotal = invoice.GrandTotal,
+                        GrandTotalInWords =
+                            TaxInvoiceSnapshotCodec.AmountToWords(invoice.GrandTotal),
+                        PreviouslyInvoicedTotal = previouslyInvoiced,
+                        RemainingBalance = Math.Max(0m,
+                            proformaTotal - previouslyInvoiced - invoice.GrandTotal)
+                    },
+                    Bank = new InvBankSnapshot
+                    {
+                        BankName = print.BankName,
+                        BankAccountNumber = print.BankAccountNumber,
+                        Iban = print.Iban,
+                        SwiftCode = print.SwiftCode,
+                        PaymentTerms = request.PaymentTerms,
+                        PaymentTermsDays = PaymentTermsResolver.ResolveDays(
+                            request.PaymentTerms),
+                        PaymentNotes = print.PaymentNotes
+                    },
+                    PreparedBy = new InvPreparedBySnapshot
+                    {
+                        Name = print.PreparedByName,
+                        Title = print.PreparedByTitle,
+                        Department = print.PreparedByDepartment
+                    }
+                });
+        }
+
+        AttachSnapshot();
 
         var attempts = 0;
         while (!await store.TryInsertInvoiceAsync(invoice, ct))
@@ -342,6 +489,7 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
                         invoice.InvoiceNo[..invoice.InvoiceNo.LastIndexOf('-')],
                         used))
                 : Allocate(ref maxSeq, used, year);
+            AttachSnapshot();
         }
 
         await AuditAsync(tenantId, actorId, "taxinvoice.created",
@@ -389,6 +537,20 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
         return candidate;
     }
 
+    /// <summary>Derives the WPF Header.SequenceLetter / SequenceNumber from
+    /// the family number: INV-2026-007[-A] → ("", 7) / ("A", 7). The WPF
+    /// stores both on the entity; the SaaS encodes them in the number.</summary>
+    private static (string Letter, int Sequence) ParseSequence(string invoiceNo)
+    {
+        var parts = (invoiceNo ?? "").Split('-');
+        var seq = parts.Length >= 3 && int.TryParse(parts[2], out var n) ? n : 1;
+        var letter = parts.Length == 4 && parts[3].Length == 1
+            && parts[3][0] is >= 'A' and <= 'Z'
+                ? parts[3]
+                : "";
+        return (letter, seq == 0 ? 1 : seq);
+    }
+
     public async Task<FiscalResult<TaxInvoiceDto>> GetAsync(
         Guid tenantId, Guid id, CancellationToken ct)
     {
@@ -419,6 +581,15 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
 
         var before = invoice.Status;
         invoice.Status = next;
+        // Phase 17 — WPF SetHeaderStatus: the new status is written onto the
+        // snapshot header too, so a later load cannot resurrect the old one.
+        var reserialized = TaxInvoiceSnapshotCodec.WithHeaderStatus(
+            invoice.SnapshotJson, next);
+        if (reserialized is not null)
+        {
+            invoice.SnapshotJson = reserialized;
+        }
+
         if (next == TaxInvoiceStatuses.Void)
         {
             invoice.IsVoid = true;
@@ -690,33 +861,117 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
     /// running balance. Persisted as statements + statement_lines.
     /// </summary>
     public async Task<FiscalResult<StatementDto>> GenerateStatementAsync(
-        Guid tenantId, Guid actorId, string customerName,
-        DateOnly? from, DateOnly? to, string? ip, CancellationToken ct)
+        Guid tenantId, Guid actorId, GenerateStatementRequest request,
+        string? ip, CancellationToken ct)
     {
-        if (string.IsNullOrWhiteSpace(customerName))
+        // Phase 17 — the WPF StatementFilter axes. At least one axis is
+        // required (the WPF gates Generate on HasAnyFilter).
+        var customer = request.Customer?.Trim();
+        var company = request.Company?.Trim();
+        var project = request.Project?.Trim();
+        var salesman = request.Salesman?.Trim();
+        var statuses = (request.Statuses ?? Array.Empty<string>())
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Select(s => s.Trim().ToLowerInvariant())
+            .ToHashSet();
+
+        var hasAnyFilter =
+            !string.IsNullOrWhiteSpace(customer) ||
+            !string.IsNullOrWhiteSpace(company) ||
+            !string.IsNullOrWhiteSpace(project) ||
+            !string.IsNullOrWhiteSpace(salesman) ||
+            request.From.HasValue || request.To.HasValue ||
+            statuses.Count > 0;
+        if (!hasAnyFilter)
         {
             return FiscalResult<StatementDto>.Fail(FiscalErrorCode.ValidationFailed,
-                "A customer name is required.");
+                "At least one statement filter is required " +
+                "(customer, company, project, salesman, statuses or date range).");
         }
 
-        var customer = customerName.Trim();
-        var invoices = await store.ListCustomerInvoicesAsync(
-            tenantId, customer, from, to, ct);
-        invoices = invoices
+        // Invoice walk (paginated) — the WPF aggregator loads the invoice
+        // list and applies its filters in memory; the SaaS does the same so
+        // the semantics (case-insensitive contains, the salesman's snapshot
+        // parse) stay verbatim.
+        var invoices = new List<TaxInvoice>();
+        var page = 1;
+        while (true)
+        {
+            var batch = await store.SearchInvoicesAsync(
+                tenantId, null, null, true, page, MaxPageSize, ct);
+            invoices.AddRange(batch);
+            if (batch.Count < MaxPageSize)
+            {
+                break;
+            }
+
+            page++;
+        }
+
+        // The ledger universe (Phase 12 = the WPF aggregator's validity
+        // filter): non-draft, non-cancelled, non-void invoices.
+        IEnumerable<TaxInvoice> q = invoices
             .Where(i => !string.Equals(i.Status, TaxInvoiceStatuses.Draft,
                 StringComparison.OrdinalIgnoreCase)
                 && !string.Equals(i.Status, TaxInvoiceStatuses.Cancelled,
                     StringComparison.OrdinalIgnoreCase)
                 && !string.Equals(i.Status, TaxInvoiceStatuses.Void,
-                    StringComparison.OrdinalIgnoreCase))
+                    StringComparison.OrdinalIgnoreCase));
+
+        // WPF StatementAggregator.ApplyFilters — SafeContains semantics.
+        if (!string.IsNullOrWhiteSpace(company))
+        {
+            q = q.Where(i => SafeContains(i.CompanyName, company));
+        }
+
+        if (!string.IsNullOrWhiteSpace(customer))
+        {
+            q = q.Where(i => SafeContains(i.CustomerName, customer));
+        }
+
+        if (!string.IsNullOrWhiteSpace(project))
+        {
+            // WPF Chat 20: bidirectional contains on the indexed column.
+            q = q.Where(i => SafeContains(i.ProjectName, project)
+                || SafeContains(project, i.ProjectName));
+        }
+
+        if (!string.IsNullOrWhiteSpace(salesman))
+        {
+            // WPF: resolved from TaxInvoiceSnapshot.PreparedBy.Name — a
+            // post-query JSON parse in the aggregator; same here.
+            q = q.Where(i => SafeContains(
+                TaxInvoiceSnapshotCodec.Deserialize(i.SnapshotJson)
+                    ?.PreparedBy?.Name, salesman));
+        }
+
+        if (request.From.HasValue)
+        {
+            var df = request.From.Value;
+            q = q.Where(i => (i.IssueDate ?? DateOnly.MinValue) >= df);
+        }
+
+        if (request.To.HasValue)
+        {
+            var dt = request.To.Value;
+            q = q.Where(i => (i.IssueDate ?? DateOnly.MinValue) <= dt);
+        }
+
+        if (statuses.Count > 0)
+        {
+            q = q.Where(i => statuses.Contains(
+                (i.Status ?? "").Trim().ToLowerInvariant()));
+        }
+
+        var selected = q
             .OrderBy(i => i.IssueDate ?? DateOnly.MinValue)
-            .ThenBy(i => i.InvoiceNo, StringComparer.Ordinal)
+            .ThenBy(i => i.InvoiceNo, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         // All applied credit notes (paginated walk) — each settles against
         // the invoice it corrects on the ledger.
         var allNotes = new List<CreditNote>();
-        var page = 1;
+        page = 1;
         while (true)
         {
             var batch = await store.ListCreditNotesAsync(
@@ -738,7 +993,7 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
         var lines = new List<StatementLineDto>();
         var rows = new List<(string Type, string No, DateOnly? Date,
             string Desc, decimal Debit, decimal Credit)>();
-        foreach (var invoice in invoices)
+        foreach (var invoice in selected)
         {
             rows.Add(("Invoice", invoice.InvoiceNo, invoice.IssueDate,
                 $"Tax invoice — {invoice.CustomerName}",
@@ -765,10 +1020,17 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
             Id = Guid.NewGuid(),
             TenantId = tenantId,
             StatementNo = $"ST-{now:yyyyMMddHHmmss}-{customer.GetHashCode():x8}",
-            Title = $"Statement — {customer}",
-            FilterCustomer = customer,
-            FilterDateFrom = from,
-            FilterDateTo = to,
+            Title = StatementTitle(customer, project, company, salesman,
+                request.From, request.To),
+            FilterCustomer = customer ?? "",
+            FilterCompany = company ?? "",
+            FilterProject = project ?? "",
+            FilterSalesman = salesman ?? "",
+            FilterDateFrom = request.From,
+            FilterDateTo = request.To,
+            FilterStatuses = statuses.Count == 0
+                ? null
+                : JsonSerializer.Serialize(statuses.OrderBy(s => s).ToList()),
             GeneratedAt = now,
             TotalsJson = "",
             StorageKey = "",
@@ -826,14 +1088,56 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
             {
                 statementNo = persisted.StatementNo,
                 customer,
+                company,
+                project,
+                salesman,
                 balance = totalDebit - totalCredit
             }, ip, ct);
 
         return FiscalResult<StatementDto>.Ok(new StatementDto(
-            persisted.Id, persisted.StatementNo, persisted.Title, customer,
-            from, to, totalDebit, totalCredit,
+            persisted.Id, persisted.StatementNo, persisted.Title,
+            customer ?? "", request.From, request.To, totalDebit, totalCredit,
             Math.Round(totalDebit - totalCredit, 2, MidpointRounding.AwayFromZero),
-            lines));
+            lines, company ?? "", project ?? "", salesman ?? "",
+            statuses.Count == 0 ? null : statuses.OrderBy(s => s).ToList()));
+    }
+
+    /// <summary>WPF StatementFilter.GetStatementTitle — priority customer >
+    /// project > company > salesman > date range > "Full Account
+    /// Statement".</summary>
+    private static string StatementTitle(
+        string? customer, string? project, string? company, string? salesman,
+        DateOnly? from, DateOnly? to)
+    {
+        if (!string.IsNullOrWhiteSpace(customer))
+            return $"Account Statement — {customer}";
+        if (!string.IsNullOrWhiteSpace(project))
+            return $"Project Statement — {project}";
+        if (!string.IsNullOrWhiteSpace(company))
+            return $"Company Statement — {company}";
+        if (!string.IsNullOrWhiteSpace(salesman))
+            return $"Sales Report — {salesman}";
+        if (from.HasValue || to.HasValue)
+        {
+            var f = from?.ToString("MMM yyyy") ?? "—";
+            var t = to?.ToString("MMM yyyy") ?? "—";
+            return $"Statement — {f} to {t}";
+        }
+
+        return "Full Account Statement";
+    }
+
+    /// <summary>WPF StatementAggregator.SafeContains — null-safe,
+    /// trimmed, case-insensitive contains ("" needle matches
+    /// everything).</summary>
+    private static bool SafeContains(string? haystack, string? needle)
+    {
+        if (string.IsNullOrWhiteSpace(needle)) return true;
+        if (string.IsNullOrEmpty(haystack)) return false;
+
+        return haystack
+            .Trim()
+            .Contains(needle.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 
     public async Task<FiscalResult<StatementDto>> GetStatementAsync(
@@ -855,7 +1159,29 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
             rows.Count == 0 ? 0 : rows[^1].RunningBalance,
             rows.Select(r => new StatementLineDto(
                 r.LineType, r.DocumentNo, r.DocumentDate, r.Description,
-                r.Debit, r.Credit, r.RunningBalance)).ToList()));
+                r.Debit, r.Credit, r.RunningBalance)).ToList(),
+            statement.FilterCompany, statement.FilterProject,
+            statement.FilterSalesman,
+            DeserializeStatuses(statement.FilterStatuses)));
+    }
+
+    /// <summary>Reads the persisted status multi-select back (null when the
+    /// statement was generated with "all statuses").</summary>
+    private static IReadOnlyList<string>? DeserializeStatuses(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<string>>(json);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 
     // ── list ────────────────────────────────────────────────────────
@@ -891,7 +1217,9 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
         i.DeliveryNoteReference, i.CustomerName, i.ProjectName, i.Status,
         i.PaymentTerms, i.IssueDate, i.DueDate, i.Subtotal,
         i.DiscountPercent, i.DiscountAmount, i.VatAmount, i.GrandTotal,
-        i.PaidAmount, i.BalanceAmount, i.IsVoid, i.VoidReason, i.RowVersion);
+        i.PaidAmount, i.BalanceAmount, i.IsVoid, i.VoidReason, i.RowVersion,
+        i.CompanyName, i.CompanyTrn, i.PurchaseOrderNumber, i.BankName,
+        i.BankAccountNumber, i.Iban, i.SwiftCode, i.SnapshotJson);
 
     private static CreditNoteDto ToDto(CreditNote n, string? invoiceNo) => new(
         n.Id, n.CreditNoteNo, n.TaxInvoiceId ?? Guid.Empty,

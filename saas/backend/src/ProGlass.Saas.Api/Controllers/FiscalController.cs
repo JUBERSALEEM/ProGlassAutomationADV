@@ -141,8 +141,7 @@ public sealed class FiscalController(FiscalService fiscal) : TenantControllerBas
         [FromBody] GenerateStatementRequest request, CancellationToken ct)
     {
         var result = await fiscal.GenerateStatementAsync(
-            RequiredTenantId, RequiredUserId, request.CustomerName,
-            request.From, request.To, ClientIp, ct);
+            RequiredTenantId, RequiredUserId, request, ClientIp, ct);
         return result.Success ? Ok(result.Value) : Fail(result);
     }
 

@@ -45,6 +45,13 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.IsVoid).HasColumnName("is_void").HasColumnType("boolean").HasDefaultValue(false);
             builder.Property(x => x.VoidedAt).HasColumnName("voided_at").HasColumnType("timestamptz");
             builder.Property(x => x.VoidReason).HasColumnName("void_reason").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CompanyName).HasColumnName("company_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CompanyTrn).HasColumnName("company_trn").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.PurchaseOrderNumber).HasColumnName("purchase_order_number").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.BankName).HasColumnName("bank_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.BankAccountNumber).HasColumnName("bank_account_number").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Iban).HasColumnName("iban").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SwiftCode).HasColumnName("swift_code").HasColumnType("text").HasDefaultValue("");
             builder.HasIndex(x => new { x.TenantId, x.InvoiceNo })
                 .IsUnique().HasDatabaseName("uq_tax_invoices_tenant_no");
             builder.HasIndex(x => new { x.TenantId, x.Status })
@@ -124,6 +131,7 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.FilterStatuses).HasColumnName("filter_statuses").HasColumnType("jsonb");
             builder.HasIndex(x => new { x.TenantId, x.StatementNo })
                 .IsUnique().HasDatabaseName("uq_statements_tenant_no");
             builder.HasIndex(x => new { x.TenantId, x.GeneratedAt })

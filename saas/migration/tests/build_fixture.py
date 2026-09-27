@@ -767,28 +767,38 @@ def build(root: Path) -> None:
         DiscountAmount TEXT NOT NULL, DiscountPercent TEXT NOT NULL,
         AfterDiscount TEXT NOT NULL, VatAmount TEXT NOT NULL, GrandTotal TEXT NOT NULL,
         TotalQty INTEGER NOT NULL DEFAULT 0, TotalSqm TEXT NOT NULL,
+        BankName TEXT NOT NULL DEFAULT '', BankAccountNumber TEXT NOT NULL DEFAULT '',
+        Iban TEXT NOT NULL DEFAULT '', SwiftCode TEXT NOT NULL DEFAULT '',
         FullSnapshotJson TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
         UpdatedAt TEXT NOT NULL, RowVersion INTEGER NOT NULL DEFAULT 0);
     """)
     ti.executemany(
         "INSERT INTO TaxInvoices (InvoiceNumber, ProformaId, Status,"
-        " CustomerName, ProjectName, IssueDate, DueDate, PaymentTerms,"
+        " CustomerName, ProjectName, CompanyName, CompanyTrn,"
+        " PurchaseOrderNumber, BankName, BankAccountNumber, Iban,"
+        " SwiftCode, IssueDate, DueDate, PaymentTerms,"
         " Subtotal, DiscountAmount, DiscountPercent, AfterDiscount,"
         " VatAmount, GrandTotal, TotalSqm, FullSnapshotJson, CreatedAt,"
-        " UpdatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        " UpdatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         [("INV-2026-001", "PI-2026-001", "Paid", "Emaar Properties",
-          "Marina Tower Glazing", "2026-08-01 00:00:00",
+          "Marina Tower Glazing", "ProGlass Automation LLC", "1001234567893",
+          "PO-EM-4471", "Emirates NBD", "AE-001-2345678",
+          "AE070331234567890123456", "EBILAEAD",
+          "2026-08-01 00:00:00",
           "2026-08-31 00:00:00", "Net 30", "10000", "0", "0", "10000",
           "500", "10500", "12.5", '{"lines":[]}', "2026-08-01 10:00:00",
           "2026-08-31 10:00:00"),
          # VAT mismatch fixture: 900 after discount → 45 expected.
          ("INV-2026-002", "PI-2026-001", "Issued", "Emaar Properties",
-          "Marina Tower Glazing", "2026-09-01 00:00:00",
+          "Marina Tower Glazing", "ProGlass Automation LLC", "1001234567893",
+          "", "", "", "", "",
+          "2026-09-01 00:00:00",
           "2026-10-01 00:00:00", "Net 30", "1000", "100", "10", "900",
           "44", "944", "1.25", "", "2026-09-01 10:00:00",
           "2026-09-01 10:00:00"),
          # Unknown status fixture — must be reported + skipped.
          ("INV-2026-003", "", "SomewhereElse", "Walk-in", "",
+          "", "", "", "", "", "", "",
           "2026-09-02 00:00:00", "2026-10-02 00:00:00", "Net 30", "10",
           "0", "0", "10", "0.50", "10.50", "0", "", "2026-09-02 10:00:00",
           "2026-09-02 10:00:00")])

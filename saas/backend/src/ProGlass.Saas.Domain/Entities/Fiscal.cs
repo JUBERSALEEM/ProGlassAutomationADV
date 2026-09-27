@@ -40,6 +40,13 @@ namespace ProGlass.Saas.Domain.Entities
         public bool IsVoid { get; set; }
         public DateTime? VoidedAt { get; set; }
         public string VoidReason { get; set; } = null!;
+        public string CompanyName { get; set; } = null!;
+        public string CompanyTrn { get; set; } = null!;
+        public string PurchaseOrderNumber { get; set; } = null!;
+        public string BankName { get; set; } = null!;
+        public string BankAccountNumber { get; set; } = null!;
+        public string Iban { get; set; } = null!;
+        public string SwiftCode { get; set; } = null!;
         public ProformaInvoice? Proforma { get; set; } = null;
         public JobOrder? JobOrder { get; set; } = null;
     }
@@ -95,6 +102,7 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public string? FilterStatuses { get; set; }
     }
 }
 

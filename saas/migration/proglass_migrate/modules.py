@@ -2368,6 +2368,7 @@ class TaxInvoiceModule(Module):
                 " PaymentTerms, PaymentTermsDays, Subtotal,"
                 " DiscountAmount, DiscountPercent, AfterDiscount,"
                 " VatAmount, GrandTotal, TotalQty, TotalSqm,"
+                " BankName, BankAccountNumber, Iban, SwiftCode,"
                 " FullSnapshotJson, CreatedAt, UpdatedAt"
                 " FROM TaxInvoices ORDER BY Id").fetchall()
         extracted = len(rows)
@@ -2435,17 +2436,23 @@ class TaxInvoiceModule(Module):
                 """
                 INSERT INTO saas.tax_invoices
                   (id, tenant_id, invoice_no, proforma_id, job_order_id,
-                   delivery_note_reference, status, issue_date, due_date,
+                   delivery_note_reference, purchase_order_number,
+                   status, issue_date, due_date,
                    subtotal, discount_amount, vat_amount, grand_total,
                    paid_amount, balance_amount, snapshot_json,
                    customer_name, project_name, payment_terms,
                    discount_percent, is_void, voided_at, void_reason,
+                   company_name, company_trn, bank_name,
+                   bank_account_number, iban, swift_code,
                    created_at, updated_at)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, 0, %s, %s, %s, %s, %s, %s, %s, %s, '', %s, %s)
+                        %s, %s, 0, %s, %s, %s, %s, %s, %s, %s, %s, '',
+                        %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (new_id, tenant_id, number, proforma_id, job_order_id,
-                 row["DeliveryNoteReference"] or "", status,
+                 row["DeliveryNoteReference"] or "",
+                 row["PurchaseOrderNumber"] or "",
+                 status,
                  to_date(row["IssueDate"]), to_date(row["DueDate"]),
                  subtotal, discount, vat, grand, grand,
                  row["FullSnapshotJson"] or None,
@@ -2453,6 +2460,9 @@ class TaxInvoiceModule(Module):
                  row["PaymentTerms"] or "Net 30",
                  money(row["DiscountPercent"]), bool(row["IsVoid"]),
                  to_utc(row["VoidedAtUtc"], source_is_utc=True),
+                 row["CompanyName"] or "", row["CompanyTrn"] or "",
+                 row["BankName"] or "", row["BankAccountNumber"] or "",
+                 row["Iban"] or "", row["SwiftCode"] or "",
                  to_utc(row["CreatedAt"]), to_utc(row["UpdatedAt"])))
             if ok:
                 invoice_ids[number] = new_id
