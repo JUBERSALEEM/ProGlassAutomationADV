@@ -87,6 +87,13 @@ public sealed class SaasDbContext : DbContext
     public DbSet<ProductionControlHold> ProductionControlHolds => Set<ProductionControlHold>();
     public DbSet<ProductionControlAssignment> ProductionControlAssignments => Set<ProductionControlAssignment>();
     public DbSet<ProductionControlOverride> ProductionControlOverrides => Set<ProductionControlOverride>();
+    // Phase 26b cutting + costs (0022).
+    public DbSet<MaterialAllocation> MaterialAllocations => Set<MaterialAllocation>();
+    public DbSet<ActualCost> ActualCosts => Set<ActualCost>();
+    public DbSet<ProductionReplacement> ProductionReplacements => Set<ProductionReplacement>();
+    public DbSet<CuttingSession> CuttingSessions => Set<CuttingSession>();
+    public DbSet<CuttingSheet> CuttingSheets => Set<CuttingSheet>();
+    public DbSet<CuttingPlacedPiece> CuttingPlacedPieces => Set<CuttingPlacedPiece>();
 
     // ── Fiscal ────────────────────────────────────────────────────────
     public DbSet<TaxInvoice> TaxInvoices => Set<TaxInvoice>();

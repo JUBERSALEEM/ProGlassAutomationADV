@@ -41,7 +41,9 @@ public sealed class ProcessControlFlowTests
             new ProductionStore(factory), controlStore, audit);
         var productionStore = new ProductionStore(factory);
         _executions = new ProcessExecutionService(
-            controlStore, productionStore, audit);
+            controlStore, productionStore, audit,
+            new ReplacementService(
+                new CuttingCostStore(factory), productionStore, audit));
         _proformas = new ProformaService(
             new ProformaStore(factory), audit, specs);
         _jobs = new JobOrderService(new JobOrderStore(factory), audit);

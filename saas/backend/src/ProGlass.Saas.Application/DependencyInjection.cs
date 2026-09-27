@@ -40,6 +40,13 @@ public static class DependencyInjection
         services.AddScoped<Production.ProductionControlService>();
         services.AddScoped<Production.ProductionQueueService>();
         services.AddScoped<Production.WorkstationService>();
+        // Phase 26b — cutting workflow, allocation ledger + actual
+        // costs, replacements/FOC, integrity scanner, reports.
+        services.AddScoped<Production.ReplacementService>();
+        services.AddScoped<Production.AllocationCostService>();
+        services.AddScoped<Production.CuttingService>();
+        services.AddScoped<Production.ProductionIntegrityService>();
+        services.AddScoped<Reporting.ProductionReportsService>();
         services.AddScoped<Optimization.OptimizationService>();
         services.AddScoped<Fiscal.FiscalService>();
         services.AddScoped<Fiscal.ReconciliationService>();

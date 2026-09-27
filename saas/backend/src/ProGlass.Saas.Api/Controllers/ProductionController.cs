@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ProGlass.Saas.Application.Production;
+using ProGlass.Saas.Application.Reporting;
 using ProGlass.Saas.Domain.Authorization;
 
 namespace ProGlass.Saas.Api.Controllers;
@@ -22,7 +23,11 @@ public sealed class ProductionController(
     PairingAssemblyService pairing,
     ProductionControlService control,
     ProductionQueueService queue,
-    WorkstationService workstations)
+    WorkstationService workstations,
+    AllocationCostService allocationCosts,
+    ReplacementService replacements,
+    ProductionIntegrityService integrity,
+    ProductionReportsService reports)
     : TenantControllerBase
 {
     [HttpGet]
@@ -529,6 +534,220 @@ public sealed class ProductionController(
     public async Task<IActionResult> WorkstationSeed(CancellationToken ct)
     {
         var result = await workstations.EnsureSeededAsync(RequiredTenantId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+    // ── Phase 26b: allocation ledger, actual costs, replacements,
+    //    integrity scanner + snapshot integrity, production reports ──
+
+    /// <summary>The allocation ledger for a job (WPF GetByJobAsync order
+    /// — SheetNo, PlacedPieceLabel) or one reservation.</summary>
+    [HttpGet("allocations")]
+    public async Task<IActionResult> Allocations(
+        [FromQuery] Guid? jobOrderId, [FromQuery] string? reservationKey,
+        CancellationToken ct)
+    {
+        if (!string.IsNullOrWhiteSpace(reservationKey))
+        {
+            var byReservation = await allocationCosts.ListByReservationAsync(
+                RequiredTenantId, reservationKey, ct);
+            return byReservation.Success
+                ? Ok(byReservation.Value) : Fail(byReservation);
+        }
+        if (jobOrderId is null)
+        {
+            return BadRequest(new { code = "validation", message =
+                "jobOrderId or reservationKey is required." });
+        }
+        var result = await allocationCosts.ListByJobAsync(
+            RequiredTenantId, jobOrderId.Value, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Allocate a placed piece to a reservation (idempotent on
+    /// the deterministic AllocationId; live reservation required).
+    /// Usually driven by the cutting workflow — manual for recovery.</summary>
+    [HttpPost("allocations")]
+    [HasPermission(AppPermissions.JobOrderEdit)]
+    public async Task<IActionResult> Allocate(
+        [FromBody] AllocateRequest request, CancellationToken ct)
+    {
+        var result = await allocationCosts.AllocateAsync(
+            RequiredTenantId, RequiredUserId, request, ClientIp, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Planning consume: Cancelled/Released refused; the
+    /// reservation flips to Consumed only when ALL its allocations are
+    /// consumed. Idempotent.</summary>
+    [HttpPost("allocations/{allocationId}/consume")]
+    [HasPermission(AppPermissions.JobOrderEdit)]
+    public async Task<IActionResult> Consume(
+        string allocationId, CancellationToken ct)
+    {
+        var result = await allocationCosts.ConsumeAsync(
+            RequiredTenantId, RequiredUserId, allocationId, ClientIp, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    [HttpGet("costs")]
+    public async Task<IActionResult> Costs(
+        [FromQuery] Guid jobOrderId, CancellationToken ct)
+    {
+        var result = await allocationCosts.ListCostsByJobAsync(
+            RequiredTenantId, jobOrderId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Per-bucket totals (Estimated / ActualMaterial /
+    /// Production / Wastage / Processing / TotalActual with the component
+    /// fallback, FocImpact = cost with selling zero).</summary>
+    [HttpGet("costs/summary")]
+    public async Task<IActionResult> CostSummary(
+        [FromQuery] Guid jobOrderId, CancellationToken ct)
+    {
+        var result = await allocationCosts.GetSummaryByJobAsync(
+            RequiredTenantId, jobOrderId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Record an actual cost — idempotent update; FOC keeps the
+    /// cost, zeroes selling; the PI estimate is never overwritten.</summary>
+    [HttpPost("costs")]
+    [HasPermission(AppPermissions.JobOrderEdit)]
+    public async Task<IActionResult> RecordCost(
+        [FromBody] RecordCostRequest request, CancellationToken ct)
+    {
+        var result = await allocationCosts.RecordCostAsync(
+            RequiredTenantId, RequiredUserId, request, ClientIp, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Derive the ActualMaterial costs from the job's
+    /// allocations: piece sqm × the rack's purchase price per sqm.</summary>
+    [HttpPost("costs/derive")]
+    [HasPermission(AppPermissions.JobOrderEdit)]
+    public async Task<IActionResult> DeriveCosts(
+        [FromQuery] Guid jobOrderId, CancellationToken ct)
+    {
+        var result = await allocationCosts.DeriveFromAllocationAsync(
+            RequiredTenantId, RequiredUserId, jobOrderId, ClientIp, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    [HttpGet("replacements")]
+    public async Task<IActionResult> Replacements(
+        [FromQuery] Guid jobOrderId, CancellationToken ct)
+    {
+        var result = await replacements.ListByJobAsync(
+            RequiredTenantId, jobOrderId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Full Phase 14 breakage: the breakage event lands on the
+    /// original, and a traceable replacement work item + replacement row
+    /// are created (the original is never silently modified).</summary>
+    [HttpPost("replacements/breakage")]
+    [HasPermission(AppPermissions.JobOrderEdit)]
+    public async Task<IActionResult> RecordBreakage(
+        [FromBody] ReplacementBreakageRequest request, CancellationToken ct)
+    {
+        var result = await replacements.RecordBreakageAsync(
+            RequiredTenantId, RequiredUserId, request, ClientIp, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Rework event on the work item (status flips to Rework
+    /// unless Completed). isFoc=true records FOC — free of charge, cost
+    /// preserved, selling zero.</summary>
+    [HttpPost("replacements/rework")]
+    [HasPermission(AppPermissions.JobOrderEdit)]
+    public async Task<IActionResult> RecordRework(
+        [FromBody] ReplacementReworkRequest request, CancellationToken ct)
+    {
+        var result = await replacements.RecordReworkAsync(
+            RequiredTenantId, RequiredUserId, request, ClientIp, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Read-only Production ↔ Sheet Store consistency scan. It
+    /// NEVER writes, NEVER releases holds, and NEVER treats
+    /// Consumed-without-Issue as a defect (planning consume ≠ physical
+    /// issue is the product contract).</summary>
+    [HttpGet("consistency-scan")]
+    public async Task<IActionResult> ConsistencyScan(CancellationToken ct)
+    {
+        var result = await integrity.ScanAsync(RequiredTenantId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Snapshot integrity: Missing / Corrupt / ValidEmpty /
+    /// Valid — so Production never treats corrupt JSON as "a job with no
+    /// glass" (WPF ProductionSnapshotIntegrity).</summary>
+    [HttpGet("snapshot-integrity")]
+    public async Task<IActionResult> SnapshotIntegrity(
+        [FromQuery] Guid jobOrderId, CancellationToken ct)
+    {
+        var result = await integrity.CheckSnapshotAsync(
+            RequiredTenantId, jobOrderId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Process status report — one row per execution with the
+    /// full PI → JO → … → QC traceability line (WPF
+    /// ProductionProcessReportService).</summary>
+    [HttpGet("reports/process-status")]
+    public async Task<IActionResult> ReportProcessStatus(
+        [FromQuery] Guid jobOrderId, CancellationToken ct)
+    {
+        var result = await reports.GenerateProcessStatusAsync(
+            RequiredTenantId, jobOrderId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Pairing/assembly traceability — pairs joined to their
+    /// assemblies plus the pair-less assemblies (WPF
+    /// GeneratePairingAssemblyTraceabilityAsync).</summary>
+    [HttpGet("reports/pairing-assembly")]
+    public async Task<IActionResult> ReportPairingAssembly(
+        [FromQuery] Guid jobOrderId, CancellationToken ct)
+    {
+        var result = await reports.GeneratePairingAssemblyTraceabilityAsync(
+            RequiredTenantId, jobOrderId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Route report — one row per unit: route label + current
+    /// stage from the latest execution (WPF
+    /// GenerateRouteReportAsync).</summary>
+    [HttpGet("reports/route")]
+    public async Task<IActionResult> ReportRoute(
+        [FromQuery] Guid jobOrderId, CancellationToken ct)
+    {
+        var result = await reports.GenerateRouteReportAsync(
+            RequiredTenantId, jobOrderId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>Rework queue — live rows whose readiness is Rework or
+    /// flagged IsRework (WPF GenerateReworkQueueReportAsync; the other
+    /// control reports are the 26a queue/dashboard endpoints
+    /// verbatim).</summary>
+    [HttpGet("reports/rework-queue")]
+    public async Task<IActionResult> ReportReworkQueue(CancellationToken ct)
+    {
+        var result = await reports.GenerateReworkQueueReportAsync(
+            RequiredTenantId, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>QC queue — rows awaiting or failing QC (WPF
+    /// GenerateQcQueueReportAsync; includeCompleted because a finished
+    /// piece can still sit in QC).</summary>
+    [HttpGet("reports/qc-queue")]
+    public async Task<IActionResult> ReportQcQueue(CancellationToken ct)
+    {
+        var result = await reports.GenerateQcQueueReportAsync(
+            RequiredTenantId, ct);
         return result.Success ? Ok(result.Value) : Fail(result);
     }
 }

@@ -384,7 +384,11 @@ def main() -> None:
                      "Cut all outer panes first", "PI-2026-001", True)], jobs
 
     # ── Phase 16: production (pieces / events / reservations) ───────
-    assert by_module["production"]["loaded"] == 4, by_module["production"]
+    # 4 base rows + 14 ported 26a/26b rows (execution, pairing,
+    # assembly, workstation, hold, assignment, override, 2 allocations,
+    # cost, replacement, cutting session/sheet/placed piece). The
+    # bad-enum execution and the ghost-work-item hold are skipped.
+    assert by_module["production"]["loaded"] == 18, by_module["production"]
     with conn.cursor() as cur:
         cur.execute("""
             SELECT pc.unique_key, pc.stage, pc.status, pc.qty, pc.qty_done,
@@ -421,6 +425,145 @@ def main() -> None:
     assert reservations == [("JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1",
                              "Reserved", 2, "Float", 6, "opt-session-1",
                              "jubers")], reservations
+
+    # ── 26a port: process control rows ──────────────────────────────
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT w.code, w.name, w.process_type, w.process_name,
+                   w.is_active
+            FROM saas.workstations w""")
+        stations = cur.fetchall()
+    assert stations == [("TMP-01", "Tempering Furnace 1", 6, "Tempering",
+                         True)], stations
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT e.execution_id, e.status, e.entry_type, e.qc_status,
+                   e.process_type, pc.unique_key IS NOT NULL
+            FROM saas.process_executions e
+            LEFT JOIN saas.production_pieces pc
+                 ON pc.id = e.production_piece_id""")
+        execs = cur.fetchall()
+    assert execs == [("EXEC-2026-0001", "Completed", "Normal", "Passed",
+                      1, True)], execs
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT p.pairing_id, p.status, po.unique_key, pi.unique_key
+            FROM saas.process_pairings p
+            LEFT JOIN saas.production_pieces po
+                 ON po.id = p.outer_production_piece_id
+            LEFT JOIN saas.production_pieces pi
+                 ON pi.id = p.inner_production_piece_id""")
+        pairs = cur.fetchall()
+    assert pairs == [("PAIR-2026-0001", "Completed",
+                      "JOB-2026-001|Clear 6+12+6|1||Cutting",
+                      "JOB-2026-001|Clear 6+12+6|2||Cutting")], pairs
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT a.assembly_id, a.status, a.pairing_id,
+                   a.completed_at IS NOT NULL
+            FROM saas.process_assemblies a""")
+        asms = cur.fetchall()
+    assert asms == [("ASM-2026-0001", "Completed", "PAIR-2026-0001",
+                     True)], asms
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT h.hold_id, h.stage, h.is_released, pc.unique_key
+            FROM saas.production_control_holds h
+            JOIN saas.production_pieces pc
+                 ON pc.id = h.production_piece_id""")
+        holds = cur.fetchall()
+    assert holds == [("HOLD-2026-0001", "Tempering", True,
+                      "JOB-2026-001|Clear 6+12+6|2||Cutting")], holds
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT a.assignment_id, a.stage, a.workstation_id,
+                   a.operator_name, a.is_active
+            FROM saas.production_control_assignments a""")
+        assigns = cur.fetchall()
+    assert assigns == [("ASSIGN-2026-0001", "Tempering", "WS-TEMP-01",
+                        "cutter1", True)], assigns
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT o.control_id, o.stage, o.priority
+            FROM saas.production_control_overrides o""")
+        overrides = cur.fetchall()
+    assert overrides == [("CTRL-2026-0001", "Tempering", 2)], overrides
+
+    # ── 26b port: cutting + cost rows ───────────────────────────────
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT m.allocation_id, m.status, m.reservation_key,
+                   m.reservation_id IS NOT NULL, r.reservation_key
+            FROM saas.material_allocations m
+            LEFT JOIN saas.material_reservations r
+                 ON r.id = m.reservation_id
+            ORDER BY m.allocation_id""")
+        allocs = cur.fetchall()
+    assert allocs == [
+        ("JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1|S1|A-01",
+         "Consumed", "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1",
+         True, "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1"),
+        ("JOB-2026-001|Clear 6+12+6|1|1|opt-session-9|9|S1|X-99",
+         "Allocated", "JOB-2026-001|Clear 6+12+6|1|1|opt-session-9|9",
+         False, None)], allocs
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT c.cost_id, c.cost_type, c.quantity, c.unit_cost,
+                   c.total_cost, c.selling_value, g.category
+            FROM saas.production_actual_costs c
+            JOIN saas.glass_sheets g ON g.id = c.stock_sheet_id""")
+        costs = cur.fetchall()
+    assert costs == [("JOB-2026-001|Clear 6+12+6|1|ActualMaterial",
+                      "ActualMaterial", Decimal("3.600"),
+                      Decimal("95.50"), Decimal("343.80"),
+                      Decimal("504.00"), "Float")], costs
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT r.replacement_id, r.entry_type, r.status, r.stage,
+                   po.unique_key IS NOT NULL,
+                   pr.unique_key IS NOT NULL
+            FROM saas.production_replacements r
+            LEFT JOIN saas.production_pieces po
+                 ON po.id = r.original_piece_id
+            LEFT JOIN saas.production_pieces pr
+                 ON pr.id = r.replacement_piece_id""")
+        repls = cur.fetchall()
+    assert repls == [("JOB-2026-001|Clear 6+12+6|1|1|Cutting|RPL:1",
+                      "Rework", "Completed", "Cutting", True,
+                      True)], repls
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT s.cutting_session_id, s.status, s.rotation_policy,
+                   s.split_mode, s.effort_level,
+                   o.params_json ->> 'wpfSessionId'
+            FROM saas.cutting_sessions s
+            JOIN saas.optimization_sessions o
+                 ON o.id = s.optimization_session_id""")
+        sessions = cur.fetchall()
+    assert sessions == [("CUT-JOB-2026-001-1-20260905090000",
+                         "Completed", "Free90", "HorizontalFirst", 3,
+                         "opt-session-1")], sessions
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT sh.cutting_sheet_id, sh.sheet_no, g.category,
+                   g.thickness_mm, sh.utilization_pct
+            FROM saas.cutting_sheets sh
+            JOIN saas.glass_sheets g ON g.id = sh.stock_sheet_id""")
+        sheets = cur.fetchall()
+    assert sheets == [("CUT-JOB-2026-001-1-20260905090000|S1", 1,
+                       "Float", 6, Decimal("64.80"))], sheets
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT pp.placed_piece_id, pp.status,
+                   pc.unique_key IS NOT NULL, pp.reservation_key
+            FROM saas.cutting_placed_pieces pp
+            LEFT JOIN saas.production_pieces pc
+                 ON pc.id = pp.source_piece_id""")
+        placed = cur.fetchall()
+    assert placed == [("CUT-JOB-2026-001-1-20260905090000|S1|PIECE-A-01",
+                       "Completed", True,
+                       "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1"
+                       )], placed
 
     # ── Phase 16: delivery notes ────────────────────────────────────
     assert by_module["deliverynotes"]["loaded"] == 6, by_module["deliverynotes"]
@@ -485,12 +628,19 @@ def main() -> None:
     assert "derived 'LM1'" in texts                    # metric fallback
     assert "cannot re-run" in texts                    # oracle difference
     assert "ProductionReleases" in texts               # deferred counts
-    assert "Workstations" in texts
+    assert "ProductionQcEntries" in texts              # absent deferred
+    assert "EXEC-2026-0002" in texts                   # bad entry type
+    assert "HOLD-2026-0002" in texts                   # ghost work item
+    assert "reservation link null" in texts            # orphan allocation
+    assert "not portable" in texts                     # replacement link
     assert "under skipped note DN-2026-009-01" in texts
     errors = [f for f in all_findings if f["severity"] == "error"]
     # 15 before Phase 24; the attachments module adds its two deliberate
-    # error paths (missing file on disk + attachment on a skipped note).
-    assert len(errors) == 17, [e["message"] for e in errors]
+    # error paths (missing file on disk + attachment on a skipped note);
+    # the 26a/26b port adds three (bad-enum execution, hold on a work
+    # item that was never imported, allocation whose reservation was
+    # never imported — the row itself is kept with a null link).
+    assert len(errors) == 20, [e["message"] for e in errors]
 
     # ── validate ─────────────────────────────────────────────────────
     # The deliberate drifts are reported as FAIL (the operator sees

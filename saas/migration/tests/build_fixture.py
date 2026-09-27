@@ -606,8 +606,230 @@ def build(root: Path) -> None:
         Status INTEGER NOT NULL DEFAULT 1, CreatedBy TEXT NOT NULL DEFAULT '',
         CreatedAt TEXT NOT NULL, ReleasedAt TEXT, ReleaseReason TEXT NOT NULL DEFAULT '',
         Notes TEXT NOT NULL DEFAULT '');
-    CREATE TABLE Workstations (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL,
-        Stage INTEGER NOT NULL DEFAULT 1, IsActive INTEGER NOT NULL DEFAULT 1);
+    CREATE TABLE Workstations (Id INTEGER PRIMARY KEY,
+        WorkstationId TEXT NOT NULL, Code TEXT NOT NULL DEFAULT '',
+        Name TEXT NOT NULL, ProcessType INTEGER NOT NULL DEFAULT 1,
+        ProcessName TEXT NOT NULL DEFAULT '',
+        IsActive INTEGER NOT NULL DEFAULT 1,
+        Description TEXT NOT NULL DEFAULT '',
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        UpdatedAt TEXT NOT NULL);
+    -- 26a port tables (WPF SavedProductionPhase16/17 shapes — the
+    -- columns proglass_migrate SELECTs).
+    CREATE TABLE ProcessExecutions (Id INTEGER PRIMARY KEY,
+        ExecutionId TEXT NOT NULL, JobRef TEXT NOT NULL DEFAULT '',
+        SourceProformaId TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SpecName TEXT NOT NULL DEFAULT '',
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        Position TEXT NOT NULL DEFAULT '', PieceId TEXT NOT NULL DEFAULT '',
+        InputPieceId TEXT NOT NULL DEFAULT '',
+        OutputPieceId TEXT NOT NULL DEFAULT '',
+        ProcessType INTEGER NOT NULL DEFAULT 1,
+        Sequence INTEGER NOT NULL DEFAULT 0,
+        InputWorkItemId INTEGER NOT NULL DEFAULT 0,
+        OutputWorkItemId INTEGER NOT NULL DEFAULT 0,
+        Status INTEGER NOT NULL DEFAULT 0,
+        StartedBy TEXT NOT NULL DEFAULT '', StartedAt TEXT,
+        CompletedBy TEXT NOT NULL DEFAULT '', CompletedAt TEXT,
+        QtyRequired INTEGER NOT NULL DEFAULT 0,
+        QtyDone INTEGER NOT NULL DEFAULT 0,
+        EntryType INTEGER NOT NULL DEFAULT 0,
+        Reason TEXT NOT NULL DEFAULT '', Notes TEXT NOT NULL DEFAULT '',
+        QcStatus INTEGER NOT NULL DEFAULT 0,
+        QcId TEXT NOT NULL DEFAULT '',
+        ParentExecutionId TEXT NOT NULL DEFAULT '',
+        ReworkSequence INTEGER NOT NULL DEFAULT 0,
+        IsFoc INTEGER NOT NULL DEFAULT 0,
+        PreviousStage TEXT NOT NULL DEFAULT '',
+        NextStage TEXT NOT NULL DEFAULT '',
+        ProcessDetailJson TEXT NOT NULL DEFAULT '',
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        UpdatedAt TEXT NOT NULL);
+    CREATE TABLE ProcessPairings (Id INTEGER PRIMARY KEY,
+        PairingId TEXT NOT NULL, JobRef TEXT NOT NULL DEFAULT '',
+        SourceProformaId TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        Position TEXT NOT NULL DEFAULT '', PairId TEXT NOT NULL DEFAULT '',
+        OuterPieceId TEXT NOT NULL DEFAULT '',
+        InnerPieceId TEXT NOT NULL DEFAULT '',
+        OuterGlassRef TEXT NOT NULL DEFAULT '',
+        InnerGlassRef TEXT NOT NULL DEFAULT '',
+        OuterWorkItemId INTEGER NOT NULL DEFAULT 0,
+        InnerWorkItemId INTEGER NOT NULL DEFAULT 0,
+        OuterExecutionId TEXT NOT NULL DEFAULT '',
+        InnerExecutionId TEXT NOT NULL DEFAULT '',
+        Status INTEGER NOT NULL DEFAULT 0,
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        Notes TEXT NOT NULL DEFAULT '',
+        IsFoc INTEGER NOT NULL DEFAULT 0);
+    CREATE TABLE ProcessAssemblies (Id INTEGER PRIMARY KEY,
+        AssemblyId TEXT NOT NULL, JobRef TEXT NOT NULL DEFAULT '',
+        SourceProformaId TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        Position TEXT NOT NULL DEFAULT '',
+        AssemblyLabel TEXT NOT NULL DEFAULT '',
+        AssemblyType TEXT NOT NULL DEFAULT 'DGU',
+        ComponentsJson TEXT NOT NULL DEFAULT '[]',
+        SpacerInfo TEXT NOT NULL DEFAULT '',
+        InterlayerInfo TEXT NOT NULL DEFAULT '',
+        SealantInfo TEXT NOT NULL DEFAULT '',
+        PairingId TEXT NOT NULL DEFAULT '',
+        Status INTEGER NOT NULL DEFAULT 0,
+        QtyRequired INTEGER NOT NULL DEFAULT 1,
+        QtyDone INTEGER NOT NULL DEFAULT 1,
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        CompletedAt TEXT, Notes TEXT NOT NULL DEFAULT '',
+        IsFoc INTEGER NOT NULL DEFAULT 0, QcId TEXT NOT NULL DEFAULT '');
+    CREATE TABLE ProductionControlHolds (Id INTEGER PRIMARY KEY,
+        HoldId TEXT NOT NULL, WorkItemId INTEGER NOT NULL DEFAULT 0,
+        JobRef TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        Position TEXT NOT NULL DEFAULT '', Stage INTEGER NOT NULL DEFAULT 1,
+        HoldReason TEXT NOT NULL DEFAULT '',
+        HeldBy TEXT NOT NULL DEFAULT '', HeldAt TEXT,
+        ReleasedBy TEXT NOT NULL DEFAULT '', ReleasedAt TEXT,
+        IsReleased INTEGER NOT NULL DEFAULT 0,
+        Notes TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        UpdatedAt TEXT NOT NULL);
+    CREATE TABLE ProductionControlAssignments (Id INTEGER PRIMARY KEY,
+        AssignmentId TEXT NOT NULL, WorkItemId INTEGER NOT NULL DEFAULT 0,
+        JobRef TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        Position TEXT NOT NULL DEFAULT '', Stage INTEGER NOT NULL DEFAULT 1,
+        WorkstationId TEXT NOT NULL DEFAULT '',
+        Operator TEXT NOT NULL DEFAULT '',
+        AssignedBy TEXT NOT NULL DEFAULT '', AssignedAt TEXT,
+        UnassignedBy TEXT NOT NULL DEFAULT '', UnassignedAt TEXT,
+        IsActive INTEGER NOT NULL DEFAULT 1,
+        Notes TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        UpdatedAt TEXT NOT NULL);
+    CREATE TABLE ProductionControlOverrides (Id INTEGER PRIMARY KEY,
+        ControlId TEXT NOT NULL, WorkItemId INTEGER NOT NULL DEFAULT 0,
+        JobRef TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        Position TEXT NOT NULL DEFAULT '', Stage INTEGER NOT NULL DEFAULT 1,
+        Priority INTEGER NOT NULL DEFAULT 0, DueDate TEXT,
+        PrioritySetBy TEXT NOT NULL DEFAULT '', PrioritySetAt TEXT,
+        Notes TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        UpdatedAt TEXT NOT NULL);
+    -- 26b port tables (WPF Phase 14/15 shapes).
+    CREATE TABLE MaterialAllocations (Id INTEGER PRIMARY KEY,
+        AllocationId TEXT NOT NULL, ReservationId TEXT NOT NULL DEFAULT '',
+        JobRef TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        OptimizationSessionId TEXT NOT NULL DEFAULT '',
+        SheetNo INTEGER NOT NULL DEFAULT 1,
+        PlacedPieceLabel TEXT NOT NULL DEFAULT '',
+        GlassRef TEXT NOT NULL DEFAULT '', WidthMm INTEGER NOT NULL DEFAULT 0,
+        HeightMm INTEGER NOT NULL DEFAULT 0,
+        Quantity INTEGER NOT NULL DEFAULT 1,
+        UtilizationPct TEXT NOT NULL DEFAULT '0',
+        WastagePct TEXT NOT NULL DEFAULT '0',
+        Status INTEGER NOT NULL DEFAULT 2,
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        ConsumedAt TEXT, Notes TEXT NOT NULL DEFAULT '');
+    CREATE TABLE ProductionActualCosts (Id INTEGER PRIMARY KEY,
+        CostId TEXT NOT NULL, JobRef TEXT NOT NULL DEFAULT '',
+        SourceProformaId TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        GlassRef TEXT NOT NULL DEFAULT '',
+        SpecName TEXT NOT NULL DEFAULT '',
+        CostType INTEGER NOT NULL DEFAULT 1,
+        StockSheetId INTEGER NOT NULL DEFAULT 0,
+        MaterialAllocationId TEXT NOT NULL DEFAULT '',
+        Quantity TEXT NOT NULL DEFAULT '0',
+        UnitCost TEXT NOT NULL DEFAULT '0',
+        TotalCost TEXT NOT NULL DEFAULT '0',
+        SellingValue TEXT NOT NULL DEFAULT '0',
+        IsFoc INTEGER NOT NULL DEFAULT 0,
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        Notes TEXT NOT NULL DEFAULT '');
+    CREATE TABLE ProductionReplacements (Id INTEGER PRIMARY KEY,
+        ReplacementId TEXT NOT NULL, JobRef TEXT NOT NULL DEFAULT '',
+        SourceProformaId TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        GlassRef TEXT NOT NULL DEFAULT '',
+        SpecName TEXT NOT NULL DEFAULT '',
+        Position TEXT NOT NULL DEFAULT '', Stage INTEGER NOT NULL DEFAULT 1,
+        OriginalWorkItemId INTEGER NOT NULL DEFAULT 0,
+        OriginalEntryId INTEGER NOT NULL DEFAULT 0,
+        ReplacementWorkItemId INTEGER NOT NULL DEFAULT 0,
+        EntryType INTEGER NOT NULL DEFAULT 2,
+        Reason TEXT NOT NULL DEFAULT '', Quantity INTEGER NOT NULL DEFAULT 1,
+        IsFoc INTEGER NOT NULL DEFAULT 0,
+        ReplacementSequence INTEGER NOT NULL DEFAULT 1,
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        Status INTEGER NOT NULL DEFAULT 0);
+    CREATE TABLE CuttingSessions (Id INTEGER PRIMARY KEY,
+        CuttingSessionId TEXT NOT NULL, JobRef TEXT NOT NULL DEFAULT '',
+        SourceProformaId TEXT NOT NULL DEFAULT '',
+        OptimizationSessionId TEXT NOT NULL DEFAULT '',
+        MaterialGroupId TEXT NOT NULL DEFAULT '',
+        TotalPieces INTEGER NOT NULL DEFAULT 0,
+        SheetsUsed INTEGER NOT NULL DEFAULT 0,
+        UtilizationPct TEXT NOT NULL DEFAULT '0',
+        WastagePct TEXT NOT NULL DEFAULT '0',
+        Status INTEGER NOT NULL DEFAULT 0,
+        RotationPolicy INTEGER NOT NULL DEFAULT 1,
+        SplitMode INTEGER NOT NULL DEFAULT 0,
+        EffortLevel INTEGER NOT NULL DEFAULT 3,
+        MarginProfileJson TEXT NOT NULL DEFAULT '',
+        IsVerified INTEGER NOT NULL DEFAULT 0,
+        VerificationResult TEXT NOT NULL DEFAULT '',
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        CompletedAt TEXT, Notes TEXT NOT NULL DEFAULT '');
+    CREATE TABLE CuttingSheets (Id INTEGER PRIMARY KEY,
+        CuttingSheetId TEXT NOT NULL, CuttingSessionId TEXT NOT NULL,
+        JobRef TEXT NOT NULL DEFAULT '', SheetNo INTEGER NOT NULL DEFAULT 1,
+        StockSheetId INTEGER NOT NULL DEFAULT 0,
+        StockSizeLabel TEXT NOT NULL DEFAULT '',
+        StockWidthMm INTEGER NOT NULL DEFAULT 0,
+        StockHeightMm INTEGER NOT NULL DEFAULT 0,
+        ThicknessMm INTEGER NOT NULL DEFAULT 0,
+        Color TEXT NOT NULL DEFAULT '',
+        UsableX INTEGER NOT NULL DEFAULT 0,
+        UsableY INTEGER NOT NULL DEFAULT 0,
+        UsableWidth INTEGER NOT NULL DEFAULT 0,
+        UsableHeight INTEGER NOT NULL DEFAULT 0,
+        UsedSqm TEXT NOT NULL DEFAULT '0',
+        StockSqm TEXT NOT NULL DEFAULT '0',
+        UtilizationPct TEXT NOT NULL DEFAULT '0',
+        WastagePct TEXT NOT NULL DEFAULT '0',
+        IsVerified INTEGER NOT NULL DEFAULT 0,
+        VerificationResult TEXT NOT NULL DEFAULT '',
+        PlacedPieceCount INTEGER NOT NULL DEFAULT 0,
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL);
+    CREATE TABLE CuttingPlacedPieces (Id INTEGER PRIMARY KEY,
+        PlacedPieceId TEXT NOT NULL, CuttingSheetId TEXT NOT NULL,
+        CuttingSessionId TEXT NOT NULL,
+        JobRef TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        GlassRef TEXT NOT NULL DEFAULT '',
+        SpecName TEXT NOT NULL DEFAULT '',
+        Position TEXT NOT NULL DEFAULT '', PieceId TEXT NOT NULL DEFAULT '',
+        PieceLabel TEXT NOT NULL DEFAULT '',
+        WidthMm INTEGER NOT NULL DEFAULT 0,
+        HeightMm INTEGER NOT NULL DEFAULT 0,
+        X INTEGER NOT NULL DEFAULT 0, Y INTEGER NOT NULL DEFAULT 0,
+        IsRotated INTEGER NOT NULL DEFAULT 0,
+        CutSequence INTEGER NOT NULL DEFAULT 0,
+        Status INTEGER NOT NULL DEFAULT 0,
+        SourceWorkItemId INTEGER NOT NULL DEFAULT 0,
+        ReservationId TEXT NOT NULL DEFAULT '',
+        AllocationId TEXT NOT NULL DEFAULT '',
+        IsFoc INTEGER NOT NULL DEFAULT 0,
+        CreatedBy TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        Notes TEXT NOT NULL DEFAULT '');
     """)
     pr.execute(
         "INSERT INTO ProductionReleases (JobRef, SourceProformaId,"
@@ -665,8 +887,171 @@ def build(root: Path) -> None:
           "8mm Bronze 2250x3210", 2250, 3210, 8, "Bronze", 1, 1, "jubers",
           "2026-09-05 09:05:00")])
     pr.execute(
-        "INSERT INTO Workstations (Name, Stage, IsActive)"
-        " VALUES ('CNC Cutter 1', 1, 1)")
+        "INSERT INTO Workstations (WorkstationId, Code, Name, ProcessType,"
+        " ProcessName, IsActive, Description, CreatedBy, CreatedAt,"
+        " UpdatedAt) VALUES (?,?,?,?,?,?,?,?,?,?)",
+        ("WS-TEMP-01", "TMP-01", "Tempering Furnace 1", 6, "Tempering", 1,
+         "Left furnace", "jubers", "2026-09-01 08:00:00",
+         "2026-09-01 08:00:00"))
+    pr.executemany(
+        "INSERT INTO ProcessExecutions (Id, ExecutionId, JobRef,"
+        " SourceProformaId, SpecGroupNumber, SpecName, SerialNumber,"
+        " Position, PieceId, InputPieceId, OutputPieceId, ProcessType,"
+        " Sequence, InputWorkItemId, OutputWorkItemId, Status, StartedBy,"
+        " StartedAt, CompletedBy, CompletedAt, QtyRequired, QtyDone,"
+        " EntryType, Reason, Notes, QcStatus, QcId, ParentExecutionId,"
+        " ReworkSequence, IsFoc, PreviousStage, NextStage,"
+        " ProcessDetailJson, CreatedBy, CreatedAt, UpdatedAt)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "EXEC-2026-0001", "JOB-2026-001", "PI-2026-001", 1,
+          "Clear 6+12+6", 1, "1", "PIECE-A-01", "", "PIECE-A-01", 1, 1, 1,
+          1, 2, "cutter1", "2026-09-03 09:30:00", "cutter1",
+          "2026-09-03 10:00:00", 3, 3, 0, "", "Auto execution", 1, "", "",
+          0, 0, "", "Cutting", "", "cutter1", "2026-09-03 09:30:00",
+          "2026-09-03 10:00:00"),
+         # EntryType 99 is outside ProductionEntryType — error + skip.
+         (2, "EXEC-2026-0002", "JOB-2026-001", "PI-2026-001", 1,
+          "Clear 6+12+6", 1, "1", "PIECE-A-02", "", "", 1, 2, 2, 2, 1,
+          "cutter1", "2026-09-03 11:30:00", "", None, 2, 0, 99, "", "", 0,
+          "", "", 0, 0, "", "Polish", "", "cutter1",
+          "2026-09-03 11:30:00", "2026-09-03 11:30:00")])
+    pr.execute(
+        "INSERT INTO ProcessPairings (PairingId, JobRef,"
+        " SourceProformaId, SpecGroupNumber, SerialNumber, Position,"
+        " PairId, OuterPieceId, InnerPieceId, OuterGlassRef,"
+        " InnerGlassRef, OuterWorkItemId, InnerWorkItemId,"
+        " OuterExecutionId, InnerExecutionId, Status, CreatedBy,"
+        " CreatedAt, Notes, IsFoc) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("PAIR-2026-0001", "JOB-2026-001", "PI-2026-001", 1, 1, "1",
+         "JOB-2026-001|Clear 6+12+6|1", "OUT-A-01", "IN-A-01", "A-01",
+         "A-02", 1, 2, "EXEC-2026-0001", "", 2, "jubers",
+         "2026-09-03 12:00:00", "First DGU pair", 0))
+    pr.execute(
+        "INSERT INTO ProcessAssemblies (AssemblyId, JobRef,"
+        " SourceProformaId, SpecGroupNumber, SerialNumber, Position,"
+        " AssemblyLabel, AssemblyType, ComponentsJson, SpacerInfo,"
+        " InterlayerInfo, SealantInfo, PairingId, Status, QtyRequired,"
+        " QtyDone, CreatedBy, CreatedAt, CompletedAt, Notes, IsFoc, QcId)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("ASM-2026-0001", "JOB-2026-001", "PI-2026-001", 1, 1, "1",
+         "DGU-1", "DGU", "[]", "12mm Aluminium", "", "Polysulfide",
+         "PAIR-2026-0001", 2, 1, 1, "jubers", "2026-09-03 12:30:00",
+         "2026-09-03 13:00:00", "", 0, ""))
+    pr.executemany(
+        "INSERT INTO ProductionControlHolds (HoldId, WorkItemId, JobRef,"
+        " SpecGroupNumber, SerialNumber, Position, Stage, HoldReason,"
+        " HeldBy, HeldAt, ReleasedBy, ReleasedAt, IsReleased, Notes,"
+        " CreatedAt, UpdatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [("HOLD-2026-0001", 2, "JOB-2026-001", 1, 2, "2", 6,
+          "Edge chip spotted before tempering", "jubers",
+          "2026-09-04 09:00:00", "jubers", "2026-09-04 10:00:00", 1,
+          "Released after re-check", "2026-09-04 09:00:00",
+          "2026-09-04 10:00:00"),
+         # Work item 77 was never imported — error + skip.
+         ("HOLD-2026-0002", 77, "JOB-2026-001", 1, 2, "2", 6,
+          "Hold on a ghost work item", "jubers", "2026-09-04 11:00:00",
+          "", None, 0, "", "2026-09-04 11:00:00",
+          "2026-09-04 11:00:00")])
+    pr.execute(
+        "INSERT INTO ProductionControlAssignments (AssignmentId,"
+        " WorkItemId, JobRef, SpecGroupNumber, SerialNumber, Position,"
+        " Stage, WorkstationId, Operator, AssignedBy, AssignedAt,"
+        " UnassignedBy, UnassignedAt, IsActive, Notes, CreatedAt,"
+        " UpdatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("ASSIGN-2026-0001", 2, "JOB-2026-001", 1, 2, "2", 6,
+         "WS-TEMP-01", "cutter1", "jubers", "2026-09-04 12:00:00", "",
+         None, 1, "", "2026-09-04 12:00:00", "2026-09-04 12:00:00"))
+    pr.execute(
+        "INSERT INTO ProductionControlOverrides (ControlId, WorkItemId,"
+        " JobRef, SpecGroupNumber, SerialNumber, Position, Stage,"
+        " Priority, DueDate, PrioritySetBy, PrioritySetAt, Notes,"
+        " CreatedAt, UpdatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("CTRL-2026-0001", 2, "JOB-2026-001", 1, 2, "2", 6, 2,
+         "2026-09-10 14:00:00", "jubers", "2026-09-04 13:00:00",
+         "Customer escalation", "2026-09-04 13:00:00",
+         "2026-09-04 13:00:00"))
+    pr.executemany(
+        "INSERT INTO MaterialAllocations (AllocationId, ReservationId,"
+        " JobRef, SpecGroupNumber, SerialNumber, OptimizationSessionId,"
+        " SheetNo, PlacedPieceLabel, GlassRef, WidthMm, HeightMm,"
+        " Quantity, UtilizationPct, WastagePct, Status, CreatedBy,"
+        " CreatedAt, ConsumedAt, Notes)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(# Links the imported reservation 1 (26b id scheme:
+          # {reservationKey}|S{sheetNo}|{label}).
+         "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1|S1|A-01",
+         "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1", "JOB-2026-001",
+         1, 1, "opt-session-1", 1, "A-01", "A-01", 1500, 2400, 1, "55.80",
+         "44.20", 3, "jubers", "2026-09-05 09:10:00",
+         "2026-09-05 11:00:00", ""),
+         # Reservation was never imported — error finding, but the row
+         # is kept with a null link (the WPF key survives in
+         # reservation_key).
+         ("JOB-2026-001|Clear 6+12+6|1|1|opt-session-9|9|S1|X-99",
+          "JOB-2026-001|Clear 6+12+6|1|1|opt-session-9|9", "JOB-2026-001",
+          1, 1, "opt-session-9", 1, "X-99", "X-99", 800, 1200, 1, "40.00",
+          "60.00", 2, "jubers", "2026-09-05 09:15:00", None, "orphan")])
+    pr.execute(
+        "INSERT INTO ProductionActualCosts (CostId, JobRef,"
+        " SourceProformaId, SpecGroupNumber, SerialNumber, GlassRef,"
+        " SpecName, CostType, StockSheetId, MaterialAllocationId,"
+        " Quantity, UnitCost, TotalCost, SellingValue, IsFoc, CreatedBy,"
+        " CreatedAt, Notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("JOB-2026-001|Clear 6+12+6|1|ActualMaterial", "JOB-2026-001",
+         "PI-2026-001", 1, 1, "A-01", "Clear 6+12+6", 1, 1,
+         "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1|S1|A-01", "3.600",
+         "95.50", "343.80", "504.00", 0, "jubers",
+         "2026-09-05 11:05:00", ""))
+    pr.execute(
+        "INSERT INTO ProductionReplacements (ReplacementId, JobRef,"
+        " SourceProformaId, SpecGroupNumber, SerialNumber, GlassRef,"
+        " SpecName, Position, Stage, OriginalWorkItemId, OriginalEntryId,"
+        " ReplacementWorkItemId, EntryType, Reason, Quantity, IsFoc,"
+        " ReplacementSequence, CreatedBy, CreatedAt, Status)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("JOB-2026-001|Clear 6+12+6|1|1|Cutting|RPL:1", "JOB-2026-001",
+         "PI-2026-001", 1, 1, "A-01", "Clear 6+12+6", "1", 1, 1, 1, 2, 2,
+         "Chipped edge at cutting", 1, 0, 1, "cutter1",
+         "2026-09-05 14:00:00", 2))
+    pr.execute(
+        "INSERT INTO CuttingSessions (CuttingSessionId, JobRef,"
+        " SourceProformaId, OptimizationSessionId, MaterialGroupId,"
+        " TotalPieces, SheetsUsed, UtilizationPct, WastagePct, Status,"
+        " RotationPolicy, SplitMode, EffortLevel, MarginProfileJson,"
+        " IsVerified, VerificationResult, CreatedBy, CreatedAt,"
+        " CompletedAt, Notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("CUT-JOB-2026-001-1-20260905090000", "JOB-2026-001",
+         "PI-2026-001", "opt-session-1", "Clear 6+12+6|1", 5, 1, "64.80",
+         "35.20", 6, 1, 0, 3, "", 1, "passed", "jubers",
+         "2026-09-05 09:00:00", "2026-09-05 11:00:00", ""))
+    pr.execute(
+        "INSERT INTO CuttingSheets (CuttingSheetId, CuttingSessionId,"
+        " JobRef, SheetNo, StockSheetId, StockSizeLabel, StockWidthMm,"
+        " StockHeightMm, ThicknessMm, Color, UsableX, UsableY,"
+        " UsableWidth, UsableHeight, UsedSqm, StockSqm, UtilizationPct,"
+        " WastagePct, IsVerified, VerificationResult, PlacedPieceCount,"
+        " CreatedBy, CreatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("CUT-JOB-2026-001-1-20260905090000|S1",
+         "CUT-JOB-2026-001-1-20260905090000", "JOB-2026-001", 1, 1,
+         "6mm Clear 3210x2250", 3210, 2250, 6, "Clear", 0, 0, 3210, 2250,
+         "4.680", "7.2225", "64.80", "35.20", 1, "passed", 1, "jubers",
+         "2026-09-05 09:05:00"))
+    pr.execute(
+        "INSERT INTO CuttingPlacedPieces (PlacedPieceId, CuttingSheetId,"
+        " CuttingSessionId, JobRef, SpecGroupNumber, SerialNumber,"
+        " GlassRef, SpecName, Position, PieceId, PieceLabel, WidthMm,"
+        " HeightMm, X, Y, IsRotated, CutSequence, Status,"
+        " SourceWorkItemId, ReservationId, AllocationId, IsFoc,"
+        " CreatedBy, CreatedAt, Notes)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        ("CUT-JOB-2026-001-1-20260905090000|S1|PIECE-A-01",
+         "CUT-JOB-2026-001-1-20260905090000|S1",
+         "CUT-JOB-2026-001-1-20260905090000", "JOB-2026-001", 1, 1,
+         "A-01", "Clear 6+12+6", "1", "PIECE-A-01", "A-01", 1500, 2400,
+         100, 100, 0, 1, 4, 1,
+         "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1",
+         "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1|S1|A-01", 0,
+         "jubers", "2026-09-05 09:06:00", ""))
     pr.commit()
 
     # ── deliverynotes.db (DeliveryNotes / DeliveryNoteItems) ─────────

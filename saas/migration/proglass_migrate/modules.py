@@ -126,6 +126,31 @@ WORK_ITEM_STATUSES = {0: "Pending", 1: "InProgress", 2: "Completed",
 #: WPF ReservationStatus enum → ck_material_reservations_status (0015).
 RESERVATION_STATUSES = {0: "Available", 1: "Reserved", 2: "Allocated",
                         3: "Consumed", 4: "Released", 5: "Cancelled"}
+#: WPF ProductionEntryType enum → production_events/process_executions
+#: entry_type CHECK (Phase 14/26a).
+PRODUCTION_ENTRY_TYPES = {0: "Normal", 1: "Breakage", 2: "Rework",
+                          3: "Foc", 4: "QcPassed", 5: "QcFailed",
+                          6: "Cancelled"}
+#: WPF QcResult enum → qc_status CHECK (26a).
+QC_RESULTS = {0: "Pending", 1: "Passed", 2: "Failed", 3: "Rework"}
+#: WPF CuttingSessionStatus enum → ck_cutting_sessions_status (0022).
+CUTTING_SESSION_STATUSES = {0: "Draft", 1: "Prepared", 2: "Optimized",
+                            3: "Verified", 4: "Allocated", 5: "Cutting",
+                            6: "Completed", 7: "Cancelled", 8: "Failed"}
+#: WPF CuttingPieceStatus enum → ck_cutting_placed_pieces_status (0022).
+CUTTING_PIECE_STATUSES = {0: "Pending", 1: "Reserved", 2: "Allocated",
+                          3: "Cutting", 4: "Completed", 5: "QcPending",
+                          6: "QcPassed", 7: "QcFailed", 8: "Rework",
+                          9: "Breakage", 10: "Foc", 11: "Cancelled"}
+#: WPF SavedProductionReplacement.Status int 0..3 (Phase 14).
+REPLACEMENT_STATUSES = {0: "Pending", 1: "InProgress", 2: "Completed",
+                        3: "Cancelled"}
+#: WPF ActualCostType enum → ck_production_actual_costs_type (0022).
+ACTUAL_COST_TYPES = {0: "Estimated", 1: "ActualMaterial", 2: "Production",
+                     3: "Wastage", 4: "Processing", 5: "TotalActual"}
+#: WPF RotationPolicy / SplitMode enums (Phase 15).
+ROTATION_POLICIES = {0: "Locked", 1: "Free90"}
+SPLIT_MODES = {0: "HorizontalFirst", 1: "VerticalFirst", 2: "LongerLeftover"}
 #: MetricKeys (Domain.Proforma.ChargeMetrics) — ck_other_charges_metric.
 METRIC_KEYS = {"LM1", "LM2", "LM_COMBINED", "SQM1", "SQM2", "SQM_COMBINED",
                "DGU_CAVITY", "QTY", "DOUBLE_GLASS"}
@@ -1800,17 +1825,19 @@ class JobOrdersModule(Module):
 # ── module 8b: production.db ─────────────────────────────────────────
 
 class ProductionModule(Module):
-    """WPF production.db → the four shapes the SaaS materializes
-    (mapping §1.7b): ProductionWorkItems → production_pieces,
-    ProductionEntries → production_events (the 'Stage' entry type),
-    MaterialReservations → material_reservations.
+    """WPF production.db → the shapes the SaaS materializes
+    (mapping §1.7b + §1.7c/§1.7d since 26a/26b): ProductionWorkItems →
+    production_pieces, ProductionEntries → production_events (the
+    'Stage' entry type), MaterialReservations → material_reservations,
+    and since 26b the ProcessExecutions/Pairings/Assemblies,
+    Workstations, Control holds/assignments/overrides (26a tables) and
+    MaterialAllocations, ProductionActualCosts, ProductionReplacements,
+    CuttingSessions/Sheets/PlacedPieces (26b tables).
 
     ProductionReleases are NOT imported: the SaaS models the release as
-    the job_orders row itself (§1.7b, documented). The remaining tables
-    (allocations, QC entries, actual costs, replacements, cutting
-    sessions/sheets/pieces, process executions/pairings/assemblies,
-    workstations, control holds/assignments/overrides) are the §1.7b
-    deferred schema — counted and reported here, never silently
+    the job_orders row itself (§1.7b, documented). ProductionQcEntries
+    stay deferred — QC lives as typed events in the SaaS (documented).
+    Every deferred table is counted and reported here, never silently
     dropped.
     """
 
@@ -1819,24 +1846,23 @@ class ProductionModule(Module):
     depends_on = ["users", "sheetstore", "proformas", "optimization",
                   "joborders"]
 
-    #: source tables with no SaaS materialization (§1.7b deferred list)
+    #: source tables with no SaaS materialization (§1.7b deferred list —
+    #: everything else is ported since 26a/26b)
     DEFERRED_TABLES = {
         "ProductionReleases": "the release IS the job_orders row",
-        "MaterialAllocations": "allocation ledger — optimization slice",
         "ProductionQcEntries": "QC lives as typed events in the SaaS",
-        "ProductionActualCosts": "actual costs — later slice",
-        "ProductionReplacements": "replacement/FOC re-cut workflow — later slice",
-        "CuttingSessions": "cutting session persistence — later slice",
-        "CuttingSheets": "cutting session persistence — later slice",
-        "CuttingPlacedPieces": "cutting session persistence — later slice",
-        "ProcessExecutions": "process tracking — later slice",
-        "ProcessPairings": "process tracking — later slice",
-        "ProcessAssemblies": "process tracking — later slice",
-        "Workstations": "workstation registry — later slice",
-        "ProductionControlHolds": "production control — later slice",
-        "ProductionControlAssignments": "production control — later slice",
-        "ProductionControlOverrides": "production control — later slice",
     }
+
+    #: source tables ported in 26a/26b — tolerated when absent from an
+    #: older WPF data root (each SELECT degrades to no rows).
+    PORTED_TABLES = [
+        "ProcessExecutions", "ProcessPairings", "ProcessAssemblies",
+        "Workstations", "ProductionControlHolds",
+        "ProductionControlAssignments", "ProductionControlOverrides",
+        "MaterialAllocations", "ProductionActualCosts",
+        "ProductionReplacements", "CuttingSessions", "CuttingSheets",
+        "CuttingPlacedPieces",
+    ]
 
     def run(self, pg: PgCursor, tenant_id: uuid.UUID,
             id_map: dict) -> tuple[int, int]:
@@ -1881,7 +1907,131 @@ class ProductionModule(Module):
                 except sqlite3.OperationalError:
                     deferred_counts[table] = None   # table absent
 
-        extracted = len(work_items) + len(entries) + len(reservations)
+            # 26a/26b ported tables — tolerated when absent from an
+            # older WPF data root.
+            def _port(table: str, columns: str) -> list:
+                try:
+                    return src.execute(
+                        f"SELECT {columns} FROM {table}"
+                        f" ORDER BY Id").fetchall()
+                except sqlite3.OperationalError:
+                    self.finding(
+                        "info",
+                        f"{table} absent from the source data root —"
+                        " nothing to port (26a/26b table)", table)
+                    return []
+
+            executions = _port("ProcessExecutions",
+                               "Id, ExecutionId, JobRef, SourceProformaId,"
+                               " SpecGroupNumber, SpecName, SerialNumber,"
+                               " Position, PieceId, InputPieceId,"
+                               " OutputPieceId, ProcessType, Sequence,"
+                               " InputWorkItemId, OutputWorkItemId, Status,"
+                               " StartedBy, StartedAt, CompletedBy,"
+                               " CompletedAt, QtyRequired, QtyDone,"
+                               " EntryType, Reason, Notes, QcStatus, QcId,"
+                               " ParentExecutionId, ReworkSequence, IsFoc,"
+                               " PreviousStage, NextStage, ProcessDetailJson,"
+                               " CreatedBy, CreatedAt, UpdatedAt")
+            pairings = _port("ProcessPairings",
+                             "Id, PairingId, JobRef, SourceProformaId,"
+                             " SpecGroupNumber, SerialNumber, Position,"
+                             " PairId, OuterPieceId, InnerPieceId,"
+                             " OuterGlassRef, InnerGlassRef,"
+                             " OuterWorkItemId, InnerWorkItemId,"
+                             " OuterExecutionId, InnerExecutionId, Status,"
+                             " CreatedBy, CreatedAt, Notes, IsFoc")
+            assemblies = _port("ProcessAssemblies",
+                               "Id, AssemblyId, JobRef, SourceProformaId,"
+                               " SpecGroupNumber, SerialNumber, Position,"
+                               " AssemblyLabel, AssemblyType, ComponentsJson,"
+                               " SpacerInfo, InterlayerInfo, SealantInfo,"
+                               " PairingId, Status, QtyRequired, QtyDone,"
+                               " CreatedBy, CreatedAt, CompletedAt, Notes,"
+                               " IsFoc, QcId")
+            workstations = _port("Workstations",
+                                 "Id, WorkstationId, Code, Name, ProcessType,"
+                                 " ProcessName, IsActive, Description,"
+                                 " CreatedBy, CreatedAt, UpdatedAt")
+            holds = _port("ProductionControlHolds",
+                          "Id, HoldId, WorkItemId, JobRef, SpecGroupNumber,"
+                          " SerialNumber, Position, Stage, HoldReason,"
+                          " HeldBy, HeldAt, ReleasedBy, ReleasedAt,"
+                          " IsReleased, Notes, CreatedAt, UpdatedAt")
+            assignments = _port("ProductionControlAssignments",
+                                "Id, AssignmentId, WorkItemId, JobRef,"
+                                " SpecGroupNumber, SerialNumber, Position,"
+                                " Stage, WorkstationId, Operator,"
+                                " AssignedBy, AssignedAt, UnassignedBy,"
+                                " UnassignedAt, IsActive, Notes, CreatedAt,"
+                                " UpdatedAt")
+            overrides = _port("ProductionControlOverrides",
+                              "Id, ControlId, WorkItemId, JobRef,"
+                              " SpecGroupNumber, SerialNumber, Position,"
+                              " Stage, Priority, DueDate, PrioritySetBy,"
+                              " PrioritySetAt, Notes, CreatedAt, UpdatedAt")
+            allocations = _port("MaterialAllocations",
+                                "Id, AllocationId, ReservationId, JobRef,"
+                                " SpecGroupNumber, SerialNumber,"
+                                " OptimizationSessionId, SheetNo,"
+                                " PlacedPieceLabel, GlassRef, WidthMm,"
+                                " HeightMm, Quantity, UtilizationPct,"
+                                " WastagePct, Status, CreatedBy, CreatedAt,"
+                                " ConsumedAt, Notes")
+            actual_costs = _port("ProductionActualCosts",
+                                 "Id, CostId, JobRef, SourceProformaId,"
+                                 " SpecGroupNumber, SerialNumber, GlassRef,"
+                                 " SpecName, CostType, StockSheetId,"
+                                 " MaterialAllocationId, Quantity, UnitCost,"
+                                 " TotalCost, SellingValue, IsFoc, CreatedBy,"
+                                 " CreatedAt, Notes")
+            replacements = _port("ProductionReplacements",
+                                 "Id, ReplacementId, JobRef, SourceProformaId,"
+                                 " SpecGroupNumber, SerialNumber, GlassRef,"
+                                 " SpecName, Position, Stage,"
+                                 " OriginalWorkItemId, OriginalEntryId,"
+                                 " ReplacementWorkItemId, EntryType, Reason,"
+                                 " Quantity, IsFoc, ReplacementSequence,"
+                                 " CreatedBy, CreatedAt, Status")
+            cutting_sessions = _port("CuttingSessions",
+                                     "Id, CuttingSessionId, JobRef,"
+                                     " SourceProformaId,"
+                                     " OptimizationSessionId,"
+                                     " MaterialGroupId, TotalPieces,"
+                                     " SheetsUsed, UtilizationPct,"
+                                     " WastagePct, Status, RotationPolicy,"
+                                     " SplitMode, EffortLevel,"
+                                     " MarginProfileJson, IsVerified,"
+                                     " VerificationResult, CreatedBy,"
+                                     " CreatedAt, CompletedAt, Notes")
+            cutting_sheets = _port("CuttingSheets",
+                                   "Id, CuttingSheetId, CuttingSessionId,"
+                                   " JobRef, SheetNo, StockSheetId,"
+                                   " StockSizeLabel, StockWidthMm,"
+                                   " StockHeightMm, ThicknessMm, Color,"
+                                   " UsableX, UsableY, UsableWidth,"
+                                   " UsableHeight, UsedSqm, StockSqm,"
+                                   " UtilizationPct, WastagePct,"
+                                   " IsVerified, VerificationResult,"
+                                   " PlacedPieceCount, CreatedBy, CreatedAt")
+            cutting_pieces = _port("CuttingPlacedPieces",
+                                   "Id, PlacedPieceId, CuttingSheetId,"
+                                   " CuttingSessionId, JobRef,"
+                                   " SpecGroupNumber, SerialNumber, GlassRef,"
+                                   " SpecName, Position, PieceId, PieceLabel,"
+                                   " WidthMm, HeightMm, X, Y, IsRotated,"
+                                   " CutSequence, Status, SourceWorkItemId,"
+                                   " ReservationId, AllocationId, IsFoc,"
+                                   " CreatedBy, CreatedAt, Notes")
+
+        reservations_by_key: dict[str, uuid.UUID] = {}
+        extracted = (len(work_items) + len(entries) + len(reservations)
+                     + len(executions) + len(pairings)
+                     + len(assemblies) + len(workstations)
+                     + len(holds) + len(assignments) + len(overrides)
+                     + len(allocations) + len(actual_costs)
+                     + len(replacements) + len(cutting_sessions)
+                     + len(cutting_sheets) + len(cutting_pieces))
         loaded = 0
         pieces_by_int: dict[int, uuid.UUID] = {}
 
@@ -2049,6 +2199,7 @@ class ProductionModule(Module):
             opt_session_id = opt_sessions.get(
                 (res["OptimizationSessionId"] or "").strip()) or None \
                 if (res["OptimizationSessionId"] or "").strip() else None
+            res_uuid = uuid.uuid4()
             ok, err = insert_with_savepoint(
                 pg,
                 """
@@ -2062,7 +2213,7 @@ class ProductionModule(Module):
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
-                (uuid.uuid4(), tenant_id, job_order_id, glass_sheet_id,
+                (res_uuid, tenant_id, job_order_id, glass_sheet_id,
                  int(res["Quantity"] or 0), status, reserved_by,
                  res["ReservationId"] or "",
                  int(res["SpecGroupNumber"] or 0),
@@ -2075,11 +2226,21 @@ class ProductionModule(Module):
                  res["ReleaseReason"] or "", to_utc(res["CreatedAt"]),
                  to_utc(res["CreatedAt"])))
             if ok:
+                reservations_by_key[(res["ReservationId"] or "").strip()] = res_uuid
                 loaded += 1
             else:
                 _reject(self.finding,
                         f"Reservation '{res['ReservationId']}'", res["Id"],
                         "MaterialReservations", err)
+
+        loaded += self._port_process_control(
+            pg, tenant_id, id_map, users, job_orders, pieces_by_int,
+            executions, pairings, assemblies, workstations, holds,
+            assignments, overrides)
+        loaded += self._port_cutting_costs(
+            pg, tenant_id, id_map, users, job_orders, pieces_by_int,
+            opt_sessions, reservations_by_key, allocations, actual_costs,
+            replacements, cutting_sessions, cutting_sheets, cutting_pieces)
 
         for table, reason in self.DEFERRED_TABLES.items():
             count = deferred_counts.get(table)
@@ -2093,6 +2254,646 @@ class ProductionModule(Module):
                              f"{table} absent from the source data root —"
                              f" {reason}", table)
         return extracted, loaded
+
+    # ── 26a port: process execution + control tables ─────────────────
+
+    def _port_process_control(self, pg: PgCursor, tenant_id: uuid.UUID,
+                              id_map: dict, users: dict, job_orders: dict,
+                              pieces_by_int: dict, executions, pairings,
+                              assemblies, workstations, holds, assignments,
+                              overrides) -> int:
+        """WPF ProcessExecutions/Pairings/Assemblies, Workstations and
+        Control holds/assignments/overrides → the 0021 tables. int enums
+        become the SaaS TEXT vocabularies; int work-item ids become the
+        migrated production_pieces uuids."""
+        loaded = 0
+
+        def user(name):
+            name = (name or "").strip()
+            return users.get(name) or None if name else None
+
+        def job_id(job_ref):
+            return job_orders.get((job_ref or "").strip())
+
+        for e in executions:
+            job_order_id = job_id(e["JobRef"])
+            if job_order_id is None:
+                self.finding("error",
+                             f"Execution '{e['ExecutionId']}' references"
+                             f" job order '{e['JobRef']}' which was not"
+                             " imported — skipped",
+                             f"ProcessExecutions.Id={e['Id']}")
+                continue
+            status = WORK_ITEM_STATUSES.get(int(e["Status"] or 0))
+            entry_type = PRODUCTION_ENTRY_TYPES.get(int(e["EntryType"] or 0))
+            qc_status = QC_RESULTS.get(int(e["QcStatus"] or 0))
+            if status is None or entry_type is None or qc_status is None:
+                self.finding("error",
+                             f"Execution '{e['ExecutionId']}' has an enum"
+                             " value outside the WPF ranges — skipped",
+                             f"ProcessExecutions.Id={e['Id']}")
+                continue
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.process_executions
+                  (id, tenant_id, execution_id, job_order_id, job_ref,
+                   source_proforma_id, production_piece_id,
+                   input_production_piece_id, spec_group_number, spec_name,
+                   serial_number, position, piece_id, input_piece_id,
+                   output_piece_id, process_type, sequence, status,
+                   started_by, started_at, completed_by, completed_at,
+                   qty_required, qty_done, entry_type, reason, notes,
+                   qc_status, qc_id, parent_execution_id, rework_sequence,
+                   is_foc, previous_stage, next_stage, process_detail_json,
+                   created_by, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, e["ExecutionId"] or "",
+                 job_order_id, (e["JobRef"] or "").strip(),
+                 e["SourceProformaId"] or "",
+                 pieces_by_int.get(int(e["OutputWorkItemId"] or 0))
+                 or pieces_by_int.get(int(e["InputWorkItemId"] or 0)),
+                 pieces_by_int.get(int(e["InputWorkItemId"] or 0)),
+                 int(e["SpecGroupNumber"] or 0), e["SpecName"] or "",
+                 int(e["SerialNumber"] or 0), e["Position"] or "",
+                 e["PieceId"] or "", e["InputPieceId"] or "",
+                 e["OutputPieceId"] or "", int(e["ProcessType"] or 1),
+                 int(e["Sequence"] or 0), status,
+                 user(e["StartedBy"]), to_utc(e["StartedAt"]),
+                 user(e["CompletedBy"]), to_utc(e["CompletedAt"]),
+                 int(e["QtyRequired"] or 0), int(e["QtyDone"] or 0),
+                 entry_type, e["Reason"] or "", e["Notes"] or "",
+                 qc_status, e["QcId"] or "",
+                 e["ParentExecutionId"] or "",
+                 int(e["ReworkSequence"] or 0), bool(e["IsFoc"]),
+                 e["PreviousStage"] or "", e["NextStage"] or "",
+                 e["ProcessDetailJson"] or "", user(e["CreatedBy"]),
+                 to_utc(e["CreatedAt"]), to_utc(e["UpdatedAt"])))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding, f"Execution '{e['ExecutionId']}'",
+                        e["Id"], "ProcessExecutions", err)
+
+        for row in pairings:
+            status = WORK_ITEM_STATUSES.get(int(row["Status"] or 0))
+            if status is None:
+                self.finding("error",
+                             f"Pairing '{row['PairingId']}' status"
+                             f" {row['Status']} is outside the WPF"
+                             " WorkItemStatus enum — skipped",
+                             f"ProcessPairings.Id={row['Id']}")
+                continue
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.process_pairings
+                  (id, tenant_id, pairing_id, job_order_id, job_ref,
+                   source_proforma_id, spec_group_number, serial_number,
+                   position, pair_id, outer_piece_id, inner_piece_id,
+                   outer_glass_ref, inner_glass_ref,
+                   outer_production_piece_id, inner_production_piece_id,
+                   outer_execution_id, inner_execution_id, status, notes,
+                   is_foc, created_by, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, row["PairingId"] or "",
+                 job_id(row["JobRef"]), (row["JobRef"] or "").strip(),
+                 row["SourceProformaId"] or "",
+                 int(row["SpecGroupNumber"] or 0),
+                 int(row["SerialNumber"] or 0), row["Position"] or "",
+                 row["PairId"] or "", row["OuterPieceId"] or "",
+                 row["InnerPieceId"] or "", row["OuterGlassRef"] or "",
+                 row["InnerGlassRef"] or "",
+                 pieces_by_int.get(int(row["OuterWorkItemId"] or 0)),
+                 pieces_by_int.get(int(row["InnerWorkItemId"] or 0)),
+                 row["OuterExecutionId"] or "",
+                 row["InnerExecutionId"] or "", status,
+                 row["Notes"] or "", bool(row["IsFoc"]),
+                 user(row["CreatedBy"]), to_utc(row["CreatedAt"]),
+                 to_utc(row["CreatedAt"])))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding, f"Pairing '{row['PairingId']}'",
+                        row["Id"], "ProcessPairings", err)
+
+        for row in assemblies:
+            status = WORK_ITEM_STATUSES.get(int(row["Status"] or 0))
+            if status is None:
+                self.finding("error",
+                             f"Assembly '{row['AssemblyId']}' status"
+                             f" {row['Status']} is outside the WPF"
+                             " WorkItemStatus enum — skipped",
+                             f"ProcessAssemblies.Id={row['Id']}")
+                continue
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.process_assemblies
+                  (id, tenant_id, assembly_id, job_order_id, job_ref,
+                   source_proforma_id, spec_group_number, serial_number,
+                   position, assembly_label, assembly_type,
+                   components_json, spacer_info, interlayer_info,
+                   sealant_info, pairing_id, status, qty_required,
+                   qty_done, is_foc, qc_id, notes, created_by, created_at,
+                   completed_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, row["AssemblyId"] or "",
+                 job_id(row["JobRef"]), (row["JobRef"] or "").strip(),
+                 row["SourceProformaId"] or "",
+                 int(row["SpecGroupNumber"] or 0),
+                 int(row["SerialNumber"] or 0), row["Position"] or "",
+                 row["AssemblyLabel"] or "", row["AssemblyType"] or "",
+                 row["ComponentsJson"] or "[]", row["SpacerInfo"] or "",
+                 row["InterlayerInfo"] or "", row["SealantInfo"] or "",
+                 row["PairingId"] or "", status,
+                 int(row["QtyRequired"] or 1), int(row["QtyDone"] or 1),
+                 bool(row["IsFoc"]), row["QcId"] or "", row["Notes"] or "",
+                 user(row["CreatedBy"]), to_utc(row["CreatedAt"]),
+                 to_utc(row["CompletedAt"]), to_utc(row["CreatedAt"])))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding, f"Assembly '{row['AssemblyId']}'",
+                        row["Id"], "ProcessAssemblies", err)
+
+        # WPF Workstations are app-global; the SaaS registry is
+        # per-tenant (0021) — the stations import into THIS tenant.
+        for w in workstations:
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.workstations
+                  (id, tenant_id, workstation_id, code, name, process_type,
+                   process_name, is_active, description, created_by,
+                   created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, w["WorkstationId"] or "",
+                 w["Code"] or "", w["Name"] or "",
+                 int(w["ProcessType"] or 1), w["ProcessName"] or "",
+                 bool(w["IsActive"]), w["Description"] or "",
+                 user(w["CreatedBy"]), to_utc(w["CreatedAt"]),
+                 to_utc(w["UpdatedAt"])))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding,
+                        f"Workstation '{w['WorkstationId']}'", w["Id"],
+                        "Workstations", err)
+
+        for row in holds:
+            piece_id = pieces_by_int.get(int(row["WorkItemId"] or 0))
+            if piece_id is None:
+                self.finding("error",
+                             f"Hold '{row['HoldId']}' references work item"
+                             f" {row['WorkItemId']} which was not imported"
+                             " — skipped (production_piece_id NOT NULL)",
+                             f"ProductionControlHolds.Id={row['Id']}")
+                continue
+            stage = PRODUCTION_STAGES.get(int(row["Stage"] or 0)) or ""
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.production_control_holds
+                  (id, tenant_id, hold_id, production_piece_id,
+                   job_order_id, job_ref, spec_group_number, serial_number,
+                   position, stage, hold_reason, held_by, held_at,
+                   released_by, released_at, is_released, notes,
+                   created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, row["HoldId"] or "", piece_id,
+                 job_id(row["JobRef"]), (row["JobRef"] or "").strip(),
+                 int(row["SpecGroupNumber"] or 0),
+                 int(row["SerialNumber"] or 0), row["Position"] or "",
+                 stage, row["HoldReason"] or "", user(row["HeldBy"]),
+                 to_utc(row["HeldAt"]), user(row["ReleasedBy"]),
+                 to_utc(row["ReleasedAt"]), bool(row["IsReleased"]),
+                 row["Notes"] or "", to_utc(row["CreatedAt"]),
+                 to_utc(row["UpdatedAt"])))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding, f"Hold '{row['HoldId']}'", row["Id"],
+                        "ProductionControlHolds", err)
+
+        for row in assignments:
+            piece_id = pieces_by_int.get(int(row["WorkItemId"] or 0))
+            if piece_id is None:
+                self.finding("error",
+                             f"Assignment '{row['AssignmentId']}' references"
+                             f" work item {row['WorkItemId']} which was not"
+                             " imported — skipped (production_piece_id NOT"
+                             " NULL)",
+                             f"ProductionControlAssignments.Id={row['Id']}")
+                continue
+            stage = PRODUCTION_STAGES.get(int(row["Stage"] or 0)) or ""
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.production_control_assignments
+                  (id, tenant_id, assignment_id, production_piece_id,
+                   job_order_id, job_ref, spec_group_number, serial_number,
+                   position, stage, workstation_id, operator_name,
+                   assigned_by, assigned_at, unassigned_by, unassigned_at,
+                   is_active, notes, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, row["AssignmentId"] or "",
+                 piece_id, job_id(row["JobRef"]), (row["JobRef"] or "").strip(),
+                 int(row["SpecGroupNumber"] or 0),
+                 int(row["SerialNumber"] or 0), row["Position"] or "",
+                 stage, row["WorkstationId"] or "", row["Operator"] or "",
+                 user(row["AssignedBy"]), to_utc(row["AssignedAt"]),
+                 user(row["UnassignedBy"]), to_utc(row["UnassignedAt"]),
+                 bool(row["IsActive"]), row["Notes"] or "",
+                 to_utc(row["CreatedAt"]), to_utc(row["UpdatedAt"])))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding,
+                        f"Assignment '{row['AssignmentId']}'", row["Id"],
+                        "ProductionControlAssignments", err)
+
+        for row in overrides:
+            piece_id = pieces_by_int.get(int(row["WorkItemId"] or 0))
+            if piece_id is None:
+                self.finding("error",
+                             f"Override '{row['ControlId']}' references work"
+                             f" item {row['WorkItemId']} which was not"
+                             " imported — skipped (production_piece_id NOT"
+                             " NULL)",
+                             f"ProductionControlOverrides.Id={row['Id']}")
+                continue
+            stage = PRODUCTION_STAGES.get(int(row["Stage"] or 0)) or ""
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.production_control_overrides
+                  (id, tenant_id, control_id, production_piece_id,
+                   job_order_id, job_ref, spec_group_number, serial_number,
+                   position, stage, priority, due_date, priority_set_by,
+                   priority_set_at, notes, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, row["ControlId"] or "", piece_id,
+                 job_id(row["JobRef"]), (row["JobRef"] or "").strip(),
+                 int(row["SpecGroupNumber"] or 0),
+                 int(row["SerialNumber"] or 0), row["Position"] or "",
+                 stage, int(row["Priority"] or 0), to_utc(row["DueDate"]),
+                 user(row["PrioritySetBy"]), to_utc(row["PrioritySetAt"]),
+                 row["Notes"] or "", to_utc(row["CreatedAt"]),
+                 to_utc(row["UpdatedAt"])))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding, f"Override '{row['ControlId']}'",
+                        row["Id"], "ProductionControlOverrides", err)
+
+        return loaded
+
+    # ── 26b port: cutting + costs tables ─────────────────────────────
+
+    def _port_cutting_costs(self, pg: PgCursor, tenant_id: uuid.UUID,
+                            id_map: dict, users: dict, job_orders: dict,
+                            pieces_by_int: dict, opt_sessions: dict,
+                            reservations_by_key: dict, allocations,
+                            actual_costs, replacements, cutting_sessions,
+                            cutting_sheets, cutting_pieces) -> int:
+        """WPF MaterialAllocations, ProductionActualCosts,
+        ProductionReplacements, CuttingSessions/Sheets/PlacedPieces →
+        the 0022 tables."""
+        loaded = 0
+        sheets: dict = id_map.get("glass_sheets_by_int", {})
+
+        def user(name):
+            name = (name or "").strip()
+            return users.get(name) or None if name else None
+
+        def job_id(job_ref):
+            return job_orders.get((job_ref or "").strip())
+
+        def opt_id(raw):
+            key = (raw or "").strip()
+            return opt_sessions.get(key) if key else None
+
+        for a in allocations:
+            key = (a["ReservationId"] or "").strip()
+            reservation_uuid = reservations_by_key.get(key)
+            if key and reservation_uuid is None:
+                self.finding("error",
+                             f"Allocation '{a['AllocationId']}' references"
+                             f" reservation '{key}' which was not imported"
+                             " — reservation link null (row kept, the WPF"
+                             " key is preserved)",
+                             f"MaterialAllocations.Id={a['Id']}")
+            status = RESERVATION_STATUSES.get(int(a["Status"] or 2))
+            if status is None:
+                self.finding("error",
+                             f"Allocation '{a['AllocationId']}' status"
+                             f" {a['Status']} is outside the WPF"
+                             " AllocationStatus enum — skipped",
+                             f"MaterialAllocations.Id={a['Id']}")
+                continue
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.material_allocations
+                  (id, tenant_id, allocation_id, reservation_id,
+                   reservation_key, job_order_id, job_ref,
+                   spec_group_number, serial_number, optimization_session_id,
+                   sheet_no, placed_piece_label, glass_ref, width_mm,
+                   height_mm, quantity, utilization_pct, wastage_pct,
+                   status, created_by, created_at, consumed_at, notes)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, a["AllocationId"] or "",
+                 reservation_uuid, key, job_id(a["JobRef"]),
+                 (a["JobRef"] or "").strip(),
+                 int(a["SpecGroupNumber"] or 0),
+                 int(a["SerialNumber"] or 0), opt_id(a["OptimizationSessionId"]),
+                 int(a["SheetNo"] or 0), a["PlacedPieceLabel"] or "",
+                 a["GlassRef"] or "", int(a["WidthMm"] or 0),
+                 int(a["HeightMm"] or 0), int(a["Quantity"] or 1),
+                 money(a["UtilizationPct"]), money(a["WastagePct"]),
+                 status, user(a["CreatedBy"]), to_utc(a["CreatedAt"]),
+                 to_utc(a["ConsumedAt"]), a["Notes"] or ""))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding, f"Allocation '{a['AllocationId']}'",
+                        a["Id"], "MaterialAllocations", err)
+
+        for c in actual_costs:
+            cost_type = ACTUAL_COST_TYPES.get(int(c["CostType"] or 1))
+            if cost_type is None:
+                self.finding("error",
+                             f"Cost '{c['CostId']}' cost type"
+                             f" {c['CostType']} is outside the WPF"
+                             " ActualCostType enum — skipped",
+                             f"ProductionActualCosts.Id={c['Id']}")
+                continue
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.production_actual_costs
+                  (id, tenant_id, cost_id, job_order_id, job_ref,
+                   source_proforma_id, spec_group_number, serial_number,
+                   glass_ref, spec_name, cost_type, stock_sheet_id,
+                   material_allocation_id, quantity, unit_cost, total_cost,
+                   selling_value, is_foc, created_by, created_at, notes)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, c["CostId"] or "",
+                 job_id(c["JobRef"]), (c["JobRef"] or "").strip(),
+                 c["SourceProformaId"] or "",
+                 int(c["SpecGroupNumber"] or 0),
+                 int(c["SerialNumber"] or 0), c["GlassRef"] or "",
+                 c["SpecName"] or "", cost_type,
+                 sheets.get(int(c["StockSheetId"] or 0)),
+                 c["MaterialAllocationId"] or "",
+                 money(c["Quantity"]), money(c["UnitCost"]),
+                 money(c["TotalCost"]), money(c["SellingValue"]),
+                 bool(c["IsFoc"]), user(c["CreatedBy"]),
+                 to_utc(c["CreatedAt"]), c["Notes"] or ""))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding, f"Cost '{c['CostId']}'", c["Id"],
+                        "ProductionActualCosts", err)
+
+        for row in replacements:
+            entry_type = {2: "Rework", 3: "Foc"}.get(int(row["EntryType"] or 2))
+            if entry_type is None:
+                self.finding("error",
+                             f"Replacement '{row['ReplacementId']}' entry"
+                             f" type {row['EntryType']} is outside the"
+                             " Rework/Foc pair — skipped",
+                             f"ProductionReplacements.Id={row['Id']}")
+                continue
+            status = REPLACEMENT_STATUSES.get(int(row["Status"] or 0))
+            if status is None:
+                self.finding("error",
+                             f"Replacement '{row['ReplacementId']}' status"
+                             f" {row['Status']} is outside the WPF range —"
+                             " skipped",
+                             f"ProductionReplacements.Id={row['Id']}")
+                continue
+            stage = PRODUCTION_STAGES.get(int(row["Stage"] or 0)) or ""
+            if row["OriginalEntryId"]:
+                self.finding("info",
+                             f"Replacement '{row['ReplacementId']}' links"
+                             " its breakage event by WPF entry id"
+                             f" {row['OriginalEntryId']} — the SaaS event"
+                             " rows carry fresh uuids, the link is not"
+                             " portable (left null)",
+                             f"ProductionReplacements.Id={row['Id']}")
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.production_replacements
+                  (id, tenant_id, replacement_id, job_order_id, job_ref,
+                   source_proforma_id, spec_group_number, serial_number,
+                   glass_ref, spec_name, position, stage,
+                   original_piece_id, replacement_piece_id, entry_type,
+                   reason, quantity, is_foc, replacement_sequence,
+                   created_by, created_at, status)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, row["ReplacementId"] or "",
+                 job_id(row["JobRef"]), (row["JobRef"] or "").strip(),
+                 row["SourceProformaId"] or "",
+                 int(row["SpecGroupNumber"] or 0),
+                 int(row["SerialNumber"] or 0), row["GlassRef"] or "",
+                 row["SpecName"] or "", row["Position"] or "", stage,
+                 pieces_by_int.get(int(row["OriginalWorkItemId"] or 0)),
+                 pieces_by_int.get(int(row["ReplacementWorkItemId"] or 0)),
+                 entry_type, row["Reason"] or "",
+                 int(row["Quantity"] or 1), bool(row["IsFoc"]),
+                 int(row["ReplacementSequence"] or 1),
+                 user(row["CreatedBy"]), to_utc(row["CreatedAt"]), status))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding,
+                        f"Replacement '{row['ReplacementId']}'", row["Id"],
+                        "ProductionReplacements", err)
+
+        sessions_by_str: dict[str, uuid.UUID] = {}
+        for row in cutting_sessions:
+            status = CUTTING_SESSION_STATUSES.get(int(row["Status"] or 0))
+            rotation = ROTATION_POLICIES.get(int(row["RotationPolicy"] or 1))
+            split = SPLIT_MODES.get(int(row["SplitMode"] or 0))
+            if status is None or rotation is None or split is None:
+                self.finding("error",
+                             f"Cutting session '{row['CuttingSessionId']}'"
+                             " has an enum value outside the WPF ranges —"
+                             " skipped",
+                             f"CuttingSessions.Id={row['Id']}")
+                continue
+            session_uuid = uuid.uuid4()
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.cutting_sessions
+                  (id, tenant_id, cutting_session_id, job_order_id, job_ref,
+                   source_proforma_id, optimization_session_id,
+                   material_group_id, total_pieces, sheets_used,
+                   utilization_pct, wastage_pct, status, rotation_policy,
+                   split_mode, effort_level, margin_profile_json,
+                   is_verified, verification_result, created_by, created_at,
+                   completed_at, notes)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (session_uuid, tenant_id, row["CuttingSessionId"] or "",
+                 job_id(row["JobRef"]), (row["JobRef"] or "").strip(),
+                 row["SourceProformaId"] or "",
+                 opt_id(row["OptimizationSessionId"]),
+                 row["MaterialGroupId"] or "",
+                 int(row["TotalPieces"] or 0), int(row["SheetsUsed"] or 0),
+                 money(row["UtilizationPct"]), money(row["WastagePct"]),
+                 status, rotation, split,
+                 int(row["EffortLevel"] or 3),
+                 row["MarginProfileJson"] or "",
+                 bool(row["IsVerified"]),
+                 row["VerificationResult"] or "",
+                 user(row["CreatedBy"]), to_utc(row["CreatedAt"]),
+                 to_utc(row["CompletedAt"]), row["Notes"] or ""))
+            if ok:
+                sessions_by_str[(row["CuttingSessionId"] or "").strip()] = session_uuid
+                loaded += 1
+            else:
+                _reject(self.finding,
+                        f"Cutting session '{row['CuttingSessionId']}'",
+                        row["Id"], "CuttingSessions", err)
+
+        sheets_by_str: dict[str, uuid.UUID] = {}
+        for row in cutting_sheets:
+            session_uuid = sessions_by_str.get(
+                (row["CuttingSessionId"] or "").strip())
+            if session_uuid is None:
+                self.finding("error",
+                             f"Cutting sheet '{row['CuttingSheetId']}'"
+                             f" references session"
+                             f" '{row['CuttingSessionId']}' which was not"
+                             " imported — skipped",
+                             f"CuttingSheets.Id={row['Id']}")
+                continue
+            sheet_uuid = uuid.uuid4()
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.cutting_sheets
+                  (id, tenant_id, cutting_sheet_id, cutting_session_id,
+                   job_order_id, job_ref, sheet_no, stock_sheet_id,
+                   stock_size_label, stock_width_mm, stock_height_mm,
+                   thickness_mm, color, usable_x, usable_y,
+                   usable_width_mm, usable_height_mm, used_sqm, stock_sqm,
+                   utilization_pct, wastage_pct, is_verified,
+                   verification_result, placed_piece_count, created_by,
+                   created_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s)
+                """,
+                (sheet_uuid, tenant_id, row["CuttingSheetId"] or "",
+                 session_uuid, job_id(row["JobRef"]),
+                 (row["JobRef"] or "").strip(), int(row["SheetNo"] or 1),
+                 sheets.get(int(row["StockSheetId"] or 0)),
+                 row["StockSizeLabel"] or "",
+                 int(row["StockWidthMm"] or 0),
+                 int(row["StockHeightMm"] or 0),
+                 int(row["ThicknessMm"] or 0), row["Color"] or "",
+                 int(row["UsableX"] or 0), int(row["UsableY"] or 0),
+                 int(row["UsableWidth"] or 0), int(row["UsableHeight"] or 0),
+                 money(row["UsedSqm"]), money(row["StockSqm"]),
+                 money(row["UtilizationPct"]), money(row["WastagePct"]),
+                 bool(row["IsVerified"]),
+                 row["VerificationResult"] or "",
+                 int(row["PlacedPieceCount"] or 0),
+                 user(row["CreatedBy"]), to_utc(row["CreatedAt"])))
+            if ok:
+                sheets_by_str[(row["CuttingSheetId"] or "").strip()] = sheet_uuid
+                loaded += 1
+            else:
+                _reject(self.finding,
+                        f"Cutting sheet '{row['CuttingSheetId']}'",
+                        row["Id"], "CuttingSheets", err)
+
+        for row in cutting_pieces:
+            sheet_uuid = sheets_by_str.get((row["CuttingSheetId"] or "").strip())
+            session_uuid = sessions_by_str.get(
+                (row["CuttingSessionId"] or "").strip())
+            if sheet_uuid is None or session_uuid is None:
+                self.finding("error",
+                             f"Placed piece '{row['PlacedPieceId']}'"
+                             " references a cutting sheet/session which"
+                             " was not imported — skipped",
+                             f"CuttingPlacedPieces.Id={row['Id']}")
+                continue
+            status = CUTTING_PIECE_STATUSES.get(int(row["Status"] or 0))
+            if status is None:
+                self.finding("error",
+                             f"Placed piece '{row['PlacedPieceId']}' status"
+                             f" {row['Status']} is outside the WPF"
+                             " CuttingPieceStatus enum — skipped",
+                             f"CuttingPlacedPieces.Id={row['Id']}")
+                continue
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.cutting_placed_pieces
+                  (id, tenant_id, placed_piece_id, cutting_sheet_id,
+                   cutting_session_id, job_order_id, job_ref,
+                   spec_group_number, serial_number, glass_ref, spec_name,
+                   position, piece_id, piece_label, width_mm, height_mm, x,
+                   y, is_rotated, cut_sequence, status, source_piece_id,
+                   reservation_key, allocation_id, is_foc, created_by,
+                   created_at, notes)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s)
+                """,
+                (uuid.uuid4(), tenant_id, row["PlacedPieceId"] or "",
+                 sheet_uuid, session_uuid, job_id(row["JobRef"]),
+                 (row["JobRef"] or "").strip(),
+                 int(row["SpecGroupNumber"] or 0),
+                 int(row["SerialNumber"] or 0), row["GlassRef"] or "",
+                 row["SpecName"] or "", row["Position"] or "",
+                 row["PieceId"] or "", row["PieceLabel"] or "",
+                 int(row["WidthMm"] or 0), int(row["HeightMm"] or 0),
+                 int(row["X"] or 0), int(row["Y"] or 0),
+                 bool(row["IsRotated"]), int(row["CutSequence"] or 0),
+                 status,
+                 pieces_by_int.get(int(row["SourceWorkItemId"] or 0)),
+                 row["ReservationId"] or "", row["AllocationId"] or "",
+                 bool(row["IsFoc"]), user(row["CreatedBy"]),
+                 to_utc(row["CreatedAt"]), row["Notes"] or ""))
+            if ok:
+                loaded += 1
+            else:
+                _reject(self.finding,
+                        f"Placed piece '{row['PlacedPieceId']}'", row["Id"],
+                        "CuttingPlacedPieces", err)
+
+        return loaded
 
 
 # ── module 9: deliverynotes.db ───────────────────────────────────────

@@ -29,7 +29,8 @@ namespace ProGlass.Saas.Application.Production;
 // ═══════════════════════════════════════════════════════════════════════
 
 public sealed class ProcessExecutionService(
-    IProcessControlStore store, IProductionStore production, IAuditWriter audit)
+    IProcessControlStore store, IProductionStore production, IAuditWriter audit,
+    ReplacementService replacements)
 {
     private const int MaxListTake = 200;
 
@@ -433,37 +434,33 @@ public sealed class ProcessExecutionService(
                 "The execution was modified by someone else — reload and retry.");
         }
 
-        // The Phase 9b breakage event on the linked work item (WPF reuses
-        // ProductionBreakageService with qty 1).
+        // The Phase 14 replacement flow (WPF reuses
+        // ProductionBreakageService.RecordBreakageAsync with qty 1): the
+        // breakage event lands on the linked work item AND a traceable
+        // replacement work item + replacement row are created — since 26b
+        // the child execution links the real replacement piece (the 26a
+        // placeholder linked the original; mapping §1.7d).
+        Guid? replacementPieceId = null;
+        string? replacementId = null;
         if (exec.ProductionPieceId is { } pieceId)
         {
             var piece = await production.FindAsync(tenantId, pieceId, ct);
             if (piece is not null && !piece.IsCancelled)
             {
-                await production.AppendEventAsync(tenantId, new ProductionEvent
+                var replacementResult = await replacements.RecordBreakageAsync(
+                    tenantId, actorId,
+                    new ReplacementBreakageRequest(
+                        piece.Id, 1, request.Reason, request.IsFoc,
+                        $"Breakage during {ProductionStages.Name(exec.ProcessType)} {executionId}"),
+                    ip, ct);
+                if (!replacementResult.Success)
                 {
-                    Id = Guid.NewGuid(),
-                    TenantId = tenantId,
-                    ProductionPieceId = piece.Id,
-                    EventType = ProductionEntryTypes.Breakage,
-                    JobOrderId = piece.JobOrderId,
-                    Stage = piece.Stage,
-                    SpecGroupNumber = piece.SpecGroupNumber,
-                    SerialNumber = piece.SerialNumber,
-                    Position = piece.Position,
-                    SpecName = piece.SpecName,
-                    GlassRef = piece.GlassRef,
-                    Qty = 1,
-                    DoneBy = actorId,
-                    Reason = request.Reason,
-                    CreatedAt = DateTime.UtcNow,
-                    Payload = JsonSerializer.Serialize(new
-                    {
-                        executionId,
-                        entryType = request.EntryType,
-                        notes = $"Breakage during {ProductionStages.Name(exec.ProcessType)} {executionId}"
-                    })
-                }, ct);
+                    return ProductionResult<ProcessExecutionDto>.Fail(
+                        replacementResult.ErrorCode,
+                        $"Breakage record failed: {replacementResult.Message}");
+                }
+                replacementPieceId = replacementResult.Value?.ReplacementPieceId;
+                replacementId = replacementResult.Value?.ReplacementId;
             }
         }
 
@@ -480,7 +477,7 @@ public sealed class ProcessExecutionService(
             JobOrderId = exec.JobOrderId,
             JobRef = exec.JobRef,
             SourceProformaId = exec.SourceProformaId,
-            ProductionPieceId = exec.ProductionPieceId, // preserve original (26b links the replacement row)
+            ProductionPieceId = replacementPieceId ?? exec.ProductionPieceId, // the replacement piece (26b); the original until it exists
             InputProductionPieceId = exec.ProductionPieceId,
             SpecGroupNumber = exec.SpecGroupNumber,
             SpecName = exec.SpecName,
@@ -500,7 +497,9 @@ public sealed class ProcessExecutionService(
             IsFoc = request.IsFoc,
             PreviousStage = exec.PreviousStage,
             NextStage = exec.NextStage,
-            Notes = $"Replacement for breakage {executionId}",
+            Notes = replacementId is null
+                ? $"Replacement for breakage {executionId}"
+                : $"Replacement for breakage {executionId} → {replacementId}",
             QcStatus = QcResults.Pending,
             CreatedBy = actorId,
             CreatedAt = DateTime.UtcNow,
@@ -514,7 +513,9 @@ public sealed class ProcessExecutionService(
                 executionId,
                 entryType = request.EntryType,
                 replacementExecutionId = newExecId,
-                outputPieceId = child.OutputPieceId
+                outputPieceId = child.OutputPieceId,
+                replacementPieceId,
+                replacementId
             }, ip, ct);
 
         return ProductionResult<ProcessExecutionDto>.Ok(ToDto(exec, exec.JobRef),

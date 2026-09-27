@@ -79,6 +79,7 @@ public static class DependencyInjection
         services.AddScoped<IDeliveryStore, DeliveryNoteStore>();
         services.AddScoped<IProductionStore, ProductionStore>();
         services.AddScoped<IProcessControlStore, ProcessControlStore>();
+        services.AddScoped<Production.ICuttingCostStore, CuttingCostStore>();
         services.AddScoped<IReservationStore, ReservationStore>();
         services.AddScoped<Optimization.IOptimizationStore, OptimizationStore>();
         services.AddScoped<Fiscal.IFiscalStore, FiscalStore>();
