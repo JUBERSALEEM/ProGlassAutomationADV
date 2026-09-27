@@ -14,6 +14,7 @@ import FiscalPage from "./pages/FiscalPage";
 import MasterDataPage from "./pages/MasterDataPage";
 import ReportsPage from "./pages/ReportsPage";
 import SpecificationsPage from "./pages/SpecificationsPage";
+import PricingPage from "./pages/PricingPage";
 import ProductionBackOfficePage from "./pages/ProductionBackOfficePage";
 import ProductionControlPage from "./pages/ProductionControlPage";
 import ProformaInvoicesPage from "./pages/ProformaInvoicesPage";
@@ -92,6 +93,14 @@ export default function App() {
             element={
               <Protected>
                 <ProductionBackOfficePage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/pricing"
+            element={
+              <Protected>
+                <PricingPage />
               </Protected>
             }
           />

@@ -1015,6 +1015,21 @@ Manual allocations/cost recording and the breakage/rework writes
 stay API-only (the flows already have first-class UIs on the
 cutting floor and the job-order workbench) — documented.
 
+**Phase 37 — front end slice 10: pricing (the Step 4 rate module).**
+Two tabs. Settings: the tenant-editable config only — yield-factor
+and margin defaults, VAT rate/currency, and the seven catalog lists
+(edited one-option-per-line) — with the WPF panel opening defaults
+(incl. the DGU+LAM 344.75 worked chain) and the fixed code lists
+rendered read-only beneath, exactly as the API splits editable vs
+constant. Calculator: glass-type selector (SGU/DGU/LAM/DGU+LAM)
+prefilled from the server's panel defaults, the per-panel parameter
+set (SGU 5, DGU 5, LAM 9, DGU+LAM 14 fields incl. interlayer type),
+preview → rate/sqm + the pre-margin cost basis, with the WPF's
+warnings (BUG-40/41 yield fallback, unpriced interlayer) rendered
+verbatim — the rule text (yield divides the glass term only;
+processing/interlayer/spacer added after; margin multiplies
+everything) is stated in the UI.
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

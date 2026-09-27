@@ -14,6 +14,7 @@ const NAV = [
   { to: "/reports", label: "Reports", end: false },
   { to: "/master-data", label: "Master data", end: false },
   { to: "/specifications", label: "Glass library", end: false },
+  { to: "/pricing", label: "Pricing", end: false },
   { to: "/job-orders", label: "Job Orders", end: false },
   { to: "/stock", label: "Stock", end: false },
 ];

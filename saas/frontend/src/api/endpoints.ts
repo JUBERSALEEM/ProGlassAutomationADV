@@ -762,3 +762,30 @@ export function getReworkQueueReport(): Promise<_QueueItem[]> {
 export function getQcQueueReport(): Promise<_QueueItem[]> {
   return get<_QueueItem[]>("/api/v1/production/reports/qc-queue");
 }
+
+// ── pricing (Phase 37) ────────────────────────────────────────────────
+
+import type {
+  PricingConfig as _PricingConfig,
+  PricingPreviewResult as _Preview,
+} from "./types";
+
+export function getPricingConfig(): Promise<_PricingConfig> {
+  return get<_PricingConfig>("/api/v1/pricing/config");
+}
+
+/** The tenant-editable settings only — panel defaults + fixed catalogs
+ *  are WPF constants and read-only. */
+export function updatePricingConfig(body: {
+  yieldFactorDefault: number;
+  marginDefault: number;
+  catalogs: Record<string, string[]>;
+  vat: { rate: number; currency: string };
+}): Promise<_PricingConfig> {
+  return put<_PricingConfig>("/api/v1/pricing/config", body);
+}
+
+/** A Step 4 estimate: glassType picks the parameter set (SGU/DGU/LAM/DGU+LAM). */
+export function previewPricing(body: Record<string, unknown>): Promise<_Preview> {
+  return post<_Preview>("/api/v1/pricing/preview", body);
+}

@@ -1102,3 +1102,95 @@ export interface RouteReportRow {
   currentStage: string;
   status: string;
 }
+
+// ── pricing (Phase 37 — the Step 4 pricing module) ────────────────────
+
+export interface SguParameters {
+  basePricePerSqm: number;
+  yieldFactor: number;
+  cuttingCostPerSqm: number;
+  temperingCostPerSqm: number;
+  targetMarginPercent: number;
+}
+
+export interface DguParameters {
+  outerBasePrice: number;
+  innerBasePrice: number;
+  spacerPrice: number;
+  yieldFactor: number;
+  marginProfitPercent: number;
+}
+
+export interface LamParameters {
+  outerBasePrice: number;
+  innerBasePrice: number;
+  pvbMaterialRate: number;
+  outerCuttingCost: number;
+  innerCuttingCost: number;
+  outerTemperingCost: number;
+  innerTemperingCost: number;
+  yieldFactor: number;
+  marginProfitPercent: number;
+}
+
+export interface DguLamParameters {
+  outerBasePrice: number;
+  lamOuterBasePrice: number;
+  lamInnerBasePrice: number;
+  outerCuttingCost: number;
+  lamOuterCuttingCost: number;
+  lamInnerCuttingCost: number;
+  outerTemperingCost: number;
+  lamOuterTemperingCost: number;
+  lamInnerTemperingCost: number;
+  interlayerSellPrice: number;
+  interlayerType: string;
+  spacerPrice: number;
+  yieldFactor: number;
+  marginProfitPercent: number;
+}
+
+export interface PricingCatalogs {
+  thicknessOptions: string[];
+  treatmentOptions: string[];
+  aspWidths: string[];
+  interlayerTypes: string[];
+  interlayerThicknesses: string[];
+  polishOptions: string[];
+  panelExtraOptions: string[];
+}
+
+export interface VatConfig {
+  rate: number;
+  currency: string;
+}
+
+export interface PricingConfig {
+  yieldFactorDefault: number;
+  marginDefault: number;
+  catalogs: PricingCatalogs;
+  panelDefaults: {
+    sgu: Record<string, number>;
+    dgu: Record<string, number | string>;
+    lam: Record<string, number>;
+    dguLam: Record<string, number | string>;
+    spacerMaterialSurcharges: Record<string, number>;
+  };
+  fixedCatalogs: {
+    spacerWidthOptions: string[];
+    spacerMaterialOptions: string[];
+    spacerExtraOptions: string[];
+    edgePolishOptions: string[];
+    pvbColorOptions: string[];
+    interlayerColorOptions: string[];
+    interlayerPrices: Record<string, { buy: number; sell: number }>;
+  };
+  vat: VatConfig;
+}
+
+export interface PricingPreviewResult {
+  glassType: string;
+  ratePerSqm: number;
+  costBasisPerSqm: number;
+  warnings: string[];
+}
