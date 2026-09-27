@@ -482,6 +482,9 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime? CancelledAt { get; set; }
         public Guid? CancelledBy { get; set; }
         public string CancelReason { get; set; } = null!;
+        public DateTime? CompletedAt { get; set; }
+        public Guid? CompletedBy { get; set; }
+        public int ReplacementSequence { get; set; }
         public JobOrder JobOrder { get; set; } = null!;
         public SpecGroupItem? SpecGroupItem { get; set; } = null;
     }
@@ -625,5 +628,230 @@ namespace ProGlass.Saas.Domain.Entities
         public Guid? JobOrderId { get; set; }
         public DeliveryNote DeliveryNote { get; set; } = null!;
         public SpecGroupItem? SpecGroupItem { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.workstations.</summary>
+    public sealed class Workstation : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public string WorkstationId { get; set; } = null!;
+        public string Code { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public int ProcessType { get; set; }
+        public string ProcessName { get; set; } = null!;
+        public bool IsActive { get; set; }
+        public string Description { get; set; } = null!;
+        public Guid? CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.process_executions.</summary>
+    public sealed class ProcessExecution : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public string ExecutionId { get; set; } = null!;
+        public Guid? JobOrderId { get; set; }
+        public string JobRef { get; set; } = null!;
+        public string SourceProformaId { get; set; } = null!;
+        public Guid? ProductionPieceId { get; set; }
+        public Guid? InputProductionPieceId { get; set; }
+        public int SpecGroupNumber { get; set; }
+        public string SpecName { get; set; } = null!;
+        public int SerialNumber { get; set; }
+        public string Position { get; set; } = null!;
+        public string PieceId { get; set; } = null!;
+        public string InputPieceId { get; set; } = null!;
+        public string OutputPieceId { get; set; } = null!;
+        public int ProcessType { get; set; }
+        public int Sequence { get; set; }
+        public string Status { get; set; } = null!;
+        public Guid? StartedBy { get; set; }
+        public DateTime? StartedAt { get; set; }
+        public Guid? CompletedBy { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public int QtyRequired { get; set; }
+        public int QtyDone { get; set; }
+        public string EntryType { get; set; } = null!;
+        public string Reason { get; set; } = null!;
+        public string Notes { get; set; } = null!;
+        public string QcStatus { get; set; } = null!;
+        public string QcId { get; set; } = null!;
+        public string ParentExecutionId { get; set; } = null!;
+        public int ReworkSequence { get; set; }
+        public bool IsFoc { get; set; }
+        public string PreviousStage { get; set; } = null!;
+        public string NextStage { get; set; } = null!;
+        public string ProcessDetailJson { get; set; } = null!;
+        public Guid? CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public JobOrder? JobOrder { get; set; } = null;
+        public ProductionPiece? ProductionPiece { get; set; } = null;
+        public ProductionPiece? InputProductionPiece { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.process_pairings.</summary>
+    public sealed class ProcessPairing : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public string PairingId { get; set; } = null!;
+        public Guid? JobOrderId { get; set; }
+        public string JobRef { get; set; } = null!;
+        public string SourceProformaId { get; set; } = null!;
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string Position { get; set; } = null!;
+        public string PairId { get; set; } = null!;
+        public string OuterPieceId { get; set; } = null!;
+        public string InnerPieceId { get; set; } = null!;
+        public string OuterGlassRef { get; set; } = null!;
+        public string InnerGlassRef { get; set; } = null!;
+        public Guid? OuterProductionPieceId { get; set; }
+        public Guid? InnerProductionPieceId { get; set; }
+        public string OuterExecutionId { get; set; } = null!;
+        public string InnerExecutionId { get; set; } = null!;
+        public string Status { get; set; } = null!;
+        public string Notes { get; set; } = null!;
+        public bool IsFoc { get; set; }
+        public Guid? CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public JobOrder? JobOrder { get; set; } = null;
+        public ProductionPiece? OuterProductionPiece { get; set; } = null;
+        public ProductionPiece? InnerProductionPiece { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.process_assemblies.</summary>
+    public sealed class ProcessAssembly : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public string AssemblyId { get; set; } = null!;
+        public Guid? JobOrderId { get; set; }
+        public string JobRef { get; set; } = null!;
+        public string SourceProformaId { get; set; } = null!;
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string Position { get; set; } = null!;
+        public string AssemblyLabel { get; set; } = null!;
+        public string AssemblyType { get; set; } = null!;
+        public string ComponentsJson { get; set; } = null!;
+        public string SpacerInfo { get; set; } = null!;
+        public string InterlayerInfo { get; set; } = null!;
+        public string SealantInfo { get; set; } = null!;
+        public string PairingId { get; set; } = null!;
+        public string Status { get; set; } = null!;
+        public int QtyRequired { get; set; }
+        public int QtyDone { get; set; }
+        public bool IsFoc { get; set; }
+        public string QcId { get; set; } = null!;
+        public string Notes { get; set; } = null!;
+        public Guid? CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? CompletedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public JobOrder? JobOrder { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.production_control_holds.</summary>
+    public sealed class ProductionControlHold : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public string HoldId { get; set; } = null!;
+        public Guid ProductionPieceId { get; set; }
+        public Guid? JobOrderId { get; set; }
+        public string JobRef { get; set; } = null!;
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string Position { get; set; } = null!;
+        public string Stage { get; set; } = null!;
+        public string HoldReason { get; set; } = null!;
+        public Guid? HeldBy { get; set; }
+        public DateTime HeldAt { get; set; }
+        public Guid? ReleasedBy { get; set; }
+        public DateTime? ReleasedAt { get; set; }
+        public bool IsReleased { get; set; }
+        public string Notes { get; set; } = null!;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public ProductionPiece ProductionPiece { get; set; } = null!;
+        public JobOrder? JobOrder { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.production_control_assignments.</summary>
+    public sealed class ProductionControlAssignment : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public string AssignmentId { get; set; } = null!;
+        public Guid ProductionPieceId { get; set; }
+        public Guid? JobOrderId { get; set; }
+        public string JobRef { get; set; } = null!;
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string Position { get; set; } = null!;
+        public string Stage { get; set; } = null!;
+        public string WorkstationId { get; set; } = null!;
+        public string OperatorName { get; set; } = null!;
+        public Guid? AssignedBy { get; set; }
+        public DateTime AssignedAt { get; set; }
+        public Guid? UnassignedBy { get; set; }
+        public DateTime? UnassignedAt { get; set; }
+        public bool IsActive { get; set; }
+        public string Notes { get; set; } = null!;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public ProductionPiece ProductionPiece { get; set; } = null!;
+        public JobOrder? JobOrder { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.production_control_overrides.</summary>
+    public sealed class ProductionControlOverride : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public string ControlId { get; set; } = null!;
+        public Guid ProductionPieceId { get; set; }
+        public Guid? JobOrderId { get; set; }
+        public string JobRef { get; set; } = null!;
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string Position { get; set; } = null!;
+        public string Stage { get; set; } = null!;
+        public int Priority { get; set; }
+        public DateTime? DueDate { get; set; }
+        public Guid? PrioritySetBy { get; set; }
+        public DateTime PrioritySetAt { get; set; }
+        public string Notes { get; set; } = null!;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public ProductionPiece ProductionPiece { get; set; } = null!;
+        public JobOrder? JobOrder { get; set; } = null;
     }
 }

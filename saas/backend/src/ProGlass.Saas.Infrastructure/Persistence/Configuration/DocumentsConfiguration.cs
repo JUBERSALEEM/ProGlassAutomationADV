@@ -613,6 +613,9 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.CancelledAt).HasColumnName("cancelled_at").HasColumnType("timestamptz");
             builder.Property(x => x.CancelledBy).HasColumnName("cancelled_by").HasColumnType("uuid");
             builder.Property(x => x.CancelReason).HasColumnName("cancel_reason").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CompletedAt).HasColumnName("completed_at").HasColumnType("timestamptz");
+            builder.Property(x => x.CompletedBy).HasColumnName("completed_by").HasColumnType("uuid");
+            builder.Property(x => x.ReplacementSequence).HasColumnName("replacement_sequence").HasColumnType("integer").HasDefaultValue(0);
             builder.HasIndex(x => new { x.TenantId, x.JobOrderId })
                 .HasDatabaseName("ix_production_pieces_tenant_job");
             builder.HasIndex(x => new { x.TenantId, x.Stage, x.Status })
@@ -809,6 +812,277 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
                 .WithMany()
                 .HasForeignKey(x => x.SpecGroupItemId)
                 .OnDelete(DeleteBehavior.SetNull);
+        }
+    }
+
+    public sealed class WorkstationConfiguration : IEntityTypeConfiguration<Workstation>
+    {
+        public void Configure(EntityTypeBuilder<Workstation> builder)
+        {
+            builder.ToTable("workstations", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.WorkstationId).HasColumnName("workstation_id").HasColumnType("text");
+            builder.Property(x => x.Code).HasColumnName("code").HasColumnType("text");
+            builder.Property(x => x.Name).HasColumnName("name").HasColumnType("text");
+            builder.Property(x => x.ProcessType).HasColumnName("process_type").HasColumnType("integer").HasDefaultValue(1);
+            builder.Property(x => x.ProcessName).HasColumnName("process_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.IsActive).HasColumnName("is_active").HasColumnType("boolean").HasDefaultValue(true);
+            builder.Property(x => x.Description).HasColumnName("description").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+        }
+    }
+
+    public sealed class ProcessExecutionConfiguration : IEntityTypeConfiguration<ProcessExecution>
+    {
+        public void Configure(EntityTypeBuilder<ProcessExecution> builder)
+        {
+            builder.ToTable("process_executions", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.ExecutionId).HasColumnName("execution_id").HasColumnType("text");
+            builder.Property(x => x.JobOrderId).HasColumnName("job_order_id").HasColumnType("uuid");
+            builder.Property(x => x.JobRef).HasColumnName("job_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SourceProformaId).HasColumnName("source_proforma_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ProductionPieceId).HasColumnName("production_piece_id").HasColumnType("uuid");
+            builder.Property(x => x.InputProductionPieceId).HasColumnName("input_production_piece_id").HasColumnType("uuid");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SpecName).HasColumnName("spec_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Position).HasColumnName("position").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.PieceId).HasColumnName("piece_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.InputPieceId).HasColumnName("input_piece_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.OutputPieceId).HasColumnName("output_piece_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ProcessType).HasColumnName("process_type").HasColumnType("integer").HasDefaultValue(1);
+            builder.Property(x => x.Sequence).HasColumnName("sequence").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Status).HasColumnName("status").HasColumnType("text").HasDefaultValue("Pending");
+            builder.Property(x => x.StartedBy).HasColumnName("started_by").HasColumnType("uuid");
+            builder.Property(x => x.StartedAt).HasColumnName("started_at").HasColumnType("timestamptz");
+            builder.Property(x => x.CompletedBy).HasColumnName("completed_by").HasColumnType("uuid");
+            builder.Property(x => x.CompletedAt).HasColumnName("completed_at").HasColumnType("timestamptz");
+            builder.Property(x => x.QtyRequired).HasColumnName("qty_required").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.QtyDone).HasColumnName("qty_done").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.EntryType).HasColumnName("entry_type").HasColumnType("text").HasDefaultValue("Normal");
+            builder.Property(x => x.Reason).HasColumnName("reason").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Notes).HasColumnName("notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.QcStatus).HasColumnName("qc_status").HasColumnType("text").HasDefaultValue("Pending");
+            builder.Property(x => x.QcId).HasColumnName("qc_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ParentExecutionId).HasColumnName("parent_execution_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ReworkSequence).HasColumnName("rework_sequence").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.IsFoc).HasColumnName("is_foc").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.PreviousStage).HasColumnName("previous_stage").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.NextStage).HasColumnName("next_stage").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ProcessDetailJson).HasColumnName("process_detail_json").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.HasOne(x => x.JobOrder)
+                .WithMany()
+                .HasForeignKey(x => x.JobOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.ProductionPiece)
+                .WithMany()
+                .HasForeignKey(x => x.ProductionPieceId)
+                .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(x => x.InputProductionPiece)
+                .WithMany()
+                .HasForeignKey(x => x.InputProductionPieceId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+    }
+
+    public sealed class ProcessPairingConfiguration : IEntityTypeConfiguration<ProcessPairing>
+    {
+        public void Configure(EntityTypeBuilder<ProcessPairing> builder)
+        {
+            builder.ToTable("process_pairings", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.PairingId).HasColumnName("pairing_id").HasColumnType("text");
+            builder.Property(x => x.JobOrderId).HasColumnName("job_order_id").HasColumnType("uuid");
+            builder.Property(x => x.JobRef).HasColumnName("job_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SourceProformaId).HasColumnName("source_proforma_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Position).HasColumnName("position").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.PairId).HasColumnName("pair_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.OuterPieceId).HasColumnName("outer_piece_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.InnerPieceId).HasColumnName("inner_piece_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.OuterGlassRef).HasColumnName("outer_glass_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.InnerGlassRef).HasColumnName("inner_glass_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.OuterProductionPieceId).HasColumnName("outer_production_piece_id").HasColumnType("uuid");
+            builder.Property(x => x.InnerProductionPieceId).HasColumnName("inner_production_piece_id").HasColumnType("uuid");
+            builder.Property(x => x.OuterExecutionId).HasColumnName("outer_execution_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.InnerExecutionId).HasColumnName("inner_execution_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Status).HasColumnName("status").HasColumnType("text").HasDefaultValue("Completed");
+            builder.Property(x => x.Notes).HasColumnName("notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.IsFoc).HasColumnName("is_foc").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.HasOne(x => x.JobOrder)
+                .WithMany()
+                .HasForeignKey(x => x.JobOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.OuterProductionPiece)
+                .WithMany()
+                .HasForeignKey(x => x.OuterProductionPieceId)
+                .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(x => x.InnerProductionPiece)
+                .WithMany()
+                .HasForeignKey(x => x.InnerProductionPieceId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+    }
+
+    public sealed class ProcessAssemblyConfiguration : IEntityTypeConfiguration<ProcessAssembly>
+    {
+        public void Configure(EntityTypeBuilder<ProcessAssembly> builder)
+        {
+            builder.ToTable("process_assemblies", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.AssemblyId).HasColumnName("assembly_id").HasColumnType("text");
+            builder.Property(x => x.JobOrderId).HasColumnName("job_order_id").HasColumnType("uuid");
+            builder.Property(x => x.JobRef).HasColumnName("job_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SourceProformaId).HasColumnName("source_proforma_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Position).HasColumnName("position").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.AssemblyLabel).HasColumnName("assembly_label").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.AssemblyType).HasColumnName("assembly_type").HasColumnType("text").HasDefaultValue("DGU");
+            builder.Property(x => x.ComponentsJson).HasColumnName("components_json").HasColumnType("text").HasDefaultValue("[]");
+            builder.Property(x => x.SpacerInfo).HasColumnName("spacer_info").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.InterlayerInfo).HasColumnName("interlayer_info").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SealantInfo).HasColumnName("sealant_info").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.PairingId).HasColumnName("pairing_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Status).HasColumnName("status").HasColumnType("text").HasDefaultValue("Completed");
+            builder.Property(x => x.QtyRequired).HasColumnName("qty_required").HasColumnType("integer").HasDefaultValue(1);
+            builder.Property(x => x.QtyDone).HasColumnName("qty_done").HasColumnType("integer").HasDefaultValue(1);
+            builder.Property(x => x.IsFoc).HasColumnName("is_foc").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.QcId).HasColumnName("qc_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Notes).HasColumnName("notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.CompletedAt).HasColumnName("completed_at").HasColumnType("timestamptz");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.HasOne(x => x.JobOrder)
+                .WithMany()
+                .HasForeignKey(x => x.JobOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    public sealed class ProductionControlHoldConfiguration : IEntityTypeConfiguration<ProductionControlHold>
+    {
+        public void Configure(EntityTypeBuilder<ProductionControlHold> builder)
+        {
+            builder.ToTable("production_control_holds", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.HoldId).HasColumnName("hold_id").HasColumnType("text");
+            builder.Property(x => x.ProductionPieceId).HasColumnName("production_piece_id").HasColumnType("uuid");
+            builder.Property(x => x.JobOrderId).HasColumnName("job_order_id").HasColumnType("uuid");
+            builder.Property(x => x.JobRef).HasColumnName("job_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Position).HasColumnName("position").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Stage).HasColumnName("stage").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.HoldReason).HasColumnName("hold_reason").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.HeldBy).HasColumnName("held_by").HasColumnType("uuid");
+            builder.Property(x => x.HeldAt).HasColumnName("held_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.ReleasedBy).HasColumnName("released_by").HasColumnType("uuid");
+            builder.Property(x => x.ReleasedAt).HasColumnName("released_at").HasColumnType("timestamptz");
+            builder.Property(x => x.IsReleased).HasColumnName("is_released").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.Notes).HasColumnName("notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.HasOne(x => x.ProductionPiece)
+                .WithMany()
+                .HasForeignKey(x => x.ProductionPieceId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.JobOrder)
+                .WithMany()
+                .HasForeignKey(x => x.JobOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    public sealed class ProductionControlAssignmentConfiguration : IEntityTypeConfiguration<ProductionControlAssignment>
+    {
+        public void Configure(EntityTypeBuilder<ProductionControlAssignment> builder)
+        {
+            builder.ToTable("production_control_assignments", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.AssignmentId).HasColumnName("assignment_id").HasColumnType("text");
+            builder.Property(x => x.ProductionPieceId).HasColumnName("production_piece_id").HasColumnType("uuid");
+            builder.Property(x => x.JobOrderId).HasColumnName("job_order_id").HasColumnType("uuid");
+            builder.Property(x => x.JobRef).HasColumnName("job_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Position).HasColumnName("position").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Stage).HasColumnName("stage").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.WorkstationId).HasColumnName("workstation_id").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.OperatorName).HasColumnName("operator_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.AssignedBy).HasColumnName("assigned_by").HasColumnType("uuid");
+            builder.Property(x => x.AssignedAt).HasColumnName("assigned_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UnassignedBy).HasColumnName("unassigned_by").HasColumnType("uuid");
+            builder.Property(x => x.UnassignedAt).HasColumnName("unassigned_at").HasColumnType("timestamptz");
+            builder.Property(x => x.IsActive).HasColumnName("is_active").HasColumnType("boolean").HasDefaultValue(true);
+            builder.Property(x => x.Notes).HasColumnName("notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.HasOne(x => x.ProductionPiece)
+                .WithMany()
+                .HasForeignKey(x => x.ProductionPieceId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.JobOrder)
+                .WithMany()
+                .HasForeignKey(x => x.JobOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+    }
+
+    public sealed class ProductionControlOverrideConfiguration : IEntityTypeConfiguration<ProductionControlOverride>
+    {
+        public void Configure(EntityTypeBuilder<ProductionControlOverride> builder)
+        {
+            builder.ToTable("production_control_overrides", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.ControlId).HasColumnName("control_id").HasColumnType("text");
+            builder.Property(x => x.ProductionPieceId).HasColumnName("production_piece_id").HasColumnType("uuid");
+            builder.Property(x => x.JobOrderId).HasColumnName("job_order_id").HasColumnType("uuid");
+            builder.Property(x => x.JobRef).HasColumnName("job_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Position).HasColumnName("position").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Stage).HasColumnName("stage").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Priority).HasColumnName("priority").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.DueDate).HasColumnName("due_date").HasColumnType("timestamptz");
+            builder.Property(x => x.PrioritySetBy).HasColumnName("priority_set_by").HasColumnType("uuid");
+            builder.Property(x => x.PrioritySetAt).HasColumnName("priority_set_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.Notes).HasColumnName("notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.HasOne(x => x.ProductionPiece)
+                .WithMany()
+                .HasForeignKey(x => x.ProductionPieceId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.JobOrder)
+                .WithMany()
+                .HasForeignKey(x => x.JobOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

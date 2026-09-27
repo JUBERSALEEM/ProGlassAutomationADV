@@ -27,6 +27,11 @@ public sealed record ProductionResult<T>(
     public static ProductionResult<T> Ok(T value) =>
         new(true, value, ProductionErrorCode.None, "");
 
+    /// <summary>Ok with the idempotency/gating message the WPF surfaces
+    /// ("Already completed (idempotent)." etc.).</summary>
+    public static ProductionResult<T> Ok(T value, string message) =>
+        new(true, value, ProductionErrorCode.None, message);
+
     public static ProductionResult<T> Fail(ProductionErrorCode code, string message) =>
         new(false, default, code, message);
 }
@@ -76,7 +81,11 @@ public sealed record ReleaseResultDto(
     int PlannedItems,
     int InsertedItems,
     int ExistingItems,
-    IReadOnlyList<string> Warnings);
+    IReadOnlyList<string> Warnings,
+    // Phase 26a — one Pending process execution projected per released
+    // work item (WPF ProjectJobAsync; the process board shows the job
+    // before Start).
+    int ProjectedExecutions = 0);
 
 /// <summary>Body for POST /{id}/stage — floor progress on one item.</summary>
 public sealed record StageProgressRequest(

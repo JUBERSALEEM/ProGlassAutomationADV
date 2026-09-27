@@ -79,6 +79,14 @@ public sealed class SaasDbContext : DbContext
     public DbSet<MaterialReservation> MaterialReservations => Set<MaterialReservation>();
     public DbSet<DeliveryNote> DeliveryNotes => Set<DeliveryNote>();
     public DbSet<DeliveryNoteItem> DeliveryNoteItems => Set<DeliveryNoteItem>();
+    // Phase 26a production extras (0021).
+    public DbSet<Workstation> Workstations => Set<Workstation>();
+    public DbSet<ProcessExecution> ProcessExecutions => Set<ProcessExecution>();
+    public DbSet<ProcessPairing> ProcessPairings => Set<ProcessPairing>();
+    public DbSet<ProcessAssembly> ProcessAssemblies => Set<ProcessAssembly>();
+    public DbSet<ProductionControlHold> ProductionControlHolds => Set<ProductionControlHold>();
+    public DbSet<ProductionControlAssignment> ProductionControlAssignments => Set<ProductionControlAssignment>();
+    public DbSet<ProductionControlOverride> ProductionControlOverrides => Set<ProductionControlOverride>();
 
     // ── Fiscal ────────────────────────────────────────────────────────
     public DbSet<TaxInvoice> TaxInvoices => Set<TaxInvoice>();

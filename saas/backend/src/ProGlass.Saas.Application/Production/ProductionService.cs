@@ -26,7 +26,8 @@ namespace ProGlass.Saas.Application.Production;
 // ═══════════════════════════════════════════════════════════════════════
 
 /// <summary>The Production module (plan → release → floor lifecycle).</summary>
-public sealed class ProductionService(IProductionStore store, IAuditWriter audit)
+public sealed class ProductionService(
+    IProductionStore store, IProcessControlStore control, IAuditWriter audit)
 {
     private const int DefaultPageSize = 50;
     private const int MaxPageSize = 200;
@@ -101,17 +102,33 @@ public sealed class ProductionService(IProductionStore store, IAuditWriter audit
         var inserted = await store.InsertNewAsync(
             tenantId, job.Id, actorId, missing, ct);
 
+        // Phase 26a — project one Pending execution per live work item
+        // (WPF ProjectJobAsync inside the release; failures only warn).
+        int projected = 0;
+        try
+        {
+            projected = await control.ProjectPendingExecutionsAsync(
+                tenantId, job.Id, actorId, ct);
+        }
+        catch (Exception ex)
+        {
+            plan.Warnings.Add(
+                "Released the job, but the process list could not be updated: "
+                + ex.Message);
+        }
+
         await AuditAsync(tenantId, actorId, "production.released",
             "job_orders", job.Id, null, new
             {
                 jobOrderNo = job.JobNo,
                 planned = plan.Items.Count,
                 inserted,
-                preserved = plan.Items.Count - inserted
+                preserved = plan.Items.Count - inserted,
+                projected
             }, ip, ct);
         return ProductionResult<ReleaseResultDto>.Ok(new ReleaseResultDto(
             job.JobNo, plan.Items.Count, inserted,
-            plan.Items.Count - inserted, plan.Warnings));
+            plan.Items.Count - inserted, plan.Warnings, projected));
     }
 
     // ── Queries ─────────────────────────────────────────────────────
@@ -216,13 +233,23 @@ public sealed class ProductionService(IProductionStore store, IAuditWriter audit
         }
         else
         {
-            piece.Status = piece.QtyDone >= piece.Qty
-                ? WorkItemStatuses.Completed
-                : piece.QtyDone > 0 ? WorkItemStatuses.InProgress
-                : WorkItemStatuses.Pending;
+            // WPF SetDoneQtyAsync: QcFailed/Rework statuses are frozen —
+            // auto-derivation never overwrites them (Phase 26a parity).
+            if (piece.Status != WorkItemStatuses.QcFailed
+                && piece.Status != WorkItemStatuses.Rework)
+            {
+                piece.Status = piece.QtyDone >= piece.Qty
+                    ? WorkItemStatuses.Completed
+                    : piece.QtyDone > 0 ? WorkItemStatuses.InProgress
+                    : WorkItemStatuses.Pending;
+            }
         }
         piece.UpdatedAt = DateTime.UtcNow;
         piece.UpdatedBy = actorId;
+        piece.CompletedAt = piece.Status == WorkItemStatuses.Completed
+            ? DateTime.UtcNow : null;
+        piece.CompletedBy = piece.Status == WorkItemStatuses.Completed
+            ? actorId : null;
 
         if (!await store.TryUpdateAsync(piece, ct))
         {
@@ -230,6 +257,10 @@ public sealed class ProductionService(IProductionStore store, IAuditWriter audit
                 ProductionErrorCode.ConcurrencyConflict,
                 "The work item was modified by someone else — reload and retry.");
         }
+
+        // The work item is authoritative — mirror onto the sequence-0
+        // process execution (WPF SyncLinkedExecutionQty, Phase 26a).
+        await control.SyncLinkedExecutionsAsync(tenantId, piece, ct);
 
         await store.AppendEventAsync(tenantId, new ProductionEvent
         {

@@ -231,6 +231,9 @@ public sealed class ProductionStore(SaasDbContextFactory factory) : IProductionS
 
         stored.Status = piece.Status;
         stored.QtyDone = piece.QtyDone;
+        stored.CompletedAt = piece.CompletedAt;   // Phase 26a (WPF WorkItem)
+        stored.CompletedBy = piece.CompletedBy;
+        stored.ReplacementSequence = piece.ReplacementSequence;
         stored.IsFoc = piece.IsFoc;
         stored.IsCancelled = piece.IsCancelled;
         stored.CancelledAt = piece.CancelledAt;

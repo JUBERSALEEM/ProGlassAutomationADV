@@ -33,6 +33,13 @@ public static class DependencyInjection
         services.AddScoped<DeliveryService>();
         services.AddScoped<Production.ProductionService>();
         services.AddScoped<Production.ReservationService>();
+        // Phase 26a — process execution, pairing/assembly, control,
+        // queue/dashboard/progress, workstation master.
+        services.AddScoped<Production.ProcessExecutionService>();
+        services.AddScoped<Production.PairingAssemblyService>();
+        services.AddScoped<Production.ProductionControlService>();
+        services.AddScoped<Production.ProductionQueueService>();
+        services.AddScoped<Production.WorkstationService>();
         services.AddScoped<Optimization.OptimizationService>();
         services.AddScoped<Fiscal.FiscalService>();
         services.AddScoped<Fiscal.ReconciliationService>();

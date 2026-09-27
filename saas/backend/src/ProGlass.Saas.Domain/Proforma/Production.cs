@@ -32,6 +32,17 @@ public static class ProductionStages
     public const int Pairing = 7;
     public const int DoublingLamination = 8;
 
+    // Stored keys (the SaaS vocabulary is TEXT; these name the same
+    // eight stages the int codes number — Phase 26a).
+    public const string CuttingName = "Cutting";
+    public const string HolesCutoutsName = "HolesCutouts";
+    public const string PolishName = "Polish";
+    public const string EdgeDeletionName = "EdgeDeletion";
+    public const string MitringName = "Mitring";
+    public const string TemperingName = "Tempering";
+    public const string PairingName = "Pairing";
+    public const string DoublingLaminationName = "DoublingLamination";
+
     public static readonly IReadOnlyList<string> All = new[]
     {
         "Cutting", "HolesCutouts", "Polish", "EdgeDeletion",
@@ -52,6 +63,11 @@ public static class ProductionStages
         "DoublingLamination" => "Doubling / Lamination",
         _ => stage
     };
+
+    /// <summary>The stored key for a stage code (1..8); "" when unknown
+    /// (Phase 26a — the WPF's enum name).</summary>
+    public static string Name(int code) =>
+        code is >= 1 and <= 8 ? All[code - 1] : "";
 
     public static int Code(string stage) => stage switch
     {

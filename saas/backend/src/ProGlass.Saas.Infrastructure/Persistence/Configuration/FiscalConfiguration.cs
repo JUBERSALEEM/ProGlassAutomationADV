@@ -100,8 +100,10 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
             builder.HasIndex(x => new { x.TenantId, x.TaxInvoiceId })
                 .HasDatabaseName("ix_tax_invoice_items_tenant_invoice");
-            builder.HasIndex(x => new { x.TenantId, x.SpecGroupItemId })
-                .HasDatabaseName("ix_tax_invoice_items_tenant_item");
+            builder.HasIndex(x => x.TaxInvoiceId)
+                .HasDatabaseName("ix_tax_invoice_items_tax_invoice_id");
+            builder.HasIndex(x => x.SpecGroupItemId)
+                .HasDatabaseName("ix_tax_invoice_items_spec_group_item_id");
             builder.HasOne(x => x.TaxInvoice)
                 .WithMany()
                 .HasForeignKey(x => x.TaxInvoiceId)

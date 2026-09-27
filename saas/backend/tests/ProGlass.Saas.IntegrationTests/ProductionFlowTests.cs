@@ -29,7 +29,9 @@ public sealed class ProductionFlowTests
         var audit = new AuditWriter(factory, NullLogger<AuditWriter>.Instance);
         var specs = new SpecificationsService(
             new SpecificationsStore(factory), audit);
-        _sut = new ProductionService(new ProductionStore(factory), audit);
+        _sut = new ProductionService(
+            new ProductionStore(factory),
+            new ProcessControlStore(factory), audit);
         _jobs = new JobOrderService(new JobOrderStore(factory), audit);
         _proformas = new ProformaService(new ProformaStore(factory), audit, specs);
     }

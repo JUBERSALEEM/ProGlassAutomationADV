@@ -78,6 +78,7 @@ public static class DependencyInjection
         services.AddScoped<IJobOrderStore, JobOrderStore>();
         services.AddScoped<IDeliveryStore, DeliveryNoteStore>();
         services.AddScoped<IProductionStore, ProductionStore>();
+        services.AddScoped<IProcessControlStore, ProcessControlStore>();
         services.AddScoped<IReservationStore, ReservationStore>();
         services.AddScoped<Optimization.IOptimizationStore, OptimizationStore>();
         services.AddScoped<Fiscal.IFiscalStore, FiscalStore>();
