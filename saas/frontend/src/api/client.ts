@@ -163,3 +163,5 @@ export async function api<T>(
 export const get = <T>(path: string) => api<T>("GET", path);
 /** POST helper. */
 export const post = <T>(path: string, body?: unknown) => api<T>("POST", path, body);
+/** PUT helper. */
+export const put = <T>(path: string, body?: unknown) => api<T>("PUT", path, body);

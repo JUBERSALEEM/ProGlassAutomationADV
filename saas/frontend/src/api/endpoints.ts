@@ -2,7 +2,7 @@
  * Endpoint wrappers — one function per API call the SPA makes, with the
  * query-string builders kept next to their usage.
  */
-import { get, post } from "./client";
+import { get, post, put } from "./client";
 import type {
   GlassSheet,
   JobOrder,
@@ -225,4 +225,151 @@ export function listProjects(): Promise<PagedResult<Project>> {
 
 export function listSalesmen(): Promise<PagedResult<Salesman>> {
   return get<PagedResult<Salesman>>("/api/v1/salesmen?pageSize=100");
+}
+
+// ── delivery notes (Phase 30) ─────────────────────────────────────────
+
+import type {
+  CreateOrOpenDn,
+  CreditNote,
+  DeliveryNote,
+  PagedResult as _Paged,
+  Statement,
+  TaxInvoice,
+  VatReport,
+} from "./types";
+
+export interface DeliveryListQuery {
+  search?: string;
+  status?: string;
+  includeVoid?: boolean;
+  mastersOnly?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+export function listDeliveryNotes(query: DeliveryListQuery = {}) {
+  const params = new URLSearchParams();
+  if (query.search) params.set("search", query.search);
+  if (query.status) params.set("status", query.status);
+  if (query.includeVoid) params.set("includeVoid", "true");
+  if (query.mastersOnly) params.set("mastersOnly", "true");
+  if (query.page) params.set("page", String(query.page));
+  if (query.pageSize) params.set("pageSize", String(query.pageSize));
+  const qs = params.toString();
+  return get<_Paged<DeliveryNote>>(`/api/v1/delivery-notes${qs ? `?${qs}` : ""}`);
+}
+
+export function getDeliveryNote(id: string): Promise<DeliveryNote> {
+  return get<DeliveryNote>(`/api/v1/delivery-notes/${id}`);
+}
+
+/** The WPF's ONE path: open the existing open note or create the next. */
+export function createOrOpenDn(jobOrderId: string): Promise<CreateOrOpenDn> {
+  return post<CreateOrOpenDn>(`/api/v1/delivery-notes/job-orders/${jobOrderId}`);
+}
+
+export function getMasterDn(jobOrderId: string): Promise<DeliveryNote> {
+  return get<DeliveryNote>(`/api/v1/delivery-notes/job-orders/${jobOrderId}/master`);
+}
+
+export interface DispatchUpdateBody {
+  driver?: string;
+  vehicle?: string;
+  receiverName?: string;
+  deliveryDate?: string;
+  deliveryTime?: string;
+  notes?: string;
+  isFoc?: boolean;
+  items?: { itemId: string; deliveredQty: number }[];
+  expectedRowVersion?: number;
+}
+
+/** UpdateDispatchRequest — dispatch edit on OPEN notes only. */
+export function updateDispatch(
+  id: string,
+  body: DispatchUpdateBody,
+): Promise<DeliveryNote> {
+  return put<DeliveryNote>(`/api/v1/delivery-notes/${id}`, body);
+}
+
+export function transitionDn(
+  id: string,
+  toStatus: string,
+  reason?: string,
+): Promise<DeliveryNote> {
+  return post<DeliveryNote>(`/api/v1/delivery-notes/${id}/transition`, {
+    toStatus,
+    ...(reason ? { reason } : {}),
+  });
+}
+
+export function voidDn(id: string, reason?: string): Promise<DeliveryNote> {
+  return post<DeliveryNote>(`/api/v1/delivery-notes/${id}/void`, reason ? { reason } : {});
+}
+
+// ── fiscal (Phase 30) ─────────────────────────────────────────────────
+
+export function listTaxInvoices(query: {
+  search?: string;
+  status?: string;
+  includeVoid?: boolean;
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<TaxInvoice[]> {
+  const params = new URLSearchParams();
+  if (query.search) params.set("search", query.search);
+  if (query.status) params.set("status", query.status);
+  if (query.includeVoid) params.set("includeVoid", "true");
+  if (query.page) params.set("page", String(query.page));
+  if (query.pageSize) params.set("pageSize", String(query.pageSize));
+  const qs = params.toString();
+  return get<TaxInvoice[]>(`/api/v1/fiscal/tax-invoices${qs ? `?${qs}` : ""}`);
+}
+
+export function transitionTaxInvoice(
+  id: string,
+  toStatus: string,
+  reason?: string,
+): Promise<TaxInvoice> {
+  return post<TaxInvoice>(`/api/v1/fiscal/tax-invoices/${id}/status`, {
+    toStatus,
+    ...(reason ? { reason } : {}),
+  });
+}
+
+export function recordPayment(
+  id: string,
+  amount: number,
+  notes?: string,
+): Promise<TaxInvoice> {
+  return post<TaxInvoice>(`/api/v1/fiscal/tax-invoices/${id}/payments`, {
+    amount,
+    ...(notes ? { notes } : {}),
+  });
+}
+
+export function listCreditNotes(): Promise<CreditNote[]> {
+  return get<CreditNote[]>("/api/v1/fiscal/credit-notes");
+}
+
+export function getVatReport(from?: string, to?: string): Promise<VatReport> {
+  const params = new URLSearchParams();
+  if (from) params.set("from", from);
+  if (to) params.set("to", to);
+  const qs = params.toString();
+  return get<VatReport>(`/api/v1/fiscal/vat-report${qs ? `?${qs}` : ""}`);
+}
+
+export interface StatementFilters {
+  customer?: string;
+  company?: string;
+  project?: string;
+  salesman?: string;
+  from?: string;
+  to?: string;
+}
+
+export function generateStatement(filters: StatementFilters): Promise<Statement> {
+  return post<Statement>("/api/v1/fiscal/statements", filters);
 }

@@ -7,6 +7,9 @@ import JobOrderDetailPage from "./pages/JobOrderDetailPage";
 import JobOrdersPage from "./pages/JobOrdersPage";
 import LoginPage from "./pages/LoginPage";
 import ProformaDetailPage from "./pages/ProformaDetailPage";
+import DeliveryNoteDetailPage from "./pages/DeliveryNoteDetailPage";
+import DeliveryNotesPage from "./pages/DeliveryNotesPage";
+import FiscalPage from "./pages/FiscalPage";
 import ProformaInvoicesPage from "./pages/ProformaInvoicesPage";
 import StockSheetsPage from "./pages/StockSheetsPage";
 
@@ -59,6 +62,30 @@ export default function App() {
             element={
               <Protected>
                 <ProformaDetailPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/delivery-notes"
+            element={
+              <Protected>
+                <DeliveryNotesPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/delivery-notes/:id"
+            element={
+              <Protected>
+                <DeliveryNoteDetailPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/fiscal"
+            element={
+              <Protected>
+                <FiscalPage />
               </Protected>
             }
           />

@@ -291,3 +291,134 @@ export interface Salesman {
   name: string;
   department: string;
 }
+
+// ── delivery notes (Phase 30) — DeliveryContracts ─────────────────────
+
+export interface DeliveryNoteItem {
+  id: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  specGroupName: string;
+  glassRef: string;
+  w1: number;
+  h1: number;
+  w2: number;
+  h2: number;
+  orderedQty: number;
+  previouslyDeliveredQty: number;
+  deliveredQty: number;
+  balanceQty: number;
+  reworkQty: number;
+  returnedQty: number;
+}
+
+export interface DeliveryNote {
+  id: string;
+  deliveryNo: string;
+  jobOrderId: string;
+  jobOrderNo: string;
+  customerName: string;
+  projectName: string;
+  status: string;
+  deliveryType: string;
+  isFoc: boolean;
+  isMasterDn: boolean;
+  sequenceNumber: number;
+  driver: string;
+  vehicle: string;
+  receiverName: string;
+  deliveryDate: string | null;
+  deliveryTime: string;
+  notes: string;
+  totalOrderedQty: number;
+  totalDeliveredQty: number;
+  totalBalanceQty: number;
+  isVoid: boolean;
+  voidReason: string;
+  rowVersion: number;
+  items: DeliveryNoteItem[];
+}
+
+export interface CreateOrOpenDn {
+  outcome: string;
+  note: DeliveryNote | null;
+  message: string;
+}
+
+// ── fiscal (Phase 30) — FiscalService contracts ───────────────────────
+
+export interface TaxInvoice {
+  id: string;
+  invoiceNo: string;
+  proformaId: string | null;
+  jobOrderId: string | null;
+  deliveryNoteReference: string;
+  customerName: string;
+  projectName: string;
+  status: string;
+  paymentTerms: string;
+  issueDate: string | null;
+  dueDate: string | null;
+  subtotal: number;
+  discountPercent: number;
+  discountAmount: number;
+  vatAmount: number;
+  grandTotal: number;
+  paidAmount: number;
+  balanceAmount: number;
+  isVoid: boolean;
+  voidReason: string;
+  companyName: string;
+  purchaseOrderNumber: string;
+}
+
+export interface CreditNote {
+  id: string;
+  creditNoteNo: string;
+  taxInvoiceId: string;
+  taxInvoiceNo: string;
+  reason: string;
+  status: string;
+  subtotal: number;
+  vatAmount: number;
+  grandTotal: number;
+  issuedAt: string | null;
+}
+
+export interface VatReport {
+  from: string;
+  to: string;
+  invoiceCount: number;
+  standardRatedSupplies: number;
+  outputVat: number;
+  creditNoteCount: number;
+  creditNoteSupplies: number;
+  creditNoteVat: number;
+  netVatPayable: number;
+}
+
+export interface StatementLine {
+  lineType: string;
+  documentNo: string;
+  documentDate: string | null;
+  description: string;
+  debit: number;
+  credit: number;
+  runningBalance: number;
+}
+
+export interface Statement {
+  id: string;
+  statementNo: string;
+  title: string;
+  customer: string;
+  from: string | null;
+  to: string | null;
+  totalDebit: number;
+  totalCredit: number;
+  balance: number;
+  lines: StatementLine[];
+  company: string;
+  project: string;
+  salesman: string;
+}

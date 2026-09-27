@@ -901,6 +901,24 @@ documented here. Writes in this slice: create draft, transitions,
 void, duplicate, revision — all 1:1 API calls with the server's
 messages rendered verbatim.
 
+**Phase 30 — front end slice 3: delivery + fiscal (mapping §1.15).**
+Delivery: the DN list (search/status + masters-only + include-void +
+paging) and the one-path CREATE DN — `POST /delivery-notes/job-orders/{id}`
+reuses the server's CreateOrOpen rule set and renders its outcome
+message verbatim. The DN detail page is the workspace's dispatch
+view: header with the master's balance tracker, the dispatch edit
+form (driver/vehicle/receiver/date/time/notes/FOC + per-line delivered
+quantities with 0…balance inputs, `ExpectedRowVersion` for the
+concurrency guard), transitions and void with reason. Fiscal: one page,
+four tabs — tax invoices (search/status/include-void, issue transition
+for drafts, record payment against the balance), credit notes (list),
+the UAE VAT return (from/to period → the six report numbers), and the
+statement generator (the WPF StatementFilter axes — customer/company/
+project/salesman/from/to, ≥1 required — rendering the ledger with the
+running balance and totals). Credit-note creation from an invoice is
+not surfaced in this slice (the WPF flow is invoice-correction-driven);
+documented as a later slice alongside the PI grid editors.
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|
