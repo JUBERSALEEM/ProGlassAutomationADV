@@ -8,6 +8,7 @@ using ProGlass.Saas.Application.Delivery;
 using ProGlass.Saas.Application.Production;
 using ProGlass.Saas.Application.Optimization;
 using ProGlass.Saas.Application.Fiscal;
+using ProGlass.Saas.Application.Reporting;
 using ProGlass.Saas.Application.Subscriptions;
 using ProGlass.Saas.Application.Stock;
 using ProGlass.Saas.Infrastructure.Persistence;
@@ -79,6 +80,7 @@ public static class DependencyInjection
         services.AddScoped<IReservationStore, ReservationStore>();
         services.AddScoped<Optimization.IOptimizationStore, OptimizationStore>();
         services.AddScoped<Fiscal.IFiscalStore, FiscalStore>();
+        services.AddScoped<Reporting.IReportingStore, ReportingStore>();
         services.AddScoped<Subscriptions.ISubscriptionStore, SubscriptionStore>();
         services.AddSingleton<Subscriptions.ISubscriptionAdminStore>(
             new SubscriptionAdminStore(platformConnectionString));
