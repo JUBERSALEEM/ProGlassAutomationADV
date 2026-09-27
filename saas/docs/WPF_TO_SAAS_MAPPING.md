@@ -564,7 +564,7 @@ feature catalog from the WPF edition tiers; `SubscriptionService`/
 | LicenseGenerator tool (vendor issues a license) | `SubscriptionAdminStore.GrantPlanAsync`/`SuspendAsync`/`ReactivateAsync` on the elevated platform connection | **Documented difference** — implemented as a port, NOT HTTP-exposed (no platform-admin auth surface yet; isolated for the future payment provider per the plan) |
 | Edition gating (Basic cannot run production, etc.) — UI-role-gated in the WPF | `ModuleFeatureMap` route→feature gate in the middleware: reads AND writes of a module's routes 403 `subscription.feature_disabled` when the plan lacks the feature | Same tiers, server-enforced |
 | "Up to 5 users" (Business) | `users` feature limit checked on plan change (a downgrade below the current seat count is refused with the seat count); null limit = unlimited | Same |
-| Per-period usage limits (invoices/month, reports/month, optimization jobs/month — architecture §6; the WPF has NO such limits, single-machine licensing) | `PlanLimitGuard` (Phase 18): resolves the effective limit (tenant override wins; NULL = unlimited) and the current billing period start; `FiscalService.CreateAsync` counts tax invoices since period start (`tax_invoices` key), `GenerateStatementAsync` counts statements (`reports`), `OptimizationService.RunAsync` counts sessions (`optimization`) — at the limit the write is refused with HTTP **402** `fiscal.subscription_limit` / `optimization.subscription_limit` and an operator-readable message; values live ONLY in the catalog (plan_features/tenant_features, hard-coded nowhere) and nothing is seeded except the WPF-derived users limits — an operator decision point by design | **Documented difference** — a SaaS platform concern with no WPF analogue; storage (GB) has no counter yet (no blobs stored — attachments module deferred) |
+| Per-period usage limits (invoices/month, reports/month, optimization jobs/month — architecture §6; the WPF has NO such limits, single-machine licensing) | `PlanLimitGuard` (Phase 18): resolves the effective limit (tenant override wins; NULL = unlimited) and the current billing period start; `FiscalService.CreateAsync` counts tax invoices since period start (`tax_invoices` key), `GenerateStatementAsync` counts statements (`reports`), `OptimizationService.RunAsync` counts sessions (`optimization`) — at the limit the write is refused with HTTP **402** `fiscal.subscription_limit` / `optimization.subscription_limit` and an operator-readable message; values live ONLY in the catalog (plan_features/tenant_features, hard-coded nowhere) and nothing is seeded except the WPF-derived users limits — an operator decision point by design | **Documented difference** — a SaaS platform concern with no WPF analogue; storage accounting: `GET /api/v1/attachments/usage` (Phase 24; a plan limit can gate it — operator decision point, no value seeded) |
 | `ReadOnlyGate.Enabled` test kill-switch | Not needed — the middleware is composed in the pipeline, integration tests build the graph without it | **Documented difference** |
 | Payments/billing | NOT ported (no payment provider; plan change is instant and free — a platform decision point) | **Deferred, documented** |
 
@@ -582,8 +582,10 @@ against live PostgreSQL (`saas/migration/tests/test_migration_tool.py`:
 fixture SQLite → disposable PG, dry-run==apply counts, findings,
 validate report). Porting the proven logic to the .NET worker later is
 mechanical. Phase 14 delivered the engine + the first 7 modules; Phase
-16 completed all 15 plan §2 modules (only `attachments` remains
-deferred — object storage).
+16 completed 15 plan §2 modules; Phase 24 added the 16th and last
+(`attachments` — byte storage is the filesystem under
+SAAS_ATTACHMENT_ROOT with the storage_key indirection, so the plan's
+"object storage" concern is addressed without a cloud dependency).
 
 | Plan §2 module | Status | Transform notes (WPF source → SaaS target) |
 |---|---|---|
@@ -599,7 +601,7 @@ deferred — object storage).
 | 10 taxinvoices.db / creditnotes.db | **Implemented** | Statuses pass through where the 0016 CHECK knows them (the WPF fiscal vocab IS the SaaS vocab); unknown statuses are reported + skipped — a deliberate difference from plan §3's "pass through" rule, which predates the CHECK-constrained vocabularies; totals re-verified by recomputation (VAT = round2(after×5%)) and mismatches REPORTED, stored values imported verbatim (a fiscal record is never "fixed" on import); WPF FullSnapshotJson preserved in tax_invoices.snapshot_json; credit notes carry no snapshot column (info finding); Phase 16: the ProformaId/JobOrderId string references now RESOLVE against the imported documents (unresolved → null + warning) |
 | 11 statements.db | **Implemented** | WPF invoice-rows → the SaaS ledger (Invoice debit = GrandTotal, Payment credit = PaidAmount, running balance, line_no order); WPF totals (InvoiceCount/TotalInvoiced/TotalOutstanding/OverdueAmount) preserved in totals_json |
 | 12 audit.db ActivityLog | **Implemented** | TimestampUtc passes through UTC; user_id resolved from the imported users (unknown → null + info finding); ChangesJson → after_json when valid JSON, else the free-text Details preserved inside after_json (the SaaS audit row has no Details column); only true UUIDs land in entity_id |
-| 13 attachments | Deferred | disk files → object storage — no object storage in this environment; the source attachment tables are counted + reported by their owning modules |
+| 13 attachments | **Implemented (Phase 24)** | DeliveryNoteAttachments + InquiryAttachments → saas.attachments, with the bytes COPIED from the WPF data root into the tenant-scoped attachment storage (SAAS_ATTACHMENT_ROOT / --attachments-dir): files resolved by StoragePath then the WPF AttachmentService layouts ({Images\|PDFs}/{SanitizeName(DN)}/ and Attachments/{InquiryNumber}/); on-disk size wins over the registered size (drift = info finding); unimportable uploader → NULL + info; missing file / unimported owner → error + skip; the unique-name rule and the S-8 sanitizer are the WPF's own, in Python; dry-run writes no bytes |
 | Machine licenses | NOT migrated | subscription created fresh at registration (Phase 13) — plan §3 |
 
 `validate` (Phase 16 extension, plan §4): per-table counts for all 29
@@ -617,6 +619,32 @@ transaction (later modules' FKs resolve exactly as an apply would),
 discarded at the end; every finding (info/warning/error) lands in the
 HTML + JSON report.
 
+### 1.13 Attachments — Phase 24 (parity and deliberate differences)
+
+Ported 2026-09-27 from `Services/DeliveryNote/Attachments/` —
+`AttachmentService.cs` (311 lines: the upload path with extension +
+size validation, the S-8 sanitizer, BUG-26 shared helper, BUG-27
+delete semantics, BUG-28 unique-name resolution, FormatFileSize) and
+`AttachmentType.cs` (`AttachmentLimits`: 10 MB, the image/PDF extension
+sets, the combined dialog filter). Domain: `AttachmentRules`;
+Application: `AttachmentService`/`IAttachmentStore`/`IAttachmentStorage`;
+Infrastructure: `FileAttachmentStorage` (filesystem) + `AttachmentStore`
+(EF); API: `AttachmentsController` (5 endpoints).
+
+| WPF (source of truth) | SaaS (Phase 24) | Difference? |
+|---|---|---|
+| Upload path: extension first, then the 10 MB size limit — no byte is written for an invalid file | Same order in `AttachmentService.UploadAsync`; a non-seekable (chunked HTTP) stream is length-checked by the bytes actually written and an over-limit file is deleted immediately | Same |
+| `AttachmentLimits.ImageExtensions` (.jpg/.jpeg/.png/.bmp/.gif/.webp), `PdfExtensions` (.pdf), `MaxFileSizeBytes` 10 MB | `AttachmentRules` — verbatim | Same |
+| `SanitizeName` (S-8): blank → "_"; invalid filename chars + separators → '_'; all-dots segment (path traversal) → "_"; trailing dots/spaces trimmed (Windows silently drops them → two ids would collide on one folder); 120-char cap | `AttachmentRules.SanitizeName` — verbatim; the migration tool carries the same rule in Python so an imported file lands where a live upload would | Same |
+| `ResolveUniquePath` (BUG-28): plain name first, then `name-1` … `name-999`, then an immediate GUID fallback — no silent overwrite, no unbounded disk I/O | `AttachmentRules.ResolveUniqueName` (returns a name, not a path) + `FileAttachmentStorage.SaveAsync` | Same |
+| `DeleteFile` (BUG-27): returns bool — the DB row is authoritative, the file cleanup is best-effort (missing/locked → false, never throws) | `AttachmentService.DeleteAsync` deletes the row first, then best-effort `storage.Delete`; a failed row insert deletes the written bytes (no orphans) | Same |
+| `FormatFileSize` (`0.#` KB / `0.##` MB) | `AttachmentRules.FormatFileSize` — verbatim | Same |
+| Files under `AppData/DeliveryNotes/Attachments/{Images\|PDFs}/{SanitizeName(DN)}/` on the workstation | `FileAttachmentStorage` under `SAAS_ATTACHMENT_ROOT` (default `./attachments`): `{tenant}/{entity-type}/{entity-id}/{unique-name}`, with `attachments.storage_key` the indirection — an object-storage backend can drop in later without a schema change | **Documented difference** — multi-tenant keyed layout, no workstation AppData |
+| DN attachments only (the WPF service is delivery-note-specific; inquiries carry their own `InquiryAttachments` table) | Entity-generic `attachments` table (0003) for six entity types — the five document families (delivery_note, proforma_invoice, tax_invoice, credit_note, job_order) + inquiry (the migration imports InquiryAttachments, so the API surface accepts them) — each gated by that entity's own permission pair (view = list/download, edit = upload/delete) | **Documented difference** — the table was entity-keyed from the start; the WPF's single-entity scope becomes a known-type allowlist |
+| Uploads via the WPF file dialog; DN save writes the `DeliveryNoteAttachments` registry row | `POST /api/v1/attachments/{entityType}/{entityId}` (multipart, IFormFile) + list/download/delete/usage endpoints | Architectural translation |
+| No storage accounting (single machine) | `GET /api/v1/attachments/usage` — total bytes + display for the tenant (Reports.View; the storage-GB counter for the subscription catalog) | **New** — SaaS platform concern |
+| `DeliveryNoteAttachments` + `InquiryAttachments` registry rows + the files on disk | Migration module 13 `attachments`: registry rows read from both source tables, bytes resolved by StoragePath then the AttachmentService layouts, copied (never moved) into the tenant-scoped storage, on-disk size wins over the registered size (drift is an info finding), an unimportable uploader is stored as NULL with an info finding, missing files/skipped owners are error findings — counted, never silently dropped; dry-run writes NO bytes | Same semantics (row + bytes together) |
+
 ### 1.14 Production hardening — Phase 15 (parity and deliberate differences)
 
 Built 2026-09-27. The WPF's hardening portfolio (SQLite WAL/busy_timeout/
@@ -630,7 +658,7 @@ web/database equivalents; `SAAS_DEPLOYMENT.md` is the operator's guide.
 | `SchemaHealthService` (startup schema checks) | `GET /health` + `hardening_audit.py` — a 14-check live audit (RLS on all 40 tenant tables + FORCE, per-tenant policies, role least-privilege, platform-table write denial for the runtime role, tenant-FK cascade coverage, orphan scan, unique fiscal numbers, 52 CHECK constraints, FK index coverage, Argon2id password shape, statement ordinal uniqueness, stock ledger chains) → `verification/HARDENING_AUDIT.md` | **Extended** — the audit found 49 unindexed FK columns; migration 0018 adds the indexes (48+1, CREATE INDEX IF NOT EXISTS only) and the audit now passes 14/14 |
 | `BackupService`: backup SETS, retention 10, auto-throttle 1h, manual-warn 10min, never-throws facade | `devbox/backup_db.py` — pg_dump -Fc sets with the SAME constants (retention 10, warn window 10min, `--force`), manifests (BackupSetInfo: name/createdAt/bytes/files + md5 + per-table row counts + pg version) | Same policy; the SaaS backs up one PostgreSQL cluster (not a folder of .db files + attachment folders) |
 | `RestoreDrillService` (a backup is proven only by restoring it) | `--restore-drill`: restores the newest set into a SCRATCH database, verifies the archive checksum and every per-table row count against the manifest, drops the scratch DB — verified end-to-end (45 tables, 84 rows, plus deliberate-corruption detection) | Same |
-| Attachments in backup sets (Inquiries/PI/DN folders — the 2026-09-05 P0 audit fix) | Not applicable yet — the SaaS attachments module is deferred; object storage keys will join the backup story when it lands | **Deferred, documented** |
+| Attachments in backup sets (Inquiries/PI/DN folders — the 2026-09-05 P0 audit fix) | Attachment bytes live under `SAAS_ATTACHMENT_ROOT` (Phase 24 `FileAttachmentStorage`, tenant-scoped keys) — the operator backs up that folder alongside `pg_dump` (the keys are relative paths, so the set restores cleanly); `devbox/backup_db.py` documents it | **Documented difference** — the folder is outside PostgreSQL, same as the WPF's was outside the .db files |
 | Desktop attack surface (no headers/HTTP) | `SecurityHeadersMiddleware` (X-Frame-Options DENY, nosniff, no-referrer, CSP default-src 'none', COOP, cross-domain policies) + `GlobalExceptionHandlerMiddleware` (unhandled → the §0 `{code,message}` envelope with a correlation id; stack traces never leave the server) + `LoginRateLimitMiddleware` (fixed window 20/min per IP on login/register — the WPF per-username lockout's web complement) | **New** — web-only concerns |
 | Machine fingerprint / license gate (read-only enforcement) | Phase 13 `SubscriptionGateMiddleware` | Already ported |
 | Velopack updates, crash helpers | CI/CD + the reverse proxy; out of scope here | Architectural translation |

@@ -73,9 +73,27 @@ GET    /api/v1/inquiries/{id}
 PUT    /api/v1/inquiries/{id}
 DELETE /api/v1/inquiries/{id}                    # Inquiry.Delete permission
 POST   /api/v1/inquiries/{id}/convert-to-proforma   # BOQ conversion → returns proforma id
-POST   /api/v1/inquiries/{id}/attachments          # multipart, validated
-GET    /api/v1/inquiries/{id}/attachments/{attId}/download
 ```
+(Inquiry attachments land on the entity-generic `/api/v1/attachments`
+surface below — Phase 24; `inquiry` is one of the six entity types.)
+
+## 4a. Attachments (Phase 24)
+
+```
+POST   /api/v1/attachments/{entityType}/{entityId}   # multipart upload (≤ 10 MB, image/PDF)
+GET    /api/v1/attachments/{entityType}/{entityId}   # metadata list
+GET    /api/v1/attachments/{id}/content              # bytes (original filename + content type)
+DELETE /api/v1/attachments/{id}                      # row authoritative, file best-effort
+GET    /api/v1/attachments/usage                     # tenant storage counter (Reports.View)
+```
+`entityType` ∈ {delivery_note, proforma_invoice, tax_invoice,
+credit_note, job_order, inquiry} — each gated by that entity's own
+permission pair: view for list/download, edit for upload/delete.
+Validation order is the WPF's own: extension first, then the 10 MB
+size limit. Byte storage is the filesystem under `SAAS_ATTACHMENT_ROOT`
+(`{tenant}/{entity-type}/{entity-id}/{unique-name}`), with
+`attachments.storage_key` the indirection so an object-storage backend
+can replace it later without a schema change. See mapping §1.13.
 
 ## 5. Specifications & pricing
 

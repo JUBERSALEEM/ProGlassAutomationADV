@@ -67,9 +67,10 @@ importer, backups, audits) has run and passes.
 | 20 | Reporting core slice 2 — executive summary (cohort order-to-cash funnel + headline cards), profitability (persisted Step 9 P&L, costed gate) and analytics (Pareto, ageing, throughput) — 5 reporting endpoints | `6b60167` |
 | 21 | Reporting core slice 3 — row traceability (the PI→JO→DN→TI→P&L audit chain) + CNC export (DXF R12 + cut list CSV from persisted sessions; proprietary formats declared, not guessed) | `a809fe0` |
 | 22 | Reporting core slice 4 — cutting sheet + material consumption reports over the persisted optimization sessions (the process/control report families documented as deferred with their production-extras tables) | `97ddc5a` |
-| 23 | Reporting core slice 5 — the CSV export path (generic layout + file namer verbatim + 3 export endpoints) and the reporting cache (30s TTL, tenant-prefixed keys, operator invalidation) | this commit |
+| 23 | Reporting core slice 5 — the CSV export path (generic layout + file namer verbatim + 3 export endpoints) and the reporting cache (30s TTL, tenant-prefixed keys, operator invalidation) | `5e13766` |
+| 24 | Attachments — the WPF `AttachmentService`/`AttachmentType` port (limits + S-8 sanitizer + BUG-27/28 rules verbatim; six entity types with per-entity permissions; root-jailed filesystem storage under `SAAS_ATTACHMENT_ROOT`), 5 API endpoints incl. the storage-usage counter, and migration module 13 (DN + inquiry attachment rows with bytes copied from the WPF data root) — **all 16 plan §2 modules** | this commit |
 
-38 commits on the session branch from the base commit.
+39 commits on the session branch from the base commit.
 
 ## 3. Inventory (measured, not estimated)
 
@@ -77,13 +78,13 @@ importer, backups, audits) has run and passes.
 |---|---|
 | SQL migrations | 20 (0001–0020) |
 | PostgreSQL tables (saas schema) | 46 |
-| C# source files | 200 (all parse clean) |
+| C# source files | 206 (all parse clean) |
 | EF entities | 44 |
-| API endpoints (attribute-counted) | 143 across 16 controllers |
-| Test files | 53 (279 domain golden facts + 73 integration flow facts) |
+| API endpoints | 148 across 19 controllers (147 attribute-counted + `GET /health`; the Phase 23 line under-counted by the same `/health`) |
+| Test files | 40 files with tests (491 `[Fact]` + 53 `[Theory]` = 544 methods; measured by attribute count — replaces the stale Phase 22 basis) |
 | Python tooling (harness, generator, importer, backup, audit) | 8 verified programs |
 | Mapping doc sections | 24 parity sections (§1.x) |
-| Migration tool modules | **15 implemented** (plan §2 order; 1 deferred: attachments) |
+| Migration tool modules | **16 implemented, 0 deferred** (all plan §2 modules; attachments landed in Phase 24) |
 
 ## 4. Parity discipline (the port's core promise)
 
@@ -115,7 +116,7 @@ MetricKeys.Normalize with its legacy aliases.
 | Production | process executions/pairings/assemblies, workstations, control holds, actual costs, replacement pieces, consistency scanner, allocation ledger, FOC replacement (each counted + reported by the migration tool — never silent) |
 | Stock | CSV/Excel import, SheetStorePricing/SheetStockLink module links |
 | Fiscal | — (Phase 17 closed the snapshot population, the bank/TRN print fields and the statement filter axes; PDF/print RENDERING remains deferred with the export slice) |
-| Subscriptions | payments/billing provider; storage-GB counter (no blobs stored until the attachments module lands) — invoice/report/optimization-job limits ARE enforced since Phase 18 (values catalog-only, nothing seeded beyond the WPF users limits) |
+| Subscriptions | payments/billing provider; storage accounting exists since Phase 24 (`GET /api/v1/attachments/usage`) but no plan limit is enforced against it yet (operator decision point) — invoice/report/optimization-job limits ARE enforced since Phase 18 (values catalog-only, nothing seeded beyond the WPF users limits) |
 | Advanced automation | UseAdvancedAutomation P&L costing until the toggle is persisted |
 
 ## 5. Multi-tenant security posture (independently audited)
@@ -153,11 +154,10 @@ resolution on reservations and events). The WPF data root is opened
 **read-only**; per-module transactions, row-level savepoints, dry-run
 that loads exactly what an apply would, findings for every anomaly
 (unknown statuses/roles/glass types, VAT mismatches, unresolvable
-references, enum violations — 15 deliberate error paths in the fixture),
+references, enum violations, missing attachment files — 17 deliberate error paths in the fixture),
 HTML+JSON reports, and a post-import `validate` command (29 table
 counts + stock-ledger tail + PI financial integrity ±0.01 +
-revision-chain orphans + the delivery delivered-qty guard). Only
-`attachments` remains deferred (object storage). Tested end-to-end
+revision-chain orphans + the delivery delivered-qty guard). The last module, `attachments`, landed in Phase 24 (filesystem byte storage with the storage_key indirection; no cloud dependency). Tested end-to-end
 against a WPF-shaped fixture including deliberate problems.
 
 ## 7. Operational readiness
@@ -184,7 +184,7 @@ detection), monitoring hooks, and the production checklist.
 
 The port is **structurally complete and verified to the maximum extent
 this environment allows**: 15/15 phases delivered plus the Phase 16
-document modules (15/16 migration modules; only attachments remains)
+document modules (16/16 migration modules — all plan §2 modules implemented)
 the Phase 17 fiscal completion slice, the Phase 18 subscription limits and
 the Phase 19 reporting core slice 1 (invoice line items + reconciliation),
 every deferral documented with its reason, the database layer proven

@@ -56,10 +56,13 @@ reported by the modules that read those source tables.
 from __future__ import annotations
 
 import json
+import os
 import secrets
+import shutil
 import sqlite3
 import uuid
 from decimal import Decimal, ROUND_HALF_EVEN
+from pathlib import Path
 
 from psycopg2.extensions import cursor as PgCursor
 
@@ -858,8 +861,9 @@ class InquiriesModule(Module):
                          "InquiryCommunications")
         if att_count:
             self.finding("info",
-                         f"{att_count} inquiry attachment row(s) — the"
-                         " attachments module is deferred (object storage)",
+                         f"{att_count} inquiry attachment row(s) counted"
+                         " here — imported by the attachments module"
+                         " (bytes resolve from disk)",
                          "InquiryAttachments")
         id_map["inquiries_by_int"] = by_int
         return extracted, loaded
@@ -2338,11 +2342,13 @@ class DeliveryNotesModule(Module):
                          f"{count} delivery item(s) under skipped note"
                          f" {number} not imported (the note itself was"
                          " reported above)", f"DeliveryNoteItems→{number}")
+        id_map["delivery_notes_by_no"] = note_ids
         if att_count:
             self.finding("info",
-                         f"{att_count} delivery-note attachment row(s) —"
-                         " the attachments module is deferred (object"
-                         " storage)", "DeliveryNoteAttachments")
+                         f"{att_count} delivery-note attachment row(s)"
+                         " counted here — imported by the attachments"
+                         " module (bytes resolve from disk)",
+                         "DeliveryNoteAttachments")
         return extracted, loaded
 
 
@@ -2815,19 +2821,255 @@ class ActivityLogModule(Module):
         return extracted, loaded
 
 
+# ── module 13: attachments ──────────────────────────────────────────
+
+_MIME_BY_EXTENSION = {
+    ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+    ".bmp": "image/bmp", ".gif": "image/gif", ".webp": "image/webp",
+    ".pdf": "application/pdf",
+}
+
+
+def _sanitize_segment(name: str) -> str:
+    """The S-8 sanitizer (WPF AttachmentService.SanitizeName) in Python:
+    blank → "_"; invalid filename characters → "_"; an all-dots segment
+    (path traversal) → "_"; trailing dots/spaces trimmed; capped at 120
+    characters. Mirrors the SaaS AttachmentRules.SanitizeName so the
+    importer writes the same folder a live upload would."""
+    if not name or not name.strip():
+        return "_"
+    safe = "".join(c if c.isprintable() and c not in '<>:"/\\|?*' else "_"
+                   for c in name.strip())
+    safe = safe.strip()
+    if not safe or all(c == "." for c in safe):
+        return "_"
+    safe = safe.rstrip(". ")
+    if not safe:
+        return "_"
+    return safe[:120]
+
+
+def _unique_name(folder: Path, file_name: str) -> str:
+    """The WPF BUG-28 rule in Python: the plain name first, then
+    name-1 … name-999, then an immediate GUID fallback — never a silent
+    overwrite, never unbounded disk I/O."""
+    stem = file_name.rsplit(".", 1)[0] if "." in file_name else file_name
+    ext = ("." + file_name.rsplit(".", 1)[1]) if "." in file_name else ""
+    if not (folder / file_name).exists():
+        return file_name
+    for i in range(1, 1_000):
+        candidate = f"{stem}-{i}{ext}"
+        if not (folder / candidate).exists():
+            return candidate
+    return uuid.uuid4().hex + ext
+
+
+class AttachmentsModule(Module):
+    """WPF DeliveryNoteAttachments + InquiryAttachments →
+    saas.attachments, with the bytes copied from the WPF data root into
+    the SaaS attachment storage.
+
+    The WPF registry tables hold the metadata (original name, uploader,
+    timestamp); the bytes live on disk under the data root. Each file is
+    resolved by trying, in order: the StoragePath column as written;
+    the AttachmentService layout DeliveryNotes/Attachments/
+    {Images|PDFs}/{SanitizeName(DN)}/{SanitizeName(FileName)}; and the
+    inquiry layout Attachments/{SanitizeName(InquiryNumber)}/
+    {SanitizeName(FileName)}. A file that cannot be found is an error
+    finding and is skipped — counted, never silently dropped.
+
+    The source data root is read-only input (copies, never moves). The
+    SaaS storage root is SAAS_ATTACHMENT_ROOT (the same knob the API's
+    FileAttachmentStorage reads) or ./attachments. In dry-run nothing is
+    written to disk: the row INSERTs ride the shared rollback
+    transaction and the byte copy is skipped.
+    """
+
+    name = "attachments"
+    source_db = "deliverynotes.db"
+    depends_on = ["users", "deliverynotes", "inquiries"]
+
+    def run(self, pg: PgCursor, tenant_id: uuid.UUID,
+            id_map: dict) -> tuple[int, int]:
+        users: dict = id_map.get("users", {})
+        notes: dict = id_map.get("delivery_notes_by_no", {})
+        inquiries: dict = id_map.get("inquiries_by_int", {})
+
+        # inquiry numbers for the Attachments/{number}/ layout
+        inquiry_numbers: dict[int, str] = {}
+        if (self.root / "inquiries.db").exists():
+            with sqlite3.connect(
+                    f"file:{self.root / 'inquiries.db'}?mode=ro",
+                    uri=True) as src:
+                src.row_factory = sqlite3.Row
+                for row in src.execute(
+                        "SELECT Id, InquiryNumber FROM Inquiries"):
+                    inquiry_numbers[row["Id"]] = (row["InquiryNumber"]
+                                                  or "").strip()
+
+        extracted = loaded = 0
+
+        # ── DeliveryNoteAttachments → entity delivery_note ────────────
+        with self.open_source() as src:
+            src.row_factory = sqlite3.Row
+            dn_rows = src.execute(
+                "SELECT * FROM DeliveryNoteAttachments "
+                "ORDER BY DeliveryNoteId, Id").fetchall()
+        extracted += len(dn_rows)
+        for row in dn_rows:
+            number = (row["DeliveryNoteId"] or "").strip()
+            note_id = notes.get(number)
+            if note_id is None:
+                self.finding("error",
+                             f"Attachment '{row['FileName']}' references"
+                             f" delivery note '{number}' which was not"
+                             " imported — skipped",
+                             f"DeliveryNoteAttachments.Id={row['Id']}")
+                continue
+            source_file = self._resolve_file(
+                row, number, self._dn_candidates(row, number))
+            if source_file is None:
+                continue
+            if self._load(pg, tenant_id, users, "delivery_note",
+                          note_id, row, source_file):
+                loaded += 1
+
+        # ── InquiryAttachments → entity inquiry ───────────────────────
+        iq_path = self.root / "inquiries.db"
+        if iq_path.exists():
+            with sqlite3.connect(f"file:{iq_path}?mode=ro",
+                                 uri=True) as src:
+                src.row_factory = sqlite3.Row
+                iq_rows = src.execute(
+                    "SELECT * FROM InquiryAttachments "
+                    "ORDER BY InquiryId, Id").fetchall()
+            extracted += len(iq_rows)
+            for row in iq_rows:
+                inquiry_id = inquiries.get(row["InquiryId"])
+                if inquiry_id is None:
+                    self.finding("error",
+                                 f"Attachment '{row['FileName']}'"
+                                 " references an inquiry which was not"
+                                 " imported — skipped",
+                                 f"InquiryAttachments.Id={row['Id']}")
+                    continue
+                number = inquiry_numbers.get(row["InquiryId"], "")
+                candidates = [
+                    self.root / (row["StoragePath"] or ""),
+                    self.root / "Attachments" / _sanitize_segment(number)
+                    / _sanitize_segment(row["FileName"] or ""),
+                ]
+                source_file = self._resolve_file(row, number, candidates)
+                if source_file is None:
+                    continue
+                if self._load(pg, tenant_id, users, "inquiry",
+                              inquiry_id, row, source_file):
+                    loaded += 1
+
+        return extracted, loaded
+
+    # ── helpers ─────────────────────────────────────────────────────
+
+    @staticmethod
+    def _dn_candidates(row: sqlite3.Row,
+                       number: str) -> list[Path]:
+        """The AttachmentService folder layout for a delivery note."""
+        name = _sanitize_segment(row["FileName"] or "")
+        return [
+            Path(row["StoragePath"] or ""),
+            Path("DeliveryNotes") / "Attachments" / "PDFs"
+            / _sanitize_segment(number) / name,
+            Path("DeliveryNotes") / "Attachments" / "Images"
+            / _sanitize_segment(number) / name,
+        ]
+
+    def _resolve_file(self, row: sqlite3.Row, owner: str,
+                      candidates: list[Path]) -> Path | None:
+        for candidate in candidates:
+            path = (self.root / candidate
+                    if not candidate.is_absolute() else candidate)
+            if path.is_file():
+                return path
+        self.finding("error",
+                     f"Attachment '{row['FileName']}' for '{owner}' —"
+                     " the file was not found on disk (tried"
+                     " StoragePath and the AttachmentService layouts)"
+                     " — skipped",
+                     f"StoragePath={row['StoragePath']!r}")
+        return None
+
+    def _load(self, pg: PgCursor, tenant_id: uuid.UUID, users: dict,
+              entity_type: str, entity_id: uuid.UUID, row: sqlite3.Row,
+              source_file: Path) -> bool:
+        root = Path(os.environ.get("SAAS_ATTACHMENT_ROOT")
+                    or (Path.cwd() / "attachments"))
+        file_name = (row["FileName"] or "").strip() or "file"
+        ext = os.path.splitext(file_name)[1].lower()
+        mime = _MIME_BY_EXTENSION.get(ext, "")
+        actual_size = source_file.stat().st_size
+
+        uploaded_by = users.get((row["UploadedBy"] or "").strip())
+        if uploaded_by is None and (row["UploadedBy"] or "").strip():
+            self.finding("info",
+                         f"Attachment '{file_name}' uploader"
+                         f" '{row['UploadedBy']}' is not an imported"
+                         " user — stored without an uploader",
+                         f"uploaded_by={row['UploadedBy']!r}")
+        if row["FileSize"] and int(row["FileSize"]) != actual_size:
+            self.finding("info",
+                         f"Attachment '{file_name}' registered size"
+                         f" {row['FileSize']} ≠ {actual_size} bytes on"
+                         " disk — the on-disk size is imported",
+                         f"FileSize={row['FileSize']}")
+
+        folder = root / f"{tenant_id.hex}" / entity_type / f"{entity_id.hex}"
+        if getattr(self, "_apply", True):
+            folder.mkdir(parents=True, exist_ok=True)
+            target = folder / _unique_name(folder,
+                                           _sanitize_segment(file_name))
+            shutil.copy2(source_file, target)
+            storage_key = (f"{tenant_id.hex}/{entity_type}/"
+                           f"{entity_id.hex}/{target.name}")
+        else:
+            # Dry-run: no bytes are written (row INSERTs roll back with
+            # the shared transaction) — the key an apply would use is
+            # reported so the report still shows the plan.
+            storage_key = (f"{tenant_id.hex}/{entity_type}/"
+                           f"{entity_id.hex}/{_sanitize_segment(file_name)}")
+
+        ok, err = insert_with_savepoint(
+            pg,
+            """
+            INSERT INTO saas.attachments
+              (id, tenant_id, entity_type, entity_id, storage_key,
+               original_name, mime_type, size_bytes, uploaded_by,
+               created_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (uuid.uuid4(), tenant_id, entity_type, entity_id,
+             storage_key, file_name, mime, actual_size, uploaded_by,
+             to_utc(row["UploadedAt"])))
+        if not ok:
+            _reject(self.finding, f"Attachment '{file_name}'",
+                    row["Id"], "Attachments", err)
+            return False
+        return True
+
+
 #: The module registry in the plan's dependency order (§2). The one
 #: deferred module is declared with its reason so the CLI lists it
 #: honestly.
-DEFERRED_MODULES: list[tuple[str, str]] = [
-    ("attachments", "disk files → object storage — no object storage in"
-                    " this environment; the source tables are counted and"
-                    " reported by their owning modules"),
-]
+DEFERRED_MODULES: list[tuple[str, str]] = []
 
 IMPLEMENTED_MODULES: list[type[Module]] = [
     UsersModule, MasterDataModule, SheetStoreModule, SpecificationsModule,
     InquiriesModule, ProformasModule, SpecificationUsagesModule,
     OptimizationModule, JobOrdersModule, ProductionModule,
     DeliveryNotesModule, TaxInvoiceModule, CreditNoteModule,
-    StatementsModule, ActivityLogModule,
+    StatementsModule, ActivityLogModule, AttachmentsModule,
 ]
+
+# The registry above is the implemented set; DEFERRED_MODULES below is
+# now empty — attachments landed in Phase 24 (byte storage = filesystem
+# under SAAS_ATTACHMENT_ROOT with the storage_key indirection so an
+# object-storage backend can drop in later without a schema change).

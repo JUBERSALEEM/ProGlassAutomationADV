@@ -92,7 +92,15 @@ Implemented (plan §2 order — all 15):
 | `statements` | statements.db | statements/statement_lines (ledger + running balance) |
 | `activitylog` | audit.db ActivityLog | audit_logs |
 
-Deferred (listed by `list-modules`, never silently skipped):
-`attachments` — disk files → object storage; there is no object storage
-in this environment, and the source attachment tables are counted and
-reported by their owning modules.
+`attachments` — **implemented in Phase 24** (was the one deferred
+module): `DeliveryNoteAttachments` + `InquiryAttachments` rows land in
+`saas.attachments` and the BYTES are copied (never moved) from the WPF
+data root into the tenant-scoped attachment storage. The storage root
+is `SAAS_ATTACHMENT_ROOT` or `./attachments`; `--attachments-dir`
+overrides it per run. Files are resolved by the `StoragePath` column,
+then the WPF `AttachmentService` layouts
+(`DeliveryNotes/Attachments/{Images|PDFs}/{DN}/` and
+`Attachments/{InquiryNumber}/`); the on-disk size wins over the
+registered size (drift is an info finding), a missing file or an
+unimported owner is an error finding — counted, never silently
+dropped. A dry-run inserts NO rows and writes NO bytes.

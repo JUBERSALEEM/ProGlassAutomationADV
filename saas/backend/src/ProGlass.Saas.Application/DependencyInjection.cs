@@ -41,6 +41,7 @@ public static class DependencyInjection
         services.AddScoped<Reporting.CncExportService>();
         services.AddScoped<Reporting.CuttingReportService>();
         services.AddSingleton<Reporting.ReportingCacheService>();
+        services.AddScoped<Attachments.AttachmentService>();
         services.AddScoped<Subscriptions.SubscriptionService>();
         services.AddScoped<Subscriptions.PlanLimitGuard>();
         return services;

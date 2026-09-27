@@ -39,7 +39,7 @@ half-loaded rows).
 | 10 | `taxinvoices.db` / `creditnotes.db` | 6,9 | Fiscal docs |
 | 11 | `statements.db` | 10 | Statements + lines |
 | 12 | `audit.db` ActivityLog | 1..11 | Audit history appended (actor mapped to imported users) |
-| 13 | attachments on disk | — | Copied to object storage with generated keys; original names preserved |
+| 13 | attachments on disk | — | **Implemented (Phase 24)**: registry rows from DeliveryNoteAttachments + InquiryAttachments → `saas.attachments`; bytes COPIED (never moved) into the tenant-scoped attachment storage (`SAAS_ATTACHMENT_ROOT` / `--attachments-dir`) with generated keys `{tenant}/{entity}/{entity-id}/{unique-name}`; original names preserved; on-disk size wins over the registered size (drift reported); missing files / unimported owners are errors, never silent drops; dry-run writes no bytes |
 
 ## 3. Transform rules (explicit, per §21 and §49)
 

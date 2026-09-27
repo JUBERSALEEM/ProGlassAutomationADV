@@ -12,11 +12,13 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import shutil
 import sqlite3
+import tempfile
+from pathlib import Path
 import sys
 import uuid
 from decimal import Decimal
-from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 MIGRATION_DIR = HERE.parent
@@ -43,7 +45,6 @@ def run_cli(*argv: str) -> int:
 
 
 def main() -> None:
-    import shutil
     # A disposable instance per test run (pgserver reuses /tmp/pgdata —
     # earlier iterations' tenants would pollute unscoped counts).
     shutil.rmtree("/tmp/pgdata", ignore_errors=True)
@@ -64,18 +65,24 @@ def main() -> None:
     fixture = build(HERE / "fixture-data-root")
     report_dir = HERE / "out"
 
-    # ── dry-run first: nothing persists ─────────────────────────────
+    # ── dry-run first: nothing persists (files included) ────────────
+    dry_attachments = Path(tempfile.mkdtemp(prefix="pg-att-dry-"))
     run_cli("import", "--source", fixture, "--db-uri", db_uri,
             "--tenant", slug, "--dry-run",
+            "--attachments-dir", str(dry_attachments),
             "--report-dir", str(report_dir / "dry"))
+    assert not any(dry_attachments.rglob("*")), \
+        "dry-run must not write attachment bytes"
     with conn.cursor() as cur:
         cur.execute("SELECT count(*) FROM saas.users"
                     " WHERE tenant_id = %s", (tenant_id,))
         assert cur.fetchone()[0] == 0, "dry-run must not persist rows"
 
     # ── apply ────────────────────────────────────────────────────────
+    att_root = Path(tempfile.mkdtemp(prefix="pg-att-apply-"))
     run_cli("import", "--source", fixture, "--db-uri", db_uri,
             "--tenant", slug, "--apply",
+            "--attachments-dir", str(att_root),
             "--report-dir", str(report_dir / "apply"))
     report = json.loads(
         (report_dir / "apply" / "migration_report.json").read_text())
@@ -481,7 +488,9 @@ def main() -> None:
     assert "Workstations" in texts
     assert "under skipped note DN-2026-009-01" in texts
     errors = [f for f in all_findings if f["severity"] == "error"]
-    assert len(errors) == 15, [e["message"] for e in errors]
+    # 15 before Phase 24; the attachments module adds its two deliberate
+    # error paths (missing file on disk + attachment on a skipped note).
+    assert len(errors) == 17, [e["message"] for e in errors]
 
     # ── validate ─────────────────────────────────────────────────────
     # The deliberate drifts are reported as FAIL (the operator sees
@@ -499,6 +508,57 @@ def main() -> None:
     assert "ledger tail" in failed_labels
     assert "PI totals" in failed_labels
     assert "revisions without an imported root" in failed_labels
+
+    # ── module 13: attachments (registry rows + disk bytes) ─────────
+    att = by_module["attachments"]
+    assert att["extracted"] == 5, att          # 4 DN rows + 1 inquiry row
+    assert att["loaded"] == 3, att             # signed.pdf + site-photo.jpg
+    att_errors = [f["message"] for f in att["findings"]
+                  if f["severity"] == "error"]
+    assert len(att_errors) == 2, att_errors    # missing file + skipped note
+    assert any("was not found on disk" in m for m in att_errors)
+    assert any("which was not imported" in m for m in att_errors)
+    att_infos = [f["message"] for f in att["findings"]
+                 if f["severity"] == "info"]
+    assert any("102400" in m and "512" in m for m in att_infos), \
+        "the registered-vs-disk size drift must be reported"
+    assert any("ghost" in m for m in att_infos), \
+        "an unimported uploader must be reported"
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT entity_type, original_name, mime_type, size_bytes,"
+            " uploaded_by FROM saas.attachments WHERE tenant_id = %s"
+            " ORDER BY original_name", (tenant_id,))
+        att_rows = cur.fetchall()
+    assert len(att_rows) == 3, att_rows
+    by_name = {r[1]: r for r in att_rows}
+    signed = by_name["signed.pdf"]
+    assert signed[0] == "delivery_note"
+    assert signed[2] == "application/pdf"
+    assert signed[3] == 512, signed            # on-disk size, not registry
+    assert signed[4] is not None               # jubers → imported user
+    photo = by_name["site-photo.jpg"]
+    assert photo[2] == "image/jpeg" and photo[4] is None, photo
+    boq = by_name["boq.pdf"]
+    assert boq[0] == "inquiry" and boq[3] == 20480 and \
+        boq[4] is not None, boq
+    # the bytes actually landed under the tenant-scoped storage key
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT storage_key FROM saas.attachments"
+            " WHERE tenant_id = %s AND original_name = 'signed.pdf'",
+            (tenant_id,))
+        storage_key = cur.fetchone()[0]
+    assert storage_key.startswith(f"{tenant_id.hex}/delivery_note/"), \
+        storage_key
+    stored = att_root / storage_key
+    assert stored.is_file(), storage_key
+    assert stored.read_bytes().startswith(b"%PDF-1.4")
+    boq_path = list(att_root.rglob("boq.pdf"))
+    assert len(boq_path) == 1 and boq_path[0].stat().st_size == 20480
+    # the WPF source files are untouched (copies, never moves)
+    assert (Path(fixture) / "DeliveryNotes" / "Attachments" / "PDFs" /
+            "DN-2026-001-01" / "signed.pdf").stat().st_size == 512
 
     # ── the source is never written ─────────────────────────────────
     with sqlite3.connect(f"file:{fixture}/audit.db?mode=ro", uri=True) as src:

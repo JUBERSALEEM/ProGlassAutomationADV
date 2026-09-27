@@ -743,13 +743,41 @@ def build(root: Path) -> None:
          # Item on the SKIPPED note DN-2026-009-01 — error + skip.
          (5, "DN-2026-009-01", "JOB-2026-001", 1, "Clear 6+12+6", 1,
           "A-01", 1500, 2400, 3, 0, 3, 0, "18.000")])
-    dn.execute(
+    # Phase 24: attachment registry rows — signed.pdf resolves via the
+    # AttachmentService PDFs layout (registered size deliberately ≠ the
+    # on-disk bytes: the drift finding path), site-photo.jpg via Images
+    # with an UNIMPORTED uploader (stored without an uploader), the
+    # missing-reference row has no file on disk (error + skip), and the
+    # orphan row sits on the skipped note DN-2026-009-01 (error + skip).
+    dn.executemany(
         "INSERT INTO DeliveryNoteAttachments (DeliveryNoteId, FileName,"
         " StoragePath, FileSize, UploadedBy, UploadedAt)"
-        " VALUES ('DN-2026-001-01','signed.pdf',"
-        "'DeliveryNotes/DN-2026-001-01/signed.pdf',102400,'jubers',"
-        "'2026-09-05 12:00:00')")
+        " VALUES (?,?,?,?,?,?)",
+        [("DN-2026-001-01", "signed.pdf",
+          "DeliveryNotes/DN-2026-001-01/signed.pdf", 102400, "jubers",
+          "2026-09-05 12:00:00"),
+         ("DN-2026-001-01", "site-photo.jpg",
+          "DeliveryNotes/Attachments/Images/DN-2026-001-01/site-photo.jpg",
+          2048, "ghost", "2026-09-05 12:30:00"),
+         ("DN-2026-001-01", "missing-reference.pdf",
+          "DeliveryNotes/DN-2026-001-01/missing-reference.pdf", 512,
+          "jubers", "2026-09-05 13:00:00"),
+         ("DN-2026-009-01", "orphan.pdf",
+          "DeliveryNotes/Attachments/PDFs/DN-2026-009-01/orphan.pdf", 256,
+          "jubers", "2026-09-06 09:00:00")])
     dn.commit()
+
+    # ── attachment bytes on disk (read-only input for module 13) ─────
+    att_root = root / "DeliveryNotes" / "Attachments"
+    (att_root / "PDFs" / "DN-2026-001-01").mkdir(parents=True, exist_ok=True)
+    (att_root / "Images" / "DN-2026-001-01").mkdir(parents=True, exist_ok=True)
+    (att_root / "PDFs" / "DN-2026-001-01" / "signed.pdf").write_bytes(
+        b"%PDF-1.4\n% ProGlass fixture\n" + b"0" * 484)   # 512 bytes
+    (att_root / "Images" / "DN-2026-001-01" / "site-photo.jpg").write_bytes(
+        b"\xff\xd8\xff\xe0" + b"J" * 2044)              # 2048 bytes
+    (root / "Attachments" / "INQ-2026-001").mkdir(parents=True, exist_ok=True)
+    (root / "Attachments" / "INQ-2026-001" / "boq.pdf").write_bytes(
+        b"%PDF-1.4\n% BOQ\n" + b"B" * 20465)              # 20480 bytes
 
     # ── taxinvoices.db (TaxInvoices) ─────────────────────────────────
     ti = sqlite3.connect(root / "taxinvoices.db")

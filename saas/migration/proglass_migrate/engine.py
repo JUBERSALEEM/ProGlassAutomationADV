@@ -172,6 +172,9 @@ class MigrationRun:
         everything back at the end."""
         result = ModuleResult(name=module.name, status="ok")
         result.findings = module.findings
+        # Modules may need the mode (the attachments module must not
+        # write bytes to disk in a dry-run; rows ride the rollback).
+        module._apply = self.apply
         with self.connection.cursor() as cursor:
             cursor.execute("SAVEPOINT module_sp")
             try:

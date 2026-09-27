@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ProGlass.Saas.Application\ProGlass.Saas.Application.csproj" />
+    <ProjectReference Include="..\..\src\ProGlass.Saas.Infrastructure\ProGlass.Saas.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

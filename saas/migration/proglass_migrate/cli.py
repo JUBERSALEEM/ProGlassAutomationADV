@@ -27,6 +27,9 @@ from pathlib import Path
 import psycopg2
 
 from .engine import MigrationRun, Module, write_report
+import os
+from pathlib import Path
+
 from .modules import DEFERRED_MODULES, IMPLEMENTED_MODULES
 
 
@@ -69,6 +72,9 @@ def cmd_import(args: argparse.Namespace) -> int:
                 + ", ".join(sorted(unknown))
                 + " (see: proglass-migrate list-modules)")
 
+    if getattr(args, "attachments_dir", None):
+        os.environ["SAAS_ATTACHMENT_ROOT"] = str(
+            Path(args.attachments_dir).resolve())
     connection = psycopg2.connect(args.db_uri)
     connection.autocommit = False
     try:
@@ -259,6 +265,10 @@ def main(argv: list[str] | None = None) -> int:
     p_import.add_argument("--db-uri", required=True)
     p_import.add_argument("--tenant", required=True,
                           help="tenant slug or UUID")
+    p_import.add_argument(
+        "--attachments-dir", default=None,
+        help="SaaS attachment storage root for imported bytes "
+             "(default: $SAAS_ATTACHMENT_ROOT or ./attachments)")
     mode = p_import.add_mutually_exclusive_group(required=True)
     mode.add_argument("--dry-run", action="store_true")
     mode.add_argument("--apply", action="store_true")
