@@ -281,6 +281,35 @@ Every rate is `decimal`, ends in `MoneyRounding.Round`, and `SafeYield`
 | `SheetStorePricingService` / `SheetStockLinkService` | Server services linking specs ↔ live prices/balances |
 | Balance = Stock − Used; `MaxSheets` caps w/ sentinels (0=∞ explicit, 99999999=default availability) | Same semantics on `StockSize` DTO for optimizer |
 
+#### 1.5a Sheet Store — Phase 8 implementation (parity and deliberate differences)
+
+Ported 2026-09-27 from `Services/SheetStore/SheetStoreRepository.cs`,
+`InventoryItemRepository.cs`, `Models/SheetStore/GlassSheet.cs`,
+`InventoryItem.cs`, `GlassSheetLowStock.cs`. `StockService` +
+`StockStore` + `/api/v1/stock` (sheets: CRUD, filtered/sorted/paged
+search, filters, buy, use, history, low-stock; items: CRUD, receive,
+consume, history, low-stock, suppliers).
+
+| WPF (source of truth) | SaaS (Phase 8) | Difference? |
+|---|---|---|
+| `SearchAsync`: category/color/supplier exact, thicknessMm (>0), free-text contains on category+color+supplier, sort keys newest/oldest/stockasc/stockdesc else Category→Color→Thickness, skip/take default 200 | Same filters + sort keys verbatim; SaaS `PagedResult` envelope (page/pageSize default 50, max 200 — the WPF's take-200 stays the cap); thickness searchable via the exact filter only (the WPF's own comment: the display is computed) | Envelope only (documented) |
+| `AddAsync`: timestamps now; stock > 0 ⇒ LastPurchaseDate now | Same (UTC; DateOnly) | Same |
+| (no identity constraint in SQLite) | `uq_glass_sheets_identity` (tenant, category, thickness, color, W, H, supplier) → typed 409 on duplicate | **Stricter by schema (0002), documented** — the WPF allowed silent duplicate rows |
+| `UpdateAsync` / `DeleteAsync` (guarded SheetStore.Edit/.Delete) | Same permissions (`SheetStore.Create/.Edit/.Delete`, ported in Phase 4's vocabulary) | Same |
+| `BuyStockAsync`: SQL-side `Stock += q` (the lost-update fix), optional price overwrite only when > 0, LastPurchaseDate now; quantity ≤ 0 silently ignored; missing sheet silently ignored | Same atomic increment + price rule + stamp, in ONE transaction WITH the ledger row; quantity ≤ 0 → 400 "Quantity must be greater than zero."; missing sheet → 404 | **Documented difference**: an API must not answer success for a write that did nothing (the WPF's own InventoryItemRepository throws for the same cases) |
+| `UseStockAsync`: guarded atomic `Used += q` only when `Stock − Used ≥ q` (guard IN the UPDATE's WHERE); short stock throws "Not enough stock. Available: {balance}, Requested: {qty}"; missing sheet silent | Same guard verbatim + the same message (typed 409); missing sheet → 404 | Same message; the silent-missing case is a 404 (documented, same reason as above) |
+| (no movement ledger — balance was the only record) | Every movement appends an immutable `stock_transactions` row (purchase/issue; receive/consume for items) with quantity_delta (signed), balance_after, unit_cost, performer, notes — in the SAME transaction as the increment | **Improvement by schema (0002, designed in Phase 3), documented** |
+| `GlassSheetLowStock.Threshold = 5` (the ONE declaration; balance ≤ 5) | Same — `GET /stock/sheets/low-stock`, ordered by balance | Same |
+| Computed read model: SqmPerSheet (mm→SQM), Balance, TotalSqm{InStock,Used,Balance}, Total{Purchase,Sell}Value, BalanceValue, ProfitValue, Used{Cost,Sell,Profit}Value, BalanceCostValue, ProfitPerSqm, Size/ThicknessDisplay | Same fields on `GlassSheetDto` (derived server-side, never client-posted) | Same |
+| `InventoryItemRepository.ReceiveAsync`: quantity ≤ 0 throws "Received quantity must be greater than zero."; price overwrite only when > 0; missing item silent | Same message verbatim (typed 400); atomic SQL increment + ledger row; missing → 404 | Same message; 404 vs silent (documented) |
+| `ConsumeAsync`: ≤ 0 throws "Consumed quantity must be greater than zero."; short stock throws "Not enough stock. Available: {balance:N2} {unit}, requested: {qty:N2} {unit}."; missing silent | Same messages verbatim (typed 400/409); guarded atomic + ledger | Same messages; 404 vs silent (documented) |
+| `IsLowStock` = ReorderLevel > 0 && Balance ≤ ReorderLevel (a zero level never triggers), ordered by balance | Same | Same |
+| `GetLowStockAsync` loaded the whole table (computed props can't translate) | `WHERE ReorderLevel > 0 AND Stock − Used <= ReorderLevel` in SQL | Same result, translated |
+| Item categories: SpacerBar/Desiccant/PrimarySeal/SecondarySeal/Gas/Hardware/Film | 0002 CHECK: spacer/sealant/desiccant/gas/hardware (sealant covers the two seal types; film dropped) | **Schema parity decision from Phase 3 (0002 comment), documented** |
+| `InventoryItem.LastPurchaseDate` set by Receive | No such column in 0002 — the ledger's purchase rows (created_at) are the queryable equivalent | Documented |
+| `SheetHistory` (SQLite table) | `GET /stock/sheets/{id}/history` + `/stock/items/{id}/history` (paged, newest first) from the ledger | Same intent |
+| SheetStore CSV/Excel import (preview→confirm), `SheetStorePricingService` / `SheetStockLinkService` | Later Phase 8 sub-items (import needs file storage; the pricing link is already served by the Step 4 price handoff + Step 9 re-costing) | Deferred, documented |
+
 ### 1.6 Optimization
 | WPF | SaaS |
 |---|---|

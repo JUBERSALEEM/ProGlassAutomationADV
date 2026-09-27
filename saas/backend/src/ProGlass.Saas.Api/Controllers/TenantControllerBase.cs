@@ -5,6 +5,7 @@ using ProGlass.Saas.Application.MasterData;
 using ProGlass.Saas.Application.Pricing;
 using ProGlass.Saas.Application.Proforma;
 using ProGlass.Saas.Application.Specifications;
+using ProGlass.Saas.Application.Stock;
 
 namespace ProGlass.Saas.Api.Controllers;
 
@@ -54,6 +55,17 @@ public abstract class TenantControllerBase : ControllerBase
         SpecificationErrorCode.NotFound =>
             NotFound(new { code = "specifications.not_found", message = result.Message }),
         _ => BadRequest(new { code = "specifications.validation_failed", message = result.Message })
+    };
+
+    protected IActionResult Fail<T>(StockResult<T> result) => result.ErrorCode switch
+    {
+        StockErrorCode.NotFound =>
+            NotFound(new { code = "stock.not_found", message = result.Message }),
+        StockErrorCode.InsufficientStock =>
+            Conflict(new { code = "stock.insufficient_stock", message = result.Message }),
+        StockErrorCode.DuplicateSheet =>
+            Conflict(new { code = "stock.duplicate_sheet", message = result.Message }),
+        _ => BadRequest(new { code = "stock.validation_failed", message = result.Message })
     };
 
     protected IActionResult Fail<T>(ProformaResult<T> result) => result.ErrorCode switch

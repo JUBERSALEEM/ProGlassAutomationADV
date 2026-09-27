@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using ProGlass.Saas.Application.Auth;
 using ProGlass.Saas.Application.MasterData;
 using ProGlass.Saas.Application.Security;
+using ProGlass.Saas.Application.Stock;
 using ProGlass.Saas.Infrastructure.Persistence;
 using ProGlass.Saas.Infrastructure.Security;
 
@@ -65,6 +66,7 @@ public static class DependencyInjection
         services.AddScoped<IMasterDataStore, MasterDataStore>();
         services.AddScoped<IPricingConfigStore, PricingConfigStore>();
         services.AddScoped<IProformaStore, ProformaStore>();
+        services.AddScoped<IStockStore, StockStore>();
         services.AddScoped<ISpecificationsStore, SpecificationsStore>();
 
         return services;
