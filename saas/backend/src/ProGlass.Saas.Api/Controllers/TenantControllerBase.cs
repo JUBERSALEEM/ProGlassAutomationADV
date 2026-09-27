@@ -8,6 +8,7 @@ using ProGlass.Saas.Application.Specifications;
 using ProGlass.Saas.Application.JobOrders;
 using ProGlass.Saas.Application.Stock;
 using ProGlass.Saas.Application.Fiscal;
+using ProGlass.Saas.Application.Subscriptions;
 
 namespace ProGlass.Saas.Api.Controllers;
 
@@ -101,6 +102,19 @@ public abstract class TenantControllerBase : ControllerBase
         FiscalErrorCode.NumberExhausted =>
             Conflict(new { code = "fiscal.number_exhausted", message = result.Message }),
         _ => BadRequest(new { code = "fiscal.validation_failed", message = result.Message })
+    };
+
+    protected IActionResult Fail<T>(SubscriptionResult<T> result) => result.ErrorCode switch
+    {
+        SubscriptionErrorCode.NotFound =>
+            NotFound(new { code = "subscription.not_found", message = result.Message }),
+        SubscriptionErrorCode.PlanNotAvailable =>
+            BadRequest(new { code = "subscription.plan_not_available", message = result.Message }),
+        SubscriptionErrorCode.LimitReached =>
+            Conflict(new { code = "subscription.limit_reached", message = result.Message }),
+        SubscriptionErrorCode.Conflict =>
+            Conflict(new { code = "subscription.conflict", message = result.Message }),
+        _ => BadRequest(new { code = "subscription.validation_failed", message = result.Message })
     };
 
     protected IActionResult Fail<T>(DeliveryResult<T> result) => result.ErrorCode switch

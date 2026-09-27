@@ -123,6 +123,12 @@ app.UseAuthentication();
 app.UseMiddleware<TenantContextMiddleware>();
 
 app.UseAuthorization();
+
+// Phase 13 — the subscription gate (the ReadOnlyGate's HTTP analogue):
+// read-only tenants keep their reads, writes refuse with the WPF
+// messaging; suspended/expired-past-grace tenants are blocked; plan
+// feature flags gate the module routes.
+app.UseMiddleware<SubscriptionGateMiddleware>();
 app.MapControllers();
 
 // ── Endpoints ─────────────────────────────────────────────────────────

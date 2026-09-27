@@ -8,6 +8,7 @@ using ProGlass.Saas.Application.JobOrders;
 using ProGlass.Saas.Application.Delivery;
 using ProGlass.Saas.Application.Stock;
 using ProGlass.Saas.Application.Fiscal;
+using ProGlass.Saas.Application.Subscriptions;
 
 namespace ProGlass.Saas.Application;
 
@@ -34,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<Production.ReservationService>();
         services.AddScoped<Optimization.OptimizationService>();
         services.AddScoped<Fiscal.FiscalService>();
+        services.AddScoped<Subscriptions.SubscriptionService>();
         return services;
     }
 }

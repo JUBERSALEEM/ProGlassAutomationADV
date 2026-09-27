@@ -28,6 +28,11 @@ public sealed class TenantProvisioner : ITenantProvisioner
     /// "owner" role; Administrator is the full-access set (WPF verbatim).</summary>
     public const string OwnerRole = "Administrator";
 
+    /// <summary>WPF LicenseService.AutoTrialDays = 30 — the automatic
+    /// evaluation window every new tenant starts with (the
+    /// AutoTrialManager port, Phase 13).</summary>
+    public const int TrialDays = 30;
+
     private readonly string _platformConnectionString;
     private readonly ILogger<TenantProvisioner> _logger;
 
@@ -86,6 +91,27 @@ public sealed class TenantProvisioner : ITenantProvisioner
                 ("username", ownerUsername), ("displayName", ownerDisplayName),
                 ("email", ownerEmail), ("role", OwnerRole),
                 ("passwordHash", ownerPasswordHash), ("now", now)).ConfigureAwait(false);
+
+            // Phase 13 — the AutoTrialManager port: every new tenant gets
+            // a 30-day evaluation trial (WPF LicenseService.AutoTrialDays
+            // = 30) on the 'trial' plan, ALL features on (the WPF trial
+            // edition: "30-day, single-activation, all features"). Seeded
+            // by migration 0017; granted here in the SAME transaction — a
+            // tenant without its trial row would read as hard-blocked.
+            await ExecuteAsync(connection, transaction, ct,
+                """
+                INSERT INTO saas.subscriptions
+                  (id, tenant_id, plan_id, status, period_start, period_end,
+                   trial_ends_at, created_at, updated_at)
+                SELECT @id, @tid, p.id, 'trialing', CURRENT_DATE,
+                       CURRENT_DATE + @trialDays::int, @trialEnd, @now, @now
+                FROM saas.plans p
+                WHERE p.code = 'trial'
+                """,
+                ("id", Guid.NewGuid()), ("tid", tenantId),
+                ("trialDays", TrialDays),
+                ("trialEnd", now.AddDays(TrialDays)), ("now", now))
+                .ConfigureAwait(false);
 
             await transaction.CommitAsync(ct).ConfigureAwait(false);
         }

@@ -529,13 +529,35 @@ Companies/clients/projects/salesmen, ported from
 | Projects store customer NAME string | `customer_id` FK (normalization; same-identifier-different-customer preserved through the id) | **Different (documented)** |
 | Unbounded lists | Paging (default 50, max 200) + 20-hit autocomplete search (WPF `SEARCH_LIMIT`) | Same limits, new envelope |
 
-### 1.11 Licensing → Subscriptions
-| WPF | SaaS |
-|---|---|
-| Signed license key + machine fingerprint + offline activation | Tenant subscription: plans, trial, active/inactive, limits (users/invoices/storage/optimization jobs), feature flags |
-| `ReadOnlyGate` (expired → read-only writes blocked at service layer) | Middleware blocking writes for suspended/expired tenants, same explicit messaging |
-| `LicensePlanCatalog` | Plan/Feature/TenantFeature tables + admin UI |
-| LicenseGenerator tool | Internal admin endpoint (isolated behind abstraction for future payment provider) |
+### 1.11 Licensing → Subscriptions — Phase 13 (parity and deliberate differences)
+
+Ported 2026-09-27 from `Services/Licensing/` — `LicensePayload.cs` (the
+edition tiers), `LicenseService.cs`/`.Part1`/`.Part2` (AutoTrialDays,
+IsReadOnlyMode), `LicenseVerifier.cs` (ExpiryWarningDays, GracePeriod,
+ReadOnly), `ReadOnlyGate.cs` + `ReadOnlyModeException` (the write gate
+and its user-safe messaging), `AutoTrialManager.cs` (the automatic
+evaluation trial), `LicenseGate.cs`. Migration 0017 seeds the plan/
+feature catalog from the WPF edition tiers; `SubscriptionService`/
+`SubscriptionStore`/`SubscriptionAdminStore`/
+`SubscriptionGateMiddleware`/`/api/v1/subscriptions`.
+
+| WPF (source of truth) | SaaS (Phase 13) | Difference? |
+|---|---|---|
+| Signed license key + RSA/Ed25519 signature + machine fingerprint + offline activation | Tenant subscription row (plans/features/plan_features/subscriptions/tenant_features, Phase 3 tables; 0017 seeds the catalog) | **Documented difference** — no cryptography/fingerprints: a tenant's subscription IS the license; the WPF's per-machine binding has no multi-tenant equivalent |
+| `LicenseEdition` tiers: Trial "30-day, single-activation, all features"; Basic "single user, inquiry + proforma only"; Business "up to 5 users, full ERP without production optimisation"; Factory "unlimited users, includes cutting-optimisation engine"; Enterprise "unlimited + multi-site + custom integrations" | Plans trial/basic/business/factory/enterprise + 12 module feature keys + per-plan limits (seeded verbatim from the tier doc comments; e.g. Basic = users 1 + inquiries + proformas ONLY; Factory = unlimited + optimization; Enterprise = + multi_site + custom_integrations) | Same tiers |
+| `LicenseService.AutoTrialDays = 30`; AutoTrialManager issues the trial on first run | `TenantProvisioner` inserts a 30-day `trialing` subscription on the 'trial' plan in the SAME registration transaction (all features on) | Same (first run → first registration) |
+| `LicenseVerifier.ExpiryWarningDays = 14` (ExpiringSoon) / `GracePeriod` = 7 days read-only past expiry / `Expired` refuses to start | `SubscriptionGate.Resolve` — identical constants and the same state split, computed from the subscription status + period/trial end (trial past end = TrialExpired with NO grace; paid past end ≤7d = GracePeriod read-only; >7d = Expired hard block) | Same |
+| `LicenseVerificationResult.ReadOnly` = GracePeriod \|\| TrialExpired | `IsReadOnly` = GracePeriod \|\| TrialExpired \|\| Cancelled (cancelled keeps reads, recoverable by re-subscribing) | **Documented difference** — the SaaS adds Cancelled to the read-only set (a cancelled SaaS tenant keeps its data readable; the WPF has no cancellation concept, only expiry) |
+| `ReadOnlyGate.Demand`: reads pass, writes throw `ReadOnlyModeException` with "The app is in read-only mode. … Your data is preserved. Activate a full licence in Settings → License…"; denial audit-logged BEFORE the refusal; the licence settings page stays usable (the recovery path) | `SubscriptionGateMiddleware` — reads pass; non-GET writes return 403 `subscription.read_only` with the same sentences ("Your data is preserved. Choose a plan in Settings → Subscription…"); the denial is audit-logged (`subscription.gate_denied`) before the response; `/api/v1/subscriptions/*` and `/api/v1/auth/*` stay writable | Same (HTTP 403 instead of an exception — the service-layer throw becomes the middleware's response) |
+| App refuses to start when Expired / MachineMismatch / ActivationLimit | Hard block: suspended (billing) or past-grace-expiry tenants get 403 on EVERYTHING (reads included) — `subscription.blocked` | Same behaviour, SaaS states |
+| `LicensePlanCatalog` (per-customer plan knobs) | `tenant_features` overrides — an override wins over the plan (is_enabled + limit_value); set via `ISubscriptionAdminStore.SetOverrideAsync` | Same |
+| LicenseGenerator tool (vendor issues a license) | `SubscriptionAdminStore.GrantPlanAsync`/`SuspendAsync`/`ReactivateAsync` on the elevated platform connection | **Documented difference** — implemented as a port, NOT HTTP-exposed (no platform-admin auth surface yet; isolated for the future payment provider per the plan) |
+| Edition gating (Basic cannot run production, etc.) — UI-role-gated in the WPF | `ModuleFeatureMap` route→feature gate in the middleware: reads AND writes of a module's routes 403 `subscription.feature_disabled` when the plan lacks the feature | Same tiers, server-enforced |
+| "Up to 5 users" (Business) | `users` feature limit checked on plan change (a downgrade below the current seat count is refused with the seat count); null limit = unlimited | Same |
+| `ReadOnlyGate.Enabled` test kill-switch | Not needed — the middleware is composed in the pipeline, integration tests build the graph without it | **Documented difference** |
+| Payments/billing | NOT ported (no payment provider; plan change is instant and free — a platform decision point) | **Deferred, documented** |
+
+
 
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
