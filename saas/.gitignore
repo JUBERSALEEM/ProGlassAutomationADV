@@ -1,0 +1,33 @@
+# SaaS workspace — web/.NET artifacts never enter git
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+
+# Environment & secrets — NEVER commit
+.env
+.env.*
+appsettings.*.local.json
+*.pfx
+*.key
+secrets/
+
+# Local databases / storage
+*.db
+*.sqlite
+/storage/
+/artifacts/
+
+# OS
+.DS_Store
+Thumbs.db
