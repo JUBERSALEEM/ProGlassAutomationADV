@@ -63,6 +63,7 @@ public static class DependencyInjection
         services.AddScoped<IRefreshTokenStore, RefreshTokenStore>();
         services.AddScoped<IAuditWriter, AuditWriter>();
         services.AddScoped<IMasterDataStore, MasterDataStore>();
+        services.AddScoped<IPricingConfigStore, PricingConfigStore>();
 
         return services;
     }

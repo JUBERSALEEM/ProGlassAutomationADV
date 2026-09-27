@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProGlass.Saas.Application.MasterData;
+using ProGlass.Saas.Application.Pricing;
 
 namespace ProGlass.Saas.Api.Controllers;
 
@@ -39,5 +40,10 @@ public abstract class TenantControllerBase : ControllerBase
         MasterDataErrorCode.RenameConflict =>
             Conflict(new { code = "masterdata.rename_conflict", message = result.Message }),
         _ => BadRequest(new { code = "masterdata.validation_failed", message = result.Message })
+    };
+
+    protected IActionResult Fail<T>(PricingResult<T> result) => result.ErrorCode switch
+    {
+        _ => BadRequest(new { code = "pricing.validation_failed", message = result.Message })
     };
 }

@@ -72,6 +72,36 @@
 | Interlayer unpriced → warning (not error) | Same, warning surfaced in UI |
 | Colors only from Sheet Store | Same — colors endpoint sourced from stock |
 
+### 1.4a Pricing engine — Phase 6 implementation (rate formulas, defaults, config endpoints)
+
+Ports of the Step 4 estimator read 2026-09-27
+(`PricingEstimatorViewModel.Part2.cs` L480–740,
+`DguLamParametersViewModel.cs`, `Sgu/Dgu/LamParametersViewModel.cs`,
+`Utilities/SqmCalculator.cs`, `WastageRow.RecalculateOptimizationResults`).
+Every rate is `decimal`, ends in `MoneyRounding.Round`, and `SafeYield`
+(yield ≤ 0 → 1) is applied identically to rate and cost basis.
+
+| WPF (source of truth) | SaaS (Phase 6) | Difference? |
+|---|---|---|
+| SGU rate = (base/yield + cutting + tempering) × (1+margin/100) | `RateCalculator.Calculate(SguParameters)` — same steps 1–5, same variable names | Same (golden 46/0.85/15/25/15 → 108.24) |
+| DGU rate = ((outer+inner)/yield + spacer) × (1+margin/100) | `RateCalculator.Calculate(DguParameters)` | Same (WPF in-code example (25+25)/0.85+45 → basis 103.82, ×1.15 → 119.40) |
+| LAM rate = ((outer+inner)/yield + PVB + cuttings + temperings) × (1+margin/100) | `RateCalculator.Calculate(LamParameters)` | Same (WPF example → 228.65) |
+| DGU+LAM rate = (98/0.85 + 30 + 32 + 110 + spacer) × 1.20 | `RateCalculator.Calculate(DguLamParameters)` — cutting/tempering per PANE (12+10+10), interlayer inside the margin (110 × 1.20 = 132), spacer opt-in at 0 | Same (the business chain 344.75 is pinned test-first) |
+| `*Basis()` cost bases (SafeYield, no warning) | `RateResult.CostBasisPerSqm`, same fallback silently | Same |
+| Yield ≤ 0 → fallback 1.0 + warning texts (BUG-40/41): `⚠  {SGU\|DGU\|LAM} yield factor must be > 0 (currently {0.###}). Using 1.0 as fallback.` / DGU+LAM: `⚠  Yield factor must be greater than 0 (currently {0.###}). Using 1.0 instead.` | Verbatim, returned in `POST /api/v1/pricing/preview` → `warnings[]` | Same texts, machine-readable array instead of a UI string |
+| DGU+LAM unpriced interlayer → `⚠  No selling price set for the {InterlayerType} interlayer, so it is NOT included in this rate.` | Verbatim (SGP ships 0/0 on purpose — no price was ever quoted; warning, never an invented price) | Same |
+| `CalculateSuggestedSpacerPrice`: 37.5 + ((mm−6)/2)×2.5 + surcharge {NMA 0, Black Alu 5, Warm Edge 15, Black Warm Edge 20, SS 10, TGI 12}; ParseWidthMm fallback 12 | `SpacerPricing.SuggestedPrice` — verbatim incl. case-sensitive material switch and "digits before mm" parse | Same (12mm ASP + NMA → 45.00) |
+| `WastageRow` optimization: S1 = price/(opt%/100), S2 = price/(85%/100), rate = S1−S2 (6dp), amount = money(S1−S2)×sqm; manual = round(sqm×rate, 2) | `WastageFormula` — verbatim, `BaselineOptimizationPercent = 85` const | Same (golden 40/70%/10m² → 57.142857/47.058824/10.084033/100.84) |
+| `SqmCalculator`: panel = round3(w×h/1e6) with 0.5 m² floor; total = panel×qty at 3dp; sheet = round4, NO floor | `Domain.Pricing.SqmCalculator` — verbatim | Same |
+| Four panel VM constructors (hardcoded opening numbers) | `PricingDefaults` (Domain) + read-only `panelDefaults` in `GET /api/v1/pricing/config`; DGU+LAM defaults ARE the worked chain (fresh WPF VM quotes 344.75 unedited — WPF `DguLamPricingTests` pins this) | Same values; read-only because the WPF hardcodes them |
+| `ApplyInterlayerDefaults`: PVB 100/110, EVA 75/95, SGP 0/0 | `PricingDefaults.InterlayerPrices`, exposed read-only in config | Same |
+| Hardcoded dropdown lists in the four VMs | Seed of `tenant_pricing_config` catalogs — **tenant-editable now**, WPF lists as defaults. Merges (schema has ONE list per catalog, panels differed): thickness = union 3–19 **including both 15mm (SGU/DGU/LAM) and 16mm (DGU+LAM quirk)**; treatments = SGU display form ("FT Glass"; DGU/LAM/DGU+LAM spell it "FT" — same four treatments); interlayer thicknesses = union incl. LAM-only 3.04mm; panel extras = the DGU 18-list (superset of SGU's 13) | **Different by design** (multi-tenant editability, master prompt §40/API design); each merge listed here, nothing invented |
+| Lists not in the schema's 7 editable catalogs: spacer widths/materials/extras, edge polish (13), PVB colors (7), interlayer colors (7) | Read-only `fixedCatalogs` in the config response (WPF-verbatim constants) | Same values; Phase 13+ may promote them to editable |
+| Colors fed exclusively from Sheet Store (2026-09-10 note) | Unchanged — colors are NOT part of pricing config; stock endpoint (Phase 9/10) owns them | Same |
+| No settings UI (lists hardcoded in code) | `GET/PUT /api/v1/pricing/config` (PUT = `Settings.Manage`, GET = authenticated); `POST /api/v1/pricing/preview` (authenticated; pure calculation, no rows written) | **New** — SaaS-native settings surface; a fresh tenant reads WPF defaults and NO row is created until the first PUT |
+| VAT rate/currency hardcoded (5% AED in fiscal layer) | `tenant_vat_config` row (default 0.05/AED), editable in the same config endpoint | **Different by design** — per-tenant VAT is required for SaaS |
+| `pricing/apply` → stamps rate onto Step 5 spec groups | Not in Phase 6 — arrives with the proforma wizard (Phase 7), where spec groups exist as entities | Deferred, documented |
+
 ### 1.5 Sheet Store
 | WPF | SaaS |
 |---|---|
@@ -143,6 +173,24 @@ security translation, not a silent change.
 | All reports (§9 of audit) | `/reports/*` with date/customer/salesman/status/project/stock/supplier/VAT filters; PDF/Excel/CSV export server-side |
 | `AppUser` + roles + permissions | Identity users + same role/permission catalog (`Module.Capability`), claims-based |
 | Settings (data root, margins, currency, language, theme) | Tenant settings (margins, VAT rate, currency, fabrication catalogs); user prefs (language/theme) |
+
+### 1.10 Master data (Phase 5) — parity and deliberate differences
+
+Companies/clients/projects/salesmen, ported from
+`Services/MasterData/Repository/MasterDataRepository.cs` (details in
+`SAAS_MIGRATION_PROGRESS.md` facts 38–46).
+
+| WPF (source of truth) | SaaS (Phase 5) | Difference? |
+|---|---|---|
+| Natural-key upserts, case-insensitive (company name+TRN, client name+TRN, project identifier+customer, salesman name); usage_count+1 + last_used_at on re-save | Same, in `MasterDataService` + EF store (`LOWER()` on both sides, like the WPF SQLite queries) | Same |
+| Audit-fix F-1/F-1b/F-1c/F-2 (id-first lookup, rename-collision refusal, editor latest-data-wins, invoice auto-save preserve-on-blank) | All preserved; rename collision → 409 | Same |
+| Single default company (others cleared on save) | Same, cleared in the SAME transaction as the save | Same |
+| Salesman blank department never erases a stored value | Same quirk, verbatim | Same |
+| DELETE of a missing row silently no-ops | **404** — REST + §0 "never reveal cross-tenant existence" | **Different (documented)** |
+| Local `DateTime.Now` timestamps | UTC (`timestamptz`) | **Different (ADR-007)** |
+| Logo = local file path | `logo_storage_key` → object storage | Architectural translation |
+| Projects store customer NAME string | `customer_id` FK (normalization; same-identifier-different-customer preserved through the id) | **Different (documented)** |
+| Unbounded lists | Paging (default 50, max 200) + 20-hit autocomplete search (WPF `SEARCH_LIMIT`) | Same limits, new envelope |
 
 ### 1.11 Licensing → Subscriptions
 | WPF | SaaS |
