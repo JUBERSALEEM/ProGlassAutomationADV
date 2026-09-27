@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ProGlass.Saas.Infrastructure</RootNamespace>
+    <Description>ProGlass SaaS persistence: EF Core model, SQL migration runner, tenant session</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProGlass.Saas.Domain\ProGlass.Saas.Domain.csproj" />
+  </ItemGroup>
+
+  <!-- The verified SQL migrations are embedded so the deployed artifact can
+       self-apply them (SqlMigrationRunner). saas/database/migrations/*.sql
+       is the source of truth; the same files the Python harness verifies. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\database\migrations\*.sql" Link="Migrations\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

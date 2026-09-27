@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>ProGlass.Saas.Api</RootNamespace>
+    <Description>ProGlass SaaS API host</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProGlass.Saas.Infrastructure\ProGlass.Saas.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

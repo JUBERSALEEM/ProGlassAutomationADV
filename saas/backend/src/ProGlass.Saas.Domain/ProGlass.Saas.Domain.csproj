@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Pure domain layer: entities, tenancy primitives, the WPF-ported
+       roles/permissions catalog and money policy. Zero external
+       dependencies, zero WPF references, zero EF references. -->
+  <PropertyGroup>
+    <RootNamespace>ProGlass.Saas.Domain</RootNamespace>
+    <Description>ProGlass SaaS domain model (WPF business rules, ported)</Description>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+<Project>
+  <!-- Shared build settings for every ProGlass.Saas project.
+       The SaaS backend is fully isolated from the WPF application (which
+       builds from its own csproj at the repository root). -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>12</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Deterministic>true</Deterministic>
+    <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
+    <!-- Warnings-as-errors is intentionally OFF until the solution has been
+         compiled once in an environment with the .NET SDK + NuGet (the
+         devbox sandbox has neither — see saas/devbox/README.md). Flip on
+         after the first clean build. -->
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>
