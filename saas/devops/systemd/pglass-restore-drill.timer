@@ -1,0 +1,12 @@
+# ProGlass SaaS — weekly restore-drill schedule (Phase 27).
+# Sunday 04:00 local — after a week of nightly sets exists to verify.
+
+[Unit]
+Description=ProGlass SaaS — weekly restore drill
+
+[Timer]
+OnCalendar=Sun *-*-* 04:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

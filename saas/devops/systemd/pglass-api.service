@@ -1,0 +1,43 @@
+# ProGlass SaaS API — bare-metal systemd unit (Phase 27).
+#
+# Install:
+#   sudo useradd --system --no-create-home --home-dir /opt/pglass pglass
+#   sudo mkdir -p /opt/pglass /var/lib/pglass/attachments
+#   sudo chown -R pglass:pglass /var/lib/pglass
+#   # publish + copy (from saas/backend):
+#   dotnet publish src/ProGlass.Saas.Api -c Release -o /tmp/pub
+#   sudo cp -r /tmp/pub/* /opt/pglass/
+#   sudo cp devops/systemd/pglass-api.service /etc/systemd/system/
+#   sudo cp devops/systemd/pglass-api.env /etc/pglass/api.env  # then EDIT the secrets
+#   sudo systemctl daemon-reload && sudo systemctl enable --now pglass-api
+#
+# nginx (same edge config as compose, minus the docker DNS name):
+#   upstream → 127.0.0.1:8081  (see the note in pglass-api.env)
+
+[Unit]
+Description=ProGlass SaaS API (ASP.NET Core 8)
+Documentation=file:///opt/pglass/README.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=pglass
+Group=pglass
+WorkingDirectory=/opt/pglass
+EnvironmentFile=/etc/pglass/api.env
+ExecStart=/usr/bin/dotnet /opt/pglass/ProGlass.Saas.Api.dll
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=30
+
+# Hardening (the compose path gets the same via the container boundary).
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/pglass
+
+[Install]
+WantedBy=multi-user.target

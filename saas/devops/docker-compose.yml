@@ -1,0 +1,111 @@
+# ProGlass SaaS — production topology (Phase 27).
+#
+#   client ─ nginx (80/443) ─ api (Kestrel :8080, DML-only login)
+#                              └ migrations: one-shot `migrate` service
+#                                over the elevated owner login
+#                            └ db (PostgreSQL 16)
+#
+# Deliberately ABSENT (honest topology — nothing runs that isn't built):
+#   • no redis / minio — the cache is an in-process singleton (Phase 23),
+#     attachments are filesystem storage under SAAS_ATTACHMENT_ROOT
+#     (Phase 24). The architecture doc (§1) lists Redis/S3 as future
+#     options; the interfaces exist, the deployments do not.
+#   • no worker container — background jobs were a documented deferral
+#     (the WPF has none either; consistency scans run on demand).
+#
+# Usage (from saas/devops):
+#   cp .env.example .env && vi .env          # set the three secrets
+#   docker compose up -d db                  # first boot creates roles
+#   docker compose run --rm migrate          # applies all 22 migrations
+#   docker compose up -d                     # api + nginx
+#   curl -f http://localhost/health
+#
+# SAAS_DB (runtime) is the DML-only saas_app_login — the same RLS path
+# CI exercises via saas_test_app. The `migrate` one-shot runs with the
+# elevated saas_owner_login because migrations are DDL (+ the guarded
+# role bootstrap in 0005) — this is the "release step" mode from
+# SAAS_DEPLOYMENT.md §3.
+
+name: pglass
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pglass
+      POSTGRES_USER: pglass_admin
+      # Superuser password (first-boot owner of the data volume).
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      # Consumed by the first-boot role bootstrap script.
+      SAAS_APP_PASSWORD: ${SAAS_APP_PASSWORD:?set in .env}
+      SAAS_OWNER_PASSWORD: ${SAAS_OWNER_PASSWORD:?set in .env}
+    volumes:
+      - pglass_db:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pglass_admin -d pglass"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # No public port — reach the database through a temporary
+    # `docker compose exec db psql` (or an SSH tunnel) only:
+    # ports: ["127.0.0.1:5432:5432"]
+
+  # One-shot migration step — same image as the API, elevated
+  # connection, exits after SqlMigrationRunner.ApplyAsync()
+  # (SAAS_MIGRATE_AND_EXIT=true, Program.cs Phase 27).
+  migrate:
+    build:
+      context: ..
+      dockerfile: devops/docker/api.Dockerfile
+    restart: "no"
+    environment: &api-env
+      SAAS_DB: Host=db;Port=5432;Database=pglass;Username=saas_app_login;Password=${SAAS_APP_PASSWORD}
+      SAAS_PLATFORM_DB: Host=db;Port=5432;Database=pglass;Username=saas_owner_login;Password=${SAAS_OWNER_PASSWORD}
+      SAAS_JWT_SIGNING_KEY: ${SAAS_JWT_SIGNING_KEY:?set in .env (>= 32 random bytes)}
+      SAAS_MIGRATE_ON_STARTUP: "true"
+      SAAS_MIGRATE_AND_EXIT: "true"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ..
+      dockerfile: devops/docker/api.Dockerfile
+    restart: unless-stopped
+    environment:
+      <<: *api-env
+      SAAS_MIGRATE_ON_STARTUP: "false"     # migrations are the `migrate` step
+      SAAS_MIGRATE_AND_EXIT: "false"
+    volumes:
+      - pglass_attachments:/var/lib/pglass/attachments
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    # Internal only — nginx is the single ingress.
+    expose:
+      - "8080"
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/www:/usr/share/nginx/html:ro
+      # TLS: uncomment once certificates exist (conf.d/proglass.conf §443):
+      # - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - api
+
+volumes:
+  pglass_db:
+  pglass_attachments:

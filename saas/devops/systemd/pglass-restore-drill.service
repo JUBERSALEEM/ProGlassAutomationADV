@@ -1,0 +1,19 @@
+# ProGlass SaaS — weekly restore drill (Phase 27).
+#
+# A backup that was never restored is a hope, not a backup
+# (SAAS_DEPLOYMENT.md §6): the drill restores the newest set into a
+# scratch database, verifies the archive checksum and every per-table
+# row count, then drops the scratch database.
+
+[Unit]
+Description=ProGlass SaaS — restore drill (proves the newest backup set)
+After=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+# EDIT: the elevated owner connection + your backup directory.
+User=pglass
+ExecStart=/opt/pglass/venv/bin/python /opt/pglass/devbox/backup_db.py \
+    --db-uri "Host=127.0.0.1;Port=5432;Database=pglass;Username=saas_owner_login;Password=replace-me" \
+    --backup-dir /var/backups/pglass \
+    --restore-drill

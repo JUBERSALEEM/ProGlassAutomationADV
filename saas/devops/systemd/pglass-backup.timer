@@ -1,0 +1,13 @@
+# ProGlass SaaS — nightly backup schedule (Phase 27).
+# 02:15 local, every day (drill runs weekly below, after several sets
+# have accumulated).
+
+[Unit]
+Description=ProGlass SaaS — nightly backup
+
+[Timer]
+OnCalendar=*-*-* 02:15:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

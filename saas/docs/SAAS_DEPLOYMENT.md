@@ -11,7 +11,7 @@ SQLite WAL hardening) do not apply; their SaaS equivalents are listed in
 |---|---|
 | PostgreSQL | 14+ (verified against 16; extensions: none beyond `pgcrypto`-provided `gen_random_uuid()`, which is core since 13) |
 | .NET SDK | 8.0 — **the compile/test gate**: the whole codebase is authored and syntax-verified in a no-SDK environment; run `dotnet build && dotnet test` in `saas/backend` before the first production start and after every pull |
-| Reverse proxy | nginx/Caddy/traefik — TLS termination, request body limits, (multi-instance) rate limiting |
+| Reverse proxy | **nginx — shipped and configured** since Phase 27: `saas/devops/nginx/` (site config, gzip, the 12 MB body guard, 600 s read timeouts for optimization runs, an auth rate-limit zone, TLS-ready). `saas/devops/README.md` is the operator runbook; compose + systemd topologies included |
 | OS | any .NET 8 host (Linux recommended) |
 
 ## 2. Database roles (least privilege — verified by the hardening audit)
@@ -39,9 +39,25 @@ minimally exposed.
 | `Jwt:Issuer` / `Audience` / lifetimes | token settings | short access lifetime (default 15 min) |
 | `Saas:MigrationsDirectory` | where `SqlMigrationRunner` looks | the repo's `saas/database/migrations` |
 | `Saas:MigrateOnStartup` | apply pending migrations at boot | `true` for single-instance; `false` when migrations run as a release step |
+| `SAAS_MIGRATE_AND_EXIT` | one-shot release-step mode: apply pending migrations and exit instead of serving (the compose `migrate` service) | unset for the serving instance |
+| `ASPNETCORE_FORWARDEDHEADERS_ENABLED` | trust `X-Forwarded-For`/`X-Forwarded-Proto` from the proxy | `true` behind nginx (Phase 27); unset when directly exposed |
+| `SAAS_ATTACHMENT_ROOT` | attachment byte storage root (Phase 24) | a volume-backed path, never inside the image |
 | `ASPNETCORE_ENVIRONMENT` | — | `Production` (disables detailed error pages) |
 
 ## 4. First start
+
+Two supported paths (Phase 27). The compose path is the quick one:
+
+```bash
+cd saas/devops
+cp .env.example .env && vi .env       # the 4 secrets
+docker compose up -d db               # first boot: role bootstrap
+docker compose run --rm migrate       # applies all migrations, exits
+docker compose up -d                  # api + nginx
+curl -f http://localhost/health
+```
+
+Bare metal with systemd (units + env template in `saas/devops/systemd/`):
 
 ```bash
 cd saas/backend
@@ -51,6 +67,9 @@ cd src/ProGlass.Saas.Api
 dotnet run -c Release            # boots, applies migrations if enabled
 curl -f http://localhost:8080/health   # {"status":"ok","database":"reachable"}
 ```
+
+Both are documented step-by-step in `saas/devops/README.md` (topology,
+upgrade procedure, backup drills, what is deliberately not deployed).
 
 ## 5. The hardening layers (all in the repo, all verified)
 
@@ -106,7 +125,8 @@ procedure: `pg_restore --dbname <new-or-restored-db> --no-owner
 - [ ] `dotnet build -c Release && dotnet test` green in the .NET 8 environment
 - [ ] `SAAS_DB` uses `saas_app`; `SAAS_PLATFORM_DB` kept separate
 - [ ] JWT signing key ≥ 32 random bytes, from the secret store
-- [ ] TLS at the proxy; HSTS at the proxy; the API bound to localhost or an internal interface
+- [ ] TLS at the proxy; HSTS at the proxy; the API bound to localhost or an internal interface (compose: `expose`, no public port; bare metal: `ASPNETCORE_URLS=http://127.0.0.1:8081`, nginx upstream there)
+- [ ] `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` when behind the proxy (nginx sets `X-Forwarded-*`)
 - [ ] `ASPNETCORE_ENVIRONMENT=Production`
 - [ ] migrations applied (startup flag or release step)
 - [ ] hardening audit 14/14 against the production database

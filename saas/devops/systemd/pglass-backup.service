@@ -1,0 +1,25 @@
+# ProGlass SaaS — nightly backup + weekly restore drill (Phase 27).
+#
+# The WPF BackupService port lives in saas/devbox/backup_db.py (see
+# SAAS_DEPLOYMENT.md §6): backup SETS with retention 10, and the
+# restore-drill that proves a set is actually restorable (archive
+# checksum + per-table row counts into a scratch database).
+#
+# Install alongside pglass-api.service:
+#   sudo cp devops/systemd/pglass-backup.{service,timer} /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now pglass-backup.timer pglass-restore-drill.timer
+
+[Unit]
+Description=ProGlass SaaS — PostgreSQL backup set (WPF BackupService port)
+After=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+# EDIT: the elevated owner connection + your backup directory.
+# Uses the python3 from the saas devbox venv (psycopg2 is required).
+User=pglass
+ExecStart=/opt/pglass/venv/bin/python /opt/pglass/devbox/backup_db.py \
+    --db-uri "Host=127.0.0.1;Port=5432;Database=pglass;Username=saas_owner_login;Password=replace-me" \
+    --backup-dir /var/backups/pglass \
+    --reason scheduled

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using ProGlass.Saas.Api.Authorization;
 using ProGlass.Saas.Api.Middleware;
@@ -113,9 +114,41 @@ if (migrateOnStartup)
     if (applied.Count > 0)
         app.Logger.LogInformation("Applied {Count} migration(s): {Names}",
             applied.Count, string.Join(", ", applied));
+
+    // Phase 27 release-step mode (SAAS_MIGRATE_AND_EXIT=true): apply
+    // pending migrations over the ELEVATED connection and exit instead
+    // of serving — lets `docker compose up` run migrations as a one-shot
+    // step (the operator runs this container with SAAS_DB pointed at the
+    // saas_owner login; the serving api keeps the DML-only saas_app
+    // login). Documented in saas/devops/README.md §upgrade.
+    if (string.Equals(
+            Environment.GetEnvironmentVariable("SAAS_MIGRATE_AND_EXIT"),
+            "true", StringComparison.OrdinalIgnoreCase))
+    {
+        app.Logger.LogInformation(
+            "SAAS_MIGRATE_AND_EXIT=true — migrations applied, exiting.");
+        await app.DisposeAsync();
+        return;
+    }
 }
 
 // ── Pipeline ──────────────────────────────────────────────────────────
+// Phase 27: behind a reverse proxy (nginx — saas/devops/nginx), trust
+// X-Forwarded-For/Proto so scheme/IP are correct. Enabled with
+// ASPNETCORE_FORWARDEDHEADERS_ENABLED=true; the proxy is the only
+// ingress in the compose topology, so KnownProxies covers the docker
+// network. Bare-metal direct exposure keeps the default (off).
+if (string.Equals(
+        Environment.GetEnvironmentVariable("ASPNETCORE_FORWARDEDHEADERS_ENABLED"),
+        "true", StringComparison.OrdinalIgnoreCase))
+{
+    app.UseForwardedHeaders(new ForwardedHeadersOptions
+    {
+        ForwardedHeaders = ForwardedHeaders.XForwardedFor
+                         | ForwardedHeaders.XForwardedProto,
+    });
+}
+
 // Phase 15 hardening: the last-resort handler (every unhandled
 // exception → the §0 envelope, nothing internal leaked) runs FIRST,
 // then the security headers on every reply, and the credential
