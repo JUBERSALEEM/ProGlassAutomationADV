@@ -939,6 +939,22 @@ contradicting the documented contract — the attribute was added,
 matching the other 19 controllers (dotnet build is devbox-gated;
 the change is the same one-line declarative pattern).
 
+**Phase 32 — front end slice 5: master data CRUD.** One page, four
+tabs (companies, clients, projects, salesmen). Each tab: search +
+list (with the server's UsageCount / Created columns), the editor
+form driven by the MasterDataContracts request records — companies
+(name/TRN/location/representative + mobile/email/bank + the WPF logo
+vocabulary None/LeftPortrait/TopPanel with width/height mm and the
+default flag), clients (name + TRN key, reference, sales rep,
+prepared-by, billing address, attention, phone), projects
+(identifier, contract, reference, site, LPO + the client picker),
+salesmen (name + department). Writes use the documented semantics:
+POST is the natural-key upsert (a different key is a different row —
+stated in the form caption), PUT edits by id, DELETE is the audited
+delete with a confirm. The picker list functions gained an optional
+{search,page,pageSize}; the PI pages' picker queries were wrapped so
+TanStack's query context is never passed as the query object.
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

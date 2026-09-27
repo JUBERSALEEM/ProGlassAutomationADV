@@ -52,10 +52,10 @@ export default function ProformaDetailPage() {
   });
 
   // Master data for id → name resolution (cached across pages).
-  const companies = useQuery({ queryKey: ["pickers", "companies"], queryFn: listCompanies });
-  const clients = useQuery({ queryKey: ["pickers", "clients"], queryFn: listClients });
-  const projects = useQuery({ queryKey: ["pickers", "projects"], queryFn: listProjects });
-  const salesmen = useQuery({ queryKey: ["pickers", "salesmen"], queryFn: listSalesmen });
+  const companies = useQuery({ queryKey: ["pickers", "companies"], queryFn: () => listCompanies() });
+  const clients = useQuery({ queryKey: ["pickers", "clients"], queryFn: () => listClients() });
+  const projects = useQuery({ queryKey: ["pickers", "projects"], queryFn: () => listProjects() });
+  const salesmen = useQuery({ queryKey: ["pickers", "salesmen"], queryFn: () => listSalesmen() });
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: ["proforma", id] });

@@ -165,3 +165,5 @@ export const get = <T>(path: string) => api<T>("GET", path);
 export const post = <T>(path: string, body?: unknown) => api<T>("POST", path, body);
 /** PUT helper. */
 export const put = <T>(path: string, body?: unknown) => api<T>("PUT", path, body);
+/** DELETE helper. */
+export const del = <T>(path: string) => api<T>("DELETE", path);

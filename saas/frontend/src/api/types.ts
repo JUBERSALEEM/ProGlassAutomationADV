@@ -272,24 +272,58 @@ export interface Step9 {
 export interface Company {
   id: string;
   name: string;
+  trn: string;
+  location: string;
+  representative: string;
+  representativeMobile: string;
+  email: string;
+  accountNumber: string;
+  bankName: string;
+  logoStorageKey: string;
+  logoLayout: string;
+  logoWidthMm: number;
+  logoHeightMm: number;
   isDefault: boolean;
+  usageCount: number;
+  lastUsedAtUtc: string | null;
+  createdAtUtc: string;
 }
 
 export interface Client {
   id: string;
   customerName: string;
+  customerTrn: string;
+  referenceCode: string;
+  salesRepresentative: string;
+  documentPreparedBy: string;
+  billingAddress: string;
+  attentionExecutiveName: string;
+  phone: string;
+  usageCount: number;
+  lastUsedAtUtc: string | null;
+  createdAtUtc: string;
 }
 
 export interface Project {
   id: string;
   identifierName: string;
+  contractNo: string;
+  reference: string;
+  siteDeliveryLocation: string;
+  lpoNumber: string;
   customerId: string | null;
+  usageCount: number;
+  lastUsedAtUtc: string | null;
+  createdAtUtc: string;
 }
 
 export interface Salesman {
   id: string;
   name: string;
   department: string;
+  usageCount: number;
+  lastUsedAtUtc: string | null;
+  createdAtUtc: string;
 }
 
 // ── delivery notes (Phase 30) — DeliveryContracts ─────────────────────

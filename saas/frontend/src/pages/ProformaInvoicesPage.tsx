@@ -140,10 +140,10 @@ export default function ProformaInvoicesPage() {
 function CreateDraftForm({ onDone }: { onDone: () => void }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const companies = useQuery({ queryKey: ["pickers", "companies"], queryFn: listCompanies });
-  const clients = useQuery({ queryKey: ["pickers", "clients"], queryFn: listClients });
-  const projects = useQuery({ queryKey: ["pickers", "projects"], queryFn: listProjects });
-  const salesmen = useQuery({ queryKey: ["pickers", "salesmen"], queryFn: listSalesmen });
+  const companies = useQuery({ queryKey: ["pickers", "companies"], queryFn: () => listCompanies() });
+  const clients = useQuery({ queryKey: ["pickers", "clients"], queryFn: () => listClients() });
+  const projects = useQuery({ queryKey: ["pickers", "projects"], queryFn: () => listProjects() });
+  const salesmen = useQuery({ queryKey: ["pickers", "salesmen"], queryFn: () => listSalesmen() });
 
   const [companyId, setCompanyId] = useState("");
   const [clientId, setClientId] = useState("");

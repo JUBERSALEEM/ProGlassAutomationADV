@@ -2,7 +2,7 @@
  * Endpoint wrappers — one function per API call the SPA makes, with the
  * query-string builders kept next to their usage.
  */
-import { get, post, put } from "./client";
+import { del, get, post, put } from "./client";
 import type {
   GlassSheet,
   JobOrder,
@@ -211,20 +211,78 @@ export function getStep9(id: string): Promise<Step9> {
 
 // ── master data pickers (create form) ─────────────────────────────────
 
-export function listCompanies(): Promise<PagedResult<Company>> {
-  return get<PagedResult<Company>>("/api/v1/companies?pageSize=100");
+export interface MasterDataQuery {
+  search?: string;
+  page?: number;
+  pageSize?: number;
 }
 
-export function listClients(): Promise<PagedResult<Client>> {
-  return get<PagedResult<Client>>("/api/v1/clients?pageSize=100");
+function mdParams(query: MasterDataQuery = {}): string {
+  const params = new URLSearchParams();
+  if (query.search) params.set("search", query.search);
+  if (query.page) params.set("page", String(query.page));
+  params.set("pageSize", String(query.pageSize ?? 100));
+  const qs = params.toString();
+  return `?${qs}`;
 }
 
-export function listProjects(): Promise<PagedResult<Project>> {
-  return get<PagedResult<Project>>("/api/v1/projects?pageSize=100");
+export function listCompanies(query: MasterDataQuery = {}): Promise<PagedResult<Company>> {
+  return get<PagedResult<Company>>(`/api/v1/companies${mdParams(query)}`);
 }
 
-export function listSalesmen(): Promise<PagedResult<Salesman>> {
-  return get<PagedResult<Salesman>>("/api/v1/salesmen?pageSize=100");
+export function listClients(query: MasterDataQuery = {}): Promise<PagedResult<Client>> {
+  return get<PagedResult<Client>>(`/api/v1/clients${mdParams(query)}`);
+}
+
+export function listProjects(query: MasterDataQuery = {}): Promise<PagedResult<Project>> {
+  return get<PagedResult<Project>>(`/api/v1/projects${mdParams(query)}`);
+}
+
+export function listSalesmen(query: MasterDataQuery = {}): Promise<PagedResult<Salesman>> {
+  return get<PagedResult<Salesman>>(`/api/v1/salesmen${mdParams(query)}`);
+}
+
+// ── master data CRUD (Phase 32 — requests are the MasterDataContracts
+//    records; POST is the WPF natural-key upsert, PUT edits by id) ─────
+
+export function saveCompany(body: Record<string, unknown>): Promise<Company> {
+  return post<Company>("/api/v1/companies", body);
+}
+export function updateCompany(id: string, body: Record<string, unknown>): Promise<Company> {
+  return put<Company>(`/api/v1/companies/${id}`, body);
+}
+export function deleteCompany(id: string): Promise<unknown> {
+  return del(`/api/v1/companies/${id}`);
+}
+
+export function saveClient(body: Record<string, unknown>): Promise<Client> {
+  return post<Client>("/api/v1/clients", body);
+}
+export function updateClient(id: string, body: Record<string, unknown>): Promise<Client> {
+  return put<Client>(`/api/v1/clients/${id}`, body);
+}
+export function deleteClient(id: string): Promise<unknown> {
+  return del(`/api/v1/clients/${id}`);
+}
+
+export function saveProject(body: Record<string, unknown>): Promise<Project> {
+  return post<Project>("/api/v1/projects", body);
+}
+export function updateProject(id: string, body: Record<string, unknown>): Promise<Project> {
+  return put<Project>(`/api/v1/projects/${id}`, body);
+}
+export function deleteProject(id: string): Promise<unknown> {
+  return del(`/api/v1/projects/${id}`);
+}
+
+export function saveSalesman(body: Record<string, unknown>): Promise<Salesman> {
+  return post<Salesman>("/api/v1/salesmen", body);
+}
+export function updateSalesman(id: string, body: Record<string, unknown>): Promise<Salesman> {
+  return put<Salesman>(`/api/v1/salesmen/${id}`, body);
+}
+export function deleteSalesman(id: string): Promise<unknown> {
+  return del(`/api/v1/salesmen/${id}`);
 }
 
 // ── delivery notes (Phase 30) ─────────────────────────────────────────

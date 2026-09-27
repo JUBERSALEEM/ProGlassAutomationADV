@@ -10,6 +10,7 @@ import ProformaDetailPage from "./pages/ProformaDetailPage";
 import DeliveryNoteDetailPage from "./pages/DeliveryNoteDetailPage";
 import DeliveryNotesPage from "./pages/DeliveryNotesPage";
 import FiscalPage from "./pages/FiscalPage";
+import MasterDataPage from "./pages/MasterDataPage";
 import ReportsPage from "./pages/ReportsPage";
 import ProformaInvoicesPage from "./pages/ProformaInvoicesPage";
 import StockSheetsPage from "./pages/StockSheetsPage";
@@ -95,6 +96,14 @@ export default function App() {
             element={
               <Protected>
                 <ReportsPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/master-data"
+            element={
+              <Protected>
+                <MasterDataPage />
               </Protected>
             }
           />
