@@ -26,11 +26,11 @@ import json
 import os
 import re
 import sys
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent.parent / "migrations"
-DEFAULT_REPORT = Path(__file__).resolve().parent / "verification" / "PHASE3_VERIFICATION.md"
+DEFAULT_REPORT = Path(__file__).resolve().parent / "verification" / "DATABASE_VERIFICATION.md"
 
 TENANT_A = "11111111-1111-1111-1111-111111111111"
 TENANT_B = "22222222-2222-2222-2222-222222222222"
@@ -429,7 +429,7 @@ def test_migrations(db_uri: str):
     with conn.cursor() as cur:
         cur.execute("SELECT name, checksum FROM saas._saas_migrations ORDER BY name")
         rows = cur.fetchall()
-        record("all 5 migrations recorded with checksums", len(rows) == 5,
+        record("all 6 migrations recorded with checksums", len(rows) == 6,
                ", ".join(r[0] for r in rows))
         # tamper with a checksum → runner must refuse
         cur.execute("UPDATE saas._saas_migrations SET checksum = 'deadbeef' WHERE name = '0001_platform_identity.sql'")
@@ -462,12 +462,110 @@ def test_platform_protection(db_uri: str):
     conn.close()
 
 
+def test_auth_identity(db_uri: str):
+    """Phase 4: identity schema (0006) + username uniqueness semantics."""
+    print("\n== Phase 4: auth identity schema & constraints ==")
+
+    # ── migration 0006: absolute refresh deadline + token_hash index ──
+    conn = connect(db_uri)
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT is_nullable, column_default FROM information_schema.columns
+            WHERE table_schema = 'saas' AND table_name = 'refresh_tokens'
+              AND column_name = 'absolute_expires_at_utc'
+        """)
+        row = cur.fetchone()
+        record("0006: absolute_expires_at_utc exists NOT NULL",
+               row is not None and row[0] == "NO", str(row))
+        cur.execute("""
+            SELECT count(*) FROM pg_indexes
+            WHERE schemaname = 'saas' AND tablename = 'refresh_tokens'
+              AND indexname = 'ix_refresh_tokens_token_hash'
+        """)
+        record("0006: ix_refresh_tokens_token_hash exists", cur.fetchone()[0] == 1)
+    conn.close()
+
+    # ── username uniqueness is per tenant, not global ──────────────────
+    # (connect() is autocommit: each statement commits; the duplicate-tenant
+    # probe below deletes its own row first so re-runs stay green.)
+    conn = connect(db_uri, role="saas_test_app")
+    cur = conn.cursor()
+    cur.execute("SET app.tenant_id = %s", (TENANT_A,))
+    try:
+        cur.execute("""
+            INSERT INTO saas.users (tenant_id, username, display_name, password_hash, role)
+            VALUES (%s, 'owner-a', 'Duplicate', 'x', 'Viewer')
+        """, (TENANT_A,))
+        record("duplicate username within a tenant rejected", False, "was allowed!")
+    except Exception as e:
+        record("duplicate username within a tenant rejected", "duplicate key" in str(e).lower())
+
+    cur.execute("SET app.tenant_id = %s", (TENANT_B,))
+    cur.execute("""
+        DELETE FROM saas.users WHERE tenant_id = %s AND username = 'owner-a'
+    """, (TENANT_B,))  # clear any probe row from a previous run
+    try:
+        cur.execute("""
+            INSERT INTO saas.users (tenant_id, username, display_name, password_hash, role)
+            VALUES (%s, 'owner-a', 'Other Tenant Same Name', 'x', 'Viewer')
+        """, (TENANT_B,))
+        record("same username in another tenant allowed", True)
+    except Exception as e:
+        record("same username in another tenant allowed", False, str(e))
+
+    # ── refresh token rows: absolute column required + RLS WITH CHECK ─
+    cur.execute("SET app.tenant_id = %s", (TENANT_A,))
+    cur.execute("SELECT id FROM saas.users WHERE username = 'owner-a' LIMIT 1")
+    owner_a = cur.fetchone()[0]
+    try:
+        cur.execute("""
+            INSERT INTO saas.refresh_tokens (tenant_id, user_id, token_hash, expires_at)
+            VALUES (%s, %s, 'phase4-missing-absolute', now() + interval '30 days')
+        """, (TENANT_A, owner_a))
+        record("refresh token insert without absolute deadline rejected (NOT NULL)",
+               False, "was allowed!")
+    except Exception as e:
+        record("refresh token insert without absolute deadline rejected (NOT NULL)",
+               "not-null constraint" in str(e).lower())
+    cur.execute("""
+        INSERT INTO saas.refresh_tokens (tenant_id, user_id, token_hash, expires_at,
+                                         absolute_expires_at_utc)
+        VALUES (%s, %s, 'phase4-probe-hash', now() + interval '30 days',
+                now() + interval '60 days')
+    """, (TENANT_A, owner_a))
+    record("refresh token rows require the absolute deadline (app always sets it)",
+           cur.rowcount == 1)
+    # token_hash lookup uses the new index (EXPLAIN contains it)
+    cur.execute("""
+        EXPLAIN SELECT id FROM saas.refresh_tokens
+        WHERE token_hash = 'phase4-probe-hash'
+    """)
+    plan = " ".join(r[0] for r in cur.fetchall())
+    record("token_hash lookups use ix_refresh_tokens_token_hash",
+           "ix_refresh_tokens_token_hash" in plan, plan.strip()[:80])
+
+    # cross-tenant INSERT rejected by WITH CHECK (tenant B session writing
+    # a tenant-A-owned row)
+    cur.execute("SET app.tenant_id = %s", (TENANT_B,))
+    try:
+        cur.execute("""
+            INSERT INTO saas.refresh_tokens (tenant_id, user_id, token_hash, expires_at)
+            VALUES (%s, %s, 'phase4-cross-hash', now() + interval '1 day')
+        """, (TENANT_A, owner_a))
+        record("refresh token cross-tenant INSERT rejected (WITH CHECK)",
+               False, "was allowed!")
+    except Exception as e:
+        record("refresh token cross-tenant INSERT rejected (WITH CHECK)",
+               "row-level security" in str(e).lower())
+    conn.close()
+
+
 def write_report(argv: list[str], applied_names: list[str]):
     DEFAULT_REPORT.parent.mkdir(parents=True, exist_ok=True)
     passed = sum(1 for r in RESULTS if r["ok"])
     failed = len(RESULTS) - passed
     lines = [
-        "# PHASE 3 DATABASE VERIFICATION REPORT",
+        "# SAAS DATABASE VERIFICATION REPORT (Phases 3–4)",
         "",
         f"**Generated:** {datetime.now(timezone.utc).isoformat()}  ",
         f"**PostgreSQL:** 16 (pgserver, live instance)  ",
@@ -517,6 +615,7 @@ def main():
     test_constraints(db_uri, ids)
     test_migrations(db_uri)
     test_platform_protection(db_uri)
+    test_auth_identity(db_uri)
 
     ok = write_report(sys.argv, names)
     print(f"\n{'='*60}\n{'ALL CHECKS PASSED' if ok else 'FAILURES PRESENT'} — "

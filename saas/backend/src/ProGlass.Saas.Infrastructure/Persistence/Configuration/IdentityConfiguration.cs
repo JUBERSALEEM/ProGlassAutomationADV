@@ -61,10 +61,13 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.CreatedIp).HasColumnName("created_ip").HasColumnType("text");
             builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.AbsoluteExpiresAtUtc).HasColumnName("absolute_expires_at_utc").HasColumnType("timestamptz");
             builder.HasIndex(x => x.UserId)
                 .HasDatabaseName("ix_refresh_tokens_user");
             builder.HasIndex(x => x.TenantId)
                 .HasDatabaseName("ix_refresh_tokens_tenant");
+            builder.HasIndex(x => x.TokenHash)
+                .HasDatabaseName("ix_refresh_tokens_token_hash");
             builder.HasOne(x => x.User)
                 .WithMany()
                 .HasForeignKey(x => x.UserId)

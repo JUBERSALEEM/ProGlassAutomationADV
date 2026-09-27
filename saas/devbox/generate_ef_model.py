@@ -133,6 +133,10 @@ def default_literal(value: str, csharp_type: str) -> str | None:
         return f"HasDefaultValue({v})"
     if v in ("true", "false"):
         return f"HasDefaultValue({v})"
+    # Generator-internal marker for ALTER-TABLE expression defaults
+    # (see parse_ddl) — plain SQL text, never parsed as a C# literal.
+    if v.startswith("SQLDEFAULT:"):
+        return f'HasDefaultValueSql("{v[len("SQLDEFAULT:"):]}")'
     # jsonb/array defaults and other SQL literals
     if v.startswith("'") and v.endswith("'"):
         return f"HasDefaultValueSql({csharp_string_literal(v)})"
@@ -225,7 +229,55 @@ def parse_ddl() -> dict[str, Table]:
                               [c.strip() for c in im.group(3).split(",")],
                               bool(im.group(1))))
         tables[t.name] = t
+
+    # Columns added after the fact (e.g. 0006 ALTER TABLE ... ADD COLUMN)
+    # merge into the table model so later migrations evolve the model the
+    # same way CREATE TABLE did. Matches the exact forms used in
+    # saas/database/migrations — new forms must be added here, by hand.
+    for m in re.finditer(
+            r"ALTER TABLE saas\.(\w+)\s+ADD\s+COLUMN\s+(\w+)\s+(\w+(?:\(\d+(?:,\d+)?\))?)"
+            r"(?:\s+NOT NULL)?(?:\s+DEFAULT\s+(.+?))?\s*;", ddl, re.I):
+        t = tables.get(m.group(1))
+        if t is None:
+            raise ValueError(f"ALTER TABLE on unknown table saas.{m.group(1)}")
+        if t.has(m.group(2)):
+            continue  # already part of CREATE TABLE — nothing to merge
+        default = m.group(4)
+        if default is not None and not _is_simple_default(default):
+            # SQL expression (e.g. "now() + interval '7 days'") — emitted
+            # as HasDefaultValueSql, never parsed as a C# literal.
+            default = _sql_default_literal(default)
+        # Added columns start NULLABLE in the DDL — NOT NULL typically
+        # arrives via a later "ALTER COLUMN ... SET NOT NULL" (parsed
+        # below); our files never use inline ADD COLUMN ... NOT NULL.
+        t.columns.append(Column(m.group(2), m.group(3), False, default))
+
+    # Late constraints on existing columns: "ALTER TABLE ... ALTER COLUMN
+    # x SET NOT NULL" flips a merged column to non-nullable.
+    for m in re.finditer(
+            r"ALTER TABLE saas\.(\w+)\s+ALTER\s+COLUMN\s+(\w+)\s+SET\s+NOT\s+NULL\s*;",
+            ddl, re.I):
+        t = tables.get(m.group(1))
+        if t is None or not t.has(m.group(2)):
+            raise ValueError(
+                f"SET NOT NULL on unknown column saas.{m.group(1)}.{m.group(2)}")
+        for c in t.columns:
+            if c.name == m.group(2):
+                c.not_null = True
     return tables
+
+
+def _is_simple_default(value: str) -> bool:
+    v = value.strip()
+    return (v.upper() in ("NOW()", "GEN_RANDOM_UUID()", "CURRENT_DATE")
+            or re.fullmatch(r"'[^']*'", v) is not None
+            or re.fullmatch(r"-?\d+(\.\d+)?", v) is not None
+            or v in ("true", "false"))
+
+
+def _sql_default_literal(value: str) -> str:
+    inner = value.strip().replace("\\", "\\\\").replace('"', '\\"')
+    return f"SQLDEFAULT:{inner}"
 
 
 def nav_name(fk_col: str) -> str:

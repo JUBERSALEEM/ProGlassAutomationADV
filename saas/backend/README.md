@@ -8,14 +8,12 @@ WPF application at the repository root — no shared projects, no shared files.
 | Project | Purpose |
 |---|---|
 | `src/ProGlass.Saas.Domain` | Entities, tenancy primitives, WPF-ported roles/permissions + money policy. Zero dependencies. |
-| `src/ProGlass.Saas.Infrastructure` | EF Core model (generated from the verified DDL), `SqlMigrationRunner`, `TenantSessionInterceptor` (RLS session). |
-| `src/ProGlass.Saas.Api` | API host (health endpoint now; auth + modules from Phase 4). |
+| `src/ProGlass.Saas.Application` | Auth use-cases: `AuthService` (register/login/refresh/logout/sessions/change-password), ports (`IUserStore`, `IRefreshTokenStore`, `ITenantProvisioner`, `ITokenService`, `IAuditWriter`), `AuthOptions`, WPF-verbatim `PasswordPolicy`. References only Domain + DI abstractions. |
+| `src/ProGlass.Saas.Infrastructure` | EF Core model (generated from the verified DDL), `SqlMigrationRunner`, `TenantSessionInterceptor` (RLS session), Argon2id hasher, JWT service, tenant-explicit auth stores, platform-connection `TenantProvisioner`, `AuditWriter`. |
+| `src/ProGlass.Saas.Api` | API host — `/api/v1/auth/*` endpoints (Phase 4), JwtBearer authentication, permission authorization (`[HasPermission]`), `TenantContextMiddleware`, `/health`. |
 | `tests/ProGlass.Saas.Domain.Tests` | Unit tests — role/permission parity with WPF, money rounding, tenant context. |
-| `tests/ProGlass.Saas.IntegrationTests` | Database tests — tenant isolation (query filters + RLS), migration runner. |
-
-> The `Application` layer project (use-cases/DTOs/validators per
-> `saas/docs/SAAS_ARCHITECTURE.md`) is deliberately not scaffolded yet — it
-> gets real content in Phase 4 (authentication). No empty placeholder projects.
+| `tests/ProGlass.Saas.Application.Tests` | Unit tests — AuthService orchestration with in-memory fakes (lockout semantics, rotation, reuse detection, absolute lifetimes) + WPF PasswordPolicy cases ported. |
+| `tests/ProGlass.Saas.IntegrationTests` | Database tests — tenant isolation (query filters + RLS), migration runner, **AuthFlowTests** (full register→lockout→login→refresh→reuse→password-change flow against live PostgreSQL), Argon2id + JWT contract tests.
 
 ## Build & test (needs .NET 8 SDK + NuGet access)
 
@@ -28,11 +26,12 @@ dotnet test ProGlass.Saas.sln
 > **Status note (honest, per master prompt §46):** this solution was authored
 > in a sandbox with **no .NET SDK and no NuGet egress** (see
 > `saas/devbox/README.md`). Every file passes a tree-sitter C# syntax check
-> (`python3 saas/devbox/syntax_check_cs.py` — 29/29), and the schema it maps
-> to is fully verified against live PostgreSQL (23/23 checks), but the
-> solution has **not yet been compiled**. First build in a proper .NET
-> environment is the gate for Phase 4; flip `TreatWarningsAsErrors` on in
-> `Directory.Build.props` after that first clean build.
+> (`python3 saas/devbox/syntax_check_cs.py` — 52/52), and the schema +
+> identity constraints it maps to are verified against live PostgreSQL
+> (31/31 checks, `saas/database/verify/apply_and_test.py`), but the
+> solution has **not yet been compiled**. First build + `dotnet test` in a
+> proper .NET environment is the Phase 4 exit gate; flip
+> `TreatWarningsAsErrors` on in `Directory.Build.props` after that clean build.
 
 ## Database tests with a live PostgreSQL
 
@@ -69,7 +68,27 @@ dotnet test tests/ProGlass.Saas.IntegrationTests
 ```
 
 (The Python harness `saas/database/verify/apply_and_test.py` does all of this
-itself and prints the 23-check report; the steps above are the .NET twin.)
+itself and prints the 31-check report; the steps above are the .NET twin.
+AuthFlowTests additionally accept `SAAS_PLATFORM_DB` for tenant provisioning —
+unset, it falls back to `SAAS_TEST_DB`, which is correct in the pgserver
+setup where the owner connection is already elevated.)
+
+## Running the API (Phase 4)
+
+```
+export SAAS_DB="postgresql://saas_test_app:@/postgres?host=/tmp/pgdata"   # runtime role
+export SAAS_PLATFORM_DB="postgresql://postgres:@/postgres?host=/tmp/pgdata"  # elevated (provisioning)
+export SAAS_JWT_SIGNING_KEY="$(openssl rand -base64 48)"                   # >= 32 bytes, REQUIRED
+dotnet run --project src/ProGlass.Saas.Api
+```
+
+Endpoints: `POST /api/v1/auth/register|login|refresh|logout|change-password`,
+`GET /api/v1/auth/sessions`, `DELETE /api/v1/auth/sessions/{id}`, `GET /health`.
+Failures use the shared error envelope `{"code":"auth.invalid_credentials",
+"message":"…"}`; lockouts answer **423 + Retry-After** (API design §1).
+Also settable via `ConnectionStrings:Saas` / `ConnectionStrings:SaasPlatform` /
+`Authentication:Jwt:SigningKey` in appsettings (env vars win in the code above
+only when the config value is empty).
 
 ## Schema changes
 

@@ -28,7 +28,7 @@ users(id, tenant_id, username, display_name, email, mobile,
       failed_attempt_count, locked_until_utc,
       mfa_secret_encrypted, email_confirmed_at, last_login_at)
       UNIQUE(tenant_id, username), UNIQUE(tenant_id, email)
-refresh_tokens(id, user_id, token_hash, expires_at, revoked_at, replaced_by_token_hash, created_ip)
+refresh_tokens(id, user_id, token_hash, expires_at, absolute_expires_at_utc, revoked_at, replaced_by_token_hash, created_ip)
 audit_logs(id, tenant_id, user_id, action /*e.g. 'invoice.created'*/, entity_type, entity_id,
            before_json JSONB, after_json JSONB, ip, correlation_id, created_at)
       INDEX(tenant_id, created_at), INDEX(tenant_id, entity_type, entity_id)

@@ -4,6 +4,10 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProGlass.Saas.Domain", "src\ProGlass.Saas.Domain\ProGlass.Saas.Domain.csproj", "{6F5A3C2E-1B4D-4E8F-9A01-C3D4E5F60711}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProGlass.Saas.Application", "src\ProGlass.Saas.Application\ProGlass.Saas.Application.csproj", "{48E809C4-1FAB-41A7-BF97-49AF279E533D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProGlass.Saas.Application.Tests", "tests\ProGlass.Saas.Application.Tests\ProGlass.Saas.Application.Tests.csproj", "{B2F82911-9729-4148-81E8-F21A6F549937}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProGlass.Saas.Infrastructure", "src\ProGlass.Saas.Infrastructure\ProGlass.Saas.Infrastructure.csproj", "{7A6B4D3F-2C5E-4F90-8B12-D4E5F6071822}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProGlass.Saas.Api", "src\ProGlass.Saas.Api\ProGlass.Saas.Api.csproj", "{8B7C5E40-3D6F-4A01-9C23-E5F607182933}"
@@ -34,6 +38,14 @@ Global
 		{7A6B4D3F-2C5E-4F90-8B12-D4E5F6071822}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8B7C5E40-3D6F-4A01-9C23-E5F607182933}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B7C5E40-3D6F-4A01-9C23-E5F607182933}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48E809C4-1FAB-41A7-BF97-49AF279E533D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48E809C4-1FAB-41A7-BF97-49AF279E533D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2F82911-9729-4148-81E8-F21A6F549937}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2F82911-9729-4148-81E8-F21A6F549937}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48E809C4-1FAB-41A7-BF97-49AF279E533D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48E809C4-1FAB-41A7-BF97-49AF279E533D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2F82911-9729-4148-81E8-F21A6F549937}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2F82911-9729-4148-81E8-F21A6F549937}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C8D6F51-4E70-4B12-AD34-F60718293A44}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C8D6F51-4E70-4B12-AD34-F60718293A44}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AD9E7062-5F81-4C23-BE45-0718293A4B55}.Release|Any CPU.ActiveCfg = Release|Any CPU
