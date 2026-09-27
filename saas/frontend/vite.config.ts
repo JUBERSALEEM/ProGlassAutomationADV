@@ -14,6 +14,12 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    host: true,
+    // Sandbox/CI previews proxy arbitrary generated hosts (*.e2b.app);
+    // a locked-down production edge never runs `vite preview`.
+    allowedHosts: true,
+  },
   build: {
     outDir: "dist",
     sourcemap: true,
