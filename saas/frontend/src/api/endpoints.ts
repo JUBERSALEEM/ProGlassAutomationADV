@@ -373,3 +373,65 @@ export interface StatementFilters {
 export function generateStatement(filters: StatementFilters): Promise<Statement> {
   return post<Statement>("/api/v1/fiscal/statements", filters);
 }
+
+// ── reporting (Phase 31) ──────────────────────────────────────────────
+
+import type {
+  DeliveryAnalytics as _DeliveryAnalytics,
+  ExecutiveSummary as _ExecutiveSummary,
+  JoAnalytics as _JoAnalytics,
+  ProfitabilityRow as _ProfitabilityRow,
+  ProfitabilitySummary as _ProfitabilitySummary,
+  ReportingFilterQuery as _ReportingFilterQuery,
+  RowTrace as _RowTrace,
+} from "./types";
+
+function reportParams(
+  query: _ReportingFilterQuery,
+  extra: Record<string, string> = {},
+): string {
+  const params = new URLSearchParams(extra);
+  if (query.dateFrom) params.set("dateFrom", query.dateFrom);
+  if (query.dateTo) params.set("dateTo", query.dateTo);
+  if (query.company) params.set("company", query.company);
+  if (query.customer) params.set("customer", query.customer);
+  if (query.salesman) params.set("salesman", query.salesman);
+  if (query.project) params.set("project", query.project);
+  if (query.status) params.set("status", query.status);
+  if (query.searchText) params.set("searchText", query.searchText);
+  if (query.sortField) params.set("sortField", query.sortField);
+  if (!query.sortDescending) params.set("sortDescending", "false");
+  if (query.page) params.set("page", String(query.page));
+  if (query.pageSize) params.set("pageSize", String(query.pageSize));
+  const qs = params.toString();
+  return qs ? `?${qs}` : "";
+}
+
+export function getExecutiveSummary(query: _ReportingFilterQuery = {}) {
+  return get<_ExecutiveSummary>(
+    `/api/v1/reports/executive-summary${reportParams(query)}`,
+  );
+}
+
+export function getProfitability(query: _ReportingFilterQuery = {}) {
+  return get<_Paged<_ProfitabilityRow>>(`/api/v1/reports/profitability${reportParams(query)}`);
+}
+
+export function getProfitabilitySummary(query: _ReportingFilterQuery = {}) {
+  return get<_ProfitabilitySummary>(
+    `/api/v1/reports/profitability/summary${reportParams(query)}`,
+  );
+}
+
+export function getJoAnalytics(query: _ReportingFilterQuery = {}) {
+  return get<_JoAnalytics>(`/api/v1/reports/analytics/job-orders${reportParams(query)}`);
+}
+
+export function getDeliveryAnalytics(query: _ReportingFilterQuery = {}) {
+  return get<_DeliveryAnalytics>(`/api/v1/reports/analytics/delivery${reportParams(query)}`);
+}
+
+/** Row trace — the composite row id "PI-…-G1-S1" or a bare proforma number. */
+export function traceRow(rowId: string): Promise<_RowTrace> {
+  return get<_RowTrace>(`/api/v1/reports/trace/${encodeURIComponent(rowId)}`);
+}

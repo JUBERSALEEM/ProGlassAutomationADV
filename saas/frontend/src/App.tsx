@@ -10,6 +10,7 @@ import ProformaDetailPage from "./pages/ProformaDetailPage";
 import DeliveryNoteDetailPage from "./pages/DeliveryNoteDetailPage";
 import DeliveryNotesPage from "./pages/DeliveryNotesPage";
 import FiscalPage from "./pages/FiscalPage";
+import ReportsPage from "./pages/ReportsPage";
 import ProformaInvoicesPage from "./pages/ProformaInvoicesPage";
 import StockSheetsPage from "./pages/StockSheetsPage";
 
@@ -86,6 +87,14 @@ export default function App() {
             element={
               <Protected>
                 <FiscalPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <Protected>
+                <ReportsPage />
               </Protected>
             }
           />

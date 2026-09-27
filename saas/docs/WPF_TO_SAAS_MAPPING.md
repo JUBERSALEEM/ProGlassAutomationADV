@@ -919,6 +919,26 @@ running balance and totals). Credit-note creation from an invoice is
 not surfaced in this slice (the WPF flow is invoice-correction-driven);
 documented as a later slice alongside the PI grid editors.
 
+**Phase 31 — front end slice 4: reports (+ one route bug fix).**
+Reports page with the ONE shared filter (the WPF ReportingFilter axes:
+from/to + customer/company/salesman/project + search text) and five
+tabs: the executive summary (the cohort funnel with share/step
+conversion/bottleneck flags, headline money, the health line, top
+customers/specifications), profitability (summary + one row per
+proforma from the persisted Step 9 P&L with the costed/missing gate
+and the cost-source text verbatim), job-order analytics (totals,
+dominant spec/colour, top-10 mix tables, weekly throughput),
+delivery analytics (qty totals, critical pending, ageing buckets,
+pending/delivered mix), and the row trace (composite row id →
+audit chain + the live quantity reconciliation). CSV exports, the
+cutting-sheet/CNC views and cache stats stay API-only (not
+surfaced in the SPA). **Route fix (Phase 31a):** ReportingController
+was missing its `[Route("api/v1/reporting")]` attribute, so all its
+endpoints mounted at the bare templates (`/executive-summary`, …)
+contradicting the documented contract — the attribute was added,
+matching the other 19 controllers (dotnet build is devbox-gated;
+the change is the same one-line declarative pattern).
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

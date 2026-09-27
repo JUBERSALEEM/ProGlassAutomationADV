@@ -422,3 +422,185 @@ export interface Statement {
   project: string;
   salesman: string;
 }
+
+// ── reporting (Phase 31) — ReportingContracts / RowTraceability ───────
+
+export interface ReportingFilterQuery {
+  dateFrom?: string;
+  dateTo?: string;
+  company?: string;
+  customer?: string;
+  salesman?: string;
+  project?: string;
+  status?: string;
+  searchText?: string;
+  sortField?: string;
+  sortDescending?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface FunnelStage {
+  label: string;
+  count: number;
+  value: number;
+  sharePct: number;
+  stepConversionPct: number;
+  firstStageCount: number;
+  isBottleneck: boolean;
+}
+
+export interface MixRow {
+  rank: number;
+  label: string;
+  count: number;
+  qty: number;
+  sqm: number;
+  value: number;
+  sharePct: number;
+  isOtherBucket: boolean;
+}
+
+export interface ExecutiveSummary {
+  generatedAt: string;
+  periodDescription: string;
+  funnel: FunnelStage[];
+  quotedValue: number;
+  invoicedValue: number;
+  outstandingValue: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+  marginPct: number;
+  unconvertedQuotes: number;
+  uninvoicedConfirmed: number;
+  overdueInvoices: number;
+  deliveryCompletionPct: number;
+  criticalPendingQty: number;
+  topSpecifications: MixRow[];
+  topCustomers: MixRow[];
+  dominantSpecification: string;
+  dominantColour: string;
+  invoicesWithoutCost: number;
+  hasCostGap: boolean;
+  hasData: boolean;
+}
+
+export interface ProfitabilityRow {
+  key: string;
+  name: string;
+  category: string;
+  revenue: number;
+  cost: number;
+  glassCost: number;
+  productionCost: number;
+  profit: number;
+  margin: number;
+  qty: number;
+  sqm: number;
+  documentCount: number;
+  hasCostData: boolean;
+  isStaleCost: boolean;
+  costStalenessNote: string;
+  costSource: string;
+}
+
+export interface ProfitabilitySummary {
+  totalRevenue: number;
+  totalCost: number;
+  totalProfit: number;
+  avgMargin: number;
+  invoicesWithCost: number;
+  invoicesWithoutCost: number;
+  missingCostSources: string[];
+}
+
+export interface ThroughputPoint {
+  weekStart: string;
+  count: number;
+  sqm: number;
+}
+
+export interface JoAnalytics {
+  totalJobOrders: number;
+  totalQty: number;
+  totalSqm: number;
+  totalValue: number;
+  topCustomers: MixRow[];
+  topSpecifications: MixRow[];
+  topColours: MixRow[];
+  glassTypeMix: MixRow[];
+  throughput: ThroughputPoint[];
+  dominantSpecification: string;
+  topSpecSharePct: number;
+  dominantColour: string;
+}
+
+export interface AgeingBucket {
+  label: string;
+  minDays: number;
+  maxDays: number;
+  count: number;
+  qty: number;
+  sqm: number;
+  sharePct: number;
+  isCritical: boolean;
+}
+
+export interface DeliveryAnalytics {
+  totalRows: number;
+  orderedQty: number;
+  deliveredQty: number;
+  pendingQty: number;
+  notStartedRows: number;
+  completedRows: number;
+  partialRows: number;
+  pendingAgeing: AgeingBucket[];
+  criticalPendingQty: number;
+  pendingByCustomer: MixRow[];
+  pendingBySpecification: MixRow[];
+  deliveredBySpecification: MixRow[];
+}
+
+export interface TraceSourceRow {
+  rowId: string;
+  proformaNo: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  specification: string;
+  glassType: string;
+  glassRef: string;
+  w1: number;
+  h1: number;
+  w2: number;
+  h2: number;
+  qty: number;
+  rate: number;
+  amount: number;
+}
+
+export interface TraceStep {
+  stage: string;
+  documentNumber: string;
+  status: string;
+  qty: number;
+  value: number;
+  date: string | null;
+  notes: string;
+}
+
+export interface QuantityReconciliation {
+  orderedQty: number;
+  jobOrderQty: number;
+  deliveredQty: number;
+  remainingQty: number;
+  invoicedQty: number;
+  deliveryState: string;
+  invoiceState: string;
+}
+
+export interface RowTrace {
+  sourceRow: TraceSourceRow;
+  steps: TraceStep[];
+  reconciliation: QuantityReconciliation;
+}

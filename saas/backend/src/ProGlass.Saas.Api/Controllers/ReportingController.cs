@@ -12,6 +12,7 @@ using ProGlass.Saas.Domain.Authorization;
 
 namespace ProGlass.Saas.Api.Controllers;
 
+[Route("api/v1/reporting")]
 public sealed class ReportingController(
     ReportingService reporting,
     RowTraceabilityService traceability,
