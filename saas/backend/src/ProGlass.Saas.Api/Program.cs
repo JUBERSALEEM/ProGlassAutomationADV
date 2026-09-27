@@ -116,6 +116,14 @@ if (migrateOnStartup)
 }
 
 // ── Pipeline ──────────────────────────────────────────────────────────
+// Phase 15 hardening: the last-resort handler (every unhandled
+// exception → the §0 envelope, nothing internal leaked) runs FIRST,
+// then the security headers on every reply, and the credential
+// endpoints are rate-limited per IP (the WPF lockout's web analogue).
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+app.UseMiddleware<SecurityHeadersMiddleware>();
+app.UseMiddleware<LoginRateLimitMiddleware>();
+
 app.UseAuthentication();
 
 // The ONLY writer of the request tenant context (claims → context); runs

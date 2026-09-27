@@ -597,6 +597,24 @@ transaction (later modules' FKs resolve exactly as an apply would),
 discarded at the end; every finding (info/warning/error) lands in the
 HTML + JSON report.
 
+### 1.14 Production hardening — Phase 15 (parity and deliberate differences)
+
+Built 2026-09-27. The WPF's hardening portfolio (SQLite WAL/busy_timeout/
+foreign_keys via `SqliteResilience`, `SchemaHealthService`, the
+`BackupService`/`RestoreDrillService` pair, the licensing gate) maps to
+web/database equivalents; `SAAS_DEPLOYMENT.md` is the operator's guide.
+
+| WPF (source of truth) | SaaS (Phase 15) | Difference? |
+|---|---|---|
+| `SqliteResilience` (WAL, busy_timeout 5s, foreign_keys ON) per connection | connection resiliency at the proxy/pool; the DB enforces FKs globally (PostgreSQL, all migrations FK-constrained) | Architectural translation |
+| `SchemaHealthService` (startup schema checks) | `GET /health` + `hardening_audit.py` — a 14-check live audit (RLS on all 40 tenant tables + FORCE, per-tenant policies, role least-privilege, platform-table write denial for the runtime role, tenant-FK cascade coverage, orphan scan, unique fiscal numbers, 52 CHECK constraints, FK index coverage, Argon2id password shape, statement ordinal uniqueness, stock ledger chains) → `verification/HARDENING_AUDIT.md` | **Extended** — the audit found 49 unindexed FK columns; migration 0018 adds the indexes (48+1, CREATE INDEX IF NOT EXISTS only) and the audit now passes 14/14 |
+| `BackupService`: backup SETS, retention 10, auto-throttle 1h, manual-warn 10min, never-throws facade | `devbox/backup_db.py` — pg_dump -Fc sets with the SAME constants (retention 10, warn window 10min, `--force`), manifests (BackupSetInfo: name/createdAt/bytes/files + md5 + per-table row counts + pg version) | Same policy; the SaaS backs up one PostgreSQL cluster (not a folder of .db files + attachment folders) |
+| `RestoreDrillService` (a backup is proven only by restoring it) | `--restore-drill`: restores the newest set into a SCRATCH database, verifies the archive checksum and every per-table row count against the manifest, drops the scratch DB — verified end-to-end (45 tables, 84 rows, plus deliberate-corruption detection) | Same |
+| Attachments in backup sets (Inquiries/PI/DN folders — the 2026-09-05 P0 audit fix) | Not applicable yet — the SaaS attachments module is deferred; object storage keys will join the backup story when it lands | **Deferred, documented** |
+| Desktop attack surface (no headers/HTTP) | `SecurityHeadersMiddleware` (X-Frame-Options DENY, nosniff, no-referrer, CSP default-src 'none', COOP, cross-domain policies) + `GlobalExceptionHandlerMiddleware` (unhandled → the §0 `{code,message}` envelope with a correlation id; stack traces never leave the server) + `LoginRateLimitMiddleware` (fixed window 20/min per IP on login/register — the WPF per-username lockout's web complement) | **New** — web-only concerns |
+| Machine fingerprint / license gate (read-only enforcement) | Phase 13 `SubscriptionGateMiddleware` | Already ported |
+| Velopack updates, crash helpers | CI/CD + the reverse proxy; out of scope here | Architectural translation |
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|
