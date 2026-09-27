@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProGlass.Saas.Application.MasterData;
 using ProGlass.Saas.Application.Pricing;
+using ProGlass.Saas.Application.Proforma;
 
 namespace ProGlass.Saas.Api.Controllers;
 
@@ -45,5 +46,16 @@ public abstract class TenantControllerBase : ControllerBase
     protected IActionResult Fail<T>(PricingResult<T> result) => result.ErrorCode switch
     {
         _ => BadRequest(new { code = "pricing.validation_failed", message = result.Message })
+    };
+
+    protected IActionResult Fail<T>(ProformaResult<T> result) => result.ErrorCode switch
+    {
+        ProformaErrorCode.NotFound =>
+            NotFound(new { code = "proforma.not_found", message = result.Message }),
+        ProformaErrorCode.Conflict =>
+            Conflict(new { code = "proforma.conflict", message = result.Message }),
+        ProformaErrorCode.NumberExhausted =>
+            Conflict(new { code = "proforma.number_exhausted", message = result.Message }),
+        _ => BadRequest(new { code = "proforma.validation_failed", message = result.Message })
     };
 }

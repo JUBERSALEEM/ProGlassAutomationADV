@@ -56,6 +56,33 @@
 | `RowVersion` optimistic concurrency | `xmin`/rowversion + 409 conflict responses |
 | `ProformaDuplicateSnapshotScrub` duplicate action | `POST /api/v1/proforma/{id}/duplicate` |
 
+### 1.2a Proforma document core (Phase 7a) — parity and deliberate differences
+
+The wizard's document spine, ported 2026-09-27 from
+`ProformaInvoiceRepository.cs`, `InvoiceLifecycleStateMachine.cs`,
+`ProformaInvoiceStatus.cs`, `ProformaDuplicateSnapshotScrub` (read),
+`SpecGroupService.cs` and `Step5DataGrid/GlassItemRow.cs`.
+
+| WPF (source of truth) | SaaS (Phase 7a) | Difference? |
+|---|---|---|
+| `SuggestNextIdAsync`: batch-load prefix ids (BUG-08), pad-width from the seed, TryParse overflow degradation (V-1 "PI-99999999999"), 100k loop, GUID fallback (BUG-09), regex with named groups (BUG-11) | `Domain.Proforma.ProformaNumberSequence` — verbatim, pure over the id set | Same (goldens: PI-2026-000→001, gaps, INVOICE-42→43, ABC→ABC-001, case-insensitive existing set) |
+| Seed `PI-{year}-000` unallocatable (`IsUnallocatedSeed` + blank); insert reallocates | Same on create; `PI-{year}-NNN` allocated per tenant | Same |
+| Unique index on ProformaId + 5-attempt unique-violation retry (bump id, detach, retry) | `UNIQUE(tenant_id, proforma_no)` + same retry loop over `TryInsertAsync` false; `NumberExhausted` 409 after 5 | **Different by design** — uniqueness is per-tenant (two tenants may both own PI-2026-001; tested) |
+| `InvoiceLifecycleStateMachine` — 7 states, 11 transitions, `RequiresApproval` flags, descriptions, legacy "Pending"→PendingApproval / "Active"→Sent | `Domain.Proforma.InvoiceLifecycle` — verbatim | Same |
+| Status = free picker from `ProformaInvoiceStatus.All` (Draft·Sent·Approved·Rejected·Expired·Cancelled); Void is NOT a status | `status` column kept verbatim (6-word CHECK, unknown values never re-mapped on read) + `lifecycle_state` (machine, 7-word CHECK) | **Two columns where WPF had two loosely-coupled concepts** — machine is the system truth, status stays the operator's display field, written exactly where WPF wrote it (picker, void) |
+| `VoidAsync`: demands `ProformaInvoice.Delete`, idempotent, blank reason → "(no reason given)", `Status = VoidStatus[ProformaInvoice] = "Cancelled"`, keeps row/number/snapshot/audit | Same, verbatim | Same; `VoidedBy` stores the acting user id (WPF stored a username string); lifecycle_state also → Cancelled (schema addition) |
+| No lifecycle timestamps | `sent_at`/`approved_at`/`confirmed_at` stamped by the machine on the corresponding transitions | **New** — schema 0003 columns the WPF lacked |
+| Invalid transition / revise-a-draft / revise-a-voided: silent no-op or dialog | Typed **409** with the valid transition set / an operator-readable reason | **Different (REST, §0)** |
+| Revision: root = `RootProformaId` string; chain = root + "-R{n}" rows by `RevisionNumber`; `"{root}-R{n}"` with `"-{guard}"` collision suffix (≤5); gates (Draft → no-op, voided/Cancelled → terminal); copies header + totals + snapshot as a new Draft | Same, but root is a UUID FK (`root_proforma_id`); the NUMBER keeps the WPF `"{rootNo}-R{n}"` shape; gates now 409s | Same behavior; **different root representation** (normalized), documented |
+| Step 5 `GlassItemRow`: Sqm1 = `SqmCalculator.CalculatePanel(W1,H1)` (3dp + 0.5 floor), TotalSqm = round3(Sqm1×Qty), Sqm2/TotalSqm2 for W2/H2, Lm = round3((W+H)/1000 × perimeterFactor × Qty) with factor default 2, Value = `MoneyRounding(Sqm1×Qty×Rate)` | `Domain.Proforma.SpecGroupRowMath` — verbatim; sqm/total_sqm stored, Sqm2/Lm derived on read | Same |
+| Step 5 validation (`SpecGroupService`): phantom row (blank ref + zero dims) allowed + filtered; dims > 0, ≤ 10000 mm; qty > 0, ≤ 10000 | Same, verbatim (phantom = blank position + all four dims zero, extended for the dual-measurement row) | Same |
+| Step 7: `GlassMaterialsSubtotal = grid.GrandTotalValue` (Σ row values) | `glass_materials_subtotal` = Σ stored row totals, updated in the SAME transaction as the grid replace | Same |
+| Grid save = one unit of work (single SaveChanges) | Whole-grid replace: DELETE groups (items cascade) + INSERT + invoice-field update in ONE transaction | Same |
+| "Draft bodies are editable" + `IsEditable(Draft/Rejected)` | Grid save refused (409) unless Draft/Rejected; voided always terminal | Same rule, typed response |
+| `ProformaDuplicateSnapshotScrub` (duplicate detaches inquiry link + rewrites ProformaId in the snapshot JSON) | Deferred to 7b (needs the FullSnapshotJson round-trip) | Deferred, documented |
+| `GlassPriceStamper` (sheet-store basis stamp: `{max(LastUpdated).Ticks}:{count}`) | Deferred to 7b/8 (needs the sheet store) | Deferred, documented |
+| Inquiry convert-to-PI, Step 4 APPLY → specifications registry + `SpecificationUsage` stamping, Step 6 other charges, Step 9 P&L, Step 7 PDF | Phase 7b | Deferred, documented |
+
 ### 1.3 Specifications (price registry)
 | WPF | SaaS |
 |---|---|

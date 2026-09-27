@@ -64,6 +64,7 @@ public static class DependencyInjection
         services.AddScoped<IAuditWriter, AuditWriter>();
         services.AddScoped<IMasterDataStore, MasterDataStore>();
         services.AddScoped<IPricingConfigStore, PricingConfigStore>();
+        services.AddScoped<IProformaStore, ProformaStore>();
 
         return services;
     }

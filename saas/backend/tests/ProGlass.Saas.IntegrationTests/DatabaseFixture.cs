@@ -48,6 +48,29 @@ public sealed class DatabaseFixture
     }
 
     /// <summary>
+    /// A fresh tenant row for tests that own a whole document set (pricing
+    /// config, proforma invoices) — one row per tenant means sharing
+    /// TenantA would make outcomes depend on test order. Inserted through
+    /// the owner connection, like TenantA/TenantB.
+    /// </summary>
+    public Guid CreateTenant(string label)
+    {
+        var tenantId = Guid.NewGuid();
+        using var connection = new NpgsqlConnection(OwnerDb);
+        connection.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = """
+            INSERT INTO saas.tenants (id, name, slug)
+            VALUES ($1, $2, $3)
+            """;
+        command.Parameters.AddWithValue(tenantId);
+        command.Parameters.AddWithValue($"{label} {tenantId:N}"[..60]);
+        command.Parameters.AddWithValue($"t-{tenantId:N}"[..40]);
+        command.ExecuteNonQuery();
+        return tenantId;
+    }
+
+    /// <summary>
     /// A DbContext bound to a tenant through the REAL runtime path:
     /// AmbientTenantContext + TenantSessionInterceptor (RLS GUC) over the
     /// unprivileged application connection. tenantId == null simulates an
