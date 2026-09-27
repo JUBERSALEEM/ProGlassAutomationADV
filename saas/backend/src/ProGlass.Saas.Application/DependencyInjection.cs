@@ -4,6 +4,7 @@ using ProGlass.Saas.Application.MasterData;
 using ProGlass.Saas.Application.Pricing;
 using ProGlass.Saas.Application.Proforma;
 using ProGlass.Saas.Application.Specifications;
+using ProGlass.Saas.Application.JobOrders;
 using ProGlass.Saas.Application.Stock;
 
 namespace ProGlass.Saas.Application;
@@ -25,6 +26,7 @@ public static class DependencyInjection
         services.AddScoped<ProformaService>();
         services.AddScoped<SpecificationsService>();
         services.AddScoped<StockService>();
+        services.AddScoped<JobOrderService>();
         return services;
     }
 }

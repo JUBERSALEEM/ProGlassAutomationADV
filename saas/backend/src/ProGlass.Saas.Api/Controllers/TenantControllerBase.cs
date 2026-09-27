@@ -5,6 +5,7 @@ using ProGlass.Saas.Application.MasterData;
 using ProGlass.Saas.Application.Pricing;
 using ProGlass.Saas.Application.Proforma;
 using ProGlass.Saas.Application.Specifications;
+using ProGlass.Saas.Application.JobOrders;
 using ProGlass.Saas.Application.Stock;
 
 namespace ProGlass.Saas.Api.Controllers;
@@ -55,6 +56,19 @@ public abstract class TenantControllerBase : ControllerBase
         SpecificationErrorCode.NotFound =>
             NotFound(new { code = "specifications.not_found", message = result.Message }),
         _ => BadRequest(new { code = "specifications.validation_failed", message = result.Message })
+    };
+
+    protected IActionResult Fail<T>(JobOrderResult<T> result) => result.ErrorCode switch
+    {
+        JobOrderErrorCode.NotFound =>
+            NotFound(new { code = "joborders.not_found", message = result.Message }),
+        JobOrderErrorCode.Conflict =>
+            Conflict(new { code = "joborders.conflict", message = result.Message }),
+        JobOrderErrorCode.NumberExhausted =>
+            Conflict(new { code = "joborders.number_exhausted", message = result.Message }),
+        JobOrderErrorCode.ConcurrencyConflict =>
+            Conflict(new { code = "joborders.concurrency_conflict", message = result.Message }),
+        _ => BadRequest(new { code = "joborders.validation_failed", message = result.Message })
     };
 
     protected IActionResult Fail<T>(StockResult<T> result) => result.ErrorCode switch

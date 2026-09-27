@@ -333,6 +333,36 @@ consume, history, low-stock, suppliers).
 | Material reservation/allocation; physical consumption contract | `MaterialReservation` service consuming stock via transactions |
 | `ProductionDistributionEngine`, consistency scanner, snapshot integrity | Same services, server-side, scheduled consistency scans |
 
+#### 1.7a Job Order core — Phase 9 implementation (parity and deliberate differences)
+
+Ported 2026-09-27 from `Models/JobOrder/*` (SavedJobOrder,
+JobOrderSnapshot, JobOrderStatusValues, JobPriority, ProductionDetails),
+`Services/JobOrder/Mapper/JobOrderMapper.cs`,
+`Services/JobOrder/Repository/JobOrderRepository.cs`,
+`Services/Workflow/StatusTransitions.cs` (Kind.JobOrder) and the
+convert guards in `SavedJobsListViewModel.Part1.cs`. Migration 0012
+upgraded the Phase 3 first-pass table to the WPF-faithful shape;
+`JobOrderService`/`JobOrderStore`/`/api/v1/job-orders`.
+
+| WPF (source of truth) | SaaS (Phase 9) | Difference? |
+|---|---|---|
+| `BuildFromProformaInvoice`: JOB-no derived from the PI number (PI-2026-0042 → JOB-2026-0042, foreign prefix kept, empty → year form) | `Domain.Proforma.JobOrderNumbers` verbatim | Same |
+| Number allocation: SuggestNext only when the derived no is taken; insert with 5-attempt unique-violation retry, fresh context per attempt; snapshot JobOrderId re-synced after a reallocation | Same loop (`TryInsertAsync` + `SuggestNextNoAsync`); the snapshot summary is rebuilt from the fresh number each attempt (nothing to re-sync — it is written after allocation) | Same |
+| A CONFIRMED quote (PI status Approved) → job starts RELEASED to the factory floor; anything else → Draft; Priority default Medium | Same | Same |
+| Grand total copied at conversion and NEVER updated afterwards (the embedded invoice snapshot is immutable) | `grand_total_vat_inclusive` copied at conversion; the update path never touches it | Same |
+| Embedded snapshot = the FULL PI POCO tree (immutable historical record) | `snapshot_json` = the conversion-time SUMMARY (numbers, parties, dates) + the normalized link `proforma_id`; the source PI stays addressable through its own tables | **Documented difference**: the SaaS does not duplicate the whole PI tree; the recorded figures still never change after conversion. (A PI is void-only in the SaaS — no delete — so the link cannot dangle) |
+| Voided PI hard guard: "…is void and cannot be converted to a Job Order." (every entry path) | Same message, typed 409 | Same |
+| Existing jobs for the PI: WARN, not block (a revised order / split delivery is legitimate) — Yes/No dialog | 409 listing the existing job numbers; the confirmed re-post carries `allowExisting: true` | Same rule, explicit consent instead of a dialog |
+| Status machine (StatusTransitions, Kind.JobOrder): Draft→{Draft,Released,InProduction,Completed,Delivered,Rejected}, Released→{Released,InProduction,Completed,Delivered,Rejected}, InProduction→{InProduction,Completed,Delivered,Rejected}, Completed→{Completed,Delivered,Rejected}, Delivered→{Delivered,Rejected}, Rejected→{Rejected,Draft} | `Domain.Proforma.JobOrderWorkflow` — verbatim table | Same |
+| Status spelling: "InProduction" (enum) vs legacy "In Production" rows — JobOrderStatusValues.Is/IsInProduction/Canonical guard every comparison | One canonical spelling in the fresh schema ('InProduction'; Canonical still renders "In Production" for display); the legacy split cannot occur | **Documented** — the WPF defect class is designed out |
+| `ChangeStatusAsync` validates through the centralized table before saving | `POST /{id}/transition` — same validation, typed 409 with the reason | Same |
+| Optimistic RowVersion: counter + ConcurrencyConflictException on a stale expected version | `row_version` + 409 `concurrency_conflict`; the counter increments on every update | Same |
+| Soft-close void (ERP hardening): IsVoid + VoidedAt/VoidedBy/VoidReason ("(no reason given)" default) + Status → void target (Rejected); idempotent; row survives | `POST /{id}/void` — same | Same |
+| ProductionDetails editable fields (priority Low/Medium/High, delivery date, site contact/phone/address, assigned to, cutting instructions, drawing reference, internal notes) | `PUT /{id}` (null keeps the saved value) | Same |
+| Master DN created alongside (EnsureForJobOrderAsync) | Deferred to the Phase 10 delivery module | **Deferred, documented** |
+| Production stages / pieces / QC / material reservation (the factory-floor engine) | Schema exists (0003/0004: production_pieces, production_events, material_reservations); the module is the next Phase 9 slice | Deferred, documented |
+| Permissions: JobOrder.Edit for create/update (OperationGuard) | Same (`JobOrder.View/.Edit/.Delete` vocabulary ported in Phase 4); reads open to authenticated users like every module | Same |
+
 ### 1.8 Delivery
 | WPF | SaaS |
 |---|---|

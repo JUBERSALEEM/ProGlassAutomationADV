@@ -404,9 +404,8 @@ namespace ProGlass.Saas.Domain.Entities
         public Guid Id { get; set; }
         public Guid TenantId { get; set; }
         public string JobNo { get; set; } = null!;
-        public Guid? ProformaId { get; set; }
+        public Guid ProformaId { get; set; }
         public string Status { get; set; } = null!;
-        public string StatusText { get; set; } = null!;
         public Guid? CustomerId { get; set; }
         public Guid? ProjectId { get; set; }
         public Guid? SalesmanId { get; set; }
@@ -417,7 +416,23 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
-        public ProformaInvoice? Proforma { get; set; } = null;
+        public string CustomerName { get; set; } = null!;
+        public string ProjectName { get; set; } = null!;
+        public decimal GrandTotalVatInclusive { get; set; }
+        public string Priority { get; set; } = null!;
+        public string SiteDeliveryContact { get; set; } = null!;
+        public string SiteDeliveryPhone { get; set; } = null!;
+        public string SiteDeliveryAddress { get; set; } = null!;
+        public string AssignedTo { get; set; } = null!;
+        public string CuttingInstructions { get; set; } = null!;
+        public string DrawingReference { get; set; } = null!;
+        public string InternalNotes { get; set; } = null!;
+        public bool IsVoid { get; set; }
+        public DateTime? VoidedAt { get; set; }
+        public Guid? VoidedBy { get; set; }
+        public string VoidReason { get; set; } = null!;
+        public string? SnapshotJson { get; set; }
+        public ProformaInvoice Proforma { get; set; } = null!;
         public Client? Customer { get; set; } = null;
         public Project? Project { get; set; } = null;
         public Salesman? Salesman { get; set; } = null;

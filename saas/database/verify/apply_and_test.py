@@ -430,7 +430,9 @@ def test_migrations(db_uri: str):
     with conn.cursor() as cur:
         cur.execute("SELECT name, checksum FROM saas._saas_migrations ORDER BY name")
         rows = cur.fetchall()
-        record("all 11 migrations recorded with checksums", len(rows) == 11,
+        expected = len(sorted(MIGRATIONS_DIR.glob("*.sql")))
+        record(f"all {expected} migrations recorded with checksums",
+               len(rows) == expected,
                ", ".join(r[0] for r in rows))
         # tamper with a checksum → runner must refuse
         cur.execute("UPDATE saas._saas_migrations SET checksum = 'deadbeef' WHERE name = '0001_platform_identity.sql'")

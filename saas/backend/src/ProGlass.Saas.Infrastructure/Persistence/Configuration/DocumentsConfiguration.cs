@@ -517,8 +517,7 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
             builder.Property(x => x.JobNo).HasColumnName("job_no").HasColumnType("text");
             builder.Property(x => x.ProformaId).HasColumnName("proforma_id").HasColumnType("uuid");
-            builder.Property(x => x.Status).HasColumnName("status").HasColumnType("text").HasDefaultValue("InProduction");
-            builder.Property(x => x.StatusText).HasColumnName("status_text").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Status).HasColumnName("status").HasColumnType("text").HasDefaultValue("Draft");
             builder.Property(x => x.CustomerId).HasColumnName("customer_id").HasColumnType("uuid");
             builder.Property(x => x.ProjectId).HasColumnName("project_id").HasColumnType("uuid");
             builder.Property(x => x.SalesmanId).HasColumnName("salesman_id").HasColumnType("uuid");
@@ -529,6 +528,22 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.CustomerName).HasColumnName("customer_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ProjectName).HasColumnName("project_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.GrandTotalVatInclusive).HasColumnName("grand_total_vat_inclusive").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.Priority).HasColumnName("priority").HasColumnType("text").HasDefaultValue("Medium");
+            builder.Property(x => x.SiteDeliveryContact).HasColumnName("site_delivery_contact").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SiteDeliveryPhone).HasColumnName("site_delivery_phone").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SiteDeliveryAddress).HasColumnName("site_delivery_address").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.AssignedTo).HasColumnName("assigned_to").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CuttingInstructions).HasColumnName("cutting_instructions").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.DrawingReference).HasColumnName("drawing_reference").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.InternalNotes).HasColumnName("internal_notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.IsVoid).HasColumnName("is_void").HasColumnType("boolean").HasDefaultValue(false);
+            builder.Property(x => x.VoidedAt).HasColumnName("voided_at").HasColumnType("timestamptz");
+            builder.Property(x => x.VoidedBy).HasColumnName("voided_by").HasColumnType("uuid");
+            builder.Property(x => x.VoidReason).HasColumnName("void_reason").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SnapshotJson).HasColumnName("snapshot_json").HasColumnType("jsonb");
             builder.HasIndex(x => new { x.TenantId, x.JobNo })
                 .IsUnique().HasDatabaseName("uq_job_orders_tenant_no");
             builder.HasIndex(x => new { x.TenantId, x.Status })
