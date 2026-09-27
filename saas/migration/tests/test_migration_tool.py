@@ -170,6 +170,255 @@ def main() -> None:
     # 3 with known users (the 4th is user 'nobody').
     assert counts == (4, 3, 3), counts
 
+    # ── Phase 16: specifications ────────────────────────────────────
+    assert by_module["specifications"]["loaded"] == 2, \
+        by_module["specifications"]        # TRIPLE + duplicate rejected
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT s.glass_type, s.spec_name, s.rate_per_sqm, s.category,
+                   s.color, s.thickness_mm, s.sheet_id,
+                   g.category IS NOT NULL, s.panes_json IS NOT NULL,
+                   s.last_proforma_no
+            FROM saas.specifications s
+            LEFT JOIN saas.glass_sheets g ON g.id = s.sheet_id
+            ORDER BY s.spec_name""")
+        specs = cur.fetchall()
+    assert specs[0] == ("DGU", "Clear 6+12+6", Decimal("125.50"),
+                        "Float", "Clear", 6, specs[0][6], True, True,
+                        "PI-2026-001"), specs
+    assert specs[0][6] is not None, "sheet link must resolve"
+    # The SGU spec: unknown sheet → null, bad PanesJson → null.
+    assert specs[1][6] is None and specs[1][8] is False, specs
+
+    # ── Phase 16: inquiries ─────────────────────────────────────────
+    assert by_module["inquiries"]["loaded"] == 4, by_module["inquiries"]
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT i.inquiry_no, i.status, i.status_text, i.priority,
+                   i.customer_id IS NOT NULL, i.converted_proforma_id,
+                   jsonb_array_length(i.boq_json),
+                   i.boq_json -> 0 ->> 'specName',
+                   i.boq_json -> 1 ->> 'qty'
+            FROM saas.inquiries i ORDER BY i.inquiry_no""")
+        inq = cur.fetchall()
+    assert inq[0][:6] == ("INQ-2026-001", "Received", "Received", "high",
+                          True, inq[0][5]), inq
+    assert inq[0][5] is not None, "converted_proforma_id backlink"
+    assert inq[0][6:] == (2, "Clear 6+12+6", "4"), inq  # BOQ camelCase
+    # 'On Hold' → Hold (the WPF's own Normalize), original in status_text.
+    assert inq[1][:4] == ("INQ-2026-002", "Hold", "On Hold", "normal"), inq
+    assert inq[1][4] is False, "unresolved client → null"
+
+    # ── Phase 16: proformas + the Step 5/6/9 projection ─────────────
+    # 3 PIs + 1 group + 2 items (step 5) + 2 charges + 1 wastage
+    # + 1 custom (step 6).
+    assert by_module["proformas"]["loaded"] == 10, by_module["proformas"]
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT p.proforma_no, p.status, p.lifecycle_state,
+                   p.glass_materials_subtotal, p.other_charges_subtotal,
+                   p.vat_amount, p.grand_total_vat_inclusive,
+                   p.discount_type, p.vat_percent, p.furthest_step,
+                   p.inquiry_id IS NOT NULL, p.snapshot_json IS NOT NULL,
+                   p.pnl_profit, p.pnl_wastage_percent,
+                   p.pnl_calculated_at IS NOT NULL
+            FROM saas.proforma_invoices p ORDER BY p.proforma_no""")
+        pis = cur.fetchall()
+        cur.execute("""
+            SELECT r.proforma_no, root.proforma_no, r.revision_number
+            FROM saas.proforma_invoices r
+            JOIN saas.proforma_invoices root ON root.id = r.root_proforma_id
+            ORDER BY r.proforma_no""")
+        chains = cur.fetchall()
+    assert pis[0] == ("PI-2026-001", "Sent", "Sent", Decimal("1399.20"),
+                      Decimal("842.80"), Decimal("113.00"),
+                      Decimal("2355.00"), "Percentage", Decimal("5.00"),
+                      9, True, True, Decimal("942.00"), Decimal("15.00"),
+                      True), pis[0]
+    assert pis[1][0] == "PI-2026-001-R1" \
+        and pis[1][10:] == (False, True, Decimal("0.00"),
+                            Decimal("15.00"), False), pis[1]
+    assert pis[2][0] == "PI-2026-003"   # header loads, group rejected
+    assert chains == [("PI-2026-001-R1", "PI-2026-001", 1)], chains
+
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT g.group_number, g.glass_type, g.spec_name, g.spec_id,
+                   g.rate_per_sqm, g.price_source, g.outer_sheet_width_mm,
+                   (SELECT count(*) FROM saas.spec_group_items i
+                    WHERE i.spec_group_id = g.id)
+            FROM saas.spec_groups g""")
+        groups = cur.fetchall()
+    assert len(groups) == 1, groups
+    assert groups[0][:3] == (1, "DGU", "Clear 6+12+6"), groups
+    assert groups[0][3] is not None, "spec_id link to the library"
+    assert groups[0][4:] == (Decimal("110.00"), "formula", 3210, 2), groups
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT row_serial, sqm, total_sqm, unit_price, total, qty,
+                   perimeter_factor
+            FROM saas.spec_group_items i
+            JOIN saas.spec_groups g ON g.id = i.spec_group_id
+            ORDER BY row_serial""")
+        items = cur.fetchall()
+    # WPF row math: 1500×2400 → 3.600 m² ×3 → 10.800; 800×1200 → 0.960
+    # (above the 0.5 floor) ×2 → 1.920. Values at MoneyRounding 2 dp.
+    assert items == [(1, Decimal("3.600"), Decimal("10.800"),
+                      Decimal("110.00"), Decimal("1188.00"), 3, 2),
+                     (2, Decimal("0.960"), Decimal("1.920"),
+                      Decimal("110.00"), Decimal("211.20"), 2, 2)], items
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT charge_name, template_key, metric_key, unit,
+                   metric_qty, amount, sort_order, polish_sub_type
+            FROM saas.other_charges ORDER BY sort_order""")
+        charges = cur.fetchall()
+    assert charges == [
+        ("Argon Gas (Sqm)", "ARGON_GAS", "SQM1", "Sqm", Decimal("12.720"),
+         Decimal("572.40"), 0, ""),
+        ("Polish (lm)", "POLISH", "LM1", "Lm", Decimal("8.400"),
+         Decimal("50.40"), 1, "AllSidePolish")], charges
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT color_name, rate, total_sqm, result_amount,
+                   is_manually_added, use_optimization_formula,
+                   checked_source_keys
+            FROM saas.wastage_rows""")
+        wastage = cur.fetchall()
+    assert wastage == [("Clear", Decimal("20"), Decimal("3.5"),
+                        Decimal("70.00"), True, False,
+                        ["1-Outer"])], wastage
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT charge_name, qty, unit, rate, amount, is_active
+            FROM saas.custom_charges""")
+        customs = cur.fetchall()
+    assert customs == [("Crane hire", Decimal("1"), "Qty", Decimal("150"),
+                        Decimal("150.00"), True)], customs
+
+    # ── Phase 16: specification usages (after proformas) ────────────
+    assert by_module["specusages"]["loaded"] == 1, by_module["specusages"]
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT u.spec_name, s.spec_name, p.proforma_no,
+                   u.price_per_sqm
+            FROM saas.specification_usages u
+            JOIN saas.specifications s ON s.id = u.spec_id
+            JOIN saas.proforma_invoices p ON p.id = u.proforma_id""")
+        usages = cur.fetchall()
+    assert usages == [("Clear 6+12+6", "Clear 6+12+6", "PI-2026-001",
+                       Decimal("125.50"))], usages
+
+    # ── Phase 16: optimization (historical runs, oracles documented) ─
+    assert by_module["optimization"]["loaded"] == 2, by_module["optimization"]
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT status, strategy, sheets_used, unplaced_count,
+                   utilization_pct, conservation_verified,
+                   geometry_verified, params_json ->> 'wpfSessionId',
+                   validation_problems -> 0
+            FROM saas.optimization_sessions ORDER BY created_at""")
+        sessions = cur.fetchall()
+    for row in sessions:
+        assert row[0] == "completed" and row[5] is False and row[6] is False
+        assert "cannot re-run" in row[8], row[8]
+    assert sessions[0][7] == "opt-session-1", sessions
+
+    # ── Phase 16: job orders ────────────────────────────────────────
+    assert by_module["joborders"]["loaded"] == 1, by_module["joborders"]
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT j.job_no, j.status, j.priority,
+                   j.grand_total_vat_inclusive, j.site_delivery_contact,
+                   j.assigned_to, j.cutting_instructions,
+                   p.proforma_no, p.job_order_id IS NOT NULL
+            FROM saas.job_orders j
+            JOIN saas.proforma_invoices p ON p.id = j.proforma_id""")
+        jobs = cur.fetchall()
+    assert jobs == [("JOB-2026-001", "InProduction", "High",
+                     Decimal("2355.00"), "Site Engineer Ali", "Crew A",
+                     "Cut all outer panes first", "PI-2026-001", True)], jobs
+
+    # ── Phase 16: production (pieces / events / reservations) ───────
+    assert by_module["production"]["loaded"] == 4, by_module["production"]
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT pc.unique_key, pc.stage, pc.status, pc.qty, pc.qty_done,
+                   pc.unit_sqm, pc.spec_group_item_id IS NOT NULL,
+                   pc.is_cancelled, j.job_no
+            FROM saas.production_pieces pc
+            JOIN saas.job_orders j ON j.id = pc.job_order_id
+            ORDER BY pc.unique_key""")
+        pieces = cur.fetchall()
+    assert pieces[0][:9] == (
+        "JOB-2026-001|Clear 6+12+6|1||Cutting", "Cutting", "Completed",
+        3, 3, Decimal("3.600"), True, False, "JOB-2026-001"), pieces
+    assert pieces[1][4] == 1 and pieces[1][2] == "InProgress", pieces
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT e.event_type, e.stage, e.qty, e.done_by, u.username
+            FROM saas.production_events e
+            LEFT JOIN saas.users u ON u.id = e.done_by""")
+        events = cur.fetchall()
+    assert events == [("Stage", "Cutting", 3, events[0][3],
+                       "cutter1")], events
+    assert events[0][3] is not None, "done_by resolved to a user"
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT r.reservation_key, r.status, r.reserved_qty,
+                   g.category, g.thickness_mm, o.params_json ->> 'wpfSessionId',
+                   u.username
+            FROM saas.material_reservations r
+            JOIN saas.glass_sheets g ON g.id = r.glass_sheet_id
+            JOIN saas.optimization_sessions o
+                 ON o.id = r.optimization_session_id
+            LEFT JOIN saas.users u ON u.id = r.reserved_by""")
+        reservations = cur.fetchall()
+    assert reservations == [("JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1",
+                             "Reserved", 2, "Float", 6, "opt-session-1",
+                             "jubers")], reservations
+
+    # ── Phase 16: delivery notes ────────────────────────────────────
+    assert by_module["deliverynotes"]["loaded"] == 6, by_module["deliverynotes"]
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT d.delivery_no, d.status, d.delivery_type, d.is_master_dn,
+                   d.driver, d.vehicle, d.total_ordered_qty,
+                   d.total_delivered_qty, d.total_balance_qty,
+                   j.job_no
+            FROM saas.delivery_notes d
+            JOIN saas.job_orders j ON j.id = d.job_order_id
+            ORDER BY d.delivery_no""")
+        notes = cur.fetchall()
+    assert notes == [
+        ("DN-2026-001-01", "Dispatching", "Original", False, "Rashid",
+         "D-12345", 5, 3, 2, "JOB-2026-001"),
+        ("MDN-2026-001", "Draft", "Dummy", True, "", "", 5, 0, 5,
+         "JOB-2026-001")], notes
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT i.serial_number, i.ordered_qty, i.delivered_qty,
+                   i.sqm, i.spec_group_item_id IS NOT NULL, j.job_no
+            FROM saas.delivery_note_items i
+            JOIN saas.delivery_notes d ON d.id = i.delivery_note_id
+            JOIN saas.job_orders j ON j.id = i.job_order_id
+            WHERE d.delivery_no = 'DN-2026-001-01' ORDER BY i.serial_number""")
+        ditems = cur.fetchall()
+    assert ditems == [(1, 3, 3, Decimal("10.800"), True, "JOB-2026-001"),
+                      (2, 2, 0, Decimal("1.920"), True, "JOB-2026-001")], \
+        ditems
+
+    # ── tax invoices now LINK to the imported proforma ──────────────
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT t.invoice_no, p.proforma_no
+            FROM saas.tax_invoices t
+            LEFT JOIN saas.proforma_invoices p ON p.id = t.proforma_id
+            ORDER BY t.invoice_no""")
+        links = cur.fetchall()
+    assert links == [("INV-2026-001", "PI-2026-001"),
+                     ("INV-2026-002", "PI-2026-001")], links
+
     # findings: the fixture's deliberate problems are all reported.
     all_findings = [f for m in report["modules"]
                     for f in m["findings"]]
@@ -180,20 +429,39 @@ def main() -> None:
     assert "SomewhereElse" in texts                    # unknown status
     assert "differs from recomputed 45.00" in texts    # VAT mismatch
     assert "INV-2026-003" in texts                     # orphan credit note
+    # Phase 16 finding paths
+    assert "TRIPLE" in texts                           # spec glass type
+    assert "not valid JSON" in texts                   # PI-2026-002
+    assert "QUAD" in texts                             # spec group CHECK
+    assert "phantom row dropped" in texts              # qty-0 grid row
+    assert "differs from recomputed 112.10" in texts   # PI VAT mismatch
+    assert "PI-2026-999" in texts                      # unimported root
+    assert "In Production" in texts                    # legacy spelling
+    assert "reserved latest-run" in texts              # optimization feed
+    assert "derived 'LM1'" in texts                    # metric fallback
+    assert "cannot re-run" in texts                    # oracle difference
+    assert "ProductionReleases" in texts               # deferred counts
+    assert "Workstations" in texts
+    assert "under skipped note DN-2026-009-01" in texts
     errors = [f for f in all_findings if f["severity"] == "error"]
-    assert len(errors) == 3, errors   # bad role, Film category, bad status
+    assert len(errors) == 15, [e["message"] for e in errors]
 
     # ── validate ─────────────────────────────────────────────────────
-    # The deliberate sheet-2 ledger/stored drift is reported as FAIL
-    # (the operator sees it), everything else passes.
+    # The deliberate drifts are reported as FAIL (the operator sees
+    # them): the sheet-2 ledger, the PI-2026-001 VAT mismatch and the
+    # revision whose root was never imported.
     code = cli_main(["validate", "--db-uri", db_uri, "--tenant", slug,
                      "--report-dir", str(report_dir / "validate")])
-    assert code == 1, "validate must flag the known ledger drift"
+    assert code == 1, "validate must flag the known drifts"
     vreport = json.loads(
         (report_dir / "validate" / "migration_report.json").read_text())
     findings = vreport["modules"][0]["findings"]
     failed = [f for f in findings if f["row"] == "FAIL"]
-    assert len(failed) == 1 and "ledger tail" in failed[0]["message"], failed
+    failed_labels = " | ".join(f["message"] for f in failed)
+    assert len(failed) == 3, failed
+    assert "ledger tail" in failed_labels
+    assert "PI totals" in failed_labels
+    assert "revisions without an imported root" in failed_labels
 
     # ── the source is never written ─────────────────────────────────
     with sqlite3.connect(f"file:{fixture}/audit.db?mode=ro", uri=True) as src:

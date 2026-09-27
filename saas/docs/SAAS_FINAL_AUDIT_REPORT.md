@@ -1,9 +1,11 @@
 # ProGlass SaaS — FINAL AUDIT REPORT
 
-**Date:** 2026-09-27 · **Branch:** `arena/01a0e138-proglassautomationadv` ·
-**Head at report time:** `bd24f00`
-**Scope:** the complete WPF → SaaS port, Phases 1–15, audited after all
-phases were applied and pushed.
+**Date:** 2026-09-27 (updated after Phase 16) · **Branch:**
+`arena/01a0e138-proglassautomationadv` · **Head at report time:**
+Phase 16 commit (this report's companion)
+**Scope:** the complete WPF → SaaS port, Phases 1–15 + the Phase 16
+migration-tool document modules, audited after all phases were applied
+and pushed.
 
 ---
 
@@ -17,16 +19,18 @@ re-implemented, per the governing constraints (complete separation;
 audit before code; no invented rules; no fake completions; WPF behavior
 preserved or the difference documented).
 
-All 15 planned phases are **complete** (core slices, with every
-deferral documented in `WPF_TO_SAAS_MAPPING.md`). Final verification
-sweep, run against a live PostgreSQL 16 immediately before this report:
+All 15 planned phases are **complete**, plus **Phase 16** (the migration
+tool's document modules — the deferred slice whose only blocker was
+slice discipline). Every deferral is documented in
+`WPF_TO_SAAS_MAPPING.md`. Final verification sweep, run against a live
+PostgreSQL 16 immediately before this report:
 
 | Verification | Result |
 |---|---|
 | C# syntax (tree-sitter, 182 files) | **182/182 clean** |
 | Database harness (`apply_and_test.py`, 18 migrations, RLS/constraints/runner) | **ALL CHECKS PASSED 59/59** |
 | Hardening audit (`hardening_audit.py`, 14 live checks) | **14/14** |
-| Migration tool end-to-end (fixture SQLite → live PG) | **PASSED** |
+| Migration tool end-to-end (fixture SQLite → live PG, **15 modules**) | **PASSED** |
 | Backup + restore drill (live PG, incl. corruption detection) | **PASSED** |
 
 **The one standing gate:** this environment has no .NET SDK — the C#
@@ -53,10 +57,11 @@ importer, backups, audits) has run and passes.
 | 11 | Optimization core (GuillotinePacker QUICK verbatim, safety net, session persistence) | `dd88337` |
 | 12 | Fiscal core (tax invoices w/ fiscal lock + family numbering + UAE VAT, credit notes, statements, VAT report) + 0016 | `b1669ab` |
 | 13 | Subscriptions (trial seeding, plan/feature catalog, read-only gate, platform admin port) + 0017 | `67baf6b` |
-| 14 | Migration tooling (`proglass-migrate`, 7 modules, dry-run/apply, reports) | `190d8b4` |
+| 14 | Migration tooling (`proglass-migrate`, engine + 7 modules, dry-run/apply, reports) | `190d8b4` |
 | 15 | Production hardening (audit 14/14, 0018 FK indexes, backup + restore drill, API middlewares, deployment guide) | `bd24f00` |
+| 16 | Migration tool document modules — **all 15 plan §2 modules** (specifications, inquiries, proformas + FullSnapshotJson normalization, specusages, optimization, joborders, production, deliverynotes; tax invoices now link proforma/job; validate extended) | this commit |
 
-27 commits on the session branch from the base commit.
+28 commits on the session branch from the base commit.
 
 ## 3. Inventory (measured, not estimated)
 
@@ -70,6 +75,7 @@ importer, backups, audits) has run and passes.
 | Test files | 53 (279 domain golden facts + 73 integration flow facts) |
 | Python tooling (harness, generator, importer, backup, audit) | 8 verified programs |
 | Mapping doc sections | 24 parity sections (§1.x) |
+| Migration tool modules | **15 implemented** (plan §2 order; 1 deferred: attachments) |
 
 ## 4. Parity discipline (the port's core promise)
 
@@ -83,20 +89,25 @@ pricing rate formulas with their BUG-40/41 warnings, the P&L/Step-7
 math incl. the gross/1.05 quirk, the optimizer's QUICK pass + margin
 house table, the UAE VAT calculator, payment terms, family invoice
 numbering, the fiscal lock, the ReadOnlyGate messaging, the licensing
-edition tiers, and the backup retention policy.
+edition tiers, and the backup retention policy. Phase 16 adds the
+importer's WPF-verbatim ports: SqmCalculator (3 dp banker's + 0.5 m²
+floor), SpecGroupRowMath, the group SurchargeRate rounding,
+InquiryStatuses.Normalize (incl. its unknown → Received fallback),
+JobOrderStatusValues' two-spelling InProduction equivalence, the
+ProductionStage/WorkItemStatus/ReservationStatus enums, and
+MetricKeys.Normalize with its legacy aliases.
 
 ### 4.1 Deferred work (documented, not dropped — mapping §1.12/§1.12a)
 
 | Area | Deferred items |
 |---|---|
-| Documents | PDF/print exports (needs a render surface); attachment storage |
+| Documents | PDF/print exports (needs a render surface); **attachment storage (the one remaining migration-tool module)** |
 | Reporting | exports (CSV/Excel), reporting cache, executive summary/analytics dashboards, profitability, RowTraceability, CncExport, cutting/production-process reports, order reconciliation |
-| Optimization | QUICK portfolio extras (pattern beams, plate patterns, consolidation, offcut reuse, local search), OPTIMIZE multi-start, staged cuts, remnant reuse |
-| Production | process executions/pairings/assemblies, workstations, control holds, actual costs, replacement pieces, consistency scanner, allocation ledger, FOC replacement |
+| Optimization | QUICK portfolio extras (pattern beams, plate patterns, consolidation, offcut reuse, local search), OPTIMIZE multi-start, staged cuts, remnant reuse; **oracle re-runs of imported WPF sessions (geometry is not persisted in optimization.db — documented difference, validation_problems carries it)** |
+| Production | process executions/pairings/assemblies, workstations, control holds, actual costs, replacement pieces, consistency scanner, allocation ledger, FOC replacement (each counted + reported by the migration tool — never silent) |
 | Stock | CSV/Excel import, SheetStorePricing/SheetStockLink module links |
 | Fiscal | FullSnapshotJson population, bank/TRN print fields, wider statement filters |
 | Subscriptions | payments/billing provider; invoice/storage/optimization-job limits (columns exist) |
-| Migration tool | 8 document modules (specifications, inquiries, proformas, optimization, joborders, production, deliverynotes, attachments) |
 | Advanced automation | UseAdvancedAutomation P&L costing until the toggle is persisted |
 
 ## 5. Multi-tenant security posture (independently audited)
@@ -121,14 +132,25 @@ edition tiers, and the backup retention policy.
 ## 6. Data migration readiness
 
 `saas/migration/proglass_migrate` (Python; the plan's .NET worker is the
-documented porting target) imports users, master data, sheet stock (with
-ledger reconstruction + balance comparison), tax invoices, credit notes,
-statements and the activity log from the WPF SQLite data root — opened
-**read-only**, per-module transactions, row-level savepoints, dry-run
+documented porting target) implements **all 15 plan §2 modules**: users,
+masterdata, sheetstore, specifications, inquiries, proformas
+(FullSnapshotJson parsed into the normalized spec groups / items / other
+charges / wastage / custom charges + P&L columns, snapshot preserved
+verbatim, WPF row math ported), specusages, optimization, joborders,
+production (pieces/events/reservations), deliverynotes, taxinvoices
+(now linking the imported proforma/job), creditnotes, statements,
+activitylog — with cross-module id resolution (spec_id, inquiry
+backlink, PI↔job links, spec-group-item links, sheet/session/user
+resolution on reservations and events). The WPF data root is opened
+**read-only**; per-module transactions, row-level savepoints, dry-run
 that loads exactly what an apply would, findings for every anomaly
-(unknown statuses/roles, VAT mismatches, unresolvable references),
-HTML+JSON reports, and a post-import `validate` command. Tested
-end-to-end against a WPF-shaped fixture including deliberate problems.
+(unknown statuses/roles/glass types, VAT mismatches, unresolvable
+references, enum violations — 15 deliberate error paths in the fixture),
+HTML+JSON reports, and a post-import `validate` command (29 table
+counts + stock-ledger tail + PI financial integrity ±0.01 +
+revision-chain orphans + the delivery delivered-qty guard). Only
+`attachments` remains deferred (object storage). Tested end-to-end
+against a WPF-shaped fixture including deliberate problems.
 
 ## 7. Operational readiness
 
@@ -145,16 +167,18 @@ detection), monitoring hooks, and the production checklist.
 | 2 | Middlewares (rate limit, headers, exception handler) are syntax-verified only | Same gate; the middleware logic is deliberately minimal |
 | 3 | PDF/print exports deferred | The fiscal DATA layer is complete; a render slice builds on it |
 | 4 | Payment provider absent | Plan changes are instant/free; the admin port is isolated for the provider |
-| 5 | 8 migration-tool document modules deferred | The engine + transform patterns are proven; each module is a reader slice |
-| 6 | In-memory rate limiter is single-instance | Multi-instance: proxy-level limiting (documented) |
-| 7 | Migration tool is Python, plan said .NET worker | Same CLI/semantics; porting is mechanical (documented in §1.12a) |
+| 5 | Attachments migration module deferred | No object storage in this environment; the source tables are counted + reported by their owning modules |
+| 6 | Imported WPF optimization sessions cannot re-run the oracles | Placement geometry is not persisted in optimization.db (aggregate ResultJson only) — imported as historical runs with conservation/geometry false + validation_problems stating it (documented difference) |
+| 7 | In-memory rate limiter is single-instance | Multi-instance: proxy-level limiting (documented) |
+| 8 | Migration tool is Python, plan said .NET worker | Same CLI/semantics; porting is mechanical (documented in §1.12a) |
 
 ## 9. Conclusion
 
 The port is **structurally complete and verified to the maximum extent
-this environment allows**: 15/15 phases delivered, every deferral
-documented with its reason, the database layer proven against live
-PostgreSQL (59/59 harness, 14/14 hardening audit), and the operational
-tooling (importer, backups, audits) exercised end-to-end. The remaining
-release gate is the .NET compile/test run plus the deferred feature
-slices listed in §4.1.
+this environment allows**: 15/15 phases delivered plus the Phase 16
+document modules (15/16 migration modules; only attachments remains),
+every deferral documented with its reason, the database layer proven
+against live PostgreSQL (59/59 harness, 14/14 hardening audit), and the
+operational tooling (importer, backups, audits) exercised end-to-end.
+The remaining release gate is the .NET compile/test run plus the
+deferred feature slices listed in §4.1.

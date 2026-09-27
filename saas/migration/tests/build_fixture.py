@@ -5,11 +5,21 @@ source on 2026-09-27 (see proglass_migrate/modules.py header for the
 file provenance). The fixture deliberately includes: a balance mismatch
 (the findings path), an unknown status (the skip path), an unimportable
 inventory category (WPF 'Film'), a credit note referencing a skipped
-invoice, and UTC/local timestamp mixes.
+invoice, UTC/local timestamp mixes — and, for the Phase 16 document
+modules: an invalid glass type, a duplicate (glass_type, spec_name)
+pair, bad PanesJson, a legacy 'On Hold' inquiry status, a bad priority,
+an inquiry reference to an unimported proforma, a proforma with invalid
+snapshot JSON, a spec group with a non-CHECK glass type, a phantom qty-0
+grid row, a VAT mismatch, a revision whose root was not imported, a
+reserved optimization latest-run row, the legacy 'In Production' job
+status spelling, a job order with an unimported source PI, out-of-enum
+production stage/status values, a reservation on an unimported sheet, an
+unknown delivery type, and a delivery item on a skipped note.
 """
 
 from __future__ import annotations
 
+import json
 import sqlite3
 from pathlib import Path
 
@@ -17,6 +27,9 @@ from pathlib import Path
 def build(root: Path) -> None:
     root.mkdir(parents=True, exist_ok=True)
     for name in ("audit.db", "masterdata.db", "proglass.db",
+                 "specifications.db", "inquiries.db",
+                 "proformainvoices.db", "optimization.db",
+                 "joborders.db", "production.db", "deliverynotes.db",
                  "taxinvoices.db", "creditnotes.db", "statements.db"):
         (root / name).unlink(missing_ok=True)
 
@@ -200,6 +213,544 @@ def build(root: Path) -> None:
           "60.00", "2026-01-07 08:00:00", "2026-09-07 08:00:00")])
     pg.commit()
 
+    # ── specifications.db (Specifications / SpecificationUsages) ─────
+    sp = sqlite3.connect(root / "specifications.db")
+    sp.executescript("""
+    CREATE TABLE Specifications (Id INTEGER PRIMARY KEY, GlassType TEXT NOT NULL,
+        SpecName TEXT NOT NULL, PricePerSqm TEXT NOT NULL,
+        CreatedAt TEXT NOT NULL, LastUsedAt TEXT NOT NULL,
+        UsageCount INTEGER NOT NULL DEFAULT 0, Category TEXT,
+        Color TEXT, ThicknessMm INTEGER NOT NULL DEFAULT 0,
+        SheetWidthMm INTEGER NOT NULL DEFAULT 0, SheetHeightMm INTEGER NOT NULL DEFAULT 0,
+        SheetId INTEGER, ProformaId TEXT, PanesJson TEXT);
+    CREATE TABLE SpecificationUsages (Id INTEGER PRIMARY KEY,
+        SpecificationId INTEGER NOT NULL, SpecName TEXT NOT NULL,
+        GlassType TEXT NOT NULL, ProformaId TEXT NOT NULL,
+        CompanyName TEXT NOT NULL DEFAULT '', CustomerName TEXT NOT NULL DEFAULT '',
+        ProjectName TEXT NOT NULL DEFAULT '', PricePerSqm TEXT NOT NULL,
+        SheetWidthMm INTEGER NOT NULL DEFAULT 0, SheetHeightMm INTEGER NOT NULL DEFAULT 0,
+        UserName TEXT NOT NULL DEFAULT '', UsedAt TEXT NOT NULL);
+    """)
+    sp.executemany(
+        "INSERT INTO Specifications (Id, GlassType, SpecName, PricePerSqm,"
+        " CreatedAt, LastUsedAt, UsageCount, Category, Color, ThicknessMm,"
+        " SheetWidthMm, SheetHeightMm, SheetId, ProformaId, PanesJson)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "DGU", "Clear 6+12+6", "125.50", "2026-08-01 09:00:00",
+          "2026-09-01 10:00:00", 3, "Float", "Clear", 6, 3210, 2250, 1,
+          "PI-2026-001", '{"outer":{"thickness":6},"inner":{"thickness":6}}'),
+         # Invalid glass type — error + skip.
+         (2, "TRIPLE", "Triple glazing", "200.00", "2026-08-02 09:00:00",
+          "2026-08-02 09:00:00", 0, None, None, 12, 0, 0, None, None, None),
+         # Duplicate (DGU, Clear 6+12+6) — UNIQUE(tenant, glass_type,
+         # spec_name) reject.
+         (3, "DGU", "Clear 6+12+6", "130.00", "2026-08-03 09:00:00",
+          "2026-08-03 09:00:00", 0, None, None, 6, 3210, 2250, 2, None, None),
+         # Unknown sheet + invalid PanesJson — info + warning.
+         (4, "SGU", "Tinted 8mm", "80.00", "2026-08-04 09:00:00",
+          "2026-08-04 09:00:00", 1, "Float", "Bronze", 8, 2250, 3210, 99,
+          None, "not-json")])
+    sp.executemany(
+        "INSERT INTO SpecificationUsages (SpecificationId, SpecName,"
+        " GlassType, ProformaId, CompanyName, CustomerName, ProjectName,"
+        " PricePerSqm, SheetWidthMm, SheetHeightMm, UserName, UsedAt)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "Clear 6+12+6", "DGU", "PI-2026-001", "Apex Glazing LLC",
+          "Emaar Properties", "Marina Tower Glazing", "125.50", 3210, 2250,
+          "jubers", "2026-09-01 10:00:00"),
+         # References a proforma that will NOT import — error + skip.
+         (1, "Clear 6+12+6", "DGU", "PI-2026-999", "Apex Glazing LLC",
+          "Emaar Properties", "Marina Tower Glazing", "125.50", 3210, 2250,
+          "jubers", "2026-09-02 10:00:00"),
+         # References a spec that did not import (Id 77) — error + skip.
+         (77, "Missing Spec", "SGU", "PI-2026-001", "", "", "", "10.00",
+          0, 0, "", "2026-09-03 10:00:00")])
+    sp.commit()
+
+    # ── inquiries.db (Inquiries / InquiryLineItems / …) ──────────────
+    iq = sqlite3.connect(root / "inquiries.db")
+    iq.executescript("""
+    CREATE TABLE Inquiries (Id INTEGER PRIMARY KEY, InquiryNumber TEXT NOT NULL,
+        InquiryReference TEXT NOT NULL DEFAULT '', CustomerId INTEGER,
+        CustomerName TEXT NOT NULL DEFAULT '', CustomerLocation TEXT NOT NULL DEFAULT '',
+        ProjectId INTEGER, ProjectName TEXT NOT NULL DEFAULT '',
+        ProjectDescription TEXT NOT NULL DEFAULT '', SalesmanId INTEGER,
+        SalesmanName TEXT NOT NULL DEFAULT '', PreparedByUserId INTEGER,
+        PreparedByName TEXT NOT NULL DEFAULT '', PreparedByRole TEXT NOT NULL DEFAULT '',
+        Status TEXT NOT NULL DEFAULT 'Received', Priority TEXT NOT NULL DEFAULT 'Normal',
+        InquiryValue TEXT NOT NULL DEFAULT '0', Notes TEXT NOT NULL DEFAULT '',
+        ReceivedAt TEXT NOT NULL, PreparedAt TEXT, SentAt TEXT, ConfirmedAt TEXT,
+        CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL,
+        UpdatedBy TEXT NOT NULL DEFAULT '', ProformaInvoiceId INTEGER,
+        ProformaNumber TEXT NOT NULL DEFAULT '', JobOrderNumber TEXT NOT NULL DEFAULT '');
+    CREATE TABLE InquiryLineItems (Id INTEGER PRIMARY KEY, InquiryId INTEGER NOT NULL,
+        SortOrder INTEGER NOT NULL DEFAULT 0, GlassType TEXT NOT NULL DEFAULT '',
+        SpecName TEXT NOT NULL DEFAULT '', OuterGlassColor TEXT NOT NULL DEFAULT '',
+        InnerGlassColor TEXT NOT NULL DEFAULT '', WidthMm INTEGER NOT NULL DEFAULT 0,
+        HeightMm INTEGER NOT NULL DEFAULT 0, Qty INTEGER NOT NULL DEFAULT 0,
+        RatePerSqm TEXT NOT NULL DEFAULT '0', Notes TEXT NOT NULL DEFAULT '',
+        CreatedAt TEXT NOT NULL);
+    CREATE TABLE InquiryAttachments (Id INTEGER PRIMARY KEY, InquiryId INTEGER NOT NULL,
+        FileName TEXT NOT NULL, Extension TEXT NOT NULL DEFAULT '',
+        FileSize INTEGER NOT NULL DEFAULT 0, StoragePath TEXT NOT NULL,
+        AttachmentType TEXT NOT NULL DEFAULT '', UploadedBy TEXT NOT NULL DEFAULT '',
+        UploadedAt TEXT NOT NULL);
+    CREATE TABLE InquiryCommunications (Id INTEGER PRIMARY KEY, InquiryId INTEGER NOT NULL,
+        EventType TEXT NOT NULL, Title TEXT NOT NULL, Description TEXT NOT NULL DEFAULT '',
+        OccurredAt TEXT NOT NULL, ActorUserId INTEGER, ActorName TEXT NOT NULL DEFAULT '');
+    """)
+    iq.executemany(
+        "INSERT INTO Inquiries (Id, InquiryNumber, InquiryReference,"
+        " CustomerId, CustomerName, ProjectId, ProjectName, SalesmanId,"
+        " SalesmanName, PreparedByName, PreparedByRole, Status, Priority,"
+        " InquiryValue, Notes, ReceivedAt, CreatedAt, UpdatedAt,"
+        " ProformaInvoiceId, ProformaNumber) VALUES"
+        " (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "INQ-2026-001", "EMA-BOQ-1", 1, "Emaar Properties", 1,
+          "Marina Tower Glazing", 1, "Ahmed", "Juber Saleem", "Estimator",
+          "Received", "High", "2355.00", "Marina podium glazing BOQ",
+          "2026-08-30 09:00:00", "2026-08-30 09:00:00",
+          "2026-09-01 09:00:00", 1, "PI-2026-001"),
+         # Legacy 'On Hold' spelling — normalized to Hold + status_text.
+         (2, "INQ-2026-002", "", 99, "Walk-in Client", None, "", None, "",
+          "Juber Saleem", "Estimator", "On Hold", "normal", "500.00",
+          "Small replacement job", "2026-08-31 09:00:00",
+          "2026-08-31 09:00:00", "2026-08-31 09:00:00", None, ""),
+         # Priority outside the CHECK vocabulary — error + skip.
+         (3, "INQ-2026-003", "", None, "Walk-in Client", None, "", None, "",
+          "Juber Saleem", "Estimator", "Received", "Whenever", "100.00",
+          "", "2026-09-02 09:00:00", "2026-09-02 09:00:00",
+          "2026-09-02 09:00:00", None, "")])
+    iq.executemany(
+        "INSERT INTO InquiryLineItems (InquiryId, SortOrder, GlassType,"
+        " SpecName, OuterGlassColor, InnerGlassColor, WidthMm, HeightMm,"
+        " Qty, RatePerSqm, Notes, CreatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, 0, "DGU", "Clear 6+12+6", "Clear", "Clear", 1500, 2400, 3,
+          "125.50", "", "2026-08-30 09:05:00"),
+         (1, 1, "SGU", "Tinted 8mm", "Bronze", "", 800, 1200, 4, "80.00",
+          "Back pan", "2026-08-30 09:06:00")])
+    iq.execute(
+        "INSERT INTO InquiryAttachments (InquiryId, FileName, Extension,"
+        " FileSize, StoragePath, AttachmentType, UploadedBy, UploadedAt)"
+        " VALUES (1,'boq.pdf','.pdf',20480,'Attachments/INQ-2026-001/boq.pdf',"
+        "'BOQ','jubers','2026-08-30 10:00:00')")
+    iq.executemany(
+        "INSERT INTO InquiryCommunications (InquiryId, EventType, Title,"
+        " Description, OccurredAt, ActorUserId, ActorName)"
+        " VALUES (?,?,?,?,?,?,?)",
+        [(1, "Note", "Client called", "Requested tempered outer pane",
+          "2026-08-31 14:00:00", 1, "jubers"),
+         (1, "StatusChange", "Marked On Hold", "Awaiting client budget",
+          "2026-09-01 08:00:00", 1, "jubers")])
+    iq.commit()
+
+    # ── proformainvoices.db (ProformaInvoices) ───────────────────────
+    # PI-2026-001's snapshot: 1 DGU group, 2 real rows + 1 phantom row,
+    # 2 predefined charges (one with an empty metric key → derived LM1),
+    # 1 manual wastage, 1 custom charge, a P&L block, terms, prepared by.
+    pi_snapshot = {
+        "SchemaVersion": 5, "FurthestStepReached": 9,
+        "Company": {"CompanyName": "Apex Glazing LLC",
+                    "CompanyTrn": "100123456700003",
+                    "ProformaId": "PI-2026-001"},
+        "Project": {"ProjectIdentifierName": "Marina Tower Glazing"},
+        "Client": {"CustomerName": "Emaar Properties",
+                   "SalesRepresentative": "Ahmed"},
+        "Summary": {"DiscountType": "Percentage", "DiscountValue": 0,
+                    "IsVatApplicable": True, "VatPercent": 5},
+        "SpecGroups": [{
+            "GroupNumber": 1, "GroupName": "Spec Group 1",
+            "SelectedGlassType": "DGU", "SelectedSpecName": "Clear 6+12+6",
+            "BaseRate": 110.0, "SurchargePercent": 0,
+            "HasManualStep5BaseRateOverride": False,
+            "OuterGlassColor": "Clear", "InnerGlassColor": "Clear",
+            "ThirdGlassColor": "",
+            "OuterSheetWidthMm": 3210, "OuterSheetHeightMm": 2250,
+            "InnerSheetWidthMm": 3210, "InnerSheetHeightMm": 2250,
+            "ThirdSheetWidthMm": 0, "ThirdSheetHeightMm": 0,
+            "OuterSheetPricePerSqm": 95.5, "InnerSheetPricePerSqm": 95.5,
+            "ThirdSheetPricePerSqm": 0,
+            "Step4SpacerPricePerSqm": 12.0, "Step4InterlayerCostPerSqm": 0,
+            "Step4CuttingCostPerSqm": 5.0, "Step4TemperingCostPerSqm": 8.0,
+            "UInsertPricePerSqm": 10.0,
+            "ItemRows": [
+                {"SerialNumber": 1, "GlassRef": "A-01", "W1": 1500,
+                 "H1": 2400, "W2": 0, "H2": 0, "Qty": 3, "Rate": 110.0,
+                 "PerimeterFactor": 2},
+                {"SerialNumber": 2, "GlassRef": "A-02", "W1": 800,
+                 "H1": 1200, "W2": 0, "H2": 0, "Qty": 2, "Rate": 110.0,
+                 "PerimeterFactor": 2},
+                # Phantom row (qty 0) — dropped by the save contract.
+                {"SerialNumber": 3, "GlassRef": "", "W1": 0, "H1": 0,
+                 "W2": 0, "H2": 0, "Qty": 0, "Rate": 0,
+                 "PerimeterFactor": 2}]}],
+        "OtherCharges": {
+            "UseAdvancedAutomation": True,
+            "PredefinedCharges": [
+                {"TemplateKey": "ARGON_GAS", "IsActive": True,
+                 "SelectedSourceKey": "SQM1", "Rate": 45.0,
+                 "MetricQty": 12.72, "ResultAmount": 572.40,
+                 "PolishSubType": "", "CustomPolishDescription": "",
+                 "CustomPolishQty": 0, "SelectedMetricKey": "SQM1"},
+                # No metric key (sub-type driven) — derived LM1 + info.
+                {"TemplateKey": "POLISH", "IsActive": True,
+                 "SelectedSourceKey": "", "Rate": 6.0, "MetricQty": 8.4,
+                 "ResultAmount": 50.40, "PolishSubType": "AllSidePolish",
+                 "CustomPolishDescription": "", "CustomPolishQty": 0,
+                 "SelectedMetricKey": ""}],
+            "Wastages": [
+                {"IsActive": True, "ColorName": "Clear", "Rate": 20.0,
+                 "TotalSqm": 3.5, "ResultAmount": 70.0,
+                 "IsManuallyAdded": True, "UseOptimizationFormula": False,
+                 "FormulaPricePerSqm": 0, "OptimizationPercent": 0,
+                 "SheetQuantity": 2, "CheckedSourceKeys": ["1-Outer"]}],
+            "CustomCharges": [
+                {"IsActive": True, "ChargeName": "Crane hire", "Qty": 1.0,
+                 "Unit": "Qty", "Rate": 150.0}]},
+        "ProfitLoss": {
+            "GrossVatInclusive": 2355.0, "NetExVat": 2242.0,
+            "TotalGlassCost": 1000.0, "TotalProductionCost": 300.0,
+            "Profit": 942.0, "MarginPercent": 42.0,
+            "OverallMarginPercent": 42.0, "NetMarginPercent": 40.0,
+            "WastagePercent": 15.0, "ComputedAtUtc": "2026-09-01 12:00:00"},
+        "TermClauses": [{"Type": "PaymentTerms", "Order": 0,
+                         "IsActive": True, "Title": "Payment",
+                         "Body": "Net 30", "SubLines": [],
+                         "ValidityDays": 7}],
+        "PreparedBy": {"PreparedByName": "Juber Saleem",
+                       "PreparedByDept": "Facade",
+                       "PreparedByStatus": "Estimator", "TermsText": "",
+                       "FooterDisclaimer": ""},
+    }
+    # Glass rows: 3.6 m² × 3 × 110 = 1188.00; 0.96 × 2 × 110 = 211.20
+    # → glass subtotal 1399.20. Other charges 572.40 + 50.40 + 70 + 150
+    # = 842.80. Recomputed VAT = round2(2242 × 5%) = 112.10; the stored
+    # VAT is 113.00 (the deliberate mismatch) and the stored grand
+    # total agrees with the STORED vat (2355.00).
+    pif = sqlite3.connect(root / "proformainvoices.db")
+    pif.executescript("""
+    CREATE TABLE ProformaInvoices (Id INTEGER PRIMARY KEY, ProformaId TEXT NOT NULL,
+        InquiryId INTEGER, CompanyName TEXT NOT NULL DEFAULT '',
+        CustomerName TEXT NOT NULL DEFAULT '', ProjectName TEXT NOT NULL DEFAULT '',
+        Status TEXT NOT NULL, IsVoid INTEGER NOT NULL DEFAULT 0, VoidedAtUtc TEXT,
+        VoidedBy TEXT, VoidReason TEXT, IssueDate TEXT NOT NULL,
+        ValidUntil TEXT NOT NULL, GlassMaterialsSubtotal TEXT NOT NULL,
+        OtherChargesSubtotal TEXT NOT NULL, DiscountAmount TEXT NOT NULL,
+        VatAmount TEXT NOT NULL, GrandTotalVatInclusive TEXT NOT NULL,
+        FullSnapshotJson TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        UpdatedAt TEXT NOT NULL, RowVersion INTEGER NOT NULL DEFAULT 0,
+        RootProformaId TEXT NOT NULL DEFAULT '', RevisionNumber INTEGER NOT NULL DEFAULT 0);
+    """)
+    pif.executemany(
+        "INSERT INTO ProformaInvoices (Id, ProformaId, InquiryId,"
+        " CompanyName, CustomerName, ProjectName, Status, IssueDate,"
+        " ValidUntil, GlassMaterialsSubtotal, OtherChargesSubtotal,"
+        " DiscountAmount, VatAmount, GrandTotalVatInclusive,"
+        " FullSnapshotJson, CreatedAt, UpdatedAt, RootProformaId,"
+        " RevisionNumber) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "PI-2026-001", 1, "Apex Glazing LLC", "Emaar Properties",
+          "Marina Tower Glazing", "Sent", "2026-09-01 00:00:00",
+          "2026-09-15 00:00:00", "1399.20", "842.80", "0", "113.00",
+          "2355.00", json.dumps(pi_snapshot), "2026-09-01 11:00:00",
+          "2026-09-01 12:00:00", "", 0),
+         # Revision of PI-2026-001 (minimal but valid snapshot).
+         (2, "PI-2026-001-R1", None, "Apex Glazing LLC", "Emaar Properties",
+          "Marina Tower Glazing", "Draft", "2026-09-05 00:00:00",
+          "2026-09-19 00:00:00", "1399.20", "842.80", "0", "112.10",
+          "2354.10", '{"SchemaVersion":5,"FurthestStepReached":2}',
+          "2026-09-05 11:00:00", "2026-09-05 11:00:00", "PI-2026-001", 1),
+         # Invalid snapshot JSON — the row cannot load — error + skip.
+         (3, "PI-2026-002", None, "Apex Glazing LLC", "Walk-in", "",
+          "Draft", "2026-09-03 00:00:00", "2026-09-17 00:00:00", "0", "0",
+          "0", "0", "0", "not json{{", "2026-09-03 11:00:00",
+          "2026-09-03 11:00:00", "", 0),
+         # Root not imported + a spec group with a non-CHECK glass type.
+         (4, "PI-2026-003", None, "Apex Glazing LLC", "Walk-in", "",
+          "Draft", "2026-09-04 00:00:00", "2026-09-18 00:00:00", "100", "0",
+          "0", "5", "105",
+          json.dumps({"SchemaVersion": 5, "FurthestStepReached": 5,
+                      "SpecGroups": [{"GroupNumber": 1,
+                                      "SelectedGlassType": "QUAD",
+                                      "SelectedSpecName": "Quad build",
+                                      "BaseRate": 100.0,
+                                      "SurchargePercent": 0,
+                                      "ItemRows": []}]}),
+          "2026-09-04 11:00:00", "2026-09-04 11:00:00", "PI-2026-999", 1)])
+    pif.commit()
+
+    # ── optimization.db (Sessions) ───────────────────────────────────
+    op = sqlite3.connect(root / "optimization.db")
+    op.executescript("""
+    CREATE TABLE Sessions (Id TEXT PRIMARY KEY, Name TEXT NOT NULL DEFAULT '',
+        JobOrderRefs TEXT NOT NULL DEFAULT '', EngineStage TEXT NOT NULL DEFAULT 'QUICK',
+        EffortLevel INTEGER NOT NULL DEFAULT 0, RotationEnabled INTEGER NOT NULL DEFAULT 1,
+        PieceCount INTEGER NOT NULL DEFAULT 0, SheetsUsed INTEGER NOT NULL DEFAULT 0,
+        UnplacedCount INTEGER NOT NULL DEFAULT 0, UtilizationPct REAL NOT NULL DEFAULT 0,
+        MarginsJson TEXT NOT NULL DEFAULT '{}', StocksJson TEXT NOT NULL DEFAULT '{}',
+        PiecesJson TEXT NOT NULL DEFAULT '{}', ResultJson TEXT NOT NULL DEFAULT '{}',
+        CreatedUtc TEXT NOT NULL, UpdatedUtc TEXT NOT NULL);
+    """)
+    op.executemany(
+        "INSERT INTO Sessions (Id, Name, JobOrderRefs, EngineStage,"
+        " EffortLevel, RotationEnabled, PieceCount, SheetsUsed,"
+        " UnplacedCount, UtilizationPct, MarginsJson, StocksJson,"
+        " PiecesJson, ResultJson, CreatedUtc, UpdatedUtc)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [("opt-session-1", "Marina cutting plan", "JOB-2026-001",
+          "OPTIMIZE", 3, 1, 5, 2, 0, 82.5, "{}",
+          json.dumps([{"WidthMm": 3210, "HeightMm": 2250,
+                       "ThicknessMm": 6, "Color": "Clear",
+                       "Label": "6mm Clear 3210x2250"}]),
+          json.dumps([{"JobRef": "JOB-2026-001", "GlassRef": "A-01",
+                       "SpecLabel": "Clear 6+12+6", "WidthMm": 1500,
+                       "HeightMm": 2400, "PieceLabel": "1"}]),
+          json.dumps({"SheetsUsed": 2, "Utilization": 82.5,
+                      "Wastage": 17.5,
+                      "Sheets": [{"SheetNo": 1,
+                                  "Stock": "6mm Clear 3210x2250",
+                                  "UtilizationPct": 85.1, "Pieces": 3},
+                                 {"SheetNo": 2,
+                                  "Stock": "6mm Clear 3210x2250",
+                                  "UtilizationPct": 79.9, "Pieces": 2}]}),
+          "2026-09-05 08:00:00", "2026-09-05 08:05:00"),
+         ("opt-session-2", "Podium quick check", "JOB-2026-001", "QUICK",
+          1, 0, 5, 3, 1, 71.2, "{}", "{}", "{}", "{}",
+          "2026-09-06 08:00:00", "2026-09-06 08:01:00"),
+         # Reserved latest-run plumbing — skipped + counted.
+         ("__latest_run__:PI-2026-001", "", "JOB-2026-001", "QUICK", 1, 1,
+          5, 2, 0, 80.0, "{}", "{}", "{}", "{}",
+          "2026-09-07 08:00:00", "2026-09-07 08:01:00")])
+    op.commit()
+
+    # ── joborders.db (JobOrders) ─────────────────────────────────────
+    jo = sqlite3.connect(root / "joborders.db")
+    jo.executescript("""
+    CREATE TABLE JobOrders (Id INTEGER PRIMARY KEY, JobOrderId TEXT NOT NULL,
+        SourceProformaId TEXT NOT NULL DEFAULT '', CustomerName TEXT NOT NULL DEFAULT '',
+        ProjectName TEXT NOT NULL DEFAULT '', GrandTotalVatInclusive TEXT NOT NULL DEFAULT '0',
+        Status TEXT NOT NULL DEFAULT 'Draft', IsVoid INTEGER NOT NULL DEFAULT 0,
+        VoidedAtUtc TEXT, VoidedBy TEXT, VoidReason TEXT,
+        Priority TEXT NOT NULL DEFAULT 'Medium', DeliveryDate TEXT,
+        FullSnapshotJson TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        UpdatedAt TEXT NOT NULL, RowVersion INTEGER NOT NULL DEFAULT 0);
+    """)
+    jo.executemany(
+        "INSERT INTO JobOrders (Id, JobOrderId, SourceProformaId,"
+        " CustomerName, ProjectName, GrandTotalVatInclusive, Status,"
+        " Priority, DeliveryDate, FullSnapshotJson, CreatedAt, UpdatedAt)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "JOB-2026-001", "PI-2026-001", "Emaar Properties",
+          "Marina Tower Glazing", "2355.00", "In Production", "High",
+          "2026-09-20 00:00:00",
+          json.dumps({"JobOrderId": "JOB-2026-001",
+                      "SourceProformaId": "PI-2026-001",
+                      "ConvertedAt": "2026-09-02 09:00:00",
+                      "Production": {
+                          "Status": "In Production", "Priority": "High",
+                          "DeliveryDate": "2026-09-20 00:00:00",
+                          "SiteDeliveryContact": "Site Engineer Ali",
+                          "SiteDeliveryPhone": "+971501112233",
+                          "SiteDeliveryAddress": "Marina Tower, Dubai",
+                          "AssignedTo": "Crew A",
+                          "CuttingInstructions":
+                              "Cut all outer panes first",
+                          "DrawingReference": "DWG-MT-101",
+                          "InternalNotes": "Double-check sealant",
+                          "LastEditedAt": "2026-09-02 10:00:00",
+                          "LastEditedBy": "jubers"}}),
+          "2026-09-02 09:00:00", "2026-09-02 10:00:00"),
+         # Source PI not imported — error + skip (proforma_id NOT NULL).
+         (2, "JOB-2026-002", "PI-2026-999", "Walk-in", "", "0", "Draft",
+          "Medium", None, "", "2026-09-03 09:00:00",
+          "2026-09-03 09:00:00")])
+    jo.commit()
+
+    # ── production.db (the four materialized shapes + deferred tables)
+    pr = sqlite3.connect(root / "production.db")
+    pr.executescript("""
+    CREATE TABLE ProductionReleases (Id INTEGER PRIMARY KEY, JobRef TEXT NOT NULL,
+        SourceProformaId TEXT NOT NULL DEFAULT '', CustomerName TEXT NOT NULL DEFAULT '',
+        ProjectName TEXT NOT NULL DEFAULT '', ItemCount INTEGER NOT NULL DEFAULT 0,
+        WarningsJson TEXT NOT NULL DEFAULT '[]', FirstReleasedAt TEXT NOT NULL,
+        LastReleasedAt TEXT NOT NULL);
+    CREATE TABLE ProductionWorkItems (Id INTEGER PRIMARY KEY, UniqueKey TEXT NOT NULL,
+        JobRef TEXT NOT NULL, SourceProformaId TEXT NOT NULL DEFAULT '',
+        CustomerName TEXT NOT NULL DEFAULT '', ProjectName TEXT NOT NULL DEFAULT '',
+        Salesman TEXT NOT NULL DEFAULT '', SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SpecName TEXT NOT NULL DEFAULT '', BuildType TEXT NOT NULL DEFAULT '',
+        SerialNumber INTEGER NOT NULL DEFAULT 0, GlassRef TEXT NOT NULL DEFAULT '',
+        Position TEXT NOT NULL DEFAULT '', WidthMm INTEGER NOT NULL DEFAULT 0,
+        HeightMm INTEGER NOT NULL DEFAULT 0, Qty INTEGER NOT NULL DEFAULT 0,
+        QtyDone INTEGER NOT NULL DEFAULT 0, UnitSqm TEXT NOT NULL DEFAULT '0',
+        TotalSqm TEXT NOT NULL DEFAULT '0', TotalLm TEXT NOT NULL DEFAULT '0',
+        Treatment TEXT NOT NULL DEFAULT '', Stage INTEGER NOT NULL DEFAULT 1,
+        Status INTEGER NOT NULL DEFAULT 0, PredecessorStage TEXT NOT NULL DEFAULT '',
+        ChargeTemplateKey TEXT NOT NULL DEFAULT '', ChargeMetricQty TEXT NOT NULL DEFAULT '0',
+        ChargeMetricUnit TEXT NOT NULL DEFAULT '', PolishSubTypeLabel TEXT NOT NULL DEFAULT '',
+        Notes TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL, UpdatedAt TEXT NOT NULL,
+        CompletedAt TEXT, CompletedBy TEXT NOT NULL DEFAULT '', IsFoc INTEGER NOT NULL DEFAULT 0);
+    CREATE TABLE ProductionEntries (Id INTEGER PRIMARY KEY, WorkItemId INTEGER NOT NULL,
+        JobRef TEXT NOT NULL DEFAULT '', Stage INTEGER NOT NULL DEFAULT 1,
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0, SerialNumber INTEGER NOT NULL DEFAULT 0,
+        Position TEXT NOT NULL DEFAULT '', SpecName TEXT NOT NULL DEFAULT '',
+        GlassRef TEXT NOT NULL DEFAULT '', Qty INTEGER NOT NULL DEFAULT 0,
+        DoneBy TEXT NOT NULL DEFAULT '', DoneAt TEXT NOT NULL);
+    CREATE TABLE MaterialReservations (Id INTEGER PRIMARY KEY, ReservationId TEXT NOT NULL,
+        JobRef TEXT NOT NULL, SourceProformaId TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0, SerialNumber INTEGER NOT NULL DEFAULT 0,
+        GlassRef TEXT NOT NULL DEFAULT '', SpecName TEXT NOT NULL DEFAULT '',
+        OptimizationSessionId TEXT NOT NULL DEFAULT '', GlassSheetId INTEGER NOT NULL DEFAULT 0,
+        StockSizeLabel TEXT NOT NULL DEFAULT '', WidthMm INTEGER NOT NULL DEFAULT 0,
+        HeightMm INTEGER NOT NULL DEFAULT 0, ThicknessMm INTEGER NOT NULL DEFAULT 0,
+        Color TEXT NOT NULL DEFAULT '', Quantity INTEGER NOT NULL DEFAULT 0,
+        Status INTEGER NOT NULL DEFAULT 1, CreatedBy TEXT NOT NULL DEFAULT '',
+        CreatedAt TEXT NOT NULL, ReleasedAt TEXT, ReleaseReason TEXT NOT NULL DEFAULT '',
+        Notes TEXT NOT NULL DEFAULT '');
+    CREATE TABLE Workstations (Id INTEGER PRIMARY KEY, Name TEXT NOT NULL,
+        Stage INTEGER NOT NULL DEFAULT 1, IsActive INTEGER NOT NULL DEFAULT 1);
+    """)
+    pr.execute(
+        "INSERT INTO ProductionReleases (JobRef, SourceProformaId,"
+        " CustomerName, ProjectName, ItemCount, WarningsJson,"
+        " FirstReleasedAt, LastReleasedAt) VALUES (?,?,?,?,?,?,?,?)",
+        ("JOB-2026-001", "PI-2026-001", "Emaar Properties",
+         "Marina Tower Glazing", 2, "[]", "2026-09-02 09:30:00",
+         "2026-09-02 09:30:00"))
+    pr.executemany(
+        "INSERT INTO ProductionWorkItems (Id, UniqueKey, JobRef,"
+        " SourceProformaId, CustomerName, ProjectName, Salesman,"
+        " SpecGroupNumber, SpecName, BuildType, SerialNumber, GlassRef,"
+        " WidthMm, HeightMm, Qty, QtyDone, UnitSqm, TotalSqm, TotalLm,"
+        " Treatment, Stage, Status, CreatedAt, UpdatedAt, CompletedAt,"
+        " CompletedBy) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "JOB-2026-001|Clear 6+12+6|1||Cutting", "JOB-2026-001",
+          "PI-2026-001", "Emaar Properties", "Marina Tower Glazing",
+          "Ahmed", 1, "Clear 6+12+6", "DGU", 1, "A-01", 1500, 2400, 3, 3,
+          "3.600", "10.800", "23.400", "ANNEALED", 1, 2,
+          "2026-09-02 10:00:00", "2026-09-03 10:00:00",
+          "2026-09-03 10:00:00", "cutter1"),
+         (2, "JOB-2026-001|Clear 6+12+6|2||Cutting", "JOB-2026-001",
+          "PI-2026-001", "Emaar Properties", "Marina Tower Glazing",
+          "Ahmed", 1, "Clear 6+12+6", "DGU", 2, "A-02", 800, 1200, 2, 1,
+          "0.960", "1.920", "8.000", "ANNEALED", 1, 1,
+          "2026-09-02 10:00:00", "2026-09-03 11:00:00", None, ""),
+         # Status 99 is outside WorkItemStatus — error + skip.
+         (3, "JOB-2026-001|bad|9||Cutting", "JOB-2026-001", "PI-2026-001",
+          "Emaar Properties", "Marina Tower Glazing", "Ahmed", 1,
+          "Clear 6+12+6", "DGU", 9, "X-99", 100, 100, 1, 0, "0.010",
+          "0.010", "0.400", "", 1, 99, "2026-09-02 10:00:00",
+          "2026-09-02 10:00:00", None, "")])
+    pr.executemany(
+        "INSERT INTO ProductionEntries (Id, WorkItemId, JobRef, Stage,"
+        " SpecGroupNumber, SerialNumber, SpecName, GlassRef, Qty, DoneBy,"
+        " DoneAt) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, 1, "JOB-2026-001", 1, 1, 1, "Clear 6+12+6", "A-01", 3,
+          "cutter1", "2026-09-03 10:00:00"),
+         # Work item 77 was never imported — error + skip.
+         (2, 77, "JOB-2026-001", 1, 1, 2, "Clear 6+12+6", "A-02", 1,
+          "cutter1", "2026-09-03 11:00:00")])
+    pr.executemany(
+        "INSERT INTO MaterialReservations (Id, ReservationId, JobRef,"
+        " SourceProformaId, SpecGroupNumber, SerialNumber, GlassRef,"
+        " SpecName, OptimizationSessionId, GlassSheetId, StockSizeLabel,"
+        " WidthMm, HeightMm, ThicknessMm, Color, Quantity, Status,"
+        " CreatedBy, CreatedAt) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "JOB-2026-001|Clear 6+12+6|1|1|opt-session-1|1", "JOB-2026-001",
+          "PI-2026-001", 1, 1, "A-01", "Clear 6+12+6", "opt-session-1", 1,
+          "6mm Clear 3210x2250", 3210, 2250, 6, "Clear", 2, 1, "jubers",
+          "2026-09-05 09:00:00"),
+         # Glass sheet 99 not imported — error + skip.
+         (2, "JOB-2026-001|Clear 6+12+6|2|99|opt-session-1|1", "JOB-2026-001",
+          "PI-2026-001", 1, 2, "A-02", "Clear 6+12+6", "opt-session-1", 99,
+          "8mm Bronze 2250x3210", 2250, 3210, 8, "Bronze", 1, 1, "jubers",
+          "2026-09-05 09:05:00")])
+    pr.execute(
+        "INSERT INTO Workstations (Name, Stage, IsActive)"
+        " VALUES ('CNC Cutter 1', 1, 1)")
+    pr.commit()
+
+    # ── deliverynotes.db (DeliveryNotes / DeliveryNoteItems) ─────────
+    dn = sqlite3.connect(root / "deliverynotes.db")
+    dn.executescript("""
+    CREATE TABLE DeliveryNotes (Id INTEGER PRIMARY KEY, DeliveryNoteId TEXT NOT NULL,
+        JobOrderId TEXT NOT NULL DEFAULT '', ProformaId TEXT NOT NULL DEFAULT '',
+        SequenceNumber INTEGER NOT NULL DEFAULT 0, CustomerName TEXT NOT NULL DEFAULT '',
+        ProjectName TEXT NOT NULL DEFAULT '', Status TEXT NOT NULL DEFAULT 'Draft',
+        IsVoid INTEGER NOT NULL DEFAULT 0, VoidedAtUtc TEXT, VoidedBy TEXT,
+        VoidReason TEXT, DeliveryType TEXT NOT NULL DEFAULT 'Original',
+        IsFoc INTEGER NOT NULL DEFAULT 0, IsMasterDn INTEGER NOT NULL DEFAULT 0,
+        LastUpdatedFromDnId TEXT NOT NULL DEFAULT '', DriverName TEXT NOT NULL DEFAULT '',
+        VehicleNumber TEXT NOT NULL DEFAULT '', ReceiverName TEXT NOT NULL DEFAULT '',
+        DeliveryDate TEXT NOT NULL, DeliveryTime TEXT NOT NULL DEFAULT '',
+        Notes TEXT NOT NULL DEFAULT '', TotalOrderedQty INTEGER NOT NULL DEFAULT 0,
+        TotalDeliveredQty INTEGER NOT NULL DEFAULT 0, TotalBalanceQty INTEGER NOT NULL DEFAULT 0,
+        TotalPreviouslyDeliveredQty INTEGER NOT NULL DEFAULT 0,
+        TaxInvoiceId TEXT NOT NULL DEFAULT '', HasTaxInvoice INTEGER NOT NULL DEFAULT 0,
+        FullSnapshotJson TEXT NOT NULL DEFAULT '', CreatedAt TEXT NOT NULL,
+        UpdatedAt TEXT NOT NULL, RowVersion INTEGER NOT NULL DEFAULT 0);
+    CREATE TABLE DeliveryNoteItems (Id INTEGER PRIMARY KEY, DeliveryNoteId TEXT NOT NULL,
+        JobOrderId TEXT NOT NULL DEFAULT '', SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SpecGroupName TEXT NOT NULL DEFAULT '', SerialNumber INTEGER NOT NULL DEFAULT 0,
+        GlassRef TEXT NOT NULL DEFAULT '', W1 INTEGER NOT NULL DEFAULT 0,
+        H1 INTEGER NOT NULL DEFAULT 0, W2 INTEGER NOT NULL DEFAULT 0,
+        H2 INTEGER NOT NULL DEFAULT 0, OrderedQty INTEGER NOT NULL DEFAULT 0,
+        PreviouslyDeliveredQty INTEGER NOT NULL DEFAULT 0, DeliveredQty INTEGER NOT NULL DEFAULT 0,
+        BalanceQty INTEGER NOT NULL DEFAULT 0, ReworkQty INTEGER NOT NULL DEFAULT 0,
+        ReturnedQty INTEGER NOT NULL DEFAULT 0, WeightPerPiece TEXT NOT NULL DEFAULT '0',
+        Notes TEXT NOT NULL DEFAULT '');
+    CREATE TABLE DeliveryNoteAttachments (Id INTEGER PRIMARY KEY, DeliveryNoteId TEXT NOT NULL,
+        FileName TEXT NOT NULL, StoragePath TEXT NOT NULL, FileSize INTEGER NOT NULL DEFAULT 0,
+        UploadedBy TEXT NOT NULL DEFAULT '', UploadedAt TEXT NOT NULL);
+    """)
+    dn.executemany(
+        "INSERT INTO DeliveryNotes (Id, DeliveryNoteId, JobOrderId,"
+        " ProformaId, SequenceNumber, CustomerName, ProjectName, Status,"
+        " DeliveryType, IsMasterDn, DriverName, VehicleNumber,"
+        " ReceiverName, DeliveryDate, DeliveryTime, Notes,"
+        " TotalOrderedQty, TotalDeliveredQty, TotalBalanceQty,"
+        " FullSnapshotJson, CreatedAt, UpdatedAt)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "MDN-2026-001", "JOB-2026-001", "PI-2026-001", 0,
+          "Emaar Properties", "Marina Tower Glazing", "Draft", "Dummy", 1,
+          "", "", "", "2026-09-02 00:00:00", "",
+          "Master DN — auto-generated reference tracker", 5, 0, 5,
+          '{"master": true}', "2026-09-02 09:00:00",
+          "2026-09-02 09:00:00"),
+         (2, "DN-2026-001-01", "JOB-2026-001", "PI-2026-001", 1,
+          "Emaar Properties", "Marina Tower Glazing", "Dispatching",
+          "Original", 0, "Rashid", "D-12345", "Ali",
+          "2026-09-05 00:00:00", "10:30", "First dispatch", 5, 3, 2,
+          '{"lines": []}', "2026-09-05 08:00:00",
+          "2026-09-05 08:00:00"),
+         # Unknown delivery type — error + skip.
+         (3, "DN-2026-009-01", "JOB-2026-001", "PI-2026-001", 9,
+          "Emaar Properties", "Marina Tower Glazing", "Dispatching",
+          "Teleport", 0, "", "", "", "2026-09-06 00:00:00", "", "", 0, 0,
+          0, "", "2026-09-06 08:00:00", "2026-09-06 08:00:00")])
+    dn.executemany(
+        "INSERT INTO DeliveryNoteItems (Id, DeliveryNoteId, JobOrderId,"
+        " SpecGroupNumber, SpecGroupName, SerialNumber, GlassRef, W1, H1,"
+        " OrderedQty, PreviouslyDeliveredQty, DeliveredQty, BalanceQty,"
+        " WeightPerPiece) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [(1, "MDN-2026-001", "JOB-2026-001", 1, "Clear 6+12+6", 1, "A-01",
+          1500, 2400, 3, 0, 0, 3, "18.000"),
+         (2, "MDN-2026-001", "JOB-2026-001", 1, "Clear 6+12+6", 2, "A-02",
+          800, 1200, 2, 0, 0, 2, "6.400"),
+         (3, "DN-2026-001-01", "JOB-2026-001", 1, "Clear 6+12+6", 1,
+          "A-01", 1500, 2400, 3, 0, 3, 0, "18.000"),
+         (4, "DN-2026-001-01", "JOB-2026-001", 1, "Clear 6+12+6", 2,
+          "A-02", 800, 1200, 2, 0, 0, 2, "6.400"),
+         # Item on the SKIPPED note DN-2026-009-01 — error + skip.
+         (5, "DN-2026-009-01", "JOB-2026-001", 1, "Clear 6+12+6", 1,
+          "A-01", 1500, 2400, 3, 0, 3, 0, "18.000")])
+    dn.execute(
+        "INSERT INTO DeliveryNoteAttachments (DeliveryNoteId, FileName,"
+        " StoragePath, FileSize, UploadedBy, UploadedAt)"
+        " VALUES ('DN-2026-001-01','signed.pdf',"
+        "'DeliveryNotes/DN-2026-001-01/signed.pdf',102400,'jubers',"
+        "'2026-09-05 12:00:00')")
+    dn.commit()
+
     # ── taxinvoices.db (TaxInvoices) ─────────────────────────────────
     ti = sqlite3.connect(root / "taxinvoices.db")
     ti.executescript("""
@@ -313,7 +864,7 @@ def build(root: Path) -> None:
           "2026-10-01 00:00:00", "1.25", "900", "44", "944", "0", 0)])
     st.commit()
 
-    for conn in (audit, md, pg, ti, cn, st):
+    for conn in (audit, md, pg, sp, iq, pif, op, jo, pr, dn, ti, cn, st):
         conn.close()
     print(f"fixture data root built at {root}")
     return str(root)

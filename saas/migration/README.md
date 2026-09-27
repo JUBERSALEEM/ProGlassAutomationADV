@@ -72,12 +72,27 @@ subset.
 
 ## Module status
 
-Implemented (plan §2 order): `users`, `masterdata`, `sheetstore`
-(sheets + history → stock ledger with reconstructed balances),
-`taxinvoices`, `creditnotes`, `statements` (+ ledger lines),
-`activitylog`.
+Implemented (plan §2 order — all 15):
+
+| Module | Source | Target(s) |
+|---|---|---|
+| `users` | audit.db Users | saas.users (Argon2id reset flow) |
+| `masterdata` | masterdata.db | companies/clients/projects/salesmen (+ the name/int-id maps the document modules resolve against) |
+| `sheetstore` | proglass.db | glass_sheets/inventory_items/stock_transactions (ledger replay + drift findings) |
+| `specifications` | specifications.db | saas.specifications (library rows; sheet link, PanesJson validated) |
+| `inquiries` | inquiries.db | saas.inquiries (BOQ rebuilt as the InquiryBoqLine camelCase JSON the SaaS ParseBoq reads; WPF InquiryStatuses.Normalize) |
+| `proformas` | proformainvoices.db | proforma_invoices + spec_groups/spec_group_items/other_charges/wastage_rows/custom_charges parsed out of FullSnapshotJson (snapshot kept verbatim; WPF SqmCalculator/SpecGroupRowMath ported for row math); inquiry backlink |
+| `specusages` | specifications.db | specification_usages (runs AFTER proformas — proforma_id is a NOT NULL FK) |
+| `optimization` | optimization.db | optimization_sessions as historical completed runs (the WPF persists aggregate results only — placement geometry is not in optimization.db, so neither oracle can re-run; validation_problems records it; reserved `__latest_run__*` plumbing rows skipped + counted) |
+| `joborders` | joborders.db | job_orders (NOT NULL source PI enforced; ProductionDetails from the snapshot; legacy "In Production" spelling collapsed; PI job_order_id backlink) |
+| `production` | production.db | production_pieces/production_events/material_reservations (the four §1.7b shapes); releases/allocations/QC/actual costs/replacements/cutting sessions/process/workstations/control tables counted + reported as the documented §1.7b deferrals |
+| `deliverynotes` | deliverynotes.db | delivery_notes/delivery_note_items (master + dispatch notes, spec-group-item links) |
+| `taxinvoices` | taxinvoices.db | tax_invoices (now LINKS to the imported proforma/job order) |
+| `creditnotes` | creditnotes.db | credit_notes |
+| `statements` | statements.db | statements/statement_lines (ledger + running balance) |
+| `activitylog` | audit.db ActivityLog | audit_logs |
 
 Deferred (listed by `list-modules`, never silently skipped):
-specifications, inquiries, proformas (FullSnapshotJson → normalized
-grids), optimization (oracle re-runs), joborders, production,
-deliverynotes, attachments.
+`attachments` — disk files → object storage; there is no object storage
+in this environment, and the source attachment tables are counted and
+reported by their owning modules.

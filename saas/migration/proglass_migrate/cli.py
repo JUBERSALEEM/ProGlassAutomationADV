@@ -120,6 +120,31 @@ def cmd_validate(args: argparse.Namespace) -> int:
                  "SELECT count(*) FROM saas.inventory_items"),
                 ("stock_transactions",
                  "SELECT count(*) FROM saas.stock_transactions"),
+                ("specifications",
+                 "SELECT count(*) FROM saas.specifications"),
+                ("specification_usages",
+                 "SELECT count(*) FROM saas.specification_usages"),
+                ("inquiries", "SELECT count(*) FROM saas.inquiries"),
+                ("proforma_invoices",
+                 "SELECT count(*) FROM saas.proforma_invoices"),
+                ("spec_groups", "SELECT count(*) FROM saas.spec_groups"),
+                ("spec_group_items",
+                 "SELECT count(*) FROM saas.spec_group_items"),
+                ("other_charges", "SELECT count(*) FROM saas.other_charges"),
+                ("wastage_rows", "SELECT count(*) FROM saas.wastage_rows"),
+                ("custom_charges", "SELECT count(*) FROM saas.custom_charges"),
+                ("optimization_sessions",
+                 "SELECT count(*) FROM saas.optimization_sessions"),
+                ("job_orders", "SELECT count(*) FROM saas.job_orders"),
+                ("production_pieces",
+                 "SELECT count(*) FROM saas.production_pieces"),
+                ("production_events",
+                 "SELECT count(*) FROM saas.production_events"),
+                ("material_reservations",
+                 "SELECT count(*) FROM saas.material_reservations"),
+                ("delivery_notes", "SELECT count(*) FROM saas.delivery_notes"),
+                ("delivery_note_items",
+                 "SELECT count(*) FROM saas.delivery_note_items"),
                 ("tax_invoices", "SELECT count(*) FROM saas.tax_invoices"),
                 ("credit_notes", "SELECT count(*) FROM saas.credit_notes"),
                 ("statements", "SELECT count(*) FROM saas.statements"),
@@ -151,6 +176,44 @@ def cmd_validate(args: argparse.Namespace) -> int:
             drift = cursor.fetchone()[0]
             checks.append(("ledger tail ≠ stored balance", str(drift),
                            "PASS" if drift == 0 else "FAIL"))
+            # Plan §4 financial integrity: for every PI recompute
+            # glass + other − discount → vat (at the stored vat_percent
+            # when vatable) → grand, tolerance 0.01.
+            cursor.execute("""
+                SELECT count(*) FROM saas.proforma_invoices p
+                WHERE p.is_vat_applicable
+                  AND abs(p.vat_amount - round((p.glass_materials_subtotal
+                        + p.other_charges_subtotal - p.discount_amount)
+                        * p.vat_percent / 100, 2)) > 0.01
+                   OR NOT p.is_vat_applicable AND p.vat_amount <> 0
+                   OR abs(p.glass_materials_subtotal
+                          + p.other_charges_subtotal - p.discount_amount
+                          + p.vat_amount - p.grand_total_vat_inclusive)
+                      > 0.01
+            """)
+            pi_drift = cursor.fetchone()[0]
+            checks.append(("PI totals ≠ recomputed (±0.01)",
+                           str(pi_drift), "PASS" if pi_drift == 0 else "FAIL"))
+            # Plan §4 referential: a revision whose root is null must be
+            # a root itself (revision 0); orphaned chains are reported.
+            cursor.execute("""
+                SELECT count(*) FROM saas.proforma_invoices
+                WHERE root_proforma_id IS NULL AND revision_number > 0
+            """)
+            orphan_revisions = cursor.fetchone()[0]
+            checks.append(("revisions without an imported root",
+                           str(orphan_revisions),
+                           "PASS" if orphan_revisions == 0 else "FAIL"))
+            # Delivery arithmetic: delivered must never exceed
+            # ordered + previously delivered (BUG-05 guard shape).
+            cursor.execute("""
+                SELECT count(*) FROM saas.delivery_note_items
+                WHERE delivered_qty < 0
+                   OR delivered_qty > ordered_qty + previously_delivered_qty
+            """)
+            dn_drift = cursor.fetchone()[0]
+            checks.append(("DN delivered outside [0, ordered+previously]",
+                           str(dn_drift), "PASS" if dn_drift == 0 else "FAIL"))
     finally:
         connection.close()
 
