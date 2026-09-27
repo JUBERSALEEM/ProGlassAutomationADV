@@ -7,6 +7,7 @@ import JobOrderDetailPage from "./pages/JobOrderDetailPage";
 import JobOrdersPage from "./pages/JobOrdersPage";
 import LoginPage from "./pages/LoginPage";
 import ProformaDetailPage from "./pages/ProformaDetailPage";
+import CuttingPage from "./pages/CuttingPage";
 import DeliveryNoteDetailPage from "./pages/DeliveryNoteDetailPage";
 import DeliveryNotesPage from "./pages/DeliveryNotesPage";
 import FiscalPage from "./pages/FiscalPage";
@@ -65,6 +66,14 @@ export default function App() {
             element={
               <Protected>
                 <ProformaDetailPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/cutting"
+            element={
+              <Protected>
+                <CuttingPage />
               </Protected>
             }
           />

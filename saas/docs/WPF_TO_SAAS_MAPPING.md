@@ -965,6 +965,20 @@ verified usage history (click a row) and the recent-activity card
 surfacing the server's UsageRows/Purged/Healed outcome. ParamsJson/
 PanesJson stay API-only (raw Step 4 internals).
 
+**Phase 34 — front end slice 7: the cutting floor (§1.7d surfaces).**
+The Phase 26b cutting workflow in the SPA, job-order scoped: the
+progress tuple (required/completed/remaining/breakage/FOC/rework/QC
+pending), the requirement build as collapsible material groups
+(per-piece pane identity, temper/FOC/RPL flags, material keys), RUN
+with the optional rotation/split/effort-level/notes (the run result
+renders the server's message + session/sheet/piece/reservation/
+allocation counts + per-group failures + warnings verbatim), and the
+sessions list with expandable per-session sheets (stock label,
+usable mm, used/stock sqm, utilization) and placed pieces (position,
+rotation, cut sequence, status) — complete session, complete piece
+(idempotent), and breakage with reason + FOC prompt (the Phase 14
+replacement flow fires server-side).
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

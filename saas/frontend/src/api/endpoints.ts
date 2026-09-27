@@ -536,3 +536,76 @@ export function getRecentSpecificationUsage(
 export function reconcileSpecifications(): Promise<_ReconcileResult> {
   return post<_ReconcileResult>("/api/v1/specifications/reconcile");
 }
+
+// ── cutting floor (Phase 34 — Phase 26b surfaces) ─────────────────────
+
+import type {
+  CuttingPlacedPiece as _Piece,
+  CuttingProgress as _Progress,
+  CuttingRunResult as _RunResult,
+  CuttingSession as _Session,
+  CuttingSheet as _Sheet,
+  MaterialGroup as _MaterialGroup,
+} from "./types";
+
+export function getCuttingRequirements(jobOrderId: string): Promise<_MaterialGroup[]> {
+  return get<_MaterialGroup[]>(`/api/v1/cutting/requirements?jobOrderId=${jobOrderId}`);
+}
+
+/** The full per-group workflow: reserve → pack → verify → persist → allocate. */
+export function runCutting(
+  jobOrderId: string,
+  options: { rotation?: string; split?: string; effortLevel?: number; notes?: string } = {},
+): Promise<_RunResult> {
+  return post<_RunResult>("/api/v1/cutting/run", {
+    jobOrderId,
+    ...(options.rotation ? { rotation: options.rotation } : {}),
+    ...(options.split ? { split: options.split } : {}),
+    ...(options.effortLevel ? { effortLevel: options.effortLevel } : {}),
+    ...(options.notes ? { notes: options.notes } : {}),
+  });
+}
+
+export function listCuttingSessions(jobOrderId: string): Promise<_Session[]> {
+  return get<_Session[]>(`/api/v1/cutting/sessions?jobOrderId=${jobOrderId}`);
+}
+
+export function getCuttingSession(cuttingSessionId: string): Promise<_Session> {
+  return get<_Session>(`/api/v1/cutting/sessions/${cuttingSessionId}`);
+}
+
+export function listCuttingSheets(cuttingSessionId: string): Promise<_Sheet[]> {
+  return get<_Sheet[]>(`/api/v1/cutting/sessions/${cuttingSessionId}/sheets`);
+}
+
+export function listCuttingPieces(cuttingSessionId: string): Promise<_Piece[]> {
+  return get<_Piece[]>(`/api/v1/cutting/sessions/${cuttingSessionId}/pieces`);
+}
+
+export function completeCuttingSession(cuttingSessionId: string): Promise<_Session> {
+  return post<_Session>(`/api/v1/cutting/sessions/${cuttingSessionId}/complete`);
+}
+
+export function completeCuttingPiece(
+  placedPieceId: string,
+  notes?: string,
+): Promise<_Piece> {
+  return post<_Piece>(`/api/v1/cutting/pieces/${placedPieceId}/complete`, notes ? { notes } : {});
+}
+
+export function cuttingBreakage(
+  placedPieceId: string,
+  reason: string,
+  isFoc: boolean,
+  notes?: string,
+): Promise<_Piece> {
+  return post<_Piece>(`/api/v1/cutting/pieces/${placedPieceId}/breakage`, {
+    reason,
+    isFoc,
+    ...(notes ? { notes } : {}),
+  });
+}
+
+export function getCuttingProgress(jobOrderId: string): Promise<_Progress> {
+  return get<_Progress>(`/api/v1/cutting/progress?jobOrderId=${jobOrderId}`);
+}

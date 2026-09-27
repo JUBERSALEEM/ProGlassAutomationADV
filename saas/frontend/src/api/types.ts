@@ -683,3 +683,151 @@ export interface ReconcileResult {
   purged: number;
   healed: number;
 }
+
+// ── cutting floor (Phase 34 — the Phase 26b surfaces) ─────────────────
+
+export interface CuttingRequirement {
+  pieceId: string;
+  pieceLabel: string;
+  pieceIndex: number;
+  pieceSequence: number;
+  jobRef: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  specName: string;
+  glassRef: string;
+  position: string;
+  widthMm: number;
+  heightMm: number;
+  glassFamily: string;
+  color: string;
+  thicknessMm: number;
+  coating: string;
+  treatment: string;
+  requiresTempering: boolean;
+  isFoc: boolean;
+  replacementSequence: number;
+  materialKey: string;
+}
+
+export interface MaterialGroup {
+  groupId: string;
+  displayLabel: string;
+  glassFamily: string;
+  color: string;
+  thicknessMm: number;
+  coating: string;
+  treatment: string;
+  totalPieces: number;
+  totalAreaSqm: number;
+  requirements: CuttingRequirement[];
+}
+
+export interface CuttingSession {
+  id: string;
+  cuttingSessionId: string;
+  jobOrderId: string | null;
+  jobRef: string;
+  sourceProformaId: string;
+  optimizationSessionId: string | null;
+  materialGroupId: string;
+  totalPieces: number;
+  sheetsUsed: number;
+  utilizationPct: number;
+  wastagePct: number;
+  status: string;
+  rotationPolicy: string;
+  splitMode: string;
+  effortLevel: number;
+  isVerified: boolean;
+  verificationResult: string;
+  completedAt: string | null;
+  createdAt: string;
+  notes: string;
+}
+
+export interface CuttingSheet {
+  id: string;
+  cuttingSheetId: string;
+  cuttingSessionId: string;
+  jobRef: string;
+  sheetNo: number;
+  stockSheetId: string | null;
+  stockSizeLabel: string;
+  stockWidthMm: number;
+  stockHeightMm: number;
+  thicknessMm: number;
+  color: string;
+  usableX: number;
+  usableY: number;
+  usableWidthMm: number;
+  usableHeightMm: number;
+  usedSqm: number;
+  stockSqm: number;
+  utilizationPct: number;
+  wastagePct: number;
+  isVerified: boolean;
+  placedPieceCount: number;
+  createdAt: string;
+}
+
+export interface CuttingPlacedPiece {
+  id: string;
+  placedPieceId: string;
+  cuttingSheetId: string;
+  cuttingSessionId: string;
+  jobRef: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  glassRef: string;
+  specName: string;
+  position: string;
+  pieceId: string;
+  pieceLabel: string;
+  widthMm: number;
+  heightMm: number;
+  x: number;
+  y: number;
+  isRotated: boolean;
+  cutSequence: number;
+  status: string;
+  sourcePieceId: string | null;
+  reservationKey: string;
+  allocationId: string;
+  isFoc: boolean;
+  notes: string;
+}
+
+export interface CuttingGroupResult {
+  groupId: string;
+  ok: boolean;
+  message: string;
+  cuttingSessionId: string | null;
+  sheets: number;
+  pieces: number;
+  warnings: string[];
+}
+
+export interface CuttingRunResult {
+  success: boolean;
+  message: string;
+  jobRef: string;
+  groups: CuttingGroupResult[];
+  sessions: number;
+  sheets: number;
+  pieces: number;
+  reservations: number;
+  allocations: number;
+  warnings: string[];
+  errors: string[];
+}
+
+export interface CuttingProgress {
+  required: number;
+  completed: number;
+  remaining: number;
+  breakage: number;
+  foc: number;
+  rework: number;
+  qcPending: number;
+}
