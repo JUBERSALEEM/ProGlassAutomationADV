@@ -266,6 +266,26 @@ public sealed class FiscalStore(SaasDbContextFactory factory) : IFiscalStore
             .ToListAsync(ct).ConfigureAwait(false);
     }
 
+    public async Task<int> CountInvoicesSinceAsync(
+        Guid tenantId, DateOnly since, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        var from = since.ToDateTime(TimeOnly.MinValue);
+        return await db.TaxInvoices.AsNoTracking()
+            .Where(i => i.CreatedAt >= from)
+            .CountAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<int> CountStatementsSinceAsync(
+        Guid tenantId, DateOnly since, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        var from = since.ToDateTime(TimeOnly.MinValue);
+        return await db.Statements.AsNoTracking()
+            .Where(s => s.CreatedAt >= from)
+            .CountAsync(ct).ConfigureAwait(false);
+    }
+
     public async Task<Statement> PersistStatementAsync(
         Guid tenantId, Guid actorId, Statement statement,
         IReadOnlyList<StatementLine> lines, CancellationToken ct)

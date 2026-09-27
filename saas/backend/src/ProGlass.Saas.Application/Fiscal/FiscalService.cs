@@ -1,8 +1,10 @@
 using System.Text.Json;
 using ProGlass.Saas.Application.Auth;
+using ProGlass.Saas.Application.Subscriptions;
 using ProGlass.Saas.Domain.Entities;
 using ProGlass.Saas.Domain.Fiscal;
 using ProGlass.Saas.Domain.Proforma;
+using ProGlass.Saas.Domain.Subscriptions;
 
 namespace ProGlass.Saas.Application.Fiscal;
 
@@ -22,7 +24,11 @@ public enum FiscalErrorCode
     NotFound,
     Conflict,
     ConcurrencyConflict,
-    NumberExhausted
+    NumberExhausted,
+    /// <summary>Phase 18: a per-period plan limit (tax invoices, reports)
+    /// was reached — HTTP 402, the architecture doc's subscription-limit
+    /// semantics.</summary>
+    SubscriptionLimitExceeded
 }
 
 public sealed record FiscalResult<T>(
@@ -235,6 +241,14 @@ public interface IFiscalStore
     Task<IReadOnlyList<CreditNote>> ListVatableCreditNotesAsync(
         Guid tenantId, DateOnly from, DateOnly to, CancellationToken ct);
 
+    /// <summary>Phase 18 limit counters — usage since the current billing
+    /// period start.</summary>
+    Task<int> CountInvoicesSinceAsync(
+        Guid tenantId, DateOnly since, CancellationToken ct);
+
+    Task<int> CountStatementsSinceAsync(
+        Guid tenantId, DateOnly since, CancellationToken ct);
+
     /// <summary>Persist statement + lines in one transaction.</summary>
     Task<Statement> PersistStatementAsync(
         Guid tenantId, Guid actorId, Statement statement,
@@ -252,7 +266,8 @@ public interface IFiscalStore
 /// The fiscal module: Tax Invoices, Credit Notes, the VAT report and
 /// customer statements.
 /// </summary>
-public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
+public sealed class FiscalService(IFiscalStore store, IAuditWriter audit,
+    PlanLimitGuard limits)
 {
     private const int AllocationAttempts = 5;
     private const int DefaultPageSize = 50;
@@ -333,6 +348,25 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
         else
         {
             invoiceNo = Allocate(ref maxSeq, used, year);
+        }
+
+        // Phase 18 — per-period invoice limit (plan §6; catalog value,
+        // NULL = unlimited, hard-coded nowhere).
+        var limitCheck = await limits.ResolveAsync(
+            tenantId, ModuleFeatureMap.TaxInvoices, ct);
+        if (limitCheck?.Limit is int cap)
+        {
+            var used = await store.CountInvoicesSinceAsync(
+                tenantId, limitCheck.PeriodStart, ct);
+            if (used >= cap)
+            {
+                return FiscalResult<TaxInvoiceDto>.Fail(
+                    FiscalErrorCode.SubscriptionLimitExceeded,
+                    $"The current plan's invoice limit ({cap} per billing " +
+                    $"period) has been reached — {used} invoices since " +
+                    $"{limitCheck.PeriodStart:yyyy-MM-dd}. Choose a plan " +
+                    "with a higher limit in Settings → Subscription.");
+            }
         }
 
         var totals = InvoiceTotalsCalculator.Compute(
@@ -887,6 +921,26 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit)
             return FiscalResult<StatementDto>.Fail(FiscalErrorCode.ValidationFailed,
                 "At least one statement filter is required " +
                 "(customer, company, project, salesman, statuses or date range).");
+        }
+
+        // Phase 18 — per-period reports limit (statements are the report
+        // generator; catalog value, NULL = unlimited).
+        var reportsLimit = await limits.ResolveAsync(
+            tenantId, ModuleFeatureMap.Reports, ct);
+        if (reportsLimit?.Limit is int reportsCap)
+        {
+            var statementsUsed = await store.CountStatementsSinceAsync(
+                tenantId, reportsLimit.PeriodStart, ct);
+            if (statementsUsed >= reportsCap)
+            {
+                return FiscalResult<StatementDto>.Fail(
+                    FiscalErrorCode.SubscriptionLimitExceeded,
+                    $"The current plan's report limit ({reportsCap} per " +
+                    $"billing period) has been reached — {statementsUsed} " +
+                    $"statements since {reportsLimit.PeriodStart:yyyy-MM-dd}. " +
+                    "Choose a plan with a higher limit in Settings → " +
+                    "Subscription.");
+            }
         }
 
         // Invoice walk (paginated) — the WPF aggregator loads the invoice

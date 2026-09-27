@@ -33,7 +33,8 @@ public sealed class OptimizationFlowTests
             new SpecificationsStore(factory), audit);
         _sut = new OptimizationService(
             new OptimizationStore(factory), audit,
-            new ProductionStore(factory));
+            new ProductionStore(factory),
+            new Subscriptions.PlanLimitGuard(new SubscriptionStore(factory)));
         _stock = new StockService(new StockStore(factory), audit);
         _jobs = new JobOrderService(new JobOrderStore(factory), audit);
         _proformas = new ProformaService(new ProformaStore(factory), audit, specs);

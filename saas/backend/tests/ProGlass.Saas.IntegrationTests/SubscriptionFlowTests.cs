@@ -301,4 +301,115 @@ public sealed class SubscriptionFlowTests
         Assert.NotEqual(currentA.Id, currentB.Id);
         Assert.True(currentB.HardBlocked);   // B has no subscription
     }
+
+    // ── Phase 18: per-period plan limits ─────────────────────────────
+
+    [Fact]
+    public async Task PlanLimits_InvoiceLimitEnforced_AndNullIsUnlimited()
+    {
+        var tenant = _fixture.CreateTenant("lim1");
+        var actor = Guid.NewGuid();
+        var factory = new SaasDbContextFactory(_fixture.AppDb);
+        var audit = new AuditWriter(factory, NullLogger<AuditWriter>.Instance);
+        var fiscal = new FiscalService(
+            new FiscalStore(factory), audit,
+            new PlanLimitGuard(new SubscriptionStore(factory)));
+
+        await SeedSubscriptionAsync(tenant, "active",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30)));
+
+        // No limit data → unlimited (the seeded catalog has NULL for
+        // tax_invoices): both invoices create.
+        var first = await fiscal.CreateAsync(tenant, actor,
+            new Application.Fiscal.CreateTaxInvoiceRequest(
+                CustomerName: "Limit Co", Subtotal: 100m),
+            null, CancellationToken.None);
+        Assert.True(first.Success, first.Message);
+        var second = await fiscal.CreateAsync(tenant, actor,
+            new Application.Fiscal.CreateTaxInvoiceRequest(
+                CustomerName: "Limit Co", Subtotal: 100m),
+            null, CancellationToken.None);
+        Assert.True(second.Success, second.Message);
+
+        // Tenant override: limit 2 (already used) → the next is refused
+        // with the 402-bound error code.
+        Assert.True(await _admin.SetOverrideAsync(
+            tenant, "tax_invoices", true, 2, CancellationToken.None));
+        var third = await fiscal.CreateAsync(tenant, actor,
+            new Application.Fiscal.CreateTaxInvoiceRequest(
+                CustomerName: "Limit Co", Subtotal: 100m),
+            null, CancellationToken.None);
+        Assert.False(third.Success);
+        Assert.Equal(Application.Fiscal.FiscalErrorCode.SubscriptionLimitExceeded,
+            third.ErrorCode);
+        Assert.Contains("invoice limit (2 per billing period)", third.Message);
+    }
+
+    [Fact]
+    public async Task PlanLimits_StatementReportsLimitEnforced()
+    {
+        var tenant = _fixture.CreateTenant("lim2");
+        var actor = Guid.NewGuid();
+        var factory = new SaasDbContextFactory(_fixture.AppDb);
+        var audit = new AuditWriter(factory, NullLogger<AuditWriter>.Instance);
+        var fiscal = new FiscalService(
+            new FiscalStore(factory), audit,
+            new PlanLimitGuard(new SubscriptionStore(factory)));
+
+        await SeedSubscriptionAsync(tenant, "active",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30)));
+
+        // Limit 1: the first statement generates, the second is refused.
+        Assert.True(await _admin.SetOverrideAsync(
+            tenant, "reports", true, 1, CancellationToken.None));
+        var first = await fiscal.GenerateStatementAsync(tenant, actor,
+            new Application.Fiscal.GenerateStatementRequest(
+                Customer: "Reports Co"),
+            null, CancellationToken.None);
+        Assert.True(first.Success, first.Message);
+        var second = await fiscal.GenerateStatementAsync(tenant, actor,
+            new Application.Fiscal.GenerateStatementRequest(
+                Customer: "Reports Co"),
+            null, CancellationToken.None);
+        Assert.False(second.Success);
+        Assert.Equal(Application.Fiscal.FiscalErrorCode.SubscriptionLimitExceeded,
+            second.ErrorCode);
+        Assert.Contains("report limit (1 per billing period)", second.Message);
+    }
+
+    [Fact]
+    public async Task PlanLimits_OptimizationJobsLimitEnforced()
+    {
+        var tenant = _fixture.CreateTenant("lim3");
+        var actor = Guid.NewGuid();
+        var factory = new SaasDbContextFactory(_fixture.AppDb);
+        var audit = new AuditWriter(factory, NullLogger<AuditWriter>.Instance);
+        var optimization = new OptimizationService(
+            new OptimizationStore(factory), audit,
+            new ProductionStore(factory),
+            new PlanLimitGuard(new SubscriptionStore(factory)));
+
+        await SeedSubscriptionAsync(tenant, "active",
+            DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30)));
+
+        // Limit 0: every run is refused.
+        Assert.True(await _admin.SetOverrideAsync(
+            tenant, "optimization", true, 0, CancellationToken.None));
+        var run = await optimization.RunAsync(tenant, actor,
+            new Application.Optimization.RunOptimizationRequest(
+                Pieces: new List<Application.Optimization.OptimizationPieceRequest>
+                {
+                    new("P1", "Spec", "A", 500, 500)
+                },
+                Stocks: new List<Application.Optimization.OptimizationStockRequest>
+                {
+                    new(2440, 1830, 6)
+                }),
+            null, CancellationToken.None);
+        Assert.False(run.Success);
+        Assert.Equal(Application.Optimization.OptimizationErrorCode
+            .SubscriptionLimitExceeded, run.ErrorCode);
+        Assert.Contains("optimization-job limit (0 per billing period)",
+            run.Message);
+    }
 }

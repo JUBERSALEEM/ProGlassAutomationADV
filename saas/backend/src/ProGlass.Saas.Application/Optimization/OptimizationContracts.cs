@@ -16,7 +16,10 @@ public enum OptimizationErrorCode
     None = 0,
     ValidationFailed,
     NotFound,
-    Conflict
+    Conflict,
+    /// <summary>Phase 18: the per-period optimization-jobs plan limit was
+    /// reached — HTTP 402.</summary>
+    SubscriptionLimitExceeded
 }
 
 public sealed record OptimizationResult<T>(
@@ -144,6 +147,11 @@ public interface IOptimizationStore
 
     /// <summary>Persist one group's session + sheets + placements + cuts
     /// + leftovers in one transaction.</summary>
+    /// <summary>Phase 18 limit counter — sessions since the current
+    /// billing period start.</summary>
+    Task<int> CountSessionsSinceAsync(
+        Guid tenantId, DateOnly since, CancellationToken ct);
+
     Task<OptimizationSession> PersistAsync(
         Guid tenantId, Guid actorId,
         string documentType, Guid? documentId, string compositionKey,

@@ -27,7 +27,8 @@ namespace ProGlass.Saas.Application.Optimization;
 
 public sealed class OptimizationService(
     IOptimizationStore store, IAuditWriter audit,
-    Production.IProductionStore productionStore)
+    Production.IProductionStore productionStore,
+    Subscriptions.PlanLimitGuard limits)
 {
     private const int DefaultPageSize = 50;
     private const int MaxPageSize = 200;
@@ -40,6 +41,25 @@ public sealed class OptimizationService(
         Guid tenantId, Guid actorId, RunOptimizationRequest request,
         string? ip, CancellationToken ct)
     {
+        // Phase 18 — per-period optimization-jobs limit (plan §6; catalog
+        // value, NULL = unlimited, hard-coded nowhere).
+        var limitCheck = await limits.ResolveAsync(
+            tenantId, Domain.Subscriptions.ModuleFeatureMap.Optimization, ct);
+        if (limitCheck?.Limit is int cap)
+        {
+            var used = await store.CountSessionsSinceAsync(
+                tenantId, limitCheck.PeriodStart, ct);
+            if (used >= cap)
+            {
+                return OptimizationResult<OptimizationRunDto>.Fail(
+                    OptimizationErrorCode.SubscriptionLimitExceeded,
+                    $"The current plan's optimization-job limit ({cap} per " +
+                    $"billing period) has been reached — {used} runs since " +
+                    $"{limitCheck.PeriodStart:yyyy-MM-dd}. Choose a plan " +
+                    "with a higher limit in Settings → Subscription.");
+            }
+        }
+
         // ── pieces: explicit or from the job's cutting plan ──────────
         List<CutPiece> pieces;
         JobOrder? job = null;

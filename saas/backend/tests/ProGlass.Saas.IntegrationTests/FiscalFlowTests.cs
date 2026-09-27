@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using ProGlass.Saas.Application.Fiscal;
 using ProGlass.Saas.Application.Proforma;
+using ProGlass.Saas.Application.Subscriptions;
 using ProGlass.Saas.Infrastructure.Persistence;
 using Xunit;
 
@@ -24,7 +25,8 @@ public sealed class FiscalFlowTests
         _fixture = fixture;
         var factory = new SaasDbContextFactory(fixture.AppDb);
         var audit = new AuditWriter(factory, NullLogger<AuditWriter>.Instance);
-        _sut = new FiscalService(new FiscalStore(factory), audit);
+        _sut = new FiscalService(new FiscalStore(factory), audit,
+            new PlanLimitGuard(new SubscriptionStore(factory)));
         _proformas = new ProformaService(
             new ProformaStore(factory), audit,
             new SpecificationsService(

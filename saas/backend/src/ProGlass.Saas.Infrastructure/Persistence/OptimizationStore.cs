@@ -30,6 +30,16 @@ public sealed class OptimizationStore(SaasDbContextFactory factory) : IOptimizat
             .ToListAsync(ct).ConfigureAwait(false);
     }
 
+    public async Task<int> CountSessionsSinceAsync(
+        Guid tenantId, DateOnly since, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        var from = since.ToDateTime(TimeOnly.MinValue);
+        return await db.OptimizationSessions.AsNoTracking()
+            .Where(s => s.CreatedAt >= from)
+            .CountAsync(ct).ConfigureAwait(false);
+    }
+
     public async Task<OptimizationSession> PersistAsync(
         Guid tenantId, Guid actorId,
         string documentType, Guid? documentId, string compositionKey,

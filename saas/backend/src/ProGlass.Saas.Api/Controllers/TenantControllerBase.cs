@@ -90,6 +90,9 @@ public abstract class TenantControllerBase : ControllerBase
             NotFound(new { code = "optimization.not_found", message = result.Message }),
         OptimizationErrorCode.Conflict =>
             Conflict(new { code = "optimization.conflict", message = result.Message }),
+        OptimizationErrorCode.SubscriptionLimitExceeded =>
+            StatusCode(StatusCodes.Status402PaymentRequired,
+                new { code = "optimization.subscription_limit", message = result.Message }),
         _ => BadRequest(new { code = "optimization.validation_failed", message = result.Message })
     };
 
@@ -101,6 +104,9 @@ public abstract class TenantControllerBase : ControllerBase
             Conflict(new { code = "fiscal.conflict", message = result.Message }),
         FiscalErrorCode.NumberExhausted =>
             Conflict(new { code = "fiscal.number_exhausted", message = result.Message }),
+        FiscalErrorCode.SubscriptionLimitExceeded =>
+            StatusCode(StatusCodes.Status402PaymentRequired,
+                new { code = "fiscal.subscription_limit", message = result.Message }),
         _ => BadRequest(new { code = "fiscal.validation_failed", message = result.Message })
     };
 
