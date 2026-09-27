@@ -4,9 +4,9 @@
 > continuation session, then `SAAS_ARCHITECTURE.md`, then git state, then continue from the
 > last verified state. Do not restart analysis unnecessarily (master prompt §60).
 
-**Last updated:** 2026-09-27
-**Current phase:** ✅ Phase 1 complete (WPF audit) · ✅ Phase 2 complete (architecture docs) ·
-**Next:** Phase 3 — Database (scaffold SaaS solution + migrations)
+**Last updated:** 2026-09-27 (Phase 3)
+**Current phase:** ✅ Phase 3 complete — **database schema + tenant isolation VERIFIED against live PostgreSQL 16 (23/23 checks)** · .NET backend authored (syntax-checked; compile pending .NET SDK env)
+**Next:** Phase 4 — Authentication (first task when a .NET 8 SDK environment is available: `dotnet build saas/backend/ProGlass.Saas.sln` and `dotnet test`, then flip `TreatWarningsAsErrors` on)
 
 ---
 
@@ -20,8 +20,8 @@
 | — | Database design | ✅ DONE | `SAAS_DATABASE_DESIGN.md` |
 | — | API design | ✅ DONE | `SAAS_API_DESIGN.md` |
 | — | Migration plan | ✅ DONE | `SAAS_MIGRATION_PLAN.md` |
-| 3 | Database implementation | ⬜ NOT STARTED | Scaffold `/saas/backend`, EF migrations, tenant isolation tests |
-| 4 | Authentication | ⬜ NOT STARTED | |
+| 3 | Database implementation | ✅ DONE (DB layer verified; .NET compile pending) | 5 SQL migrations, 41 tables, RLS on 36 tenant tables, `SqlMigrationRunner`, EF model generated from DDL, xUnit suites. **Gate:** `saas/database/verify/apply_and_test.py` = 23/23 PASS |
+| 4 | Authentication | ⬜ NOT STARTED | Needs .NET SDK env (first `dotnet build` gate) |
 | 5 | Core ERP (master data, settings) | ⬜ NOT STARTED | |
 | 6 | Calculators (SGU/DGU/LAM/DGU+LAM/wastage) | ⬜ NOT STARTED | Port formulas + golden tests |
 | 7 | Quotation / Proforma | ⬜ NOT STARTED | |
@@ -58,6 +58,23 @@ Add entries here as behavior is discovered. Format: **fact → source file**.
 16. StockSize sentinels: `0 = unlimited (explicit)`, `99999999 = default availability` → `OptimizationModels.cs`
 17. Read-only gate on expired license blocks writes at service layer → `Services/Licensing/ReadOnlyGate.cs`
 
+### Phase 3 implementation facts (what exists now)
+
+18. Schema = 41 tables in 5 migrations (`saas/database/migrations/`), all CHECK/FK/unique constraints applied to live PG16; status vocabularies are CHECK-constrained with `status_text` overflow for WPF unknowns (pass-through contract preserved)
+19. RLS policy per tenant table uses `NULLIF(current_setting('app.tenant_id', true), '')::uuid` — BOTH unset and reset-to-empty contexts fail closed (verified live; a plain `::uuid` cast would error on `''`)
+20. `updated_at` maintained by DB trigger `saas.touch_updated_at()` — catches were the test caught missing triggers on 14 tables
+21. Tenant-scoped uniqueness verified: same `proforma_no` allowed in two tenants, duplicate within one rejected (WPF PI numbering semantics)
+22. Immutable ledgers enforced at GRANT level: `audit_logs`, `stock_transactions`, `production_events`, `optimization_placements/cuts/leftovers` are INSERT-only for the runtime role
+23. Two DB roles: `saas_owner` (DDL/migrations) and `saas_app` (DML only) — the application never owns schema objects
+24. Roles/permissions catalog ported grant-for-grant from WPF `Permissions.cs` and pinned by `RolePermissionsTests` (12 tests incl. the G-6 fiscal-delete rule)
+25. `MoneyRounding` ported verbatim; parity tests distinguish half-away-from-zero from banker's rounding (the original WPF Phase-2 bug)
+26. EF entities + configurations are GENERATED from the DDL (ADR-010) — 29/29 C# files pass tree-sitter syntax check
+
+### Environment constraint (documented per §46)
+
+- This devbox: no .NET SDK, no NuGet egress (allowlisted: GitHub/PyPI/npm only) → **the .NET solution has not been compiled here**. It is syntax-checked (29/29) and maps to a schema verified live (23/23). First `dotnet build`/`dotnet test` in a .NET environment is the Phase 4 entry gate.
+- PostgreSQL 16 runs via PyPI `pgserver` (see `saas/devbox/README.md`).
+
 ---
 
 ## Architectural decisions (ADR log)
@@ -88,4 +105,5 @@ docs updated ✓. Update the module row above only after all twelve pass.
 
 | Date | Session | Work done | Commit |
 |---|---|---|---|
-| 2026-09-27 | 1 | Phase 1 deep audit (read pricing, VAT, SQM, optimizer, roles, PI repo, stock, master data, lifecycle); wrote all 8 analysis documents in `/saas/docs` | (this commit) |
+| 2026-09-27 | 1 | Phase 1 deep audit (read pricing, VAT, SQM, optimizer, roles, PI repo, stock, master data, lifecycle); wrote all 8 analysis documents in `/saas/docs` | `e5046ac` |
+| 2026-09-27 | 2 | Phase 3: 5 SQL migrations (41 tables), RLS tenant isolation, migration runner, verification harness **23/23 PASS vs live PG16**; .NET solution scaffold (Domain/Infrastructure/Api + 2 test projects), EF model generated from DDL, WPF roles/permissions + MoneyRounding ported with parity tests; ADR-008/009/010 | (this commit) |
