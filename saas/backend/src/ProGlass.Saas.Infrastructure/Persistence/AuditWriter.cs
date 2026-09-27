@@ -31,6 +31,13 @@ public sealed class AuditWriter : IAuditWriter
         Guid? tenantId, Guid? userId, string action,
         string entityType, Guid? entityId, string? ip, string? correlationId,
         CancellationToken ct)
+        => await WriteAsync(tenantId, userId, action, entityType, entityId,
+            ip, correlationId, null, null, ct).ConfigureAwait(false);
+
+    public async Task WriteAsync(
+        Guid? tenantId, Guid? userId, string action,
+        string entityType, Guid? entityId, string? ip, string? correlationId,
+        string? beforeJson, string? afterJson, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(action))
             throw new ArgumentException("Audit action is required.", nameof(action));
@@ -38,7 +45,7 @@ public sealed class AuditWriter : IAuditWriter
         if (tenantId is null || tenantId == Guid.Empty)
         {
             _logger.LogWarning(
-                "Auth audit event without tenant context (action {Action}, user {UserId}, " +
+                "Audit event without tenant context (action {Action}, user {UserId}, " +
                 "ip {Ip}, entity {EntityType}:{EntityId}) — recorded here, not in audit_logs " +
                 "(row-level security scopes audit_logs to a tenant).",
                 action, userId, ip ?? "unknown", entityType, entityId);
@@ -54,6 +61,8 @@ public sealed class AuditWriter : IAuditWriter
             Action = action,
             EntityType = entityType,
             EntityId = entityId,
+            BeforeJson = beforeJson,
+            AfterJson = afterJson,
             Ip = ip,
             CorrelationId = correlationId,
             CreatedAt = DateTime.UtcNow

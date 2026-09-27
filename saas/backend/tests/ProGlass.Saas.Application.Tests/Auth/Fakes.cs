@@ -231,7 +231,8 @@ public sealed class FakeAuditWriter : IAuditWriter
 {
     public sealed record Event(
         Guid? TenantId, Guid? UserId, string Action,
-        string EntityType, Guid? EntityId, string? Ip);
+        string EntityType, Guid? EntityId, string? Ip,
+        string? BeforeJson = null, string? AfterJson = null);
 
     public List<Event> Events { get; } = new();
 
@@ -239,8 +240,16 @@ public sealed class FakeAuditWriter : IAuditWriter
         Guid? tenantId, Guid? userId, string action,
         string entityType, Guid? entityId, string? ip, string? correlationId,
         CancellationToken ct)
+        => WriteAsync(tenantId, userId, action, entityType, entityId,
+            ip, correlationId, null, null, ct);
+
+    public Task WriteAsync(
+        Guid? tenantId, Guid? userId, string action,
+        string entityType, Guid? entityId, string? ip, string? correlationId,
+        string? beforeJson, string? afterJson, CancellationToken ct)
     {
-        Events.Add(new Event(tenantId, userId, action, entityType, entityId, ip));
+        Events.Add(new Event(tenantId, userId, action, entityType, entityId, ip,
+            beforeJson, afterJson));
         return Task.CompletedTask;
     }
 

@@ -103,4 +103,12 @@ public interface IAuditWriter
     Task WriteAsync(Guid? tenantId, Guid? userId, string action,
         string entityType, Guid? entityId, string? ip, string? correlationId,
         CancellationToken ct);
+
+    /// <summary>Same event, with a before/after payload (the WPF Activity
+    /// log's field-level change trail — stored in audit_logs.before_json /
+    /// after_json). Pass null for either side when not applicable
+    /// (creation has no "before", deletion no "after").</summary>
+    Task WriteAsync(Guid? tenantId, Guid? userId, string action,
+        string entityType, Guid? entityId, string? ip, string? correlationId,
+        string? beforeJson, string? afterJson, CancellationToken ct);
 }

@@ -35,6 +35,9 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.LogoLayout).HasColumnName("logo_layout").HasColumnType("text").HasDefaultValue("None");
+            builder.Property(x => x.LogoWidthMm).HasColumnName("logo_width_mm").HasColumnType("numeric(6,2)").HasDefaultValue(22m);
+            builder.Property(x => x.LogoHeightMm).HasColumnName("logo_height_mm").HasColumnType("numeric(6,2)").HasDefaultValue(26m);
             builder.HasIndex(x => new { x.TenantId, x.Name })
                 .HasDatabaseName("ix_companies_tenant_name");
         }
@@ -61,6 +64,7 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.DocumentPreparedBy).HasColumnName("document_prepared_by").HasColumnType("text").HasDefaultValue("");
             builder.HasIndex(x => new { x.TenantId, x.CustomerName })
                 .HasDatabaseName("ix_clients_tenant_name");
         }

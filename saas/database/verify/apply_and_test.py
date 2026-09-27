@@ -27,6 +27,7 @@ import os
 import re
 import sys
 from datetime import date, datetime, timedelta, timezone
+from decimal import Decimal
 from pathlib import Path
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent.parent / "migrations"
@@ -429,7 +430,7 @@ def test_migrations(db_uri: str):
     with conn.cursor() as cur:
         cur.execute("SELECT name, checksum FROM saas._saas_migrations ORDER BY name")
         rows = cur.fetchall()
-        record("all 6 migrations recorded with checksums", len(rows) == 6,
+        record("all 7 migrations recorded with checksums", len(rows) == 7,
                ", ".join(r[0] for r in rows))
         # tamper with a checksum → runner must refuse
         cur.execute("UPDATE saas._saas_migrations SET checksum = 'deadbeef' WHERE name = '0001_platform_identity.sql'")
@@ -560,6 +561,60 @@ def test_auth_identity(db_uri: str):
     conn.close()
 
 
+def test_masterdata(db_uri: str):
+    """Phase 5: master-data parity columns (0007) + constraints."""
+    print("\n== Phase 5: master data schema ==")
+    conn = connect(db_uri)
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT column_name, column_default, is_nullable FROM information_schema.columns
+            WHERE table_schema = 'saas' AND table_name = 'companies'
+              AND column_name IN ('logo_layout', 'logo_width_mm', 'logo_height_mm')
+            ORDER BY column_name
+        """)
+        rows = {r[0]: (r[1], r[2]) for r in cur.fetchall()}
+        record("0007: companies logo columns exist NOT NULL with WPF defaults",
+               rows.get("logo_layout") == ("'None'::text", "NO")
+               and rows.get("logo_width_mm") == ("22", "NO")
+               and rows.get("logo_height_mm") == ("26", "NO"),
+               str(rows))
+        cur.execute("""
+            SELECT column_default, is_nullable FROM information_schema.columns
+            WHERE table_schema = 'saas' AND table_name = 'clients'
+              AND column_name = 'document_prepared_by'
+        """)
+        row = cur.fetchone()
+        record("0007: clients.document_prepared_by exists NOT NULL",
+               row == ("''::text", "NO"), str(row))
+    conn.close()
+
+    # CHECK constraint + defaults fill, as the runtime role (RLS path)
+    conn = connect(db_uri, role="saas_test_app")
+    cur = conn.cursor()
+    cur.execute("SET app.tenant_id = %s", (TENANT_A,))
+    cur.execute("DELETE FROM saas.companies WHERE name = 'phase5-probe'")
+    cur.execute("""
+        INSERT INTO saas.companies (tenant_id, name, trn)
+        VALUES (%s, 'phase5-probe', '100123456700003')
+        RETURNING logo_layout, logo_width_mm, logo_height_mm
+    """, (TENANT_A,))
+    layout, width, height = cur.fetchone()
+    record("company insert fills WPF branding defaults",
+           (layout, width, height) == ("None", Decimal("22.00"), Decimal("26.00")),
+           f"{layout}/{width}/{height}")
+    try:
+        cur.execute("""
+            UPDATE saas.companies SET logo_layout = 'Bogus'
+            WHERE tenant_id = %s AND name = 'phase5-probe'
+        """, (TENANT_A,))
+        record("companies.logo_layout CHECK rejects unknown layouts", False, "was allowed!")
+    except Exception as e:
+        record("companies.logo_layout CHECK rejects unknown layouts",
+               "check constraint" in str(e).lower())
+    cur.execute("DELETE FROM saas.companies WHERE name = 'phase5-probe'")
+    conn.close()
+
+
 def write_report(argv: list[str], applied_names: list[str]):
     DEFAULT_REPORT.parent.mkdir(parents=True, exist_ok=True)
     passed = sum(1 for r in RESULTS if r["ok"])
@@ -616,6 +671,7 @@ def main():
     test_migrations(db_uri)
     test_platform_protection(db_uri)
     test_auth_identity(db_uri)
+    test_masterdata(db_uri)
 
     ok = write_report(sys.argv, names)
     print(f"\n{'='*60}\n{'ALL CHECKS PASSED' if ok else 'FAILURES PRESENT'} — "

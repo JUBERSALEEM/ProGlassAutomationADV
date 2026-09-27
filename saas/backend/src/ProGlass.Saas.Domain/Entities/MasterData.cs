@@ -30,6 +30,9 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public string LogoLayout { get; set; } = null!;
+        public decimal LogoWidthMm { get; set; }
+        public decimal LogoHeightMm { get; set; }
     }
 }
 
@@ -53,6 +56,7 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public string DocumentPreparedBy { get; set; } = null!;
     }
 }
 

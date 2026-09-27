@@ -4,9 +4,9 @@
 > continuation session, then `SAAS_ARCHITECTURE.md`, then git state, then continue from the
 > last verified state. Do not restart analysis unnecessarily (master prompt §60).
 
-**Last updated:** 2026-09-27 (Phase 4)
-**Current phase:** 🔄 Phase 4 (Authentication) — **code complete, syntax-checked 52/52, DB layer re-verified 31/31 vs live PG16** · register/login/refresh/logout/sessions/change-password + permission authorization + tenant-context middleware + unit/integration tests authored. **Compile + `dotnet test` still pending a .NET 8 SDK environment** (unchanged devbox constraint).
-**Next:** First task in a .NET 8 SDK env: `dotnet build saas/backend/ProGlass.Saas.sln` → fix any compile errors → `dotnet test` (unit tests must pass; DB tests need SAAS_TEST_DB/SAAS_TEST_APP_DB) → flip `TreatWarningsAsErrors` on → then Phase 5 (Core ERP).
+**Last updated:** 2026-09-27 (Phase 5, master data done)
+**Current phase:** 🔄 Phase 5 (Core ERP) — **master data module COMPLETE** (4 entities, WPF-verbatim upsert semantics, API + unit/integration tests, migration 0007, DB verified **35/35** vs live PG16, syntax 64/64) · Phase 4 auth remains compile-pending like everything else (**no .NET SDK in this sandbox — unchanged**).
+**Next:** Phase 5 remainder = tenant settings / pricing catalogs (`GET/PUT /api/v1/pricing/config`) — deliberately paired with Phase 6 calculators (catalog defaults live in the same WPF pricing ViewModels and must be ported verbatim, not invented). In a .NET 8 SDK env, run the standing compile gate: `dotnet build saas/backend/ProGlass.Saas.sln` → `dotnet test` → flip `TreatWarningsAsErrors` on.
 
 ---
 
@@ -22,7 +22,7 @@
 | — | Migration plan | ✅ DONE | `SAAS_MIGRATION_PLAN.md` |
 | 3 | Database implementation | ✅ DONE (DB layer verified; .NET compile pending) | 5 SQL migrations, 41 tables, RLS on 36 tenant tables, `SqlMigrationRunner`, EF model generated from DDL, xUnit suites. **Gate:** `saas/database/verify/apply_and_test.py` = 23/23 PASS |
 | 4 | Authentication | 🔄 CODE COMPLETE (compile pending) | Application layer (AuthService + ports + WPF-verbatim PasswordPolicy), Infrastructure (Argon2id, JWT, stores, platform-connection provisioner, audit writer), API (auth controller, JwtBearer, permission policies, tenant-context middleware), migration 0006 (absolute refresh deadline), 46 unit tests + 7 integration tests authored. DB checks 31/31 PASS. **Gate:** first `dotnet build`/`dotnet test` in .NET 8 env |
-| 5 | Core ERP (master data, settings) | ⬜ NOT STARTED | |
+| 5 | Core ERP (master data, settings) | 🔄 MASTER DATA DONE; settings → with Phase 6 | Companies/clients/projects/salesmen: WPF-verbatim upserts (natural keys, usage counting, preserve-on-blank, single default, rename-collision refusal), audit before/after payloads, `/api/v1/{companies,clients,projects,salesmen}` with the WPF permission map, migration 0007 (parity columns the Phase 3 schema missed), 25 unit + 5 integration tests. Settings/pricing config endpoints pair with Phase 6 (shared WPF sources). **Gate:** same standing compile gate |
 | 6 | Calculators (SGU/DGU/LAM/DGU+LAM/wastage) | ⬜ NOT STARTED | Port formulas + golden tests |
 | 7 | Quotation / Proforma | ⬜ NOT STARTED | |
 | 8 | Stock (Sheet Store) | ⬜ NOT STARTED | |
@@ -84,9 +84,21 @@ Add entries here as behavior is discovered. Format: **fact → source file**.
 36. Auth audit events without a tenant (unknown company code at login) go to the APPLICATION log — RLS makes `saas.audit_logs` unwritable without a tenant context; never silently dropped
 37. DB harness extended to 31 checks (was 23): 0006 column NOT NULL + index used by lookups, duplicate username within tenant rejected, same username in another tenant allowed, refresh-token NOT NULL + RLS WITH CHECK — `verification/DATABASE_VERIFICATION.md` (the old PHASE3_VERIFICATION.md stays as the Phase 3 record)
 
+### Phase 5 implementation facts (master data)
+
+38. Master data semantics ported from `Services/MasterData/Repository/MasterDataRepository.cs`: natural-key upserts (company name+TRN, client name+TRN, project identifier+customer, salesman name — all case-insensitive), usage_count+1 + last_used_at on every re-save, insert with usage_count=1
+39. WPF audit-fix behaviors preserved: F-1 id-first lookup for company edits (renames must update, not duplicate), F-1b rename-collision refusal, F-1c editor latest-data-wins (blank clears), F-2 invoice auto-save preserve-on-blank (never erases profile values, never touches IsDefault)
+40. Migration 0007 restored three WPF-parity columns the Phase 3 schema missed (companies.logo_layout/width/height with defaults 22×26 mm + layout CHECK; clients.document_prepared_by) — found by porting against the WPF source; generator now parses inline `ADD COLUMN ... NOT NULL`
+41. Projects reference clients by `customer_id` (schema normalization; WPF stored a customer NAME string) — the same-identifier-different-customer rule is preserved through the id; deleting a client SET NULLs the project reference (WPF masterdata.db rows never touched invoices)
+42. API permission map is the WPF guard map verbatim: company/salesman save+delete and client/project delete = Settings.Manage; client/project save = ProformaInvoice.Edit; reads open to all authenticated users
+43. Audit before/after payloads: new `IAuditWriter` overload writes `audit_logs.before_json/after_json` on every master-data write (the WPF Activity log's field-diff trail, machine-readable)
+44. Salesman blank-department preserve quirk ported verbatim (blank never erases a stored department)
+45. DB harness now 35/35 (4 new Phase 5 checks: 0007 columns + defaults fill + layout CHECK)
+46. SaaS differences from WPF, all documented in WPF_TO_SAAS_MAPPING §1.10a: DELETE → 404 (was silent no-op), UTC (was local time), logo object-storage keys (was file paths), pagination on lists
+
 ### Environment constraint (documented per §46)
 
-- This devbox: no .NET SDK, no NuGet egress (allowlisted: GitHub/PyPI/npm only) → **the .NET solution has not been compiled here**. It is syntax-checked (52/52 files, `saas/devbox/syntax_check_cs.py`) and maps to a schema verified live (31/31 checks, `saas/database/verify/apply_and_test.py`). First `dotnet build`/`dotnet test` in a .NET environment is the Phase 4 exit gate; flip `TreatWarningsAsErrors` on in `saas/backend/Directory.Build.props` after that clean build.
+- This devbox: no .NET SDK, no NuGet egress (allowlisted: GitHub/PyPI/npm only) → **the .NET solution has not been compiled here**. It is syntax-checked (64/64 files, `saas/devbox/syntax_check_cs.py`) and maps to a schema verified live (35/35 checks, `saas/database/verify/apply_and_test.py`). First `dotnet build`/`dotnet test` in a .NET environment is the standing compile gate (auth was its first trigger); flip `TreatWarningsAsErrors` on in `saas/backend/Directory.Build.props` after that clean build.
 - PostgreSQL 16 runs via PyPI `pgserver` (see `saas/devbox/README.md`).
 
 ---
@@ -121,4 +133,5 @@ docs updated ✓. Update the module row above only after all twelve pass.
 |---|---|---|---|
 | 2026-09-27 | 1 | Phase 1 deep audit (read pricing, VAT, SQM, optimizer, roles, PI repo, stock, master data, lifecycle); wrote all 8 analysis documents in `/saas/docs` | `e5046ac` |
 | 2026-09-27 | 2 | Phase 3: 5 SQL migrations (41 tables), RLS tenant isolation, migration runner, verification harness **23/23 PASS vs live PG16**; .NET solution scaffold (Domain/Infrastructure/Api + 2 test projects), EF model generated from DDL, WPF roles/permissions + MoneyRounding ported with parity tests; ADR-008/009/010 | `b4a7e9d` |
-| 2026-09-27 | 3 | Phase 4 (Authentication) authored: `ProGlass.Saas.Application` (AuthService, ports, WPF-verbatim PasswordPolicy), Infrastructure (Argon2id hasher, JWT service, tenant-explicit stores, platform-connection TenantProvisioner, AuditWriter, DI), API (auth endpoints `/api/v1/auth/*`, JwtBearer, permission policy provider/handler, TenantContextMiddleware), migration 0006 + generator ALTER-TABLE support, harness → **31/31 PASS**, 52/52 syntax, ~46 unit + 7 integration tests, ADR-011, docs | (this commit) |
+| 2026-09-27 | 3 | Phase 4 (Authentication) authored: `ProGlass.Saas.Application` (AuthService, ports, WPF-verbatim PasswordPolicy), Infrastructure (Argon2id hasher, JWT service, tenant-explicit stores, platform-connection TenantProvisioner, AuditWriter, DI), API (auth endpoints `/api/v1/auth/*`, JwtBearer, permission policy provider/handler, TenantContextMiddleware), migration 0006 + generator ALTER-TABLE support, harness → **31/31 PASS**, 52/52 syntax, ~46 unit + 7 integration tests, ADR-011, docs | `2309aaa` |
+| 2026-09-27 | 4 | Phase 5 master data: WPF MasterDataRepository semantics ported (natural-key upserts, usage counting, preserve-on-blank, single default, rename-collision refusal, salesman department quirk), `MasterDataService` + `IMasterDataStore` + EF store, `/api/v1/{companies,clients,projects,salesmen}` with WPF permission map, audit before/after payloads (IAuditWriter overload), migration 0007 (logo layout/size + document_prepared_by parity columns), 25 unit + 5 integration tests, harness **35/35 PASS**, 64/64 syntax, docs (mapping §1.10a/b, progress) | (this commit) |

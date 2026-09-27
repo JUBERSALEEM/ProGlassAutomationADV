@@ -8,11 +8,11 @@ WPF application at the repository root — no shared projects, no shared files.
 | Project | Purpose |
 |---|---|
 | `src/ProGlass.Saas.Domain` | Entities, tenancy primitives, WPF-ported roles/permissions + money policy. Zero dependencies. |
-| `src/ProGlass.Saas.Application` | Auth use-cases: `AuthService` (register/login/refresh/logout/sessions/change-password), ports (`IUserStore`, `IRefreshTokenStore`, `ITenantProvisioner`, `ITokenService`, `IAuditWriter`), `AuthOptions`, WPF-verbatim `PasswordPolicy`. References only Domain + DI abstractions. |
-| `src/ProGlass.Saas.Infrastructure` | EF Core model (generated from the verified DDL), `SqlMigrationRunner`, `TenantSessionInterceptor` (RLS session), Argon2id hasher, JWT service, tenant-explicit auth stores, platform-connection `TenantProvisioner`, `AuditWriter`. |
+| `src/ProGlass.Saas.Application` | Use-cases: `AuthService` (register/login/refresh/logout/sessions/change-password) + `MasterDataService` (companies/clients/projects/salesmen with WPF-verbatim upsert semantics), ports, `AuthOptions`, WPF-verbatim `PasswordPolicy`. References only Domain + DI abstractions. |
+| `src/ProGlass.Saas.Infrastructure` | EF Core model (generated from the verified DDL), `SqlMigrationRunner`, `TenantSessionInterceptor` (RLS session), Argon2id hasher, JWT service, tenant-explicit auth stores, `MasterDataStore`, platform-connection `TenantProvisioner`, `AuditWriter`. |
 | `src/ProGlass.Saas.Api` | API host — `/api/v1/auth/*` endpoints (Phase 4), JwtBearer authentication, permission authorization (`[HasPermission]`), `TenantContextMiddleware`, `/health`. |
 | `tests/ProGlass.Saas.Domain.Tests` | Unit tests — role/permission parity with WPF, money rounding, tenant context. |
-| `tests/ProGlass.Saas.Application.Tests` | Unit tests — AuthService orchestration with in-memory fakes (lockout semantics, rotation, reuse detection, absolute lifetimes) + WPF PasswordPolicy cases ported. |
+| `tests/ProGlass.Saas.Application.Tests` | Unit tests — AuthService orchestration with in-memory fakes (lockout semantics, rotation, reuse detection, absolute lifetimes) + MasterDataService upsert semantics + WPF PasswordPolicy cases ported. |
 | `tests/ProGlass.Saas.IntegrationTests` | Database tests — tenant isolation (query filters + RLS), migration runner, **AuthFlowTests** (full register→lockout→login→refresh→reuse→password-change flow against live PostgreSQL), Argon2id + JWT contract tests.
 
 ## Build & test (needs .NET 8 SDK + NuGet access)
@@ -83,7 +83,9 @@ dotnet run --project src/ProGlass.Saas.Api
 ```
 
 Endpoints: `POST /api/v1/auth/register|login|refresh|logout|change-password`,
-`GET /api/v1/auth/sessions`, `DELETE /api/v1/auth/sessions/{id}`, `GET /health`.
+`GET /api/v1/auth/sessions`, `DELETE /api/v1/auth/sessions/{id}`,
+`GET/POST /api/v1/companies|clients|projects|salesmen` +
+`GET/PUT/DELETE …/{id}` (WPF permission map, see the controllers), `GET /health`.
 Failures use the shared error envelope `{"code":"auth.invalid_credentials",
 "message":"…"}`; lockouts answer **423 + Retry-After** (API design §1).
 Also settable via `ConnectionStrings:Saas` / `ConnectionStrings:SaasPlatform` /

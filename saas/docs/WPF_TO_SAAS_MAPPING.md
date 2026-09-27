@@ -139,7 +139,6 @@ security translation, not a silent change.
 
 | WPF | SaaS |
 |---|---|
-| `SavedClient/SavedCompany/SavedProject/SavedSalesman` (+UsageCount recency) | Entities with usage counters powering autocomplete |
 | Dashboard panels per module + Executive summary | `/dashboard` widgets from server aggregations (paginated/SQL-side) |
 | All reports (§9 of audit) | `/reports/*` with date/customer/salesman/status/project/stock/supplier/VAT filters; PDF/Excel/CSV export server-side |
 | `AppUser` + roles + permissions | Identity users + same role/permission catalog (`Module.Capability`), claims-based |

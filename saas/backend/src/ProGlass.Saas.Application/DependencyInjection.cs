@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using ProGlass.Saas.Application.Auth;
+using ProGlass.Saas.Application.MasterData;
 
 namespace ProGlass.Saas.Application;
 
@@ -15,6 +16,7 @@ public static class DependencyInjection
     {
         services.AddSingleton(options ?? new AuthOptions());
         services.AddScoped<AuthService>();
+        services.AddScoped<MasterDataService>();
         return services;
     }
 }

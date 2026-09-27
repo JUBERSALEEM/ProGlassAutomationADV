@@ -236,21 +236,20 @@ def parse_ddl() -> dict[str, Table]:
     # saas/database/migrations — new forms must be added here, by hand.
     for m in re.finditer(
             r"ALTER TABLE saas\.(\w+)\s+ADD\s+COLUMN\s+(\w+)\s+(\w+(?:\(\d+(?:,\d+)?\))?)"
-            r"(?:\s+NOT NULL)?(?:\s+DEFAULT\s+(.+?))?\s*;", ddl, re.I):
+            r"(\s+NOT\s+NULL)?(?:\s+DEFAULT\s+(.+?))?\s*;", ddl, re.I):
         t = tables.get(m.group(1))
         if t is None:
             raise ValueError(f"ALTER TABLE on unknown table saas.{m.group(1)}")
         if t.has(m.group(2)):
             continue  # already part of CREATE TABLE — nothing to merge
-        default = m.group(4)
+        default = m.group(5)
         if default is not None and not _is_simple_default(default):
             # SQL expression (e.g. "now() + interval '7 days'") — emitted
             # as HasDefaultValueSql, never parsed as a C# literal.
             default = _sql_default_literal(default)
-        # Added columns start NULLABLE in the DDL — NOT NULL typically
-        # arrives via a later "ALTER COLUMN ... SET NOT NULL" (parsed
-        # below); our files never use inline ADD COLUMN ... NOT NULL.
-        t.columns.append(Column(m.group(2), m.group(3), False, default))
+        # NOT NULL may be inline (simple defaults, 0007) or arrive later
+        # via "ALTER COLUMN ... SET NOT NULL" (0006) — both are handled.
+        t.columns.append(Column(m.group(2), m.group(3), bool(m.group(4)), default))
 
     # Late constraints on existing columns: "ALTER TABLE ... ALTER COLUMN
     # x SET NOT NULL" flips a merged column to non-nullable.
