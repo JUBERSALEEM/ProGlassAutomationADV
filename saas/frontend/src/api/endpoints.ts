@@ -493,3 +493,46 @@ export function getDeliveryAnalytics(query: _ReportingFilterQuery = {}) {
 export function traceRow(rowId: string): Promise<_RowTrace> {
   return get<_RowTrace>(`/api/v1/reports/trace/${encodeURIComponent(rowId)}`);
 }
+
+// ── specifications (Phase 33 — the Step 4 glass library) ──────────────
+
+import type {
+  ReconcileResult as _ReconcileResult,
+  Specification as _Specification,
+  SpecificationUsage as _SpecificationUsage,
+} from "./types";
+
+export function listSpecifications(glassType?: string): Promise<_Specification[]> {
+  const qs = glassType ? `?glassType=${encodeURIComponent(glassType)}` : "";
+  return get<_Specification[]>(`/api/v1/specifications${qs}`);
+}
+
+/** Step 4 APPLY — upsert by (glassType, specName); rate always refreshes,
+ *  catalogue details only when supplied (preserve-on-blank). */
+export function applySpecification(
+  body: Record<string, unknown>,
+): Promise<_Specification> {
+  return post<_Specification>("/api/v1/specifications", body);
+}
+
+export function deleteSpecification(id: string): Promise<unknown> {
+  return del(`/api/v1/specifications/${id}`);
+}
+
+export function getSpecificationUsage(
+  id: string,
+): Promise<_SpecificationUsage[]> {
+  return get<_SpecificationUsage[]>(`/api/v1/specifications/${id}/usage-history`);
+}
+
+export function getRecentSpecificationUsage(
+  limit?: number,
+): Promise<_SpecificationUsage[]> {
+  const qs = limit ? `?limit=${limit}` : "";
+  return get<_SpecificationUsage[]>(`/api/v1/specifications/usage/recent${qs}`);
+}
+
+/** Re-derive counts/history/provenance from saved invoices (the ledger Refresh). */
+export function reconcileSpecifications(): Promise<_ReconcileResult> {
+  return post<_ReconcileResult>("/api/v1/specifications/reconcile");
+}

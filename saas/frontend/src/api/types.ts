@@ -638,3 +638,48 @@ export interface RowTrace {
   steps: TraceStep[];
   reconciliation: QuantityReconciliation;
 }
+
+// ── specifications (Phase 33) — the Step 4 glass library ──────────────
+
+export interface Specification {
+  id: string;
+  specName: string;
+  glassType: string;
+  ratePerSqm: number;
+  costBasisPerSqm: number;
+  usageCount: number;
+  lastUsedAt: string | null;
+  isActive: boolean;
+  category: string | null;
+  color: string | null;
+  thicknessMm: number;
+  sheetWidthMm: number;
+  sheetHeightMm: number;
+  sheetId: string | null;
+  panesJson: string | null;
+  lastProformaNo: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SpecificationUsage {
+  id: string;
+  specId: string;
+  proformaId: string;
+  proformaNo: string;
+  specName: string;
+  glassType: string;
+  companyName: string;
+  customerName: string;
+  projectName: string;
+  pricePerSqm: number;
+  sheetWidthMm: number;
+  sheetHeightMm: number;
+  usedAt: string;
+}
+
+export interface ReconcileResult {
+  usageRows: number;
+  purged: number;
+  healed: number;
+}

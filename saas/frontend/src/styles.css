@@ -256,3 +256,6 @@ label input { color: var(--text); }
 .form-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
 .stat.loss .stat-value { color: var(--bad); }
+
+/* Phase 33: selected library row */
+tr.active td { background: var(--panel-2); }

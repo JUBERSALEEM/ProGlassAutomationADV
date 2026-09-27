@@ -955,6 +955,16 @@ delete with a confirm. The picker list functions gained an optional
 {search,page,pageSize}; the PI pages' picker queries were wrapped so
 TanStack's query context is never passed as the query object.
 
+**Phase 33 — front end slice 6: the glass library (Step 4).** The
+specifications page: the smart-sorted library (most-used first, then
+most recent) with the glass-type filter, rate/cost-basis/usage/last
+proforma columns; the APPLY upsert form with preserve-on-blank made
+visible (blank catalogue fields are simply not sent); per-spec
+verified usage history (click a row) and the recent-activity card
+(last 20); delete with confirm; and the ledger reconcile button
+surfacing the server's UsageRows/Purged/Healed outcome. ParamsJson/
+PanesJson stay API-only (raw Step 4 internals).
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|
