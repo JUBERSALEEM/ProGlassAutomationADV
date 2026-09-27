@@ -152,9 +152,19 @@ public sealed record StockSize(
 {
     public const int UnlimitedSheets = 0;
 
+    /// <summary>WPF StockSize.EffectivelyUnlimitedSheets: a positive cap so
+    /// large the job will never reach it, used to distinguish "finite
+    /// inventory the partitioner must not split" from a real cap.</summary>
+    public const int EffectivelyUnlimitedSheets = 99999999;
+
     public string SizeLabel => string.IsNullOrWhiteSpace(Label)
         ? $"{WidthMm} × {HeightMm}"
         : Label;
+
+    /// <summary>WPF WithMaxSheets: the same stock with a different sheet
+    /// cap (the pattern master hands the leftover repair a reduced-cap
+    /// copy so it can only consume remaining inventory).</summary>
+    public StockSize WithMaxSheets(int maxSheets) => this with { MaxSheets = maxSheets };
 }
 
 /// <summary>One piece to cut (already expanded from row quantities).</summary>
@@ -441,6 +451,7 @@ public static partial class GuillotinePacker
         SplitMode split = SplitMode.HorizontalFirst,
         CancellationToken cancellationToken = default,
         PlatePattern platePattern = PlatePattern.Yield,
+        int fillEffort = 1,
         CutPolicy? policy = null)
     {
         if (pieces is null)
@@ -489,22 +500,37 @@ public static partial class GuillotinePacker
             result = ImprovePatterns(result, pieces, stocks, margins, rotation, 1, 1,
                 cancellationToken, () => quickWatch.Elapsed >= quickPlan.TimeBudget);
         }
-        // 25c (mapping §1.6b): the WPF then runs RunRepeatedPatterns and
-        // applies the plate pattern — the repeated/partitioned pattern
-        // family is the next slice.
+        // The repeated-pattern master (WPF: count-based cutting stock,
+        // gated with the same staged rule as the strips and the beam).
+        if (!staged)
+        {
+            result = Better(result, CheckCandidate(RunRepeatedPatterns(pieces, stocks,
+                margins, rotation, 1, cancellationToken), pieces, margins,
+                cancellationToken), platePattern)!;
+        }
         if (quickWatch.Elapsed >= quickPlan.TimeBudget)
             result.ScaleNotes.Add(
                 "QUICK pattern budget reached; retained the best validated candidate found.");
 
-        // Scope note (SaaS port, Phase 25b): QUICK now runs the WPF's
-        // candidate set — shelf pass, capacity strips (columns and
-        // rows) and the bounded pattern beam. The repeated-pattern and
-        // plate-pattern candidates remain a later slice (mapping §1.6b).
+        // The plate pattern is applied AFTER the yield winner (WPF
+        // ApplyPlatePattern): Yield returns the plan unchanged;
+        // FillFirstPlate may replace it only with a legal plan that does
+        // not add unplaced pieces or sheets.
+        result = ApplyPlatePattern(result, pieces, stocks, margins, rotation,
+            fillEffort, platePattern, cancellationToken, progress: null, policy);
+
+        // Scope note (SaaS port, Phase 25c): QUICK now runs the WPF's
+        // full candidate set — shelf pass, capacity strips, bounded
+        // pattern beam, the repeated-pattern master and the plate
+        // pattern. Off by default in the WPF and still deferred here:
+        // offcut reuse, placement local search, staged-cut enforcement
+        // and instrumentation (mapping §1.6d).
         result.ScaleNotes.Add(
-            "SaaS port (Phase 25b): QUICK runs the shelf pass, capacity " +
-            "strips (columns/rows) and the bounded pattern-beam candidates. " +
-            "The repeated-patterns and plate-patterns candidates are a later " +
-            "slice — documented in mapping §1.6b.");
+            "SaaS port (Phase 25c): QUICK runs the WPF candidate set — " +
+            "shelf pass, capacity strips, bounded pattern beam, repeated-" +
+            "pattern master, plate pattern. Still deferred: offcut reuse, " +
+            "local search, staged-cut enforcement, instrumentation " +
+            "(mapping §1.6d).");
 
         // PHASE 0: give every sheet a cut sequence. Paths that stamp
         // pieces straight onto a layout leave it without one, and a plan
@@ -542,7 +568,8 @@ public static partial class GuillotinePacker
         RotationPolicy rotation,
         SplitMode split,
         int consolidationSweeps = int.MaxValue,
-        int openSheetWindow = int.MaxValue)
+        int openSheetWindow = int.MaxValue,
+        CancellationToken cancellationToken = default)
     {
         var result = new OptimizationResult { Rotation = rotation };
         if (orderedPieces.Count == 0)
@@ -556,6 +583,7 @@ public static partial class GuillotinePacker
 
         foreach (var piece in orderedPieces)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             if (!PlaceOnOpenSheets(sheets, piece, margins, rotation, split))
             {
                 if (!OpenNewSheet(

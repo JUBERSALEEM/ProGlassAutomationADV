@@ -672,32 +672,41 @@ public static partial class GuillotinePacker
             throw new ArgumentException("At least one stock size is required.", nameof(stocks));
         if (margins == null) throw new ArgumentNullException(nameof(margins));
 
-        // ── Phase 25a documented difference (mapping §1.6b): the WPF hands
-        // groups at/above the industrial threshold to the pattern master
-        // (RepeatedPatterns/FillFirstPlate/Partitioned) — a batched engine
-        // with per-batch validation that is a later slice. Here ONE
-        // governor-bounded shelf pass runs instead, with a visible note.
-        // The pairwise layout oracles are deliberately NOT run at this
-        // scale — they are O(parts^2) per sheet, which is exactly why the
-        // WPF never runs the small-job grid up here; conservation and
-        // non-overlap hold by construction (every input piece is either
-        // placed through the free-rect ledger or recorded in Unplaced).
+        // The industrial handoff (WPF verbatim, 25c): at/above the
+        // quantity threshold the small-job grid does not run — the
+        // pattern master plans by distinct sizes, not expanded panes.
         if (pieces.Count >= IndustrialQuantityThreshold)
         {
-            var plan = OptimizationSearchGovernor.PlanForOptimize(pieces.Count, effortLevel);
-            var result = RunPass(Sort(pieces, OrderBy.Area), stocks, margins, rotation,
-                SplitMode.HorizontalFirst,
-                consolidationSweeps: plan.MaxConsolidationSweeps,
-                openSheetWindow: plan.OpenSheetWindow);
-            result.Strategy = "QUICK SHELF (Area / HorizontalFirst)";
-            result.ScaleNotes.Add(
-                "INDUSTRIAL PATH: " + pieces.Count.ToString("N0", CultureInfo.InvariantCulture) +
-                " parts is at/above the 100,000-part threshold where the WPF runs the pattern " +
-                "master instead of the small-job grid; that engine is not in this slice yet " +
-                "(mapping §1.6b), so one bounded shelf pass ran with construction invariants " +
-                "only (the pairwise layout oracle is O(parts^2) and is not run at this scale).");
-            DeriveLeftovers(result, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
-            return result;
+            var industrialPlan = NoteFillSkipped(
+                PackIndustrialPatterns(pieces, stocks, margins, rotation, effortLevel,
+                    cancellationToken, progress),
+                platePattern);
+            if (policy != null && policy.IsDepthConstrained)
+                industrialPlan.ScaleNotes.Add(IndustrialStagedUnsupportedNote);
+
+            // SaaS additions (documented, mapping §1.6c): the WPF returns
+            // the industrial plan without deriving cut sequences or
+            // leftovers (its UI derives lazily through TotalCuts when the
+            // FewestCuts axis is compared). The SaaS pipeline persists
+            // cut lists with the session and replays them for reporting
+            // and CNC export, so every sheet ships cuttable here and the
+            // leftover ledger is derived from the finished plan — both
+            // through the same invariants the QUICK/OPTIMIZE tails use.
+            for (int i = 0; i < industrialPlan.Sheets.Count; i++)
+            {
+                var sheet = industrialPlan.Sheets[i];
+                if (sheet.Cuts.Count == 0 && sheet.Pieces.Count > 0)
+                {
+                    if (!TryDeriveGuillotineCuts(sheet))
+                        industrialPlan.ScaleNotes.Add(
+                            "WARNING: sheet " + sheet.SheetNo + " holds "
+                            + sheet.Pieces.Count + " pane(s) but no sequence of "
+                            + "straight cuts produces that layout. It cannot be cut "
+                            + "as drawn - open it in the 2D VIEW before exporting.");
+                }
+            }
+            DeriveLeftovers(industrialPlan, Math.Max(margins.MinBreakoutMm, 1), margins.KerfMm);
+            return industrialPlan;
         }
 
         return RunOptimizeGrid(pieces, stocks, margins, rotation, effortLevel,
@@ -823,8 +832,12 @@ public static partial class GuillotinePacker
             var improved = ImprovePatterns(best!, pieces, stocks, margins, rotation,
                 2, effortLevel, cancellationToken, BudgetExhausted);
             if (Accepts(improved)) best = improved;
-            // 25c: the WPF then runs RunRepeatedPatterns here — the
-            // repeated/partitioned pattern family is the next slice.
+            if (!BudgetExhausted())
+            {
+                var repeated = CheckCandidate(RunRepeatedPatterns(pieces, stocks, margins,
+                    rotation, effortLevel, cancellationToken), pieces, margins, cancellationToken);
+                if (Accepts(repeated)) best = Better(best, repeated, platePattern);
+            }
         }
 
         // E4.1 — a plan that cannot be cut is not a plan: a candidate is
@@ -1091,6 +1104,21 @@ public static partial class GuillotinePacker
         // path validates through CheckCandidate, which used to leave
         // them false so clean OPTIMIZE plans reported "Not verified".
         final.RecordValidation(problems, conservationChecked: true, geometryChecked: true);
+
+        // The plate pattern is applied AFTER the yield winner (WPF
+        // verbatim). E4.1: the fill-first-plate branch chooses between
+        // plans OUTSIDE the candidate gate, so it is held to the same
+        // rule here — reverting to beforePlatePattern is always safe,
+        // that plan was admitted by the gate.
+        var beforePlatePattern = final;
+        final = ApplyPlatePattern(final, pieces, stocks, margins, rotation,
+            effortLevel, platePattern, cancellationToken, progress, policy);
+
+        if (requireGuillotine && !AllSheetsCuttable(final))
+        {
+            final = beforePlatePattern;
+            guillotineRejects++;
+        }
 
         // PHASE 0: give every sheet a cut sequence. Paths that stamp
         // pieces straight onto a layout leave it without one, and a plan

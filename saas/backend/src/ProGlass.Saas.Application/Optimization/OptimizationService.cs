@@ -191,10 +191,21 @@ public sealed class OptimizationService(
             // Effort 1 is exactly the QUICK pass; 2..5 widen the
             // multi-start grid (orderings × splits × deterministic
             // shuffles) with the governor's budget and tier machinery.
+            // Finite inventory takes PackOptimize so the shared rack cap
+            // is preserved globally; everything else above the large-job
+            // threshold goes to the partitioned engine (WPF
+            // OptimizationViewModel.Run.cs routing, 25c). The staged-cut
+            // axis of that route is not exposed on the API — the API has
+            // no policy parameter, so every API run is unstaged.
+            bool finiteStock = stocks.Any(s =>
+                s.MaxSheets > 0 && s.MaxSheets < StockSize.EffectivelyUnlimitedSheets);
             var plan = effort <= 1
                 ? GuillotinePacker.PackQuick(group.ToList(), stocks, margins, rotation, split)
-                : GuillotinePacker.PackOptimize(group.ToList(), stocks, margins, rotation,
-                    effortLevel: effort, platePattern: platePattern);
+                : finiteStock
+                    ? GuillotinePacker.PackOptimize(group.ToList(), stocks, margins, rotation,
+                        effortLevel: effort, platePattern: platePattern)
+                    : GuillotinePacker.PackOptimizePartitioned(group.ToList(), stocks, margins,
+                        rotation, effortLevel: effort, platePattern: platePattern);
             if (!plan.ConservationVerified || !plan.GeometryVerified)
             {
                 warnings.AddRange(plan.ValidationProblems);

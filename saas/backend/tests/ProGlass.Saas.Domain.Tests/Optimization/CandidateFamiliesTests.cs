@@ -335,7 +335,7 @@ public sealed class CandidateFamiliesTests
         // Commit, and anything else falls to the derivation net.
         Assert.All(quick.Sheets, s => Assert.NotEmpty(s.Cuts));
         // The scope note names what is still pending.
-        Assert.Contains(quick.ScaleNotes, n => n.StartsWith("SaaS port (Phase 25b)"));
+        Assert.Contains(quick.ScaleNotes, n => n.StartsWith("SaaS port (Phase 25c)"));
     }
 
     [Fact]

@@ -606,7 +606,7 @@ public sealed class OptimizeChassisTests
         Assert.Empty(GuillotinePacker.VerifyComprehensive(quick, pieces, margins));
         // The scope note tells the operator exactly which WPF candidates
         // are still pending — no silent degradation.
-        Assert.Contains(quick.ScaleNotes, n => n.StartsWith("SaaS port (Phase 25b)"));
+        Assert.Contains(quick.ScaleNotes, n => n.StartsWith("SaaS port (Phase 25c)"));
         // Consolidation ran: every remaining sheet holds at least one
         // piece (no evacuated husks left behind).
         Assert.All(quick.Sheets, s => Assert.NotEmpty(s.Pieces));
