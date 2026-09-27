@@ -34,3 +34,21 @@ python3 -m venv ~/.venv 2>/dev/null || python3 -m venv /home/user/.venv
 - Python 3.11, Node 22, PostgreSQL 16.4 (pgserver), tree-sitter 0.2x
 - Last full verification: 23/23 checks green — see
   `saas/database/verify/verification/PHASE3_VERIFICATION.md`
+
+## The .NET build gate (`dotnet-ci.yml`)
+
+The devbox cannot close the release gate on its own: it has no .NET SDK
+**and no NuGet access** — `dot.net`, `download.visualstudio.microsoft.com`,
+`builds.dotnet.microsoft.com`, `packages.microsoft.com` and `api.nuget.org`
+are all network-blocked (verified 2026-09-27; `github.com`, `api.github.com`,
+`codeload.github.com` and `pypi.org` are reachable, which is how the work
+gets pushed at all). The solution therefore ships
+[`dotnet-ci.yml`](dotnet-ci.yml): a ready-to-activate GitHub Actions
+workflow that runs `dotnet restore/build/test` on the full solution
+against a real PostgreSQL 16 service — unit **and** integration tests,
+including the C# `SqlMigrationRunner` and the RLS session path.
+
+It is kept here rather than in `.github/workflows/` because the Arena
+agent's GitHub App token may not push workflow files (GitHub rejects
+that without `workflows` permission). Activation is one commit by an
+account that can — see the header comment in the file.

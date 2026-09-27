@@ -1,0 +1,99 @@
+name: SaaS backend CI (dotnet build + test)
+
+# NOTE: this file lives at saas/devbox/dotnet-ci.yml because the Arena agent's
+# GitHub App token is NOT allowed to push files under .github/workflows/
+# (GitHub refuses workflow updates from Apps without `workflows` permission —
+# verified 2026-09-27). To activate the CI, copy it into place with an account
+# that can push workflows, e.g. from the repository root:
+#
+#   mkdir -p .github/workflows
+#   cp saas/devbox/dotnet-ci.yml .github/workflows/dotnet-ci.yml
+#   git add .github/workflows/dotnet-ci.yml
+#   git commit -m "ci: activate dotnet CI (from saas/devbox/dotnet-ci.yml)"
+#   git push
+#
+# (switch to the branch you want it on first — the push trigger below targets
+# arena/01a0e138-proglassautomationadv; edit the branch filter or add `main`
+# when this work merges).
+#
+# The devbox sandbox that authors the SaaS port has no .NET SDK and no NuGet
+# access (dot.net, download.visualstudio.microsoft.com, builds.dotnet.microsoft.com,
+# packages.microsoft.com and api.nuget.org are all network-blocked there —
+# verified 2026-09-27), so the solution has never been compiled locally.
+# GitHub's runners have both. This workflow IS the release gate from
+# SAAS_FINAL_AUDIT_REPORT.md §8 risk 1: dotnet build + dotnet test on .NET 8.
+
+on:
+  push:
+    branches: [arena/01a0e138-proglassautomationadv]
+    paths:
+      - 'saas/backend/**'
+      - '.github/workflows/dotnet-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # PostgreSQL 16 — the same major version the Python verification harness
+    # (saas/database/verify/apply_and_test.py, 59/59) runs against.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      # Owner/elevated connection: the DatabaseFixture applies the migrations
+      # through the C# SqlMigrationRunner (embedded resources — the same
+      # files the Python harness verified) and creates integration tenants.
+      SAAS_TEST_DB: 'Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres'
+      # Unprivileged runtime connection: member of saas_app, exercising the
+      # same RLS path the API uses (AmbientTenantContext + interceptor
+      # setting app.tenant_id).
+      SAAS_TEST_APP_DB: 'Host=localhost;Port=5432;Database=postgres;Username=saas_test_app;Password=postgres'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # Pre-create the roles so the runtime connection can log in from the
+      # start. Migration 0005 creates saas_app/saas_owner itself under
+      # IF NOT EXISTS guards, so this is idempotent; saas_test_app is the
+      # CI stand-in for the application login — the same shape the Python
+      # harness creates (saas_test_app LOGIN IN ROLE saas_app).
+      - name: Create runtime roles
+        run: |
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 <<'SQL'
+          DO $$
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'saas_app') THEN
+              CREATE ROLE saas_app NOLOGIN;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'saas_owner') THEN
+              CREATE ROLE saas_owner NOLOGIN;
+            END IF;
+          END $$;
+          SQL
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -c "CREATE ROLE saas_test_app LOGIN PASSWORD 'postgres' IN ROLE saas_app"
+
+      - name: Restore
+        run: dotnet restore saas/backend/ProGlass.Saas.sln
+
+      - name: Build
+        run: dotnet build saas/backend/ProGlass.Saas.sln --no-restore --configuration Release
+
+      - name: Test (unit + integration)
+        run: dotnet test saas/backend/ProGlass.Saas.sln --no-build --configuration Release

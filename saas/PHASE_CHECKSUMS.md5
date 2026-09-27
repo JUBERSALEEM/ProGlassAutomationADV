@@ -216,9 +216,10 @@ c1262695e64c7ba41bbe583acbf81bb3  saas/database/verify/apply_and_test.py
 c718f829df0730d2f48daf705e3e27d1  saas/database/verify/verification/DATABASE_VERIFICATION.md
 6964c674876cf44fa8bc518eaedfbb20  saas/database/verify/verification/HARDENING_AUDIT.md
 2b5e646cbab5ecfbe512c314c21f8cd9  saas/database/verify/verification/PHASE3_VERIFICATION.md
-95a5237181d71b1ce240f102cd47bb27  saas/devbox/README.md
+e9196b1092fdc6a355cd85a49bb82ebd  saas/devbox/README.md
 da2861799fd4639efb081d6e9284e65e  saas/devbox/backup_db.py
 2493c6d5c04c2102a63becf4f7a3a961  saas/devbox/derive_step9_goldens.py
+306bc639f7513f3cf1e0b7c467d50fdc  saas/devbox/dotnet-ci.yml
 50f6040c373f6f2c7235ad6cd455994f  saas/devbox/generate_ef_model.py
 e878c3a96487169155d77850a647bd40  saas/devbox/syntax_check_cs.py
 1de13fc808dbdc8617969c7c288f5cd3  saas/docs/SAAS_API_DESIGN.md
