@@ -16,7 +16,8 @@ public sealed class ReportingController(
     ReportingService reporting,
     RowTraceabilityService traceability,
     CncExportService cncExport,
-    CuttingReportService cuttingReports) : TenantControllerBase
+    CuttingReportService cuttingReports,
+    ReportingCacheService cache) : TenantControllerBase
 {
     /// <summary>
     /// Cross-module executive summary: the order-to-cash cohort funnel
@@ -100,6 +101,107 @@ public sealed class ReportingController(
         return Ok(await traceability.CalculateReconciliationAsync(
             tenant, proformaNo, group, serial, ct).ConfigureAwait(false));
     }
+
+    /// <summary>
+    /// CSV export of the profitability rows (the WPF generic CSV export
+    /// path — RFC 4180, metadata header block, WPF file naming).
+    /// </summary>
+    [HttpGet("export/profitability.csv")]
+    [HasPermission(AppPermissions.ReportsView)]
+    public async Task<IActionResult> ExportProfitabilityCsv(
+        [FromQuery] ReportingQuery query, CancellationToken ct)
+    {
+        var tenant = RequiredTenantId;
+        var page = await reporting.GetProfitabilityRowsAsync(
+            tenant, query.ToFilter(), ct).ConfigureAwait(false);
+        var csv = ReportingCsv.Build(
+            page.Items, "Profitability Report",
+            ReportingCsvLayouts.ProfitabilityHeaders,
+            ReportingCsvLayouts.ProfitabilityMap,
+            new CsvExportMetadata("Profitability Report", new[]
+            {
+                ("Tenant", tenant.ToString("N")),
+                ("Rows", page.TotalCount.ToString()),
+                ("Generated", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm"))
+            }));
+        return CsvFile(csv, ExportFileNamer.Build(
+            "PROFITABILITY", null, null, DateTime.UtcNow, "csv"));
+    }
+
+    /// <summary>CSV export of the delivery report rows (the WPF Dn
+    /// header/map set).</summary>
+    [HttpGet("export/delivery.csv")]
+    [HasPermission(AppPermissions.ReportsView)]
+    public async Task<IActionResult> ExportDeliveryCsv(
+        [FromQuery] ReportingQuery query, CancellationToken ct)
+    {
+        var tenant = RequiredTenantId;
+        var rows = await reporting.GetDeliveryRowsForExportAsync(
+            tenant, query.ToFilter(), ct).ConfigureAwait(false);
+        var csv = ReportingCsv.Build(
+            rows, "Delivery Report",
+            ReportingCsvLayouts.DnHeaders,
+            ReportingCsvLayouts.DnMap,
+            new CsvExportMetadata("Delivery Report", new[]
+            {
+                ("Tenant", tenant.ToString("N")),
+                ("Rows", rows.Count.ToString()),
+                ("Generated", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm"))
+            }));
+        return CsvFile(csv, ExportFileNamer.Build(
+            "DELIVERY", query.Customer, null, DateTime.UtcNow, "csv"));
+    }
+
+    /// <summary>CSV export of the job-order report rows (the WPF Jo
+    /// header/map set).</summary>
+    [HttpGet("export/job-orders.csv")]
+    [HasPermission(AppPermissions.ReportsView)]
+    public async Task<IActionResult> ExportJobOrdersCsv(
+        [FromQuery] ReportingQuery query, CancellationToken ct)
+    {
+        var tenant = RequiredTenantId;
+        var rows = await reporting.GetJoRowsForExportAsync(
+            tenant, query.ToFilter(), ct).ConfigureAwait(false);
+        var csv = ReportingCsv.Build(
+            rows, "Job Order Report",
+            ReportingCsvLayouts.JoHeaders,
+            ReportingCsvLayouts.JoMap,
+            new CsvExportMetadata("Job Order Report", new[]
+            {
+                ("Tenant", tenant.ToString("N")),
+                ("Rows", rows.Count.ToString()),
+                ("Generated", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm"))
+            }));
+        return CsvFile(csv, ExportFileNamer.Build(
+            "JOB-ORDERS", query.Customer, null, DateTime.UtcNow, "csv"));
+    }
+
+    /// <summary>
+    /// Operator-triggered reporting cache invalidation. The WPF clears
+    /// its cache on every document change (an in-process event); the
+    /// SaaS bounds staleness with the 30s TTL and exposes this for a
+    /// provably fresh read.
+    /// </summary>
+    [HttpPost("cache/invalidate")]
+    [HasPermission(AppPermissions.ReportsView)]
+    public IActionResult InvalidateCache()
+    {
+        cache.Invalidate();
+        var (count, _) = cache.GetStats();
+        return Ok(new { invalidated = true, entriesCleared = count });
+    }
+
+    /// <summary>Cache statistics (entries + expired) for ops.</summary>
+    [HttpGet("cache/stats")]
+    [HasPermission(AppPermissions.ReportsView)]
+    public IActionResult CacheStats()
+    {
+        var (count, expired) = cache.GetStats();
+        return Ok(new { entries = count, expired });
+    }
+
+    private IActionResult CsvFile(string csv, string fileName) =>
+        File(System.Text.Encoding.UTF8.GetBytes(csv), "text/csv", fileName);
 
     /// <summary>Cutting sheet report for a job: one row per cut sheet —
     /// spec, material, sheet dims, the piece list with rotations,

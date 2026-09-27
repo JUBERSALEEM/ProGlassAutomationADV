@@ -19,7 +19,9 @@
 
 namespace ProGlass.Saas.Application.Reporting;
 
-public sealed class ReportingService(IReportingStore store)
+public sealed class ReportingService(
+    IReportingStore store,
+    ReportingCacheService? cache = null)
 {
     /// <summary>
     /// A step converting below this rate is flagged as a bottleneck.
@@ -42,6 +44,22 @@ public sealed class ReportingService(IReportingStore store)
         Guid tenantId, ReportingFilter? filter, CancellationToken ct = default)
     {
         filter ??= new ReportingFilter();
+
+        // The 30s memoization (WPF Phase 9): a repeated filter within the
+        // window hits the cache instead of re-querying every module.
+        if (cache != null)
+        {
+            var key = cache.BuildKey(tenantId, "executive", filter);
+            return await cache.GetOrAddAsync(key,
+                () => BuildExecutiveSummaryAsync(tenantId, filter, ct)).ConfigureAwait(false);
+        }
+
+        return await BuildExecutiveSummaryAsync(tenantId, filter, ct).ConfigureAwait(false);
+    }
+
+    private async Task<ExecutiveSummaryDto> BuildExecutiveSummaryAsync(
+        Guid tenantId, ReportingFilter filter, CancellationToken ct)
+    {
         var result = new ExecutiveSummaryDto
         {
             GeneratedAt = DateTime.UtcNow,
@@ -291,6 +309,20 @@ public sealed class ReportingService(IReportingStore store)
     {
         filter ??= new ReportingFilter();
 
+        if (cache != null)
+        {
+            var key = cache.BuildKey(tenantId, "jo-analytics", filter);
+            var cached = await cache.GetOrAddAsync(key,
+                () => BuildJoAnalyticsAsync(tenantId, filter, ct)).ConfigureAwait(false);
+            return cached;
+        }
+
+        return await BuildJoAnalyticsAsync(tenantId, filter, ct).ConfigureAwait(false);
+    }
+
+    private async Task<JoAnalyticsDto> BuildJoAnalyticsAsync(
+        Guid tenantId, ReportingFilter filter, CancellationToken ct)
+    {
         try
         {
             // Clone so raising the page size cannot leak back into the
@@ -453,6 +485,17 @@ public sealed class ReportingService(IReportingStore store)
             Items = rows, TotalCount = page.TotalCount, Page = filter.Page, PageSize = filter.PageSize
         };
     }
+
+    /// <summary>Delivery rows for CSV export (the analytics window —
+    /// the WHOLE filtered set, never one page).</summary>
+    public Task<List<DeliveryReportRow>> GetDeliveryRowsForExportAsync(
+        Guid tenantId, ReportingFilter filter, CancellationToken ct = default) =>
+        store.GetDeliveryRowsAsync(tenantId, CloneForAnalytics(filter), AnalyticsMaxRows, ct);
+
+    /// <summary>Job-order rows for CSV export (the whole filtered set).</summary>
+    public Task<List<JoReportRow>> GetJoRowsForExportAsync(
+        Guid tenantId, ReportingFilter filter, CancellationToken ct = default) =>
+        store.GetJoRowsAsync(tenantId, CloneForAnalytics(filter), AnalyticsMaxRows, ct);
 
     // ── helpers ────────────────────────────────────────────────────────
 

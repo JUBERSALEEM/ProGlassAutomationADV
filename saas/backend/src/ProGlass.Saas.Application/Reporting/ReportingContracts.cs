@@ -282,6 +282,7 @@ public sealed class ProfitabilitySummaryDto
 public sealed record DeliveryReportRow(
     Guid? JobOrderId,
     Guid ProformaId,
+    string ProformaNo,
     int SpecGroupNumber,
     int SerialNumber,
     string Specification,
@@ -298,16 +299,27 @@ public sealed record DeliveryReportRow(
     public int BalanceQty => Math.Max(0, TotalQty - DeliveredQty);
 }
 
-/// <summary>One job-order analytics row (WPF JoReportRow, reduced).</summary>
+/// <summary>One job-order analytics row (WPF JoReportRow).</summary>
 public sealed record JoReportRow(
     Guid Id,
     string JobNo,
     Guid ProformaId,
+    string ProformaNo,
+    string CompanyName,
+    string Salesman,
     string CustomerName,
+    string ProjectName,
+    string Status,
+    string Priority,
+    DateOnly? DeliveryDate,
     DateTime CreatedAt,
     int TotalQty,
     decimal TotalSqm,
-    decimal GrandTotal);
+    decimal GrandTotal,
+    int DeliveredQty)
+{
+    public int BalanceQty => Math.Max(0, TotalQty - DeliveredQty);
+}
 
 /// <summary>Per-PI aggregate for profitability (WPF snapshot P&amp;L read).</summary>
 public sealed record ProfitabilityPiRow(

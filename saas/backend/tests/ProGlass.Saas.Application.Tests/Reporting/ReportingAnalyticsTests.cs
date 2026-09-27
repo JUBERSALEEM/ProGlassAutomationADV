@@ -15,7 +15,7 @@ public sealed class ReportingAnalyticsTests
         string spec = "6mm Clear", string customer = "Acme", string colour = "",
         string glassType = "SGU", int w1 = 1000, int h1 = 2000, int total = 2,
         int delivered = 0, DateTime? ordered = null) => new(
-        Guid.NewGuid(), Guid.NewGuid(), 1, 1, spec, customer, "P", "GR-1",
+        Guid.NewGuid(), Guid.NewGuid(), "PI-1", 1, 1, spec, customer, "P", "GR-1",
         colour, glassType, w1, h1, 0, 0, total, delivered, ordered ?? default);
 
     // ── Pareto: rank, share, Other tail ─────────────────────────────
@@ -158,7 +158,7 @@ public sealed class ReportingAnalyticsTests
         // W2/H2 bounding pair used when W1/H1 are absent (shaped glass).
         var shaped = new List<DeliveryReportRow>
         {
-            new(Guid.NewGuid(), Guid.NewGuid(), 1, 1, "Shaped", "Acme", "P", "GR",
+            new(Guid.NewGuid(), Guid.NewGuid(), "PI-1", 1, 1, "Shaped", "Acme", "P", "GR",
                 "", "SGU", 0, 0, 1200, 800, 2, 0, default)
         };
         var shapedAnalytics = ReportingAnalytics.BuildDeliveryAnalytics(shaped);
@@ -173,12 +173,12 @@ public sealed class ReportingAnalyticsTests
         // 2026-09-27 is a Sunday; 2026-09-21 is its Monday.
         var rows = new List<JoReportRow>
         {
-            new(Guid.NewGuid(), "JOB-1", Guid.NewGuid(), "Acme",
-                new DateTime(2026, 9, 27), 2, 4m, 100m),
-            new(Guid.NewGuid(), "JOB-2", Guid.NewGuid(), "Acme",
-                new DateTime(2026, 9, 25), 1, 2m, 50m),
-            new(Guid.NewGuid(), "JOB-3", Guid.NewGuid(), "Beta",
-                new DateTime(2026, 9, 15), 1, 2m, 50m),   // previous week
+            new(Guid.NewGuid(), "JOB-1", Guid.NewGuid(), "PI-1", "", "", "Acme", "P",
+                "Released", "Medium", null, new DateTime(2026, 9, 27), 2, 4m, 100m, 0),
+            new(Guid.NewGuid(), "JOB-2", Guid.NewGuid(), "PI-1", "", "", "Acme", "P",
+                "Released", "Medium", null, new DateTime(2026, 9, 25), 1, 2m, 50m, 0),
+            new(Guid.NewGuid(), "JOB-3", Guid.NewGuid(), "PI-2", "", "", "Beta", "Q",
+                "Released", "Medium", null, new DateTime(2026, 9, 15), 1, 2m, 50m, 0),
         };
 
         var analytics = ReportingAnalytics.BuildJoAnalytics(rows);
@@ -197,10 +197,10 @@ public sealed class ReportingAnalyticsTests
     {
         var rows = new List<JoReportRow>
         {
-            new(Guid.NewGuid(), "JOB-1", Guid.NewGuid(), "Acme",
-                new DateTime(2026, 9, 27), 10, 20m, 1_000m),
-            new(Guid.NewGuid(), "JOB-2", Guid.NewGuid(), "Beta",
-                new DateTime(2026, 9, 27), 5, 10m, 500m),
+            new(Guid.NewGuid(), "JOB-1", Guid.NewGuid(), "PI-1", "", "", "Acme", "P",
+                "Released", "High", null, new DateTime(2026, 9, 27), 10, 20m, 1_000m, 4),
+            new(Guid.NewGuid(), "JOB-2", Guid.NewGuid(), "PI-2", "", "", "Beta", "Q",
+                "Released", "Low", null, new DateTime(2026, 9, 27), 5, 10m, 500m, 0),
         };
 
         var analytics = ReportingAnalytics.BuildJoAnalytics(rows);

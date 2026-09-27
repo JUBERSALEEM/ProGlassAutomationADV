@@ -469,6 +469,9 @@ public sealed class ReportingStore(SaasDbContextFactory factory) : IReportingSto
             {
                 JobOrderId = g.Key.JobOrderId,
                 ProformaId = g.Max(x => x.j.ProformaId),
+                ProformaNo = g.Max(x => db.ProformaInvoices
+                    .Where(p => p.Id == x.j.ProformaId)
+                    .Select(p => p.ProformaNo).FirstOrDefault() ?? ""),
                 SpecGroupNumber = g.Key.SpecGroupNumber,
                 SerialNumber = g.Key.SerialNumber,
                 Specification = g.Max(x => x.i.SpecGroupName),
@@ -493,6 +496,7 @@ public sealed class ReportingStore(SaasDbContextFactory factory) : IReportingSto
     {
         public Guid? JobOrderId { get; set; }
         public Guid ProformaId { get; set; }
+        public string ProformaNo { get; set; } = "";
         public int SpecGroupNumber { get; set; }
         public int SerialNumber { get; set; }
         public string Specification { get; set; } = "";
@@ -511,7 +515,7 @@ public sealed class ReportingStore(SaasDbContextFactory factory) : IReportingSto
     }
 
     private static DeliveryReportRow Map(DeliveryRowProjection p) => new(
-        p.JobOrderId, p.ProformaId, p.SpecGroupNumber, p.SerialNumber,
+        p.JobOrderId, p.ProformaId, p.ProformaNo, p.SpecGroupNumber, p.SerialNumber,
         p.Specification, p.CustomerName, p.ProjectName, p.GlassRef,
         p.OuterColour, p.GlassType,
         p.W1, p.H1, p.W2, p.H2, p.TotalQty, p.DeliveredQty, p.OrderedAt);
@@ -696,8 +700,36 @@ public sealed class ReportingStore(SaasDbContextFactory factory) : IReportingSto
         var page = await query
             .OrderByDescending(j => j.CreatedAt)
             .Take(maxRows)
-            .Select(j => new { j.Id, j.JobNo, j.ProformaId, j.CustomerName, j.CreatedAt, j.GrandTotalVatInclusive })
+            .Select(j => new
+            {
+                j.Id, j.JobNo, j.ProformaId, j.CustomerName, j.ProjectName,
+                j.Status, j.Priority, j.DeliveryDate, j.CreatedAt,
+                j.GrandTotalVatInclusive, j.SalesmanId,
+                ProformaNo = db.ProformaInvoices
+                    .Where(p => p.Id == j.ProformaId)
+                    .Select(p => p.ProformaNo).FirstOrDefault() ?? "",
+                CompanyName = db.ProformaInvoices
+                    .Where(p => p.Id == j.ProformaId)
+                    .Select(p => db.Companies
+                        .Where(c => c.Id == p.CompanyId)
+                        .Select(c => c.Name).FirstOrDefault() ?? "")
+                    .FirstOrDefault() ?? "",
+                Salesman = db.Salesmen
+                    .Where(s => s.Id == j.SalesmanId)
+                    .Select(s => s.Name).FirstOrDefault() ?? ""
+            })
             .ToListAsync(ct).ConfigureAwait(false);
+
+        // WPF: per-JO delivered qty from the real (non-master) DNs.
+        var pageJoIds = page.Select(j => j.Id).ToList();
+        var deliveredByJo = await (from i in db.DeliveryNoteItems.AsNoTracking()
+                                   join d in db.DeliveryNotes.AsNoTracking() on i.DeliveryNoteId equals d.Id
+                                   where !d.IsMasterDn && !d.IsVoid
+                                         && i.JobOrderId != null
+                                         && pageJoIds.Contains(i.JobOrderId.Value)
+                                   group i by i.JobOrderId!.Value into g
+                                   select new { JobId = g.Key, Delivered = g.Sum(x => x.DeliveredQty) })
+            .ToDictionaryAsync(x => x.JobId, x => x.Delivered, ct).ConfigureAwait(false);
 
         // WPF: qty/sqm from the JO's embedded PI snapshot; SaaS: the
         // normalized spec items of the source PI (same source of truth).
@@ -722,10 +754,13 @@ public sealed class ReportingStore(SaasDbContextFactory factory) : IReportingSto
         }
 
         return page.Select(j => new JoReportRow(
-            j.Id, j.JobNo, j.ProformaId, j.CustomerName, j.CreatedAt,
+            j.Id, j.JobNo, j.ProformaId, j.ProformaNo, j.CompanyName, j.Salesman,
+            j.CustomerName, j.ProjectName, j.Status, j.Priority, j.DeliveryDate,
+            j.CreatedAt,
             qtyByPi.TryGetValue(j.ProformaId, out var qty) ? qty : 0,
             sqmByPi.TryGetValue(j.ProformaId, out var sqm) ? sqm : 0m,
-            j.GrandTotalVatInclusive)).ToList();
+            j.GrandTotalVatInclusive,
+            deliveredByJo.TryGetValue(j.Id, out var delivered) ? delivered : 0)).ToList();
     }
 
     public async Task<int> CountCohortInProductionAsync(
