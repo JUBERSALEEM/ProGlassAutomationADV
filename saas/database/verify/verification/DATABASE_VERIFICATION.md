@@ -1,9 +1,9 @@
 # SAAS DATABASE VERIFICATION REPORT (Phases 3–4)
 
-**Generated:** 2026-09-27T07:14:24.760530+00:00  
+**Generated:** 2026-09-27T07:27:54.449365+00:00  
 **PostgreSQL:** 16 (pgserver, live instance)  
-**Migrations applied:** 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql  
-**Result: 35/35 checks passed, 0 failed**
+**Migrations applied:**   
+**Result: 43/43 checks passed, 0 failed**
 
 Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 (requires `pip install pgserver psycopg2-binary`; or pass `--db-uri`).
@@ -24,12 +24,12 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 12 | invalid status rejected (CHECK) | ✅ PASS | — |
 | 13 | FK to nonexistent proforma rejected | ✅ PASS | — |
 | 14 | cascade delete removes spec groups + items | ✅ PASS | — |
-| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 07:14:24.664205+00:00 → 2026-09-27 07:14:24.714966+00:00 |
+| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 07:27:54.330362+00:00 → 2026-09-27 07:27:54.381304+00:00 |
 | 16 | audit_logs UPDATE denied for app role | ✅ PASS | — |
 | 17 | stock_transactions DELETE denied for app role | ✅ PASS | — |
 | 18 | numeric money arithmetic exact | ✅ PASS | 1050.00 |
 | 19 | re-run is a no-op (idempotent) | ✅ PASS | applied 0 |
-| 20 | all 7 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql |
+| 20 | all 8 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql |
 | 21 | tampered migration detected | ✅ PASS | — |
 | 22 | runtime role cannot INSERT tenants | ✅ PASS | — |
 | 23 | runtime role can READ tenants | ✅ PASS | — |
@@ -45,3 +45,11 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 33 | 0007: clients.document_prepared_by exists NOT NULL | ✅ PASS | ("''::text", 'NO') |
 | 34 | company insert fills WPF branding defaults | ✅ PASS | None/22.00/26.00 |
 | 35 | companies.logo_layout CHECK rejects unknown layouts | ✅ PASS | — |
+| 36 | 0008: specifications catalogue columns exist (WPF 2026-09-02 set) | ✅ PASS | ['category', 'color', 'last_proforma_no', 'panes_json', 'sheet_height_mm', 'sheet_id', 'sheet_width_mm', 'thickness_mm'] |
+| 37 | 0008: usage_count default is 0 (a new spec has never been used) | ✅ PASS | ('0',) |
+| 38 | 0008: natural key (tenant_id, glass_type, spec_name) enforced | ✅ PASS | — |
+| 39 | 0008: specification_usages exists with RLS enabled | ✅ PASS | — |
+| 40 | 0008: new spec starts at usage_count 0 (not 1) | ✅ PASS | 0 |
+| 41 | 0008: duplicate (tenant, glass_type, spec_name) rejected | ✅ PASS | — |
+| 42 | 0008: same spec name allowed in another tenant | ✅ PASS | — |
+| 43 | 0008: usage pair UNIQUE (spec, proforma) — one verified use per pair | ✅ PASS | — |

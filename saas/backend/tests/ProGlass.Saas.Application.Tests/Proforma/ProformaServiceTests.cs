@@ -5,6 +5,7 @@
 // SERVICE applies them.
 
 using ProGlass.Saas.Application.Proforma;
+using ProGlass.Saas.Application.Specifications;
 using ProGlass.Saas.Domain.Entities;
 using ProGlass.Saas.Domain.Proforma;
 using Xunit;
@@ -15,6 +16,7 @@ public class ProformaServiceTests
 {
     private readonly FakeProformaStore _store = new();
     private readonly FakeAuditWriter _audit = new();
+    private readonly FakeSpecificationsStore _specsStore = new();
     private readonly ProformaService _sut;
 
     private static readonly Guid Tenant = Guid.NewGuid();
@@ -22,7 +24,8 @@ public class ProformaServiceTests
 
     public ProformaServiceTests()
     {
-        _sut = new ProformaService(_store, _audit);
+        _sut = new ProformaService(
+            _store, _audit, new SpecificationsService(_specsStore, _audit));
     }
 
     private static CreateProformaRequest CreateRequest() => new(
@@ -593,5 +596,61 @@ public class ProformaServiceTests
         var row = groups.Value!.Single().Items[0];
         Assert.Equal(6.000m, row.Lm1); // (1000+1000)/1000 × 2 × 3
         Assert.Equal(0m, row.Lm2);
+    }
+
+    [Fact]
+    public async Task Grid_save_stamps_the_referenced_spec_and_reconciles()
+    {
+        var spec = await new SpecificationsService(_specsStore, _audit).ApplyAsync(
+            Tenant, Actor, null,
+            new ApplySpecificationRequest(
+                "SGU", "6mm Clear FT", 46m, null, null, null, null, null,
+                null, null, null, null),
+            CancellationToken.None);
+        Assert.True(spec.Success, spec.Message);
+
+        var invoice = await CreateAsync();
+        var grid = Grid() with
+        {
+            Groups = new List<SpecGroupRequest>
+            {
+                new(1, "SGU", "6mm Clear FT", 46m, "formula",
+                    new List<SpecGroupItemRequest>
+                    {
+                        new(1, "Front", 1000, 1000, 0, 0, 3, null, ""),
+                    },
+                    SpecId: spec.Value!.Id),
+            },
+        };
+
+        var saved = await _sut.SaveSpecGroupsAsync(
+            Tenant, invoice.Id, Actor, null, grid, CancellationToken.None);
+        Assert.True(saved.Success, saved.Message);
+
+        // The ledger ran after the save (WPF: after every invoice write).
+        Assert.Equal(1, _specsStore.ReconcileCalls);
+    }
+
+    [Fact]
+    public async Task Grid_save_refuses_an_unknown_spec_reference()
+    {
+        var invoice = await CreateAsync();
+        var grid = Grid() with
+        {
+            Groups = new List<SpecGroupRequest>
+            {
+                new(1, "SGU", "x", 46m, "formula",
+                    new List<SpecGroupItemRequest>(),
+                    SpecId: Guid.NewGuid()),
+            },
+        };
+
+        var result = await _sut.SaveSpecGroupsAsync(
+            Tenant, invoice.Id, Actor, null, grid, CancellationToken.None);
+
+        Assert.False(result.Success);
+        Assert.Equal(ProformaErrorCode.ValidationFailed, result.ErrorCode);
+        Assert.Contains("was not found", result.Message);
+        Assert.Equal(0, _specsStore.ReconcileCalls); // nothing was saved
     }
 }

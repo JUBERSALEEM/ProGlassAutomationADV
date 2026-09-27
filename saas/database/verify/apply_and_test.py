@@ -430,7 +430,7 @@ def test_migrations(db_uri: str):
     with conn.cursor() as cur:
         cur.execute("SELECT name, checksum FROM saas._saas_migrations ORDER BY name")
         rows = cur.fetchall()
-        record("all 7 migrations recorded with checksums", len(rows) == 7,
+        record("all 8 migrations recorded with checksums", len(rows) == 8,
                ", ".join(r[0] for r in rows))
         # tamper with a checksum → runner must refuse
         cur.execute("UPDATE saas._saas_migrations SET checksum = 'deadbeef' WHERE name = '0001_platform_identity.sql'")
@@ -640,6 +640,135 @@ def write_report(argv: list[str], applied_names: list[str]):
     return failed == 0
 
 
+def test_specifications(db_uri: str):
+    """Phase 7b: specifications parity (0008) + ledger constraints."""
+    print("\n== Phase 7b: specifications schema ==")
+    conn = connect(db_uri)
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT column_name FROM information_schema.columns
+            WHERE table_schema = 'saas' AND table_name = 'specifications'
+              AND column_name IN ('category', 'color', 'thickness_mm',
+                                  'sheet_width_mm', 'sheet_height_mm',
+                                  'sheet_id', 'panes_json', 'last_proforma_no')
+        """)
+        cols = {r[0] for r in cur.fetchall()}
+        record("0008: specifications catalogue columns exist (WPF 2026-09-02 set)",
+               cols == {'category', 'color', 'thickness_mm', 'sheet_width_mm',
+                        'sheet_height_mm', 'sheet_id', 'panes_json', 'last_proforma_no'},
+               str(sorted(cols)))
+
+        cur.execute("""
+            SELECT column_default FROM information_schema.columns
+            WHERE table_schema = 'saas' AND table_name = 'specifications'
+              AND column_name = 'usage_count'
+        """)
+        row = cur.fetchone()
+        record("0008: usage_count default is 0 (a new spec has never been used)",
+               row is not None and row[0] in ("0", "0::integer"),
+               str(row))
+
+        cur.execute("""
+            SELECT 1 FROM pg_constraint
+            WHERE conname = 'uq_specifications_tenant_type_name'
+        """)
+        record("0008: natural key (tenant_id, glass_type, spec_name) enforced",
+               cur.fetchone() is not None)
+
+        cur.execute("""
+            SELECT 1 FROM pg_tables
+            WHERE schemaname = 'saas' AND tablename = 'specification_usages'
+              AND rowsecurity = 'true'
+        """)
+        record("0008: specification_usages exists with RLS enabled",
+               cur.fetchone() is not None)
+    conn.close()
+
+    # Runtime-role behaviour: the dedup key + the one-row-per-(spec, PI)
+    # ledger constraint, and cross-tenant spec name reuse. Every step
+    # COMMITS so a crash cannot leave half a probe behind, and the probe
+    # rows are cleaned in BOTH tenants before and after.
+    conn = connect(db_uri, role="saas_test_app")
+    cur = conn.cursor()
+
+    def cleanup_probe(cursor):
+        for tenant in (TENANT_A, TENANT_B):
+            cursor.execute("SET app.tenant_id = %s", (tenant,))
+            cursor.execute("DELETE FROM saas.proforma_invoices WHERE proforma_no = 'phase7b-probe-PI'")
+            cursor.execute("DELETE FROM saas.specification_usages WHERE spec_name = 'phase7b-probe'")
+            cursor.execute("DELETE FROM saas.specifications WHERE spec_name = 'phase7b-probe'")
+        conn.commit()
+
+    cleanup_probe(cur)
+
+    cur.execute("SET app.tenant_id = %s", (TENANT_A,))
+    cur.execute("""
+        INSERT INTO saas.specifications (tenant_id, spec_name, glass_type, rate_per_sqm)
+        VALUES (%s, 'phase7b-probe', 'SGU', 46)
+        RETURNING id, usage_count
+    """, (TENANT_A,))
+    spec_id, usage_count = cur.fetchone()
+    conn.commit()
+    record("0008: new spec starts at usage_count 0 (not 1)", usage_count == 0,
+           str(usage_count))
+
+    try:
+        cur.execute("""
+            INSERT INTO saas.specifications (tenant_id, spec_name, glass_type, rate_per_sqm)
+            VALUES (%s, 'phase7b-probe', 'SGU', 47)
+        """, (TENANT_A,))
+        conn.commit()
+        record("0008: duplicate (tenant, glass_type, spec_name) rejected", False,
+               "insert succeeded!")
+    except Exception:
+        conn.rollback()
+        record("0008: duplicate (tenant, glass_type, spec_name) rejected", True)
+
+    cur.execute("SET app.tenant_id = %s", (TENANT_B,))
+    try:
+        cur.execute("""
+            INSERT INTO saas.specifications (tenant_id, spec_name, glass_type, rate_per_sqm)
+            VALUES (%s, 'phase7b-probe', 'SGU', 46)
+        """, (TENANT_B,))
+        conn.commit()
+        record("0008: same spec name allowed in another tenant", True)
+    except Exception as e:
+        conn.rollback()
+        record("0008: same spec name allowed in another tenant", False, str(e))
+
+    cur.execute("SET app.tenant_id = %s", (TENANT_A,))
+    cur.execute("""
+        INSERT INTO saas.proforma_invoices (tenant_id, proforma_no)
+        VALUES (%s, 'phase7b-probe-PI')
+        RETURNING id
+    """, (TENANT_A,))
+    pi_id = cur.fetchone()[0]
+    conn.commit()
+
+    cur.execute("""
+        INSERT INTO saas.specification_usages
+            (tenant_id, spec_id, proforma_id, spec_name, glass_type)
+        VALUES (%s, %s, %s, 'phase7b-probe', 'SGU')
+    """, (TENANT_A, spec_id, pi_id))
+    conn.commit()
+    try:
+        cur.execute("""
+            INSERT INTO saas.specification_usages
+                (tenant_id, spec_id, proforma_id, spec_name, glass_type)
+            VALUES (%s, %s, %s, 'phase7b-probe', 'SGU')
+        """, (TENANT_A, spec_id, pi_id))
+        conn.commit()
+        record("0008: usage pair UNIQUE (spec, proforma) — one verified use per pair",
+               False, "second insert succeeded!")
+    except Exception:
+        conn.rollback()
+        record("0008: usage pair UNIQUE (spec, proforma) — one verified use per pair", True)
+
+    cleanup_probe(cur)
+    cur.close()
+    conn.close()
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--db-uri", default=None)
@@ -672,6 +801,7 @@ def main():
     test_platform_protection(db_uri)
     test_auth_identity(db_uri)
     test_masterdata(db_uri)
+    test_specifications(db_uri)
 
     ok = write_report(sys.argv, names)
     print(f"\n{'='*60}\n{'ALL CHECKS PASSED' if ok else 'FAILURES PRESENT'} — "

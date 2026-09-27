@@ -75,6 +75,14 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public string? Category { get; set; }
+        public string? Color { get; set; }
+        public int ThicknessMm { get; set; }
+        public int SheetWidthMm { get; set; }
+        public int SheetHeightMm { get; set; }
+        public Guid? SheetId { get; set; }
+        public string? PanesJson { get; set; }
+        public string? LastProformaNo { get; set; }
     }
 }
 
@@ -163,6 +171,30 @@ namespace ProGlass.Saas.Domain.Entities
         public Client? Client { get; set; } = null;
         public Project? Project { get; set; } = null;
         public Salesman? Salesman { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
+    /// <summary>Maps to saas.specification_usages.</summary>
+    public sealed class SpecificationUsage : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public Guid SpecId { get; set; }
+        public Guid ProformaId { get; set; }
+        public string SpecName { get; set; } = null!;
+        public string GlassType { get; set; } = null!;
+        public string CompanyName { get; set; } = null!;
+        public string CustomerName { get; set; } = null!;
+        public string ProjectName { get; set; } = null!;
+        public decimal PricePerSqm { get; set; }
+        public int SheetWidthMm { get; set; }
+        public int SheetHeightMm { get; set; }
+        public DateTime UsedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public Specification Spec { get; set; } = null!;
+        public ProformaInvoice Proforma { get; set; } = null!;
     }
 }
 

@@ -74,14 +74,17 @@ public sealed record SpecGroupItemRequest(
     int? PerimeterFactor,
     string Notes);
 
-/// <summary>One Step 5 spec group: the priced spec + its row grid.</summary>
+/// <summary>One Step 5 spec group: the priced spec + its row grid.
+/// SpecId links the group to the specifications registry (the ledger
+/// derives verified usage from this reference).</summary>
 public sealed record SpecGroupRequest(
     int GroupNumber,
     string GlassType,
     string SpecName,
     decimal RatePerSqm,
     string PriceSource,
-    IReadOnlyList<SpecGroupItemRequest> Items);
+    IReadOnlyList<SpecGroupItemRequest> Items,
+    Guid? SpecId = null);
 
 /// <summary>PUT /{id}/spec-groups — replaces the whole Step 5 grid for the
 /// invoice (wizard save semantics: the grid is the unit of work).</summary>

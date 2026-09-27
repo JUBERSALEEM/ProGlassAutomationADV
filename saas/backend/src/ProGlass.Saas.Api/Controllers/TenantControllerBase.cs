@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProGlass.Saas.Application.MasterData;
 using ProGlass.Saas.Application.Pricing;
 using ProGlass.Saas.Application.Proforma;
+using ProGlass.Saas.Application.Specifications;
 
 namespace ProGlass.Saas.Api.Controllers;
 
@@ -46,6 +47,13 @@ public abstract class TenantControllerBase : ControllerBase
     protected IActionResult Fail<T>(PricingResult<T> result) => result.ErrorCode switch
     {
         _ => BadRequest(new { code = "pricing.validation_failed", message = result.Message })
+    };
+
+    protected IActionResult Fail<T>(SpecificationResult<T> result) => result.ErrorCode switch
+    {
+        SpecificationErrorCode.NotFound =>
+            NotFound(new { code = "specifications.not_found", message = result.Message }),
+        _ => BadRequest(new { code = "specifications.validation_failed", message = result.Message })
     };
 
     protected IActionResult Fail<T>(ProformaResult<T> result) => result.ErrorCode switch

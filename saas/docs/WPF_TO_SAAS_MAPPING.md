@@ -90,6 +90,26 @@ The wizard's document spine, ported 2026-09-27 from
 | Step 4 APPLY → save priced spec; `SpecificationLedgerService`; `SpecPaneResolver` | `POST /api/v1/specifications`; stamping on reuse |
 | `SpecificationTargetCalculator` / `TargetPricing` / `TargetSnapshotRecompute` | Target-pricing service, recompute on document load |
 
+### 1.3a Specifications registry (Phase 7b) — parity and deliberate differences
+
+The Step 4 library + the ledger-derived usage trail, ported 2026-09-27
+from `SpecificationsRepository.cs` and `SpecificationLedgerService.cs`
+(ground-truth comments preserved in the service).
+
+| WPF (source of truth) | SaaS (Phase 7b) | Difference? |
+|---|---|---|
+| `SaveOrUpdateAsync` (Step 4 APPLY): dedup by GlassType + SpecName; rate ALWAYS refreshed; catalogue columns refreshed only when supplied (a valueless save must not wipe an earlier, better-informed save); demands ProformaEdit | `SpecificationsService.ApplyAsync` — verbatim, `POST /api/v1/specifications` | Same |
+| `UsageCount` starts at 0; APPLY NEVER touches counts ("being built in Step 4 is not being used") | Same — 0008 changed the Phase 3 column default from 1 to 0 | Same (default corrected to match WPF) |
+| `SpecificationLedgerService`: counts/history/provenance DERIVED from SAVED invoices' Step 5 groups only; purge orphans; `PricePerSqm` stays estimator-owned; NEVER THROWS | Set-based `ReconcileUsageAsync` over the normalized spec_groups rows (migration 0008 + one transaction): purge pairs that no longer exist, insert missing (spec, invoice) pairs with names from the SAVED invoice row, heal usage_count/last_used_at/last_proforma_no | Same ground truth, mechanical translation (no JSON snapshot walking needed); runs after every grid save (tolerantly — failure is audited, never a save failure) and on `POST /specifications/reconcile` (the Center's Refresh) |
+| Usage rows appended per save (the inflation the WPF ledger had to purge) | `UNIQUE (spec_id, proforma_id)` — exactly one verified use per pair ("2 PIs × 2 specs = 4 uses"), making reconcile idempotent | **Different by design** (the WPF's own ledger treated per-save appends as the bug) |
+| `GetAllAsync` smart sort: UsageCount DESC, LastUsedAt DESC; glass-type filter | Same | Same |
+| `GetUsageHistoryAsync` (UsedAt DESC), `GetRecentUsageAsync(limit=200)` | Same (usage history 404s an unknown spec; recent usage default 200, `limit ≤ 0` → 200 as in WPF) | Same |
+| Usage row carries the PI number string + customer/company/project names from the draft-time context | Usage row carries the invoice id; the number and names are joined from the SAVED invoice at read time ("authoritative, not from the draft-time context Step 4 saw") | Same intent, normalized |
+| `DeleteAsync` demands ProformaDelete; silent no-op on missing id | Same permission; missing id → **404** (documented REST difference) | **Different (documented)** |
+| Catalogue columns (2026-09-02): category/color/thickness/sheet size/sheet id/panes_json, read-only Sheet Store relationship for matching | Migration 0008 adds the same columns (nullable/defaulted — pre-existing rows read blank, like the WPF's additive migration); `sheet_id` → glass_sheets FK ON DELETE SET NULL | Same (types normalized: int sheet id → uuid FK) |
+| Reconcile triggers: startup + debounced after every invoice write + Center Refresh | After every grid save + reconcile endpoint (SaaS has no long-lived app process to run startup passes) | Same triggers, SaaS-native timing |
+| `SpecCatalogNotifier.NotifyChanged()` (UI dropdown refresh) | N/A — HTTP responses carry the fresh state | Architectural translation |
+
 ### 1.4 Pricing engine (cross-cutting — single service, master prompt §40)
 | WPF | SaaS |
 |---|---|

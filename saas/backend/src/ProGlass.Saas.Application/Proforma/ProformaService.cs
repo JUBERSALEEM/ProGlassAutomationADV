@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ProGlass.Saas.Application.Auth;
+using ProGlass.Saas.Application.Specifications;
 using ProGlass.Saas.Domain.Entities;
 using ProGlass.Saas.Domain.Pricing;
 using ProGlass.Saas.Domain.Proforma;
@@ -53,11 +54,15 @@ public sealed class ProformaService
 
     private readonly IProformaStore _store;
     private readonly IAuditWriter _audit;
+    private readonly SpecificationsService _specifications;
 
-    public ProformaService(IProformaStore store, IAuditWriter audit)
+    public ProformaService(
+        IProformaStore store, IAuditWriter audit, SpecificationsService specifications)
     {
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _audit = audit ?? throw new ArgumentNullException(nameof(audit));
+        _specifications = specifications
+            ?? throw new ArgumentNullException(nameof(specifications));
     }
 
     // ═════════════════════════════ CREATE ═════════════════════════
@@ -474,6 +479,24 @@ public sealed class ProformaService
                 ProformaErrorCode.ValidationFailed, error);
         }
 
+        // A referenced registry spec must exist (the FK would otherwise
+        // fail at the database with a 500).
+        foreach (var g in request.Groups)
+        {
+            if (g.SpecId is null)
+            {
+                continue;
+            }
+
+            var spec = await _specifications.GetAsync(tenantId, g.SpecId.Value, ct);
+            if (!spec.Success)
+            {
+                return ProformaResult<IReadOnlyList<SpecGroupDto>>.Fail(
+                    ProformaErrorCode.ValidationFailed,
+                    $"Group {g.GroupNumber}: specification {g.SpecId} was not found.");
+            }
+        }
+
         var groups = new List<SpecGroupWithItems>();
         var rowValues = new List<decimal>();
 
@@ -487,6 +510,7 @@ public sealed class ProformaService
                 GroupNumber = g.GroupNumber,
                 GlassType = g.GlassType.Trim(),
                 SpecName = g.SpecName?.Trim() ?? "",
+                SpecId = g.SpecId,
                 RatePerSqm = g.RatePerSqm,
                 PriceSource = (g.PriceSource ?? "").Trim(),
                 CreatedAt = DateTime.UtcNow,
@@ -560,6 +584,21 @@ public sealed class ProformaService
                 rows = groups.Sum(g => g.Items.Count),
                 invoice.GlassMaterialsSubtotal,
             }));
+
+        // LEDGER: derive verified usage from the just-saved groups. The
+        // WPF ran this debounced after every invoice write and it NEVER
+        // THROWS — a ledger failure is logged, never a save failure.
+        try
+        {
+            await _specifications.ReconcileAsync(tenantId, actorId, ip, ct);
+        }
+        catch (Exception ex)
+        {
+            await _audit.WriteAsync(
+                tenantId, actorId, "specifications.reconcile_failed",
+                "specifications", null, ip, null, ct,
+                afterJson: JsonSerializer.Serialize(new { error = ex.Message }));
+        }
 
         var saved = await _store.GetSpecGroupsAsync(tenantId, invoice.Id, ct);
         return ProformaResult<IReadOnlyList<SpecGroupDto>>.Ok(

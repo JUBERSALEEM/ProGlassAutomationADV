@@ -99,6 +99,14 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
             builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.Property(x => x.Category).HasColumnName("category").HasColumnType("text");
+            builder.Property(x => x.Color).HasColumnName("color").HasColumnType("text");
+            builder.Property(x => x.ThicknessMm).HasColumnName("thickness_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SheetWidthMm).HasColumnName("sheet_width_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SheetHeightMm).HasColumnName("sheet_height_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SheetId).HasColumnName("sheet_id").HasColumnType("uuid");
+            builder.Property(x => x.PanesJson).HasColumnName("panes_json").HasColumnType("jsonb");
+            builder.Property(x => x.LastProformaNo).HasColumnName("last_proforma_no").HasColumnType("text");
             builder.HasIndex(x => new { x.TenantId, x.SpecName })
                 .HasDatabaseName("ix_specifications_tenant_name");
             builder.HasIndex(x => new { x.TenantId, x.GlassType })
@@ -226,6 +234,39 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
                 .WithMany()
                 .HasForeignKey(x => x.SalesmanId)
                 .OnDelete(DeleteBehavior.SetNull);
+        }
+    }
+
+    public sealed class SpecificationUsageConfiguration : IEntityTypeConfiguration<SpecificationUsage>
+    {
+        public void Configure(EntityTypeBuilder<SpecificationUsage> builder)
+        {
+            builder.ToTable("specification_usages", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.SpecId).HasColumnName("spec_id").HasColumnType("uuid");
+            builder.Property(x => x.ProformaId).HasColumnName("proforma_id").HasColumnType("uuid");
+            builder.Property(x => x.SpecName).HasColumnName("spec_name").HasColumnType("text");
+            builder.Property(x => x.GlassType).HasColumnName("glass_type").HasColumnType("text");
+            builder.Property(x => x.CompanyName).HasColumnName("company_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CustomerName).HasColumnName("customer_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ProjectName).HasColumnName("project_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.PricePerSqm).HasColumnName("price_per_sqm").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.SheetWidthMm).HasColumnName("sheet_width_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SheetHeightMm).HasColumnName("sheet_height_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.UsedAt).HasColumnName("used_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.HasIndex(x => new { x.SpecId, x.ProformaId })
+                .IsUnique().HasDatabaseName("uq_specification_usages_pair");
+            builder.HasOne(x => x.Spec)
+                .WithMany()
+                .HasForeignKey(x => x.SpecId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.Proforma)
+                .WithMany()
+                .HasForeignKey(x => x.ProformaId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

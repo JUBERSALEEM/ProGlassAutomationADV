@@ -65,6 +65,7 @@ public static class DependencyInjection
         services.AddScoped<IMasterDataStore, MasterDataStore>();
         services.AddScoped<IPricingConfigStore, PricingConfigStore>();
         services.AddScoped<IProformaStore, ProformaStore>();
+        services.AddScoped<ISpecificationsStore, SpecificationsStore>();
 
         return services;
     }

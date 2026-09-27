@@ -63,6 +63,7 @@ public sealed class SaasDbContext : DbContext
     public DbSet<Inquiry> Inquiries => Set<Inquiry>();
     public DbSet<Attachment> Attachments => Set<Attachment>();
     public DbSet<Specification> Specifications => Set<Specification>();
+    public DbSet<SpecificationUsage> SpecificationUsages => Set<SpecificationUsage>();
     public DbSet<TenantPricingConfig> TenantPricingConfigs => Set<TenantPricingConfig>();
     public DbSet<TenantVatConfig> TenantVatConfigs => Set<TenantVatConfig>();
     public DbSet<ProformaInvoice> ProformaInvoices => Set<ProformaInvoice>();
