@@ -71,6 +71,19 @@ public abstract class TenantControllerBase : ControllerBase
         _ => BadRequest(new { code = "joborders.validation_failed", message = result.Message })
     };
 
+    protected IActionResult Fail<T>(DeliveryResult<T> result) => result.ErrorCode switch
+    {
+        DeliveryErrorCode.NotFound =>
+            NotFound(new { code = "delivery.not_found", message = result.Message }),
+        DeliveryErrorCode.Conflict =>
+            Conflict(new { code = "delivery.conflict", message = result.Message }),
+        DeliveryErrorCode.ConcurrencyConflict =>
+            Conflict(new { code = "delivery.concurrency_conflict", message = result.Message }),
+        DeliveryErrorCode.FullyDelivered =>
+            Conflict(new { code = "delivery.fully_delivered", message = result.Message }),
+        _ => BadRequest(new { code = "delivery.validation_failed", message = result.Message })
+    };
+
     protected IActionResult Fail<T>(StockResult<T> result) => result.ErrorCode switch
     {
         StockErrorCode.NotFound =>

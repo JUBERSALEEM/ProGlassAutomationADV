@@ -508,9 +508,8 @@ namespace ProGlass.Saas.Domain.Entities
         public Guid Id { get; set; }
         public Guid TenantId { get; set; }
         public string DeliveryNo { get; set; } = null!;
-        public Guid? JobOrderId { get; set; }
+        public Guid JobOrderId { get; set; }
         public string Status { get; set; } = null!;
-        public string StatusText { get; set; } = null!;
         public Guid? CustomerId { get; set; }
         public Guid? ProjectId { get; set; }
         public DateOnly? DeliveryDate { get; set; }
@@ -522,7 +521,23 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
-        public JobOrder? JobOrder { get; set; } = null;
+        public int SequenceNumber { get; set; }
+        public string CustomerName { get; set; } = null!;
+        public string ProjectName { get; set; } = null!;
+        public string DeliveryType { get; set; } = null!;
+        public bool IsFoc { get; set; }
+        public bool IsMasterDn { get; set; }
+        public string ReceiverName { get; set; } = null!;
+        public string DeliveryTime { get; set; } = null!;
+        public int TotalOrderedQty { get; set; }
+        public int TotalDeliveredQty { get; set; }
+        public int TotalBalanceQty { get; set; }
+        public bool IsVoid { get; set; }
+        public DateTime? VoidedAt { get; set; }
+        public Guid? VoidedBy { get; set; }
+        public string VoidReason { get; set; } = null!;
+        public string? SnapshotJson { get; set; }
+        public JobOrder JobOrder { get; set; } = null!;
         public Client? Customer { get; set; } = null;
         public Project? Project { get; set; } = null;
     }
@@ -548,6 +563,19 @@ namespace ProGlass.Saas.Domain.Entities
         public DateTime UpdatedAt { get; set; }
         public Guid? CreatedBy { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string SpecGroupName { get; set; } = null!;
+        public string GlassRef { get; set; } = null!;
+        public int W2Mm { get; set; }
+        public int H2Mm { get; set; }
+        public int OrderedQty { get; set; }
+        public int PreviouslyDeliveredQty { get; set; }
+        public int BalanceQty { get; set; }
+        public int ReworkQty { get; set; }
+        public decimal WeightPerPiece { get; set; }
+        public string LineNotes { get; set; } = null!;
+        public Guid? JobOrderId { get; set; }
         public DeliveryNote DeliveryNote { get; set; } = null!;
         public SpecGroupItem? SpecGroupItem { get; set; } = null;
     }

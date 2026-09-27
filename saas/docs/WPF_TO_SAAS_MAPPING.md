@@ -363,11 +363,35 @@ upgraded the Phase 3 first-pass table to the WPF-faithful shape;
 | Production stages / pieces / QC / material reservation (the factory-floor engine) | Schema exists (0003/0004: production_pieces, production_events, material_reservations); the module is the next Phase 9 slice | Deferred, documented |
 | Permissions: JobOrder.Edit for create/update (OperationGuard) | Same (`JobOrder.View/.Edit/.Delete` vocabulary ported in Phase 4); reads open to authenticated users like every module | Same |
 
-### 1.8 Delivery
-| WPF | SaaS |
-|---|---|
-| `SavedDeliveryNote`+items, statuses `Draft·Dispatching·Dispatched·Signed·Received·Delivered` | `DeliveryNote` entity, same state machine (invalid transition → 409) |
-| Partial delivery, returns, balance qty, per-JO SQM summaries (`GetSqmSummariesByJobOrderAsync`) | Same fields + `/job-orders/{id}/delivery-status` endpoint |
+### 1.8 Delivery — Phase 10 core (parity and deliberate differences)
+
+Ported 2026-09-27 from `Services/DeliveryNote/` —
+`MasterDeliveryNoteService.cs`, `DeliveryNoteCreateService.cs` (the
+one-path create-or-open), `Mapper/DeliveryNoteMapper.cs` (FromJobOrder /
+FromMasterBalance), `Repository/DeliveryNoteRepository.Part1.cs`
+(`BuildMasterDnIdAsync`/`BuildDeliveryNoteIdAsync`/`UpdateMasterDnAsync`),
+`DeliveryNoteWorkflow.cs` and `Models/DeliveryNote/SavedDeliveryNote/*`.
+Migration 0013 upgraded the Phase 3 first-pass tables to the WPF-faithful
+shape; `DeliveryService`/`DeliveryNoteStore`/`/api/v1/delivery-notes`.
+
+| WPF (source of truth) | SaaS (Phase 10) | Difference? |
+|---|---|---|
+| Master DN = the balance tracker, one per JO, `MDN-{core}` (core = JobOrderId minus `JOB-`), Status Draft, DeliveryType **Dummy**, note "Master DN — auto-generated reference tracker", created on first create-or-open (and after PI→JO convert in the UI flow) | `DeliveryService.EnsureMasterAsync` — same id derivation, same fields; created lazily on the first create-or-open / master read | Same (creation timing is lazy vs. eager — the master is content-identical either way) |
+| Real DN id `DN-{core}-{seq:D2}`, seq = max+1 of the job's non-master notes | `DeliveryNoteNumbers` + `GetNextSequenceAsync`, UNIQUE(tenant, delivery_no) retry | Same |
+| CreateOrOpenDispatching — ONE path: (1) never open a Dispatched-or-later DN (God View only), (2) existing open Dispatching/Draft non-master **non-Dummy** DN → open it, (3) else create from the master's remaining balance, (4) FullyDelivered result when the balance is 0 | Same three outcomes (`OpenExisting`/`Created`/`FullyDelivered`); same non-Dummy open filter (a master/scratch note is never reopened) | Same |
+| FromMasterBalance lines: only `ComputedBalanceQty > 0` lines, `PreviouslyDeliveredQty` copied from the master, **DeliveredQty = 0** (operator fills before dispatch), Balance = remaining, DeliveryType **Original**, Status Dispatching | Same, verbatim | Same |
+| Line identity = `SpecGroupNumber|SerialNumber` (SpecKey); the serial is the JO/master serial, NEVER reassigned on later notes | `DeliveryNoteWorkflow.LineKey` verbatim; serials copied from the master lines | Same |
+| FromJobOrder line building: continuous global serial counter across spec groups; dedup by serial within a group taking MAX qty; skip empty rows (no GlassRef AND W1=0 AND H1=0) and qty ≤ 0 rows | `BuildLinesFromGrid` — same guards (the SaaS loader already drops phantom rows before save; the guard stays as a safety net) | Same |
+| Master line semantics (`UpdateMasterDnAsync`): confirmed-so-far in `PreviouslyDeliveredQty`, `DeliveredQty = 0`, balance = Ordered − confirmed; totals recomputed | `RecomputeMasterAsync` — same, set-based; runs on create-or-open, master read, confirmed transitions and void | Same |
+| Remaining qty = CONFIRMED deliveries only (Dispatched/Delivered/Signed/Received, non-master, non-Dummy, non-void) — in-progress drafts never consume the balance | Same filter (SQL CHECK-constrained status vocab) | Same |
+| Master OrderedQty self-heal from the JO snapshot (master drift fix) | Not needed: the SaaS master is built from the source PI's grid and a PI is immutable/void-only, so OrderedQty cannot drift | **Documented difference** — the WPF heal patches a drift class that cannot occur in the SaaS |
+| Status machine (StatusTransitions, Kind.DeliveryNote): forward chain Draft→Dispatching→Dispatched→Delivered→Signed→Received, self-transitions allowed, Cancelled from every non-terminal state + Cancelled→Draft recovery, Received terminal | `DeliveryNoteStateMachine` — verbatim table, typed 409 with the WPF reason text | Same |
+| Void (soft-close): the row survives for the audit trail; reason recorded ("(no reason given)" default); idempotent | `POST /{id}/void` — same, plus Status → Cancelled and a master recompute | Same |
+| Dispatch edit (driver/vehicle/receiver/date/time/notes/FOC + line delivered qty) on OPEN notes only; confirmed notes are history | `PUT /{id}` — null keeps the saved value; per-line guard 0 ≤ delivered ≤ Ordered − Previously (ComputedBalanceQty, BUG-05); 409 on confirmed/master | Same |
+| `DeliveryNoteStatusValues.IsOpenForDispatch` / `IsConfirmedDelivery` | `DeliveryNoteWorkflow` — verbatim, case-insensitive | Same |
+| Attachments, history/analytics, export/PDF snapshot (`FullSnapshotJson`), Tax Invoice link, weight calculator | `snapshot_json` column reserved; module deferred | **Deferred, documented** (PDF needs a render surface; weights need Step 4 glass composition) |
+| Permissions: `DeliveryNote.Edit` for every write (OperationGuard) | Same (`DeliveryNote.View/.Edit` ported in Phase 4); reads open to authenticated users | Same |
+
 
 ### 1.9 Tax Invoice / Credit Note / Statement / VAT
 | WPF | SaaS |
