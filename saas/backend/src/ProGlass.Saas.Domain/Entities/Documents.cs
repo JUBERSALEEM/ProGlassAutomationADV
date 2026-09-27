@@ -527,6 +527,20 @@ namespace ProGlass.Saas.Domain.Entities
         public Guid? ReservedBy { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public string ReservationKey { get; set; } = null!;
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string GlassRef { get; set; } = null!;
+        public string SpecName { get; set; } = null!;
+        public Guid? OptimizationSessionId { get; set; }
+        public string StockSizeLabel { get; set; } = null!;
+        public int WidthMm { get; set; }
+        public int HeightMm { get; set; }
+        public int ThicknessMm { get; set; }
+        public string Color { get; set; } = null!;
+        public string Notes { get; set; } = null!;
+        public DateTime? ReleasedAt { get; set; }
+        public string ReleaseReason { get; set; } = null!;
         public JobOrder JobOrder { get; set; } = null!;
         public GlassSheet GlassSheet { get; set; } = null!;
         public User? ReservedByUser { get; set; } = null;

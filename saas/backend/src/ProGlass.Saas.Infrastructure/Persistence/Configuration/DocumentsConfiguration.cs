@@ -675,6 +675,20 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
             builder.Property(x => x.ReservedBy).HasColumnName("reserved_by").HasColumnType("uuid");
             builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
             builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.ReservationKey).HasColumnName("reservation_key").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.GlassRef).HasColumnName("glass_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.SpecName).HasColumnName("spec_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.OptimizationSessionId).HasColumnName("optimization_session_id").HasColumnType("uuid");
+            builder.Property(x => x.StockSizeLabel).HasColumnName("stock_size_label").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.WidthMm).HasColumnName("width_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.HeightMm).HasColumnName("height_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.ThicknessMm).HasColumnName("thickness_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Color).HasColumnName("color").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.Notes).HasColumnName("notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.ReleasedAt).HasColumnName("released_at").HasColumnType("timestamptz");
+            builder.Property(x => x.ReleaseReason).HasColumnName("release_reason").HasColumnType("text").HasDefaultValue("");
             builder.HasIndex(x => new { x.TenantId, x.JobOrderId })
                 .HasDatabaseName("ix_material_reservations_tenant_job");
             builder.HasOne(x => x.JobOrder)

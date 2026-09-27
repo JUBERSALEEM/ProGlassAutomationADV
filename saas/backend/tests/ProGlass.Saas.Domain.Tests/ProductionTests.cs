@@ -359,4 +359,41 @@ public sealed class ProductionTests
         Assert.Equal("6mm hp neutral 70 low e FT glass",
             ProductionDistributionEngine.PaneDisplayName(pane));
     }
+
+
+    // ── reservations (Phase 9c, WPF MaterialReservationService) ─────
+
+    [Fact]
+    public void Reservation_key_is_the_deterministic_wpf_shape()
+    {
+        var sheet = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var session = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        Assert.Equal(
+            "JOB-2026-0042|2|5|11111111-1111-1111-1111-111111111111|" +
+            "22222222-2222-2222-2222-222222222222",
+            ReservationKeys.Build(" JOB-2026-0042 ", 2, 5, sheet, session));
+        Assert.Equal(
+            "JOB-7|1|1|11111111-1111-1111-1111-111111111111|",
+            ReservationKeys.Build("JOB-7", 1, 1, sheet, null));
+    }
+
+    [Theory]
+    [InlineData("Reserved", true)]
+    [InlineData("Allocated", true)]
+    [InlineData("reserved", true)]
+    [InlineData("Consumed", false)]     // consumed material no longer holds
+    [InlineData("Released", false)]
+    [InlineData("Cancelled", false)]
+    [InlineData("", false)]
+    [InlineData(null, false)]
+    public void Active_holds_are_reserved_or_allocated(
+        string? status, bool expected)
+        => Assert.Equal(expected, ReservationStatuses.IsActiveHold(status));
+
+    [Fact]
+    public void Reservation_vocabulary_is_the_wpf_set()
+        => Assert.Equal(
+            new[] { "Available", "Reserved", "Allocated", "Consumed",
+                    "Released", "Cancelled" },
+            ReservationStatuses.All);
 }
