@@ -979,6 +979,23 @@ rotation, cut sequence, status) — complete session, complete piece
 (idempotent), and breakage with reason + FOC prompt (the Phase 14
 replacement flow fires server-side).
 
+**Phase 35 — front end slice 8: the production control room (§1.7c
+surfaces).** The Phase 26a process-control family in the SPA, four
+tabs: Dashboard (the factory KPI set — jobs in production, ready/
+in-progress/hold/blocked, QC pending/failed, rework, completed today,
+ready for delivery, overdue/due-soon, material shortages, the named
+bottleneck + process load — plus per-process queue pressure with
+pressure labels and avg wait hours, and the per-station load table);
+Queue (the work queue under the full filter set — stage, readiness,
+search, include completed/cancelled — with block reasons, priority/
+due dates with due-risk, station/operator, hold/rework/FOC/shortage/
+cancelled flags); Progress (job-level progress, physical pieces, DGU
+components never double-counted); and the Workstation master (list +
+create idempotent on the code + seed-the-ten-defaults). The per-piece
+control writes (start/pause/resume/hold/release/assign/priority/
+complete) and the executions/pairings/assemblies families stay
+API-only for now — documented as a later slice.
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

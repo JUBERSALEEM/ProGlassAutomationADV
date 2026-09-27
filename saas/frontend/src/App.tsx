@@ -14,6 +14,7 @@ import FiscalPage from "./pages/FiscalPage";
 import MasterDataPage from "./pages/MasterDataPage";
 import ReportsPage from "./pages/ReportsPage";
 import SpecificationsPage from "./pages/SpecificationsPage";
+import ProductionControlPage from "./pages/ProductionControlPage";
 import ProformaInvoicesPage from "./pages/ProformaInvoicesPage";
 import StockSheetsPage from "./pages/StockSheetsPage";
 
@@ -74,6 +75,14 @@ export default function App() {
             element={
               <Protected>
                 <CuttingPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/production-control"
+            element={
+              <Protected>
+                <ProductionControlPage />
               </Protected>
             }
           />

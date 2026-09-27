@@ -609,3 +609,80 @@ export function cuttingBreakage(
 export function getCuttingProgress(jobOrderId: string): Promise<_Progress> {
   return get<_Progress>(`/api/v1/cutting/progress?jobOrderId=${jobOrderId}`);
 }
+
+// ── production control room (Phase 35 — Phase 26a surfaces) ───────────
+
+import type {
+  DashboardKpis as _Kpis,
+  JobProgress as _JobProgress,
+  ProductionQueue as _Queue,
+  QueuePressure as _Pressure,
+  Workstation as _Workstation,
+  WorkstationLoad as _Load,
+} from "./types";
+
+export interface QueueQuery {
+  jobOrderId?: string;
+  stage?: string;
+  readiness?: string;
+  priority?: string;
+  workstation?: string;
+  search?: string;
+  customer?: string;
+  includeCompleted?: boolean;
+  includeCancelled?: boolean;
+  take?: number;
+}
+
+export function getProductionQueue(query: QueueQuery = {}): Promise<_Queue> {
+  const params = new URLSearchParams();
+  if (query.jobOrderId) params.set("jobOrderId", query.jobOrderId);
+  if (query.stage) params.set("stage", query.stage);
+  if (query.readiness) params.set("readiness", query.readiness);
+  if (query.priority) params.set("priority", query.priority);
+  if (query.workstation) params.set("workstation", query.workstation);
+  if (query.search) params.set("search", query.search);
+  if (query.customer) params.set("customer", query.customer);
+  if (query.includeCompleted) params.set("includeCompleted", "true");
+  if (query.includeCancelled) params.set("includeCancelled", "true");
+  if (query.take) params.set("take", String(query.take));
+  const qs = params.toString();
+  return get<_Queue>(`/api/v1/production/queue${qs ? `?${qs}` : ""}`);
+}
+
+export function getDashboardKpis(): Promise<_Kpis> {
+  return get<_Kpis>("/api/v1/production/dashboard");
+}
+
+export function getQueuePressure(): Promise<_Pressure[]> {
+  return get<_Pressure[]>("/api/v1/production/dashboard/pressure");
+}
+
+export function getWorkstationLoad(): Promise<_Load[]> {
+  return get<_Load[]>("/api/v1/production/dashboard/workstation-load");
+}
+
+export function getJobProgress(jobOrderId?: string): Promise<_JobProgress[]> {
+  const qs = jobOrderId ? `?jobOrderId=${jobOrderId}` : "";
+  return get<_JobProgress[]>(`/api/v1/production/progress${qs}`);
+}
+
+export function listWorkstations(activeOnly?: boolean): Promise<_Workstation[]> {
+  const qs = activeOnly ? "?activeOnly=true" : "";
+  return get<_Workstation[]>(`/api/v1/production/workstations${qs}`);
+}
+
+/** Create a station (idempotent on the code). */
+export function createWorkstation(body: {
+  code: string;
+  name?: string;
+  processType: number;
+  description?: string;
+}): Promise<_Workstation> {
+  return post<_Workstation>("/api/v1/production/workstations", body);
+}
+
+/** Seed the ten default stations (idempotent — only when none exist). */
+export function seedWorkstations(): Promise<unknown> {
+  return post("/api/v1/production/workstations/seed");
+}

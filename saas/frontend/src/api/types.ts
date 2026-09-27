@@ -831,3 +831,131 @@ export interface CuttingProgress {
   rework: number;
   qcPending: number;
 }
+
+// ── production control room (Phase 35 — the Phase 26a surfaces) ───────
+
+export interface QueueItem {
+  workItemId: string;
+  uniqueKey: string;
+  jobRef: string;
+  jobOrderId: string | null;
+  customerName: string;
+  projectName: string;
+  specGroupNumber: number;
+  specName: string;
+  buildType: string;
+  serialNumber: number;
+  glassRef: string;
+  position: string;
+  widthMm: number;
+  heightMm: number;
+  qty: number;
+  qtyDone: number;
+  remaining: number;
+  stage: string;
+  stageLabel: string;
+  nextStage: string | null;
+  status: string;
+  readiness: string;
+  blockReason: string;
+  priority: string;
+  dueDate: string | null;
+  dueRisk: string;
+  qcResult: string;
+  isRework: boolean;
+  isFoc: boolean;
+  isCancelled: boolean;
+  replacementSequence: number;
+  operator: string;
+  workstationId: string;
+  workstationName: string;
+  isOnHold: boolean;
+  holdReason: string;
+  materialAvailable: number;
+  materialShortage: number;
+  hasMaterialShortage: boolean;
+  queueWaitHours: number | null;
+  traceabilityLabel: string;
+  notes: string;
+}
+
+export interface ProductionQueue {
+  items: QueueItem[];
+  total: number;
+}
+
+export interface DashboardKpis {
+  jobsInProduction: number;
+  readyToStart: number;
+  inProgress: number;
+  onHold: number;
+  blocked: number;
+  qcPending: number;
+  qcFailed: number;
+  rework: number;
+  completedToday: number;
+  readyForDelivery: number;
+  overdueJobs: number;
+  dueSoon: number;
+  materialShortages: number;
+  bottleneckProcess: string;
+  bottleneckCount: number;
+  processLoad: Record<string, number>;
+}
+
+export interface QueuePressure {
+  processName: string;
+  processType: number;
+  readyQueue: number;
+  blockedQueue: number;
+  overdueQueue: number;
+  qcBacklog: number;
+  reworkBacklog: number;
+  avgWaitHours: number;
+  total: number;
+  pressureLabel: string;
+}
+
+export interface WorkstationLoad {
+  workstationId: string;
+  code: string;
+  name: string;
+  processType: number;
+  processName: string;
+  assignedCount: number;
+  readyCount: number;
+  inProgressCount: number;
+  blockedCount: number;
+}
+
+export interface JobProgress {
+  jobRef: string;
+  specName: string;
+  buildType: string;
+  specGroupNumber: number;
+  serialNumber: number;
+  required: number;
+  completed: number;
+  inProgress: number;
+  blocked: number;
+  paused: number;
+  rework: number;
+  qcPending: number;
+  qcFailed: number;
+  onHold: number;
+  cancelled: number;
+  remaining: number;
+  progressPct: number;
+  label: string;
+}
+
+export interface Workstation {
+  id: string;
+  workstationId: string;
+  code: string;
+  name: string;
+  processType: number;
+  processName: string;
+  isActive: boolean;
+  description: string;
+}

@@ -7,6 +7,7 @@ const NAV = [
   { to: "/", label: "Dashboard", end: true },
   { to: "/proformas", label: "Proformas", end: false },
     { to: "/cutting", label: "Cutting floor", end: false },
+  { to: "/production-control", label: "Control room", end: false },
 { to: "/delivery-notes", label: "Delivery", end: false },
   { to: "/fiscal", label: "Fiscal", end: false },
   { to: "/reports", label: "Reports", end: false },
