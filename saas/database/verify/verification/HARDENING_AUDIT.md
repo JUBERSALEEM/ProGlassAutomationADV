@@ -1,6 +1,6 @@
 # ProGlass SaaS — hardening audit
 
-Generated: 2026-09-27T15:02:23.363942
+Generated: 2026-09-27T15:04:42.022052
 Result: **14/14 passed**
 
 | Check | Result | Detail |

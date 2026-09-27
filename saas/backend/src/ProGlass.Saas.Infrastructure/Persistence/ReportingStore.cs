@@ -834,4 +834,47 @@ public sealed class ReportingStore(SaasDbContextFactory factory) : IReportingSto
                           item.Qty, item.Value))
             .ToListAsync(ct).ConfigureAwait(false);
     }
+
+    // ── Cutting reports (Phase 22 — WPF CuttingReportService) ─────────
+
+    public async Task<TraceJob?> FindTraceJobAsync(
+        Guid tenantId, string jobOrderNo, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await db.JobOrders.AsNoTracking()
+            .Where(j => j.JobNo == jobOrderNo)
+            .Select(j => new TraceJob(j.Id, j.JobNo, j.ProformaId))
+            .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<string?> GetProformaNoAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await db.ProformaInvoices.AsNoTracking()
+            .Where(p => p.Id == proformaId)
+            .Select(p => p.ProformaNo)
+            .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<string?> GetUserDisplayNameAsync(
+        Guid tenantId, Guid? userId, CancellationToken ct)
+    {
+        if (userId is null) return null;
+        using var db = factory.CreateForTenant(tenantId);
+        return await db.Users.AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => u.DisplayName)
+            .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<List<ReservationRow>> ListReservationsForJobAsync(
+        Guid tenantId, Guid jobOrderId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await db.MaterialReservations.AsNoTracking()
+            .Where(r => r.JobOrderId == jobOrderId)
+            .Select(r => new ReservationRow(r.ReservedQty, r.Status))
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
 }

@@ -15,7 +15,8 @@ namespace ProGlass.Saas.Api.Controllers;
 public sealed class ReportingController(
     ReportingService reporting,
     RowTraceabilityService traceability,
-    CncExportService cncExport) : TenantControllerBase
+    CncExportService cncExport,
+    CuttingReportService cuttingReports) : TenantControllerBase
 {
     /// <summary>
     /// Cross-module executive summary: the order-to-cash cohort funnel
@@ -98,6 +99,32 @@ public sealed class ReportingController(
         var tenant = RequiredTenantId;
         return Ok(await traceability.CalculateReconciliationAsync(
             tenant, proformaNo, group, serial, ct).ConfigureAwait(false));
+    }
+
+    /// <summary>Cutting sheet report for a job: one row per cut sheet —
+    /// spec, material, sheet dims, the piece list with rotations,
+    /// utilization/wastage, verification and operator.</summary>
+    [HttpGet("cutting-sheet/{jobOrderNo}")]
+    [HasPermission(AppPermissions.ReportsView)]
+    public async Task<ActionResult<IReadOnlyList<CuttingSheetReportRowDto>>> CuttingSheet(
+        string jobOrderNo, CancellationToken ct)
+    {
+        var tenant = RequiredTenantId;
+        return Ok(await cuttingReports.GenerateCuttingSheetReportAsync(
+            tenant, jobOrderNo, ct).ConfigureAwait(false));
+    }
+
+    /// <summary>Material consumption report for a job: one row per
+    /// optimization session — sheets used, pieces, areas,
+    /// utilization/wastage, reservations, and the traceability chain.</summary>
+    [HttpGet("material-consumption/{jobOrderNo}")]
+    [HasPermission(AppPermissions.ReportsView)]
+    public async Task<ActionResult<IReadOnlyList<MaterialConsumptionReportRowDto>>> MaterialConsumption(
+        string jobOrderNo, CancellationToken ct)
+    {
+        var tenant = RequiredTenantId;
+        return Ok(await cuttingReports.GenerateMaterialConsumptionReportAsync(
+            tenant, jobOrderNo, ct).ConfigureAwait(false));
     }
 
     /// <summary>The CNC export targets with their readiness contract

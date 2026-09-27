@@ -407,4 +407,97 @@ public sealed class ReportingFlowTests
         Assert.Equal(5, cnc.ListFormats().Count);
         Assert.Equal(2, cnc.ListFormats().Count(f => f.IsReady));
     }
+
+    // ── cutting sheet + material consumption reports ──────────────────
+
+    [Fact]
+    public async Task CuttingReports_Render_From_The_Persisted_Sessions()
+    {
+        var tenant = _fixture.CreateTenant("rep4");
+        var actor = Guid.NewGuid();
+        var factory = new SaasDbContextFactory(_fixture.AppDb);
+        var audit = new AuditWriter(factory, NullLogger<AuditWriter>.Instance);
+        var jobs = new JobOrderService(new JobOrderStore(factory), audit);
+        var stock = new ProGlass.Saas.Application.Stock.StockService(
+            new StockStore(factory), audit);
+        var optimization = new ProGlass.Saas.Application.Optimization.OptimizationService(
+            new OptimizationStore(factory), audit,
+            new ProductionStore(factory),
+            new ProGlass.Saas.Application.Subscriptions.PlanLimitGuard(
+                new ProGlass.Saas.Application.Subscriptions.SubscriptionStore(factory)));
+        var cutting = new CuttingReportService(
+            new ReportingStore(factory), new OptimizationStore(factory));
+
+        // One 6mm rack, balance 10 (the optimizer needs stock).
+        var sheet = await stock.CreateSheetAsync(tenant, actor,
+            new ProGlass.Saas.Application.Stock.GlassSheetRequest(
+                "Float", 6, "Clear", 3210, 2250, "GlasImport",
+                95m, 140m, Stock: 10, Used: 0),
+            null, CancellationToken.None);
+        Assert.True(sheet.Success, sheet.Message);
+
+        // PI: one DGU group, one line, qty 4 → 4 outer + 4 inner panes.
+        var pi = await CreateQuotedPiAsync(tenant, actor,
+            "6mm Clear FT Glass + 12mm ASP + 6mm Green Annealed Glass",
+            1000, 2000, 4, 119.40m);
+        var job = await jobs.CreateFromProformaAsync(
+            tenant, actor, new CreateJobOrderRequest(pi.Id),
+            null, CancellationToken.None);
+        Assert.True(job.Success, job.Message);
+
+        var run = await optimization.RunAsync(
+            tenant, actor,
+            new ProGlass.Saas.Application.Optimization.RunOptimizationRequest(
+                JobOrderId: job.Value!.Id),
+            null, CancellationToken.None);
+        Assert.True(run.Success, run.Message);
+
+        // ── Cutting sheet report: one row per sheet of every session ──
+        var sheets = await cutting.GenerateCuttingSheetReportAsync(
+            tenant, job.Value.JobNo, CancellationToken.None);
+        Assert.NotEmpty(sheets);
+        Assert.All(sheets, row =>
+        {
+            Assert.Equal(job.Value.JobNo, row.JobRef);
+            Assert.Equal(pi.ProformaNo, row.PiRef);
+            Assert.Equal("3210 × 2250", row.SheetDims);
+            Assert.Equal("6", row.Thickness);
+            Assert.True(row.UtilizationPct > 0);
+            Assert.Equal(100m - row.UtilizationPct, row.WastagePct);
+            Assert.True(row.IsVerified);          // session conservation + geometry
+            Assert.Equal("Verified", row.VerificationResult);
+            // Every piece listed with its dimensions and rotation.
+            Assert.NotEmpty(row.PiecesList);
+            Assert.Contains("×", row.PiecesList);
+            Assert.Equal(row.PiecesCount,
+                row.PiecesList.Split(", ").Length);
+        });
+        // 8 panes placed across the sessions' sheets.
+        Assert.Equal(8, sheets.Sum(r => r.PiecesCount));
+
+        // ── Material consumption: one row per session ─────────────────
+        var consumption = await cutting.GenerateMaterialConsumptionReportAsync(
+            tenant, job.Value.JobNo, CancellationToken.None);
+        Assert.Equal(run.Value!.Sessions.Count, consumption.Count);
+        Assert.All(consumption, row =>
+        {
+            Assert.Equal(job.Value.JobNo, row.JobRef);
+            Assert.Equal(pi.ProformaNo, row.PiRef);
+            Assert.True(row.SheetsUsed > 0);
+            Assert.True(row.StockAreaSqm > 0);
+            Assert.True(row.UtilizationPct > 0);
+            Assert.Equal(100m - row.UtilizationPct, row.WastagePct);
+            // The allocation ledger is a deferred extra — zero, never invented.
+            Assert.Equal(0, row.AllocatedQty);
+            Assert.Equal(0, row.ConsumedQty);
+            Assert.StartsWith($"PI {pi.ProformaNo} → JO {job.Value.JobNo} → MaterialGroup", row.Traceability);
+        });
+        Assert.Equal(8, consumption.Sum(r => r.TotalPieces));
+
+        // A job that does not exist renders an empty report (the WPF
+        // catch-and-return-rows behavior).
+        var missing = await cutting.GenerateCuttingSheetReportAsync(
+            tenant, "JOB-9999-9999", CancellationToken.None);
+        Assert.Empty(missing);
+    }
 }

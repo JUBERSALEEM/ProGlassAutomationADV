@@ -377,4 +377,16 @@ public interface IReportingStore
     Task<int> CountJobOrdersForProformaAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
     Task<List<TraceDeliveryItem>> ListTraceDeliveriesAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
     Task<List<TraceInvoiceItem>> ListTraceInvoiceItemsAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
+
+    // ── Cutting reports (Phase 22 — WPF CuttingReportService) ─────────
+    Task<TraceJob?> FindTraceJobAsync(Guid tenantId, string jobOrderNo, CancellationToken ct);
+    Task<string?> GetProformaNoAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
+    Task<string?> GetUserDisplayNameAsync(Guid tenantId, Guid? userId, CancellationToken ct);
+    Task<List<ReservationRow>> ListReservationsForJobAsync(Guid tenantId, Guid jobOrderId, CancellationToken ct);
 }
+
+/// <summary>Job-order lookup for the cutting reports.</summary>
+public sealed record TraceJob(Guid Id, string JobNo, Guid ProformaId);
+
+/// <summary>Reservation projection (WPF Reservations read).</summary>
+public sealed record ReservationRow(int ReservedQty, string Status);

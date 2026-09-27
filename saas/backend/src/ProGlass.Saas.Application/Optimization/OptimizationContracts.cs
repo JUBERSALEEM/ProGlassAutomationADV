@@ -158,6 +158,9 @@ public interface IOptimizationStore
         Domain.Optimization.OptimizationResult plan,
         string paramsJson, CancellationToken ct);
 
+    Task<IReadOnlyList<Domain.Entities.OptimizationSession>> ListSessionsForJobAsync(
+        Guid tenantId, Guid jobOrderId, CancellationToken ct);
+
     Task<OptimizationSession?> FindSessionAsync(
         Guid tenantId, Guid id, CancellationToken ct);
 
