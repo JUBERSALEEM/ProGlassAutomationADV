@@ -738,4 +738,100 @@ public sealed class ReportingStore(SaasDbContextFactory factory) : IReportingSto
             .Distinct()
             .CountAsync(ct).ConfigureAwait(false);
     }
+
+    // ── Row traceability (Phase 21 — WPF RowTraceabilityService) ──────
+
+    public async Task<TraceProforma?> FindTraceProformaAsync(
+        Guid tenantId, string proformaNo, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await db.ProformaInvoices.AsNoTracking()
+            .Where(p => p.ProformaNo == proformaNo)
+            .Select(p => new TraceProforma(
+                p.Id, p.ProformaNo, p.Status, p.IssueDate,
+                db.Clients.Where(c => c.Id == p.ClientId).Select(c => c.CustomerName).FirstOrDefault() ?? "",
+                db.Projects.Where(pr => pr.Id == p.ProjectId).Select(pr => pr.IdentifierName).FirstOrDefault() ?? "",
+                p.GrandTotalVatInclusive,
+                p.PnlCalculatedAt, p.PnlNetExVat,
+                p.PnlTotalGlassCost, p.PnlTotalProductionCost))
+            .FirstOrDefaultAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<List<TraceSourceRowDto>> ListTraceRowsAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        var rows = await (from g in db.SpecGroups.AsNoTracking()
+                          join i in db.SpecGroupItems.AsNoTracking() on g.Id equals i.SpecGroupId
+                          where g.ProformaId == proformaId
+                          orderby g.GroupNumber, i.RowSerial
+                          select new TraceSourceRowDto(
+                              "", // RowId filled by the service (needs the PI number)
+                              "", g.GroupNumber, i.RowSerial,
+                              g.SpecName, g.GlassType,
+                              "", // GlassRef is snapshot-only (documented)
+                              i.W1, i.H1, i.W2, i.H2,
+                              i.Qty, i.UnitPrice, i.Total))
+            .ToListAsync(ct).ConfigureAwait(false);
+        return rows;
+    }
+
+    public async Task<List<TraceJobOrder>> ListJobOrdersForProformaAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await db.JobOrders.AsNoTracking()
+            .Where(j => j.ProformaId == proformaId)
+            .OrderBy(j => j.CreatedAt)
+            .Select(j => new TraceJobOrder(
+                j.JobNo, j.Status, j.Priority, j.DeliveryDate, j.CreatedAt,
+                j.GrandTotalVatInclusive))
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<int> CountJobOrdersForProformaAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await db.JobOrders.AsNoTracking()
+            .Where(j => j.ProformaId == proformaId)
+            .CountAsync(ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// The PI's delivery lines on NON-MASTER notes (WPF verbatim: voided
+    /// notes are NOT excluded here — documented; the reconciliation
+    /// endpoint does exclude them).
+    /// </summary>
+    public async Task<List<TraceDeliveryItem>> ListTraceDeliveriesAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await (from i in db.DeliveryNoteItems.AsNoTracking()
+                      join d in db.DeliveryNotes.AsNoTracking() on i.DeliveryNoteId equals d.Id
+                      join j in db.JobOrders.AsNoTracking() on d.JobOrderId equals j.Id
+                      where j.ProformaId == proformaId && !d.IsMasterDn
+                      orderby d.DeliveryDate
+                      select new TraceDeliveryItem(
+                          d.DeliveryNo, d.Status, d.DeliveryDate,
+                          d.Driver, d.Vehicle, d.DeliveryType,
+                          i.SpecGroupNumber, i.SerialNumber,
+                          i.DeliveredQty, i.ReworkQty, i.ReturnedQty))
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<List<TraceInvoiceItem>> ListTraceInvoiceItemsAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await (from item in db.TaxInvoiceItems.AsNoTracking()
+                      join t in db.TaxInvoices.AsNoTracking() on item.TaxInvoiceId equals t.Id
+                      where t.ProformaId == proformaId
+                      orderby t.IssueDate
+                      select new TraceInvoiceItem(
+                          t.InvoiceNo, t.Status, t.IssueDate,
+                          item.SpecGroupNumber, item.SerialNumber,
+                          item.Qty, item.Value))
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
 }

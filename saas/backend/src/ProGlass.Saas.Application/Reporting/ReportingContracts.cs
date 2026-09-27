@@ -334,6 +334,20 @@ public sealed record ProfitabilityPiRow(
 /// <summary>Tax-invoice pair projection for the funnel (WPF pairs list).</summary>
 public sealed record InvoicePair(Guid ProformaId, string Status, decimal GrandTotal);
 
+/// <summary>PI projection for the trace (names resolved via joins).</summary>
+public sealed record TraceProforma(
+    Guid Id, string ProformaNo, string Status, DateOnly? IssueDate,
+    string CustomerName, string ProjectName,
+    decimal GrandTotalVatInclusive,
+    DateTime? PnlCalculatedAt, decimal PnlNetExVat,
+    decimal PnlTotalGlassCost, decimal PnlTotalProductionCost);
+
+/// <summary>Job-order projection for the trace.</summary>
+public sealed record TraceJobOrder(
+    string JobNo, string Status, string Priority,
+    DateOnly? DeliveryDate, DateTime CreatedAt,
+    decimal GrandTotalVatInclusive);
+
 public interface IReportingStore
 {
     // ── PI ────────────────────────────────────────────────────────────
@@ -355,4 +369,12 @@ public interface IReportingStore
     // ── Job orders ────────────────────────────────────────────────────
     Task<List<JoReportRow>> GetJoRowsAsync(Guid tenantId, ReportingFilter filter, int maxRows, CancellationToken ct);
     Task<int> CountCohortInProductionAsync(Guid tenantId, IReadOnlyList<Guid> piIds, CancellationToken ct);
+
+    // ── Row traceability (Phase 21 — WPF RowTraceabilityService) ──────
+    Task<TraceProforma?> FindTraceProformaAsync(Guid tenantId, string proformaNo, CancellationToken ct);
+    Task<List<TraceSourceRowDto>> ListTraceRowsAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
+    Task<List<TraceJobOrder>> ListJobOrdersForProformaAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
+    Task<int> CountJobOrdersForProformaAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
+    Task<List<TraceDeliveryItem>> ListTraceDeliveriesAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
+    Task<List<TraceInvoiceItem>> ListTraceInvoiceItemsAsync(Guid tenantId, Guid proformaId, CancellationToken ct);
 }

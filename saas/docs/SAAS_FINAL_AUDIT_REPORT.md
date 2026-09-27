@@ -28,7 +28,7 @@ PostgreSQL 16 immediately before this report:
 
 | Verification | Result |
 |---|---|
-| C# syntax (tree-sitter, 192 files) | **192/192 clean** |
+| C# syntax (tree-sitter, 196 files) | **196/196 clean** |
 | Database harness (`apply_and_test.py`, 20 migrations, RLS/constraints/runner) | **ALL CHECKS PASSED 59/59** |
 | Hardening audit (`hardening_audit.py`, 14 live checks) | **14/14** |
 | Migration tool end-to-end (fixture SQLite → live PG, **15 modules**) | **PASSED** |
@@ -64,9 +64,10 @@ importer, backups, audits) has run and passes.
 | 17 | Fiscal completion — snapshot_json populated at create (WPF `TaxInvoiceSnapshot` shape verbatim, `AmountToWords` port, Header.Status rewrite on transitions), bank/TRN print columns (0019), ALL WPF statement filter axes (SafeContains semantics; customer exact→contains corrected), statements persist every axis incl. filter_statuses jsonb; migration tool fills the print columns | `c5e4f35` |
 | 18 | Subscription limits — `PlanLimitGuard` enforces per-period invoice/report/optimization-job limits in the services (402 semantics, operator-readable refusals); values catalog-only, nothing invented | `16c75a1` |
 | 19 | Reporting core slice 1 — tax invoice line items (0020, WPF BuildItemsAndSubtotal subtotal derivation, snapshot SpecGroups) + order reconciliation (the WPF OrderReconciliationService port incl. the ★over-invoicing detector) | `b957493` |
-| 20 | Reporting core slice 2 — executive summary (cohort order-to-cash funnel + headline cards), profitability (persisted Step 9 P&L, costed gate) and analytics (Pareto, ageing, throughput) — 5 reporting endpoints | this commit |
+| 20 | Reporting core slice 2 — executive summary (cohort order-to-cash funnel + headline cards), profitability (persisted Step 9 P&L, costed gate) and analytics (Pareto, ageing, throughput) — 5 reporting endpoints | `6b60167` |
+| 21 | Reporting core slice 3 — row traceability (the PI→JO→DN→TI→P&L audit chain) + CNC export (DXF R12 + cut list CSV from persisted sessions; proprietary formats declared, not guessed) | this commit |
 
-35 commits on the session branch from the base commit.
+36 commits on the session branch from the base commit.
 
 ## 3. Inventory (measured, not estimated)
 
@@ -74,9 +75,9 @@ importer, backups, audits) has run and passes.
 |---|---|
 | SQL migrations | 20 (0001–0020) |
 | PostgreSQL tables (saas schema) | 46 |
-| C# source files | 192 (all parse clean) |
+| C# source files | 196 (all parse clean) |
 | EF entities | 44 |
-| API endpoints (attribute-counted) | 130 across 16 controllers |
+| API endpoints (attribute-counted) | 135 across 16 controllers |
 | Test files | 53 (279 domain golden facts + 73 integration flow facts) |
 | Python tooling (harness, generator, importer, backup, audit) | 8 verified programs |
 | Mapping doc sections | 24 parity sections (§1.x) |
@@ -107,7 +108,7 @@ MetricKeys.Normalize with its legacy aliases.
 | Area | Deferred items |
 |---|---|
 | Documents | PDF/print exports (needs a render surface); **attachment storage (the one remaining migration-tool module)** |
-| Reporting | exports (CSV/Excel), reporting cache, RowTraceability, CncExport, cutting/production-process reports (order reconciliation DONE since Phase 19; executive summary funnel, profitability and analytics DONE since Phase 20) |
+| Reporting | PDF/print exports, reporting cache, cutting/production-process reports (order reconciliation DONE since Phase 19; executive summary funnel, profitability and analytics DONE since Phase 20; RowTraceability + CNC export DONE since Phase 21 — DXF R12 + cut list CSV ready, the proprietary machine formats honestly declared not-implemented) |
 | Optimization | QUICK portfolio extras (pattern beams, plate patterns, consolidation, offcut reuse, local search), OPTIMIZE multi-start, staged cuts, remnant reuse; **oracle re-runs of imported WPF sessions (geometry is not persisted in optimization.db — documented difference, validation_problems carries it)** |
 | Production | process executions/pairings/assemblies, workstations, control holds, actual costs, replacement pieces, consistency scanner, allocation ledger, FOC replacement (each counted + reported by the migration tool — never silent) |
 | Stock | CSV/Excel import, SheetStorePricing/SheetStockLink module links |

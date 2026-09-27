@@ -204,6 +204,12 @@ public sealed record RemnantRegion(
 
     public double MinSideMm =>
         Math.Min(WidthMm, HeightMm);
+
+    /// <summary>Rotated-agnostic size label (WPF RemnantRegion.SizeLabel,
+    /// ported with Phase 21 for the CNC offcut annotations).</summary>
+    public string SizeLabel => string.Format(
+        System.Globalization.CultureInfo.InvariantCulture,
+        "{0:0} x {1:0}", WidthMm, HeightMm);
 }
 
 /// <summary>One optimized sheet with its placements and metrics.</summary>

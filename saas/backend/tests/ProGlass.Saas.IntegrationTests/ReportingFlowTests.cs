@@ -261,4 +261,150 @@ public sealed class ReportingFlowTests
         Assert.Equal(1, ti.Overdue);
         Assert.Equal(525m, ti.Outstanding);
     }
+
+    // ── row traceability + CNC export ─────────────────────────────────
+
+    [Fact]
+    public async Task RowTrace_Follows_The_Audit_Chain_And_Cnc_Exports_The_Session()
+    {
+        var tenant = _fixture.CreateTenant("rep3");
+        var actor = Guid.NewGuid();
+        var factory = new SaasDbContextFactory(_fixture.AppDb);
+        var audit = new AuditWriter(factory, NullLogger<AuditWriter>.Instance);
+        var jobs = new JobOrderService(new JobOrderStore(factory), audit);
+        var delivery = new DeliveryService(new DeliveryNoteStore(factory), audit);
+        var optimization = new ProGlass.Saas.Application.Optimization.OptimizationService(
+            new OptimizationStore(factory), audit,
+            new ProductionStore(factory),
+            new ProGlass.Saas.Application.Subscriptions.PlanLimitGuard(
+                new ProGlass.Saas.Application.Subscriptions.SubscriptionStore(factory)));
+        var traceability = new RowTraceabilityService(new ReportingStore(factory));
+        var cnc = new CncExportService(new OptimizationStore(factory));
+
+        // The quoted row: 1000×2000 qty 2 at 100 → amount 400.
+        var pi = await CreateQuotedPiAsync(tenant, actor,
+            "6mm Clear FT Glass", 1000, 2000, 2, 100m);
+
+        // Convert + dispatch 1 of 2.
+        var job = await jobs.CreateFromProformaAsync(
+            tenant, actor, new CreateJobOrderRequest(pi.Id),
+            null, CancellationToken.None);
+        Assert.True(job.Success, job.Message);
+        var dn = await delivery.CreateOrOpenDispatchingAsync(
+            tenant, actor, job.Value!.Id, null, CancellationToken.None);
+        Assert.True(dn.Success, dn.Message);
+        var line = dn.Value!.Note!.Items.Single(i => i.SpecGroupNumber == 1);
+        var updated = await delivery.UpdateDispatchAsync(
+            tenant, dn.Value.Note.Id, actor,
+            new UpdateDispatchRequest(null, null, null, null, null, null, null,
+                new List<DispatchLineRequest> { new(line.ItemId, 1) }),
+            null, CancellationToken.None);
+        Assert.True(updated.Success, updated.Message);
+
+        // Invoice the full ordered quantity.
+        var invoice = await _fiscal.CreateAsync(tenant, actor,
+            new CreateTaxInvoiceRequest(
+                ProformaId: pi.Id, CustomerName: "Trace Co",
+                Subtotal: 0m,
+                Items: new List<TaxInvoiceItemInput>
+                {
+                    new(1, 1, "6mm Clear FT Glass", "SGU", "Front",
+                        1000, 2000, 0, 0, 2, 100m),
+                }),
+            null, CancellationToken.None);
+        Assert.True(invoice.Success, invoice.Message);
+
+        // ── The trace: PI → JO → DN → TI with the live reconciliation ──
+        var trace = await traceability.TraceRowLifecycleAsync(
+            tenant, $"{pi.ProformaNo}-G1-S1", CancellationToken.None);
+        Assert.NotNull(trace);
+
+        Assert.Equal($"{pi.ProformaNo}-G1-S1", trace!.SourceRow.RowId);
+        Assert.Equal(2, trace.SourceRow.Qty);
+        Assert.Equal(400m, trace.SourceRow.Amount);
+
+        Assert.Equal("Proforma Invoice", trace.Steps[0].Stage);
+        Assert.Equal(pi.ProformaNo, trace.Steps[0].DocumentNumber);
+        Assert.Equal(2, trace.Steps[0].Qty);
+
+        var joStep = trace.Steps.Single(s => s.Stage == "Job Order");
+        Assert.Equal(job.Value.JobOrderNo, joStep.DocumentNumber);
+        Assert.Equal(2, joStep.Qty);
+
+        var dnStep = trace.Steps.Single(s => s.Stage == "Delivery");
+        Assert.Equal(1, dnStep.Qty);
+        Assert.Contains(dn.Value.Note.DeliveryNo, dnStep.DocumentNumber);
+
+        var tiStep = trace.Steps.Single(s => s.Stage == "Tax Invoice");
+        Assert.Equal(2, tiStep.Qty);
+        Assert.Equal(400m, tiStep.Value);
+        Assert.StartsWith(invoice.Value!.InvoiceNo, tiStep.DocumentNumber);
+
+        // No Step 9 on this PI → no profitability step (the WPF gate).
+        Assert.DoesNotContain(trace.Steps, s => s.Stage == "Profitability");
+
+        // Live reconciliation: ordered 2, delivered 1, invoiced 2.
+        var recon = trace.Reconciliation;
+        Assert.Equal(2, recon.OrderedQty);
+        Assert.Equal(2, recon.JobOrderQty);
+        Assert.Equal(1, recon.DeliveredQty);
+        Assert.Equal(1, recon.RemainingQty);
+        Assert.Equal(2, recon.InvoicedQty);
+        Assert.Equal("PartiallyDelivered", recon.DeliveryState);
+        Assert.Equal("FullyInvoiced", recon.InvoiceState);
+
+        // The fast reconciliation endpoint path.
+        var fast = await traceability.CalculateReconciliationAsync(
+            tenant, pi.ProformaNo, 1, 1, CancellationToken.None);
+        Assert.Equal(2, fast.OrderedQty);
+        Assert.Equal(1, fast.DeliveredQty);
+        Assert.Equal(2, fast.InvoicedQty);
+        Assert.Equal("PartiallyDelivered", fast.DeliveryState);
+
+        // A missing proforma → null trace (not a first-row fallback).
+        Assert.Null(await traceability.TraceRowLifecycleAsync(
+            tenant, "PI-9999-9999", CancellationToken.None));
+
+        // ── CNC export over a persisted session ─────────────────────────
+        var run = await optimization.RunAsync(
+            tenant, actor,
+            new ProGlass.Saas.Application.Optimization.RunOptimizationRequest(
+                Pieces: new List<ProGlass.Saas.Application.Optimization.OptimizationPieceRequest>
+                {
+                    new("A", "6mm Clear Annealed Glass", "Glass", 1000, 2000, Qty: 2),
+                },
+                Stocks: new List<ProGlass.Saas.Application.Optimization.OptimizationStockRequest>
+                {
+                    new(3210, 2250, 6, "Clear"),
+                }),
+            null, CancellationToken.None);
+        Assert.True(run.Success, run.Message);
+        var sessionId = run.Value!.Sessions.Single().Id;
+
+        var dxf = await cnc.ExportSessionAsync(tenant, sessionId, "dxf", CancellationToken.None);
+        Assert.True(dxf.Success, dxf.Message);
+        Assert.Contains("AC1009", dxf.Value!.Text);
+        Assert.Contains("0\nLINE\n".Replace("\n", "\n"), dxf.Value.Text);
+        Assert.Contains("CUTS", dxf.Value.Text);
+
+        var cutlist = await cnc.ExportSessionAsync(tenant, sessionId, "cutlist", CancellationToken.None);
+        Assert.True(cutlist.Success, cutlist.Message);
+        Assert.StartsWith("# ProGlassAutomation cut list", cutlist.Value!.Text);
+        Assert.Contains("Sheet,SheetWidthMm,SheetHeightMm,Seq,Axis,PositionMm", cutlist.Value.Text);
+        // 2 pieces were placed → the sheet row carries them.
+        Assert.Contains(",CUT,2", cutlist.Value.Text);
+
+        // The honest contract: a proprietary format is refused, a typo too.
+        var lisec = await cnc.ExportSessionAsync(tenant, sessionId, "lisec", CancellationToken.None);
+        Assert.False(lisec.Success);
+        Assert.Contains("not implemented", lisec.Message);
+
+        var typo = await cnc.ExportSessionAsync(tenant, sessionId, "dxg", CancellationToken.None);
+        Assert.False(typo.Success);
+        Assert.Contains("Unknown CNC format", typo.Message);
+
+        // The format list: 5 targets, 2 ready.
+        Assert.Equal(5, cnc.ListFormats().Count);
+        Assert.Equal(2, cnc.ListFormats().Count(f => f.IsReady));
+    }
 }
