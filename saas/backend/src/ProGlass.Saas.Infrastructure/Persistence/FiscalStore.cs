@@ -124,10 +124,16 @@ public sealed class FiscalStore(SaasDbContextFactory factory) : IFiscalStore
     // ── writes ──────────────────────────────────────────────────────
 
     public async Task<bool> TryInsertInvoiceAsync(
-        TaxInvoice invoice, CancellationToken ct)
+        TaxInvoice invoice, IReadOnlyList<TaxInvoiceItem>? items,
+        CancellationToken ct)
     {
         using var db = factory.CreateForTenant(invoice.TenantId);
         db.TaxInvoices.Add(invoice);
+        if (items is { Count: > 0 })
+        {
+            db.TaxInvoiceItems.AddRange(items);
+        }
+
         try
         {
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
@@ -264,6 +270,95 @@ public sealed class FiscalStore(SaasDbContextFactory factory) : IFiscalStore
             .Where(n => n.CreatedAt >= f && n.CreatedAt <= t
                 && (n.Status == "Issued" || n.Status == "Applied"))
             .ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<ProformaLine>> ListProformaLinesAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        // SpecName is the SaaS-normalized display name (the WPF snapshot's
+        // GroupName has no dedicated column — documented); GlassRef is
+        // snapshot-only (0009 parity uses position), so the row carries ""
+        // and the composite key is (group number, row serial).
+        return await (from g in db.SpecGroups.AsNoTracking()
+                      join i in db.SpecGroupItems.AsNoTracking()
+                          on g.Id equals i.SpecGroupId
+                      where g.ProformaId == proformaId
+                      orderby g.GroupNumber, i.RowSerial
+                      select new ProformaLine(
+                          g.GroupNumber, g.SpecName, g.GlassType,
+                          i.RowSerial, "",
+                          i.W1, i.H1, i.W2, i.H2, i.Qty))
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<IReadOnlyList<(Guid JobOrderId, string JobNo)>>
+        ListJobOrderNosForProformaAsync(
+            Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        return await db.JobOrders.AsNoTracking()
+            .Where(j => j.ProformaId == proformaId)
+            .OrderBy(j => j.JobNo)
+            .Select(j => new ValueTuple<Guid, string>(j.Id, j.JobNo))
+            .ToListAsync(ct).ConfigureAwait(false);
+    }
+
+    public async Task<Dictionary<(int Group, int Serial), int>>
+        SumDeliveredByLineAsync(
+            Guid tenantId, IReadOnlyList<Guid> jobOrderIds,
+            CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        // The WPF "confirmed DN" filter: excludes Draft, Dummy and master
+        // DNs; sums DeliveredQty by the composite key.
+        var noteIds = await db.DeliveryNotes.AsNoTracking()
+            .Where(n => jobOrderIds.Contains(n.JobOrderId)
+                && !n.IsMasterDn
+                && n.Status != "Draft"
+                && n.DeliveryType != "Dummy")
+            .Select(n => n.Id)
+            .ToListAsync(ct).ConfigureAwait(false);
+        return await db.DeliveryNoteItems.AsNoTracking()
+            .Where(i => noteIds.Contains(i.DeliveryNoteId))
+            .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
+            .Select(g => new
+            {
+                g.Key.SpecGroupNumber,
+                g.Key.SerialNumber,
+                Qty = g.Sum(i => i.DeliveredQty)
+            })
+            .ToDictionaryAsync(
+                x => (x.SpecGroupNumber, x.SerialNumber),
+                x => x.Qty, ct).ConfigureAwait(false);
+    }
+
+    public async Task<Dictionary<(int Group, int Serial), int>>
+        SumInvoicedByLineAsync(
+            Guid tenantId, Guid proformaId, CancellationToken ct)
+    {
+        using var db = factory.CreateForTenant(tenantId);
+        // The WPF filter: excludes Cancelled, Void and Draft invoices.
+        var invoiceIds = await db.TaxInvoices.AsNoTracking()
+            .Where(t => t.ProformaId == proformaId
+                && t.Status != "Draft"
+                && t.Status != "Cancelled"
+                && t.Status != "Void"
+                && !t.IsVoid)
+            .Select(t => t.Id)
+            .ToListAsync(ct).ConfigureAwait(false);
+        return await db.TaxInvoiceItems.AsNoTracking()
+            .Where(i => invoiceIds.Contains(i.TaxInvoiceId))
+            .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
+            .Select(g => new
+            {
+                g.Key.SpecGroupNumber,
+                g.Key.SerialNumber,
+                Qty = g.Sum(i => i.Qty)
+            })
+            .ToDictionaryAsync(
+                x => (x.SpecGroupNumber, x.SerialNumber),
+                x => x.Qty, ct).ConfigureAwait(false);
     }
 
     public async Task<int> CountInvoicesSinceAsync(

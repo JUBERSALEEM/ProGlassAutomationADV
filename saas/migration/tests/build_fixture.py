@@ -802,6 +802,34 @@ def build(root: Path) -> None:
           "2026-09-02 00:00:00", "2026-10-02 00:00:00", "Net 30", "10",
           "0", "0", "10", "0.50", "10.50", "0", "", "2026-09-02 10:00:00",
           "2026-09-02 10:00:00")])
+    ti.executescript("""
+    CREATE TABLE TaxInvoiceItems (Id INTEGER PRIMARY KEY,
+        InvoiceNumber TEXT NOT NULL, ProformaId TEXT NOT NULL DEFAULT '',
+        SpecGroupNumber INTEGER NOT NULL DEFAULT 0,
+        SpecGroupName TEXT NOT NULL DEFAULT '',
+        GlassType TEXT NOT NULL DEFAULT '',
+        SerialNumber INTEGER NOT NULL DEFAULT 0,
+        GlassRef TEXT NOT NULL DEFAULT '',
+        W1 INTEGER NOT NULL DEFAULT 0, H1 INTEGER NOT NULL DEFAULT 0,
+        W2 INTEGER NOT NULL DEFAULT 0, H2 INTEGER NOT NULL DEFAULT 0,
+        Qty INTEGER NOT NULL DEFAULT 1,
+        Sqm TEXT NOT NULL DEFAULT '0', TotalSqm TEXT NOT NULL DEFAULT '0',
+        Rate TEXT NOT NULL DEFAULT '0', Value TEXT NOT NULL DEFAULT '0',
+        Notes TEXT NOT NULL DEFAULT '');
+    """)
+    # INV-2026-001 carries the WPF's exact over-invoice scenario material:
+    # ordered 2 (PI group 1 serial 1), delivered 1 (DN), invoiced 2 here.
+    ti.executemany(
+        "INSERT INTO TaxInvoiceItems (InvoiceNumber, ProformaId,"
+        " SpecGroupNumber, SpecGroupName, GlassType, SerialNumber,"
+        " GlassRef, W1, H1, W2, H2, Qty, Sqm, TotalSqm, Rate, Value)"
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        [("INV-2026-001", "PI-2026-001", 1, "Clear Double Glazed",
+          "Clear", 1, "GR-101", 1000, 500, 0, 0, 2,
+          "0.5", "1.0", "200", "400"),
+         ("INV-2026-001", "PI-2026-001", 2, "Tinted Single",
+          "Tinted", 1, "GR-201", 800, 600, 0, 0, 1,
+          "0.48", "0.48", "180", "86.40")])
     ti.commit()
 
     # ── creditnotes.db (CreditNotes) ─────────────────────────────────

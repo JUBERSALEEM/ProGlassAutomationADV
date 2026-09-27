@@ -54,6 +54,39 @@ namespace ProGlass.Saas.Domain.Entities
 
 namespace ProGlass.Saas.Domain.Entities
 {
+    /// <summary>Maps to saas.tax_invoice_items.</summary>
+    public sealed class TaxInvoiceItem : ITenantOwned
+    {
+        public Guid Id { get; set; }
+        public Guid TenantId { get; set; }
+        public Guid TaxInvoiceId { get; set; }
+        public Guid? SpecGroupItemId { get; set; }
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+        public string SpecGroupName { get; set; } = null!;
+        public string GlassType { get; set; } = null!;
+        public string GlassRef { get; set; } = null!;
+        public int W1Mm { get; set; }
+        public int H1Mm { get; set; }
+        public int W2Mm { get; set; }
+        public int H2Mm { get; set; }
+        public int Qty { get; set; }
+        public decimal Sqm { get; set; }
+        public decimal TotalSqm { get; set; }
+        public decimal Rate { get; set; }
+        public decimal Value { get; set; }
+        public string Notes { get; set; } = null!;
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public Guid? CreatedBy { get; set; }
+        public Guid? UpdatedBy { get; set; }
+        public TaxInvoice TaxInvoice { get; set; } = null!;
+        public SpecGroupItem? SpecGroupItem { get; set; } = null;
+    }
+}
+
+namespace ProGlass.Saas.Domain.Entities
+{
     /// <summary>Maps to saas.credit_notes.</summary>
     public sealed class CreditNote : ITenantOwned
     {

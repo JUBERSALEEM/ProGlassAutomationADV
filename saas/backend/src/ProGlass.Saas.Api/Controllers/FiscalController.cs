@@ -11,7 +11,9 @@ namespace ProGlass.Saas.Api.Controllers;
 /// Applied), the UAE VAT report and customer statements.
 /// </summary>
 [Route("api/v1/fiscal")]
-public sealed class FiscalController(FiscalService fiscal) : TenantControllerBase
+public sealed class FiscalController(
+    FiscalService fiscal, ReconciliationService reconciliation)
+    : TenantControllerBase
 {
     // ── Tax Invoices ────────────────────────────────────────────────
 
@@ -142,6 +144,19 @@ public sealed class FiscalController(FiscalService fiscal) : TenantControllerBas
     {
         var result = await fiscal.GenerateStatementAsync(
             RequiredTenantId, RequiredUserId, request, ClientIp, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>GET /api/v1/fiscal/proformas/{id}/reconciliation — the
+    /// order fulfillment reconciliation (Phase 19; WPF
+    /// OrderReconciliationService): ordered vs delivered vs invoiced per
+    /// line, the over-invoicing detector.</summary>
+    [HttpGet("proformas/{id:guid}/reconciliation")]
+    [HasPermission(AppPermissions.ReportsView)]
+    public async Task<IActionResult> GetReconciliation(Guid id, CancellationToken ct)
+    {
+        var result = await reconciliation.BuildForProformaAsync(
+            RequiredTenantId, id, ct);
         return result.Success ? Ok(result.Value) : Fail(result);
     }
 

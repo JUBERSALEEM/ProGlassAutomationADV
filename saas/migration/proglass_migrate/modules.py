@@ -2470,6 +2470,64 @@ class TaxInvoiceModule(Module):
             else:
                 _reject(self.finding, f"Invoice {number}", row["Id"],
                         "TaxInvoices", err)
+        # Phase 19 — the WPF TaxInvoiceItems child rows (order
+        # reconciliation's invoiced-qty axis). Loaded for every invoice
+        # that made it in; group/serial identity direct, the spec-group
+        # item link resolved against the imported PI projection.
+        spec_items: dict = id_map.get("spec_group_items_by_row", {})
+        with self.open_source() as src2:
+            src2.row_factory = sqlite3.Row
+            ti_items = src2.execute(
+                "SELECT Id, InvoiceNumber, ProformaId, SpecGroupNumber,"
+                " SpecGroupName, GlassType, SerialNumber, GlassRef,"
+                " W1, H1, W2, H2,"
+                " Qty, Sqm, TotalSqm, Rate, Value, Notes"
+                " FROM TaxInvoiceItems ORDER BY Id").fetchall()
+        items_extracted = len(ti_items)
+        items_loaded = 0
+        for row in ti_items:
+            number = (row["InvoiceNumber"] or "").strip()
+            invoice_id = invoice_ids.get(number)
+            if invoice_id is None:
+                self.finding("warning",
+                             f"Tax invoice item for unknown invoice"
+                             f" '{number}' — skipped",
+                             f"TaxInvoiceItems.Id={row['Id']}")
+                continue
+            ok, err = insert_with_savepoint(
+                pg,
+                """
+                INSERT INTO saas.tax_invoice_items
+                  (id, tenant_id, tax_invoice_id, spec_group_item_id,
+                   spec_group_number, serial_number, spec_group_name,
+                   glass_type, glass_ref, w1_mm, h1_mm, w2_mm, h2_mm,
+                   qty, sqm, total_sqm, rate, value, notes,
+                   created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, now(), now())
+                """,
+                (uuid.uuid4(), tenant_id, invoice_id,
+                 spec_items.get(
+                     ((row["ProformaId"] or "").strip(),
+                      row["SpecGroupNumber"], row["SerialNumber"])),
+                 row["SpecGroupNumber"] or 0, row["SerialNumber"] or 0,
+                 row["SpecGroupName"] or "", row["GlassType"] or "",
+                 row["GlassRef"] or "",
+                 row["W1"] or 0, row["H1"] or 0,
+                 row["W2"] or 0, row["H2"] or 0,
+                 row["Qty"] or 0, money(row["Sqm"]), money(row["TotalSqm"]),
+                 money(row["Rate"]), money(row["Value"]),
+                 row["Notes"] or ""))
+            if ok:
+                items_loaded += 1
+            else:
+                _reject(self.finding, f"Invoice {number} item"
+                        f" {row['SpecGroupNumber']}/{row['SerialNumber']}",
+                        row["Id"], "TaxInvoiceItems", err)
+        self.finding("info",
+                     f"Tax invoice line items: {items_loaded} of"
+                     f" {items_extracted} loaded", "tax_invoice_items")
+
         id_map["tax_invoices"] = invoice_ids
         return extracted, loaded
 

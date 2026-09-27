@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<Production.ReservationService>();
         services.AddScoped<Optimization.OptimizationService>();
         services.AddScoped<Fiscal.FiscalService>();
+        services.AddScoped<Fiscal.ReconciliationService>();
         services.AddScoped<Subscriptions.SubscriptionService>();
         services.AddScoped<Subscriptions.PlanLimitGuard>();
         return services;

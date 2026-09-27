@@ -48,7 +48,7 @@ GROUPS = {
                   "production_pieces", "production_events",
                   "material_reservations", "delivery_notes",
                   "delivery_note_items"],
-    "Fiscal": ["tax_invoices", "credit_notes", "statements", "statement_lines"],
+    "Fiscal": ["tax_invoices", "tax_invoice_items", "credit_notes", "statements", "statement_lines"],
     "Optimization": ["optimization_sessions", "optimization_sheets",
                      "optimization_placements", "optimization_cuts",
                      "optimization_leftovers"],

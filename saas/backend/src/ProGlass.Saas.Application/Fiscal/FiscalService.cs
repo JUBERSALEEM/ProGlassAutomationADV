@@ -3,6 +3,8 @@ using ProGlass.Saas.Application.Auth;
 using ProGlass.Saas.Application.Subscriptions;
 using ProGlass.Saas.Domain.Entities;
 using ProGlass.Saas.Domain.Fiscal;
+using ProGlass.Saas.Domain.Money;
+using ProGlass.Saas.Domain.Pricing;
 using ProGlass.Saas.Domain.Proforma;
 using ProGlass.Saas.Domain.Subscriptions;
 
@@ -54,7 +56,30 @@ public sealed record CreateTaxInvoiceRequest(
     decimal DiscountPercent = 0,
     string PaymentTerms = "Net 30",
     DateOnly? IssueDate = null,
-    InvoicePrintData? Print = null);
+    InvoicePrintData? Print = null,
+    /// <summary>Phase 19 — line items (the WPF TaxInvoiceItems). When
+    /// present, the WPF BuildItemsAndSubtotal math DERIVES the subtotal
+    /// (Σ MoneyRounding.Round(rate × qty × sqm)) and the request's
+    /// Subtotal is ignored — the WPF wizard never trusts a client
+    /// total.</summary>
+    IReadOnlyList<TaxInvoiceItemInput>? Items = null);
+
+/// <summary>One invoice line item (WPF TaxInvoiceItem; sqm/value are
+/// computed server-side with the WPF row math).</summary>
+public sealed record TaxInvoiceItemInput(
+    int SpecGroupNumber,
+    int SerialNumber,
+    string SpecGroupName = "",
+    string GlassType = "",
+    string GlassRef = "",
+    int W1 = 0,
+    int H1 = 0,
+    int W2 = 0,
+    int H2 = 0,
+    int Qty = 1,
+    decimal Rate = 0,
+    string Notes = "",
+    Guid? SpecGroupItemId = null);
 
 /// <summary>Print-surface data for a tax invoice (Phase 17) — the WPF
 /// InvWizardState fields that feed the snapshot's Company/Customer/Project/
@@ -213,7 +238,8 @@ public interface IFiscalStore
     Task<(int MaxSeq, HashSet<string> UsedNumbers)> GetInvoiceNumbersAsync(
         Guid tenantId, int year, CancellationToken ct);
 
-    Task<bool> TryInsertInvoiceAsync(TaxInvoice invoice, CancellationToken ct);
+    Task<bool> TryInsertInvoiceAsync(TaxInvoice invoice,
+        IReadOnlyList<TaxInvoiceItem>? items, CancellationToken ct);
 
     Task<bool> TryUpdateInvoiceAsync(
         TaxInvoice invoice, int? expectedRowVersion, CancellationToken ct);
@@ -245,6 +271,25 @@ public interface IFiscalStore
     /// period start.</summary>
     Task<int> CountInvoicesSinceAsync(
         Guid tenantId, DateOnly since, CancellationToken ct);
+
+    /// <summary>Phase 19 reconciliation queries.</summary>
+    Task<IReadOnlyList<ProformaLine>> ListProformaLinesAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct);
+
+    Task<IReadOnlyList<(Guid JobOrderId, string JobNo)>>
+        ListJobOrderNosForProformaAsync(
+            Guid tenantId, Guid proformaId, CancellationToken ct);
+
+    /// <summary>Σ delivered_qty by (spec_group_number, serial_number) over
+    /// the job orders' dispatch DNs — excludes Draft, Dummy and master
+    /// DNs (the WPF "confirmed" filter).</summary>
+    Task<Dictionary<(int Group, int Serial), int>> SumDeliveredByLineAsync(
+        Guid tenantId, IReadOnlyList<Guid> jobOrderIds, CancellationToken ct);
+
+    /// <summary>Σ qty by (spec_group_number, serial_number) over the PI's
+    /// family invoices — excludes Draft, Cancelled, Void.</summary>
+    Task<Dictionary<(int Group, int Serial), int>> SumInvoicedByLineAsync(
+        Guid tenantId, Guid proformaId, CancellationToken ct);
 
     Task<int> CountStatementsSinceAsync(
         Guid tenantId, DateOnly since, CancellationToken ct);
@@ -376,6 +421,57 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit,
             PaymentTermsResolver.ResolveDays(request.PaymentTerms));
         var print = request.Print ?? new InvoicePrintData();
 
+        // Phase 19 — line items (WPF BuildItemsAndSubtotal): when items are
+        // present the subtotal is DERIVED with the WPF row math
+        // (SqmCalculator 3 dp + the 0.5 m² floor; value = MoneyRounding
+        // 2 dp away-from-zero of rate × qty × sqm); the request's Subtotal
+        // is ignored — the WPF wizard never trusts a client total.
+        var items = new List<TaxInvoiceItem>();
+        if (request.Items is { Count: > 0 })
+        {
+            foreach (var input in request.Items)
+            {
+                if (input.Qty <= 0)
+                {
+                    return FiscalResult<TaxInvoiceDto>.Fail(
+                        FiscalErrorCode.ValidationFailed,
+                        $"Item {input.SpecGroupNumber}/{input.SerialNumber}: " +
+                        "quantity must be positive.");
+                }
+
+                var sqm = SqmCalculator.CalculatePanel(input.W1, input.H1);
+                items.Add(new TaxInvoiceItem
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    TaxInvoiceId = Guid.Empty,   // set below, once allocated
+                    SpecGroupItemId = input.SpecGroupItemId,
+                    SpecGroupNumber = input.SpecGroupNumber,
+                    SerialNumber = input.SerialNumber,
+                    SpecGroupName = input.SpecGroupName ?? "",
+                    GlassType = input.GlassType ?? "",
+                    GlassRef = input.GlassRef ?? "",
+                    W1Mm = input.W1,
+                    H1Mm = input.H1,
+                    W2Mm = input.W2,
+                    H2Mm = input.H2,
+                    Qty = input.Qty,
+                    Sqm = sqm,
+                    TotalSqm = Math.Round(sqm * input.Qty, 3,
+                        MidpointRounding.ToEven),
+                    Rate = input.Rate,
+                    Value = MoneyRounding.Round(input.Rate * input.Qty * sqm),
+                    Notes = input.Notes ?? "",
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    CreatedBy = actorId,
+                    UpdatedBy = actorId
+                });
+            }
+
+            request = request with { Subtotal = items.Sum(i => i.Value) };
+        }
+
         // WPF financial snapshot inputs: the family's PRIOR invoices are the
         // "previously invoiced" total; the balance left on the PI follows
         // the WPF formula (floored at 0).
@@ -424,9 +520,43 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit,
         void AttachSnapshot()
         {
             var (sequenceLetter, sequenceNumber) = ParseSequence(invoice.InvoiceNo);
+
+            // Phase 19 — SpecGroups populated from the line items when
+            // present (WPF BuildSnapshot), still empty for totals-only
+            // invoices (documented).
+            var snapshotSpecGroups = items
+                .GroupBy(i => (i.SpecGroupNumber, i.SpecGroupName,
+                    i.GlassType))
+                .Select(g => new InvSpecGroupSnapshot
+                {
+                    GroupNumber = g.Key.SpecGroupNumber,
+                    GroupName = g.Key.SpecGroupName,
+                    GlassType = g.Key.GlassType,
+                    Rows = g.Select(i => new InvGlassItemRowSnapshot
+                    {
+                        SerialNumber = i.SerialNumber,
+                        GlassRef = i.GlassRef,
+                        W1 = i.W1Mm,
+                        H1 = i.H1Mm,
+                        W2 = i.W2Mm,
+                        H2 = i.H2Mm,
+                        Qty = i.Qty,
+                        Sqm = i.Sqm,
+                        TotalSqm = i.TotalSqm,
+                        Rate = i.Rate,
+                        Value = i.Value,
+                        Notes = i.Notes
+                    }).ToList(),
+                    GroupTotalQty = g.Sum(i => i.Qty),
+                    GroupTotalSqm = Math.Round(g.Sum(i => i.TotalSqm), 3),
+                    GroupTotalValue = MoneyRounding.Round(g.Sum(i => i.Value))
+                })
+                .ToList();
+
             invoice.SnapshotJson = TaxInvoiceSnapshotCodec.Serialize(
                 new TaxInvoiceSnapshot
                 {
+                    SpecGroups = snapshotSpecGroups,
                     Header = new InvHeaderSnapshot
                     {
                         InvoiceNumber = invoice.InvoiceNo,
@@ -501,9 +631,13 @@ public sealed class FiscalService(IFiscalStore store, IAuditWriter audit,
         }
 
         AttachSnapshot();
+        foreach (var item in items)
+        {
+            item.TaxInvoiceId = invoice.Id;
+        }
 
         var attempts = 0;
-        while (!await store.TryInsertInvoiceAsync(invoice, ct))
+        while (!await store.TryInsertInvoiceAsync(invoice, items, ct))
         {
             if (++attempts >= AllocationAttempts)
             {

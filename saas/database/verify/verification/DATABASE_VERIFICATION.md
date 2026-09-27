@@ -1,8 +1,8 @@
 # SAAS DATABASE VERIFICATION REPORT (Phases 3–4)
 
-**Generated:** 2026-09-27T14:08:01.815146+00:00  
+**Generated:** 2026-09-27T14:24:58.488998+00:00  
 **PostgreSQL:** 16 (pgserver, live instance)  
-**Migrations applied:** 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql, 0014_production.sql, 0015_material_reservations.sql, 0016_fiscal.sql, 0017_subscriptions.sql, 0018_hardening_fk_indexes.sql, 0019_fiscal_print_snapshot.sql  
+**Migrations applied:** 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql, 0014_production.sql, 0015_material_reservations.sql, 0016_fiscal.sql, 0017_subscriptions.sql, 0018_hardening_fk_indexes.sql, 0019_fiscal_print_snapshot.sql, 0020_tax_invoice_items.sql  
 **Result: 59/59 checks passed, 0 failed**
 
 Run it yourself: `python3 saas/database/verify/apply_and_test.py`
@@ -24,12 +24,12 @@ Run it yourself: `python3 saas/database/verify/apply_and_test.py`
 | 12 | invalid status rejected (CHECK) | ✅ PASS | — |
 | 13 | FK to nonexistent proforma rejected | ✅ PASS | — |
 | 14 | cascade delete removes spec groups + items | ✅ PASS | — |
-| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 14:08:01.654899+00:00 → 2026-09-27 14:08:01.705840+00:00 |
+| 15 | updated_at trigger advances on UPDATE | ✅ PASS | 2026-09-27 14:24:58.341492+00:00 → 2026-09-27 14:24:58.392150+00:00 |
 | 16 | audit_logs UPDATE denied for app role | ✅ PASS | — |
 | 17 | stock_transactions DELETE denied for app role | ✅ PASS | — |
 | 18 | numeric money arithmetic exact | ✅ PASS | 1050.00 |
 | 19 | re-run is a no-op (idempotent) | ✅ PASS | applied 0 |
-| 20 | all 19 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql, 0014_production.sql, 0015_material_reservations.sql, 0016_fiscal.sql, 0017_subscriptions.sql, 0018_hardening_fk_indexes.sql, 0019_fiscal_print_snapshot.sql |
+| 20 | all 20 migrations recorded with checksums | ✅ PASS | 0001_platform_identity.sql, 0002_masterdata_stock.sql, 0003_documents.sql, 0004_optimization.sql, 0005_rls.sql, 0006_refresh_token_absolute_expiry.sql, 0007_masterdata_parity.sql, 0008_specifications_parity.sql, 0009_other_charges_parity.sql, 0010_step9_pnl.sql, 0011_step7_summary.sql, 0012_job_orders.sql, 0013_delivery_notes.sql, 0014_production.sql, 0015_material_reservations.sql, 0016_fiscal.sql, 0017_subscriptions.sql, 0018_hardening_fk_indexes.sql, 0019_fiscal_print_snapshot.sql, 0020_tax_invoice_items.sql |
 | 21 | tampered migration detected | ✅ PASS | — |
 | 22 | runtime role cannot INSERT tenants | ✅ PASS | — |
 | 23 | runtime role can READ tenants | ✅ PASS | — |

@@ -28,8 +28,8 @@ PostgreSQL 16 immediately before this report:
 
 | Verification | Result |
 |---|---|
-| C# syntax (tree-sitter, 184 files) | **184/184 clean** |
-| Database harness (`apply_and_test.py`, 19 migrations, RLS/constraints/runner) | **ALL CHECKS PASSED 59/59** |
+| C# syntax (tree-sitter, 185 files) | **185/185 clean** |
+| Database harness (`apply_and_test.py`, 20 migrations, RLS/constraints/runner) | **ALL CHECKS PASSED 59/59** |
 | Hardening audit (`hardening_audit.py`, 14 live checks) | **14/14** |
 | Migration tool end-to-end (fixture SQLite → live PG, **15 modules**) | **PASSED** |
 | Backup + restore drill (live PG, incl. corruption detection) | **PASSED** |
@@ -62,17 +62,18 @@ importer, backups, audits) has run and passes.
 | 15 | Production hardening (audit 14/14, 0018 FK indexes, backup + restore drill, API middlewares, deployment guide) | `bd24f00` |
 | 16 | Migration tool document modules — **all 15 plan §2 modules** (specifications, inquiries, proformas + FullSnapshotJson normalization, specusages, optimization, joborders, production, deliverynotes; tax invoices now link proforma/job; validate extended) | `26a0595` |
 | 17 | Fiscal completion — snapshot_json populated at create (WPF `TaxInvoiceSnapshot` shape verbatim, `AmountToWords` port, Header.Status rewrite on transitions), bank/TRN print columns (0019), ALL WPF statement filter axes (SafeContains semantics; customer exact→contains corrected), statements persist every axis incl. filter_statuses jsonb; migration tool fills the print columns | `c5e4f35` |
-| 18 | Subscription limits — `PlanLimitGuard` enforces per-period invoice/report/optimization-job limits in the services (402 semantics, operator-readable refusals); values catalog-only, nothing invented | this commit |
+| 18 | Subscription limits — `PlanLimitGuard` enforces per-period invoice/report/optimization-job limits in the services (402 semantics, operator-readable refusals); values catalog-only, nothing invented | `16c75a1` |
+| 19 | Reporting core slice 1 — tax invoice line items (0020, WPF BuildItemsAndSubtotal subtotal derivation, snapshot SpecGroups) + order reconciliation (the WPF OrderReconciliationService port incl. the ★over-invoicing detector) | this commit |
 
-32 commits on the session branch from the base commit.
+34 commits on the session branch from the base commit.
 
 ## 3. Inventory (measured, not estimated)
 
 | Item | Count |
 |---|---|
-| SQL migrations | 19 (0001–0019) |
-| PostgreSQL tables (saas schema) | 45 |
-| C# source files | 184 (all parse clean) |
+| SQL migrations | 20 (0001–0020) |
+| PostgreSQL tables (saas schema) | 46 |
+| C# source files | 185 (all parse clean) |
 | EF entities | 44 |
 | API endpoints (attribute-counted) | 125 across 15 controllers |
 | Test files | 53 (279 domain golden facts + 73 integration flow facts) |
@@ -105,7 +106,7 @@ MetricKeys.Normalize with its legacy aliases.
 | Area | Deferred items |
 |---|---|
 | Documents | PDF/print exports (needs a render surface); **attachment storage (the one remaining migration-tool module)** |
-| Reporting | exports (CSV/Excel), reporting cache, executive summary/analytics dashboards, profitability, RowTraceability, CncExport, cutting/production-process reports, order reconciliation |
+| Reporting | exports (CSV/Excel), reporting cache, executive summary/analytics dashboards, profitability, RowTraceability, CncExport, cutting/production-process reports (order reconciliation DONE since Phase 19 — line items + the over-invoicing detector) |
 | Optimization | QUICK portfolio extras (pattern beams, plate patterns, consolidation, offcut reuse, local search), OPTIMIZE multi-start, staged cuts, remnant reuse; **oracle re-runs of imported WPF sessions (geometry is not persisted in optimization.db — documented difference, validation_problems carries it)** |
 | Production | process executions/pairings/assemblies, workstations, control holds, actual costs, replacement pieces, consistency scanner, allocation ledger, FOC replacement (each counted + reported by the migration tool — never silent) |
 | Stock | CSV/Excel import, SheetStorePricing/SheetStockLink module links |
@@ -180,7 +181,8 @@ detection), monitoring hooks, and the production checklist.
 The port is **structurally complete and verified to the maximum extent
 this environment allows**: 15/15 phases delivered plus the Phase 16
 document modules (15/16 migration modules; only attachments remains)
-the Phase 17 fiscal completion slice and the Phase 18 subscription limits,
+the Phase 17 fiscal completion slice, the Phase 18 subscription limits and
+the Phase 19 reporting core slice 1 (invoice line items + reconciliation),
 every deferral documented with its reason, the database layer proven
 against live PostgreSQL (59/59 harness, 14/14 hardening audit), and the
 operational tooling (importer, backups, audits) exercised end-to-end.

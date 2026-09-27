@@ -82,6 +82,7 @@ public sealed class SaasDbContext : DbContext
 
     // ── Fiscal ────────────────────────────────────────────────────────
     public DbSet<TaxInvoice> TaxInvoices => Set<TaxInvoice>();
+    public DbSet<TaxInvoiceItem> TaxInvoiceItems => Set<TaxInvoiceItem>();
     public DbSet<CreditNote> CreditNotes => Set<CreditNote>();
     public DbSet<Statement> Statements => Set<Statement>();
     public DbSet<StatementLine> StatementLines => Set<StatementLine>();

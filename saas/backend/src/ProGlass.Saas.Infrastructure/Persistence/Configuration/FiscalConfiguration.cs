@@ -69,6 +69,50 @@ namespace ProGlass.Saas.Infrastructure.Persistence.Configuration
         }
     }
 
+    public sealed class TaxInvoiceItemConfiguration : IEntityTypeConfiguration<TaxInvoiceItem>
+    {
+        public void Configure(EntityTypeBuilder<TaxInvoiceItem> builder)
+        {
+            builder.ToTable("tax_invoice_items", "saas");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id).HasColumnName("id").HasColumnType("uuid").HasDefaultValueSql("gen_random_uuid()");
+            builder.Property(x => x.TenantId).HasColumnName("tenant_id").HasColumnType("uuid");
+            builder.Property(x => x.TaxInvoiceId).HasColumnName("tax_invoice_id").HasColumnType("uuid");
+            builder.Property(x => x.SpecGroupItemId).HasColumnName("spec_group_item_id").HasColumnType("uuid");
+            builder.Property(x => x.SpecGroupNumber).HasColumnName("spec_group_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SerialNumber).HasColumnName("serial_number").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.SpecGroupName).HasColumnName("spec_group_name").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.GlassType).HasColumnName("glass_type").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.GlassRef).HasColumnName("glass_ref").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.W1Mm).HasColumnName("w1_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.H1Mm).HasColumnName("h1_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.W2Mm).HasColumnName("w2_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.H2Mm).HasColumnName("h2_mm").HasColumnType("integer").HasDefaultValue(0);
+            builder.Property(x => x.Qty).HasColumnName("qty").HasColumnType("integer").HasDefaultValue(1);
+            builder.Property(x => x.Sqm).HasColumnName("sqm").HasColumnType("numeric(12,3)").HasDefaultValue(0m);
+            builder.Property(x => x.TotalSqm).HasColumnName("total_sqm").HasColumnType("numeric(12,3)").HasDefaultValue(0m);
+            builder.Property(x => x.Rate).HasColumnName("rate").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.Value).HasColumnName("value").HasColumnType("numeric(18,2)").HasDefaultValue(0m);
+            builder.Property(x => x.Notes).HasColumnName("notes").HasColumnType("text").HasDefaultValue("");
+            builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("timestamptz").HasDefaultValueSql("now()");
+            builder.Property(x => x.CreatedBy).HasColumnName("created_by").HasColumnType("uuid");
+            builder.Property(x => x.UpdatedBy).HasColumnName("updated_by").HasColumnType("uuid");
+            builder.HasIndex(x => new { x.TenantId, x.TaxInvoiceId })
+                .HasDatabaseName("ix_tax_invoice_items_tenant_invoice");
+            builder.HasIndex(x => new { x.TenantId, x.SpecGroupItemId })
+                .HasDatabaseName("ix_tax_invoice_items_tenant_item");
+            builder.HasOne(x => x.TaxInvoice)
+                .WithMany()
+                .HasForeignKey(x => x.TaxInvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+            builder.HasOne(x => x.SpecGroupItem)
+                .WithMany()
+                .HasForeignKey(x => x.SpecGroupItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+    }
+
     public sealed class CreditNoteConfiguration : IEntityTypeConfiguration<CreditNote>
     {
         public void Configure(EntityTypeBuilder<CreditNote> builder)

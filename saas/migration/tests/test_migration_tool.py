@@ -154,6 +154,28 @@ def main() -> None:
     assert print_fields[1] == ("ProGlass Automation LLC", "1001234567893",
                                "", "", "", "", ""), print_fields[1]
 
+    # Phase 19: the WPF TaxInvoiceItems round-trip (group/serial identity,
+    # spec-group-item link resolved, qty/sqm/rate/value verbatim).
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT i.spec_group_number, i.serial_number, i.qty,"
+            " i.w1_mm, i.h1_mm, i.rate, i.value,"
+            " (i.spec_group_item_id IS NOT NULL) AS linked"
+            " FROM saas.tax_invoice_items i"
+            " JOIN saas.tax_invoices t ON t.id = i.tax_invoice_id"
+            " WHERE t.invoice_no = 'INV-2026-001'"
+            " ORDER BY i.spec_group_number, i.serial_number")
+        ti_items = cur.fetchall()
+    assert len(ti_items) == 2, ti_items
+    assert ti_items[0][0:7] == (1, 1, 2, 1000, 500,
+                                Decimal(200), Decimal(400)), ti_items[0]
+    assert ti_items[1][0:7] == (2, 1, 1, 800, 600,
+                                Decimal(180), Decimal("86.40")), ti_items[1]
+    # group 1 serial 1 exists on the imported PI → linked; group 2 does
+    # not (the fixture PI has only group 1) → unlinked.
+    assert ti_items[0][7] is True, "group 1/1 should link to the PI item"
+    assert ti_items[1][7] is False, "group 2/1 has no PI counterpart"
+
     # credit notes: both loaded; the second has a null invoice link.
     assert by_module["creditnotes"]["loaded"] == 2
     with conn.cursor() as cur:
