@@ -233,7 +233,11 @@ public sealed record SpecGroupInput(
     decimal? Step4InterlayerCostPerSqm = null,
     decimal? Step4CuttingCostPerSqm = null,
     decimal? Step4TemperingCostPerSqm = null,
-    decimal? UInsertPricePerSqm = null)
+    decimal? UInsertPricePerSqm = null,
+    // Step 5 quoted rate (spec_groups.rate_per_sqm) — the GIVEN price the
+    // target-price model judges (WPF SpecGroup.BaseRate). Optional so the
+    // P&L/metrics constructors stay unchanged.
+    decimal RatePerSqm = 0m)
 {
     public string EffectiveGlassType =>
         SpecGrammar.ResolveEffectiveGlassType(GlassType, SpecName);

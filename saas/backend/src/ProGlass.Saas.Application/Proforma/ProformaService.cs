@@ -991,7 +991,8 @@ public sealed class ProformaService
             g.Group.Step4InterlayerCostPerSqm,
             g.Group.Step4CuttingCostPerSqm,
             g.Group.Step4TemperingCostPerSqm,
-            g.Group.UInsertPricePerSqm)).ToList();
+            g.Group.UInsertPricePerSqm,
+            g.Group.RatePerSqm)).ToList();
     }
 
     // ═════════════════════════ DUPLICATE ═══════════════════════════
@@ -1902,9 +1903,98 @@ public sealed class ProformaService
                 r.Id, r.Kind, r.SpecNumber, r.SpecName, r.Description,
                 r.SheetWidthMm, r.SheetHeightMm, r.SheetSqm,
                 r.Quantity, r.PricePerUnit, r.UnitLabel, r.Amount,
-                r.SheetSource, r.SortOrder)).ToList());
+                r.SheetSource, r.SortOrder)).ToList(),
+            await ComputeTargetsAsync(tenantId, id, invoice?.PnlWastagePercent ?? 15m, ct));
 
         return ProformaResult<Step9Dto>.Ok(dto);
+
+    /// <summary>
+    /// The Step 9 target-price panel (WPF
+    /// ProfitLossStepViewModel.RebuildTargetResults): per-specification
+    /// targets + the job aggregate, computed LIVE from the saved grid +
+    /// Step 6 charges + the Step 9 yield. Nothing is persisted — the
+    /// normalized inputs are always current (the WPF persisted a
+    /// snapshot and rebuilt it on view; documented difference).
+    /// </summary>
+    private async Task<TargetPriceSummaryDto?> ComputeTargetsAsync(
+        Guid tenantId, Guid id, decimal wastagePercent, CancellationToken ct)
+    {
+        var inputs = await LoadSpecGroupInputsAsync(tenantId, id, ct);
+        if (inputs.Count == 0)
+        {
+            return null;
+        }
+
+        var step6 = await _store.GetStep6Async(tenantId, id, ct);
+        var uInsertRows = step6.Charges
+            .Where(c => string.Equals(
+                (c.TemplateKey ?? "").Trim(), "U_INSERT",
+                StringComparison.OrdinalIgnoreCase))
+            .Select(c => (
+                c.IsActive,
+                DeserializeNumbers(c.CheckedSpecGroupNumbers),
+                c.Rate))
+            .ToList();
+
+        var templateDefault = ChargeTemplates.Find("U_INSERT")?.DefaultRate ?? 0m;
+
+        var job = SpecificationTargetBuilder.BuildJob(
+            inputs,
+            g => SpecificationTargetBuilder.BuildUInsertQuery(g, uInsertRows, templateDefault),
+            wastagePercent);
+
+        return new TargetPriceSummaryDto(
+            job.TotalAreaSqm,
+            job.TotalGivenValue,
+            job.TotalSpecificationTargetValue,
+            job.TotalRequiredTargetValue,
+            job.TotalDifferenceValue,
+            job.AverageGivenPricePerSqm,
+            job.AverageSpecificationTargetPerSqm,
+            job.AverageFinalRequiredTargetPerSqm,
+            job.AverageBasePricePerSqm,
+            job.AverageGivenJudgedPerSqm,
+            job.AverageExtraProfitPerSqm,
+            job.ExtraProfitMarginPercent,
+            job.CostBasedProfitMarginPercent,
+            job.MarginAgainstTargetPercent,
+            job.Status.ToString(),
+            job.ValidSpecCount,
+            job.IncompleteSpecCount,
+            job.Warnings,
+            job.Specifications.Select(spec => new SpecTargetPriceDto(
+                spec.SpecNumber,
+                spec.SpecName,
+                spec.GlassTypeCode,
+                spec.BuildType.ToString(),
+                spec.GivenPricePerSqm,
+                spec.AreaSqm,
+                spec.GivenValue,
+                spec.OuterGlassRatePerSqm,
+                spec.InnerGlassRatePerSqm,
+                spec.ThirdGlassRatePerSqm,
+                spec.AspRatePerSqm,
+                spec.ProcessingRatePerSqm,
+                spec.YieldFactor,
+                spec.TargetUpliftPercent,
+                spec.FormulaText,
+                spec.SpecificationTargetPerSqm,
+                spec.UInsertTreatment.ToString(),
+                spec.UInsertRatePerSqm,
+                spec.UInsertSourceLabel,
+                spec.AppliedUInsertPerSqm,
+                spec.FinalRequiredTargetPerSqm,
+                spec.DifferencePerSqm,
+                spec.RequiredTargetValue,
+                spec.DifferenceValue,
+                spec.BasePricePerSqm,
+                spec.GivenPriceJudgedPerSqm,
+                spec.ExtraProfitPerSqm,
+                spec.ExtraProfitMarginPercent,
+                spec.MarginAgainstTargetPercent,
+                spec.Status.ToString(),
+                spec.Warnings)).ToList());
+    }
     }
 
     /// <summary>Runs the domain P&amp;L port over the saved document.</summary>

@@ -81,7 +81,7 @@ The wizard's document spine, ported 2026-09-27 from
 | "Draft bodies are editable" + `IsEditable(Draft/Rejected)` | Grid save refused (409) unless Draft/Rejected; voided always terminal | Same rule, typed response |
 | `ProformaDuplicateSnapshotScrub` (duplicate detaches inquiry link + rewrites ProformaId in the snapshot JSON) | `Domain.Proforma.DuplicateSnapshotScrub` (JsonNode port) inside `POST /{id}/duplicate` — see §1.2c | Done (7b) |
 | `GlassPriceStamper` (sheet-store basis stamp: `{max(LastUpdated).Ticks}:{count}`) | Deferred to 7b/8 (needs the sheet store) | Deferred, documented |
-| Inquiry convert-to-PI, Step 4 APPLY → specifications registry, Step 6 other charges, Step 9 P&L, Step 7 summary + round-to | Done (7b) — §1.2b/§1.2c/§1.3a/§1.3b/§1.3c; Step 7 PDF/print remains deferred (needs a render surface) | Done except PDF (deferred, documented) |
+| Inquiry convert-to-PI, Step 4 APPLY → specifications registry, Step 6 other charges, Step 9 P&L incl. target pricing, Step 7 summary + round-to | Done (7b) — §1.2b/§1.2c/§1.3a/§1.3b/§1.3c/§1.3d; Step 7 PDF/print remains deferred (needs a render surface) | Done except PDF (deferred, documented) |
 
 ### 1.2b Step 7 — financial summary (Phase 7b)
 
@@ -204,6 +204,34 @@ Design facts 85–95 in `SAAS_MIGRATION_PROGRESS.md`.
 | Target-pricing model (SpecTargetRowViewModel, 1059 lines) | Deferred to its own 7b sub-item | Deferred, documented |
 | `BuildStep9SpecDisplay`: spec-name colour tokens rewritten from the group's authoritative colours | Verbatim (glass/spacer/production rows); Step 6 charge rows keep the RAW spec name with the "SPEC n" fallback (WPF FindSpecName) | Same |
 | WPF `PricePerSqm`/`UnitLabel` on rows; UnitLabel defaults "SQM" | `pnl_rows` columns price_per_unit/unit_label | Same |
+
+
+### 1.3d Step 9 — Target pricing (Phase 7b)
+
+Ported 2026-09-27 from `Services/ProformaInvoice/TargetPricing/*`
+(TargetPriceModels, SpecificationTargetCalculator, TargetMarginTolerance,
+Step5PriceSource, Step6ChargeResolver) and the Step 9 adapter
+`ProfitLossStepViewModel.TargetPricing.cs` (RebuildTargetResults +
+BuildRateCard + SpecRequiresUInsert + FindUInsertRow /
+UInsertRowActiveForSpec). `Domain.Proforma.TargetPricing` carries the
+model + calculator + resolver + aggregator verbatim;
+`SpecificationTargetBuilder` is the SaaS adapter; the panel rides on the
+step 9 GET/PUT responses as `targets` (per spec + job aggregate).
+
+| WPF (source of truth) | SaaS (Phase 7b) | Difference? |
+|---|---|---|
+| Given price = SpecGroup.BaseRate (Step 5) | `spec_groups.rate_per_sqm` (SpecGroupInput.RatePerSqm) | Same |
+| Base price = pre-uplift formula result rounded 2dp — (25+25)÷0.85+45 = 103.82; target = ROUND(base × 1.15) = 119.39 | Verbatim (MoneyRounding) | Same |
+| KPI trigger: margin judged GIVEN vs BASE (never vs the required target); status pills judged vs the required target (±0.005 band) | Verbatim | Same |
+| U-insert (revised 2026-09-04): the required target NEVER moves; Additional = billed as its own Step 6 line, rate display-only; IncludedInStep5Price = netted out of the judged given price; Unresolved when no rate anywhere (seed → row → template default) | Verbatim (Step6ChargeResolver + ApplyUInsert) | Same |
+| Row semantics: FIRST U_INSERT row decides (rate read even when inactive); active-for-spec = row active AND group checked in the two-part targeting | Verbatim (BuildUInsertQuery reads the persisted Step 6 charges in SortOrder) | Same (an empty targeting list targets no spec — same as the WPF TargetSelection with nothing checked) |
+| Yield = 1 − wastage%/100 (the Step 9 box), ≤0 floored at 0.05 | Same (SpecificationTargetBuilder.EffectiveYieldFactor, reads the saved pnl_wastage_percent) | Same |
+| Rate card: group's Step 4 handoff columns authoritative; LEGACY rows fall back to the LIVE Step 4 panel VMs (and Step 6 wastage-source prices) | Handoff-only — a server has no live panel; missing handoff ⇒ honest Missing* status, never a guess | **Documented difference**: the legacy rescue paths are not portable; the WPF itself labels them "legacy fallback only" |
+| DGU+LAM third pane: WPF passed groupRate 0 (no third-pane column on its SpecGroup) and used the live panel | `third_sheet_price_per_sqm` (persisted since 0010) — the handoff-first rule now covers the third pane | **Improvement, documented** |
+| TargetUpliftPercent = the Step 9 "expected profit margin %" operator box (default 15, the approved model fixes 15) | Fixed at the approved 15% (the box is not a persisted SaaS input; the approved model pins 15) | **Documented difference** |
+| Snapshot persistence: the VM saved a SpecTargetSnapshot block + TargetSnapshotRecompute rebuilt it on view (old invoices self-correct) | COMPUTED ON READ from the normalized inputs (grid rates + Step 4 handoff + Step 6 charges + Step 9 yield) — always current by construction, nothing to rebuild | **Documented difference (better: the normalized tables are the snapshot)** |
+| Groups with cut area 0 skipped from the target panel | Same (PnLCalculator.MeasureGroup ≤ 0 → skipped) | Same |
+| Aggregator: value-weighted job totals, area-weighted averages, null (never 0) when ANY spec incomplete; cost-based margin counts only an ACTIVE U-insert's cost | Verbatim | Same |
 
 ### 1.4 Pricing engine (cross-cutting — single service, master prompt §40)
 | WPF | SaaS |
