@@ -273,6 +273,31 @@ public sealed class OptimizationResult
 
     public bool HasValidationFailure => ValidationProblems.Count > 0;
 
+    /// <summary>Sheets the plan actually reaches for (WPF
+    /// SheetsUsed).</summary>
+    public int SheetsUsed => Sheets.Count;
+
+    /// <summary>
+    /// Records the oracle verdict on the plan that is actually returned
+    /// (WPF RecordValidation): distinct problems only, flags only ever
+    /// turn on.
+    /// </summary>
+    public void RecordValidation(IEnumerable<string> problems, bool conservationChecked, bool geometryChecked)
+    {
+        if (problems != null)
+        {
+            foreach (var p in problems)
+            {
+                if (!string.IsNullOrWhiteSpace(p) && !ValidationProblems.Contains(p))
+                {
+                    ValidationProblems.Add(p);
+                }
+            }
+        }
+        if (conservationChecked) ConservationChecked = true;
+        if (geometryChecked) GeometryChecked = true;
+    }
+
     public decimal TotalUsedSqm =>
         Math.Round(Sheets.Sum(s => s.UsedSqm), 4, MidpointRounding.AwayFromZero);
 
@@ -299,10 +324,12 @@ public sealed class OptimizationResult
 }
 
 /// <summary>
-/// The core deterministic guillotine packer (WPF GuillotinePacker,
-/// QUICK base pass). Pure — no store, no clock.
+/// The core deterministic guillotine packer (WPF GuillotinePacker).
+/// Pure — no store, no clock. The QUICK base pass lives here; the
+/// OPTIMIZE stage chassis lives in OptimizationEngine.Optimize.cs
+/// (Phase 25a).
 /// </summary>
-public static class GuillotinePacker
+public static partial class GuillotinePacker
 {
     internal struct FreeRect
     {
@@ -332,6 +359,16 @@ public static class GuillotinePacker
         public int MaxFreeH;
         public long PlacedArea;
 
+        /// <summary>Sealed by the bounded open-sheet window (Phase 25a):
+        /// the sheet already received every placement attempt since it
+        /// opened, so it is near-final and placement stops scanning it.
+        /// </summary>
+        public bool IsClosed { get; set; }
+
+        /// <summary>Evacuated/removed by consolidation — the rollback
+        /// snapshots and the open-window queue skip removed sheets.</summary>
+        public bool IsRemoved { get; set; }
+
         public SheetState(SheetLayout layout, int stockIndex)
         {
             Layout = layout;
@@ -354,6 +391,18 @@ public static class GuillotinePacker
             }
             MaxFreeW = mw;
             MaxFreeH = mh;
+        }
+
+        /// <summary>Recompute bounds AND area (WPF RefreshAll). Use
+        /// after a bulk rebuild of either list (construction, rollback,
+        /// MaxRects commit).</summary>
+        public void RefreshAll()
+        {
+            RefreshFreeBounds();
+            long a = 0;
+            var ps = Layout.Pieces;
+            for (int i = 0; i < ps.Count; i++) a += (long)ps[i].WidthMm * ps[i].HeightMm;
+            PlacedArea = a;
         }
     }
 
@@ -397,13 +446,20 @@ public static class GuillotinePacker
             throw new ArgumentNullException(nameof(margins));
         }
 
-        var result = RunPass(SortByArea(pieces), stocks, margins, rotation, split);
+        // The governor bounds QUICK too (WPF PlanForQuick): consolidation
+        // sweeps 3 below 2,000 parts, 2 above, 5-minute budget.
+        var quickPlan = OptimizationSearchGovernor.PlanForQuick(pieces.Count);
+        var result = RunPass(SortByArea(pieces), stocks, margins, rotation, split,
+            consolidationSweeps: quickPlan.MaxConsolidationSweeps,
+            openSheetWindow: quickPlan.OpenSheetWindow);
         result.Strategy = $"QUICK SHELF (Area / {split})";
         result.ScaleNotes.Add(
-            "SaaS core port: the QUICK base shelf pass. Capacity strips, " +
-            "pattern beam, repeated patterns, plate patterns and the " +
-            "consolidation sweep are not ported yet (documented) — this " +
-            "plan is valid and cuttable, but not the WPF's best candidate.");
+            "SaaS port (Phase 25a): the QUICK shelf pass with the " +
+            "consolidation sweep. The WPF's additional QUICK candidates " +
+            "(capacity strips, bounded pattern beam, repeated patterns, " +
+            "plate patterns) are later slices — documented in mapping " +
+            "§1.6b — so this plan is valid and cuttable but not yet the " +
+            "WPF's best candidate.");
 
         // Give every sheet its leftover regions, derived from the cut
         // sequence (WPF DeriveLeftovers).
@@ -421,7 +477,9 @@ public static class GuillotinePacker
         IReadOnlyList<StockSize> stocks,
         MarginProfile margins,
         RotationPolicy rotation,
-        SplitMode split)
+        SplitMode split,
+        int consolidationSweeps = int.MaxValue,
+        int openSheetWindow = int.MaxValue)
     {
         var result = new OptimizationResult { Rotation = rotation };
         if (orderedPieces.Count == 0)
@@ -431,6 +489,7 @@ public static class GuillotinePacker
 
         var sheets = new List<SheetState>();
         var sheetsPerStock = new int[stocks.Count];
+        var ctx = new PackingContext { OpenWindow = openSheetWindow };
 
         foreach (var piece in orderedPieces)
         {
@@ -438,12 +497,17 @@ public static class GuillotinePacker
             {
                 if (!OpenNewSheet(
                         sheets, sheetsPerStock, stocks, piece,
-                        margins, rotation, split))
+                        margins, rotation, split, ctx))
                 {
                     result.Unplaced.Add(piece);
                 }
             }
         }
+
+        // LiSEC-style leftover squeeze: try to empty every sheet from
+        // sparsest to densest (WPF ConsolidateAll, Phase 25a).
+        ConsolidateAll(sheets, margins, rotation, split, consolidationSweeps,
+            ctx: ctx);
 
         SortSheetsFullestFirst(sheets);
 
@@ -693,7 +757,7 @@ public static class GuillotinePacker
     private static bool OpenNewSheet(
         List<SheetState> sheets, int[] sheetsPerStock, IReadOnlyList<StockSize> stocks,
         CutPiece piece, MarginProfile margins, RotationPolicy rotation,
-        SplitMode split)
+        SplitMode split, PackingContext? ctx = null)
     {
         // "Best sheet size" rule: the SMALLEST stock that fits the piece
         // first, so large racks are saved for the glass that needs them.
@@ -734,6 +798,7 @@ public static class GuillotinePacker
             var state = new SheetState(layout, i);
             sheets.Add(state);
             sheetsPerStock[i]++;
+            if (ctx != null) RegisterOpenedSheet(ctx, state);
 
             if (!TryPlaceCore(state, piece, rotation, out var candidate))
             {

@@ -191,7 +191,12 @@ GET  /api/v1/reports/vat?dateFrom=&dateTo=&status=    # VAT submission data + ex
 ## 11. Optimization
 
 ```
-POST /api/v1/optimization/run              # async: { jobId } — Hangfire queued
+POST /api/v1/optimization/run              # { jobId? , pieces?, stocks?, rotation, split,
+                                           #   minBreakoutMm?, effortLevel?, platePattern? }
+                                           # effortLevel 1..5 (null → 3, the WPF OPTIMIZE default;
+                                           # 1 = the QUICK pass); platePattern = Yield |
+                                           # FillFirstPlate | FewestCuts | MinimiseStockChanges |
+                                           # RemnantFirst | BalancedSpread (Phase 25a)
 POST /api/v1/optimization/validate         # server re-validation of any submitted layout
 GET  /api/v1/optimization/jobs/{jobId}     # status + progress { stage, completed, total }
 GET  /api/v1/optimization/jobs/{jobId}/result           # sheets, placements, cuts, leftovers, metrics

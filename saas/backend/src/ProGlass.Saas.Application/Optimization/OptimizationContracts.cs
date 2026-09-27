@@ -65,7 +65,17 @@ public sealed record RunOptimizationRequest(
     IReadOnlyList<OptimizationStockRequest>? Stocks = null,
     string Rotation = "Free90",
     string Split = "HorizontalFirst",
-    int? MinBreakoutMm = null);
+    int? MinBreakoutMm = null,
+    /// <summary>OPTIMIZE effort 1..5 (Phase 25a): 1 = the QUICK pass,
+    /// 2 = 3 orderings, 3 = 4 orderings × 3 splits (the calibrated
+    /// default), 4/5 = the full grid + deterministic shuffles. Null → 3.
+    /// Values outside 1..5 are clamped.</summary>
+    int? EffortLevel = null,
+    /// <summary>Plate pattern (Yield/FillFirstPlate/FewestCuts/
+    /// MinimiseStockChanges/RemnantFirst/BalancedSpread). Decides
+    /// between plans already equal on unplaced and sheet count. Null →
+    /// Yield.</summary>
+    string? PlatePattern = null);
 
 /// <summary>One persisted run (header).</summary>
 public sealed record OptimizationSessionDto(

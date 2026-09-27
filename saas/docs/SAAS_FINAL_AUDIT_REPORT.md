@@ -68,9 +68,10 @@ importer, backups, audits) has run and passes.
 | 21 | Reporting core slice 3 — row traceability (the PI→JO→DN→TI→P&L audit chain) + CNC export (DXF R12 + cut list CSV from persisted sessions; proprietary formats declared, not guessed) | `a809fe0` |
 | 22 | Reporting core slice 4 — cutting sheet + material consumption reports over the persisted optimization sessions (the process/control report families documented as deferred with their production-extras tables) | `97ddc5a` |
 | 23 | Reporting core slice 5 — the CSV export path (generic layout + file namer verbatim + 3 export endpoints) and the reporting cache (30s TTL, tenant-prefixed keys, operator invalidation) | `5e13766` |
-| 24 | Attachments — the WPF `AttachmentService`/`AttachmentType` port (limits + S-8 sanitizer + BUG-27/28 rules verbatim; six entity types with per-entity permissions; root-jailed filesystem storage under `SAAS_ATTACHMENT_ROOT`), 5 API endpoints incl. the storage-usage counter, and migration module 13 (DN + inquiry attachment rows with bytes copied from the WPF data root) — **all 16 plan §2 modules** | this commit |
+| 24 | Attachments — the WPF `AttachmentService`/`AttachmentType` port (limits + S-8 sanitizer + BUG-27/28 rules verbatim; six entity types with per-entity permissions; root-jailed filesystem storage under `SAAS_ATTACHMENT_ROOT`), 5 API endpoints incl. the storage-usage counter, and migration module 13 (DN + inquiry attachment rows with bytes copied from the WPF data root) — **all 16 plan §2 modules** | `92f82e8` |
+| 25a | Optimization extras, the OPTIMIZE chassis — the adaptive search governor + scale profile + plate patterns, the multi-start grid (6 orderings × 3 splits × deterministic shuffles, sort cache), the Better comparison chain with the four pattern axes, ConsolidateAll + the bounded open-sheet window (closing the Phase 11 QUICK gap), the full oracle set, cut-sequence derivation, time budget, parallel evaluation, the guillotine gate, the honest industrial-threshold fallback; API gains effortLevel + platePattern | this commit |
 
-39 commits on the session branch from the base commit.
+40 commits on the session branch from the base commit.
 
 ## 3. Inventory (measured, not estimated)
 
@@ -81,7 +82,7 @@ importer, backups, audits) has run and passes.
 | C# source files | 206 (all parse clean) |
 | EF entities | 44 |
 | API endpoints | 148 across 19 controllers (147 attribute-counted + `GET /health`; the Phase 23 line under-counted by the same `/health`) |
-| Test files | 40 files with tests (491 `[Fact]` + 53 `[Theory]` = 544 methods; measured by attribute count — replaces the stale Phase 22 basis) |
+| Test files | 41 files with tests (514 `[Fact]` + 53 `[Theory]` = 567 methods; measured by attribute count — Phase 25a adds OptimizeChassisTests, 23 facts) |
 | Python tooling (harness, generator, importer, backup, audit) | 8 verified programs |
 | Mapping doc sections | 24 parity sections (§1.x) |
 | Migration tool modules | **16 implemented, 0 deferred** (all plan §2 modules; attachments landed in Phase 24) |

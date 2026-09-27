@@ -144,6 +144,10 @@ public sealed class OptimizationService(
                 ? SplitMode.LongerLeftover
                 : SplitMode.HorizontalFirst;
 
+        // ── effort + plate pattern (Phase 25a, WPF PackOptimize) ────
+        var effort = Math.Clamp(request.EffortLevel ?? 3, 1, 5);
+        var platePattern = ParsePlatePattern(request.PlatePattern);
+
         // ── group by composition (the merge key) ─────────────────────
         var warnings = new List<string>();
         var sessions = new List<OptimizationSession>();
@@ -184,8 +188,13 @@ public sealed class OptimizationService(
                 stocks = racks;
             }
 
-            var plan = GuillotinePacker.PackQuick(
-                group.ToList(), stocks, margins, rotation, split);
+            // Effort 1 is exactly the QUICK pass; 2..5 widen the
+            // multi-start grid (orderings × splits × deterministic
+            // shuffles) with the governor's budget and tier machinery.
+            var plan = effort <= 1
+                ? GuillotinePacker.PackQuick(group.ToList(), stocks, margins, rotation, split)
+                : GuillotinePacker.PackOptimize(group.ToList(), stocks, margins, rotation,
+                    effortLevel: effort, platePattern: platePattern);
             if (!plan.ConservationVerified || !plan.GeometryVerified)
             {
                 warnings.AddRange(plan.ValidationProblems);
@@ -201,6 +210,8 @@ public sealed class OptimizationService(
                 {
                     rotation = rotation.ToString(),
                     split = split.ToString(),
+                    effortLevel = effort,
+                    platePattern = platePattern.ToString(),
                     thicknessMm = thickness,
                     minBreakoutMm = margins.MinBreakoutMm
                 }),
@@ -364,4 +375,11 @@ public sealed class OptimizationService(
             before is null ? null : JsonSerializer.Serialize(before),
             after is null ? null : JsonSerializer.Serialize(after),
             ct).ConfigureAwait(false);
+    /// <summary>Parses the plate pattern name (case-insensitive);
+    /// unknown → Yield, the WPF default.</summary>
+    private static PlatePattern ParsePlatePattern(string? value) =>
+        Enum.TryParse<PlatePattern>(value, ignoreCase: true, out var parsed)
+            ? parsed
+            : PlatePattern.Yield;
+
 }

@@ -324,6 +324,38 @@ consume, history, low-stock, suppliers).
 | CNC export, cut lists in stage order | Same exports (server-generated) |
 | `ProductionOptimizationBridge` | Same bridge into production module |
 
+### 1.6b Optimization — Phase 25a, the OPTIMIZE chassis (parity and deliberate differences)
+
+Ported 2026-09-27 from `Services/Optimization/OptimizationSearchGovernor.cs`
+(SearchTier/SearchPlan/governor, 437 lines) and the OPTIMIZE half of
+`Services/Optimization/GuillotinePacker.cs` (PackOptimize L353–881:
+the multi-start grid, the comparison chain, the bounded open-sheet
+window, ConsolidateAll, the verification oracles, cut-sequence
+derivation). Domain:
+`OptimizationEngine.Optimize.cs` (partial GuillotinePacker);
+Application: `OptimizationService` gains `effortLevel` + `platePattern`
+on the run request.
+
+| WPF (source of truth) | SaaS (Phase 25a) | Difference? |
+|---|---|---|
+| `PackOptimize` stage/effort split (maxStage > 0 ? maxStage : effortLevel; stage ≤ 1 = exactly PackQuick) | Same in `RunOptimizeGrid`; the API clamps effort to 1..5 (null → 3, the WPF signature default) | Same (clamp is input sanitation at the edge) |
+| The multi-start grid: stage 2 = 3 orderings; 3 = 4 orderings × 3 splits; 4/5 = 6 × 3 × deterministic shuffles (`ShuffleCap` from the governor) | Same combos, same sort cache (one sort per ordering key), same candidate labelling (`GRID ({order} / {split} / shuffle {k})`, one-candidate runs keep the QUICK label) | Same |
+| `ShuffleDeterministic` (LCG `state*1103515245+12345`, `j = (uint)state % (i+1)`) | Verbatim — reproducible, a permutation, seed = `17 + shuffle*131 + (int)order*7` | Same |
+| `Sort` 6 orderings (MaxSide/Area/MinSide/Height/Width/Perimeter, each with GlassRef/PieceLabel ordinal tie-breaks) | Verbatim (Phase 11 carried Area only) | Same |
+| `Better` — validation failure, then unplaced, then sheet count dominate; the plate pattern axis decides between equals; utilization last | Verbatim + the four axes (FewestCuts via `TotalCuts`, MinimiseStockChanges via `DistinctStockSizes`/`StockSwitches`, RemnantFirst via `LargestLeftover`, BalancedSpread via `UtilizationSpread`) and `PlatePattern` (6 values) exposed on the API | Same |
+| `OptimizationSearchGovernor` — tier bands (Full ≤ 2,000 / Narrowed ≤ 15,000 / Minimum above), `BudgetFor` (8/15/25 min by effort; 20 Narrowed; 40 Minimum), `PlanForQuick` (sweeps 3/2, 5-min budget), `RecommendEffort` (stages 3/4/5 with operator-readable reasons), the memory-pressure guard (1 KB/part estimate, half-of-available threshold, `WithReducedBreadth`) | Verbatim (`SearchPlan`/`SearchTier`/`OptimizationSearchGovernor`) | Same |
+| `ScaleProfile`/`ScaleTier` (Standard/Large/Huge; IsReduced note on the result) | Verbatim | Same |
+| Time budget: checked at the candidate boundary, stops ADDING candidates and keeps the best found; a `TIME BUDGET` note lands in ScaleNotes | Verbatim | Same |
+| `parallelEval` — the pool evaluated with `Parallel.For`, folded in candidate order (deterministic total order) | Verbatim (the switch is off by default; thread-safety of RunPass reasoned, not measured — same caveat as the WPF source records) | Same |
+| `requireGuillotine` (E4.1) — a candidate that cannot be cut is refused at the boundary; the QUICK seed is guillotine by construction; refusal count reported | Verbatim | Same |
+| `ConsolidateAll` (LiSEC-style squeeze: sparsest donor first, copy-on-write snapshots, one evacuation restarts the scan, bounded sweeps) + `SnapshotBeforeWrite` + the bounded open-sheet window (`PackingContext`, FIFO, seals the oldest) | Verbatim — Phase 11's RunPass had NO consolidation; QUICK now runs it with the governor's sweeps, which is the WPF behaviour all along | **Closes a Phase 11 documented gap** — QUICK results may improve (never worsen: consolidation only removes sheets) |
+| The oracles: `Verify` (margins/rotation/dimensions/overlap/kerf), `AuditBreakout`, `ValidateResult`, `VerifyComprehensive` (quantity + stock caps + material), `CheckCandidate` gate, `RecordValidation` | Verbatim | Same |
+| `TryDeriveGuillotineCuts`/`DeriveCuts`/`SplitAt` (PHASE 0 fallback for stamped layouts, 20,000-step budget, never invents cuts) + `AllSheetsCuttable` + the uncuttable-sheet WARNING note | Verbatim | Same |
+| `OptimizationProgress` per-candidate reporting | Ported (the type + the reports); the SaaS API does not stream progress yet — a transport decision, not a rule change | **Documented difference** — no progress channel yet |
+| At ≥ 100,000 parts the WPF hands off to the industrial pattern master (RepeatedPatterns/FillFirstPlate/Partitioned) | ONE governor-bounded shelf pass + a visible `INDUSTRIAL PATH` note; the pairwise oracles are NOT run at that scale (they are O(parts²) — exactly why the WPF never runs the small-job grid up there); conservation and non-overlap hold by construction | **Documented difference** — the pattern master is the next slice (25b) |
+| The WPF's additional candidate families: capacity strips, bounded best-split pattern beam (ImprovePatterns/RunBestSplit/RunBestSplitBeam), sheet-fill/wall-seed/MaxRects (Advanced), smart placement (Smart/SmartPlacement), repeated patterns + repeat master, offcut reuse, local search, staged-cut enforcement (ValidateCutPattern), instrumentation | NOT in this slice — each is ported later, documented here; because `Better()` keeps the minimum, a grid-only OPTIMIZE never regresses QUICK (the NeverRegressesQuick contract is asserted in the tests) | **Deferred, documented** (per-family, with the WPF file names) |
+| `CutPolicy`/`CutComplexity` (Free/SimpleFirstX/SimpleFirstY/Simple/ThreeStage/ComplexTrims) | The model is ported (types + `CutPolicy.For`); the staged ENFORCEMENT path (StagedPlacementAllowed/RectCanHost/ValidateCutPattern) is not wired yet — `PackOptimize` accepts the policy parameter and ignores it until that slice | **Deferred, documented** (parameter accepted, not honoured — never silent: the WPF's own stage-1/2 levels also run unconstrained) |
+
 ### 1.7 Job Order / Production
 | WPF | SaaS |
 |---|---|
