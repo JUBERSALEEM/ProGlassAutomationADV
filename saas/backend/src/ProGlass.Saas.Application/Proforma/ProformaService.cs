@@ -885,6 +885,54 @@ public sealed class ProformaService
         return await GetStep6SectionAsync(tenantId, id, ct);
     }
 
+    /// <summary>
+    /// GET — the Step 6 Advanced automation suggestions for the SAVED
+    /// grid (WPF OtherChargeAutomationService, ported as
+    /// Domain.Proforma.ChargeAutomation): which predefined charges each
+    /// spec group implies and which pane sides should be preselected
+    /// into the wastage grid. Read-only — the client applies the rows
+    /// through the normal Step 6 save.
+    /// </summary>
+    public async Task<ProformaResult<Step6SuggestionsDto>> GetStep6SuggestionsAsync(
+        Guid tenantId, Guid id, CancellationToken ct)
+    {
+        var invoice = await _store.FindByIdAsync(tenantId, id, ct);
+        if (invoice is null)
+        {
+            return ProformaResult<Step6SuggestionsDto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        var inputs = await LoadSpecGroupInputsAsync(tenantId, id, ct);
+        var groups = new List<Step6SuggestionsGroupDto>();
+
+        foreach (var g in inputs)
+        {
+            var metrics = ChargeMetrics.ForGroup(g);
+            groups.Add(new Step6SuggestionsGroupDto(
+                g.GroupNumber,
+                metrics.IsDoubleGlass ? g.EffectiveGlassType : g.GlassType,
+                g.SpecName,
+                metrics.IsMatchedSameGlass,
+                ChargeAutomation
+                    .GetChargeSuggestions(
+                        g.EffectiveGlassType, g.SpecName, metrics.IsMatchedSameGlass)
+                    .Select(c => new AutoChargeSuggestionDto(
+                        c.TemplateKey, c.MetricKey, c.PolishSubType, c.Reason))
+                    .ToList(),
+                ChargeAutomation
+                    .GetWastageSuggestions(
+                        g.GroupNumber, g.EffectiveGlassType, g.SpecName,
+                        g.OuterGlassColor, g.InnerGlassColor)
+                    .Select(w => new AutoWastageSuggestionDto(
+                        w.SpecGroupNumber, w.SourceSideLabel, w.ColorName,
+                        w.DisplayName, w.Reason))
+                    .ToList()));
+        }
+
+        return ProformaResult<Step6SuggestionsDto>.Ok(new Step6SuggestionsDto(groups));
+    }
+
     private async Task<ProformaResult<Step6Dto>> GetStep6SectionAsync(
         Guid tenantId, Guid id, CancellationToken ct)
     {

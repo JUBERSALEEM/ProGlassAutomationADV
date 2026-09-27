@@ -140,6 +140,19 @@ public sealed class ProformaInvoicesController(ProformaService proforma)
     }
 
     /// <summary>
+    /// Step 6 Advanced automation suggestions for the saved grid (WPF
+    /// OtherChargeAutomationService): per spec group, the predefined
+    /// charges the spec implies and the pane sides to preselect into
+    /// the wastage grid. Read-only.
+    /// </summary>
+    [HttpGet("{id:guid}/step6/suggestions")]
+    public async Task<IActionResult> GetStep6Suggestions(Guid id, CancellationToken ct)
+    {
+        var result = await proforma.GetStep6SuggestionsAsync(RequiredTenantId, id, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>
     /// Duplicate the invoice as a fresh DRAFT (WPF
     /// SavedInvoicesListViewModel.DuplicateAsync): the whole document is
     /// copied — grid, Step 6/Step 9 sections, financials — with the

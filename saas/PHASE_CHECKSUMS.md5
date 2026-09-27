@@ -8,7 +8,7 @@
 0eaf0962971a4b3fbd5df93c6ce2dd0a  saas/backend/src/ProGlass.Saas.Api/Controllers/CompaniesController.cs
 8d93248ba4c54af637ea3e7438e003b9  saas/backend/src/ProGlass.Saas.Api/Controllers/InquiriesController.cs
 c6c2d07bd8f84e962282bacfa669fc26  saas/backend/src/ProGlass.Saas.Api/Controllers/PricingController.cs
-4ac1077dbd58c6acd88c6c652d939cab  saas/backend/src/ProGlass.Saas.Api/Controllers/ProformaInvoicesController.cs
+e24282b1cddfc88ea89ecb09837a66c5  saas/backend/src/ProGlass.Saas.Api/Controllers/ProformaInvoicesController.cs
 1126654d3480a4342c57a5d861de7774  saas/backend/src/ProGlass.Saas.Api/Controllers/ProjectsController.cs
 6686ba4c2bcdd62155205a2534a216c5  saas/backend/src/ProGlass.Saas.Api/Controllers/SalesmenController.cs
 78c82c8863c0b050323e200370681c4e  saas/backend/src/ProGlass.Saas.Api/Controllers/SpecificationsController.cs
@@ -32,8 +32,8 @@ c25a52c0b28262fa23a817c78accced1  saas/backend/src/ProGlass.Saas.Application/Pri
 d4dc8836eb93340bbf8fd749dff0791c  saas/backend/src/ProGlass.Saas.Application/ProGlass.Saas.Application.csproj
 b24743ea1907d04fcc9ba840a099c684  saas/backend/src/ProGlass.Saas.Application/Proforma/ProformaContracts.cs
 de2e81165483d245179e8e5436fa29e6  saas/backend/src/ProGlass.Saas.Application/Proforma/ProformaPorts.cs
-9225e9aeaaddedf4fabd36ab9a174adf  saas/backend/src/ProGlass.Saas.Application/Proforma/ProformaService.cs
-88172d691c582c2c8c32eb6d00733955  saas/backend/src/ProGlass.Saas.Application/Proforma/Step6Contracts.cs
+59013144ad4117828943f7f605557cc5  saas/backend/src/ProGlass.Saas.Application/Proforma/ProformaService.cs
+84978c0e3465b4b54c20ae727f19a272  saas/backend/src/ProGlass.Saas.Application/Proforma/Step6Contracts.cs
 9bf30184f88b8d97771603be93ac152c  saas/backend/src/ProGlass.Saas.Application/Proforma/Step7Contracts.cs
 b32bcef86126cbce9af224ad9f8e7333  saas/backend/src/ProGlass.Saas.Application/Proforma/Step9Contracts.cs
 0e4da796f42670368dc421ec77295ce2  saas/backend/src/ProGlass.Saas.Application/Security/IPasswordHasher.cs
@@ -56,6 +56,7 @@ c2b5588822c223460942a39d61e28848  saas/backend/src/ProGlass.Saas.Domain/Pricing/
 3af0d2c069f28dc8d56e14c55b1b0511  saas/backend/src/ProGlass.Saas.Domain/Pricing/SqmCalculator.cs
 93a6e49eb688f77bd53b27d97204bfe5  saas/backend/src/ProGlass.Saas.Domain/Pricing/WastageFormula.cs
 74a331afa853952cfff5a34084ada99e  saas/backend/src/ProGlass.Saas.Domain/ProGlass.Saas.Domain.csproj
+8fb27e63d00f8a91468982cb2e931aa0  saas/backend/src/ProGlass.Saas.Domain/Proforma/ChargeAutomation.cs
 78a2f26f9abe9d7e0d31f95975df1ea3  saas/backend/src/ProGlass.Saas.Domain/Proforma/ChargeMetrics.cs
 0787205c7401c7bc69a6a9045f5a8a6f  saas/backend/src/ProGlass.Saas.Domain/Proforma/InquiryConvert.cs
 7daac40e96aa2a6183c8980407075850  saas/backend/src/ProGlass.Saas.Domain/Proforma/InvoiceLifecycle.cs
@@ -103,6 +104,7 @@ da5943c110605674110143bc5b5b2b71  saas/backend/tests/ProGlass.Saas.Application.T
 a9567314432043f6274ebf91b34938e5  saas/backend/tests/ProGlass.Saas.Application.Tests/Specifications/FakeSpecificationsStore.cs
 c1378c870ef023b512c18db596b50206  saas/backend/tests/ProGlass.Saas.Application.Tests/Specifications/SpecificationsServiceTests.cs
 85ecff9185134a38e347b23a772fa784  saas/backend/tests/ProGlass.Saas.Domain.Tests/AmbientTenantContextTests.cs
+b88a6b7f9cf34768270f950b94b28fc6  saas/backend/tests/ProGlass.Saas.Domain.Tests/ChargeAutomationTests.cs
 8239c6450f57db96ad9c68bd5c9e417e  saas/backend/tests/ProGlass.Saas.Domain.Tests/InquiryConvertTests.cs
 c6ea17842ecae2bd9bb385bff79fda31  saas/backend/tests/ProGlass.Saas.Domain.Tests/MoneyRoundingTests.cs
 1832f70646c139288f0eef50948fab3a  saas/backend/tests/ProGlass.Saas.Domain.Tests/PricingFormulaTests.cs
@@ -125,6 +127,7 @@ f48f5b69a839fe74224bf05dcfcd9501  saas/backend/tests/ProGlass.Saas.IntegrationTe
 db267699e77c9be81f348bf5cb30d25c  saas/backend/tests/ProGlass.Saas.IntegrationTests/ProformaFlowTests.cs
 dc370c194a9b77c8e9ff1731823a66f3  saas/backend/tests/ProGlass.Saas.IntegrationTests/SpecificationsFlowTests.cs
 647131f5b7a91830b705274e2c607fcc  saas/backend/tests/ProGlass.Saas.IntegrationTests/Step6FlowTests.cs
+e9e03843c3ba9efd3d4f48e3c61b8a5b  saas/backend/tests/ProGlass.Saas.IntegrationTests/Step6SuggestionsFlowTests.cs
 a7425fda8eddaa62f572e9a0382be056  saas/backend/tests/ProGlass.Saas.IntegrationTests/Step7FlowTests.cs
 cc1856d30ee498255895e34de68afc9d  saas/backend/tests/ProGlass.Saas.IntegrationTests/Step9FlowTests.cs
 5d1c49a8f91bab51ed7124f969c13747  saas/backend/tests/ProGlass.Saas.IntegrationTests/TenantIsolationTests.cs
@@ -140,7 +143,7 @@ b6636c21103a75b7a1c9dcc10768b96d  saas/database/migrations/0009_other_charges_pa
 42cec04203622e1e45663ff8e3007362  saas/database/migrations/0010_step9_pnl.sql
 ef8fff12c81e48a80ece4ed0c8c42a06  saas/database/migrations/0011_step7_summary.sql
 1177079c24618cf0070611223e426f91  saas/database/verify/apply_and_test.py
-84a81013ae4da54588fbe0a1501c64e6  saas/database/verify/verification/DATABASE_VERIFICATION.md
+d0d9779635b55db3cfb9c4eb5163b0e9  saas/database/verify/verification/DATABASE_VERIFICATION.md
 2b5e646cbab5ecfbe512c314c21f8cd9  saas/database/verify/verification/PHASE3_VERIFICATION.md
 95a5237181d71b1ce240f102cd47bb27  saas/devbox/README.md
 2493c6d5c04c2102a63becf4f7a3a961  saas/devbox/derive_step9_goldens.py
@@ -150,6 +153,6 @@ e878c3a96487169155d77850a647bd40  saas/devbox/syntax_check_cs.py
 1836a4739da1dbbe955230536bf68daf  saas/docs/SAAS_ARCHITECTURE.md
 92a22f89806bcc10c38adb8266c89340  saas/docs/SAAS_DATABASE_DESIGN.md
 c344c0c6ed9c9d651fdd410ada94555f  saas/docs/SAAS_MIGRATION_PLAN.md
-8966e716582c588f22fe7642bb66a9e8  saas/docs/SAAS_MIGRATION_PROGRESS.md
+caaa55b83e299973d3a7e436a670667c  saas/docs/SAAS_MIGRATION_PROGRESS.md
 d0487a44573943f80495921dc0803049  saas/docs/WPF_SYSTEM_AUDIT.md
-75d38d888d3b7a9e222cb3a0117a2926  saas/docs/WPF_TO_SAAS_MAPPING.md
+773ba9fd92502025d8988ebbf75c5ff8  saas/docs/WPF_TO_SAAS_MAPPING.md

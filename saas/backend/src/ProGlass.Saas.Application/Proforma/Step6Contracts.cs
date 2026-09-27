@@ -132,6 +132,38 @@ public sealed record SpecGroupMetricsDto(
     decimal Sqm2,
     int Qty);
 
+/// <summary>One predefined charge the automation rules imply for a spec
+/// (WPF AutoChargeSuggestion — Step 6 Advanced toggle preselection).</summary>
+public sealed record AutoChargeSuggestionDto(
+    string TemplateKey,
+    string MetricKey,
+    string? PolishSubType,
+    string Reason);
+
+/// <summary>One wastage pane the automation rules suggest preselecting
+/// (WPF AutoWastageSuggestion).</summary>
+public sealed record AutoWastageSuggestionDto(
+    int SpecGroupNumber,
+    string SourceSideLabel,
+    string ColorName,
+    string DisplayName,
+    string Reason);
+
+/// <summary>Per-spec-group automation decisions.</summary>
+public sealed record Step6SuggestionsGroupDto(
+    int SpecGroupNumber,
+    string GlassType,
+    string SpecName,
+    bool MatchedSameGlass,
+    IReadOnlyList<AutoChargeSuggestionDto> Charges,
+    IReadOnlyList<AutoWastageSuggestionDto> Wastages);
+
+/// <summary>GET step6/suggestions — the Step 6 Advanced automation
+/// read model (which predefined charges / wastage sides each saved spec
+/// group implies). The client applies the decisions to its rows.</summary>
+public sealed record Step6SuggestionsDto(
+    IReadOnlyList<Step6SuggestionsGroupDto> Groups);
+
 /// <summary>The Step 6 section: saved rows + the derived read model.</summary>
 public sealed record Step6Dto(
     IReadOnlyList<OtherChargeDto> Charges,
