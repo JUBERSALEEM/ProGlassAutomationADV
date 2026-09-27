@@ -140,6 +140,23 @@ public sealed class ProformaInvoicesController(ProformaService proforma)
     }
 
     /// <summary>
+    /// Duplicate the invoice as a fresh DRAFT (WPF
+    /// SavedInvoicesListViewModel.DuplicateAsync): the whole document is
+    /// copied — grid, Step 6/Step 9 sections, financials — with the
+    /// inquiry link deliberately detached (a duplicate is a fresh
+    /// quotation, not another PI for the same inquiry) and a +7-day
+    /// validity window.
+    /// </summary>
+    [HttpPost("{id:guid}/duplicate")]
+    [HasPermission(AppPermissions.ProformaCreate)]
+    public async Task<IActionResult> Duplicate(Guid id, CancellationToken ct)
+    {
+        var result = await proforma.DuplicateAsync(
+            RequiredTenantId, id, RequiredUserId, ClientIp, ct);
+        return result.Success ? Ok(result.Value) : Fail(result);
+    }
+
+    /// <summary>
     /// Recompute and persist the Step 7 financial summary from the saved
     /// Step 5/Step 6 subtotals plus the operator inputs (discount type +
     /// value, VAT applicability + percent — the WPF mapper's persisted

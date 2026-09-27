@@ -32,7 +32,7 @@
 |---|---|
 | `Views/Inquiry/*` (List/Editor/AttachmentPreview) | `/inquiries` list + editor pages, attachment viewer |
 | `InquiryRecord`, `InquiryLifecycleService`, statuses `Received·Prepared·Sent·Confirmed·Hold·Cancelled` | `Inquiry` entity + same status set, pass-through unknown policy |
-| `InquiryBoqConversion` → PI | `POST /api/v1/inquiries/{id}/convert-to-proforma` |
+| `InquiryBoqConversion` → PI | `POST /api/v1/inquiries/{id}/convert-to-proforma` — DONE (Phase 7b, mapping §1.2c); the rest of the inquiry module (CRUD/list/attachments) is its own later phase |
 | `InquiryAttachmentService` (local files) | Object-storage attachments, MIME/size validation |
 | `IInquiryLifecycleService`, validation rules | `InquiryService` (application layer) + FluentValidation |
 
@@ -79,9 +79,9 @@ The wizard's document spine, ported 2026-09-27 from
 | Step 7: `GlassMaterialsSubtotal = grid.GrandTotalValue` (Σ row values) | `glass_materials_subtotal` = Σ stored row totals, updated in the SAME transaction as the grid replace | Same |
 | Grid save = one unit of work (single SaveChanges) | Whole-grid replace: DELETE groups (items cascade) + INSERT + invoice-field update in ONE transaction | Same |
 | "Draft bodies are editable" + `IsEditable(Draft/Rejected)` | Grid save refused (409) unless Draft/Rejected; voided always terminal | Same rule, typed response |
-| `ProformaDuplicateSnapshotScrub` (duplicate detaches inquiry link + rewrites ProformaId in the snapshot JSON) | Deferred to 7b (needs the FullSnapshotJson round-trip) | Deferred, documented |
+| `ProformaDuplicateSnapshotScrub` (duplicate detaches inquiry link + rewrites ProformaId in the snapshot JSON) | `Domain.Proforma.DuplicateSnapshotScrub` (JsonNode port) inside `POST /{id}/duplicate` — see §1.2c | Done (7b) |
 | `GlassPriceStamper` (sheet-store basis stamp: `{max(LastUpdated).Ticks}:{count}`) | Deferred to 7b/8 (needs the sheet store) | Deferred, documented |
-| Inquiry convert-to-PI, Step 4 APPLY → specifications registry + `SpecificationUsage` stamping, Step 6 other charges, Step 9 P&L, Step 7 PDF | Phase 7b | Deferred, documented |
+| Inquiry convert-to-PI, Step 4 APPLY → specifications registry, Step 6 other charges, Step 9 P&L, Step 7 summary + round-to | Done (7b) — §1.2b/§1.2c/§1.3a/§1.3b/§1.3c; Step 7 PDF/print remains deferred (needs a render surface) | Done except PDF (deferred, documented) |
 
 ### 1.2b Step 7 — financial summary (Phase 7b)
 
@@ -100,6 +100,32 @@ Ported 2026-09-27 from
 | The summary recalculated LIVE in the wizard VM | `PUT /{id}/step7` recomputes from the SAVED Step 5/Step 6 subtotals (server-side, like every other derived amount) | Same math, REST shape |
 | Live VAT default from the open wizard context | Per-invoice persisted inputs only; `tenant_vat_config` is NOT consulted by Step 7 (the operator sets VAT per invoice — the WPF's default is the flat 5%) | **Documented**: tenant VAT config remains pricing-page master data |
 | Step 7 PDF layout / print preview | Deferred to its own 7b sub-item (needs the render surface) | Deferred, documented |
+
+### 1.2c Duplicate + inquiry → PI conversion (Phase 7b)
+
+Ported 2026-09-27 from
+`SavedInvoicesListViewModel.DuplicateAsync` / `ScrubIdsForDuplicate`,
+`Services/ProformaInvoice/ProformaDuplicateSnapshotScrub.cs`,
+`InquiryListViewModel.ConvertToPiAsync`,
+`ProformaInvoiceViewModel.StartFromInquiryAsync`,
+`Services/ProformaInvoice/InquiryBoqConversion.cs` and
+`Services/ProformaInvoice/InquiryLinkSync.cs`.
+
+| WPF (source of truth) | SaaS (Phase 7b) | Difference? |
+|---|---|---|
+| Duplicate: `SuggestNextIdAsync(original.ProformaId)` → next free id from the ORIGINAL's number, 5-attempt unique-violation retry | Same loop over `ProformaNumberSequence.SuggestNext` + one-transaction `TryDuplicateAsync` (fresh context per attempt) | Same |
+| Copy = new `SavedProformaInvoice` with the 6 financial columns + `FullSnapshotJson` (which carries Steps 1–7 + Terms + Step 9 snapshot); Status Draft; dates now / now+7; names copied | Copy = new invoice row (financial columns + the Step 7 input columns + P&L KPI columns — the normalized equivalent of the snapshot's Step 7/9 blocks) + DEEP COPIES of spec groups/items, Step 6 rows and P&L rows; Status Draft; IssueDate today, ValidUntil +7 days; company/client/project/salesman links copied | **Normalized storage instead of a JSON blob** — the same content, addressable per section; documented |
+| `InquiryId` deliberately NOT copied + snapshot scrub (`Company.InquiryId = null`, `Company.ProformaId = newId`) so the copy cannot inherit the source's inquiry back-link (senior audit fix Aug 2026); a snapshot that cannot be scrubbed REFUSES the duplicate | `InquiryId` not copied; `snapshot_json` (a WPF import artifact) scrubbed via the `DuplicateSnapshotScrub` JsonNode port; an unscrubbable snapshot → 409, never the original JSON | Same rule; the SaaS scrub is the JsonNode path (the WPF's own fallback — there is no mapper snapshot model server-side) |
+| Root/revision chain NOT carried on the duplicate (a duplicate is a fresh quotation) | `root_proforma_id` null, `RevisionNumber` 0, `job_order_id` not copied | Same |
+| Convert-to-PI guard: inquiry's denormalized `ProformaInvoiceId`/`ProformaNumber` (kept in sync by InquiryLinkSync — the guard was dead code before that fix) | `converted_proforma_id` PLUS a live `AnyAsync(proforma_invoices.inquiry_id)` check (the source of truth — no denormalized column to go stale) | **Stronger by design**: revisions/imports that link a PI also block |
+| Eligibility: only Prepared or Confirmed inquiries; the VM guard throws `InvalidOperationException` | 409 with the WPF's message ("Only a Prepared or Confirmed Inquiry is eligible…") | Same rule, typed response |
+| Convert pre-fills the WIZARD (Step 1 inquiry id, Step 2 customer/billing/salesman, Step 3 project reference, Step 5 grid from the BOQ) and the operator saves manually | Convert CREATES the linked Draft + saves the BOQ grid server-side in one call (clientId/projectId links are the normalized Step 2/3 context; salesman name has no SaaS link on inquiries yet) | **Different shape, same content**: an API cannot hold an unsaved wizard; the created Draft is exactly what the WPF wizard would have produced, and the operator continues editing it through the normal endpoints. The WPF's ProjectReference free-text (inquiry description fallback) is not carried — the SaaS grid + inquiry link carry the traceability |
+| BOQ import decisions (`InquiryBoqConversion`): importable = spec name + W×H + qty; order = SortOrder; glass type normalized with DGU+LAM matched FIRST; unknown build REFUSED (never inherits a default); a non-positive rate means "not quoted" (grid keeps its own pricing) | `Domain.Proforma.InquiryBoqConversion` — verbatim port, same goldens; one spec group per importable line, one item row (W1/H1/qty), quoted rate → `price_source = manual` (the customer's own), unquoted → `formula` with rate 0 | Same decisions; "manual" is the SaaS normalization of the WPF's ImportedPrice (no default-type or free pricing source exists there) |
+| Partial BOQ rows "stay on the inquiry as notes" | Not imported, reported as `SkippedBoqLines` in the convert response | Same behavior, explicit count |
+| InquiryLinkSync.AfterInsertAsync: write the link columns + advance the inquiry to Sent (only when CanTransition allows — a Confirmed inquiry stays Confirmed); fire-and-forget | Same: `converted_proforma_id` write + status advance gated by the ported `InquiryWorkflow.CanTransition` table | Same |
+| InquiryLinkSync.AfterUpdateAsync: PI Approved/Confirmed → inquiry Confirmed; Rejected/Cancelled → Cancelled (skips silently when the transition is invalid; never fails the PI op); PI deleted → inquiry reverts to Prepared | Same mapping on lifecycle transitions AND void (there is no PI delete in the SaaS — void is the terminal path); tolerant (try/catch, failures audited as `inquiry.link_sync_failed`) | Same minus the delete-revert path (no PI delete exists — documented) |
+| Duplicate permission: `ProformaInvoice.Create` | `POST /{id}/duplicate` → `ProformaInvoice.Create`; `POST /api/v1/inquiries/{id}/convert-to-proforma` → `ProformaInvoice.Create` (the WPF convert path runs the PI-creation flow) | Same |
+| Inquiry statuses `Received·Prepared·Sent·Confirmed·Hold·Cancelled` + "On Hold"/"Canceled" aliases; the transition table (Received→Prepared/Hold/Cancelled, …) | `Domain.Proforma.InquiryStatuses` + `InquiryWorkflow.CanTransition` — verbatim (0003's inquiries CHECK already carries the vocabulary) | Same |
 
 ### 1.3 Specifications (price registry)
 | WPF | SaaS |

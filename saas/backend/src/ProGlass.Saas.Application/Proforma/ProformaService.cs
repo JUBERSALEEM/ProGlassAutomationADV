@@ -268,6 +268,10 @@ public sealed class ProformaService
                 requiresApproval = InvoiceLifecycle.RequiresApproval(current, target),
             }));
 
+        // WPF InquiryLinkSync.AfterUpdateAsync — the linked inquiry
+        // follows the PI lifecycle (fire-and-forget, never fails this op).
+        await SyncLinkedInquiryAsync(tenantId, invoice, target, actorId, ip, ct);
+
         return ProformaResult<ProformaDto>.Ok(ToDto(invoice));
     }
 
@@ -314,6 +318,11 @@ public sealed class ProformaService
                 invoice.VoidReason,
                 invoice.Status,
             }));
+
+        // A voided PI is cancelled — the linked inquiry follows
+        // (InquiryLinkSync.AfterUpdateAsync, fire-and-forget).
+        await SyncLinkedInquiryAsync(
+            tenantId, invoice, InvoiceLifecycleState.Cancelled, actorId, ip, ct);
 
         return ProformaResult<ProformaDto>.Ok(ToDto(invoice));
     }
@@ -935,6 +944,524 @@ public sealed class ProformaService
             g.Group.Step4CuttingCostPerSqm,
             g.Group.Step4TemperingCostPerSqm,
             g.Group.UInsertPricePerSqm)).ToList();
+    }
+
+    // ═════════════════════════ DUPLICATE ═══════════════════════════
+
+    /// <summary>
+    /// POST /{id}/duplicate — port of
+    /// SavedInvoicesListViewModel.DuplicateAsync: a fresh DRAFT copy of
+    /// the whole document (the WPF copied the wizard state via
+    /// FullSnapshotJson; the SaaS normalized tables are that snapshot),
+    /// with the inquiry link deliberately DETACHED (a duplicate is a
+    /// fresh quotation, not another PI for the same inquiry — senior
+    /// audit fix Aug 2026) and the validity window restarted at +7 days.
+    /// </summary>
+    public async Task<ProformaResult<ProformaDto>> DuplicateAsync(
+        Guid tenantId, Guid id, Guid actorId, string? ip, CancellationToken ct)
+    {
+        var original = await _store.FindByIdAsync(tenantId, id, ct);
+        if (original is null)
+        {
+            return ProformaResult<ProformaDto>.Fail(
+                ProformaErrorCode.NotFound, $"Proforma invoice {id} was not found.");
+        }
+
+        // The WPF refuses the duplicate when the snapshot cannot be
+        // scrubbed — never insert the original JSON (it re-links the
+        // copy to the source inquiry and bypasses the convert guard).
+        if (!string.IsNullOrEmpty(original.SnapshotJson)
+            && DuplicateSnapshotScrub.TryDetach(original.SnapshotJson, "probe") is null)
+        {
+            return ProformaResult<ProformaDto>.Fail(
+                ProformaErrorCode.Conflict,
+                "Duplicate was not created because the snapshot could not be " +
+                "detached from the source inquiry.");
+        }
+
+        var groups = await _store.GetSpecGroupsAsync(tenantId, id, ct);
+        var step6 = await _store.GetStep6Async(tenantId, id, ct);
+        var pnlRows = await _store.GetStep9Async(tenantId, id, ct);
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var now = DateTime.UtcNow;
+        var copyId = Guid.NewGuid();
+
+        var copy = new ProformaInvoice
+        {
+            Id = copyId,
+            TenantId = tenantId,
+            ProformaNo = original.ProformaNo, // reallocated below
+            // InquiryId deliberately NOT copied (the scrub rule).
+            CompanyId = original.CompanyId,
+            ClientId = original.ClientId,
+            ProjectId = original.ProjectId,
+            SalesmanId = original.SalesmanId,
+            Status = ProformaStatuses.Draft,
+            StatusText = "",
+            LifecycleState = nameof(InvoiceLifecycleState.Draft),
+            IssueDate = today,
+            ValidUntil = today.AddDays(7), // the WPF duplicate's window
+            GlassMaterialsSubtotal = original.GlassMaterialsSubtotal,
+            OtherChargesSubtotal = original.OtherChargesSubtotal,
+            DiscountAmount = original.DiscountAmount,
+            VatAmount = original.VatAmount,
+            GrandTotalVatInclusive = original.GrandTotalVatInclusive,
+            // The normalized equivalent of the snapshot's Step 7/Step 9
+            // blocks (the WPF copy carried them inside FullSnapshotJson).
+            DiscountType = original.DiscountType,
+            DiscountValue = original.DiscountValue,
+            IsVatApplicable = original.IsVatApplicable,
+            VatPercent = original.VatPercent,
+            PnlWastagePercent = original.PnlWastagePercent,
+            PnlCostAtSellingPrice = original.PnlCostAtSellingPrice,
+            PnlGrossVatInclusive = original.PnlGrossVatInclusive,
+            PnlNetExVat = original.PnlNetExVat,
+            PnlTotalGlassCost = original.PnlTotalGlassCost,
+            PnlTotalProductionCost = original.PnlTotalProductionCost,
+            PnlProfit = original.PnlProfit,
+            PnlMarginPercent = original.PnlMarginPercent,
+            PnlOverallMarginPercent = original.PnlOverallMarginPercent,
+            PnlNetMarginPercent = original.PnlNetMarginPercent,
+            PnlUInsertCost = original.PnlUInsertCost,
+            PnlBasisCost = original.PnlBasisCost,
+            PnlCalculatedAt = original.PnlCalculatedAt,
+            FurthestStep = original.FurthestStep,
+            CreatedAt = now,
+            UpdatedAt = now,
+            CreatedBy = actorId,
+            UpdatedBy = actorId,
+        };
+
+        var groupCopies = groups.Select(g =>
+        {
+            var groupId = Guid.NewGuid();
+            return new SpecGroupWithItems(
+                new SpecGroup
+                {
+                    Id = groupId,
+                    TenantId = tenantId,
+                    ProformaId = copyId,
+                    GroupNumber = g.Group.GroupNumber,
+                    GlassType = g.Group.GlassType,
+                    SpecName = g.Group.SpecName,
+                    SpecId = g.Group.SpecId,
+                    RatePerSqm = g.Group.RatePerSqm,
+                    PriceSource = g.Group.PriceSource,
+                    OuterGlassColor = g.Group.OuterGlassColor,
+                    InnerGlassColor = g.Group.InnerGlassColor,
+                    ThirdGlassColor = g.Group.ThirdGlassColor,
+                    OuterSheetWidthMm = g.Group.OuterSheetWidthMm,
+                    OuterSheetHeightMm = g.Group.OuterSheetHeightMm,
+                    InnerSheetWidthMm = g.Group.InnerSheetWidthMm,
+                    InnerSheetHeightMm = g.Group.InnerSheetHeightMm,
+                    ThirdSheetWidthMm = g.Group.ThirdSheetWidthMm,
+                    ThirdSheetHeightMm = g.Group.ThirdSheetHeightMm,
+                    OuterSheetPricePerSqm = g.Group.OuterSheetPricePerSqm,
+                    InnerSheetPricePerSqm = g.Group.InnerSheetPricePerSqm,
+                    ThirdSheetPricePerSqm = g.Group.ThirdSheetPricePerSqm,
+                    Step4SpacerPricePerSqm = g.Group.Step4SpacerPricePerSqm,
+                    Step4InterlayerCostPerSqm = g.Group.Step4InterlayerCostPerSqm,
+                    Step4CuttingCostPerSqm = g.Group.Step4CuttingCostPerSqm,
+                    Step4TemperingCostPerSqm = g.Group.Step4TemperingCostPerSqm,
+                    UInsertPricePerSqm = g.Group.UInsertPricePerSqm,
+                    CreatedAt = now,
+                    UpdatedAt = now,
+                    CreatedBy = actorId,
+                    UpdatedBy = actorId,
+                },
+                g.Items.Select(i => new SpecGroupItem
+                {
+                    Id = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    SpecGroupId = groupId,
+                    RowSerial = i.RowSerial,
+                    Position = i.Position,
+                    W1 = i.W1, H1 = i.H1, W2 = i.W2, H2 = i.H2,
+                    Qty = i.Qty,
+                    PerimeterFactor = i.PerimeterFactor,
+                    Sqm1 = i.Sqm1,
+                    TotalSqm = i.TotalSqm,
+                    Notes = i.Notes,
+                    CreatedAt = now,
+                    UpdatedAt = now,
+                    CreatedBy = actorId,
+                    UpdatedBy = actorId,
+                }).ToList());
+        }).ToList();
+
+        var chargeCopies = step6.Charges.Select(c => CopyRow(c, copyId, tenantId, actorId, now)).ToList();
+        var wastageCopies = step6.Wastages.Select(w => CopyRow(w, copyId, tenantId, actorId, now)).ToList();
+        var customCopies = step6.Customs.Select(c => CopyRow(c, copyId, tenantId, actorId, now)).ToList();
+        var pnlCopies = pnlRows.Select(r => CopyRow(r, copyId, tenantId, actorId, now)).ToList();
+
+        // WPF bump-and-retry: suggest the next free id FROM the original's
+        // number (PI-2026-0012 → PI-2026-0013), re-suggesting from the
+        // collided number when a concurrent writer steals it, capped at 5.
+        var allocated = false;
+        for (var attempt = 0; attempt < NumberAttempts; attempt++)
+        {
+            var existing = await _store.GetNumbersWithPrefixAsync(tenantId, "PI-", ct);
+            copy.ProformaNo = ProformaNumberSequence.SuggestNext(copy.ProformaNo, existing);
+            copy.SnapshotJson = string.IsNullOrEmpty(original.SnapshotJson)
+                ? original.SnapshotJson
+                : DuplicateSnapshotScrub.TryDetach(original.SnapshotJson, copy.ProformaNo);
+
+            if (await _store.TryDuplicateAsync(
+                    copy, groupCopies,
+                    new Step6Rows(chargeCopies, wastageCopies, customCopies),
+                    pnlCopies, actorId, ct))
+            {
+                allocated = true;
+                break;
+            }
+        }
+
+        if (!allocated)
+        {
+            return ProformaResult<ProformaDto>.Fail(
+                ProformaErrorCode.NumberExhausted,
+                $"Could not allocate a free proforma number after {NumberAttempts} " +
+                "retries. Another concurrent writer is racing this insert.");
+        }
+
+        await _audit.WriteAsync(
+            tenantId, actorId, "proforma.duplicated", "proforma_invoices",
+            copy.Id, ip, null, ct,
+            beforeJson: JsonSerializer.Serialize(new { sourceNo = original.ProformaNo }),
+            afterJson: JsonSerializer.Serialize(new
+            {
+                copy.ProformaNo,
+                groups = groupCopies.Count,
+                charges = chargeCopies.Count,
+                wastages = wastageCopies.Count,
+                customs = customCopies.Count,
+                pnlRows = pnlCopies.Count,
+            }));
+
+        return ProformaResult<ProformaDto>.Ok(ToDto(copy));
+    }
+
+    // ── row-copy helpers (fresh ids + stamps, same content/order) ────
+
+    private static OtherCharge CopyRow(OtherCharge c, Guid proformaId,
+        Guid tenantId, Guid actorId, DateTime now) => new()
+    {
+        Id = Guid.NewGuid(), TenantId = tenantId, ProformaId = proformaId,
+        ChargeName = c.ChargeName, Description = c.Description,
+        TemplateKey = c.TemplateKey, Unit = c.Unit, MetricKey = c.MetricKey,
+        CheckedSpecGroupNumbers = c.CheckedSpecGroupNumbers,
+        Rate = c.Rate, MetricQty = c.MetricQty, Amount = c.Amount,
+        IsActive = c.IsActive, PolishSubType = c.PolishSubType,
+        CustomPolishDescription = c.CustomPolishDescription,
+        CustomPolishQty = c.CustomPolishQty, SortOrder = c.SortOrder,
+        CreatedAt = now, UpdatedAt = now, CreatedBy = actorId, UpdatedBy = actorId,
+    };
+
+    private static WastageRow CopyRow(WastageRow w, Guid proformaId,
+        Guid tenantId, Guid actorId, DateTime now) => new()
+    {
+        Id = Guid.NewGuid(), TenantId = tenantId, ProformaId = proformaId,
+        ColorName = w.ColorName, CheckedSourceKeys = w.CheckedSourceKeys,
+        TotalSqm = w.TotalSqm, IsManuallyAdded = w.IsManuallyAdded,
+        UseOptimizationFormula = w.UseOptimizationFormula,
+        FormulaPricePerSqm = w.FormulaPricePerSqm,
+        OptimizationPercent = w.OptimizationPercent,
+        SheetQuantity = w.SheetQuantity, Rate = w.Rate,
+        ResultAmount = w.ResultAmount, IsActive = w.IsActive,
+        SortOrder = w.SortOrder,
+        CreatedAt = now, UpdatedAt = now, CreatedBy = actorId, UpdatedBy = actorId,
+    };
+
+    private static CustomCharge CopyRow(CustomCharge c, Guid proformaId,
+        Guid tenantId, Guid actorId, DateTime now) => new()
+    {
+        Id = Guid.NewGuid(), TenantId = tenantId, ProformaId = proformaId,
+        ChargeName = c.ChargeName, Qty = c.Qty, Unit = c.Unit,
+        Rate = c.Rate, Amount = c.Amount, IsActive = c.IsActive,
+        SortOrder = c.SortOrder,
+        CreatedAt = now, UpdatedAt = now, CreatedBy = actorId, UpdatedBy = actorId,
+    };
+
+    private static Domain.Entities.PnlRow CopyRow(Domain.Entities.PnlRow r, Guid proformaId,
+        Guid tenantId, Guid actorId, DateTime now) => new()
+    {
+        Id = Guid.NewGuid(), TenantId = tenantId, ProformaId = proformaId,
+        Kind = r.Kind, SpecNumber = r.SpecNumber, SpecName = r.SpecName,
+        Description = r.Description,
+        SheetWidthMm = r.SheetWidthMm, SheetHeightMm = r.SheetHeightMm,
+        SheetSqm = r.SheetSqm, Quantity = r.Quantity,
+        PricePerUnit = r.PricePerUnit, UnitLabel = r.UnitLabel,
+        Amount = r.Amount, SheetSource = r.SheetSource, SortOrder = r.SortOrder,
+        CreatedAt = now, UpdatedAt = now, CreatedBy = actorId, UpdatedBy = actorId,
+    };
+
+    // ═════════════════ INQUIRY → PROFORMA CONVERT ═══════════════════
+
+    /// <summary>
+    /// POST /api/v1/inquiries/{id}/convert-to-proforma — port of
+    /// InquiryListViewModel.ConvertToPiAsync +
+    /// ProformaInvoiceViewModel.StartFromInquiryAsync: guards (no existing
+    /// PI, Prepared/Confirmed only), a fresh linked draft, the pure BOQ →
+    /// Step 5 grid import (InquiryBoqConversion), the inquiry link write
+    /// and the status advance to Sent (InquiryLinkSync.AfterInsertAsync —
+    /// only when the workflow allows it).
+    /// </summary>
+    public async Task<ProformaResult<ConvertInquiryResultDto>> ConvertInquiryToProformaAsync(
+        Guid tenantId, Guid inquiryId, Guid actorId, string? ip, CancellationToken ct)
+    {
+        var inquiry = await _store.FindInquiryAsync(tenantId, inquiryId, ct);
+        if (inquiry is null)
+        {
+            return ProformaResult<ConvertInquiryResultDto>.Fail(
+                ProformaErrorCode.NotFound, $"Inquiry {inquiryId} was not found.");
+        }
+
+        if (inquiry.ConvertedProformaId is not null)
+        {
+            return ProformaResult<ConvertInquiryResultDto>.Fail(
+                ProformaErrorCode.Conflict,
+                "This inquiry already has a proforma invoice. Delete the existing " +
+                "PI first or open it directly.");
+        }
+
+        // Bug #7 defense-in-depth: the WPF guarded on denormalized link
+        // columns that could go stale; the SaaS asks the source of truth.
+        if (await _store.HasProformaForInquiryAsync(tenantId, inquiryId, ct))
+        {
+            return ProformaResult<ConvertInquiryResultDto>.Fail(
+                ProformaErrorCode.Conflict,
+                "A proforma invoice is already linked to this inquiry.");
+        }
+
+        var status = InquiryStatuses.Normalize(inquiry.Status);
+        if (status is not (InquiryStatuses.Prepared or InquiryStatuses.Confirmed))
+        {
+            return ProformaResult<ConvertInquiryResultDto>.Fail(
+                ProformaErrorCode.Conflict,
+                "Only a Prepared or Confirmed Inquiry is eligible for " +
+                $"Proforma creation (currently {status}).");
+        }
+
+        // The BOQ import decisions (pure port — partial rows stay on the
+        // inquiry as notes; an unknown build never inherits a default).
+        var lines = ParseBoq(inquiry.BoqJson);
+        var imports = InquiryBoqConversion.ToImportRows(lines);
+        var skipped = lines.Count - imports.Count;
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var now = DateTime.UtcNow;
+        var invoice = new ProformaInvoice
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            ProformaNo = ProformaNumberSequence.SeedFor(today.Year),
+            InquiryId = inquiry.Id,          // the link is the whole point
+            ClientId = inquiry.CustomerId,   // Step 2 commercial context
+            ProjectId = inquiry.ProjectId,   // Step 3 project context
+            Status = ProformaStatuses.Draft,
+            StatusText = "",
+            LifecycleState = nameof(InvoiceLifecycleState.Draft),
+            IssueDate = today,               // a fresh wizard start
+            ValidUntil = today.AddDays(30),
+            FurthestStep = 1,
+            CreatedAt = now,
+            UpdatedAt = now,
+            CreatedBy = actorId,
+            UpdatedBy = actorId,
+        };
+
+        var allocated = false;
+        for (var attempt = 0; attempt < NumberAttempts; attempt++)
+        {
+            var existing = await _store.GetNumbersWithPrefixAsync(tenantId, "PI-", ct);
+            invoice.ProformaNo = ProformaNumberSequence.SuggestNext(invoice.ProformaNo, existing);
+
+            if (await _store.TryInsertAsync(invoice, ct))
+            {
+                allocated = true;
+                break;
+            }
+        }
+
+        if (!allocated)
+        {
+            return ProformaResult<ConvertInquiryResultDto>.Fail(
+                ProformaErrorCode.NumberExhausted,
+                $"Could not allocate a free proforma number after {NumberAttempts} " +
+                "retries. Another concurrent writer is racing this insert.");
+        }
+
+        // The BOQ becomes the Step 5 grid (one spec group per importable
+        // line, in BOQ order — the grid mirrors the BOQ grid). A quoted
+        // rate is the customer's own ("manual"); an unquoted line keeps
+        // the grid's own pricing ("formula", rate 0 until priced).
+        if (imports.Count > 0)
+        {
+            var grid = await SaveSpecGroupsAsync(
+                tenantId, invoice.Id, actorId, ip, new SaveSpecGroupsRequest(
+                    imports.Select((row, index) => new SpecGroupRequest(
+                        index + 1, row.GlassType, row.SpecName,
+                        row.HasRate ? row.RatePerSqm : 0m,
+                        row.HasRate ? "manual" : "formula",
+                        [new SpecGroupItemRequest(
+                            1, "", row.WidthMm, row.HeightMm, 0, 0, row.Qty, null, "")],
+                        OuterGlassColor: row.OuterGlassColor,
+                        InnerGlassColor: row.InnerGlassColor)).ToList()),
+                ct);
+
+            if (!grid.Success)
+            {
+                return ProformaResult<ConvertInquiryResultDto>.Fail(
+                    grid.ErrorCode, grid.Message);
+            }
+        }
+
+        // InquiryLinkSync.AfterInsertAsync: write the link, advance the
+        // inquiry to Sent — but only when the workflow allows the
+        // transition (a Confirmed inquiry stays Confirmed).
+        await _store.TryLinkInquiryToProformaAsync(
+            tenantId, inquiry.Id, invoice.Id, actorId, ct);
+        if (InquiryWorkflow.CanTransition(status, InquiryStatuses.Sent))
+        {
+            await _store.TryAdvanceInquiryStatusAsync(
+                tenantId, inquiry.Id, InquiryStatuses.Sent, actorId, ct);
+        }
+
+        // The WPF Phase 5 audit trail: the conversion carries the item
+        // snapshot it carried in (first 12 lines).
+        var trail = new StringBuilder(
+            $"Inquiry {inquiry.InquiryNo} converted to PI {invoice.ProformaNo}" +
+            $" — {imports.Count} BOQ line(s)");
+        if (imports.Count > 0)
+        {
+            trail.Append(": ");
+            foreach (var r in imports.Take(12))
+            {
+                trail.Append($"{r.SpecName} {r.WidthMm}x{r.HeightMm}x{r.Qty}; ");
+            }
+
+            if (imports.Count > 12)
+            {
+                trail.Append($"… +{imports.Count - 12} more");
+            }
+        }
+
+        await _audit.WriteAsync(
+            tenantId, actorId, "inquiry.converted_to_proforma", "inquiries",
+            inquiry.Id, ip, null, ct,
+            beforeJson: JsonSerializer.Serialize(new { inquiryStatus = status }),
+            afterJson: JsonSerializer.Serialize(new
+            {
+                proformaId = invoice.Id,
+                proformaNo = invoice.ProformaNo,
+                imported = imports.Count,
+                skipped,
+                detail = trail.ToString(),
+            }));
+
+        var saved = await _store.FindByIdAsync(tenantId, invoice.Id, ct);
+        return ProformaResult<ConvertInquiryResultDto>.Ok(
+            new ConvertInquiryResultDto(
+                ToDto(saved ?? invoice), imports.Count, skipped));
+    }
+
+    /// <summary>
+    /// The inquiry's BOQ (boq_json) — tolerant parse: a missing/blank/
+    /// malformed BOQ simply imports nothing (the WPF converted inquiries
+    /// with empty line lists too).
+    /// </summary>
+    private static IReadOnlyList<InquiryBoqLine> ParseBoq(string? boqJson)
+    {
+        if (string.IsNullOrWhiteSpace(boqJson))
+        {
+            return Array.Empty<InquiryBoqLine>();
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<InquiryBoqLine>>(
+                       boqJson, JsonOptions) ?? new List<InquiryBoqLine>();
+        }
+        catch (JsonException)
+        {
+            return Array.Empty<InquiryBoqLine>();
+        }
+    }
+
+    private static readonly JsonSerializerOptions JsonOptions =
+        new(JsonSerializerDefaults.Web);
+
+    /// <summary>
+    /// WPF InquiryLinkSync.AfterUpdateAsync — a PI lifecycle change
+    /// advances the linked inquiry: Approved/Confirmed → Confirmed,
+    /// Rejected/Cancelled (and void) → Cancelled. Fire-and-forget
+    /// semantics: the sync must NEVER fail the PI operation.
+    /// </summary>
+    private async Task SyncLinkedInquiryAsync(
+        Guid tenantId, ProformaInvoice invoice, InvoiceLifecycleState newState,
+        Guid actorId, string? ip, CancellationToken ct)
+    {
+        if (invoice.InquiryId is null)
+        {
+            return;
+        }
+
+        var target = newState switch
+        {
+            InvoiceLifecycleState.Approved or InvoiceLifecycleState.Confirmed
+                => InquiryStatuses.Confirmed,
+            InvoiceLifecycleState.Rejected or InvoiceLifecycleState.Cancelled
+                => InquiryStatuses.Cancelled,
+            _ => null
+        };
+
+        if (target is null)
+        {
+            return;
+        }
+
+        try
+        {
+            var inquiry = await _store.FindInquiryAsync(
+                tenantId, invoice.InquiryId.Value, ct);
+            if (inquiry is null)
+            {
+                return;
+            }
+
+            var current = InquiryStatuses.Normalize(inquiry.Status);
+            if (current == target || !InquiryWorkflow.CanTransition(current, target))
+            {
+                return; // skip silently — the PI operation still succeeded
+            }
+
+            if (await _store.TryAdvanceInquiryStatusAsync(
+                    tenantId, inquiry.Id, target, actorId, ct))
+            {
+                await _audit.WriteAsync(
+                    tenantId, actorId, "inquiry.status_auto_advanced", "inquiries",
+                    inquiry.Id, ip, null, ct,
+                    beforeJson: JsonSerializer.Serialize(new { status = current }),
+                    afterJson: JsonSerializer.Serialize(new
+                    {
+                        status = target,
+                        drivenByProforma = invoice.ProformaNo,
+                    }));
+            }
+        }
+        catch (Exception ex)
+        {
+            // WPF: swallowed and logged — never fail the PI operation.
+            await _audit.WriteAsync(
+                tenantId, actorId, "inquiry.link_sync_failed", "inquiries",
+                invoice.InquiryId.Value, ip, null, ct,
+                afterJson: JsonSerializer.Serialize(new
+                {
+                    error = ex.Message,
+                    targetStatus = target,
+                }));
+        }
     }
 
     // ═════════════════════════ STEP 7: SUMMARY ═══════════════════════

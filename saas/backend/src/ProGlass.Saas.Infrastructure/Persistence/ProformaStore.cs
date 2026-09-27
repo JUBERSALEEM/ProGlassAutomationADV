@@ -337,6 +337,101 @@ public sealed class ProformaStore : IProformaStore
             .ToListAsync(ct).ConfigureAwait(false);
     }
 
+    public async Task<bool> TryDuplicateAsync(
+        ProformaInvoice invoice,
+        IReadOnlyList<SpecGroupWithItems> groups,
+        Step6Rows step6,
+        IReadOnlyList<Domain.Entities.PnlRow> pnlRows,
+        Guid actorId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(invoice);
+
+        // Fresh context per attempt: a unique-violation aborts the
+        // transaction, and the retry must start from a clean tracker.
+        using var db = _factory.CreateForTenant(invoice.TenantId);
+        await using var transaction = await db.Database
+            .BeginTransactionAsync(ct).ConfigureAwait(false);
+
+        db.ProformaInvoices.Add(invoice);
+
+        foreach (var group in groups)
+        {
+            db.SpecGroups.Add(group.Group);
+            foreach (var item in group.Items)
+            {
+                db.SpecGroupItems.Add(item);
+            }
+        }
+
+        foreach (var charge in step6.Charges) db.OtherCharges.Add(charge);
+        foreach (var wastage in step6.Wastages) db.WastageRows.Add(wastage);
+        foreach (var custom in step6.Customs) db.CustomCharges.Add(custom);
+        foreach (var row in pnlRows) db.PnlRows.Add(row);
+
+        try
+        {
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            await transaction.CommitAsync(ct).ConfigureAwait(false);
+            return true;
+        }
+        catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+        {
+            return false;
+        }
+    }
+
+    public async Task<Inquiry?> FindInquiryAsync(
+        Guid tenantId, Guid inquiryId, CancellationToken ct)
+    {
+        using var db = _factory.CreateForTenant(tenantId);
+
+        return await db.Inquiries.AsNoTracking()
+            .FirstOrDefaultAsync(i => i.Id == inquiryId, ct)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<bool> HasProformaForInquiryAsync(
+        Guid tenantId, Guid inquiryId, CancellationToken ct)
+    {
+        using var db = _factory.CreateForTenant(tenantId);
+
+        return await db.ProformaInvoices.AsNoTracking()
+            .AnyAsync(p => p.InquiryId == inquiryId, ct)
+            .ConfigureAwait(false);
+    }
+
+    public async Task<bool> TryLinkInquiryToProformaAsync(
+        Guid tenantId, Guid inquiryId, Guid proformaId, Guid actorId, CancellationToken ct)
+    {
+        using var db = _factory.CreateForTenant(tenantId);
+
+        var rows = await db.Inquiries
+            .Where(i => i.Id == inquiryId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(i => i.ConvertedProformaId, proformaId)
+                .SetProperty(i => i.UpdatedAt, DateTime.UtcNow)
+                .SetProperty(i => i.UpdatedBy, actorId), ct)
+            .ConfigureAwait(false);
+
+        return rows == 1;
+    }
+
+    public async Task<bool> TryAdvanceInquiryStatusAsync(
+        Guid tenantId, Guid inquiryId, string status, Guid actorId, CancellationToken ct)
+    {
+        using var db = _factory.CreateForTenant(tenantId);
+
+        var rows = await db.Inquiries
+            .Where(i => i.Id == inquiryId)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(i => i.Status, status)
+                .SetProperty(i => i.UpdatedAt, DateTime.UtcNow)
+                .SetProperty(i => i.UpdatedBy, actorId), ct)
+            .ConfigureAwait(false);
+
+        return rows == 1;
+    }
+
     public async Task<IReadOnlyList<Domain.Proforma.SheetStockEntry>> GetSheetStockAsync(
         Guid tenantId, CancellationToken ct)
     {

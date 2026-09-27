@@ -73,6 +73,40 @@ public interface IProformaStore
     Task<IReadOnlyList<SpecGroupWithItems>> GetSpecGroupsAsync(
         Guid tenantId, Guid proformaId, CancellationToken ct);
 
+    // ── Duplicate (WPF SavedInvoicesListViewModel.DuplicateAsync) ────
+
+    /// <summary>
+    /// Insert the duplicate invoice + its copied sections in ONE
+    /// transaction. FALSE (no throw) when the number collided — the
+    /// service retries with the next free id, capped at 5 attempts.
+    /// </summary>
+    Task<bool> TryDuplicateAsync(
+        ProformaInvoice invoice,
+        IReadOnlyList<SpecGroupWithItems> groups,
+        Step6Rows step6,
+        IReadOnlyList<Domain.Entities.PnlRow> pnlRows,
+        Guid actorId, CancellationToken ct);
+
+    // ── Inquiry link (WPF InquiryLinkSync) ───────────────────────────
+
+    Task<Inquiry?> FindInquiryAsync(Guid tenantId, Guid inquiryId, CancellationToken ct);
+
+    /// <summary>Any PI already linked to this inquiry (the Convert-to-PI
+    /// duplicate-prevention guard reads the source of truth, not the
+    /// denormalized link columns the WPF had to keep in sync).</summary>
+    Task<bool> HasProformaForInquiryAsync(
+        Guid tenantId, Guid inquiryId, CancellationToken ct);
+
+    /// <summary>Write the converted-proforma link (converted_proforma_id
+    /// + audit stamps). FALSE when the inquiry row is gone.</summary>
+    Task<bool> TryLinkInquiryToProformaAsync(
+        Guid tenantId, Guid inquiryId, Guid proformaId, Guid actorId, CancellationToken ct);
+
+    /// <summary>Status-only write for the link sync (WPF
+    /// ChangeStatusAsync). FALSE when the inquiry row is gone.</summary>
+    Task<bool> TryAdvanceInquiryStatusAsync(
+        Guid tenantId, Guid inquiryId, string status, Guid actorId, CancellationToken ct);
+
     // ── Step 9 P&L ────────────────────────────────────────────────
 
     /// <summary>

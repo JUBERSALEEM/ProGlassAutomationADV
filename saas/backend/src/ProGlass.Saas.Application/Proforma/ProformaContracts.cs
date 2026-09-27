@@ -113,6 +113,16 @@ public sealed record SpecGroupRequest(
 /// invoice (wizard save semantics: the grid is the unit of work).</summary>
 public sealed record SaveSpecGroupsRequest(IReadOnlyList<SpecGroupRequest> Groups);
 
+/// <summary>
+/// POST /api/v1/inquiries/{id}/convert-to-proforma — the created draft
+/// plus what the BOQ import did (partial rows deliberately stay on the
+/// inquiry as notes).
+/// </summary>
+public sealed record ConvertInquiryResultDto(
+    ProformaDto Invoice,
+    int ImportedSpecGroups,
+    int SkippedBoqLines);
+
 // ── Read models ────────────────────────────────────────────────────────
 
 /// <summary>A saved proforma invoice row, plus the machine's view of it
