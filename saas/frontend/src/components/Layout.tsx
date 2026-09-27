@@ -5,6 +5,7 @@ import { listLowStockSheets } from "../api/endpoints";
 
 const NAV = [
   { to: "/", label: "Dashboard", end: true },
+  { to: "/proformas", label: "Proformas", end: false },
   { to: "/job-orders", label: "Job Orders", end: false },
   { to: "/stock", label: "Stock", end: false },
 ];

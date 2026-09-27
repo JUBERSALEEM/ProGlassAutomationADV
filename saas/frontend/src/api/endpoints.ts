@@ -115,3 +115,114 @@ export function listSheets(query: SheetQuery = {}) {
 export function listLowStockSheets(): Promise<GlassSheet[]> {
   return get<GlassSheet[]>("/api/v1/stock/sheets/low-stock");
 }
+
+// ── proforma invoices (Phase 29) ──────────────────────────────────────
+
+import type {
+  Company,
+  Client,
+  Proforma,
+  Project,
+  Salesman,
+  SpecGroup,
+  Step6,
+  Step7,
+  Step9,
+} from "./types";
+
+export interface ProformaListQuery {
+  search?: string;
+  status?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export function listProformas(query: ProformaListQuery = {}) {
+  const params = new URLSearchParams();
+  if (query.search) params.set("search", query.search);
+  if (query.status) params.set("status", query.status);
+  if (query.page) params.set("page", String(query.page));
+  if (query.pageSize) params.set("pageSize", String(query.pageSize));
+  const qs = params.toString();
+  return get<PagedResult<Proforma>>(`/api/v1/proforma-invoices${qs ? `?${qs}` : ""}`);
+}
+
+export function getProforma(id: string): Promise<Proforma> {
+  return get<Proforma>(`/api/v1/proforma-invoices/${id}`);
+}
+
+export function getProformaRevisions(id: string): Promise<Proforma[]> {
+  return get<Proforma[]>(`/api/v1/proforma-invoices/${id}/revisions`);
+}
+
+/** TransitionRequest — machine target state, WPF names. */
+export function transitionProforma(
+  id: string,
+  toState: string,
+  reason?: string,
+): Promise<Proforma> {
+  return post<Proforma>(`/api/v1/proforma-invoices/${id}/transitions`, {
+    toState,
+    ...(reason ? { reason } : {}),
+  });
+}
+
+export function voidProforma(id: string, reason?: string): Promise<Proforma> {
+  return post<Proforma>(`/api/v1/proforma-invoices/${id}/void`, reason ? { reason } : {});
+}
+
+export function duplicateProforma(id: string): Promise<Proforma> {
+  return post<Proforma>(`/api/v1/proforma-invoices/${id}/duplicate`);
+}
+
+export function createProformaRevision(id: string): Promise<Proforma> {
+  return post<Proforma>(`/api/v1/proforma-invoices/${id}/revisions`);
+}
+
+export interface CreateProformaBody {
+  companyId?: string;
+  clientId?: string;
+  projectId?: string;
+  salesmanId?: string;
+  inquiryId?: string;
+  issueDate?: string;
+  validUntil?: string;
+}
+
+export function createProformaDraft(body: CreateProformaBody): Promise<Proforma> {
+  return post<Proforma>("/api/v1/proforma-invoices", body);
+}
+
+export function getSpecGroups(id: string): Promise<SpecGroup[]> {
+  return get<SpecGroup[]>(`/api/v1/proforma-invoices/${id}/spec-groups`);
+}
+
+export function getStep6(id: string): Promise<Step6> {
+  return get<Step6>(`/api/v1/proforma-invoices/${id}/step6`);
+}
+
+export function getStep7(id: string): Promise<Step7> {
+  return get<Step7>(`/api/v1/proforma-invoices/${id}/step7`);
+}
+
+export function getStep9(id: string): Promise<Step9> {
+  return get<Step9>(`/api/v1/proforma-invoices/${id}/step9`);
+}
+
+// ── master data pickers (create form) ─────────────────────────────────
+
+export function listCompanies(): Promise<PagedResult<Company>> {
+  return get<PagedResult<Company>>("/api/v1/companies?pageSize=100");
+}
+
+export function listClients(): Promise<PagedResult<Client>> {
+  return get<PagedResult<Client>>("/api/v1/clients?pageSize=100");
+}
+
+export function listProjects(): Promise<PagedResult<Project>> {
+  return get<PagedResult<Project>>("/api/v1/projects?pageSize=100");
+}
+
+export function listSalesmen(): Promise<PagedResult<Salesman>> {
+  return get<PagedResult<Salesman>>("/api/v1/salesmen?pageSize=100");
+}

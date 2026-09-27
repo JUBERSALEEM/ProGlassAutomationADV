@@ -216,3 +216,43 @@ label input { color: var(--text); }
   .sidebar { width: auto; }
   .content { padding: 14px; }
 }
+
+/* ── Phase 29: proforma workbench ─────────────────────────────── */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tab {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--muted);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tab.active { color: var(--text); background: var(--panel-2); border-color: var(--accent); }
+.tab:hover:not(.active) { color: var(--text); }
+
+.totals-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  padding: 12px 0 4px;
+  border-top: 1px solid var(--line);
+  margin-top: 10px;
+}
+.actions.bar { margin-top: 12px; flex-wrap: wrap; gap: 8px; }
+
+.waterfall td { padding: 9px 10px; }
+.waterfall tr.grand td { border-top: 2px solid var(--line); font-size: 15px; }
+
+.create-form {
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: grid;
+  gap: 12px;
+}
+.create-form h3 { margin: 0; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 14px; }
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+.stat.loss .stat-value { color: var(--bad); }

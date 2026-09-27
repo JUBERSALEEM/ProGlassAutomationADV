@@ -884,6 +884,23 @@ holding page stays as the bare-metal fallback).
 | NotifyFloor live refresh | TanStack Query invalidation after every action (explicit refetch, no sockets) | **Documented difference** (transport, not semantics — same as 26a/26b) |
 | Role-gated UI (the Production role gates the floor) | Server-enforced (JobOrder.Edit on writes); the UI shows the actions and surfaces the 403 envelope when the role lacks the permission | Same as the 9b documented difference — the API boundary is the gate |
 
+**Phase 29 — the proforma workbench (SPA slice 2).** Pages: the PI
+list (search/status filters + paging + the create-draft form over the
+company/client/project/salesman pickers and issue/valid-until dates) and
+the PI detail workbench — header with id→name resolution, the totals
+strip, the lifecycle action bar (transitions from the server's own
+`validTransitions` with optional reason, void with reason, duplicate,
+new revision) and five review tabs: Step 5 glass grid (group cards with
+sheet colors/dimensions + the item rows with the server-computed
+SQM/LM/prices), Step 6 charges/wastage/customs, the Step 7 pricing
+waterfall, the Step 9 P&L (KPIs incl. the loss flag + cost rows in WPF
+build order) and the revision chain. The Step 5/6/7/9 sections are
+READ views over the persisted sections — the whole-grid PUT editors
+(SaveSpecGroups/SaveStep6/SaveStep7/SaveStep9) are a later slice,
+documented here. Writes in this slice: create draft, transitions,
+void, duplicate, revision — all 1:1 API calls with the server's
+messages rendered verbatim.
+
 ### 1.12 Explicitly deferred / out of initial scope (documented, not dropped)
 | WPF feature | SaaS decision | Reason |
 |---|---|---|

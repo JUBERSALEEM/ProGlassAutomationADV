@@ -6,6 +6,8 @@ import DashboardPage from "./pages/DashboardPage";
 import JobOrderDetailPage from "./pages/JobOrderDetailPage";
 import JobOrdersPage from "./pages/JobOrdersPage";
 import LoginPage from "./pages/LoginPage";
+import ProformaDetailPage from "./pages/ProformaDetailPage";
+import ProformaInvoicesPage from "./pages/ProformaInvoicesPage";
 import StockSheetsPage from "./pages/StockSheetsPage";
 
 const queryClient = new QueryClient({
@@ -41,6 +43,22 @@ export default function App() {
             element={
               <Protected>
                 <DashboardPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/proformas"
+            element={
+              <Protected>
+                <ProformaInvoicesPage />
+              </Protected>
+            }
+          />
+          <Route
+            path="/proformas/:id"
+            element={
+              <Protected>
+                <ProformaDetailPage />
               </Protected>
             }
           />
