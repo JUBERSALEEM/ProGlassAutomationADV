@@ -181,8 +181,11 @@ export function ProductHero() {
                 aria-hidden="true"
                 className="absolute inset-0 bg-gradient-to-t from-ink-950/55 via-ink-950/10 to-transparent"
               />
-              <p className="absolute bottom-3 left-3 rounded-full border border-line-strong/60 bg-ink-950/80 px-3 py-1.5 font-mono text-2xs uppercase tracking-[0.18em] text-text-secondary sm:bottom-4 sm:left-4">
-                Drawn from the running app&rsquo;s own screens and data · README_ASSETS/hero.png
+              {/* Bottom-right, in the one part of the composition that is empty:
+                  the banner's own lower-left carries the headline, the figures
+                  and the workflow line, and a chip there would cover them. */}
+              <p className="absolute bottom-3 right-3 rounded-full border border-line-strong/60 bg-ink-950/80 px-3 py-1.5 font-mono text-2xs uppercase tracking-[0.18em] text-text-secondary sm:bottom-4 sm:right-4">
+                The product&rsquo;s own screens · README_ASSETS/hero.png
               </p>
             </div>
           </div>

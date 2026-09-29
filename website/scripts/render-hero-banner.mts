@@ -39,6 +39,7 @@ import { mkdir } from "node:fs/promises";
 import sharp from "sharp";
 
 import { demoFor } from "@/data/liveDemos";
+import { navIcons } from "@/data/navIcons";
 import { chainVerbs } from "@/data/workflows";
 import { modules } from "@/data/modules";
 import { quotationTotals } from "@/data/workedExample";
@@ -283,6 +284,7 @@ const railGroupCount = new Set(modules.map((entry) => entry.railGroup)).size;
  * The composition
  * ════════════════════════════════════════════════════════════════════════ */
 
+/** The drawing, in paint order: backdrop, window, figure, panel. */
 const layers: string[] = [];
 
 /* ── Backdrop ─────────────────────────────────────────────────────────────
@@ -310,7 +312,7 @@ layers.push(
  * Right two thirds. It is a drawing of the Optimization screen, not a
  * screenshot — but the plate geometry inside it is the geometry the site's own
  * optimizer preview draws, from the same packer. */
-const win = { x: 736, y: 56, width: 1120, height: 496 };
+const win = { x: 736, y: 100, width: 1120, height: 448 };
 const rail = { x: win.x + 16, y: win.y + 68, width: 220, height: win.height - 84 };
 const main = { x: win.x + 252, y: win.y + 64, width: win.width - 272 };
 
@@ -514,7 +516,7 @@ kpis.forEach((item, index) => {
 
 /* The volume chart, drawn from the same seven-bar series as the live tile. */
 const chartTop = tileTop + tileHeight + 14;
-const chartHeight = 208;
+const chartHeight = 168;
 layers.push(
   rect(main.x, chartTop, main.width, chartHeight, {
     fill: rgba(palette.ink950, 0.5),
@@ -565,7 +567,7 @@ if (dashboard.footnote) {
  * and hanging below it — but positioned so the chart above it and the footnote
  * beside it stay readable rather than being buried under the card.
  */
-const card = { x: win.x - 110, y: win.y + win.height - 36, width: 320, height: 124 };
+const card = { x: win.x - 110, y: win.y + win.height - 34, width: 320, height: 124 };
 layers.push(
   rect(card.x + 5, card.y + 12, card.width, card.height, { fill: "#05030F", radius: 16, opacity: 0.55 }),
   rect(card.x, card.y, card.width, card.height, {
@@ -615,13 +617,13 @@ const chainLabel = chainVerbs.slice(0, 5).join("  →  ");
 const chainWidth = Math.round(chainLabel.length * 12.5 * 0.6 + 30 + chainLabel.length * 12.5 * 0.08);
 const chainChipX = win.x + win.width - 34 - chainWidth;
 layers.push(
-  rect(chainChipX, win.y - 24, chainWidth, 34, {
+  rect(chainChipX, win.y - 12, chainWidth, 34, {
     fill: rgba(palette.ink900, 0.97),
     stroke: palette.lineStrong,
     strokeWidth: 1.5,
     radius: 17,
   }),
-  text(chainChipX + chainWidth / 2, win.y - 3, chainLabel, {
+  text(chainChipX + chainWidth / 2, win.y + 9, chainLabel, {
     size: 12.5,
     fill: palette.brand200,
     family: MONO,
@@ -638,7 +640,7 @@ const col = { x: 80, width: 620 };
 const markSize = 46;
 const markScale = markSize / 32;
 layers.push(
-  `<g transform="translate(${col.x} ${90}) scale(${markScale})">` +
+  `<g transform="translate(${col.x} ${146}) scale(${markScale})">` +
     `<path d="M8.5 3.5h20l-4 4h-16z" fill="url(#markInner)" opacity="0.85" />` +
     `<path d="M4.5 12.5h20l-4 4h-16z" fill="url(#markInner)" opacity="0.6" />` +
     `<path d="M3.5 3.5h17.5l7.5 7.5v17.5H3.5z M21 3.5v7.5h7.5" fill="url(#markFace)" stroke="${rgba(palette.brand200, 0.55)}" stroke-width="0.8" stroke-linejoin="round" />` +
@@ -650,9 +652,9 @@ layers.push(
 // rather than two elements, so the spacing between "Pro" and "Glass" is the
 // font's own.
 layers.push(
-  `<text x="${col.x + 60}" y="118" font-family="${SANS}" font-size="28" font-weight="600" letter-spacing="${n(28 * -0.02)}">` +
+  `<text x="${col.x + 60}" y="174" font-family="${SANS}" font-size="28" font-weight="600" letter-spacing="${n(28 * -0.02)}">` +
     `<tspan fill="${palette.text1}">Pro</tspan><tspan fill="${palette.brand300}">Glass</tspan></text>`,
-  text(col.x + 60, 138, "AUTOMATION", {
+  text(col.x + 60, 194, "AUTOMATION", {
     size: 11.5,
     fill: rgba(palette.text3, 0.6),
     family: MONO,
@@ -675,8 +677,8 @@ const stackLine = [
   "WPF",
 ].join(" · ");
 layers.push(
-  line(col.x, 186, col.x + 28, 186, rgba(palette.brand400, 0.7), 1.5),
-  text(col.x + 40, 190, stackLine, {
+  line(col.x, 242, col.x + 28, 242, rgba(palette.brand400, 0.7), 1.5),
+  text(col.x + 40, 246, stackLine, {
     size: 13,
     fill: palette.brand200,
     family: MONO,
@@ -687,17 +689,17 @@ layers.push(
 
 /* Headline — the homepage's own H1, at banner scale. */
 layers.push(
-  text(col.x, 252, "Glass business management,", { size: 42, fill: palette.text1, weight: 600, tracking: -0.02 }),
-  text(col.x, 306, "built around your workflow.", { size: 42, fill: "url(#headline)", weight: 600, tracking: -0.02 }),
+  text(col.x, 308, "Glass business management,", { size: 42, fill: palette.text1, weight: 600, tracking: -0.02 }),
+  text(col.x, 362, "built around your workflow.", { size: 42, fill: "url(#headline)", weight: 600, tracking: -0.02 }),
 );
 
 /* Lede. */
 layers.push(
-  text(col.x, 350, "Price the job, cut the stock, track what left the yard,", {
+  text(col.x, 406, "Price the job, cut the stock, track what left the yard,", {
     size: 18.5,
     fill: rgba(palette.text3, 0.92),
   }),
-  text(col.x, 378, "and invoice it — without re-keying the same glass twice.", {
+  text(col.x, 434, "and invoice it — without re-keying the same glass twice.", {
     size: 18.5,
     fill: rgba(palette.text3, 0.92),
   }),
@@ -712,23 +714,123 @@ const figures = [
 figures.forEach((figure, index) => {
   const x = col.x + index * 208;
   if (index > 0) {
-    layers.push(line(x - 26, 418, x - 26, 486, rgba(palette.lineStrong, 0.85), 1));
+    layers.push(line(x - 26, 474, x - 26, 542, rgba(palette.lineStrong, 0.85), 1));
   }
   layers.push(
-    text(x, 452, figure.value, { size: 30, fill: palette.text1, weight: 700, tracking: -0.02 }),
-    text(x, 476, figure.label, { size: 11, fill: rgba(palette.text3, 0.6), family: MONO, weight: 600, tracking: 0.2 }),
+    text(x, 508, figure.value, { size: 30, fill: palette.text1, weight: 700, tracking: -0.02 }),
+    text(x, 532, figure.label, { size: 11, fill: rgba(palette.text3, 0.6), family: MONO, weight: 600, tracking: 0.2 }),
   );
 });
 
 /* The chain, in the words the site uses for it. */
 layers.push(
-  line(col.x, 522, col.x + col.width, 522, rgba(palette.lineStrong, 0.7), 1),
-  text(col.x, 556, chainVerbs.join("  →  "), {
+  line(col.x, 578, col.x + col.width, 578, rgba(palette.lineStrong, 0.7), 1),
+  text(col.x, 612, chainVerbs.join("  →  "), {
     size: 12.5,
     fill: rgba(palette.text3, 0.72),
     family: MONO,
     weight: 500,
     tracking: 0.06,
+  }),
+);
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * The site's own top panel
+ * ════════════════════════════════════════════════════════════════════════
+ *
+ * The banner is the home page, so it carries the home page's navigation: one
+ * card holding a card per item — the mark, the items with their glyphs, and the
+ * call to action — exactly as `src/components/layout/Navbar.tsx` lays it out.
+ * The glyphs come from the shared `src/data/navIcons.ts`, so the banner and the
+ * live navigation cannot drift apart.
+ */
+const bar = { x: 80, y: 24, width: WIDTH - 160, height: 58 };
+
+
+
+/** Rough advance width: a pill or a card measured without the font's metrics. */
+function measure(value: string, size: number, family: string = SANS): number {
+  const perGlyph = family === MONO ? 0.6 : 0.53;
+  return value.length * size * perGlyph;
+}
+
+const navItems = ["Home", "Product", "Optimization", "Resources", "About", "Developer", "Sponsors"];
+const navCards: { label: string; x: number; width: number }[] = [];
+let navX = bar.x + 208;
+for (const label of navItems) {
+  const width = Math.round(20 + 14 + 6 + measure(label, 14) + (label === "Optimization" ? 4 : 0));
+  navCards.push({ label, x: navX, width });
+  navX += width + 4;
+}
+
+const ctaLabel = "Request a Demo";
+const ctaWidth = Math.round(measure(ctaLabel, 13, MONO) + 34);
+const ctaX = bar.x + bar.width - 18 - ctaWidth;
+const toggleX = ctaX - 44;
+
+layers.push(
+  // The panel card: the edge, the panel corner, the violet wash.
+  rect(bar.x, bar.y, bar.width, bar.height, {
+    fill: rgba(palette.ink900, 0.55),
+    stroke: rgba(palette.lineStrong, 0.5),
+    strokeWidth: 2,
+    radius: 16,
+  }),
+  line(bar.x + 18, bar.y + 2, bar.x + bar.width - 18, bar.y + 2, rgba("#FFFFFF", 0.04), 1),
+  // The mark and the wordmark.
+  `<g transform="translate(${bar.x + 18} ${bar.y + 15}) scale(${26 / 32})">` +
+    `<path d="M8.5 3.5h20l-4 4h-16z" fill="url(#markInner)" opacity="0.85" />` +
+    `<path d="M4.5 12.5h20l-4 4h-16z" fill="url(#markInner)" opacity="0.6" />` +
+    `<path d="M3.5 3.5h17.5l7.5 7.5v17.5H3.5z M21 3.5v7.5h7.5" fill="url(#markFace)" stroke="${rgba(palette.brand200, 0.55)}" stroke-width="0.8" stroke-linejoin="round" />` +
+    `<path d="M3.5 3.5 L21 3.5 L12 24 L3.5 24 z" fill="url(#markGlint)" />` +
+    `</g>`,
+  `<text x="${bar.x + 52}" y="${bar.y + 36}" font-family="${SANS}" font-size="17.5" font-weight="600">` +
+    `<tspan fill="${palette.text1}">Pro</tspan><tspan fill="${palette.brand300}">Glass</tspan></text>`,
+);
+
+// A card per item; Home is lit because the home page is the page you are on.
+for (const item of navCards) {
+  const active = item.label === "Home";
+  layers.push(
+    rect(item.x, bar.y + 9, item.width, 40, {
+      fill: active ? rgba(palette.brand500, 0.14) : "none",
+      stroke: active ? rgba(palette.brand400, 0.6) : "none",
+      strokeWidth: 2,
+      radius: 12,
+    }),
+    `<g transform="translate(${item.x + 10} ${bar.y + 22}) scale(0.875)" fill="none" stroke="${
+      active ? palette.text1 : rgba(palette.text3, 0.8)
+    }" stroke-width="${1.6 / 0.875}" stroke-linecap="round" stroke-linejoin="round" opacity="${active ? 1 : 0.8}">` +
+      `<path d="${navIcons[item.label] ?? ""}" /></g>`,
+    text(item.x + 30, bar.y + 34, item.label, {
+      size: 14,
+      fill: active ? palette.text1 : rgba(palette.text3, 0.85),
+      weight: 600,
+    }),
+  );
+}
+
+// The call to action, in the brand fill the site's primary button uses.
+layers.push(
+  rect(toggleX, bar.y + 13, 32, 32, {
+    fill: rgba(palette.ink800, 0.8),
+    stroke: rgba(palette.lineStrong, 0.8),
+    strokeWidth: 1.5,
+    radius: 10,
+  }),
+  `<g transform="translate(${toggleX + 8} ${bar.y + 21}) scale(0.9)" fill="none" stroke="${rgba(palette.text3, 0.85)}" stroke-width="1.7" stroke-linecap="round">` +
+    `<path d="M8 2.5a5.5 5.5 0 1 0 0 11 8 8 0 0 1 0-11z" /></g>`,
+  rect(ctaX, bar.y + 13, ctaWidth, 32, {
+    fill: `url(#ctaFill)`,
+    stroke: rgba(palette.brand300, 0.55),
+    strokeWidth: 1.5,
+    radius: 10,
+  }),
+  text(ctaX + ctaWidth / 2, bar.y + 34, ctaLabel, {
+    size: 13,
+    fill: "#FFFFFF",
+    weight: 600,
+    anchor: "middle",
   }),
 );
 
@@ -778,6 +880,10 @@ const defs = `<defs>
   <linearGradient id="markInner" x1="0" y1="1" x2="1" y2="0">
     <stop offset="0%" stop-color="${palette.cyan}" stop-opacity="0.85" />
     <stop offset="100%" stop-color="${palette.brand300}" stop-opacity="0.55" />
+  </linearGradient>
+  <linearGradient id="ctaFill" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0%" stop-color="${palette.brand500}" />
+    <stop offset="100%" stop-color="${palette.brand700}" />
   </linearGradient>
   <linearGradient id="barGrad" x1="0" y1="1" x2="0" y2="0">
     <stop offset="0%" stop-color="${rgba(palette.brand600, 0.7)}" />
