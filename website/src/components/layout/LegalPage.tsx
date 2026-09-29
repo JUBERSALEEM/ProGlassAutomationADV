@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 
@@ -84,7 +85,35 @@ export function LegalPage({
               ))}
             </div>
 
-            {footer ? <div className="mt-12 border-t border-line/60 pt-8">{footer}</div> : null}
+            {/* A page that supplies its own closing actions keeps them; the rest
+                get this default so no legal page dead-ends. */}
+            {footer ? (
+              <div className="mt-12 border-t border-line/60 pt-8">{footer}</div>
+            ) : (
+            <div className="card-accent mt-12 p-7">
+              <h2 className="text-lg font-semibold text-text-primary sm:text-xl">
+                Read something more concrete next.
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-text-secondary">
+                The licence page covers what a licence key unlocks and what the free tier includes. If you would rather
+                ask a person, the contact form reaches the developer directly.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3 text-sm">
+                <Link
+                  href="/legal/license"
+                  className="rounded-full border border-brand-400/40 bg-brand-500/12 px-4 py-2 font-medium text-brand-100 transition-colors hover:border-brand-300/60 hover:text-brand-50"
+                >
+                  How licensing works
+                </Link>
+                <Link
+                  href="/contact"
+                  className="rounded-full border border-line-strong/70 px-4 py-2 font-medium text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary"
+                >
+                  Contact the developer
+                </Link>
+              </div>
+            </div>
+            )}
           </div>
         </Container>
       </Section>

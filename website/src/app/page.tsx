@@ -148,7 +148,7 @@ export default function HomePage() {
             <StatCounter
               value={modules.length}
               label="Navigation targets"
-              hint="Every module the sidebar can open, across nine groups."
+              hint="Every address the sidebar rail can open, across nine groups."
             />
             <StatCounter value={site.databaseCount} label="SQLite databases" hint="One DbContext per bounded context, with additive-only migrations." />
             <StatCounter value={site.locales} label="Languages" hint="Locales are resource dictionaries — adding one needs no code change." />

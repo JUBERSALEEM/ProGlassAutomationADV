@@ -19,7 +19,7 @@ export type RailGroup = { label: string; items: RailItem[]; open?: boolean };
 
 /**
  * The real sidebar grouping, in the real order
- * (MainWindow.xaml: MAIN · SALES & ORDERS · PRODUCTION · DISPATCH ·
+ * (Views/Personal/GlassShell.xaml: MAIN · INVENTORY · SALES · PRODUCTION · DISPATCH ·
  *  FINANCE & ACCOUNTING · REPORTS · MASTER DATA · SYSTEM).
  */
 export const realRail: RailGroup[] = [
@@ -50,11 +50,12 @@ export const realRail: RailGroup[] = [
       { label: "Doubling / Lamination" },
     ],
   },
-  { label: "DISPATCH", items: [{ label: "Delivery Note" }, { label: "Order Report" }] },
+  { label: "DISPATCH", items: [{ label: "Delivery Note" }] },
   {
     label: "FINANCE",
     items: [
       { label: "Statement Generator" },
+      { label: "Order Report" },
       { label: "Job Profitability" },
       { label: "VAT Submission" },
     ],

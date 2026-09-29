@@ -11,7 +11,12 @@ import {
 import { setAppearance, setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
 
 /**
- * Appearance control — one click each, two independent choices.
+ * Appearance control.
+ *
+ * One click on the left half cycles the mode: Light → Dark → System → Light.
+ * One click on the chevron opens the full picker, where any mode or any of the
+ * four palette families can be chosen directly. Two clicks never happen by
+ * accident, and nothing is hidden behind a settings page.
  *
  *   Mode    Light · Dark · System
  *   Family  Studio · Monet · Industrial · Crystal
@@ -49,26 +54,56 @@ export function ThemeToggle({ className }: { className?: string }) {
   const activeFamily: AppearanceFamilyEntry =
     appearanceFamilies.find((entry) => entry.id === family) ?? appearanceFamilies[0]!;
   const activeMode: ThemeModeEntry = themeModes.find((entry) => entry.id === mode) ?? themeModes[2]!;
+  const modeIndex = Math.max(
+    0,
+    themeModes.findIndex((entry) => entry.id === mode),
+  );
+  const nextMode: ThemeModeEntry = themeModes[(modeIndex + 1) % themeModes.length] ?? themeModes[0]!;
+
+  /** One click: Light → Dark → System → Light. */
+  const cycleMode = () => setThemeMode(nextMode.id);
 
   return (
     <div ref={wrapper} className={cn("relative", className)}>
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-expanded={open}
-        aria-haspopup="dialog"
-        aria-label={`Appearance: ${activeMode.label} mode, ${activeFamily.label} palette`}
-        title={`Appearance — ${activeMode.label} · ${activeFamily.label}`}
-        className="flex h-8 items-center gap-2 rounded-xl border border-line-strong/70 bg-ink-800/70 px-2 text-text-muted transition-colors duration-200 hover:border-brand-400/50 hover:text-text-primary"
-      >
-        <span
-          aria-hidden="true"
-          className="h-3.5 w-3.5 rounded-full ring-1 ring-inset ring-black/20"
-          style={{ background: activeFamily.swatch }}
-        />
-        <ModeIcon name={activeMode.icon} />
-        <span className="sr-only">Appearance settings</span>
-      </button>
+      <div className="flex h-8 items-center overflow-hidden rounded-xl border border-line-strong/70 bg-ink-800/70">
+        <button
+          type="button"
+          onClick={cycleMode}
+          aria-label={`Appearance: ${activeMode.label} mode. Click to switch to ${nextMode.label}.`}
+          title={`${activeMode.label} mode — click for ${nextMode.label}`}
+          className="flex h-full items-center gap-2 pl-2 pr-1.5 text-text-muted transition-colors duration-200 hover:bg-ink-700/60 hover:text-text-primary"
+        >
+          <span
+            aria-hidden="true"
+            className="h-3.5 w-3.5 rounded-full ring-1 ring-inset ring-black/20"
+            style={{ background: activeFamily.swatch }}
+          />
+          <ModeIcon name={activeMode.icon} />
+          <span className="sr-only">Switch appearance mode</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-expanded={open}
+          aria-haspopup="dialog"
+          aria-label={`Appearance settings — ${activeMode.label} mode, ${activeFamily.label} palette`}
+          title={`Appearance — ${activeMode.label} · ${activeFamily.label}`}
+          className="flex h-full items-center border-l border-line/70 px-1.5 text-text-faint transition-colors duration-200 hover:bg-ink-700/60 hover:text-text-primary"
+        >
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 12 12"
+            className="h-3 w-3"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 4.6 6 7.6l3-3" />
+          </svg>
+        </button>
+      </div>
 
       {open ? (
         <div
