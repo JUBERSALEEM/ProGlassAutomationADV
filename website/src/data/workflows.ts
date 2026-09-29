@@ -49,7 +49,7 @@ export const businessChain: ChainStage[] = [
     guarantee:
       "Step 9 is the application's single pricing engine. Its snapshot is what every downstream screen reads — reporting never recomputes money, it flags drift.",
     evidence: "Views/ProformaInvoice/Step9ProfitLoss/, Services/ProformaInvoice/GlassPriceStamper.cs",
-    href: "/features#showcase-proforma",
+    href: "/features#pricing-engine",
   },
   {
     id: "job-order",
@@ -167,7 +167,7 @@ export const beforeAfter: BeforeAfterRow[] = [
     after:
       "A nine-step proforma wizard prices SGU, DGU, lamination and DGU + lamination from a specification library, and the basis the figure was built on is stamped onto the quotation.",
     anchor: "Proforma invoice",
-    href: "/features#showcase-proforma",
+    href: "/features#pricing-engine",
   },
   {
     id: "nest",

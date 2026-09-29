@@ -373,8 +373,13 @@ export default function HomePage() {
               </ol>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <ButtonLink href="/features#showcase-proforma" variant="secondary" size="md" trailing={<ArrowRight />}>
-                  Feature detail
+                {/*
+                  Straight to the full-size frame on /features: the small card
+                  further down this page shows the same screen, and a visitor
+                  who wants the grid wants it with room to work in.
+                */}
+                <ButtonLink href="/features#pricing-engine" variant="secondary" size="md" trailing={<ArrowRight />}>
+                  Work the grid
                 </ButtonLink>
                 <ButtonLink href="/how-it-works" variant="ghost" size="md">
                   Walk the workflow

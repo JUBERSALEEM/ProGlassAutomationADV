@@ -88,6 +88,16 @@ export type Demo = {
   /** Extra note shown under the preview. */
   footnote?: string;
   /**
+   * The step a wizard opens on.
+   *
+   * Step 1 of a wizard is a company card, which is the right place for the
+   * application and the wrong place for a preview: a visitor who opens the
+   * Proforma Invoice card and lands on a paragraph has not seen the pricing
+   * engine. The proforma opens on Step 5, because the specification grid is
+   * where a shop decides whether this software is worth its time.
+   */
+  defaultStep?: number;
+  /**
    * What each step of a wizard holds, in the application's own terms.
    *
    * A wizard step is a screen, not a tab: pressing 06 in the rail should show
@@ -413,6 +423,12 @@ const bespoke: Record<string, Demo> = {
      * Review", which was a plausible wizard and not this one.
      */
     kind: "wizard",
+    /*
+     * Opens on the grid rather than on step 1. Steps 4, 5 and 9 are the three
+     * screens with an engine behind them, and they are the three the pills
+     * above the rail go straight to.
+     */
+    defaultStep: 5,
     blurb: "The commercial document: line build-up, charges, then a stamped price basis.",
     steps: [
       "Company Setup",

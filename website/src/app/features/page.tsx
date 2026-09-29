@@ -6,10 +6,13 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ModuleShowcase } from "@/components/product/ModuleShowcase";
+import { AppFrame } from "@/components/product/AppFrame";
+import { LiveSurface } from "@/components/product/LiveSurface";
 import { Accordion } from "@/components/ui/Accordion";
 import { ModuleBrowser } from "@/components/product/ModuleBrowser";
 import { modules } from "@/data/modules";
 import { featureGroups } from "@/data/features";
+import { pricingRules } from "@/data/pricingRules";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -113,6 +116,83 @@ export default function FeaturesPage() {
           <div className="mt-14">
             <ModuleShowcase modules={showcase} />
           </div>
+        </Container>
+      </Section>
+
+      {/*
+        ── The pricing engine, at full size ───────────────────────
+        The Proforma Invoice preview is a card elsewhere on the site: a small
+        frame in a grid of them. This is the same live surface with room to
+        work in, because the specification grid and the profit-and-loss screen
+        are the two things a shop actually wants to see before it believes
+        anything else on this page — and neither reads at card size.
+
+        It opens on step 5 with the specification already priced, the three
+        screens with an engine behind them one click away, and the grid's own
+        commands working: type a size down and the SQM column stops at the
+        0.5 m² floor while the rate holds; type one up past 4 m² and that row
+        alone takes the specification's surcharge.
+      */}
+      <Section tone="sunken" aria-labelledby="pricing-engine-heading" id="pricing-engine">
+        <Container>
+          <SectionHeading
+            id="pricing-engine-heading"
+            eyebrow="Proforma invoice — the pricing engine"
+            title="Step 5 and Step 9, working."
+            lead="The specification grid the quotation is priced from, and the profit-and-loss step that asks whether the price is good enough. Everything below is live: the grid prices as you type, and the profit-and-loss screen reads those same rows."
+          />
+
+          <Reveal className="mt-10">
+            <AppFrame
+              title="Proforma Invoice — Step 5 · Specification"
+              railActive="Proforma Invoice"
+              tall
+              note="Interactive preview — the grid's own commands and the application's own arithmetic, sample data, not a screen capture."
+            >
+              <LiveSurface
+                moduleKey="ProformaInvoice"
+                name="Proforma Invoice"
+                capabilities={[
+                  "Step 5 specification grid",
+                  "0.5 m² minimum billable area",
+                  "Surcharge rate at 4 m² and above",
+                  "Step 9 profit and loss",
+                ]}
+              />
+            </AppFrame>
+          </Reveal>
+
+          {/*
+            The two rules, stated where the grid is. Same source as the section
+            on the worked example — `pricingRules` — so the wording here and the
+            arithmetic in the frame above cannot drift apart.
+          */}
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+            {pricingRules.map((rule, index) => (
+              <Reveal key={rule.id} delay={index * 60}>
+                <div className="plate h-full p-6">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="eyebrow">{rule.label}</p>
+                    <p className="font-mono text-sm font-semibold text-brand-200">{rule.value}</p>
+                  </div>
+                  <h3 className="mt-3 text-lg font-semibold text-text-primary">{rule.headline}</h3>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{rule.body}</p>
+                  <p className="mt-4 font-mono text-2xs text-text-faint">{rule.evidence}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal className="mt-6">
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href="/worked-example#pricing-rules" variant="secondary" size="md" trailing={<ArrowRight />}>
+                Both rules on a real job
+              </ButtonLink>
+              <ButtonLink href="/contact" variant="ghost" size="md">
+                Request a Demo
+              </ButtonLink>
+            </div>
+          </Reveal>
         </Container>
       </Section>
 

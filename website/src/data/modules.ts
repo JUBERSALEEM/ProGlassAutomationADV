@@ -191,7 +191,7 @@ export const modules: ProductModule[] = [
     evidence:
       "Views/ProformaInvoice/, ViewModels/ProformaInvoice/, Services/ProformaInvoice/GlassPriceStamper.cs",
     screenshotId: "proforma-wizard",
-    href: "/features#showcase-proforma",
+    href: "/features#pricing-engine",
     tags: ["Estimation", "Pricing"],
   },
   {

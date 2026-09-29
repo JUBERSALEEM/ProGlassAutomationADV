@@ -618,7 +618,7 @@ function WizardEngine({
   compact?: boolean;
 }) {
   const steps = demo.steps ?? [];
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(demo.defaultStep ?? 1);
 
   /**
    * The specification Step 5 edits, held here rather than inside the surface.
@@ -647,10 +647,56 @@ function WizardEngine({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
         <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-300">
-          Step {step} of {steps.length || 1}
+          {compact ? (steps[step - 1] ?? `${step} of ${steps.length || 1}`) : `Step ${step} of ${steps.length || 1}`}
         </p>
       </div>
 
+      {/*
+        The three screens with an engine behind them, one click away.
+        The nine-step rail is the application's own navigation and stays — but
+        a visitor should not have to know that step 5 is the one worth opening,
+        and in a card a nine-pill rail is a wall. These three are the screens
+        the proforma is about.
+      */}
+      {demo.views.some((entry) => entry.step) ? (
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="font-mono text-[0.625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
+            Live screens
+          </span>
+          {demo.views
+            .filter((entry) => entry.step)
+            .map((entry) => {
+              const active = entry.step === step;
+              return (
+                <button
+                  key={entry.label}
+                  type="button"
+                  onClick={() => goToStep(entry.step!)}
+                  aria-pressed={active}
+                  className={cn(
+                    "rounded-full border px-2.5 py-1 text-[0.75rem] font-medium transition-colors duration-200",
+                    active
+                      ? "border-brand-400/60 bg-brand-400/16 text-brand-100"
+                      : "border-line-strong/60 bg-ink-800/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
+                  )}
+                >
+                  {entry.label}
+                </button>
+              );
+            })}
+        </div>
+      ) : null}
+
+      {/*
+        In a card the nine-step rail is a wall of pills and the live screens are
+        what matter, so the rail is shown when there is room for it.
+      */}
+      {/*
+        Rendered or not rendered, never hidden by a class: `flex` and `hidden`
+        are both display utilities and which one wins is a stylesheet-order
+        accident. In a card the rail is left out of the DOM entirely.
+      */}
+      {!compact ? (
       <div role="list" aria-label="Steps" className="flex flex-wrap gap-1.5">
         {steps.map((label, index) => {
           const isActive = index + 1 === step;
@@ -677,6 +723,7 @@ function WizardEngine({
           );
         })}
       </div>
+      ) : null}
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         {activeView?.step === 5 && demo.spec ? (
