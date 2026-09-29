@@ -368,14 +368,14 @@ layers.push(
 const adminChip = pill(win.x + win.width - 156, win.y + 17, "ADMIN", {
   fill: rgba(palette.ink800, 0.9),
   stroke: palette.lineStrong,
-  color: rgba(palette.text3, 0.9),
-  height: 22,
-  size: 13.5,
+  color: rgba(palette.text3, 0.92),
+  height: 24,
+  size: 14.5,
   padX: 24,
 });
 layers.push(
-  `<circle cx="${win.x + win.width - 145}" cy="${win.y + 28}" r="7" fill="${rgba(palette.brand400, 0.22)}" />`,
-  text(win.x + win.width - 145, win.y + 32, "AB", { size: 11.5, fill: palette.brand200, family: MONO, weight: 700, anchor: "middle" }),
+  `<circle cx="${win.x + win.width - 145}" cy="${win.y + 28}" r="8" fill="${rgba(palette.brand400, 0.22)}" />`,
+  text(win.x + win.width - 145, win.y + 33, "AB", { size: 13, fill: palette.brand200, family: MONO, weight: 700, anchor: "middle" }),
   adminChip.svg,
 );
 
@@ -392,8 +392,8 @@ let railCursor = rail.y + 34;
 for (const group of railGroups) {
   layers.push(
     text(rail.x + 20, railCursor, group.group.toUpperCase(), {
-      size: 13,
-      fill: rgba(palette.text3, 0.55),
+      size: 14,
+      fill: rgba(palette.text3, 0.7),
       family: MONO,
       weight: 600,
       tracking: 0.2,
@@ -430,8 +430,8 @@ for (const group of railGroups) {
  */
 layers.push(
   text(rail.x + 20, rail.y + rail.height - 84, "SYSTEM", {
-    size: 13,
-    fill: rgba(palette.text3, 0.55),
+    size: 14,
+    fill: rgba(palette.text3, 0.7),
     family: MONO,
     weight: 600,
     tracking: 0.2,
@@ -454,9 +454,9 @@ layers.push(
 const tag = pill(main.x + 322, main.y + 4, "SAMPLE DATA · LIVE", {
   fill: rgba(palette.ink800, 0.75),
   stroke: palette.lineStrong,
-  color: rgba(palette.text3, 0.85),
-  height: 24,
-  size: 13,
+  color: rgba(palette.text3, 0.9),
+  height: 26,
+  size: 14.5,
   padX: 24,
 });
 layers.push(
@@ -504,8 +504,8 @@ kpis.forEach((item, index) => {
       radius: 12,
     }),
     text(x + 14, tileTop + 30, item.label.toUpperCase(), {
-      size: 12.5,
-      fill: rgba(palette.text3, 0.55),
+      size: 14,
+      fill: rgba(palette.text3, 0.72),
       family: MONO,
       weight: 600,
       tracking: 0.14,
@@ -518,7 +518,7 @@ kpis.forEach((item, index) => {
       tracking: -0.02,
     }),
     text(x + 14, tileTop + 86, index === 0 ? "across the period" : "across the range", {
-      size: 12.5,
+      size: 13.5,
       fill: rgba(palette.text3, 0.78),
       family: MONO,
     }),
@@ -554,8 +554,8 @@ const chartFloor = chartTop + chartHeight - barPad + 14;
 ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach((day, index) => {
   layers.push(
     text(main.x + barPad + index * (barWidth + barGap) + barWidth / 2, chartFloor, day, {
-      size: 12,
-      fill: rgba(palette.text3, 0.45),
+      size: 13.5,
+      fill: rgba(palette.text3, 0.72),
       family: MONO,
       anchor: "middle",
     }),
@@ -588,7 +588,7 @@ layers.push(
     radius: 16,
   }),
   text(card.x + 16, card.y + 24, "PROFORMA · STEP 9", {
-    size: 13,
+    size: 14.5,
     fill: rgba(palette.text3, 0.78),
     family: MONO,
     weight: 600,
@@ -729,7 +729,7 @@ figures.forEach((figure, index) => {
   }
   layers.push(
     text(x, 508, figure.value, { size: 30, fill: palette.text1, weight: 700, tracking: -0.02 }),
-    text(x, 532, figure.label, { size: 13.5, fill: rgba(palette.text3, 0.78), family: MONO, weight: 600, tracking: 0.2 }),
+    text(x, 532, figure.label, { size: 14.5, fill: rgba(palette.text3, 0.78), family: MONO, weight: 600, tracking: 0.2 }),
   );
 });
 
