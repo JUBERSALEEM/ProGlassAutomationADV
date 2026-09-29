@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
+import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { DemoRequestForm } from "@/components/forms/DemoRequestForm";
@@ -111,6 +112,31 @@ export default function ContactPage() {
               </div>
             </Reveal>
           </div>
+        </Container>
+      </Section>
+
+      {/* ── Next step ────────────────────────────────────────────── */}
+      <Section tone="raised" aria-label="Next step">
+        <Container>
+          <Reveal>
+            <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+              <div>
+                <h2 className="text-2xl leading-tight sm:text-3xl">While you wait for a reply.</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+                  The interface tour shows the screens a demonstration runs through, and the optimization page explains
+                  what the cutting engine does with a real cutting list.
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-3">
+                <ButtonLink href="/screenshots" size="lg" trailing={<ArrowRight />}>
+                  See the interface
+                </ButtonLink>
+                <ButtonLink href="/optimization" variant="secondary" size="lg">
+                  The optimization engine
+                </ButtonLink>
+              </div>
+            </div>
+          </Reveal>
         </Container>
       </Section>
     </>
