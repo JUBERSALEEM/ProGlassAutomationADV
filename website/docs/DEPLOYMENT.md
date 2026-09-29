@@ -518,6 +518,7 @@ everywhere: **the site is in `website/`**, and **Node 22**.
 | Symptom | Cause | Fix |
 |---|---|---|
 | `Module not found: Can't resolve …` (any package) | dependencies were never installed in `website/` — usually because `npx next build` was run instead of `npm run build` | `cd website && npm ci`, then `npm run build`. The pre-build guard prints this for you before Next starts |
+| `Module not found: Can't resolve …` in the dev overlay, for a package you have never heard of | the file being compiled is from an older revision of the tree, or a dependency was removed and the import was left behind — installing cannot satisfy either | `git log --oneline -1` shows which copy you are building; take the current revision, then `npm ci`. `npm run dev` and `npm run build` now run `scripts/check-deps.mjs`, which prints exactly this |
 | Build fails: *no `package.json`* / it tries to build a `.sln` | the host's root directory is the repository root | set **Root Directory = `website`** |
 | Build fails on Node version or on `node:fs` | Node too old, or the WPF project was built instead | **Node.js Version = 22.x** in the project settings |
 | Site deploys but every page is unstyled | the build output directory was changed from `.next` | reset **Output Directory** to the default |
