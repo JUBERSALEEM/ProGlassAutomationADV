@@ -57,6 +57,27 @@ export type Studio = {
   edge: number;
   /** Which of the shipped typefaces the site is set in. */
   typeface: TypefaceKey;
+  /**
+   * The application's global UI font weight — `AppConfig.FontWeightName`,
+   * "Normal" | "Bold", applied through the AppFontFamily resources. Not a
+   * heading rule: the whole interface swaps weight.
+   */
+  weight: "regular" | "bold";
+  /** `AppConfig.FontStyleName` — "Normal" | "Italic", applied the same way. */
+  italic: boolean;
+  /** `AppConfig.FontUnderline` — the application's global underline. */
+  underline: boolean;
+  /**
+   * `AppConfig.UiScale` — one number, default 1.0, scaling the whole
+   * interface against the reader's own root font size.
+   */
+  uiScale: number;
+  /**
+   * `AppConfig.DisplayDensity` — "Compact" fits more on a laptop,
+   * "Comfortable" gives larger touch targets. Compact is the application's
+   * default; this site ships comfortable, so nothing moves until it is chosen.
+   */
+  density: "compact" | "comfortable";
   /** Money colours, read wherever a figure is a number rather than a label. */
   moneyPositive: string;
   moneyNegative: string;
@@ -72,6 +93,11 @@ export const defaultStudio: Studio = {
   radius: 1,
   edge: 2,
   typeface: "inter",
+  weight: "regular",
+  italic: false,
+  underline: false,
+  uiScale: 1,
+  density: "comfortable",
   moneyPositive: "#34D399",
   moneyNegative: "#FB7185",
   moneyNeutral: "",
@@ -106,6 +132,9 @@ function readStored(): Studio {
     // Same reasoning for the numeric dials: a stored value that is not a finite
     // number would turn a `calc()` into `NaN` and take the card frame with it.
     if (!Number.isFinite(merged.edge)) merged.edge = defaultStudio.edge;
+    if (merged.weight !== "regular" && merged.weight !== "bold") merged.weight = defaultStudio.weight;
+    if (merged.density !== "compact" && merged.density !== "comfortable") merged.density = defaultStudio.density;
+    if (!Number.isFinite(merged.uiScale)) merged.uiScale = defaultStudio.uiScale;
     if (!Number.isFinite(merged.radius)) merged.radius = defaultStudio.radius;
     if (!Number.isFinite(merged.tint)) merged.tint = defaultStudio.tint;
 
@@ -153,14 +182,23 @@ function subscribe(listener: () => void): () => void {
 /**
  * The typefaces the studio offers.
  *
- * All four are self-hosted from `src/fonts` (see layout.tsx), so switching
- * family never reaches a network host and never flashes. Each face is a
- * variable font carrying its own italic, which is what makes bold, bold italic
- * and underline render as real typography rather than a synthesised slant.
+ * Four faces, all self-hosted from `src/fonts` (see layout.tsx), so switching
+ * family never reaches a network host and never flashes. Each is a variable
+ * font carrying a real weight range and its own italic, which is what makes
+ * bold, bold italic and underline render as typography rather than as a
+ * synthesised slant.
  *
  * The choice lands on `--font-sans`, which `globals.css` binds to the body
  * font and Tailwind's `font-sans` utility reads, so one control re-sets the
  * whole site the same way the corner slider re-corners it.
+ *
+ * This is the site's list, not the application's: `FontService` enumerates the
+ * families installed on the machine and imports any font file the user drops
+ * in, and a browser can do neither — it cannot list system fonts and it will
+ * not load an arbitrary local file. What the application's typography settings
+ * *do* to the interface — weight, italic, underline, scale, density — is
+ * mirrored exactly, in `studioTypography` below, because those are properties
+ * of the text rather than a catalogue of installed faces.
  */
 export const typefaces = {
   inter: {
@@ -181,11 +219,42 @@ export const typefaces = {
     stack: "var(--font-serif), Georgia, Times New Roman, serif",
     sample: "The estimator writes the quotation; the works order carries it forward.",
   },
+  mono: {
+    name: "JetBrains Mono",
+    character: "Tabular by design — the face every figure on this site is already set in.",
+    stack: "var(--font-mono), Consolas, Cascadia Mono, ui-monospace, monospace",
+    sample: "3210 × 2250 · 94.36% used · 4 plates · 15 / 15 / 3 / 3 mm margins.",
+  },
 } as const;
 
 export type TypefaceKey = keyof typeof typefaces;
 
 export const typefaceKeys = Object.keys(typefaces) as TypefaceKey[];
+
+/**
+ * The application's typography switches, as the studio offers them.
+ *
+ * Read off `Services/AI/AIConfig/AppConfig.cs`: `FontWeightName` ("Normal" |
+ * "Bold"), `FontStyleName` ("Normal" | "Italic"), `FontUnderline` (a bool),
+ * `UiScale` (a number, 1.0 by default) and `DisplayDensity` ("Compact" fits
+ * more on a laptop; "Comfortable" gives larger touch targets). The desktop
+ * Settings page offers these under Typography, and they are global: the whole
+ * interface takes the weight, style and underline, not the headings alone.
+ * That is what the visitor asked for, so that is what these do.
+ */
+export const studioTypography = {
+  weights: [
+    { id: "regular" as const, label: "Regular", note: "FontWeightName = Normal" },
+    { id: "bold" as const, label: "Bold", note: "FontWeightName = Bold" },
+  ],
+  scales: [0.9, 0.95, 1, 1.05, 1.1, 1.15],
+  densities: [
+    { id: "comfortable" as const, label: "Comfortable", note: "the site's own spacing" },
+    { id: "compact" as const, label: "Compact", note: "the application's default" },
+  ],
+  /** The three treatments the specimen always shows, whatever is selected. */
+  treatments: ["bold", "bold italic", "underlined"] as const,
+};
 
 /**
  * The accent each family is built around, used when no accent is picked.

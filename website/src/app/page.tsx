@@ -339,7 +339,7 @@ export default function HomePage() {
                 id="proforma-heading"
                 eyebrow="Proforma invoice"
                 title="Nine steps from a company card to a stored profit."
-                lead="Step 9 is the only place money is computed in the whole application. Everything downstream — job profitability, statements, reports — reads the snapshot it writes."
+                lead="Step 9 is the only place money is computed in the whole application, and it answers one question — is the given price above target? Everything downstream — job profitability, statements, reports — reads the snapshot it writes."
               />
 
               <ol className="mt-8 space-y-2">
@@ -350,12 +350,15 @@ export default function HomePage() {
                   ["Pricing", "Rates per build type, sheet selection, air space and processing."],
                   [
                     "Specification grid (step 5)",
-                    "# · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, one block per specification — with BOQ import and overrides.",
+                    "# · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, one block per specification, with BOQ import and QUICK / OPTIMIZE / VIEW RESULT on the bar. Every panel bills at least 0.5 m², and one that reaches 4 m² takes the specification's surcharge rate.",
                   ],
                   ["Charges", "Predefined charges, wastage and custom rows."],
                   ["Summary", "VAT 5% round-safe totals and discount."],
                   ["Attachments", "Evidence chain with SHA-256 manifest deduplication."],
-                  ["Profit & loss", "Sheet cost from buy prices, target price, buy-vs-sell cost basis."],
+                  [
+                    "Profit & loss",
+                    "Is the given price above target? Required target price against the given price, glass cost at buy prices, then services, sheets and a spec-by-spec check.",
+                  ],
                 ].map(([step, detail], index) => (
                   <Reveal key={step} as="li" delay={index * 40}>
                     <div className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-3.5 transition-colors duration-300 hover:border-line-strong">
@@ -390,6 +393,8 @@ export default function HomePage() {
 
                 <dl className="mt-5 space-y-3">
                   {[
+                    ["Required target price", "Base price × (1 + expected margin) — 15% on a fresh install"],
+                    ["Price balance", "Given against required, with the difference as a value"],
                     ["Sheet cost basis", "Buy price per SQM from Sheet Store, pinned at quote time"],
                     ["Production rows", "Built from the specification's own provenance, per group"],
                     ["Wastage", "Charges rows, colours auto-imported from the spec grid"],

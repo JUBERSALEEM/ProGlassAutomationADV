@@ -101,7 +101,7 @@ export const screenshots: Screenshot[] = [
     id: "proforma-wizard",
     title: "Proforma Invoice — 9-step wizard",
     caption:
-      "Company, client, project, pricing, spec grid, charges, summary, attachments and a profit & loss snapshot.",
+      "Company, client, project, pricing, spec grid, charges, summary, attachments and the profit-and-loss analysis.",
     moduleKey: "ProformaInvoice",
     category: "proforma",
     src: null,
@@ -110,9 +110,10 @@ export const screenshots: Screenshot[] = [
     source: "pending",
     evidence: "Views/ProformaInvoice/Step1…Step9, ViewModels/ProformaInvoice/",
     highlights: [
-      "The specification grid on step 5: # · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value",
-      "Step 6 auto-imports sheet colours from Step 5",
-      "Step 9 is the single pricing engine — everything downstream reads its snapshot",
+      "The specification grid on step 5: # · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, on a block carrying glass type, specification, base rate and SURCHARGE %",
+      "Every panel bills at least 0.5 m², and a panel that reaches 4 m² prices at base + the specification's surcharge",
+      "QUICK / OPTIMIZE / VIEW RESULT on the grid; Step 6 takes its sheet quantity from the run",
+      "Step 9 profit & loss: overview, services, sheets and a spec-by-spec check — the single pricing engine, whose snapshot everything downstream reads",
     ],
     tags: ["Estimation", "Quotation", "VAT"],
   },

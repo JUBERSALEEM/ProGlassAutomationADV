@@ -10,6 +10,7 @@ import {
   setFamily,
   setStudio,
   studioAccents,
+  studioTypography,
   typefaces,
   typefaceKeys,
   useStudio,
@@ -272,7 +273,7 @@ export function ThemeStudio() {
               bold italic and underlining below are drawn — not slanted and thickened by the browser.
             </p>
 
-            <div className="mt-2 grid grid-cols-3 gap-2">
+            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {typefaceKeys.map((key) => {
                 const face = typefaces[key];
                 const active = key === studio.typeface;
@@ -323,6 +324,96 @@ export function ThemeStudio() {
               </p>
               <p className="mt-2 font-mono text-xs text-text-muted">
                 1,600 × 1,100 mm · 2.5 kg/m²/mm · 34,762.19
+              </p>
+            </div>
+
+            {/*
+              The application's typography settings, beside the family.
+              `AppConfig` holds FontWeightName, FontStyleName, FontUnderline,
+              UiScale and DisplayDensity, and Settings → Typography exposes all
+              five; the desktop app applies them to the whole interface. So does
+              this: choosing Bold thickens every weight on the page, not the
+              headings alone.
+            */}
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <div className="rounded-card border-2 border-line-strong/70 px-3 py-2.5">
+                <p className="mono-label">Font weight</p>
+                <div className="mt-1.5 flex gap-1.5">
+                  {studioTypography.weights.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      aria-pressed={studio.weight === option.id}
+                      title={option.note}
+                      onClick={() => setStudio({ weight: option.id })}
+                      style={{ fontWeight: option.id === "bold" ? 700 : 400 }}
+                      className={cn(
+                        "flex-1 rounded-lg border px-2 py-1.5 text-xs transition-colors",
+                        studio.weight === option.id
+                          ? "border-brand-400 bg-brand-500/15 text-text-primary"
+                          : "border-line-strong/70 text-text-muted hover:border-brand-400/60 hover:text-text-primary",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-card border-2 border-line-strong/70 px-3 py-2.5">
+                <p className="mono-label">Font style &amp; decoration</p>
+                <div className="mt-1.5 flex gap-1.5">
+                  <ToggleChip
+                    label="Italic"
+                    active={studio.italic}
+                    title="AppConfig.FontStyleName = Italic"
+                    onClick={() => setStudio({ italic: !studio.italic })}
+                  />
+                  <ToggleChip
+                    label="Underline"
+                    active={studio.underline}
+                    title="AppConfig.FontUnderline = true"
+                    onClick={() => setStudio({ underline: !studio.underline })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Slider
+              label="Interface scale"
+              value={studio.uiScale}
+              min={0.9}
+              max={1.15}
+              step={0.01}
+              display={`${Math.round(studio.uiScale * 100)}%`}
+              onChange={(value) => setStudio({ uiScale: value })}
+            />
+
+            <div className="rounded-card border-2 border-line-strong/70 px-3 py-2.5">
+              <p className="mono-label">Display density</p>
+              <div className="mt-1.5 flex gap-1.5">
+                {studioTypography.densities.map((option) => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={studio.density === option.id}
+                    title={option.note}
+                    onClick={() => setStudio({ density: option.id })}
+                    className={cn(
+                      "flex-1 rounded-lg border px-2 py-1.5 text-xs transition-colors",
+                      studio.density === option.id
+                        ? "border-brand-400 bg-brand-500/15 text-text-primary"
+                        : "border-line-strong/70 text-text-muted hover:border-brand-400/60 hover:text-text-primary",
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">
+                The application&apos;s own spacing setting — <em className="not-italic font-semibold">Compact fits more on a
+                laptop; Comfortable gives larger touch targets</em>. This site ships comfortable, so nothing moves until you
+                choose compact.
               </p>
             </div>
           </fieldset>
@@ -541,5 +632,41 @@ function ColourPlate({
         <span className="font-mono text-[0.75rem] font-semibold uppercase text-text-muted">{value}</span>
       </div>
     </div>
+  );
+}
+
+/**
+ * A small on/off pill for the typography switches.
+ *
+ * Two states, both stated: the app's own fields are booleans and a switch that
+ * shows only the state it is in leaves the visitor guessing what the other one
+ * does.
+ */
+function ToggleChip({
+  label,
+  active,
+  title,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  title: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      title={title}
+      onClick={onClick}
+      className={cn(
+        "flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors",
+        active
+          ? "border-brand-400 bg-brand-500/15 text-text-primary"
+          : "border-line-strong/70 text-text-muted hover:border-brand-400/60 hover:text-text-primary",
+      )}
+    >
+      {label} · {active ? "on" : "off"}
+    </button>
   );
 }

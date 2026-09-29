@@ -5,6 +5,7 @@ import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { cn as cnCell } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StatBadge } from "@/components/ui/Stat";
@@ -18,8 +19,13 @@ import {
   batchOneWeightKg,
   deliveredTotals,
   groupTotals,
+  billablePieceArea,
   lineArea,
   lineValue,
+  priceLight,
+  ruleLights,
+  sheetCosts,
+  sheetForRef,
   pieceArea,
   pieceWeight,
   quotationTotals,
@@ -30,6 +36,12 @@ import {
   seedSpecGroups,
   seededDocuments,
 } from "@/data/workedExample";
+import {
+  MIN_PANEL_SQM,
+  STANDARD_SURCHARGE_PERCENT,
+  SURCHARGE_THRESHOLD_SQM,
+  pricingRules,
+} from "@/data/pricingRules";
 
 export const metadata: Metadata = pageMetadata({
   title: "Worked example — one glass job, end to end",
@@ -346,6 +358,13 @@ export default function WorkedExamplePage() {
                           <th scope="col" className={TH} title="Unit panel area">SQM</th>
                           <th scope="col" className={TH} title="Total SQM (SQM × Qty)">TOTAL SQM</th>
                           <th scope="col" className={TH} title="Rate per square metre">RATE</th>
+                          <th
+                            scope="col"
+                            className={TH}
+                            title="Dg.SurchargePct — the specification's uplift, and the rate a panel at 4 m² or above takes instead of the base rate"
+                          >
+                            SURCHARGE %
+                          </th>
                           <th scope="col" className={TH} title="Line value from the rate">VALUE</th>
                         </tr>
                       </thead>
@@ -381,9 +400,36 @@ export default function WorkedExamplePage() {
                               {line.secondPane ? mm(line.secondPane.heightMm) : "—"}
                             </td>
                             <td className="px-4 py-2.5 text-right text-text-secondary tabular-nums">{line.qty}</td>
-                            <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">{plain(pieceArea(line))}</td>
+                            <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">
+                              {plain(billablePieceArea(line))}
+                              {billablePieceArea(line) > pieceArea(line) ? (
+                                <span
+                                  className="ml-1.5 rounded-full border border-brand-400/45 bg-brand-400/12 px-1.5 py-px font-mono text-2xs text-brand-100"
+                                  title={`${plain(pieceArea(line))} m² of glass, billed at the ${MIN_PANEL_SQM} m² floor`}
+                                >
+                                  floor
+                                </span>
+                              ) : null}
+                            </td>
                             <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">{plain(lineArea(line))}</td>
-                            <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">{aed(line.rate)}</td>
+                            <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">
+                              {aed(line.rate)}
+                              {/*
+                                The switch, shown on the row it would fire on.
+                                `row.Sqm1 >= 4m ? SurchargeRate : BaseRate` — on
+                                this job no panel reaches 4 m², so every row is
+                                on its own rate and the column says so rather
+                                than leaving the visitor to assume.
+                              */}
+                              {billablePieceArea(line) >= SURCHARGE_THRESHOLD_SQM ? (
+                                <span className="ml-1.5 rounded-full border border-money-positive/45 bg-money-positive/12 px-1.5 py-px font-mono text-2xs text-money-positive">
+                                  +{STANDARD_SURCHARGE_PERCENT}%
+                                </span>
+                              ) : null}
+                            </td>
+                            <td className="px-4 py-2.5 text-right font-mono text-xs text-text-faint tabular-nums">
+                              {group.surchargePercent === 0 ? "0" : group.surchargePercent}%
+                            </td>
                             <td className="px-4 py-2.5 text-right font-medium text-text-primary tabular-nums">
                               {aed(lineValue(line))}
                             </td>
@@ -402,6 +448,7 @@ export default function WorkedExamplePage() {
                           <td className="px-4 py-3 text-right font-semibold text-text-secondary tabular-nums">
                             {plain(totals.squareMetres)}
                           </td>
+                          <td className="px-4 py-3" />
                           <td className="px-4 py-3" />
                           <td className="px-4 py-3 text-right font-semibold text-text-primary tabular-nums">
                             {aed(totals.subtotal)}
@@ -794,6 +841,173 @@ export default function WorkedExamplePage() {
       </Section>
 
       {/* ── What it demonstrates ─────────────────────────────────── */}
+      {/* ── The two rules, on the panels where they bite ────────────── */}
+      <Section aria-labelledby="rules-heading" id="pricing-rules">
+        <Container>
+          <SectionHeading
+            id="rules-heading"
+            eyebrow="How a panel is priced"
+            title="Two rules, and neither is a rounding."
+            lead="A shop does not quote glass by area alone. A pane too small to fill a square metre still costs a square metre of work, and one big enough to need a crane costs more per square metre than the rest of the specification. Both are in the pricing engine, both price every line on this page, and this job sits between them: its smallest lite is 0.80 m² and its largest is 3.84 m², so neither rule fires on it. Here they are on the panels that do."
+          />
+
+          <div className="mt-10 grid gap-5 lg:grid-cols-2">
+            {pricingRules.map((rule) => (
+              <Reveal key={rule.id}>
+                <div className="plate h-full p-6 sm:p-7">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="eyebrow">{rule.label}</p>
+                    <p className="font-mono text-sm font-semibold text-brand-200">{rule.value}</p>
+                  </div>
+                  <h3 className="mt-3 text-xl font-semibold text-text-primary">{rule.headline}</h3>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{rule.body}</p>
+                  <p className="mt-4 font-mono text-2xs text-text-faint">{rule.evidence}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/*
+            The two panels the rules exist for, priced through the same
+            functions as every line above. Neither is on the seeded job and
+            neither number is typed in: `priceLight` runs `billablePanelSqm`,
+            `isFloored` and the switch over the size and prints what comes out.
+          */}
+          <Reveal className="mt-6">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[54rem] border-collapse text-sm">
+                <caption className="sr-only">
+                  Two panels at the edges of the two rules: a 400 × 300 mm vent light billed at the 0.5 m² floor, and a
+                  2400 × 1800 mm atrium lite priced at base plus 20% because it reaches 4 m².
+                </caption>
+                <thead>
+                  <tr className="border-b border-line/60 text-left">
+                    <th scope="col" className={THL}>Panel</th>
+                    <th scope="col" className={THL}>Glass ref</th>
+                    <th scope="col" className={TH} title="Outer pane width, millimetres">W1 × H1</th>
+                    <th scope="col" className={TH} title="Pieces on this line">QTY</th>
+                    <th scope="col" className={TH} title="Width × height, before the floor">PHYSICAL M²</th>
+                    <th scope="col" className={TH} title="SqmCalculator.CalculatePanel — floored at 0.5 m²">BILLED M²</th>
+                    <th scope="col" className={TH} title="Which rule decided this row">RULE</th>
+                    <th scope="col" className={TH} title="Base rate for the specification, then the rate after the switch">BASE RATE</th>
+                    <th scope="col" className={TH} title="The rate this row is charged at">BILLED RATE</th>
+                    <th scope="col" className={TH} title="Billed area × qty × billed rate">VALUE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ruleLights.map((light) => {
+                    const priced = priceLight(light, STANDARD_SURCHARGE_PERCENT);
+                    return (
+                      <tr key={light.id} className="border-b border-line/40 last:border-0">
+                        <td className="px-4 py-3">
+                          <span className="font-medium text-text-secondary">{priced.name}</span>
+                          <span className="mt-0.5 block text-xs text-text-muted">{priced.note}</span>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-text-secondary">{priced.ref}</td>
+                        <td className="px-4 py-3 text-right font-mono text-xs text-text-secondary tabular-nums">
+                          {mm(priced.widthMm)} × {mm(priced.heightMm)}
+                        </td>
+                        <td className="px-4 py-3 text-right text-text-secondary tabular-nums">{priced.qty}</td>
+                        <td className="px-4 py-3 text-right font-mono text-xs text-text-muted tabular-nums">
+                          {priced.physical.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-right font-mono text-xs tabular-nums">
+                          <span className={priced.floored ? "text-brand-100" : "text-text-secondary"}>
+                            {priced.billable.toFixed(2)}
+                          </span>
+                          {priced.floored ? (
+                            <span className="ml-1.5 rounded-full border border-brand-400/45 bg-brand-400/12 px-1.5 py-px font-mono text-2xs text-brand-100">
+                              floor
+                            </span>
+                          ) : null}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-text-muted">
+                          {priced.floored
+                            ? `Minimum area · ${MIN_PANEL_SQM} m² · rate unchanged`
+                            : `Large-panel rate · +${STANDARD_SURCHARGE_PERCENT}% at ${SURCHARGE_THRESHOLD_SQM} m²`}
+                        </td>
+                        <td className="px-4 py-3 text-right font-mono text-xs text-text-muted tabular-nums">{aed(priced.baseRate)}</td>
+                        <td
+                          className={cnCell(
+                            "px-4 py-3 text-right font-mono text-xs tabular-nums",
+                            priced.surcharged ? "text-money-positive" : "text-text-secondary",
+                          )}
+                        >
+                          {aed(priced.rate)}
+                        </td>
+                        <td className="px-4 py-3 text-right font-medium text-text-primary tabular-nums">{aed(priced.value)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
+
+          {/*
+            The cost side, from the seeder's own stock rows. The selling column
+            of each of these is the rate the quotation bills at — Clear 12 mm
+            165 / 245 against the CT-12 lines at 245 — so the two columns
+            reconcile, which is the reconciliation Step 9 performs.
+          */}
+          <Reveal className="mt-10">
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+              <div className="plate p-6 sm:p-7">
+                <p className="eyebrow">The cost behind the rate</p>
+                <h3 className="mt-2 text-xl font-semibold text-text-primary">Step 9 costs these same panels at the purchase price.</h3>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">
+                  Step 9 is the application&apos;s only profit-and-loss step, and it asks one question: is the given price above
+                  target? Revenue is what the specification bills; the glass cost is the same billable square metres at the
+                  Sheet Store purchase price; the target is the base price plus the expected margin. Every row below is a
+                  seeded stock line, and the sell column is the rate the quotation above charges — which is why the two
+                  figures reconcile rather than merely agreeing.
+                </p>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[30rem] border-collapse text-sm">
+                  <caption className="sr-only">Seeded sheet stock: purchase price, selling price, and the glass references priced from each.</caption>
+                  <thead>
+                    <tr className="border-b border-line/60 text-left">
+                      <th scope="col" className={THL}>Glass</th>
+                      <th scope="col" className={TH} title="GlassSheet.PurchasePricePerSqm">BUY / M²</th>
+                      <th scope="col" className={TH} title="GlassSheet.SellPricePerSqm — the rate Step 5 bills at">SELL / M²</th>
+                      <th scope="col" className={THL}>Prices</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sheetCosts.map((sheet) => {
+                      const priced = seedSpecGroups.flatMap((group) =>
+                        group.lines.filter((line) => sheetForRef(line.ref)?.key === sheet.key),
+                      );
+                      return (
+                        <tr key={sheet.key} className="border-b border-line/40 last:border-0">
+                          <td className="px-4 py-2.5">
+                            <span className="font-medium text-text-secondary">{sheet.label}</span>
+                            <span className="mt-0.5 block font-mono text-xs text-text-faint">
+                              {sheet.sheetMm} · {sheet.supplier}
+                            </span>
+                          </td>
+                          <td className="px-4 py-2.5 text-right font-mono text-xs text-text-secondary tabular-nums">
+                            {aed(sheet.purchase)}
+                          </td>
+                          <td className="px-4 py-2.5 text-right font-mono text-xs text-text-secondary tabular-nums">
+                            {aed(sheet.sell)}
+                          </td>
+                          <td className="px-4 py-2.5 text-xs text-text-muted">
+                            {priced.length > 0 ? `${priced.length} line${priced.length === 1 ? "" : "s"}` : "not on this job"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </Section>
+
       <Section aria-labelledby="proves-heading">
         <Container>
           <SectionHeading

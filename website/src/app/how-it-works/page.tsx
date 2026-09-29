@@ -280,7 +280,7 @@ export default function HowItWorksPage() {
               {
                 time: "Morning",
                 title: "A quotation comes in",
-                body: "The inquiry is recorded with its scope of supply. Converting it copies the BOQ rows onto the proforma's spec grid, where Step 4 prices each build group against the sheet costs you actually buy at.",
+                body: "The inquiry is recorded with its scope of supply. Converting it copies the BOQ rows onto the proforma's spec grid, where Step 4 prices each build group against the sheet costs you actually buy at. Step 5 then prices every panel — at least 0.5 m² of work each, base rate plus the specification's surcharge once a lite reaches 4 m² — and QUICK or OPTIMIZE hands Step 6 its sheet quantity.",
                 frame: "Proforma Invoice — Step 4 Pricing",
                 moduleKey: "ProformaInvoice",
                 rail: "Proforma Invoice",

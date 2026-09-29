@@ -29,7 +29,22 @@ export const featureGroups: FeatureGroup[] = [
       {
         title: "Step 5 specification grid",
         detail:
-          "One block per specification: # · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, with Excel-like paste for large lists and manual overrides that carry provenance.",
+          "One block per specification: # · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, on a block carrying glass type, specification, base rate and SURCHARGE %. Excel-like paste for large lists, and manual rate overrides that the auto-pricing leaves alone.",
+      },
+      {
+        title: "Every panel bills at least 0.5 m²",
+        detail:
+          "SqmCalculator floors a panel at half a square metre, so a 400 × 300 mm vent light is 0.12 m² of glass and 0.50 m² of work — cut, arrised, toughened and handled as one piece. The rate is untouched: the floor is on the area, and Step 9 costs the same billable square metres so the two sides reconcile.",
+      },
+      {
+        title: "A panel at 4 m² prices at base + the surcharge",
+        detail:
+          "The moment a row's billable area reaches 4 m² it takes the specification's SurplusRate — base rate × (1 + SURCHARGE %), 20% as the shop's standard for oversize work. Rows beside it stay on base, and the switch also fires on a change to the base rate or the percentage.",
+      },
+      {
+        title: "QUICK, OPTIMIZE, VIEW RESULT",
+        detail:
+          "The grid's own action bar: QUICK makes the one fast pass Step 6 takes its sheet quantity from, OPTIMIZE searches the plans for fewest unplaced pieces then fewest sheets then highest utilisation, and VIEW RESULT opens the optimisation module on its summary.",
       },
       {
         title: "Charges, wastage and discount",
@@ -55,6 +70,11 @@ export const featureGroups: FeatureGroup[] = [
       {
         title: "One pricing engine",
         detail: "Proforma Step 9 is the only place money is computed. Its snapshot feeds profitability, statements and reports.",
+      },
+      {
+        title: "Step 9 asks one question",
+        detail:
+          "Is the given price above target? Required target price is the base price plus the expected profit margin — 15% on a fresh install — and the price balance prints the difference. Revenue and glass cost sit under it: the cost is the same billable square metres at the Sheet Store purchase price, so the margin reconciles to the quote rather than to a second set of numbers.",
       },
       {
         title: "One VAT calculator",

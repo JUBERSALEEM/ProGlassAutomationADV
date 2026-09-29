@@ -22,6 +22,14 @@
  *      time, that turns silent drift into a failed build.
  */
 
+import {
+  billablePanelSqm,
+  isFloored,
+  moneyRate,
+  physicalPanelSqm,
+  SURCHARGE_THRESHOLD_SQM,
+} from "@/data/pricingRules";
+
 export const SEED_SOURCE = "Services/SampleData/SampleDataService.cs";
 export const ROUNDING_SOURCE = "Services/Reporting/MoneyRounding.cs";
 export const VAT_SOURCE = "Services/Reporting/VatCalculator.cs";
@@ -192,6 +200,17 @@ export type SeedSpecGroup = {
   name: string;
   glassType: "SGU" | "DGU";
   baseRate: number;
+  /**
+   * The specification's `Dg.SurchargePct` — the uplift a row takes once its
+   * panel reaches 4 m² (`row.Sqm1 >= 4m ? SurchargeRate : BaseRate`).
+   *
+   * Zero on all three of the seeded groups: `SurchargePercent` is a field, its
+   * initial value is 0 (`DataGridViewModel` seeds it so), and this document was
+   * saved before anybody typed a figure into it. The shop's standard for
+   * oversize work is 20% and `pricingRules` holds it — `proformaSpec` in
+   * `liveDemos.ts` is where it is shown applied.
+   */
+  surchargePercent: number;
   lines: SeedLine[];
 };
 
@@ -201,6 +220,7 @@ export const seedSpecGroups: SeedSpecGroup[] = [
     name: "Clear Tempered — Main Facade",
     glassType: "SGU",
     baseRate: 150,
+    surchargePercent: 0,
     lines: [
       { serial: 1, ref: "CT-06-1200x900", widthMm: 1200, heightMm: 900, qty: 8, rate: 150 },
       { serial: 2, ref: "CT-06-1500x1000", widthMm: 1500, heightMm: 1000, qty: 6, rate: 150 },
@@ -219,6 +239,7 @@ export const seedSpecGroups: SeedSpecGroup[] = [
     name: "Tinted — Sun-Exposed Areas",
     glassType: "SGU",
     baseRate: 175,
+    surchargePercent: 0,
     lines: [
       { serial: 1, ref: "TT-06-1200x900", widthMm: 1200, heightMm: 900, qty: 5, rate: 175 },
       { serial: 2, ref: "TT-06-1500x1000", widthMm: 1500, heightMm: 1000, qty: 4, rate: 175 },
@@ -234,6 +255,7 @@ export const seedSpecGroups: SeedSpecGroup[] = [
     name: "Low-E — Energy Efficient Zones",
     glassType: "DGU",
     baseRate: 260,
+    surchargePercent: 0,
     lines: [
       {
         serial: 1,
@@ -285,17 +307,186 @@ export const seedSpecGroups: SeedSpecGroup[] = [
 ];
 
 /* ══════════════════════════════════════════════════════════════════════════
+ * The two rules, shown on the panels where they bite
+ * ════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * The sheet cost behind each glass reference, from the seeder's own stock.
+ *
+ * `SampleDataService.cs` seeds eight sheets with a purchase price and a selling
+ * price, and the seeded quotation's rates are the selling column to the fil:
+ * Clear 6 mm 95 / 150 against the CT-06 lines at 150, Clear 12 mm 165 / 245
+ * against the CT-12 lines at 245, Low-E 6 mm 180 / 260 against the LE lines at
+ * 260. So the purchase column is this job's glass cost and the two columns
+ * reconcile — which is the whole point of showing a profit-and-loss step: the
+ * revenue is quoted, the cost is what the supplier charges, and the difference
+ * is the margin.
+ *
+ * `purchase` is read from `GlassSheet.PurchasePricePerSqm`; `sell` is kept so
+ * the reconciliation can be checked rather than asserted.
+ */
+export const sheetCosts = [
+  { key: "06", label: "Clear 6 mm", purchase: 95, sell: 150, sheetMm: "2440 × 1830", supplier: "Guardian Glass" },
+  { key: "08", label: "Clear 8 mm", purchase: 120, sell: 185, sheetMm: "2440 × 1830", supplier: "Guardian Glass" },
+  { key: "10", label: "Clear 10 mm", purchase: 140, sell: 210, sheetMm: "2440 × 1830", supplier: "Guardian Glass" },
+  { key: "12", label: "Clear 12 mm", purchase: 165, sell: 245, sheetMm: "2440 × 1830", supplier: "Guardian Glass" },
+  { key: "TT-06", label: "Tinted 6 mm bronze", purchase: 110, sell: 175, sheetMm: "2440 × 1830", supplier: "Al Gurg Glass" },
+  { key: "TT-08", label: "Tinted 8 mm grey", purchase: 125, sell: 195, sheetMm: "2440 × 1830", supplier: "Al Gurg Glass" },
+  { key: "LE", label: "Low-E 6 mm clear", purchase: 180, sell: 260, sheetMm: "2440 × 1830", supplier: "Saint-Gobain" },
+] as const;
+
+/**
+ * Which stock row a glass reference is cut from.
+ *
+ * The references carry it: `CT-08-1800x1200` is Clear, 8 mm; `TT-06-…` is
+ * Tinted, 6 mm; `LE-06-…` is Low-E. The seeder names them that way and so does
+ * the shop floor.
+ */
+export function sheetForRef(ref: string) {
+  const thickness = ref.match(/^(?:CT|TT|LE)-(\d\d)/)?.[1] ?? "";
+  if (ref.startsWith("LE")) return sheetCosts.find((sheet) => sheet.key === "LE");
+  if (ref.startsWith("TT")) return sheetCosts.find((sheet) => sheet.key === `TT-${thickness}`);
+  return sheetCosts.find((sheet) => sheet.key === thickness);
+}
+
+/**
+ * The line's glass cost: billable area × quantity × the sheet's purchase price.
+ *
+ * Costed on the same billable area the line is sold on. A sub-0.5 m² panel
+ * therefore costs half a square metre of glass too — the offcut is real, it is
+ * bought and it is thrown away — which is exactly why the floor is on the area
+ * rather than on the price.
+ */
+export function lineCost(line: SeedLine): number {
+  const sheet = sheetForRef(line.ref);
+  if (!sheet) return 0;
+  return money(lineSqm(line) * sheet.purchase);
+}
+
+/**
+ * The two edges of the two rules, priced through the same functions everything
+ * else on this site prices through.
+ *
+ * Neither panel is on the seeded job — its smallest lite is 0.80 m² and its
+ * largest is 3.84 m², so on this quotation both rules are dormant. They are not
+ * hypothetical sizes though: a vent light and an atrium lite are the two panes
+ * every shop argues about, and these are the figures the rules produce for
+ * them, at the specification's own rate.
+ */
+export const ruleLights = [
+  {
+    id: "vent-light",
+    name: "Vent light",
+    ref: "CT-06-0400x0300",
+    widthMm: 400,
+    heightMm: 300,
+    qty: 6,
+    rate: 150,
+    note: "A toilet vent, 400 × 300 mm. Physical area 0.12 m²; billed at the 0.5 m² floor.",
+  },
+  {
+    id: "atrium-lite",
+    name: "Atrium lite",
+    ref: "CT-12-2400x1800",
+    widthMm: 2400,
+    heightMm: 1800,
+    qty: 3,
+    rate: 245,
+    note: `4.32 m² of glass, past the ${SURCHARGE_THRESHOLD_SQM} m² switch on the panel itself.`,
+  },
+] as const;
+
+/**
+ * A rule light with everything the grids print: physical area, billable area,
+ * whether the floor engaged, the rate the row carries and what it comes to.
+ *
+ * `surchargePercent` is the specification's own `Dg.SurchargePct`. Both of the
+ * seeded specification groups are at 0 — the field's default and the value this
+ * quotation was saved with — so the argument is here so a surface can show what
+ * a specification carrying the shop's standard 20% would price like, which the
+ * specification preview does.
+ */
+export function priceLight(light: (typeof ruleLights)[number], surchargePercent = 0) {
+  const physical = physicalPanelSqm(light.widthMm, light.heightMm);
+  const billable = billablePanelSqm(light.widthMm, light.heightMm);
+  const surcharged = billable >= SURCHARGE_THRESHOLD_SQM;
+  const chargedRate = surcharged
+    ? moneyRate(light.rate * (1 + surchargePercent / 100))
+    : moneyRate(light.rate);
+
+  return {
+    ...light,
+    physical,
+    billable,
+    floored: isFloored(light.widthMm, light.heightMm),
+    surcharged,
+    rate: chargedRate,
+    baseRate: moneyRate(light.rate),
+    totalSqm: billable * light.qty,
+    value: money(billable * light.qty * chargedRate),
+  };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
  * The arithmetic, performed rather than transcribed
  * ════════════════════════════════════════════════════════════════════════ */
 
-/** Area of one piece in m² — millimetres to metres, multiplied. */
-export const pieceArea = (line: SeedLine) => (line.widthMm / 1000) * (line.heightMm / 1000);
+/**
+ * Area of one piece in m² — millimetres to metres, multiplied.
+ *
+ * This is the *physical* area. What the document bills for it is
+ * `billablePieceArea` below, and the difference between the two is the rule the
+ * trade prices small panes by.
+ */
+export const pieceArea = (line: SeedLine) => physicalPanelSqm(line.widthMm, line.heightMm);
 
-/** Area of the whole line in m². */
-export const lineArea = (line: SeedLine) => pieceArea(line) * line.qty;
+/**
+ * Billable area of one piece in m² — floored at 0.5 m².
+ *
+ * `SqmCalculator.CalculatePanel`, which is what the application's own SQM
+ * column prints: a pane too small to fill a square metre still costs half a
+ * square metre to make. On this seeded job the smallest lite is 0.80 m², so the
+ * floor does not engage — see `ruleLights` for the two panels that show what it
+ * does when it does.
+ */
+export const billablePieceArea = (line: SeedLine) =>
+  billablePanelSqm(line.widthMm, line.heightMm);
 
-/** Line value: area × quantity × rate, rounded the way the application rounds money. */
-export const lineValue = (line: SeedLine) => money(pieceArea(line) * line.qty * line.rate);
+/** Billable area of the whole line in m² — billable piece area × quantity. */
+export const lineSqm = (line: SeedLine) => billablePieceArea(line) * line.qty;
+
+/**
+ * Area of the whole line in m², as the document states it.
+ *
+ * The same figure the application totals a document by: `Sqm1 × Qty`, with
+ * `Sqm1` the floored panel area. (`SampleDataService` totals by raw width ×
+ * height when it seeds a proforma and applies the floor when it builds the tax
+ * invoice from the same job — both readings are in the file. They agree on this
+ * job, whose smallest panel is 0.80 m², so the seeded totals below are the
+ * application's either way. The floor is what the pricing engine charges by,
+ * which is the reading this file prices with.)
+ */
+export const lineArea = (line: SeedLine) => lineSqm(line);
+
+/**
+ * The rate a line is charged at on a saved document.
+ *
+ * `GlassItemRow.Rate`, as stored. The application's automatic rate switch
+ * (`Sqm1 >= 4 ? SurchargeRate : BaseRate` — see `pricingRules.ts`) fires when a
+ * row's size is *edited*, or when the specification's base rate or surcharge
+ * changes; a document that is simply loaded keeps the rates it was saved with,
+ * because `SetAllSilent` writes them without raising the change the switch
+ * listens for. This quotation therefore bills its own rates, and every one of
+ * them is below the 4 m² switch because no panel in it reaches 4 m².
+ */
+export const lineRate = (line: SeedLine) => moneyRate(line.rate);
+
+/**
+ * Line value: billable area × the line's rate, rounded the way the application
+ * rounds money — `MoneyRounding.Round(Sqm1 × Qty × Rate)`.
+ */
+export const lineValue = (line: SeedLine, rate = lineRate(line)) =>
+  money(lineSqm(line) * rate);
 
 export type GroupTotals = {
   number: number;

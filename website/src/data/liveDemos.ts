@@ -21,6 +21,9 @@
  */
 
 import { lineArea, lineValue, pieceArea, seedSpecGroups } from "@/data/workedExample";
+import { STANDARD_SURCHARGE_PERCENT } from "@/data/pricingRules";
+import type { SpecSurfaceInput } from "@/components/product/SpecificationSurface";
+import type { PnLInput } from "@/components/product/ProfitLossSurface";
 
 export type DemoKind =
   | "dashboard"
@@ -51,6 +54,28 @@ export type DemoView = {
   /** Keys the search box matches against. Defaults to every text column. */
   searchKeys?: string[];
   summary?: { label: string; value: string; money?: boolean }[];
+  /**
+   * The record's own header fields, printed above the grid as label/value
+   * pairs — the specification block on Step 5 (GLASS TYPE · SPECIFICATION ·
+   * BASE · SURCHARGE %), the way `DataGridView.xaml` lays it out per group.
+   */
+  header?: { label: string; value: string; note?: string }[];
+  /**
+   * Action pills from the record's own toolbar, in the order the view lays
+   * them: `Dg.Import` · `Dg.Export` · `Dg.RunQuick` · `Dg.RunOptimize` ·
+   * `Dg.ViewResult`. A pill whose id the engine understands runs for real —
+   * `optimize` packs the visible rows with the site's own guillotine packer and
+   * reports the result, which is what the button does to Step 6 in the app.
+   */
+  actions?: { id: string; label: string; primary?: boolean }[];
+  /** A line of the view's own guidance, printed under the pills. */
+  actionNote?: string;
+  /**
+   * Set when this view *is* a wizard step's own surface rather than a data
+   * view — Step 5's specification and Step 9's profit-and-loss. The wizard rail
+   * navigates to it, and the tab row labels it with its step.
+   */
+  step?: number;
 };
 
 export type Demo = {
@@ -62,6 +87,23 @@ export type Demo = {
   steps?: string[];
   /** Extra note shown under the preview. */
   footnote?: string;
+  /**
+   * What each step of a wizard holds, in the application's own terms.
+   *
+   * A wizard step is a screen, not a tab: pressing 06 in the rail should show
+   * step 6 and not whichever table happened to be open. Steps 4, 5 and 9 carry
+   * a real surface (`step` on the view); the rest get their own line, taken
+   * from what the application puts on them.
+   */
+  stepNotes?: string[];
+  /**
+   * The specification Step 5 works on, and the profit-and-loss settings Step 9
+   * analyses it with. Both surfaces read these, so editing a size on Step 5
+   * moves the margin on Step 9 — the two screens share one engine, as they do
+   * in the application.
+   */
+  spec?: SpecSurfaceInput;
+  pnl?: PnLInput;
 };
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -156,6 +198,116 @@ const sheetStock: DemoRow[] = [
   { code: "SHT-6005", spec: "DGU unit 6-12-6", size: "Assembled", plates: "14", reserved: "2", location: "Bay 3" },
   { code: "SHT-6006", spec: "Ceramic frit 6 mm", size: "2440 × 1830", plates: "3", reserved: "0", location: "Rack C1" },
 ];
+
+/* ────────────────────────────────────────────────────────────────────────────
+ * Step 5 and Step 9 — the two screens the pricing engine lives on
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The specification Step 5 opens on, and the one `+ ADD SPEC` adds.
+ *
+ * The first block is the seeded quotation's own: `seedSpecGroups[0]`, "Clear
+ * Tempered — Main Facade", ten rows at the rates the document was saved with.
+ * Its glass type, base rate and rows are the seeder's; the SURCHARGE % is the
+ * shop's standard 20, which is what a specification carrying oversize work is
+ * quoted at (the field's own default is 0, and the app's is a field, not a
+ * constant — the preview lets the visitor set either).
+ *
+ * The second block is the one the *shop* would have added: an atrium lite past
+ * 4 m² and a vent light under 0.5 m², which are the two panels the two rules
+ * exist for. It ships in the bundle and appears when `+ ADD SPEC` is pressed,
+ * the way the application adds a specification block — so the surcharge is
+ * visible in the invoice rather than described in a footnote.
+ */
+const mainSpec = seedSpecGroups[0]!;
+const mainLines = mainSpec.lines;
+
+export const proformaSpec: SpecSurfaceInput = {
+  sheet: { label: sheetSizes[1]!.label, w: sheetSizes[1]!.w, h: sheetSizes[1]!.h },
+  columnsHint:
+    "Dg.ColumnsHint — # · GLASS REF · W1 · H1 · W2 · H2 · QTY · SQM · TOTAL SQM · RATE · VALUE. W2/H2 hold 0 on a single-glazed line, which the grid prints as a dash. Type a dimension: SQM floors at 0.5 m², and a panel that reaches 4 m² takes the specification's surcharge rate while the rows beside it stay on base.",
+  blocks: [
+    {
+      number: mainSpec.number,
+      name: mainSpec.name,
+      glassType: mainSpec.glassType,
+      glassTypes: ["SGU", "DGU", "LAM", "DGU + LAM"],
+      baseRate: mainSpec.baseRate,
+      surchargePercent: STANDARD_SURCHARGE_PERCENT,
+      primary: true,
+      rows: mainLines.map((line) => ({
+        serial: line.serial,
+        ref: line.ref,
+        w1: line.widthMm,
+        h1: line.heightMm,
+        w2: line.secondPane?.widthMm ?? 0,
+        h2: line.secondPane?.heightMm ?? 0,
+        qty: line.qty,
+        rate: line.rate,
+      })),
+    },
+  ],
+  /*
+   * What `+ ADD SPEC` adds: the specification the shop would open for oversize
+   * work, at the same standard 20%. Its atrium lite is past 4 m² and its vent
+   * light is under 0.5 m², so pressing the button puts both rules on screen at
+   * once — in the grid, priced, with the chips that name them.
+   */
+  extraBlock: {
+    number: 2,
+    name: "Oversize — Atrium Skylight",
+    glassType: "SGU",
+    glassTypes: ["SGU", "DGU", "LAM", "DGU + LAM"],
+    baseRate: 245,
+    surchargePercent: STANDARD_SURCHARGE_PERCENT,
+    rows: [
+      {
+        serial: 1,
+        ref: "CT-12-2400x1800",
+        w1: 2400,
+        h1: 1800,
+        w2: 0,
+        h2: 0,
+        qty: 3,
+        rate: 294,
+      },
+      {
+        serial: 2,
+        ref: "CT-06-0400x0300",
+        w1: 400,
+        h1: 300,
+        w2: 0,
+        h2: 0,
+        qty: 6,
+        rate: 245,
+      },
+    ],
+  },
+};
+
+/**
+ * Step 9's settings.
+ *
+ * The question and the section titles are the view's own strings. The expected
+ * profit margin is the application's fresh-install fallback, 15% --
+ * `Step9PricingDefaults.FallbackExpectedProfitMarginPercent`, whose comment
+ * says it "keeps the approved ×1.15 formula byte-identical on fresh installs".
+ * The charges are the estimator's own rows, in its order.
+ */
+export const proformaPnL: PnLInput = {
+  question: "Is the given price above target?",
+  expectedProfitMarginPercent: 15,
+  givenPriceSource: "Given price source · Step 5 specification total",
+  costBasis: "cost glass at purchase price, from the Sheet Store",
+  sheet: { label: sheetSizes[1]!.label, w: sheetSizes[1]!.w, h: sheetSizes[1]!.h },
+  services: [
+    { key: "TEMPERING", label: "Tempering", basis: "per m²", rate: 38, costed: false },
+    { key: "HOLES", label: "Holes", basis: "each", rate: 6, costed: false },
+    { key: "CUTOUT", label: "Cut-outs", basis: "each", rate: 9, costed: false },
+    { key: "ARGON_GAS", label: "Argon gas", basis: "per m²", rate: 12, costed: false, dguOnly: true },
+    { key: "SILICON_BED", label: "Silicon bed", basis: "per m²", rate: 14, costed: false, dguOnly: true },
+  ],
+};
 
 /**
  * Step 5's rows, built from the seeded specification groups.
@@ -286,7 +438,8 @@ const bespoke: Record<string, Demo> = {
          * specification groups from `workedExample.ts`, so the preview and the
          * worked example show the same job rather than two different ones.
          */
-        label: "Specification",
+        label: "Step 5 · Specification",
+        step: 5,
         columns: [
           { key: "line", label: "#" },
           { key: "ref", label: "GLASS REF" },
@@ -309,7 +462,8 @@ const bespoke: Record<string, Demo> = {
         ],
       },
       {
-        label: "Price basis",
+        label: "Step 4 · Pricing estimator",
+        step: 4,
         columns: [
           { key: "line", label: "#" },
           { key: "desc", label: "Input" },
@@ -326,9 +480,37 @@ const bespoke: Record<string, Demo> = {
         ],
         summary: [{ label: "Basis", value: "Stamped onto the document" }],
       },
+      {
+        /*
+         * Step 9 — profit and loss.
+         *
+         * This view carries the step's own surface (`ProfitLossSurface`): the
+         * decision cards, the four tabs, and the arithmetic over Step 5's rows.
+         * The columns and rows here are empty on purpose — the surface is not a
+         * table, and a table's worth of invented numbers beside it would be a
+         * second, disagreeing answer.
+         */
+        label: "Step 9 · Profit & loss",
+        step: 9,
+        columns: [],
+        rows: [],
+      },
     ],
+    stepNotes: [
+      "Company details, TRN, bank lines and the approval block that prints on the document. Company setup is held once and reused by every proforma, tax invoice and statement.",
+      "Bill-to party, TRN, attention name, site location and the assigned salesman. The client list auto-fills the block; a new party can be typed straight in.",
+      "Project name, reference, contract number, LPO number and prepared-by — the identifiers the job is filed and searched under.",
+      "The pane and sheet source, then the charges the estimator adds: glass rate, tempering, holes, cut-outs, argon gas, silicon bed and wastage. Its figures stamp onto the specification in step 5, and the difference between the two is what the review step exists to show.",
+      "The grid the job is priced in: one block per specification, GLASS TYPE · SPECIFICATION · BASE and SURCHARGE % on the block, and one row per glass line below it. Every panel bills at least 0.5 m², and a panel that reaches 4 m² takes the specification's surcharge rate.",
+      "Transport, installation, crane, packing, discount and VAT — everything that is not glass, added to the glass subtotal before the document is printed.",
+      "The document as the client receives it, with the letterhead, the specification table, the charges, the terms and the signature block. Print, PDF and the approval stamp live here.",
+      "The client's LPO, the drawings and the approval scans, attached to the job and carried with it into the tax invoice and the statement.",
+      "Profit and loss on the specification the job was priced from: the required target price, the expected margin, and the balance between the two — then the money, the services, the sheets and the spec-by-spec check.",
+    ],
+    spec: proformaSpec,
+    pnl: proformaPnL,
     footnote:
-      "Step 5 holds the specification: # · GLASS REF · W1 · H1 · W2 · H2 · QTY · SQM · TOTAL SQM · RATE · VALUE, with the glass type and base rate on the block. A dash in W2 or H2 is a single-glazed line — the application stores 0 in those cells, as it does in the seeded job on the worked example. Change any input on the price basis and the stamped basis changes with it; the difference between the two is what the review step exists to show.",
+      "Step 5 holds the specification: # · GLASS REF · W1 · H1 · W2 · H2 · QTY · SQM · TOTAL SQM · RATE · VALUE, on a block carrying GLASS TYPE · SPECIFICATION · BASE · SURCHARGE %. A dash in W2 or H2 is a single-glazed line — the application stores 0 in those cells, as it does in the seeded job on the worked example. Two rules do the pricing and both are live here: every panel bills at least 0.5 m² (the rate is unchanged — the floor is on the area), and a panel that reaches 4 m² takes the specification's surcharge rate instead of its base rate. Step 9 then costs the same rows at the Sheet Store's purchase price and answers the only question that matters: is the given price above target?",
   },
 
   JobOrder: {

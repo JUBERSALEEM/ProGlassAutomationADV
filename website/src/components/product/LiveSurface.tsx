@@ -12,6 +12,9 @@ import {
   type DemoView,
 } from "@/data/liveDemos";
 import { cn } from "@/lib/cn";
+import { SampleTag, SearchBox } from "@/components/product/previewAtoms";
+import { SpecificationSurface, type SpecBlockInput } from "@/components/product/SpecificationSurface";
+import { ProfitLossSurface } from "@/components/product/ProfitLossSurface";
 import { SheetGallery } from "@/components/optimization/SheetGallery";
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 
@@ -50,7 +53,7 @@ export function LiveSurface({
   return (
     <div className={cn("flex h-full flex-col", className)}>
         {/* ── Tabs ─────────────────────────────────────────────────────── */}
-        {views.length > 1 ? (
+        {views.length > 1 && demo.kind !== "wizard" ? (
           <div role="tablist" aria-label={`${name} views`} className="flex flex-wrap gap-1.5 border-b border-line/50 pb-2.5">
             {views.map((entry, index) => {
               const active = index === safeIndex;
@@ -82,7 +85,7 @@ export function LiveSurface({
           ) : demo.kind === "queue" ? (
             <QueueEngine demo={demo} compact={compact} />
           ) : demo.kind === "wizard" ? (
-            <WizardEngine demo={demo} view={view} compact={compact} />
+            <WizardEngine demo={demo} view={view} onViewIndex={setViewIndex} compact={compact} />
           ) : demo.kind === "dashboard" ? (
             <DashboardEngine demo={demo} compact={compact} />
           ) : demo.kind === "form" ? (
@@ -99,32 +102,6 @@ export function LiveSurface({
 /* ══════════════════════════════════════════════════════════════════════════
  * Shared chrome
  * ════════════════════════════════════════════════════════════════════════ */
-
-function SampleTag() {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong/60 bg-ink-800/70 px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
-      <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-400" />
-      Sample data · live
-    </span>
-  );
-}
-
-function SearchBox({ value, onChange, label }: { value: string; onChange: (next: string) => void; label: string }) {
-  return (
-    <label className="flex items-center gap-1.5 rounded-lg border border-line-strong/60 bg-ink-900/70 px-2 py-1">
-      <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3 text-text-faint" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <circle cx="7" cy="7" r="4.5" />
-        <path d="m10.5 10.5 3 3" strokeLinecap="round" />
-      </svg>
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={label}
-        className="w-24 bg-transparent text-[0.75rem] text-text-primary outline-none placeholder:text-text-faint focus:w-36 sm:w-32"
-      />
-    </label>
-  );
-}
 
 function StatusPill({ value }: { value: string }) {
   const positive = /ready|complete|settled|delivered|active|ok|pass/i.test(value);
@@ -629,12 +606,44 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
  * Wizard engine — clickable step rail
  * ════════════════════════════════════════════════════════════════════════ */
 
-function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | undefined; compact?: boolean }) {
+function WizardEngine({
+  demo,
+  view,
+  onViewIndex,
+  compact,
+}: {
+  demo: Demo;
+  view: DemoView | undefined;
+  onViewIndex: (index: number) => void;
+  compact?: boolean;
+}) {
   const steps = demo.steps ?? [];
   const [step, setStep] = useState(1);
 
+  /**
+   * The specification Step 5 edits, held here rather than inside the surface.
+   *
+   * Step 9 reads the same rows: edit a size on the specification and the
+   * revenue, the glass cost, the margin and the verdict on the profit-and-loss
+   * screen all move with it. In the application those two screens share one
+   * engine, and a preview that pinned them apart would be lying about the part
+   * that matters.
+   */
+  const [blocks, setBlocks] = useState<SpecBlockInput[]>(() => demo.spec?.blocks ?? []);
+
+  /** The view a step owns, if it has one — Step 4's estimator, Step 5's grid, Step 9's P&L. */
+  const stepViewIndex = demo.views.findIndex((entry) => entry.step === step);
+  const activeView = demo.views[stepViewIndex] ?? view;
+  const stepNote = demo.stepNotes?.[step - 1];
+
+  function goToStep(next: number) {
+    setStep(next);
+    const index = demo.views.findIndex((entry) => entry.step === next);
+    if (index >= 0) onViewIndex(index);
+  }
+
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
         <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-300">
@@ -649,7 +658,7 @@ function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | un
             <div role="listitem" key={`${label}-${index}`}>
               <button
                 type="button"
-                onClick={() => setStep(index + 1)}
+                onClick={() => goToStep(index + 1)}
                 className={cn(
                   "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.75rem] font-medium transition-colors duration-200",
                   isActive
@@ -670,13 +679,44 @@ function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | un
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <TableEngine view={view} compact={compact} />
+        {activeView?.step === 5 && demo.spec ? (
+          <SpecificationSurface spec={demo.spec} blocks={blocks} onBlocks={setBlocks} compact={compact} />
+        ) : activeView?.step === 9 && demo.pnl ? (
+          <ProfitLossSurface pnl={demo.pnl} blocks={blocks} compact={compact} />
+        ) : activeView ? (
+          <TableEngine view={activeView} compact={compact} />
+        ) : (
+          <StepCard step={step} label={steps[step - 1] ?? ""} note={stepNote} />
+        )}
       </div>
 
       {!compact ? <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p> : null}
     </div>
   );
 }
+
+/**
+ * A wizard step that is not a grid.
+ *
+ * Steps 4, 5 and 9 carry the engine — the estimator's charges, the
+ * specification grid, the profit-and-loss analysis. The rest are forms, and a
+ * form shown as somebody else's table would be a worse lie than saying what is
+ * on it. So each gets its own line, and the rail still moves.
+ */
+function StepCard({ step, label, note }: { step: number; label: string; note?: string }) {
+  return (
+    <div className="flex h-full flex-col justify-center rounded-xl border border-line/50 bg-ink-900/40 px-4 py-6">
+      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-300 font-medium">
+        Step {String(step).padStart(2, "0")} · {label}
+      </p>
+      <p className="mt-2 max-w-[60ch] text-[0.8125rem] leading-relaxed text-text-secondary font-medium">{note}</p>
+      <p className="mt-3 text-[0.6875rem] text-text-faint font-medium">
+        Press 05 or 09 in the rail for the specification grid and the profit-and-loss analysis — those two screens are the live ones.
+      </p>
+    </div>
+  );
+}
+
 
 /* ══════════════════════════════════════════════════════════════════════════
  * Dashboard engine — the range toggle drives a real recomputation

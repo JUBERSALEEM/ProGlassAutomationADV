@@ -174,8 +174,8 @@
     --card-edge-hover: rgb(var(--brand-400) / 0.75);
     /* Padding grows with the edge weight so a thicker stroke never crowds
        the content — ThemeManager.ApplyCardEdgePaddingResources. */
-    --card-pad: calc(1.5rem + max(0px, var(--card-edge-width) - 2px));
-    --card-pad-sm: calc(1rem + max(0px, var(--card-edge-width) - 2px));
+    --card-pad: calc(var(--card-pad-scale, 1) * (1.5rem + max(0px, var(--card-edge-width) - 2px)));
+    --card-pad-sm: calc(var(--card-pad-scale, 1) * (1rem + max(0px, var(--card-edge-width) - 2px)));
     --tint-alpha: 0.11;         /* violet wash strength         */
     --tint-alpha-2: 0.05;       /* second wash, opposite corner */
     --card-tint-2: rgb(34 211 238 / 0.05);
@@ -452,7 +452,8 @@
 
   html {
     scroll-behavior: smooth;
-    /* Anchor targets must clear the sticky header. */
+  
+  /* Anchor targets must clear the sticky header. */
     scroll-padding-top: calc(var(--nav-height) + 1.5rem);
     -webkit-text-size-adjust: 100%;
   }
@@ -467,6 +468,14 @@
      * label sizes this site uses for figures and captions.
      */
     @apply text-text-secondary font-sans;
+    /*
+     * `--ui-weight` is `AppConfig.FontWeightName` and `AppConfig.FontStyleName`
+     * — the desktop application's global font weight and style, applied through
+     * the AppFontFamily resources rather than to headings alone. The weight is
+     * on the body so every inherited run takes it, and the attribute selectors
+     * below carry it to the elements that set a weight of their own.
+     */
+    font-weight: var(--ui-weight, 400);
     background-color: rgb(var(--ink-950));
     overflow-x: hidden;
     transition: background-color 240ms ease, color 240ms ease;
@@ -607,6 +616,38 @@
   video {
     @apply max-w-full h-auto;
   }
+  /*
+   * ── Typography settings, the application's own ────────────────────────
+   *
+   * `html` carries the five switches as data attributes and two custom
+   * properties, written by `applyStudioVars`. They are global in the desktop
+   * application — Settings → Typography sets FontWeightName, FontStyleName,
+   * FontUnderline, UiScale and DisplayDensity for the whole interface — and
+   * they are global here, which is why the weight and italic rules reach the
+   * utilities as well as the inherited text.
+   *
+   * A percentage root size rather than a pixel one: a visitor who has told
+   * their browser to render a larger default type keeps that, and the scale
+   * dial works from their figure instead of overruling it.
+   */
+  html {
+    font-size: calc(100% * var(--ui-scale, 1));
+  }
+
+  html[data-ui-weight="bold"] :is(.font-normal, .font-medium, .font-semibold) {
+    font-weight: 700;
+  }
+
+  html[data-ui-italic="on"] :is(p, li, dd, dt, td, th, label, figcaption, .mono-label) {
+    font-style: italic;
+  }
+
+  html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
 }
 
 @layer components {

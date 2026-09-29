@@ -176,11 +176,14 @@ export const modules: ProductModule[] = [
     railGroup: "Sales",
     summary: "The nine-step estimation wizard — the single pricing engine the whole application reads from.",
     detail:
-      "Company, client, project, pricing, specification grid, charges, summary, attachments, profit. Step 4 prices the four build families; Step 5 turns dimensions and quantities into area and value; Step 9 writes the profit-and-loss snapshot that job profitability, statements and reports later read instead of recomputing.",
+      "Company, client, project, pricing, specification grid, charges, summary, attachments, profit. Step 4 prices the four build families; Step 5 turns dimensions and quantities into area and value under two rules — every panel bills at least 0.5 m² and a panel that reaches 4 m² takes the specification's surcharge rate; Step 9 asks whether the given price is above target and writes the profit-and-loss snapshot that job profitability, statements and reports later read instead of recomputing.",
     capabilities: [
       "9-step wizard with company and client cards",
       "SGU / DGU / LAM / DGU + LAM build-up pricing",
       "Dimension grid (W1·H1·W2·H2 × Qty) with SQM and value, plus BOQ import",
+      "0.5 m² minimum billable area per panel; base + surcharge rate at 4 m²",
+      "QUICK / OPTIMIZE / VIEW RESULT on the grid, feeding Step 6 its sheet quantity",
+      "Step 9 profit & loss: overview, services, sheets and a spec-by-spec check",
       "Charges, VAT 5% round-safe summary, attachments, stored P&L snapshot",
     ],
     evidence:
