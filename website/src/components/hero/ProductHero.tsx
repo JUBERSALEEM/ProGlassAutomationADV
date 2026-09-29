@@ -162,48 +162,56 @@ export function ProductHero() {
           </Reveal>
         </div>
 
-        {/* ── Brand banner: the repository's own front-page artwork ──
-            `README_ASSETS/hero.png` is what the GitHub README shows and what a
-            shared link unfurls as. It is drawn from the product by
-            `scripts/render-hero-banner.mts`: the window on it is this page's
-            own hero preview — the live dashboard — and the figures on it come
-            out of `src/data` rather than out of an illustrator's imagination. */}
-        <Reveal delay={120} className="mt-16 sm:mt-20">
-          <div className="plate overflow-hidden">
+      </div>
+
+      {/* ══ Brand banner ══════════════════════════════════════════════════
+          The repository's own front-page artwork: `README_ASSETS/hero.png` is
+          what the GitHub README shows and what a shared link unfurls as. It is
+          drawn from the product by `scripts/render-hero-banner.mts` — the
+          window on it is this page's own hero preview, the live dashboard, and
+          every figure on it comes out of `src/data`.
+
+          Presented full-bleed rather than as a card inside the page column: it
+          is the one 3:1 showcase on the site, and it reads as a product
+          showcase at width, not as a figure inside an article. Frameless too —
+          a border drawn around artwork that has its own edge and its own violet
+          bed only adds a second, weaker frame around the first.
+
+          It stops at 1920 px because that is what it is drawn at: past that the
+          artwork would be enlarged rather than extended. `sizes="100vw"` is
+          what lets the browser take the largest file the layout actually asks
+          for — it used to claim 1200 px, so it picked a smaller one and
+          stretched it, which is where "the banner looks blurred" came from. */}
+      <Reveal delay={120} className="mt-16 sm:mt-20">
+        <figure>
+          <div className="mx-auto w-full max-w-[1920px]">
             <div className="relative aspect-[3/1] w-full">
               <Image
-                /* The 3840 px master, not the 1920 px README file. This plate is
-                   drawn edge to edge, so a retina display asks for it at roughly
-                   3584 device pixels on a 1920 px screen; the 1920 px file was
-                   being enlarged to meet that, which is what made it look soft.
-                   `sizes="100vw"` is what lets the browser pick the right one —
-                   it used to claim 1200 px, so it asked for too small a file. */
                 src="/images/brand/proglass-hero-banner-3840.png"
                 alt="ProGlass Automation brand banner: the application's Overview dashboard showing open inquiries, proformas raised, jobs in production and pieces ready to dispatch, beside the product mark, the proforma's profit and loss snapshot and the line 'Glass business management, built around your workflow.'"
                 fill
-                sizes="100vw"
+                sizes="(max-width: 1920px) 100vw, 1920px"
                 quality={92}
                 className="object-cover"
                 priority
               />
-              {/*
-                No veil over the artwork. It carries a cutting plan and a table
-                of glass references down to its lower edge, and any gradient
-                laid over it dims exactly the figures it was drawn to show — on
-                a dark image a scrim reads as haze, which is half of what
-                "the banner looks blurred" meant. The caption sits in its own
-                opaque chip instead, so contrast never depended on the veil.
-              */}
-              {/* Bottom-right, in the one part of the composition that is empty:
-                  the banner's own lower-left carries the headline, the figures
-                  and the workflow line, and a chip there would cover them. */}
-              <p className="absolute bottom-3 right-3 rounded-full border border-line-strong/60 bg-ink-950/80 px-3 py-1.5 font-mono text-2xs uppercase tracking-[0.18em] text-text-secondary sm:bottom-4 sm:right-4">
-                The product&rsquo;s own screens · README_ASSETS/hero.png
-              </p>
             </div>
+
+            {/* The caption sits below the artwork, not on it. The banner's own
+                lower-left carries the headline, the figures and the workflow
+                line, so anything placed over the picture covers something that
+                was drawn deliberately. */}
+            <figcaption className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-line/60 px-5 py-3 sm:px-8">
+              <span className="mono-label">
+                README_ASSETS/hero.png · drawn from the application&rsquo;s own data
+              </span>
+              <span className="text-xs text-text-faint font-medium">
+                Overview dashboard · {site.version} · sample data, labelled as such
+              </span>
+            </figcaption>
           </div>
-        </Reveal>
-      </div>
+        </figure>
+      </Reveal>
     </section>
   );
 }
