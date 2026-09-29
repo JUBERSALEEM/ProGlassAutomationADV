@@ -1,5 +1,10 @@
 /**
- * Resources and blog content.
+ * Guides and resource categories.
+ *
+ * Blog posts used to live here as data. They are now Markdown files in the
+ * `posts/` folder, read by `src/lib/posts.ts` — writing a note means writing a
+ * file, not editing this one. What remains here is the guide content, which is
+ * structured data because it is rendered as columns rather than as prose.
  *
  * Everything written here explains glass-industry concepts using the real
  * vocabulary the application works in, and every product statement is
@@ -139,132 +144,6 @@ export const guides: Guide[] = [
   },
 ];
 
-export type Post = {
-  slug: string;
-  title: string;
-  summary: string;
-  date: string;
-  readingMinutes: number;
-  category: "Product" | "Engineering" | "Industry" | "ProGlass updates";
-  body: { heading?: string; paragraphs: string[]; list?: string[] }[];
-};
-
-export const posts: Post[] = [
-  {
-    slug: "why-the-price-basis-is-stamped",
-    title: "Why every quoted figure carries its price basis",
-    summary:
-      "An ERP that recalculates yesterday's quotation at today's glass prices is not an ERP. What ProGlass stores instead, and why it matters more than any feature.",
-    date: "2026-09-20",
-    readingMinutes: 5,
-    category: "Engineering",
-    body: [
-      {
-        paragraphs: [
-          "There is a failure mode in quotation software that is worse than a crash, because it does not look like a failure. The software is asked for last month's job. It reopens the quotation, re-reads the current sheet prices, and recomputes. The margin on screen is now a number that nobody ever quoted.",
-          "Nothing warns you. The screen looks normal. The report is internally consistent. And the number is wrong in the only way that matters: it is not the number the business acted on.",
-        ],
-      },
-      {
-        heading: "Material costs move",
-        paragraphs: [
-          "Glass is bought on sheets and priced by area, and those buy prices change. When they do, every stored quotation that recalculates itself silently becomes a different quotation. If your profitability reporting reads those figures, your historical margin data is rewritten every time a supplier changes a rate.",
-        ],
-      },
-      {
-        heading: "What ProGlass does instead",
-        paragraphs: [
-          "The profit and loss snapshot is written once, at Step 9 of the proforma, and it records the cost basis it was computed with. Job profitability, statements and reports read that stored snapshot rather than recomputing it. There is exactly one pricing engine in the application, and it runs at the moment of quoting.",
-          "When the sheet-store prices move, the affected rows are flagged rather than rescored. You can see that the basis has moved, decide what to do about it, and the historical figure stays what it was.",
-        ],
-      },
-      {
-        heading: "Why this is the whole product",
-        paragraphs: [
-          "Feature lists are easy to write and hard to compare. This property is not a feature — it is what separates a system that holds business records from a calculator with a database attached. A price you cannot trust after the fact is not a price; it is a current estimate.",
-        ],
-      },
-    ],
-  },
-  {
-    slug: "guillotine-versus-free-nesting",
-    title: "Guillotine or free nesting: what decides the layout",
-    summary:
-      "Two optimizers can produce very different-looking plans for the same cutting list, and both can be correct. The difference is what the table can physically do.",
-    date: "2026-09-12",
-    readingMinutes: 6,
-    category: "Industry",
-    body: [
-      {
-        paragraphs: [
-          "A nesting problem in the abstract is: fit these rectangles into that rectangle with as little waste as possible. On a glass table it is a narrower problem: fit these rectangles in such a way that a sequence of straight, edge-to-edge cuts separates them, in an order an operator can actually perform.",
-        ],
-      },
-      {
-        heading: "The pinwheel problem",
-        paragraphs: [
-          "Free nesting algorithms like to produce pinwheel arrangements — rectangles that spiral around each other. They are efficient on paper and impossible on a guillotine. You cannot score a line from one edge of the sheet to the other without also cutting through a piece that is already in place.",
-        ],
-      },
-      {
-        heading: "What guillotine costs you",
-        paragraphs: [
-          "Constraining to guillotine cuts loses some yield. That is the honest trade: a packed-pinwheel layout may report a higher utilization than a guillotine layout, while being uncuttable. A number you cannot execute is worse than no number at all.",
-        ],
-      },
-      {
-        heading: "Two stages, three stages, or free",
-        paragraphs: [
-          "The trade continues inside the guillotine family. Two-stage patterns restrict the cut direction: first all the cuts one way, then all the cuts the other. They are fast, easy to set up and easy to jig, and they leave a bit more waste. Free guillotine allows unlimited depth and packs tighter, at the cost of more table time. Three-stage sits in between. Which one is right depends on your table, your volume and the job.",
-        ],
-      },
-      {
-        heading: "The thing to ask any optimizer for",
-        paragraphs: [
-          "Ask it to show the cut sequence. A layout drawing shows where the pieces are; a cut sequence shows how they come free. If a plan can report its pieces but not its cuts, it has modelled the arrangement and not the operation.",
-        ],
-      },
-    ],
-  },
-  {
-    slug: "why-delivery-balance-is-hard",
-    title: "Why delivery balance is harder than it looks",
-    summary:
-      "A job goes out over three movements and the fourth is a replacement for a broken pane. The arithmetic that answers 'what is still owed' is easy to get wrong.",
-    date: "2026-09-05",
-    readingMinutes: 5,
-    category: "Industry",
-    body: [
-      {
-        paragraphs: [
-          "A glass order is rarely delivered once. It goes out in whatever the vehicle and the site can take, and the balance follows. The question 'how much of this job has actually gone out' sounds trivial and is not.",
-        ],
-      },
-      {
-        heading: "Three ways it goes wrong",
-        paragraphs: [],
-        list: [
-          "Double counting: the balance is recomputed from the original order each time, and a piece that was dispatched in movement one gets counted again in movement two.",
-          "Over-delivery: nothing prevents the second delivery note from listing more pieces than remain, so the job ships 12 of 10 pieces and the invoice has to be unravelled.",
-          "The replacement problem: a broken pane is re-cut and re-delivered. Is that a movement against the original balance, or a new line? If it is answered differently by different people, the balance drifts.",
-        ],
-      },
-      {
-        heading: "One place owns the maths",
-        paragraphs: [
-          "The fix is not a better screen; it is deciding that exactly one piece of code owns the pending-piece calculation, and that nothing else is allowed to work it out independently. In ProGlass that lives in the delivery-note validation service, which refuses a movement that would exceed what was ordered.",
-        ],
-      },
-      {
-        heading: "Why it is worth the trouble",
-        paragraphs: [
-          "The balance is what the customer will be told on the phone, what the driver will load against, and what the invoice is eventually raised for. When three people have three answers, the job costs more than the glass did.",
-        ],
-      },
-    ],
-  },
-];
-
 export const resourceCategories = [
   "Glass estimation",
   "SGU",
@@ -275,7 +154,3 @@ export const resourceCategories = [
   "Production",
   "Workflows",
 ] as const;
-
-export function postBySlug(slug: string): Post | undefined {
-  return posts.find((p) => p.slug === slug);
-}

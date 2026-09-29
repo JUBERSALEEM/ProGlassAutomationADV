@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { posts } from "@/data/resources";
+import { allPosts } from "@/lib/posts";
 import { site } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -31,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: page.changeFrequency,
       priority: page.priority,
     })),
-    ...posts.map((post) => ({
+    ...allPosts().map((post) => ({
       url: `${site.url}/blog/${post.slug}`,
       lastModified: new Date(post.date),
       changeFrequency: "yearly" as const,

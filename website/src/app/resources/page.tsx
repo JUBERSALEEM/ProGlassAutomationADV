@@ -6,7 +6,8 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { guides, posts, resourceCategories } from "@/data/resources";
+import { guides, resourceCategories } from "@/data/resources";
+import { allPosts } from "@/lib/posts";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
@@ -25,6 +26,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function ResourcesPage() {
+  const posts = allPosts();
   return (
     <>
     {/* Structured data for this route — see lib/schema.ts. */}

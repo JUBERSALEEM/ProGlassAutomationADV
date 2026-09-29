@@ -5,14 +5,30 @@ import { Container, Section } from "@/components/ui/Container";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
-import { posts, postBySlug } from "@/data/resources";
+import { PostBlock } from "@/components/blog/PostBody";
+import { allPosts, postBySlug, postSlugs, postTokens } from "@/lib/posts";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
+/**
+ * One page per Markdown file in `posts/`. Drafts are not in this list, so a
+ * draft is not built at all — it cannot be reached, guessed or indexed.
+ */
 export function generateStaticParams() {
-  return posts.map((post) => ({ slug: post.slug }));
+  return postSlugs().map((slug) => ({ slug }));
 }
+
+/**
+ * Addresses not in that list do not exist.
+ *
+ * Without this, Next renders the route on demand for any slug and `notFound()`
+ * inside the page renders the 404 *page* with a 200 *status* — a soft 404, which
+ * search engines index and which reported success for a draft's address. With
+ * it, an unpublished or mistyped address is a real 404, and the route is never
+ * executed at request time at all: the posts folder is read at build time only.
+ */
+export const dynamicParams = false;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -42,7 +58,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   const post = postBySlug(slug);
   if (!post) notFound();
 
-  const others = posts.filter((p) => p.slug !== post.slug);
+  const others = allPosts().filter((entry) => entry.slug !== post.slug);
+  const tokens = postTokens(post.markdown);
 
   return (
     <>
@@ -113,26 +130,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <Section aria-label="Article body">
           <Container>
             <div className="flow measure">
-              {post.body.map((block, index) => (
-                <Reveal key={block.heading ?? index} delay={index * 40} className="mb-9">
-                  {block.heading ? (
-                    <h2 className="mb-4 text-xl font-semibold text-text-primary sm:text-2xl">{block.heading}</h2>
-                  ) : null}
-                  {block.paragraphs.map((paragraph) => (
-                    <p key={paragraph} className="mb-4 text-base leading-relaxed text-text-secondary">
-                      {paragraph}
-                    </p>
-                  ))}
-                  {block.list ? (
-                    <ul className="mt-5 space-y-3">
-                      {block.list.map((item) => (
-                        <li key={item} className="flex gap-3 text-base leading-relaxed text-text-secondary">
-                          <span aria-hidden="true" className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
+              {/*
+                The Markdown is parsed into tokens by `marked` and rendered here
+                as React elements — never as an HTML string, so there is no
+                injection path from a post's content into the page.
+              */}
+              {tokens.map((token, index) => (
+                <Reveal key={index} delay={Math.min(index, 6) * 40} className="mb-9">
+                  <PostBlock token={token} keyPrefix={`block-${index}`} />
                 </Reveal>
               ))}
             </div>

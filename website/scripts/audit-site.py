@@ -44,6 +44,15 @@ PAGES = [
     "/legal/privacy", "/legal/terms", "/legal/license",
 ]
 
+# Addresses that must NOT exist. A page that renders a "not found" body with a
+# 200 status is worse than a broken link: search engines index it, and the site
+# reports success for a URL that has nothing on it. The blog route hit this
+# until `dynamicParams = false` was set, so it is worth guarding.
+MUST_404 = [
+    "/blog/this-post-does-not-exist",
+    "/blog/another-missing-note",
+]
+
 # Words that must never appear in customer-facing copy.
 BANNED = [
     r"\bsaas\b", r"\b(we are|our) multi-tenant\b", r"\btenant dashboard\b", r"\bstart (your )?free trial\b",
@@ -228,6 +237,14 @@ def main() -> int:
         code, _ = fetch(image)
         if code != "200":
             failures.append(f"image {image} -> {code}")
+
+    for missing in MUST_404:
+        code, _ = fetch(missing)
+        if code != "404":
+            failures.append(
+                f"{missing} returned {code} instead of 404 — an address that does not exist "
+                "must say so, or a draft or a typo gets served as a real page"
+            )
 
     # A fragment link that lands nowhere scrolls to the top of the page and
     # looks like a broken promise. Checked against the ids actually rendered.

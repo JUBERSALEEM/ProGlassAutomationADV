@@ -6,7 +6,7 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { posts } from "@/data/resources";
+import { allPosts } from "@/lib/posts";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
@@ -21,6 +21,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function BlogPage() {
+  const posts = allPosts();
   const [lead, ...rest] = posts;
 
   return (
