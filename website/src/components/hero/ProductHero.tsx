@@ -153,15 +153,16 @@ export function ProductHero() {
 
         {/* ── Brand banner: the repository's own front-page artwork ──
             `README_ASSETS/hero.png` is what the GitHub README shows and what a
-            shared link unfurls as, so it is drawn from the product's own
-            tokens and figures by `scripts/render-hero-banner.mts` — the plate
-            geometry on it is the plan this page draws, from the same packer. */}
+            shared link unfurls as. It is drawn from the product by
+            `scripts/render-hero-banner.mts`: the window on it is this page's
+            own hero preview — the live dashboard — and the figures on it come
+            out of `src/data` rather than out of an illustrator's imagination. */}
         <Reveal delay={120} className="mt-16 sm:mt-20">
           <div className="plate overflow-hidden">
             <div className="relative aspect-[3/1] w-full">
               <Image
                 src="/images/brand/proglass-hero-banner-1920.png"
-                alt="ProGlass Automation brand banner: the application's Optimization screen showing a verified cutting plan of four plates at 85.6 % yield, beside the product mark and the line 'Glass business management, built around your workflow.'"
+                alt="ProGlass Automation brand banner: the application's Overview dashboard showing open inquiries, proformas raised, jobs in production and pieces ready to dispatch, beside the product mark, the proforma's profit and loss snapshot and the line 'Glass business management, built around your workflow.'"
                 fill
                 sizes="(max-width: 1024px) 100vw, 1200px"
                 className="object-cover"
@@ -181,7 +182,7 @@ export function ProductHero() {
                 className="absolute inset-0 bg-gradient-to-t from-ink-950/55 via-ink-950/10 to-transparent"
               />
               <p className="absolute bottom-3 left-3 rounded-full border border-line-strong/60 bg-ink-950/80 px-3 py-1.5 font-mono text-2xs uppercase tracking-[0.18em] text-text-secondary sm:bottom-4 sm:left-4">
-                Every figure drawn from the app&rsquo;s own plan · README_ASSETS/hero.png
+                Drawn from the running app&rsquo;s own screens and data · README_ASSETS/hero.png
               </p>
             </div>
           </div>

@@ -128,8 +128,15 @@ export function AppFrame({
   className?: string;
   compact?: boolean;
   /**
-   * A taller body, for a frame shown in the lightbox at full width where an
-   * inline-sized preview would look cramped and hide detail.
+   * A taller, viewport-aware body, for a frame shown in the lightbox at full
+   * width.
+   *
+   * The inline body is sized for a card in a grid. In the lightbox the frame is
+   * the point of the screen, so the body takes a share of the *window* height
+   * rather than a fixed pixel minimum: on a laptop the preview and the caption
+   * below it both fit without scrolling, and on a large monitor the window grows
+   * into real landscape instead of staying a squat strip. The clamp is the
+   * honest way to say "as tall as there is room for, within reason".
    */
   tall?: boolean;
 }) {
@@ -191,7 +198,7 @@ export function AppFrame({
           <div
             className={cn(
               "bg-ink-850/30 p-3 sm:p-5",
-              tall ? "min-h-[20rem] sm:min-h-[26rem]" : "min-h-[13rem] sm:min-h-[16rem]",
+              tall ? "h-[clamp(17rem,58vh,36rem)]" : "min-h-[13rem] sm:min-h-[16rem]",
             )}
           >
             {children}

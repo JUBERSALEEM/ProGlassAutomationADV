@@ -15,6 +15,7 @@ import {
   useStudio,
 } from "@/lib/useStudio";
 import { luminance } from "@/lib/color";
+import { Slider, edgeReadout } from "@/components/ui/Slider";
 
 /**
  * The theme studio.
@@ -32,27 +33,6 @@ import { luminance } from "@/lib/color";
  *
  * Nothing is a preview image: every control writes straight to the live page,
  * and the choices survive a reload.
- */
-/**
- * How the card-edge dial reads out, in the application's own vocabulary.
- *
- * The product's settings describe 1.5 as the subtle hairline and 2 as the
- * defined card edge (see AppConfig.CardBorderThickness and CardEdgeThickness),
- * so the dial names those two rather than only reporting a pixel count.
- */
-function edgeReadout(value: number): string {
-  if (Math.abs(value - 1.5) < 0.001) return "1.5 px · hairline";
-  if (Math.abs(value - 2) < 0.001) return "2 px · defined edge";
-  return `${value.toFixed(2)} px`;
-}
-
-/**
- * How the tint dial reads out.
- *
- * The dial is a multiplier, so a bare percentage would be honest but opaque.
- * Naming the ends is what makes the range legible: 0 is no tint at all, 1 is
- * the richness the family ships with, and the top of the dial is a card plainly
- * carrying the accent.
  */
 function tintReadout(value: number): string {
   if (value === 0) return "None";
@@ -518,43 +498,6 @@ function PlateButton({
     >
       <span className="max-w-full truncate drop-shadow-sm">{label}</span>
     </button>
-  );
-}
-
-function Slider({
-  label,
-  value,
-  min,
-  max,
-  step,
-  display,
-  onChange,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  display: string;
-  onChange: (value: number) => void;
-}) {
-  return (
-    <label className="block">
-      <span className="flex items-baseline justify-between gap-3">
-        <span className="text-[0.75rem] font-bold text-text-primary">{label}</span>
-        <span className="font-mono text-[0.75rem] font-semibold tabular-nums text-text-muted">{display}</span>
-      </span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        aria-label={label}
-        onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-1"
-      />
-    </label>
   );
 }
 

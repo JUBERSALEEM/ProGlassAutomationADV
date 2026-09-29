@@ -3,7 +3,8 @@
 import { cn } from "@/lib/cn";
 import { accentPresets, appearanceFamilies, themeModes } from "@/data/themes";
 import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
-import { isFamilyAccentKey, setAccent, setFamily, studioAccents, useStudio } from "@/lib/useStudio";
+import { isFamilyAccentKey, setAccent, setFamily, setStudio, studioAccents, useStudio } from "@/lib/useStudio";
+import { Slider, edgeReadout } from "@/components/ui/Slider";
 import { luminance } from "@/lib/color";
 
 /**
@@ -103,6 +104,64 @@ export function AppearancePreview() {
             onClick={() => setAccent(entry.key, entry.hex)}
           />
         ))}
+      </div>
+
+      {/* ── Card edge and corner ─────────────────────────────────────── */}
+      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">
+        Card edge <span className="font-medium normal-case tracking-normal text-text-muted">— the border line and the corner</span>
+      </p>
+      {/*
+        The product sets these together in SETTINGS: CardEdgeThickness for the
+        border line, CardCornerRadius for the corner it turns on, and the card
+        padding follows the edge so a bolder line never crowds its contents.
+        Both dials write the same `--card-edge-width` / `--radius-scale` the
+        docked studio writes, and everything drawn with `.surface` — including
+        the card samples below — repaints as they move.
+      */}
+      <div className="mt-2 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
+        <div className="space-y-3.5">
+          <Slider
+            label="Card edge"
+            value={studio.edge}
+            min={1}
+            max={4}
+            step={0.25}
+            display={edgeReadout(studio.edge)}
+            onChange={(value) => setStudio({ edge: value })}
+            hint="1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with."
+          />
+          <Slider
+            label="Corner radius"
+            value={studio.radius}
+            min={0.3}
+            max={1.8}
+            step={0.05}
+            display={`${studio.radius.toFixed(2)}×`}
+            onChange={(value) => setStudio({ radius: value })}
+            hint="Scales the 12 px card radius, the way the radius slider scales it in the app."
+          />
+        </div>
+
+        {/* Three sample cards, drawn with the real card classes and the real
+            tokens, so the edge and the corner are shown rather than described. */}
+        <div className="grid grid-cols-3 gap-2 rounded-card border-2 border-line-strong/60 bg-ink-950/50 p-2.5">
+          {(["surface", "surface-raised", "stat-tile"] as const).map((sample) => (
+            <div key={sample} className={`${sample} flex h-20 flex-col justify-between p-2.5`}>
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-6 rounded-full"
+                style={{ background: "var(--card-edge-hover)" }}
+              />
+              <span className="font-mono text-[0.5625rem] font-semibold uppercase tracking-[0.1em] text-text-faint">
+                {sample === "surface" ? "Card" : sample === "surface-raised" ? "Raised" : "Stat"}
+              </span>
+            </div>
+          ))}
+          <p className="col-span-3 text-[0.6875rem] leading-snug text-text-muted">
+            Live cards, not a picture: every `.surface` on the page takes this edge and this corner as you move the
+            dials.
+          </p>
+        </div>
       </div>
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line/60 pt-4">

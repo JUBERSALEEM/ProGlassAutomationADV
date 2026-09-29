@@ -480,8 +480,8 @@ export default function HomePage() {
               <SectionHeading
                 id="appearance-heading"
                 eyebrow="Appearance"
-                title="Four families, sixteen accents — and you can try them here."
-                lead="The application ships four visual families and sixteen accent presets, all chosen from Settings. The same controls drive this website: press a plate below and the page you are reading re-themes itself."
+                title="Four families, sixteen accents — and the card edge is yours to set."
+                lead="The application ships four visual families and sixteen accent presets, all chosen from Settings. The card edge, the corner it turns on and the tint of the fill are set beside them. The same controls drive this website: press a plate below, or move the edge, and the page you are reading re-themes itself."
                 gradient
               />
               <Reveal delay={120} className="mt-8 flex flex-wrap gap-3">

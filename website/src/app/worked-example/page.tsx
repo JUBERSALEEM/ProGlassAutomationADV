@@ -237,9 +237,13 @@ export default function WorkedExamplePage() {
             rather than being left to guess.
           */}
           <p className="mt-5 text-xs leading-relaxed text-text-muted">
-            <span className="font-mono text-text-faint">—</span> in W2 or H2 means the line has no second pane. The
-            application stores <span className="font-mono text-text-faint">0</span> in those cells for single glazing;
-            a double-glazed line carries both pairs, and in this seeded job the two panes are cut to the same size.
+            <span className="font-mono text-text-faint">#</span> is the line&rsquo;s Sr No — the serial the application
+            stores on every cutting line, and the number the grid sorts by.{" "}
+            <span className="font-mono text-text-faint">TOTAL SQM</span> is SQM × QTY. A{" "}
+            <span className="font-mono text-text-faint">—</span> in W2 or H2 means the line has no second pane: the
+            application stores <span className="font-mono text-text-faint">0</span> in those cells for single glazing,
+            while a double-glazed line carries both pairs — and in this seeded job the two panes are cut to the same
+            size.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
@@ -272,9 +276,36 @@ export default function WorkedExamplePage() {
                       */}
                       <p className="mono-label">Specification {group.number}</p>
                       <h3 className="mt-1.5 text-base font-semibold text-text-primary">{group.name}</h3>
-                      <p className="mt-1 text-xs text-text-faint font-medium">
-                        {group.glassType === "DGU" ? "Double-glazed unit" : "Single glazed"} · base rate AED{" "}
-                        {aed(group.baseRate)}/m² · {totals.lines} lines
+                      {/*
+                        The block's own fields, under the application's names:
+                        Dg.GlassType, Dg.Specification and Dg.Base sit above the
+                        grid in Step5DataGrid/DataGridView.xaml, and the table
+                        below them is the specification's cutting lines.
+                      */}
+                      <dl className="mt-2.5 flex flex-wrap gap-x-6 gap-y-1.5">
+                        {(
+                          [
+                            ["GLASS TYPE", group.glassType === "DGU" ? "DGU" : "SGU"],
+                            ["SPECIFICATION", group.name],
+                            ["BASE", `AED ${aed(group.baseRate)} / m²`],
+                            ["LINES", `${totals.lines}`],
+                          ] as const
+                        ).map(([key, value]) => (
+                          <div key={key} className="flex items-baseline gap-2">
+                            <dt className="font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-text-faint">
+                              {key}
+                            </dt>
+                            <dd className="text-xs font-medium text-text-secondary">{value}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                      {/*
+                        `Dg.ColumnsHint`, verbatim. The application prints this
+                        line above the grid so a reader knows what the eleven
+                        columns are without opening a manual.
+                      */}
+                      <p className="mt-2.5 font-mono text-[0.6875rem] tracking-[0.08em] text-text-muted">
+                        GLASS REF · W1 H1 W2 H2 · QTY · SQM · T.SQM · RATE · VALUE.
                       </p>
                     </div>
                     <p className="font-mono text-sm text-brand-200">AED {aed(totals.subtotal)}</p>
@@ -297,17 +328,25 @@ export default function WorkedExamplePage() {
                             second pair, and the cells say so rather than being
                             blank.
                           */}
-                          <th scope="col" className={THL}>#</th>
-                          <th scope="col" className={THL}>Glass ref</th>
+                          {/*
+                            The application's own header strings — `Dg.Hash`,
+                            `Dg.GlassRef`, `Dg.W1`, `Dg.H1`, `Dg.W2`, `Dg.H2`,
+                            `Dg.Qty`, `God.Sqm`, `Dg.TotalSqm`, `Dg.Rate`,
+                            `Dg.Value` — in the order DataGridView.xaml lays
+                            them out, with its own tooltips for the two area
+                            columns. Nothing here is a renamed column.
+                          */}
+                          <th scope="col" className={THL} title="Sr No — the line's serial number (Dg.Hash)">#</th>
+                          <th scope="col" className={THL}>GLASS REF</th>
                           <th scope="col" className={TH} title="Outer pane width, millimetres">W1</th>
                           <th scope="col" className={TH} title="Outer pane height, millimetres">H1</th>
                           <th scope="col" className={TH} title="Inner pane width, millimetres — double-glazed lines only">W2</th>
                           <th scope="col" className={TH} title="Inner pane height, millimetres — double-glazed lines only">H2</th>
-                          <th scope="col" className={TH} title="Pieces in this line">Qty</th>
-                          <th scope="col" className={TH} title="Square metres for one piece">SQM</th>
-                          <th scope="col" className={TH} title="Total square metres: SQM × Qty">T.SQM</th>
-                          <th scope="col" className={TH} title="Rate per square metre">Rate</th>
-                          <th scope="col" className={TH} title="Line value from the rate">Value</th>
+                          <th scope="col" className={TH} title="Pieces on this line">QTY</th>
+                          <th scope="col" className={TH} title="Unit panel area">SQM</th>
+                          <th scope="col" className={TH} title="Total SQM (SQM × Qty)">TOTAL SQM</th>
+                          <th scope="col" className={TH} title="Rate per square metre">RATE</th>
+                          <th scope="col" className={TH} title="Line value from the rate">VALUE</th>
                         </tr>
                       </thead>
                       <tbody>

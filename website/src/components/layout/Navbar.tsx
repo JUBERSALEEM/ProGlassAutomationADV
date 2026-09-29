@@ -42,6 +42,21 @@ const entries: NavEntry[] = [
   { label: "Sponsors", href: "/sponsors" },
 ];
 
+/*
+ * The top-level items are cards.
+ *
+ * They used to be bare words that only lit up on hover, which read as an
+ * unstyled menu bar sitting on top of a product whose entire interface is
+ * cards. Each entry is now a card in the same language as the panel it opens:
+ * the card edge, the 12 px corner, a violet wash when it is the entry you are
+ * on or have open, and the accent on hover.
+ */
+const NAV_CARD =
+  "relative flex items-center gap-1.5 rounded-card border-2 px-3 py-1.5 text-sm font-semibold transition-colors duration-200";
+const NAV_CARD_OFF =
+  "border-line-strong/45 bg-ink-900/40 text-text-muted hover:border-brand-400/55 hover:bg-ink-900/70 hover:text-text-primary";
+const NAV_CARD_ON = "border-brand-400/70 bg-brand-500/12 text-text-primary";
+
 export function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -128,7 +143,7 @@ export function Navbar() {
         </Link>
 
         {/* ── Desktop navigation ─────────────────────────────────── */}
-        <nav aria-label="Primary" className="hidden items-center gap-0.5 lg:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-1.5 lg:flex">
           {entries.map((entry) => {
             const active = isActive(entry);
             if (!entry.children) {
@@ -137,15 +152,9 @@ export function Navbar() {
                   key={entry.label}
                   href={entry.href ?? "#"}
                   aria-current={active ? "page" : undefined}
-                  className={cn(
-                    "relative rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200",
-                    active ? "text-text-primary" : "text-text-muted hover:text-text-primary",
-                  )}
+                  className={cn(NAV_CARD, active ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   {entry.label}
-                  {active ? (
-                    <span aria-hidden="true" className="absolute inset-x-3 -bottom-0.5 h-px bg-brand-400/80" />
-                  ) : null}
                 </Link>
               );
             }
@@ -166,10 +175,7 @@ export function Navbar() {
                   aria-expanded={open}
                   aria-haspopup="true"
                   onClick={() => setOpenMenu(open ? null : entry.label)}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors duration-200",
-                    active || open ? "text-text-primary" : "text-text-muted hover:text-text-primary",
-                  )}
+                  className={cn(NAV_CARD, active || open ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   {entry.label}
                   <svg

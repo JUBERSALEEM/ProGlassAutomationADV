@@ -34,7 +34,19 @@ export function ScreenshotFrame({
   if (shot.src && shot.source !== "pending") {
     return (
       <figure className={cn("plate shadow-raised", className)}>
-        <div className="relative aspect-[3/2] w-full overflow-hidden">
+        {/*
+          Opened large, the asset is contained rather than cropped: the frame
+          keeps its 3:2 shape, and an asset of another shape is letterboxed on
+          the plate colour instead of having its edges cut off. A screenshot
+          cropped to fit is a screenshot that has lost the column the visitor
+          opened it to read.
+        */}
+        <div
+          className={cn(
+            "relative aspect-[3/2] w-full overflow-hidden",
+            modal && "bg-ink-950",
+          )}
+        >
           <Image
             src={shot.src}
             alt={shot.assetNote ?? shot.title}
@@ -48,7 +60,7 @@ export function ScreenshotFrame({
                   // half-width guess has to hold until 1280px, not until 1024px.
                   "(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
             }
-            className="object-cover"
+            className={modal ? "object-contain" : "object-cover"}
             priority={priority}
           />
         </div>

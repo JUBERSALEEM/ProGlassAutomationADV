@@ -20,6 +20,8 @@
  * calculator and the optimizer really do their own arithmetic.
  */
 
+import { lineArea, lineValue, pieceArea, seedSpecGroups } from "@/data/workedExample";
+
 export type DemoKind =
   | "dashboard"
   | "table"
@@ -162,6 +164,31 @@ const proformaRows: DemoRow[] = [
   { line: "04", desc: "SGU 6 mm Clear", w: "640", h: "1180", qty: "10", area: "7.55", rate: "148.00", amount: "1,117.40" },
 ];
 
+/**
+ * Step 5's rows, built from the seeded specification groups.
+ *
+ * Derived rather than typed in: `pieceArea` and `lineArea` are the worked
+ * example's own area functions, and the value is area × qty × rate rounded by
+ * the application's money rule, so this preview cannot disagree with
+ * `/worked-example`. The first group is shown standing in its own specification
+ * block, the way step 5 lists one block per specification.
+ */
+const step5Group = seedSpecGroups[0]!;
+const step5Rows: DemoRow[] = step5Group.lines.map((line) => ({
+  line: String(line.serial),
+  ref: line.ref,
+  w1: String(line.widthMm),
+  h1: String(line.heightMm),
+  // A single-glazed line has no second pane; the application stores 0 there.
+  w2: line.secondPane ? String(line.secondPane.widthMm) : "—",
+  h2: line.secondPane ? String(line.secondPane.heightMm) : "—",
+  qty: String(line.qty),
+  sqm: pieceArea(line).toFixed(2),
+  tSqm: lineArea(line).toFixed(2),
+  rate: line.rate.toFixed(2),
+  value: lineValue(line).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+}));
+
 const deliveryRows: DemoRow[] = [
   { note: "DN-1841", job: "JO-24102", party: sampleParties[1]!, pieces: "40", vehicle: "Truck 3", status: "Delivered" },
   { note: "DN-1842", job: "JO-24101", party: sampleParties[0]!, pieces: "18", vehicle: "Truck 1", status: "In transit" },
@@ -232,20 +259,62 @@ const bespoke: Record<string, Demo> = {
   },
 
   ProformaInvoice: {
+    /*
+     * The wizard is nine steps, and they are the application's steps, named the
+     * way the application names them: the folders under
+     * `Views/ProformaInvoice/` are Step1CompanySetup … Step9ProfitLoss, and step
+     * five is the specification grid (`Dg.Specification`). This earlier read
+     * "Party / Build-up / Dimensions / Area / Charges / Discount / Tax / Terms /
+     * Review", which was a plausible wizard and not this one.
+     */
     kind: "wizard",
     blurb: "The commercial document: line build-up, charges, then a stamped price basis.",
     steps: [
-      "Party",
-      "Build-up",
-      "Dimensions",
-      "Area",
-      "Charges",
-      "Discount",
-      "Tax",
-      "Terms",
-      "Review",
+      "Company Setup",
+      "Client Profile",
+      "Project Specs",
+      "Pricing Estimator",
+      "Specification",
+      "Other Charges",
+      "Print Preview",
+      "Attachments",
+      "Profit & Loss",
     ],
     views: [
+      {
+        /*
+         * Step 5 — the specification grid.
+         *
+         * The column set is `Dg.*` from Themes/Languages/en-US.xaml, in the
+         * order `Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml` lays
+         * them out: # · GLASS REF · W1 · H1 · W2 · H2 · QTY · SQM · TOTAL SQM ·
+         * RATE · VALUE, under a SPECIFICATION block that also carries the glass
+         * type and the base rate for the group. The rows are the seeded
+         * specification groups from `workedExample.ts`, so the preview and the
+         * worked example show the same job rather than two different ones.
+         */
+        label: "Specification",
+        columns: [
+          { key: "line", label: "#" },
+          { key: "ref", label: "GLASS REF" },
+          { key: "w1", label: "W1", align: "right", kind: "num" },
+          { key: "h1", label: "H1", align: "right", kind: "num" },
+          { key: "w2", label: "W2", align: "right", kind: "num", hideBelow: "sm" },
+          { key: "h2", label: "H2", align: "right", kind: "num", hideBelow: "sm" },
+          { key: "qty", label: "QTY", align: "right", kind: "num" },
+          { key: "sqm", label: "SQM", align: "right", kind: "num", hideBelow: "md" },
+          { key: "tSqm", label: "TOTAL SQM", align: "right", kind: "num" },
+          { key: "rate", label: "RATE", align: "right", kind: "num", hideBelow: "md" },
+          { key: "value", label: "VALUE", align: "right", kind: "money" },
+        ],
+        rows: step5Rows,
+        summary: [
+          { label: "Specification 1", value: "Clear Tempered — Main Facade" },
+          { label: "Glass type", value: "SGU" },
+          { label: "Base rate", value: "150.00 / m²" },
+          { label: "Lines", value: "10" },
+        ],
+      },
       {
         label: "Line items",
         columns: [
@@ -285,7 +354,8 @@ const bespoke: Record<string, Demo> = {
         summary: [{ label: "Basis", value: "Stamped onto the document" }],
       },
     ],
-    footnote: "Change any input on the price basis and the stamped basis changes with it — the difference between the two is what the review step exists to show.",
+    footnote:
+      "Step 5 holds the specification: # · GLASS REF · W1 · H1 · W2 · H2 · QTY · SQM · TOTAL SQM · RATE · VALUE, with the glass type and base rate on the block. A dash in W2 or H2 is a single-glazed line — the application stores 0 in those cells, as it does in the seeded job on the worked example. Change any input on the price basis and the stamped basis changes with it; the difference between the two is what the review step exists to show.",
   },
 
   JobOrder: {

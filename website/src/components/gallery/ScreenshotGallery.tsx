@@ -317,7 +317,7 @@ function Lightbox({
       </div>
 
       <div
-        className="flex-1 touch-pan-y overflow-y-auto px-4 py-6 sm:px-6"
+        className="flex-1 touch-pan-y overflow-y-auto px-3 py-4 sm:px-5 sm:py-6 lg:px-6"
         onClick={(event) => {
           if (event.target === event.currentTarget) onClose();
         }}
@@ -347,7 +347,7 @@ function Lightbox({
           details move underneath it, where they cost nothing. A 16:9-ish window
           gets the full measure of the screen and every detail is legible.
         */}
-        <div className="animate-scale-in mx-auto w-full max-w-[100rem]">
+        <div className="animate-scale-in mx-auto w-full max-w-[110rem]">
           <ScreenshotFrame shot={shot} modal />
         </div>
 
@@ -358,7 +358,7 @@ function Lightbox({
           content here, and padding the layout out to three would just make the
           caption narrow again.
         */}
-        <div className="mx-auto mt-8 grid w-full max-w-[100rem] gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="mx-auto mt-8 grid w-full max-w-[110rem] gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
           <div className="space-y-5">
             <div>
               <p className="eyebrow">What this screen does</p>

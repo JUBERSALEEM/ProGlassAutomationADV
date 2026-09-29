@@ -38,9 +38,10 @@ import path from "node:path";
 import { mkdir } from "node:fs/promises";
 import sharp from "sharp";
 
-import { cutList, planSheet, planTotals, plates } from "@/components/optimization/sheetPlan";
+import { demoFor } from "@/data/liveDemos";
 import { chainVerbs } from "@/data/workflows";
 import { modules } from "@/data/modules";
+import { quotationTotals } from "@/data/workedExample";
 import { site } from "@/lib/site";
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -232,15 +233,41 @@ function pill(
  * Figures the banner quotes — all derived
  * ════════════════════════════════════════════════════════════════════════ */
 
-/** 1600 × 1100 × 5 → hectares of glass, rounded the way a quote rounds it. */
-function lineSqm(item: { width: number; height: number; qty: number }): number {
-  return (item.width * item.height * item.qty) / 1_000_000;
+/*
+ * The screen the home page puts in its hero.
+ *
+ * `demoFor` is the same accessor the live preview on `/` uses, so the banner
+ * draws the Overview dashboard with the application's own tiles — open
+ * inquiries, proformas raised, jobs in production, ready to dispatch — and the
+ * proforma's nine steps, counted from the demo's own step list.
+ */
+const dashboard = demoFor("Dashboard", "Overview dashboard", ["KPI cards", "Order-to-cash pipeline", "Activity feed"]);
+const kpis = (dashboard.views[0]?.summary ?? []).slice(0, 4);
+const proformaSteps = demoFor("ProformaInvoice", "Proforma Invoice", []).steps ?? [];
+
+/**
+ * Seven bars, the same series the live dashboard draws at its default range
+ * (see `DashboardEngine` in src/components/product/LiveSurface.tsx). Kept as a
+ * literal because it is a shape, not a figure: the tiles above carry the
+ * numbers.
+ */
+const dashboardBars = [0.42, 0.66, 0.38, 0.82, 0.55, 0.94, 0.7];
+
+/** Money, the way the application and the site both print it. */
+function money(value: number): string {
+  return value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-const cuttingListSqm = cutList.reduce((sum, item) => sum + lineSqm(item), 0);
-
 /** The rail: seven real modules, grouped the way `GlassShell.xaml` groups them. */
-const RAIL_KEYS = ["Dashboard", "SheetStore", "Inquiry", "ProformaInvoice", "JobOrder", "Optimization", "Cutting"];
+/*
+ * Three groups, not nine.
+ *
+ * The drawn rail is as tall as the window it is inside, and the profit card
+ * overlaps its lower corner the way it does on `/`. Main, Inventory and Sales
+ * fill the rail above that card; Production and below would be painted under
+ * it and read as a truncated menu, which is worse than showing fewer groups.
+ */
+const RAIL_KEYS = ["Dashboard", "SheetStore", "Inquiry", "ProformaInvoice", "JobOrder"];
 const railEntries = RAIL_KEYS.map((key) => modules.find((entry) => entry.moduleKey === key)).filter(
   (entry): entry is (typeof modules)[number] => Boolean(entry),
 );
@@ -283,7 +310,7 @@ layers.push(
  * Right two thirds. It is a drawing of the Optimization screen, not a
  * screenshot — but the plate geometry inside it is the geometry the site's own
  * optimizer preview draws, from the same packer. */
-const win = { x: 736, y: 64, width: 1120, height: 512 };
+const win = { x: 736, y: 56, width: 1120, height: 496 };
 const rail = { x: win.x + 16, y: win.y + 68, width: 220, height: win.height - 84 };
 const main = { x: win.x + 252, y: win.y + 64, width: win.width - 272 };
 
@@ -311,15 +338,32 @@ for (const [index, colour] of [palette.rose, "#FBBF24", palette.green].entries()
   layers.push(`<circle cx="${win.x + 26 + index * 16}" cy="${win.y + 26}" r="5" fill="${rgba(colour, 0.55)}" />`);
 }
 layers.push(
-  text(win.x + 84, win.y + 31, `${site.name} · Optimization`, { size: 15, fill: palette.text1, weight: 600 }),
-  text(win.x + 300, win.y + 31, `${site.framework} · v${site.version}`, { size: 12.5, fill: rgba(palette.text3, 0.7), family: MONO }),
+  text(win.x + 84, win.y + 31, `${site.name} · Dashboard`, { size: 15, fill: palette.text1, weight: 600 }),
+  text(win.x + 320, win.y + 31, `v${site.version}`, { size: 12.5, fill: rgba(palette.text3, 0.7), family: MONO }),
 );
-const sheetPill = pill(win.x + win.width - 22 - 232, win.y + 13, `PLATE ${planSheet.label} mm`, {
+/* The window's own top-right controls, as the frame on `/` draws them. */
+layers.push(
+  text(win.x + win.width - 196, win.y + 31, "10:30", {
+    size: 12,
+    fill: rgba(palette.text3, 0.55),
+    family: MONO,
+    anchor: "end",
+  }),
+  rect(win.x + win.width - 184, win.y + 18, 20, 20, { fill: palette.ink800, stroke: palette.lineStrong, strokeWidth: 1, radius: 5 }),
+);
+const adminChip = pill(win.x + win.width - 156, win.y + 17, "ADMIN", {
   fill: rgba(palette.ink800, 0.9),
-  stroke: palette.line,
-  color: palette.brand200,
+  stroke: palette.lineStrong,
+  color: rgba(palette.text3, 0.8),
+  height: 22,
+  size: 11,
+  padX: 24,
 });
-layers.push(sheetPill.svg);
+layers.push(
+  `<circle cx="${win.x + win.width - 145}" cy="${win.y + 28}" r="7" fill="${rgba(palette.brand400, 0.22)}" />`,
+  text(win.x + win.width - 145, win.y + 32, "AB", { size: 8.5, fill: palette.brand200, family: MONO, weight: 700, anchor: "middle" }),
+  adminChip.svg,
+);
 
 /* Rail. */
 layers.push(
@@ -343,7 +387,7 @@ for (const group of railGroups) {
   );
   railCursor += 14;
   for (const item of group.items) {
-    const active = item.moduleKey === "Optimization";
+    const active = item.moduleKey === "Dashboard";
     if (active) {
       layers.push(
         rect(rail.x + 10, railCursor, rail.width - 20, 28, { fill: rgba(palette.brand500, 0.16), radius: 9 }),
@@ -362,165 +406,228 @@ for (const group of railGroups) {
   railCursor += 12;
 }
 
-/* Main column: heading, then the run summary. */
+/*
+ * The rail ends with System, anchored to the bottom of the navigation.
+ *
+ * Five entries and a long empty column would read as a menu that failed to
+ * load. `System Center` and `Diagnostics` are the two System entries the
+ * application's rail actually carries, and they sit where they sit in the
+ * product: at the foot of the rail.
+ */
 layers.push(
-  text(main.x, main.y + 22, "Optimization", { size: 23, fill: palette.text1, weight: 700, tracking: -0.01 }),
-  text(
-    main.x,
-    main.y + 44,
-    `Cutting plan · ${planTotals.pieces} pieces · ${planTotals.plates} plates · ${cuttingListSqm.toFixed(2)} m² of ${planTotals.stockSqm.toFixed(2)} m²`,
-    { size: 13, fill: rgba(palette.text3, 0.8) },
-  ),
-);
-
-const yieldPill = pill(main.x + main.width - 268, main.y + 4, `${planTotals.utilizationPct.toFixed(1)} % YIELD`, {
-  fill: rgba(palette.brand500, 0.18),
-  stroke: rgba(palette.brand400, 0.55),
-  color: palette.brand200,
-  height: 26,
-});
-const verifiedPill = pill(main.x + main.width - 130, main.y + 4, `${planTotals.unplaced} UNPLACED`, {
-  fill: rgba(palette.green, 0.14),
-  stroke: rgba(palette.green, 0.45),
-  color: palette.green,
-  height: 26,
-});
-layers.push(yieldPill.svg, verifiedPill.svg);
-
-/* The plates. Four of them, drawn from the real layout. */
-const plateGap = 14;
-const plateWidth = (main.width - plateGap * (plates.length - 1)) / plates.length;
-const plateHeight = plateWidth * (planSheet.height / planSheet.width);
-const plateTop = main.y + 64;
-
-const pieceInk: Record<string, { fill: string; stroke: string }> = {
-  "G-101": { fill: rgba(palette.brand500, 0.34), stroke: rgba(palette.brand400, 0.85) },
-  "G-102": { fill: rgba(palette.cyan, 0.26), stroke: rgba(palette.cyan, 0.75) },
-  "G-103": { fill: rgba(palette.teal, 0.24), stroke: rgba(palette.teal, 0.72) },
-  "G-104": { fill: rgba(palette.rose, 0.24), stroke: rgba(palette.rose, 0.72) },
-  "G-105": { fill: rgba(palette.brand300, 0.24), stroke: rgba(palette.brand300, 0.6) },
-};
-
-plates.forEach((plate, index) => {
-  const px = main.x + index * (plateWidth + plateGap);
-  const scale = plateWidth / planSheet.width;
-  layers.push(
-    rect(px, plateTop, plateWidth, plateHeight, {
-      fill: rgba(palette.ink800, 0.9),
-      stroke: palette.lineStrong,
-      strokeWidth: 1,
-      radius: 8,
-    }),
-  );
-  for (const piece of plate.pieces) {
-    const ink = pieceInk[piece.id.split("-").slice(0, 2).join("-")] ?? pieceInk["G-105"]!;
-    const x = px + piece.x * scale;
-    const y = plateTop + piece.y * scale;
-    const w = piece.width * scale;
-    const h = piece.height * scale;
-    layers.push(
-      rect(x, y, w, h, { fill: ink.fill, stroke: ink.stroke, strokeWidth: 0.9, radius: 1.5 }),
-    );
-    if (w >= 46 && h >= 19) {
-      layers.push(
-        text(x + 4, y + 12.5, piece.id.split("-").slice(0, 2).join("-"), {
-          size: 9,
-          fill: rgba(palette.text1, 0.82),
-          family: MONO,
-          weight: 500,
-        }),
-      );
-    }
-  }
-  // The safety margin, drawn where it actually falls: 15 mm of a 3210 mm plate.
-  layers.push(
-    rect(px + 15 * scale, plateTop + 15 * scale, plateWidth - 30 * scale, plateHeight - 30 * scale, {
-      fill: "none",
-      stroke: rgba(palette.text1, 0.16),
-      strokeWidth: 0.8,
-      dash: "3 3",
-      radius: 2,
-    }),
-  );
-  layers.push(
-    text(px, plateTop + plateHeight + 19, `PLATE ${plate.plate} · ${plate.utilizationPct.toFixed(1)} %`, {
-      size: 11,
-      fill: rgba(palette.text3, 0.72),
-      family: MONO,
-      weight: 500,
-      tracking: 0.1,
-    }),
-  );
-});
-
-/* The specification grid the optimizer read. Same list, same quantities. */
-const tableTop = plateTop + plateHeight + 40;
-const columns = { ref: main.x, size: main.x + 152, qty: main.x + main.width - 176, sqm: main.x + main.width };
-
-layers.push(
-  text(columns.ref, tableTop, "GLASS REF", { size: 10.5, fill: rgba(palette.text3, 0.5), family: MONO, weight: 600, tracking: 0.18 }),
-  text(columns.size, tableTop, "W1 × H1", { size: 10.5, fill: rgba(palette.text3, 0.5), family: MONO, weight: 600, tracking: 0.18 }),
-  text(columns.qty, tableTop, "QTY", { size: 10.5, fill: rgba(palette.text3, 0.5), family: MONO, weight: 600, tracking: 0.18, anchor: "end" }),
-  text(columns.sqm, tableTop, "SQM", { size: 10.5, fill: rgba(palette.text3, 0.5), family: MONO, weight: 600, tracking: 0.18, anchor: "end" }),
-  line(main.x, tableTop + 8, main.x + main.width, tableTop + 8, palette.lineSoft, 1),
-);
-
-const rowHeight = 25;
-cutList.forEach((item, index) => {
-  const baseline = tableTop + 8 + 18 + index * rowHeight;
-  layers.push(
-    text(columns.ref, baseline, item.ref, { size: 13.5, fill: palette.text1, family: MONO, weight: 500 }),
-    text(columns.size, baseline, `${item.width} × ${item.height}`, { size: 13, fill: rgba(palette.text3, 0.9), family: MONO }),
-    text(columns.qty, baseline, String(item.qty), { size: 13, fill: palette.text2, family: MONO, anchor: "end" }),
-    text(columns.sqm, baseline, lineSqm(item).toFixed(2), { size: 13, fill: palette.text2, family: MONO, anchor: "end" }),
-  );
-  if (index < cutList.length - 1) {
-    layers.push(line(main.x, baseline + 7, main.x + main.width, baseline + 7, rgba(palette.line, 0.55), 1));
-  }
-});
-
-const totalsRule = tableTop + 8 + 18 + cutList.length * rowHeight - 9;
-layers.push(
-  line(main.x, totalsRule, main.x + main.width, totalsRule, rgba(palette.lineStrong, 0.9), 1),
-  text(
-    main.x,
-    totalsRule + 22,
-    `${cutList.length} references · ${planTotals.pieces} pieces · ${planTotals.unplaced} unplaced`,
-    { size: 12.5, fill: rgba(palette.text3, 0.8), family: MONO },
-  ),
-  text(main.x + main.width, totalsRule + 22, `${cuttingListSqm.toFixed(2)} m² used`, {
-    size: 12.5,
-    fill: palette.brand200,
+  text(rail.x + 20, rail.y + rail.height - 84, "SYSTEM", {
+    size: 10.5,
+    fill: rgba(palette.text3, 0.55),
     family: MONO,
     weight: 600,
-    anchor: "end",
+    tracking: 0.2,
   }),
+  text(rail.x + 26, rail.y + rail.height - 60, "System Center", { size: 15, fill: rgba(palette.text3, 0.86), weight: 450 }),
+  text(rail.x + 26, rail.y + rail.height - 32, "Diagnostics", { size: 15, fill: rgba(palette.text3, 0.86), weight: 450 }),
+);
+
+/* ── The workspace: the Overview dashboard ───────────────────────────────
+ * The home page's hero shows this screen, so this is the screen the banner
+ * shows: the module's title, its range chips, the four position tiles the
+ * application reports, and the volume chart under them. The tile labels and
+ * values are read from the demo's own summary — nothing here is typed in. */
+layers.push(
+  text(main.x, main.y + 24, "Overview dashboard", { size: 23, fill: palette.text1, weight: 700, tracking: -0.01 }),
+  text(main.x, main.y + 42, dashboard.blurb, { size: 12.5, fill: rgba(palette.text3, 0.7) }),
+);
+
+/* The sample-data tag, and the range chips the preview offers. */
+const tag = pill(main.x + 322, main.y + 4, "SAMPLE DATA · LIVE", {
+  fill: rgba(palette.ink800, 0.75),
+  stroke: palette.lineStrong,
+  color: rgba(palette.text3, 0.85),
+  height: 24,
+  size: 10.5,
+  padX: 24,
+});
+layers.push(
+  `<circle cx="${main.x + 334}" cy="${main.y + 16}" r="3" fill="${palette.brand400}" />`,
+  tag.svg,
+);
+
+const rangeChips = ["Today", "This week", "This month"].map((label) => ({
+  label,
+  width: Math.round(label.length * 12 * 0.55 + 24),
+}));
+let chipX = main.x + main.width;
+for (const chip of [...rangeChips].reverse()) {
+  chipX -= chip.width;
+  const active = chip.label === "This week";
+  layers.push(
+    rect(chipX, main.y + 5, chip.width, 24, {
+      fill: active ? rgba(palette.brand400, 0.18) : rgba(palette.ink800, 0.6),
+      stroke: active ? rgba(palette.brand400, 0.45) : palette.line,
+      strokeWidth: 1,
+      radius: 12,
+    }),
+    text(chipX + chip.width / 2, main.y + 21, chip.label, {
+      size: 12,
+      fill: active ? palette.brand200 : rgba(palette.text3, 0.75),
+      weight: active ? 600 : 500,
+      anchor: "middle",
+    }),
+  );
+  chipX -= 8;
+}
+
+/* The four position tiles. */
+const tileGap = 12;
+const tileWidth = (main.width - tileGap * 3) / 4;
+const tileTop = main.y + 56;
+const tileHeight = 96;
+kpis.forEach((item, index) => {
+  const x = main.x + index * (tileWidth + tileGap);
+  layers.push(
+    rect(x, tileTop, tileWidth, tileHeight, {
+      fill: rgba(palette.ink800, 0.72),
+      stroke: palette.line,
+      strokeWidth: 1,
+      radius: 12,
+    }),
+    rect(x + 14, tileTop + 14, 12, 3, { fill: palette.brand400, radius: 2, opacity: 0.8 }),
+    text(x + 14, tileTop + 36, item.label.toUpperCase(), {
+      size: 10,
+      fill: rgba(palette.text3, 0.55),
+      family: MONO,
+      weight: 600,
+      tracking: 0.14,
+    }),
+    text(x + 14, tileTop + 70, item.value, {
+      size: 30,
+      fill: palette.text1,
+      weight: 700,
+      family: MONO,
+      tracking: -0.02,
+    }),
+    text(x + 14, tileTop + 86, index === 0 ? "across the period" : "across the range", {
+      size: 10,
+      fill: rgba(palette.text3, 0.6),
+      family: MONO,
+    }),
+  );
+});
+
+/* The volume chart, drawn from the same seven-bar series as the live tile. */
+const chartTop = tileTop + tileHeight + 14;
+const chartHeight = 208;
+layers.push(
+  rect(main.x, chartTop, main.width, chartHeight, {
+    fill: rgba(palette.ink950, 0.5),
+    stroke: palette.line,
+    strokeWidth: 1,
+    radius: 12,
+  }),
+);
+const barPad = 18;
+const barGap = 12;
+const barWidth = (main.width - barPad * 2 - barGap * (dashboardBars.length - 1)) / dashboardBars.length;
+dashboardBars.forEach((value, index) => {
+  const height = (chartHeight - barPad * 2) * value;
+  layers.push(
+    rect(main.x + barPad + index * (barWidth + barGap), chartTop + chartHeight - barPad - height, barWidth, height, {
+      fill: "url(#barGrad)",
+      radius: 3,
+    }),
+  );
+});
+
+/* The chart's own axis labels, so the shape means something. */
+const chartFloor = chartTop + chartHeight - barPad + 14;
+["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach((day, index) => {
+  layers.push(
+    text(main.x + barPad + index * (barWidth + barGap) + barWidth / 2, chartFloor, day, {
+      size: 9.5,
+      fill: rgba(palette.text3, 0.45),
+      family: MONO,
+      anchor: "middle",
+    }),
+  );
+});
+
+if (dashboard.footnote) {
+  layers.push(
+    text(main.x, chartFloor + 22, dashboard.footnote, { size: 11.5, fill: rgba(palette.text3, 0.6) }),
+  );
+}
+
+/* ── The two floating cards the home page hangs off this window ───────────
+ * In the hero, a profit snapshot card overlaps the frame's lower-left corner
+ * and a chain chip sits above its top-right. Both are drawn here in the same
+ * places, because they are part of what the home page's hero looks like. */
+
+/*
+ * Placed where the hero places it — overlapping the frame's lower-left corner
+ * and hanging below it — but positioned so the chart above it and the footnote
+ * beside it stay readable rather than being buried under the card.
+ */
+const card = { x: win.x - 110, y: win.y + win.height - 36, width: 320, height: 124 };
+layers.push(
+  rect(card.x + 5, card.y + 12, card.width, card.height, { fill: "#05030F", radius: 16, opacity: 0.55 }),
+  rect(card.x, card.y, card.width, card.height, {
+    fill: rgba(palette.ink900, 0.97),
+    stroke: palette.lineStrong,
+    strokeWidth: 1.5,
+    radius: 16,
+  }),
+  text(card.x + 16, card.y + 24, "PROFORMA · STEP 9", {
+    size: 10.5,
+    fill: rgba(palette.text3, 0.6),
+    family: MONO,
+    weight: 600,
+    tracking: 0.16,
+  }),
+  text(card.x + 16, card.y + 45, "Profit & loss snapshot", { size: 14.5, fill: palette.text1, weight: 600 }),
+  line(card.x + 16, card.y + 56, card.x + card.width - 16, card.y + 56, palette.lineSoft, 1),
 );
 
 /*
- * The honesty note: hung on the window's bottom-left corner, where it overlaps
- * the frame and nothing else. It states what `assertPlanIsSound()` actually
- * checks — a piece placed twice, dropped, or outside the margins fails the
- * build, so the claim on the badge is one the repository enforces.
+ * The seeded job's money, from `workedExample.ts`, which asserts these totals
+ * against the application's seeder at build time. Net, tax and gross — the same
+ * three lines Step 9 prints.
  */
-const badgeLabel = "PLAN VERIFIED · EVERY PIECE PLACED ONCE";
-const badgeHeight = 32;
-const badgeWidth = Math.round(badgeLabel.length * 11.5 * 0.6 + badgeLabel.length * 11.5 * 0.1 + 66);
-const badge = { x: win.x - 22, y: win.y + win.height - 20 };
+const moneyRows: [string, string][] = [
+  ["Net", money(quotationTotals.subtotal)],
+  ["VAT 5%", money(quotationTotals.vat)],
+  ["Total", money(quotationTotals.grandTotal)],
+];
+moneyRows.forEach(([label, value], index) => {
+  const y = card.y + 76 + index * 22;
+  const last = index === moneyRows.length - 1;
+  layers.push(
+    text(card.x + 16, y, label, { size: 12, fill: rgba(palette.text3, 0.75) }),
+    text(card.x + card.width - 16, y, value, {
+      size: 12.5,
+      fill: last ? palette.brand200 : palette.text2,
+      family: MONO,
+      weight: last ? 700 : 500,
+      anchor: "end",
+    }),
+  );
+});
+
+/* The chain chip: the first five verbs, as the hero prints them. */
+const chainLabel = chainVerbs.slice(0, 5).join("  →  ");
+const chainWidth = Math.round(chainLabel.length * 12.5 * 0.6 + 30 + chainLabel.length * 12.5 * 0.08);
+const chainChipX = win.x + win.width - 34 - chainWidth;
 layers.push(
-  rect(badge.x, badge.y, badgeWidth, badgeHeight, {
+  rect(chainChipX, win.y - 24, chainWidth, 34, {
     fill: rgba(palette.ink900, 0.97),
-    stroke: rgba(palette.brand400, 0.5),
-    strokeWidth: 1,
-    radius: badgeHeight / 2,
+    stroke: palette.lineStrong,
+    strokeWidth: 1.5,
+    radius: 17,
   }),
-  `<path d="M${badge.x + 20} ${badge.y + 17} l4.5 4.5 l8 -9" fill="none" stroke="${palette.green}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />`,
-  text(badge.x + 42, badge.y + badgeHeight / 2 + 4, badgeLabel, {
-    size: 11.5,
+  text(chainChipX + chainWidth / 2, win.y - 3, chainLabel, {
+    size: 12.5,
     fill: palette.brand200,
     family: MONO,
     weight: 500,
-    tracking: 0.1,
+    tracking: 0.06,
+    anchor: "middle",
   }),
 );
 
@@ -600,7 +707,7 @@ layers.push(
 const figures = [
   { value: String(modules.length), label: "MODULES" },
   { value: String(railGroupCount), label: "RAIL GROUPS" },
-  { value: `${planTotals.utilizationPct.toFixed(1)} %`, label: "PLATE YIELD" },
+  { value: `${proformaSteps.length}`, label: "PROFORMA STEPS" },
 ];
 figures.forEach((figure, index) => {
   const x = col.x + index * 208;
@@ -672,6 +779,10 @@ const defs = `<defs>
     <stop offset="0%" stop-color="${palette.cyan}" stop-opacity="0.85" />
     <stop offset="100%" stop-color="${palette.brand300}" stop-opacity="0.55" />
   </linearGradient>
+  <linearGradient id="barGrad" x1="0" y1="1" x2="0" y2="0">
+    <stop offset="0%" stop-color="${rgba(palette.brand600, 0.7)}" />
+    <stop offset="100%" stop-color="${rgba(palette.cyan, 0.7)}" />
+  </linearGradient>
   <linearGradient id="markGlint" x1="0" y1="0" x2="1" y2="1">
     <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.5" />
     <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0" />
@@ -697,5 +808,5 @@ const { size } = await sharp(Buffer.from(svg))
 console.log(`wrote  ${path.relative(process.cwd(), target)}`);
 console.log(
   `       ${WIDTH} × ${HEIGHT} (drawn at ${SUPERSAMPLE}×) · ${(size / 1024).toFixed(0)} KB · ` +
-    `${planTotals.pieces} pieces across ${planTotals.plates} plates at ${planTotals.utilizationPct.toFixed(2)} %`,
+    `${kpis.length} dashboard tiles · net AED ${money(quotationTotals.subtotal)} · total AED ${money(quotationTotals.grandTotal)}`,
 );
