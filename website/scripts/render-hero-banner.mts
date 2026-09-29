@@ -25,8 +25,20 @@
  *
  * Usage, from `website/`:
  *
- *   npx tsx scripts/render-hero-banner.mts      # rewrites ../README_ASSETS/hero.png
- *   npm run assets:optimize                     # re-encodes the site derivatives
+ *   npx tsx scripts/render-hero-banner.mts      # writes both outputs below
+ *   npm run assets:optimize                     # re-encodes the web derivatives
+ *
+ * Two outputs, because they are used at different sizes:
+ *
+ *   ../README_ASSETS/hero.png                         1920 × 640 — the README
+ *   public/images/brand/proglass-hero-banner-3840.png 3840 × 1280 — the site
+ *
+ * The site master is the full supersampled raster, not a copy of the README
+ * one. The banner is drawn edge to edge across the shell, so on a 1920 px
+ * screen at 2× it is asked for at roughly 3584 device pixels; a 1920 px file
+ * was being enlarged to meet that, which is what made it look soft. The
+ * renderer already rasterises at `SUPERSAMPLE ×` — this keeps that raster
+ * instead of throwing it away.
  *
  * Runtime prerequisites: `sharp` (a devDependency) and the two families the
  * site self-hosts. The font files in `src/fonts` are woff2; if this script
@@ -902,16 +914,50 @@ const svg =
  * Render
  * ════════════════════════════════════════════════════════════════════════ */
 
-const target = path.resolve(import.meta.dirname, "..", "..", "README_ASSETS", "hero.png");
-await mkdir(path.dirname(target), { recursive: true });
+/**
+ * The README copy: 1920 × 640, resampled down from the supersampled raster so
+ * the text edges stay clean at the size GitHub displays.
+ */
+const readmeTarget = path.resolve(import.meta.dirname, "..", "..", "README_ASSETS", "hero.png");
 
-const { size } = await sharp(Buffer.from(svg))
+/**
+ * The site master: the supersampled raster itself, 3840 × 1280. Kept at full
+ * size so `next/image` can hand a retina display a file with real detail in it
+ * instead of enlarging a 1920 px one.
+ */
+const siteTarget = path.resolve(
+  import.meta.dirname,
+  "..",
+  "public",
+  "images",
+  "brand",
+  "proglass-hero-banner-3840.png",
+);
+
+await mkdir(path.dirname(readmeTarget), { recursive: true });
+await mkdir(path.dirname(siteTarget), { recursive: true });
+
+const source = sharp(Buffer.from(svg));
+
+const { size } = await source
+  .clone()
   .resize(WIDTH, HEIGHT, { fit: "fill", kernel: "lanczos3" })
   .png({ compressionLevel: 9 })
-  .toFile(target);
+  .toFile(readmeTarget);
 
-console.log(`wrote  ${path.relative(process.cwd(), target)}`);
+const { size: siteSize } = await source
+  .clone()
+  .resize(WIDTH * SUPERSAMPLE, HEIGHT * SUPERSAMPLE, { fit: "fill", kernel: "lanczos3" })
+  .png({ compressionLevel: 9 })
+  .toFile(siteTarget);
+
+console.log(`wrote  ${path.relative(process.cwd(), readmeTarget)}`);
 console.log(
   `       ${WIDTH} × ${HEIGHT} (drawn at ${SUPERSAMPLE}×) · ${(size / 1024).toFixed(0)} KB · ` +
     `${kpis.length} dashboard tiles · net AED ${money(quotationTotals.subtotal)} · total AED ${money(quotationTotals.grandTotal)}`,
+);
+console.log(`wrote  ${path.relative(process.cwd(), siteTarget)}`);
+console.log(
+  `       ${WIDTH * SUPERSAMPLE} × ${HEIGHT * SUPERSAMPLE} (native supersample) · ` +
+    `${(siteSize / 1024 / 1024).toFixed(1)} MB — the site\'s own master`,
 );

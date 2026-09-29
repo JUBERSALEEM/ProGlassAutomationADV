@@ -98,7 +98,16 @@ const nextConfig: NextConfig = {
 
   images: {
     formats: ["image/avif", "image/webp"],
-    deviceSizes: [360, 480, 640, 768, 1024, 1280, 1440, 1920, 2560],
+    /**
+     * 2880 and 3840 are here for the full-bleed artwork — the hero banner and
+     * the page banners. They are drawn edge to edge, so a 1792 px shell on a
+     * 1920 px screen at device pixel ratio 2 asks for ~3584 px. Without those
+     * two steps the request was answered by enlarging the 2560 px entry, and
+     * the artwork looked soft on exactly the large displays it is meant for.
+     */
+    deviceSizes: [360, 480, 640, 768, 1024, 1280, 1440, 1920, 2560, 2880, 3840],
+    /** 92 is used by the brand banner; 75 stays the default elsewhere. */
+    qualities: [75, 92],
     minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 

@@ -161,26 +161,28 @@ export function ProductHero() {
           <div className="plate overflow-hidden">
             <div className="relative aspect-[3/1] w-full">
               <Image
-                src="/images/brand/proglass-hero-banner-1920.png"
+                /* The 3840 px master, not the 1920 px README file. This plate is
+                   drawn edge to edge, so a retina display asks for it at roughly
+                   3584 device pixels on a 1920 px screen; the 1920 px file was
+                   being enlarged to meet that, which is what made it look soft.
+                   `sizes="100vw"` is what lets the browser pick the right one —
+                   it used to claim 1200 px, so it asked for too small a file. */
+                src="/images/brand/proglass-hero-banner-3840.png"
                 alt="ProGlass Automation brand banner: the application's Overview dashboard showing open inquiries, proformas raised, jobs in production and pieces ready to dispatch, beside the product mark, the proforma's profit and loss snapshot and the line 'Glass business management, built around your workflow.'"
                 fill
-                sizes="(max-width: 1024px) 100vw, 1200px"
+                sizes="100vw"
+                quality={92}
                 className="object-cover"
                 priority
               />
               {/*
-                A light veil only. The illustration used to be a landscape
-                scene with empty sky along the bottom, so the old overlay was
-                opaque enough to bury it; the banner now carries a cutting plan
-                and a table of glass references down to its lower edge, and an
-                opaque gradient would hide the very figures it was redrawn to
-                show. The caption below therefore sits in its own chip instead
-                of relying on the veil for contrast.
+                No veil over the artwork. It carries a cutting plan and a table
+                of glass references down to its lower edge, and any gradient
+                laid over it dims exactly the figures it was drawn to show — on
+                a dark image a scrim reads as haze, which is half of what
+                "the banner looks blurred" meant. The caption sits in its own
+                opaque chip instead, so contrast never depended on the veil.
               */}
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-ink-950/55 via-ink-950/10 to-transparent"
-              />
               {/* Bottom-right, in the one part of the composition that is empty:
                   the banner's own lower-left carries the headline, the figures
                   and the workflow line, and a chip there would cover them. */}

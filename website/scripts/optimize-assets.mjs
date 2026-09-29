@@ -14,7 +14,17 @@
  *   Resources/Glass3D/lam-3d.png       → public/images/glass3d/lam-3d-*
  *   Resources/Glass3D/dgulam-3d.png    → public/images/glass3d/dgulam-3d-*
  *   Resources/proglass_icon_256.png    → public/images/brand/proglass-icon-256-*
- *   README_ASSETS/hero.png             → public/images/brand/proglass-hero-banner-*
+ *
+ * and one source that lives in this tree rather than in the application, because
+ * the renderer produces it at a size nothing else needs:
+ *
+ *   public/images/brand/proglass-hero-banner-3840.png  → the banner derivatives
+ *
+ * The banner is drawn edge to edge, so a retina display asks for it at roughly
+ * 3584 device pixels on a 1920 px screen. Deriving from the 3840 px master is
+ * what makes those requests resolve to real detail; deriving from
+ * `README_ASSETS/hero.png` (1920 px) made everything above 1920 an enlargement,
+ * which is what made the banner look soft.
  *
  * Usage:
  *   node scripts/optimize-assets.mjs --from ..      # run from website/, source = repo root
@@ -45,12 +55,30 @@ const SOURCE_ROOT = fromIndex >= 0 && args[fromIndex + 1] ? path.resolve(args[fr
  * upscaled.
  */
 const TARGETS = [
-  { source: "README_ASSETS/hero.png", dest: "brand/proglass-hero-banner", widths: [1280, 1920, 2560] },
   { source: "Resources/proglass_icon_256.png", dest: "brand/proglass-icon-256", widths: [96, 192, 256] },
   { source: "Resources/Glass3D/sgu-3d.png", dest: "glass3d/sgu-3d", widths: [640, 1024, 1536] },
   { source: "Resources/Glass3D/dgu-3d.png", dest: "glass3d/dgu-3d", widths: [640, 1024, 1536] },
   { source: "Resources/Glass3D/lam-3d.png", dest: "glass3d/lam-3d", widths: [640, 1024, 1536] },
   { source: "Resources/Glass3D/dgulam-3d.png", dest: "glass3d/dgulam-3d", widths: [640, 1024, 1536] },
+];
+
+/**
+ * Masters that live inside this tree. They are resolved from `website/`, not
+ * from the application checkout, because the banner renderer is part of the
+ * site: `npx tsx scripts/render-hero-banner.mts` writes the 3840 px master and
+ * these derivatives follow from it.
+ *
+ * `fallback` caps the PNG: a palette PNG 3840 px wide would be several
+ * megabytes, and the PNG exists for scrapers and old browsers, which take the
+ * 1920 px file happily. AVIF and WebP still get the full range.
+ */
+const SITE_TARGETS = [
+  {
+    source: "public/images/brand/proglass-hero-banner-3840.png",
+    dest: "brand/proglass-hero-banner",
+    widths: [1280, 1920, 2560, 3840],
+    fallback: 1920,
+  },
 ];
 
 async function isStale(source, target) {
@@ -83,8 +111,12 @@ async function run() {
   const manifest = {};
   const missing = [];
 
-  for (const { source, dest, widths } of TARGETS) {
-    const sourcePath = path.join(SOURCE_ROOT, source);
+  const jobs = [
+    ...TARGETS.map((target) => ({ ...target, sourcePath: path.join(SOURCE_ROOT, target.source) })),
+    ...SITE_TARGETS.map((target) => ({ ...target, sourcePath: path.join(ROOT, target.source) })),
+  ];
+
+  for (const { source, dest, widths, fallback: fallbackCap, sourcePath } of jobs) {
     if (!existsSync(sourcePath)) {
       missing.push(source);
       console.warn(`  skip    ${source} (not in the source tree)`);
@@ -116,12 +148,13 @@ async function run() {
 
     // A lean PNG fallback, so a browser without AVIF or WebP support gets a
     // reasonable payload rather than the original multi-megabyte raster.
-    const fallbackWidth = chosen[chosen.length - 1] ?? available;
+    const fallbackWidth = Math.min(fallbackCap ?? Infinity, chosen[chosen.length - 1] ?? available);
     const fallback = path.join(targetDir, `${base}-${fallbackWidth}.png`);
     if (await isStale(sourcePath, fallback)) {
       await encode(sourcePath, fallback, fallbackWidth, "png");
       console.log(`  write   ${path.relative(ROOT, fallback)}`);
     }
+    manifest[dest][fallbackWidth] ??= {};
     manifest[dest][fallbackWidth].png = path.relative(ROOT, fallback);
   }
 
