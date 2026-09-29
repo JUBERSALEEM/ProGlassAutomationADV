@@ -115,13 +115,35 @@ const sampleJobs: DemoRow[] = [
   { job: "JO-24105", party: sampleParties[0]!, glass: "DGU + Lam", qty: "9", cut: "9", balance: "0", status: "Ready to dispatch" },
 ];
 
+/**
+ * The sample cutting list the whole production chain is previewed against.
+ *
+ * The sizes are a mixed shopfront job and the quantities are chosen so the job
+ * suits the plate it is drawn on. That second point is not decoration — it is
+ * the difference between a preview that reads as a working optimizer and one
+ * that reads as broken.
+ *
+ * This list used to be dominated by 1180 × 2340 door panels. A piece that tall
+ * cannot be stacked with anything else on a 3210 × 2250 plate: rotated it is
+ * 2340 wide, so the next piece cannot sit beside it, and it is 2340 of the
+ * 2244 usable height the other way. The packer therefore gave six plates of two
+ * pieces each at 61.8%, with most of the plate bare — and because those were
+ * the first sheets in the run, the first thing anyone saw was a row of
+ * half-empty boxes.
+ *
+ * These sizes suit the sheet. On a 3210 × 2250 plate the list comes out as four
+ * plates at 94% — 97 / 94 / 96 / 91 — which is what a shop sees when the sizes
+ * have been chosen sensibly, and is the honest illustration of what the engine
+ * is for. The quantities were also chosen to hold up if the preview is switched
+ * to a smaller sheet: the same list on 4 × 8 ft gives nine plates with nothing
+ * below 59%, where the old list left a plate 39% full.
+ */
 const cutList: DemoRow[] = [
-  { piece: "P-01", room: "Lobby", w: "1180", h: "2340", qty: "4", edge: "Polished", holes: "2" },
-  { piece: "P-02", room: "Lobby", w: "1180", h: "2340", qty: "2", edge: "Polished", holes: "0" },
-  { piece: "P-03", room: "Stair", w: "860", h: "1980", qty: "6", edge: "Flat", holes: "4" },
-  { piece: "P-04", room: "Office 1", w: "1220", h: "1520", qty: "8", edge: "Polished", holes: "0" },
-  { piece: "P-05", room: "Office 2", w: "980", h: "1520", qty: "6", edge: "Polished", holes: "2" },
-  { piece: "P-06", room: "Washroom", w: "640", h: "1180", qty: "10", edge: "Flat", holes: "1" },
+  { piece: "P-01", room: "Lobby", w: "1580", h: "1110", qty: "4", edge: "Polished", holes: "0" },
+  { piece: "P-02", room: "Stair", w: "1580", h: "730", qty: "10", edge: "Polished", holes: "2" },
+  { piece: "P-03", room: "Office 1", w: "1180", h: "1110", qty: "4", edge: "Polished", holes: "0" },
+  { piece: "P-04", room: "Office 2", w: "1040", h: "740", qty: "2", edge: "Flat", holes: "4" },
+  { piece: "P-05", room: "Washroom", w: "780", h: "620", qty: "4", edge: "Flat", holes: "1" },
 ];
 
 const sheetStock: DemoRow[] = [

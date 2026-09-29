@@ -436,9 +436,10 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
       */}
       <SheetGallery
         plates={plates}
-        pageSize={compact ? 3 : 6}
+        /* The sample job is four plates; a card shows all four as 2 × 2. */
+        pageSize={compact ? 4 : 6}
         paginate={!compact}
-        columns={compact ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-3"}
+        columns={compact ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3"}
       />
 
       {result.unplaced.length > 0 ? (
