@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { Container, Section } from "@/components/ui/Container";
+import { NotFoundSuggestions } from "@/components/layout/NotFoundSuggestions";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { nav } from "@/lib/site";
 
@@ -6,7 +9,7 @@ export default function NotFound() {
   return (
     <Section className="min-h-[70vh]">
       <Container>
-        <div className="max-w-2xl">
+        <div className="max-w-3xl">
           <p className="font-mono text-2xs uppercase tracking-[0.22em] text-brand-300">Error 404</p>
           <h1 className="mt-5 text-3xl leading-tight sm:text-4xl">That page is not here.</h1>
           <p className="lede mt-5">
@@ -14,7 +17,7 @@ export default function NotFound() {
             navigation — here are the pages people usually want.
           </p>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <div className="mt-8 flex flex-wrap gap-3">
             <ButtonLink href="/" size="lg" trailing={<ArrowRight />}>
               Back to the homepage
             </ButtonLink>
@@ -23,19 +26,32 @@ export default function NotFound() {
             </ButtonLink>
           </div>
 
-          <ul className="mt-12 grid gap-3 text-left sm:grid-cols-2">
-            {nav.primary.map((item) => (
-              <li key={item.href}>
-                <a
-                  href={item.href}
-                  className="surface flex items-center justify-between gap-4 px-4 py-3 text-sm text-text-secondary transition-colors duration-200 hover:border-brand-400/40 hover:text-text-primary"
-                >
-                  {item.label}
-                  <ArrowRight />
-                </a>
+          <NotFoundSuggestions />
+
+          <nav aria-label="All pages" className="mt-10 border-t border-line/60 pt-6">
+            <p className="eyebrow">Everything else</p>
+            <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+              {nav.primary.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="link-underline text-sm text-text-secondary">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              {nav.footer.resources.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="link-underline text-sm text-text-secondary">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href="/contact" className="link-underline text-sm text-text-secondary">
+                  Contact
+                </Link>
               </li>
-            ))}
-          </ul>
+            </ul>
+          </nav>
         </div>
       </Container>
     </Section>

@@ -21,6 +21,7 @@ import { glass3d } from "@/data/assets";
 import { featureGroups } from "@/data/features";
 import { faq } from "@/data/faq";
 import { screenshots, screenshotById } from "@/data/screenshots";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
@@ -55,6 +56,14 @@ const sliderShots = [
 export default function HomePage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/"
+      title="Glass business management software for Windows"
+      description="Windows desktop software for glass fabrication: SGU, DGU and lamination estimation, cutting optimization, sheet store, production, delivery and invoices."
+      // The questions this page actually renders, so the markup and the page agree.
+      faq={faq.filter((item) => item.group === "Product").map(({ question, answer }) => ({ question, answer }))}
+    />
       <ProductHero />
 
       {/* ═══ 01b · The facts strip ═══════════════════════════════════ */}
@@ -273,7 +282,7 @@ export default function HomePage() {
               </ol>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <ButtonLink href="/features#proforma" variant="secondary" size="md" trailing={<ArrowRight />}>
+                <ButtonLink href="/features#showcase-proforma" variant="secondary" size="md" trailing={<ArrowRight />}>
                   Feature detail
                 </ButtonLink>
                 <ButtonLink href="/how-it-works" variant="ghost" size="md">
@@ -567,23 +576,6 @@ export default function HomePage() {
       </Section>
 
       {/* ═══ 12 · FAQ ═══════════════════════════════════════════════ */}
-      {/* FAQ structured data for exactly the questions this page renders. */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            mainEntity: faq
-              .filter((item) => item.group === "Product")
-              .map((item) => ({
-                "@type": "Question",
-                name: item.question,
-                acceptedAnswer: { "@type": "Answer", text: item.answer },
-              })),
-          }),
-        }}
-      />
 
       <Section tone="raised" aria-labelledby="faq-heading">
         <Container>
@@ -611,7 +603,7 @@ export default function HomePage() {
         <Container>
           <Reveal>
             <div className="plate relative overflow-hidden p-8 sm:p-12">
-              <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+              <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0">
                 <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-brand-500/14 blur-[90px]" />
                 <div className="absolute -bottom-32 left-10 h-72 w-72 rounded-full bg-glass-teal/8 blur-[100px]" />
               </div>

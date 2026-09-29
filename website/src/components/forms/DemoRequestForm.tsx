@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/Button";
 import { site } from "@/lib/site";
 
 type FieldName = "name" | "company" | "email" | "phone" | "country" | "businessType" | "message";
+/** Not a real field: the honeypot the server uses to recognise a bot. */
+type TrapName = "website";
+type FormFields = FieldName | TrapName;
 
-type Values = Record<FieldName, string>;
+type Values = Record<FormFields, string>;
 
 const initialValues: Values = {
   name: "",
@@ -17,6 +20,7 @@ const initialValues: Values = {
   country: "",
   businessType: "",
   message: "",
+  website: "",
 };
 
 const businessTypes = [
@@ -42,11 +46,12 @@ type Status = "idle" | "submitting" | "success" | "error";
  */
 export function DemoRequestForm() {
   const [values, setValues] = useState<Values>(initialValues);
-  const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
+  // `Values` is inferred from `initialValues`, so the trap field is part of it.
+  const [errors, setErrors] = useState<Partial<Record<FormFields, string>>>({});
   const [status, setStatus] = useState<Status>("idle");
   const [serverMessage, setServerMessage] = useState<string>("");
 
-  const set = (field: FieldName) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const set = (field: FormFields) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setValues((v) => ({ ...v, [field]: event.target.value }));
     setErrors((e) => (e[field] ? { ...e, [field]: undefined } : e));
   };
@@ -132,6 +137,26 @@ export function DemoRequestForm() {
 
   return (
     <form onSubmit={onSubmit} noValidate className="surface-raised p-6 sm:p-8">
+      {/*
+        Honeypot. A field a human cannot reach — off-screen rather than
+        `display:none`, because the simplest bots skip hidden inputs — and
+        labelled as something only an automated filler would want. It is
+        excluded from assistive technology and from the tab order, so it cannot
+        cost a real visitor anything.
+      */}
+      <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] h-0 w-0 overflow-hidden">
+        <label htmlFor="website">Website (leave this empty)</label>
+        <input
+          id="website"
+          name="website"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={values.website}
+          onChange={set("website")}
+        />
+      </div>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Name" name="name" value={values.name} onChange={set("name")} error={errors.name} required autoComplete="name" />
         <Field label="Company" name="company" value={values.company} onChange={set("company")} error={errors.company} required autoComplete="organization" />

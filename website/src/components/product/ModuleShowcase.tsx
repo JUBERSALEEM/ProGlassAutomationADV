@@ -26,7 +26,7 @@ export function ModuleShowcase({
         const flip = reversed ? index % 2 === 0 : index % 2 === 1;
         return (
           <Reveal key={module.id} as="article" className="scroll-mt-28" >
-            <div id={module.id} className="grid items-center gap-8 lg:grid-cols-2 lg:gap-14">
+            <div id={`showcase-${module.id}`} className="grid scroll-mt-28 items-center gap-8 lg:grid-cols-2 lg:gap-14">
               <div className={cn(flip && "lg:order-2")}>
                 <div className="flex items-center gap-3">
                   <IndexChip>{module.number}</IndexChip>

@@ -6,6 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ScreenshotGallery } from "@/components/gallery/ScreenshotGallery";
 import { screenshotCategories, screenshots } from "@/data/screenshots";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -14,6 +15,7 @@ export const metadata: Metadata = pageMetadata({
     "The ProGlass Automation interface: dashboards, the proforma wizard, glass calculators, the optimization workspace, sheet store, delivery and reports.",
   path: "/screenshots",
   keywords: ["glass software screenshots", "glass ERP interface", "proforma invoice screen", "glass optimization layout"],
+  ogEyebrow: "The interface",
 });
 
 export default function ScreenshotsPage() {
@@ -22,7 +24,14 @@ export default function ScreenshotsPage() {
   const pending = screenshots.filter((s) => s.source === "pending").length;
 
   return (
+
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/screenshots"
+      title="Screenshots — the ProGlass Automation interface"
+      description="The ProGlass Automation interface: dashboards, the proforma wizard, glass calculators, the optimization workspace, sheet store, delivery and reports."
+    />
       <PageHero
         eyebrow="Screenshots"
         title="The interface, screen by screen."

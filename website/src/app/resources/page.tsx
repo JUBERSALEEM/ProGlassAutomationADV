@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { guides, posts, resourceCategories } from "@/data/resources";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -20,11 +21,18 @@ export const metadata: Metadata = pageMetadata({
     "glass industry terminology",
     "glass stock management guide",
   ],
+  ogEyebrow: "Resources",
 });
 
 export default function ResourcesPage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/resources"
+      title="Guides to glass estimation and optimization"
+      description="Guides for glass businesses: the vocabulary of an order, why a cutting plan must be cuttable, and how stock accuracy works when movements are recorded."
+    />
       <PageHero
         eyebrow="Resources"
         title="Reference material for glass workflows."

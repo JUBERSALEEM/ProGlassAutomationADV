@@ -22,6 +22,7 @@ import {
   thicknessProfiles,
   verificationOracles,
 } from "@/data/optimization";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -38,6 +39,7 @@ export const metadata: Metadata = pageMetadata({
     "Lisec DAT export",
     "glass cutting layout software",
   ],
+  ogEyebrow: "Cutting plans",
 });
 
 const tabShots = ["optimization-settings", "optimization-2d", "optimization-report"]
@@ -47,6 +49,12 @@ const tabShots = ["optimization-settings", "optimization-2d", "optimization-repo
 export default function OptimizationPage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/optimization"
+      title="Glass cutting optimization and guillotine nesting"
+      description="How ProGlass nests glass parts on stock plates: safety edges, kerf, the guillotine cut sequence, verification and export to Bottero, Intermac, Lisec and DXF."
+    />
       <PageHero
         eyebrow="Optimization"
         title={
@@ -459,7 +467,7 @@ export default function OptimizationPage() {
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
                   Request a Demo
                 </ButtonLink>
-                <ButtonLink href="/features#optimization" variant="secondary" size="lg">
+                <ButtonLink href="/features#showcase-optimization" variant="secondary" size="lg">
                   Module detail
                 </ButtonLink>
               </div>

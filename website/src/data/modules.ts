@@ -120,7 +120,7 @@ export const modules: ProductModule[] = [
     evidence:
       "Views/SheetStore/, ViewModels/Dashboard/SheetStore/, Services/SheetStore/SheetStoreHistory/",
     screenshotId: "sheet-store-overview",
-    href: "/features#sheet-store",
+    href: "/features#showcase-sheet-store",
     tags: ["Stock", "Movements"],
   },
   {
@@ -186,7 +186,7 @@ export const modules: ProductModule[] = [
     evidence:
       "Views/ProformaInvoice/, ViewModels/ProformaInvoice/, Services/ProformaInvoice/GlassPriceStamper.cs",
     screenshotId: "proforma-wizard",
-    href: "/features#proforma",
+    href: "/features#showcase-proforma",
     tags: ["Estimation", "Pricing"],
   },
   {
@@ -272,7 +272,7 @@ export const modules: ProductModule[] = [
     ],
     evidence: "Views/Production/ProcessWorkCenterView.xaml, ViewModels/Production/ProcessWorkCenterViewModel.cs",
     screenshotId: "process-work-center",
-    href: "/features#process-work-center",
+    href: "/features#showcase-optimization",
     tags: ["Shop floor", "Filtering"],
   },
   {
@@ -486,7 +486,7 @@ export const modules: ProductModule[] = [
     ],
     evidence: "Views/DeliveryNote/, ViewModels/Dashboard/DeliveryNote/, Services/DeliveryNote/",
     screenshotId: "delivery-note",
-    href: "/features#delivery-note",
+    href: "/features#showcase-delivery-note",
     tags: ["Dispatch", "Balance"],
   },
   {
@@ -551,7 +551,7 @@ export const modules: ProductModule[] = [
     ],
     evidence: "ViewModels/JobProfitability/, ViewModels/ProformaInvoice/Step9ProfitLoss/, Services/Reporting/VatCalculator.cs",
     screenshotId: "job-profitability",
-    href: "/features#job-profitability",
+    href: "/features#showcase-job-profitability",
     tags: ["Margin", "Snapshot"],
   },
   {
@@ -595,7 +595,7 @@ export const modules: ProductModule[] = [
     ],
     evidence: "ViewModels/Reports/SalesReportViewModel.cs (NavItems), Views/Reports/SalesReportView.xaml",
     screenshotId: "reports-hub",
-    href: "/features#reports-hub",
+    href: "/features#showcase-reports-hub",
     tags: ["Hub", "14 surfaces"],
   },
   {
@@ -615,7 +615,7 @@ export const modules: ProductModule[] = [
       "Behind the Reports hub rail",
     ],
     evidence: "ViewModels/Reports/ExecutiveReport/, Views/Reports/ExecutiveReport/",
-    href: "/features#reports",
+    href: "/features#report-executive",
     tags: ["Funnel", "Summary"],
   },
   {
@@ -635,7 +635,7 @@ export const modules: ProductModule[] = [
       "Export and print from the shared report chrome",
     ],
     evidence: "ViewModels/Reports/CustomerReport/, Views/Reports/CustomerReport/",
-    href: "/features#reports",
+    href: "/features#report-customer",
     tags: ["Customers", "Receivables"],
   },
   {
@@ -655,7 +655,7 @@ export const modules: ProductModule[] = [
       "No separate data entry — the documents are the source",
     ],
     evidence: "ViewModels/Reports/SalesmanReport/, Views/Reports/SalesmanReport/",
-    href: "/features#reports",
+    href: "/features#report-salesman",
     tags: ["Sales", "Performance"],
   },
   {
@@ -675,7 +675,7 @@ export const modules: ProductModule[] = [
       "Built from issued tax invoices",
     ],
     evidence: "ViewModels/Reports/CompanyReport/, Views/Reports/CompanyReport/",
-    href: "/features#reports",
+    href: "/features#report-company",
     tags: ["Companies", "Receivables"],
   },
   {
@@ -695,7 +695,7 @@ export const modules: ProductModule[] = [
       "Sortable, searchable, exportable",
     ],
     evidence: "ViewModels/Reports/ProjectReport/, Views/Reports/ProjectReport/",
-    href: "/features#reports",
+    href: "/features#report-project",
     tags: ["Projects", "Progress"],
   },
   {
@@ -715,7 +715,7 @@ export const modules: ProductModule[] = [
       "Export and print",
     ],
     evidence: "ViewModels/Reports/PiReport/, Views/Reports/PiReport/",
-    href: "/features#reports",
+    href: "/features#report-pi",
     tags: ["Quotes", "Conversion"],
   },
   {
@@ -735,7 +735,7 @@ export const modules: ProductModule[] = [
       "Export and print",
     ],
     evidence: "ViewModels/Reports/JoReport/, Views/Reports/JoReport/",
-    href: "/features#reports",
+    href: "/features#report-jo",
     tags: ["Jobs", "Production status"],
   },
   {
@@ -755,7 +755,7 @@ export const modules: ProductModule[] = [
       "Export and print",
     ],
     evidence: "ViewModels/Reports/DeliveryReport/, Views/Reports/DeliveryReport/",
-    href: "/features#reports",
+    href: "/features#report-delivery",
     tags: ["Dispatch", "Pending"],
   },
   {
@@ -775,7 +775,7 @@ export const modules: ProductModule[] = [
       "Export and print",
     ],
     evidence: "ViewModels/Reports/TaxInvoiceReport/, Views/Reports/TaxInvoiceReport/",
-    href: "/features#reports",
+    href: "/features#report-tax-invoice",
     tags: ["Billing", "Overdue"],
   },
   {
@@ -797,7 +797,7 @@ export const modules: ProductModule[] = [
     evidence:
       "ViewModels/Reports/GlassSpecReport/, Services/Reporting/SpecificationIntelligenceService.cs, Services/Reporting/SpecificationMatcher.cs",
     screenshotId: "report-glass-spec",
-    href: "/features#reports",
+    href: "/features#report-glass-spec",
     tags: ["Traceability", "Specs"],
   },
   {
@@ -818,7 +818,7 @@ export const modules: ProductModule[] = [
     ],
     evidence: "ViewModels/Reports/ProfitabilityReport/, Views/Reports/ProfitabilityReport/",
     screenshotId: "job-profitability",
-    href: "/features#reports",
+    href: "/features#report-profitability",
     tags: ["Profit", "Period"],
   },
   {
@@ -838,7 +838,7 @@ export const modules: ProductModule[] = [
       "Combined signed-document PDF support",
     ],
     evidence: "ViewModels/Reports/StatementReport/, Views/Reports/StatementReport/, Views/Reports/StatementList/",
-    href: "/features#reports",
+    href: "/features#report-statement",
     tags: ["Statements", "Archive"],
   },
   {
@@ -858,7 +858,7 @@ export const modules: ProductModule[] = [
       "Export and print",
     ],
     evidence: "ViewModels/Reports/VatSubmission/, Views/Reports/VatSubmission/",
-    href: "/features#reports",
+    href: "/features#report-vat",
     tags: ["VAT", "Period"],
   },
 

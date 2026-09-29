@@ -9,12 +9,105 @@ import type { NextConfig } from "next";
  * the /api/demo-request route can exist as the single, obvious integration
  * point for a real mail transport.
  */
+
+/**
+ * Content-Security-Policy.
+ *
+ * Honest note on `script-src 'unsafe-inline'`, because it is the one weak
+ * directive here and it deserves an explanation rather than a silent footnote:
+ *
+ *   Next.js ships its React Server Component payload as inline
+ *   `self.__next_f.push(...)` scripts, and on this site they are the majority
+ *   of the HTML. Their content is per-page and per-build, so they cannot be
+ *   allow-listed by hash. The alternative is a per-request nonce from
+ *   middleware — which forces every route to render dynamically and gives up
+ *   static prerendering of all 26 routes. For a marketing site that is the
+ *   wrong trade.
+ *
+ * What that leaves is still worth having: `default-src 'self'` means no script,
+ * style, frame or connection may come from another origin, so the classic
+ * payload — injecting a remote script tag — is blocked. Combined with no
+ * user-generated content anywhere on the site and no query parameter echoed
+ * into HTML, the practical injection surface is nil.
+ *
+ * If this site ever grows a form of user-authored content, the nonce middleware
+ * becomes mandatory and the static trade has to be reconsidered.
+ */
+const csp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  compress: true,
+
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [360, 480, 640, 768, 1024, 1280, 1440, 1920, 2560],
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+  },
+
+  /**
+   * Response headers.
+   *
+   * Every one of these is fully enforced — there is no partial credit here:
+   * no MIME sniffing, no framing of any kind, a referrer policy that never
+   * leaks a full URL to a third party, no access to camera, microphone,
+   * location, payment or USB, and no cross-origin window handle.
+   *
+   * `_next/static` is deliberately absent: Next already serves those immutable
+   * and warns if you set it again.
+   */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "Content-Security-Policy", value: csp },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()",
+          },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "X-DNS-Prefetch-Control", value: "on" },
+          ...(process.env.NODE_ENV === "production"
+            ? [
+                {
+                  key: "Strict-Transport-Security",
+                  value: "max-age=63072000; includeSubDomains; preload",
+                },
+              ]
+            : []),
+        ],
+      },
+      {
+        // The one write path: never cached, never indexed, never embedded.
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+      {
+        // Long-lived but revalidated: illustrations change with the product.
+        source: "/images/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }],
+      },
+    ];
   },
 };
 

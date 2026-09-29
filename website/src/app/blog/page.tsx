@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { posts } from "@/data/resources";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Blog — notes on glass software and the industry",
@@ -15,13 +17,23 @@ export const metadata: Metadata = pageMetadata({
     "Notes from building ProGlass Automation: why quoted figures carry a price basis, guillotine versus free nesting, and why delivery balances are hard.",
   path: "/blog",
   keywords: ["glass industry blog", "glass software engineering", "cutting optimization article", "ERP design notes"],
+  ogEyebrow: "Notes",
 });
 
 export default function BlogPage() {
   const [lead, ...rest] = posts;
 
   return (
+
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/blog"
+      title="Blog — notes on glass software and the industry"
+      description="Notes from building ProGlass Automation: why quoted figures carry a price basis, guillotine versus free nesting, and why delivery balances are hard."
+      type="CollectionPage"
+      items={posts.map((post) => ({ name: post.title, url: `${site.url}/blog/${post.slug}` }))}
+    />
       <PageHero
         eyebrow="Blog"
         title="Notes on glass software and the work behind it."

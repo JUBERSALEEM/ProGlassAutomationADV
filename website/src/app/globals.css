@@ -928,6 +928,31 @@
 }
 
 @layer utilities {
+  /*
+   * Off-screen deferral.
+   *
+   * The gallery renders 39 interactive reconstructions of application screens —
+   * around 7,300 DOM nodes on /screenshots, most of them far below the fold.
+   * `content-visibility: auto` lets the browser skip style, layout and paint for
+   * a subtree until it comes near the viewport, which is the one lever that
+   * costs nothing in capability: the markup, the text, find-in-page and the
+   * interactive controls all still work, because nothing is removed from the
+   * DOM and nothing is hidden.
+   *
+   * `contain-intrinsic-size` supplies the size the browser should assume while
+   * the subtree is skipped, so the scrollbar does not jump. The `auto` keyword
+   * means the real measured size is remembered after the first render, and the
+   * figure is only a fallback for the very first pass — gallery cards sit around
+   * 420px tall, so an estimate of that order keeps the layout stable either way.
+   *
+   * Applying this in CSS rather than by unmounting previews in JavaScript is
+   * deliberate: a visitor without JavaScript still gets the content.
+   */
+  .defer-render {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 420px;
+  }
+
   .reveal {
     opacity: 0;
     transform: translate3d(0, 18px, 0);
@@ -1004,5 +1029,116 @@
   .reveal-scale {
     opacity: 1 !important;
     transform: none !important;
+  }
+}
+
+/**
+ * Print.
+ *
+ * The pages people actually print are the specification ones: the editions on
+ * /pricing, the licence terms, the module index on /features and the guides on
+ * /resources. A dark interface printed on white paper is a wall of grey boxes
+ * and unreadable pale text, so print is treated as its own appearance rather
+ * than a colour reduction.
+ *
+ * Everything that only makes sense on screen — navigation, the appearance
+ * studio, banners, the ambient colour plates, the reveal animation and the
+ * page footer's live controls — is dropped, and the remaining structure is
+ * inverted to black on white with real borders so a table of editions still
+ * reads as a table. Prices, module counts and evidence lines are unchanged;
+ * nothing is hidden that a person would need on paper.
+ */
+@media print {
+  /* Force the light reading, whatever the visitor has chosen on screen. */
+  :root,
+  html[data-theme],
+  html[data-theme-mode="dark"],
+  html[data-theme-mode="light"],
+  html[data-appearance] {
+    --ink-950: 255 255 255;
+    --ink-900: 255 255 255;
+    --ink-850: 255 255 255;
+    --ink-800: 250 250 252;
+    --text-1: 0 0 0;
+    --text-2: 17 17 22;
+    --text-3: 34 34 44;
+    --text-4: 60 60 72;
+    --line: 210 210 218;
+    --surface-alpha: 0;
+    color-scheme: light;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Screen-only furniture. */
+  nav[aria-label="Primary"],
+  nav[aria-label="Footer"],
+  footer,
+  [role="dialog"],
+  .no-print {
+    display: none !important;
+  }
+
+  /* The decorative layers: gradients, glow, plates, banners and card chrome. */
+  .plate,
+  .glow-layer,
+  .surface::before,
+  .surface::after,
+  .surface-raised::before,
+  .surface-raised::after {
+    display: none !important;
+  }
+
+  .surface,
+  .surface-raised,
+  .card {
+    background: #fff !important;
+    border: 1px solid #d2d2da !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  /* Reveal is a screen animation; nothing may print half-faded. */
+  .reveal,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* The page reserves room for the fixed navigation; on paper there is none. */
+  main {
+    padding-top: 0 !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  a {
+    color: #000 !important;
+    text-decoration: underline;
+  }
+
+  /* A printed link is useless without where it points, so show the address —
+     but only when it leaves the site, and only once. */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.75em;
+    word-break: break-all;
+  }
+
+  a[href^="/"]::after,
+  a[href^="#"]::after {
+    content: "";
+  }
+
+  @page {
+    margin: 16mm 14mm;
   }
 }

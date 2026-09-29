@@ -39,7 +39,15 @@ export function ScreenshotFrame({
             src={shot.src}
             alt={shot.assetNote ?? shot.title}
             fill
-            sizes={modal ? "(max-width: 1024px) 100vw, 900px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
+            sizes={
+              modal
+                ? // The lightbox image column is 1.7fr of a max-w-5xl grid, so it
+                  // is ~630px wide once the container padding and gap are taken off.
+                  "(max-width: 1024px) 100vw, 640px"
+                : // The gallery grid itself is `sm:grid-cols-2 xl:grid-cols-3`, so the
+                  // half-width guess has to hold until 1280px, not until 1024px.
+                  "(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+            }
             className="object-cover"
             priority={priority}
           />

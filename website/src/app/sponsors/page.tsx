@@ -10,6 +10,7 @@ import { Accordion } from "@/components/ui/Accordion";
 import { StatBadge, StatCounter } from "@/components/ui/Stat";
 import { sponsorFaq, sponsorNeeds } from "@/data/sponsors";
 import { site } from "@/lib/site";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -23,6 +24,7 @@ export const metadata: Metadata = pageMetadata({
     "glass software developer sponsorship",
     "ProGlass Automation contributors",
   ],
+  ogEyebrow: "Sponsorship",
 });
 
 const SHAPE_TONE = {
@@ -35,6 +37,12 @@ const SHAPE_TONE = {
 export default function SponsorsPage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/sponsors"
+      title="Sponsorship and collaboration"
+      description="ProGlass Automation is built by one developer. What sponsorship funds, which work is open to collaborators, and how to get involved without buying influence."
+    />
       <PageHero
         eyebrow="Support the build"
         title="One developer, one desktop product, and room for help."

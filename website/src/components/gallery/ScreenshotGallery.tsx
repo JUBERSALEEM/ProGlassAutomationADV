@@ -112,14 +112,20 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
 
       <ul className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {visible.map((shot, index) => (
-          <Reveal key={shot.id} as="li" delay={Math.min(index, 6) * 55}>
+          <Reveal
+            key={shot.id}
+            as="li"
+            delay={Math.min(index, 6) * 55}
+          >
             {/*
               The card is a container, not a button: the preview inside it holds
               its own controls (tabs, sort headers, stage buttons), and a button
               may not be nested inside a button. The explicit open control sits
               under the preview, where it cannot collide with any of them.
             */}
-            <div className="group flex h-full flex-col">
+            {/* See `.defer-render` — the browser may skip this card's style,
+                layout and paint until it approaches the viewport. */}
+            <div className="defer-render group flex h-full flex-col">
               <div className="transition-transform duration-300 ease-industrial group-hover:-translate-y-1">
                 <ScreenshotFrame shot={shot} />
               </div>
@@ -147,6 +153,50 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
   );
 }
 
+/**
+ * Makes everything outside the dialog inert — for real, not visually.
+ *
+ * `aria-modal` tells assistive technology that a dialog is modal, but it does
+ * not stop a keyboard or a screen reader from walking into the page behind it.
+ * The `inert` attribute does: the subtree is removed from the focus order and
+ * from the accessibility tree.
+ *
+ * The walk goes up from the dialog and inerts each level's siblings, so it
+ * covers the navigation and footer and also the sections of the page beside
+ * the gallery, without needing a portal or guessing at the DOM. Previous values
+ * are recorded and put back on close, including on elements that were already
+ * inert for some other reason.
+ */
+function inertOutside(node: HTMLElement): () => void {
+  const restored: { element: HTMLElement; previous: boolean }[] = [];
+  let current: HTMLElement | null = node;
+
+  while (current && current !== document.body) {
+    const parent: HTMLElement | null = current.parentElement;
+    if (!parent) break;
+    for (const sibling of Array.from(parent.children)) {
+      if (sibling === current || !(sibling instanceof HTMLElement)) continue;
+      restored.push({ element: sibling, previous: sibling.inert });
+      sibling.inert = true;
+    }
+    current = parent;
+  }
+
+  return () => {
+    for (const { element, previous } of restored) element.inert = previous;
+  };
+}
+
+/** Everything the browser will let a Tab key land on inside a container. */
+const FOCUSABLE = [
+  "a[href]",
+  "button:not([disabled])",
+  "input:not([disabled])",
+  "select:not([disabled])",
+  "textarea:not([disabled])",
+  "[tabindex]:not([tabindex=\"-1\"])",
+].join(",");
+
 function Lightbox({
   shot,
   onClose,
@@ -161,18 +211,56 @@ function Lightbox({
   total: number;
 }) {
   const closeRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
   /** Touch / drag start point, so a horizontal swipe moves to the next screen. */
   const swipe = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
+    const node = dialogRef.current;
     closeRef.current?.focus();
+    if (!node) return;
+    // Everything behind the dialog is taken out of the page entirely.
+    return inertOutside(node);
   }, []);
+
+  /**
+   * The focus trap.
+   *
+   * `inert` handles this in every current browser, but a trap that depends on a
+   * single attribute is one unsupported engine away from letting Tab walk off
+   * into the page behind. This is the belt to that braces: Tab at the last
+   * control wraps to the first, Shift+Tab at the first wraps to the last.
+   */
+  function onKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Tab") return;
+    const node = dialogRef.current;
+    if (!node) return;
+
+    const focusable = Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
+      (element) => element.offsetParent !== null || element === document.activeElement,
+    );
+    if (focusable.length === 0) return;
+
+    const first = focusable[0]!;
+    const last = focusable[focusable.length - 1]!;
+    const activeElement = document.activeElement;
+
+    if (event.shiftKey && (activeElement === first || activeElement === node)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  }
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={`${shot.title} — larger view`}
+      onKeyDown={onKeyDown}
       className="animate-fade-in fixed inset-0 z-[60] flex flex-col bg-ink-950/92 backdrop-blur-md"
     >
       <div className="flex items-center justify-between gap-4 border-b border-line/60 px-4 py-3 sm:px-6">

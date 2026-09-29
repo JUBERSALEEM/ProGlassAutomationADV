@@ -6,6 +6,7 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { posts, postBySlug } from "@/data/resources";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
@@ -31,25 +32,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: "article",
       publishedTime: post.date,
       keywords: [post.category, "glass software", "ProGlass Automation"],
+      ogEyebrow: post.category,
     }),
-  };
-}
-
-/**
- * Article structured data. The author is the developer named in the
- * application itself; no editorial entity is invented for the blog.
- */
-function articleSchema(post: ReturnType<typeof postBySlug>) {
-  if (!post) return null;
-  return {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: post.title,
-    description: post.summary,
-    datePublished: post.date,
-    author: { "@type": "Person", name: site.developerName },
-    publisher: { "@type": "Organization", name: site.legalName, url: site.url },
-    mainEntityOfPage: `${site.url}/blog/${post.slug}`,
   };
 }
 
@@ -59,17 +43,31 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!post) notFound();
 
   const others = posts.filter((p) => p.slug !== post.slug);
-  const schema = articleSchema(post);
 
   return (
     <>
-      {schema ? (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
-      ) : null}
+      {/*
+        One graph for the article, its WebPage and its breadcrumb trail, all
+        linked to the shared Organization / Person / WebSite nodes the layout
+        defines. See lib/schema.ts.
+      */}
+      <RouteSchema
+        path={`/blog/${post.slug}`}
+        title={post.title}
+        description={post.summary}
+        type="WebPage"
+        article={{
+          slug: post.slug,
+          title: post.title,
+          summary: post.summary,
+          date: post.date,
+          category: post.category,
+        }}
+      />
 
       <article>
         <header className="relative overflow-hidden border-b border-line/60 pb-12 pt-12 sm:pb-14 sm:pt-16">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0">
             <div className="absolute -top-28 left-[12%] h-72 w-72 rounded-full bg-brand-500/10 blur-[110px]" />
           </div>
           <Container className="relative">

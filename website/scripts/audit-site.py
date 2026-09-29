@@ -2,9 +2,23 @@
 """Crawl the built site with curl and report broken links, missing metadata,
 missing image files and headings, plus a few content-safety checks.
 
-Usage: python3 scripts/audit-site.py [base-url]
+Usage:
+    python3 scripts/audit-site.py [base-url] [--budget]
+
+`--budget` adds a weight gate: every page is measured for raw HTML, compressed
+HTML and DOM node count, and the built JavaScript and CSS are measured too. The
+numbers are compared against the ceilings below and any page over budget fails
+the run, so a change that quietly doubles a page has to be justified rather than
+noticed months later.
+
+The ceilings are deliberate, not aspirational: each one is a little above the
+figure the site actually ships, so ordinary edits pass and real regressions do
+not. When a budget genuinely needs to move, move it here in the same commit that
+moves the number, and say why.
 """
+import gzip
 import html as html_module
+from collections import Counter
 import os
 import re
 import subprocess
@@ -12,7 +26,15 @@ import sys
 import tempfile
 import urllib.parse
 
-BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:3000"
+BASE = "http://127.0.0.1:3000"
+BUDGET_MODE = False
+for argument in sys.argv[1:]:
+    if argument == "--budget":
+        BUDGET_MODE = True
+    elif argument.startswith("-"):
+        raise SystemExit(f"unknown option: {argument}\nusage: audit-site.py [base-url] [--budget]")
+    else:
+        BASE = argument
 
 PAGES = [
     "/", "/features", "/optimization", "/how-it-works", "/screenshots", "/pricing",
@@ -31,6 +53,71 @@ BANNED = [
 ]
 
 
+# Weight ceilings, in the units the table prints. Keys are page paths; the
+# default applies to every page not named. `gz` is what a visitor actually
+# downloads, `nodes` is what the browser has to lay out — a page can gzip
+# beautifully and still be a slow render, which is why both are gated.
+BUDGET = {
+    "/": {"gz": 85, "nodes": 3400},
+    "/features": {"gz": 55, "nodes": 2800},
+    "/optimization": {"gz": 55, "nodes": 2600},
+    "/how-it-works": {"gz": 40, "nodes": 1700},
+    "/screenshots": {"gz": 55, "nodes": 8000},
+    "/sponsors": {"gz": 36, "nodes": 900},
+}
+BUDGET_DEFAULT = {"gz": 36, "nodes": 900}
+
+# Built assets, measured from `.next` when a build is present. The JS figure is
+# every chunk the build emits, gzipped; the browser never downloads all of them,
+# so this is a ceiling on the build, not on a page view.
+ASSET_BUDGET = {"js_gz": 330, "css_gz": 22}
+
+
+def gzip_size(data: bytes) -> float:
+    return len(gzip.compress(data)) / 1024
+
+
+def measure_assets() -> dict:
+    """Weigh the built chunks. Returns {} when there is no build to measure."""
+    chunks = os.path.join(".next", "static", "chunks")
+    if not os.path.isdir(chunks):
+        return {}
+    totals = {"js_gz": 0.0, "css_gz": 0.0}
+    for name in sorted(os.listdir(chunks)):
+        path = os.path.join(chunks, name)
+        if not os.path.isfile(path):
+            continue
+        if name.endswith(".js"):
+            totals["js_gz"] += gzip_size(open(path, "rb").read())
+        elif name.endswith(".css"):
+            totals["css_gz"] += gzip_size(open(path, "rb").read())
+    return totals
+
+
+def budget_section(weights: list) -> list:
+    """Print the weight table. Returns the failures it found."""
+    problems = []
+    print("\nweight budget (compressed HTML / DOM nodes per page):")
+    print(f"  {'page':42} {'gz':>9} {'budget':>8}   {'nodes':>6} {'budget':>8}")
+    for page, gz, nodes in weights:
+        ceiling = BUDGET.get(page, BUDGET_DEFAULT)
+        over_gz = gz > ceiling["gz"]
+        over_nodes = nodes > ceiling["nodes"]
+        mark = "!" if (over_gz or over_nodes) else " "
+        print(
+            f" {mark}{page:42} {gz:7.1f}K {ceiling['gz']:7}K   {nodes:6} {ceiling['nodes']:8}"
+        )
+        if over_gz:
+            problems.append(
+                f"{page}: {gz:.1f} KB compressed HTML is over the {ceiling['gz']} KB budget"
+            )
+        if over_nodes:
+            problems.append(
+                f"{page}: {nodes} DOM nodes are over the {ceiling['nodes']} budget"
+            )
+    return problems
+
+
 def fetch(path):
     with tempfile.NamedTemporaryFile(delete=False, suffix=".html") as handle:
         tmp = handle.name
@@ -45,6 +132,11 @@ def fetch(path):
 
 def main() -> int:
     links, images, failures, warnings = set(), set(), [], []
+    weights = []
+    # `{page: {fragments}}` — a link into the middle of a page is a link that
+    # can break without any route disappearing.
+    fragments: dict = {}
+    fragment_links: dict = {}
     titles, descriptions = [], []
 
     for page in PAGES:
@@ -52,6 +144,15 @@ def main() -> int:
         if code != "200":
             failures.append(f"page {page} returned {code}")
             continue
+
+        if BUDGET_MODE:
+            weights.append(
+                (
+                    page,
+                    gzip_size(html.encode("utf-8")),
+                    len(re.findall(r"<[a-zA-Z][^>]*>", html)),
+                )
+            )
 
         title = re.search(r"<title>(.*?)</title>", html, re.S)
         description = re.search(r'<meta name="description" content="([^"]*)"', html)
@@ -83,6 +184,18 @@ def main() -> int:
             if re.search(pattern, lowered):
                 warnings.append(f"{page}: banned phrase /{pattern}/")
 
+        # Every id on the page, so fragment links can be checked for real.
+        # The lookbehind keeps `aria-invalid`, `data-id` and friends out of it.
+        ids = re.findall(r'(?<![-\w])id="([^"]+)"', html)
+        fragments[page] = set(ids)
+
+        # A duplicate id is invalid HTML and makes `getElementById` return the
+        # wrong node — the SVG gradient case that used to repeat per instance.
+        counted = Counter(ids)
+        for value, count in counted.items():
+            if count > 1:
+                failures.append(f"{page}: id \"{value}\" appears {count} times")
+
         for href in re.findall(r'href="([^"]+)"', html):
             if href.startswith(("mailto:", "#", "data:")):
                 continue
@@ -91,7 +204,10 @@ def main() -> int:
                     links.add(urllib.parse.urlparse(href).path or "/")
                 continue
             if href.startswith("/"):
-                links.add(href.split("#")[0] or "/")
+                target, _, fragment = href.partition("#")
+                links.add(target or "/")
+                if fragment:
+                    fragment_links.setdefault(target or "/", set()).add(fragment)
 
         for src in re.findall(r'src="(/_next/image\?url=[^"]+)"', html):
             query = urllib.parse.parse_qs(urllib.parse.urlparse(src.replace("&amp;", "&")).query)
@@ -108,6 +224,18 @@ def main() -> int:
         if code != "200":
             failures.append(f"image {image} -> {code}")
 
+    # A fragment link that lands nowhere scrolls to the top of the page and
+    # looks like a broken promise. Checked against the ids actually rendered.
+    for target, wanted in sorted(fragment_links.items()):
+        if target not in fragments:
+            code, html = fetch(target)
+            if code != "200":
+                continue
+            fragments[target] = set(re.findall(r'id="([^"]+)"', html))
+        for fragment in sorted(wanted):
+            if fragment not in fragments[target]:
+                failures.append(f"fragment link {target}#{fragment} has no matching id on {target}")
+
     print(f"pages: {len(PAGES)}   internal links: {len(links)}   images: {len(images)}")
     print("\nlongest titles (target <= 62):")
     for page, length, text in sorted(titles, key=lambda row: -row[1])[:6]:
@@ -117,6 +245,25 @@ def main() -> int:
     for page, length in sorted(descriptions, key=lambda row: -row[1])[:6]:
         flag = "!" if length > 160 else " "
         print(f" {flag} {length:3d}  {page}")
+
+    if BUDGET_MODE:
+        budget_failures = budget_section(weights)
+        assets = measure_assets()
+        if assets:
+            print("\nbuilt assets (every chunk the build emits, compressed):")
+            print(f"   javascript  {assets['js_gz']:6.1f}K   budget {ASSET_BUDGET['js_gz']}K")
+            print(f"   css         {assets['css_gz']:6.1f}K   budget {ASSET_BUDGET['css_gz']}K")
+            if assets["js_gz"] > ASSET_BUDGET["js_gz"]:
+                budget_failures.append(
+                    f"javascript is {assets['js_gz']:.1f} KB compressed, over the {ASSET_BUDGET['js_gz']} KB budget"
+                )
+            if assets["css_gz"] > ASSET_BUDGET["css_gz"]:
+                budget_failures.append(
+                    f"css is {assets['css_gz']:.1f} KB compressed, over the {ASSET_BUDGET['css_gz']} KB budget"
+                )
+        else:
+            print("\nbuilt assets: skipped (run `npm run build` first)")
+        failures.extend(budget_failures)
 
     print(f"\nFAILURES: {len(failures)}")
     for item in failures:

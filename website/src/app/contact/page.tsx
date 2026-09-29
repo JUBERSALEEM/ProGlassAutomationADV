@@ -6,6 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { DemoRequestForm } from "@/components/forms/DemoRequestForm";
 import { site } from "@/lib/site";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -14,11 +15,18 @@ export const metadata: Metadata = pageMetadata({
     "Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply.",
   path: "/contact",
   keywords: ["request glass software demo", "contact ProGlass Automation", "glass ERP demo"],
+  ogEyebrow: "Request a demo",
 });
 
 export default function ContactPage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/contact"
+      title="Contact — request a demo of ProGlass Automation"
+      description="Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply."
+    />
       <PageHero
         eyebrow="Contact"
         title="Request a demo."

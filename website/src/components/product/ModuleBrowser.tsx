@@ -113,9 +113,15 @@ export function ModuleBrowser() {
               </p>
             </div>
 
+            {/*
+              Each card is the anchor for its own module, so a link like
+              /features#tax-invoice lands on that module instead of at the top
+              of a very long page. `scroll-mt` keeps it clear of the sticky
+              navigation once it is there.
+            */}
             <ul className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
               {list.map((item, index) => (
-                <Reveal key={item.id} as="li" delay={Math.min(index, 6) * 45}>
+                <Reveal key={item.id} as="li" id={item.id} delay={Math.min(index, 6) * 45} className="scroll-mt-28">
                   <ModuleCard module={item} />
                 </Reveal>
               ))}

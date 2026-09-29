@@ -8,6 +8,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StatCounter } from "@/components/ui/Stat";
 import { IndexChip } from "@/components/ui/Badge";
 import { site } from "@/lib/site";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -16,11 +17,18 @@ export const metadata: Metadata = pageMetadata({
     "ProGlass Automation is desktop software for glass fabrication businesses: what it is, the problem it solves, how it is built and what it does not do.",
   path: "/about",
   keywords: ["about ProGlass Automation", "glass industry software", "glass fabrication ERP", "glass business software"],
+  ogEyebrow: "About",
 });
 
 export default function AboutPage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/about"
+      title="About ProGlass Automation and why it exists"
+      description="ProGlass Automation is desktop software for glass fabrication businesses: what it is, the problem it solves, how it is built and what it does not do."
+    />
       <PageHero
         eyebrow="About"
         title="A glass business is not a general business."

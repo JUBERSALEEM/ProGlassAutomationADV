@@ -9,6 +9,7 @@ import { Accordion } from "@/components/ui/Accordion";
 import { ModuleBrowser } from "@/components/product/ModuleBrowser";
 import { modules } from "@/data/modules";
 import { featureGroups } from "@/data/features";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -23,6 +24,7 @@ export const metadata: Metadata = pageMetadata({
     "glass stock management software",
     "glass production management",
   ],
+  ogEyebrow: "Every module",
 });
 
 export default function FeaturesPage() {
@@ -34,7 +36,14 @@ export default function FeaturesPage() {
   );
 
   return (
+
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/features"
+      title="Features — every module in ProGlass Automation"
+      description="Inside ProGlass Automation: proforma estimation, SGU/DGU/lamination pricing, job orders, cutting optimization, sheet store, production, delivery and reports."
+    />
       <PageHero
         eyebrow="Features"
         title="Every module, named the way the application names it."

@@ -72,7 +72,7 @@ export function ThemeStudio() {
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-controls="theme-studio"
-        className="menu-card group fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
+        className="no-print menu-card group fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
       >
         <span aria-hidden="true" className="flex items-center gap-1">
           <span className="h-4 w-4 rounded-full ring-2 ring-white/25" style={{ background: activeFamily.swatch }} />
@@ -90,7 +90,7 @@ export function ThemeStudio() {
           id="theme-studio"
           role="dialog"
           aria-label="Theme and colour"
-          className="menu-card animate-scale-in fixed inset-x-3 bottom-20 z-50 max-h-[78vh] overflow-y-auto rounded-panel p-4 shadow-raised sm:inset-x-auto sm:right-5 sm:w-[24rem] sm:p-5"
+          className="no-print menu-card animate-scale-in fixed inset-x-3 bottom-20 z-50 max-h-[78vh] overflow-y-auto rounded-panel p-4 shadow-raised sm:inset-x-auto sm:right-5 sm:w-[24rem] sm:p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div>

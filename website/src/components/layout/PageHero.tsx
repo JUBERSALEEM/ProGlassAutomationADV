@@ -3,25 +3,6 @@ import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { PageBanner, type BannerArt } from "@/components/layout/PageBanner";
-import { site } from "@/lib/site";
-
-/**
- * Breadcrumb structured data for the same trail the visitor can see.
- * Emitted only when the page supplies a breadcrumb, so the markup never
- * describes a hierarchy the page does not show.
- */
-function breadcrumbSchema(trail: { label: string; href: string }[]) {
-  return {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: trail.map((crumb, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: crumb.label,
-      item: `${site.url}${crumb.href === "/" ? "" : crumb.href}`,
-    })),
-  };
-}
 
 /**
  * Shared page opener. Every interior page uses it so the site has one
@@ -49,13 +30,7 @@ export function PageHero({
 }) {
   return (
     <section className="relative overflow-hidden border-b border-line/60 pb-14 pt-12 sm:pb-16 sm:pt-16 lg:pb-20 lg:pt-20">
-      {breadcrumb ? (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema(breadcrumb)) }}
-        />
-      ) : null}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+      <div aria-hidden="true" className="glow-layer pointer-events-none absolute inset-0">
         <div className="animate-drift-slow absolute -top-32 left-[10%] h-80 w-80 rounded-full bg-brand-500/14 blur-[110px]" />
         <div className="absolute -top-20 right-[6%] h-64 w-64 rounded-full bg-glass-cyan/10 blur-[100px]" />
         <div className="absolute bottom-0 left-[46%] h-52 w-52 rounded-full bg-glass-rose/8 blur-[110px]" />

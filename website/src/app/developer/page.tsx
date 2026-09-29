@@ -9,6 +9,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { StatCounter, StatBadge } from "@/components/ui/Stat";
 import { site } from "@/lib/site";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -23,6 +24,7 @@ export const metadata: Metadata = pageMetadata({
     "self-taught WPF developer",
     "glass fabrication software author",
   ],
+  ogEyebrow: "The developer",
 });
 
 /**
@@ -141,6 +143,12 @@ const faq = [
 export default function DeveloperPage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/developer"
+      title="The developer — an estimator who wrote his own software"
+      description="ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained software engineer. One person, no team, no investors — and why that shaped the product."
+    />
       <PageHero
         eyebrow="The developer"
         banner="people"

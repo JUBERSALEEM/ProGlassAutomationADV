@@ -157,17 +157,6 @@ export function PageBanner({
           align === "right" ? "right-0 w-full max-w-[62rem] sm:w-[70%]" : "left-0 w-full",
         )}
       >
-        <defs>
-          <linearGradient id={`banner-${art}`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="rgb(var(--brand-400))" stopOpacity="0.5" />
-            <stop offset="55%" stopColor="rgb(var(--brand-500))" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="rgb(var(--glass-cyan))" stopOpacity="0.3" />
-          </linearGradient>
-          <linearGradient id={`banner-${art}-fade`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="rgb(var(--ink-950))" stopOpacity="1" />
-            <stop offset="42%" stopColor="rgb(var(--ink-950))" stopOpacity="0" />
-          </linearGradient>
-        </defs>
 
         {cells.map((cell, index) => (
           <g key={`cell-${cell.x}-${cell.y}-${index}`}>
@@ -177,7 +166,7 @@ export function PageBanner({
               width={cell.w * unit - gap}
               height={cell.h * unit - gap}
               rx={6}
-              fill={`url(#banner-${art})`}
+              fill="url(#pg-banner)"
               stroke="rgb(var(--brand-300) / 0.28)"
               strokeWidth="0.7"
               className="animate-pulse-soft"
@@ -196,7 +185,7 @@ export function PageBanner({
         ))}
 
         {/* Fade the art out towards the side the heading sits on. */}
-        <rect x="0" y="0" width={width} height={height} fill={`url(#banner-${art}-fade)`} />
+        <rect x="0" y="0" width={width} height={height} fill="url(#pg-banner-fade)" />
       </svg>
 
       <span className="sr-only">{label}</span>

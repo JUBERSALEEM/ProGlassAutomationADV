@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
@@ -8,7 +9,8 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ChainStrip, WorkflowRail } from "@/components/product/WorkflowRail";
 import { AppFrame } from "@/components/product/AppFrame";
 import { LiveSurface } from "@/components/product/LiveSurface";
-import { businessChain } from "@/data/workflows";
+import { beforeAfter, businessChain } from "@/data/workflows";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -23,6 +25,7 @@ export const metadata: Metadata = pageMetadata({
     "delivery note software",
     "glass ERP workflow",
   ],
+  ogEyebrow: "Working day",
 });
 
 /** Mirrors the assistant's real read permissions rather than inventing steps. */
@@ -37,6 +40,12 @@ const assistantExamples = [
 export default function HowItWorksPage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/how-it-works"
+      title="How ProGlass Automation works, inquiry to statement"
+      description="The ProGlass workflow stage by stage: inquiry, the 9-step proforma wizard, job order, production stages, multi-movement delivery, VAT invoices and statements."
+    />
       <PageHero
         eyebrow="How it works"
         title="One job, eight stages, and nothing typed twice."
@@ -111,6 +120,55 @@ export default function HowItWorksPage() {
               <WorkflowRail />
             </div>
           </div>
+        </Container>
+      </Section>
+
+      {/* ── The same job, two ways ───────────────────────────────── */}
+      <Section aria-labelledby="before-after-heading">
+        <Container>
+          <SectionHeading
+            id="before-after-heading"
+            eyebrow="Before and after"
+            title="The same job, worked two ways."
+            lead="The left column is how a glass job is usually run on paper and in spreadsheets. The right column is what this application does for that same step. Both columns describe the step honestly — there is no time saved or percentage gained in this table, because nothing in the software measures either."
+          />
+
+          <div className="mt-12 space-y-4">
+            {beforeAfter.map((row, index) => (
+              <Reveal key={row.id} delay={Math.min(index, 5) * 45}>
+                <article className="surface overflow-hidden">
+                  <div className="grid gap-px bg-line/50 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1fr)_minmax(0,1fr)]">
+                    <div className="bg-ink-900/60 px-5 py-5 sm:px-6">
+                      <p className="mono-label">{String(index + 1).padStart(2, "0")}</p>
+                      <h3 className="mt-2 text-base font-semibold text-text-primary">{row.step}</h3>
+                      <Link
+                        href={row.href}
+                        className="link-underline mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-brand-200"
+                      >
+                        {row.anchor}
+                        <ArrowRight />
+                      </Link>
+                    </div>
+
+                    <div className="bg-ink-950/40 px-5 py-5 sm:px-6">
+                      <p className="mono-label text-state-warning/80">On paper and in spreadsheets</p>
+                      <p className="mt-3 text-sm leading-relaxed text-text-muted">{row.before}</p>
+                    </div>
+
+                    <div className="bg-ink-900/60 px-5 py-5 sm:px-6">
+                      <p className="mono-label text-state-success/80">In ProGlass Automation</p>
+                      <p className="mt-3 text-sm leading-relaxed text-text-secondary">{row.after}</p>
+                    </div>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+
+          <p className="mt-6 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">
+            The left-hand descriptions are general practice, not a claim about any particular business, and no figures are
+            quoted for it. The right-hand column is limited to behaviour that exists in the application.
+          </p>
         </Container>
       </Section>
 

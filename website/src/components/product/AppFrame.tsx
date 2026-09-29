@@ -88,15 +88,6 @@ export const realRail: RailGroup[] = [
   },
 ];
 
-/** A stable, unique fragment for the frame's SVG defs. */
-function slugForId(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 40);
-}
-
 function RailRow({ label, active, muted }: { label: string; active?: boolean; muted?: boolean }) {
   return (
     <span
@@ -141,7 +132,7 @@ export function AppFrame({
       {/* ── Window chrome ─────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-ink-900/85 px-3 py-2 sm:px-4">
         <div className="flex items-center gap-2.5">
-          <LogoMark size={20} id={`frame-${slugForId(title)}`} />
+          <LogoMark size={20} />
           <span className="font-mono text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-text-faint">
             ProGlass Automation
           </span>

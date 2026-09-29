@@ -8,6 +8,7 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
 import { editions, licenceFacts, licenceGates, openModules } from "@/data/editions";
 import { faq } from "@/data/faq";
+import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
@@ -16,11 +17,18 @@ export const metadata: Metadata = pageMetadata({
     "ProGlass Automation editions — Trial, Basic, Business, Factory and Enterprise: which modules each tier unlocks, and how offline licensing works.",
   path: "/pricing",
   keywords: ["glass software pricing", "glass ERP licence", "ProGlass Automation editions", "glass software licence"],
+  ogEyebrow: "Editions",
 });
 
 export default function PricingPage() {
   return (
     <>
+    {/* Structured data for this route — see lib/schema.ts. */}
+    <RouteSchema
+      path="/pricing"
+      title="Pricing and licensing editions"
+      description="ProGlass Automation editions — Trial, Basic, Business, Factory and Enterprise: which modules each tier unlocks, and how offline licensing works."
+    />
       <PageHero
         eyebrow="Pricing"
         title="Editions, not subscriptions."
