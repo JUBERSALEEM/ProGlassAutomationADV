@@ -105,7 +105,13 @@ export function Navbar() {
         // `no-print`: a fixed bar that repeats on every printed sheet is waste.
         "no-print fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-industrial",
         scrolled
-          ? "border-b border-line-strong/50 bg-ink-950/80 shadow-[0_18px_40px_-32px_rgb(0_0_0/0.9)] backdrop-blur-xl supports-[backdrop-filter]:bg-ink-950/65"
+          /*
+           * No backdrop blur on the header. A blurred, 65%-opaque bar puts the
+           * navigation — the most-read text on the site — on a composited layer,
+           * and composited text loses subpixel antialiasing. The bar is opaque
+           * instead: crisper to read, and cheaper to paint on every scroll.
+           */
+          ? "border-b border-line-strong/50 bg-ink-950/95 shadow-[0_18px_40px_-32px_rgb(0_0_0/0.9)]"
           : "border-b border-transparent bg-transparent",
       )}
     >

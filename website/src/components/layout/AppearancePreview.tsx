@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/cn";
 import { accentPresets, appearanceFamilies, themeModes } from "@/data/themes";
-import { setAppearance, setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
-import { setAccent, studioAccents, useStudio } from "@/lib/useStudio";
+import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
+import { isFamilyAccentKey, setAccent, setFamily, studioAccents, useStudio } from "@/lib/useStudio";
 import { luminance } from "@/lib/color";
 
 /**
@@ -25,7 +25,7 @@ export function AppearancePreview() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="eyebrow">Try it on this page</p>
         <p className="font-mono text-2xs font-semibold uppercase tracking-[0.14em] text-text-muted">
-          {studio.accentKey === "GlassBlue" ? activeFamily.label : studio.accentKey}
+          {isFamilyAccentKey(studio.accentKey) ? activeFamily.label : studio.accentKey}
         </p>
       </div>
 
@@ -63,7 +63,7 @@ export function AppearancePreview() {
               key={entry.id}
               type="button"
               aria-pressed={active}
-              onClick={() => setAppearance(entry.id)}
+              onClick={() => setFamily(entry.id)}
               title={entry.origin}
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.75rem] font-bold transition-colors",

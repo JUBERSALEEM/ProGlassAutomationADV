@@ -112,8 +112,19 @@
     /* Card tinting: the violet wash that keeps cards off plain grey. */
     --card-tint: rgb(139 92 246 / 0.1);
     --card-highlight: rgb(255 255 255 / 0.06);
-    /* How much accent sits in a card fill. Driven by the theme studio. */
-    --tint-mix: 0.08;
+    /*
+     * How much accent sits in a card fill.
+     *
+     * `--tint-base` is how rich this palette wants its cards to be on its own,
+     * and `--tint-mix` is what the card actually paints. The theme studio's
+     * Card tint dial writes `--tint-mix: calc(var(--tint-base) * n)` as an
+     * inline style, so the dial is a multiplier over each family's own depth
+     * rather than a single number applied to all of them. The value here is the
+     * fallback for the moment before the studio runs, and for a visitor with
+     * scripting off.
+     */
+    --tint-base: 0.10;
+    --tint-mix: 0.10;
 
     --scroll-track: 11 8 32;
     --scroll-thumb: 42 33 89;
@@ -246,9 +257,11 @@
     --pool-2: rgb(56 189 248 / 0.1);
     --pool-3: rgb(244 114 182 / 0.07);
 
+    /* Day lighter than dark: paper needs less ink to read as tinted. */
+    --tint-base: 0.07;
     --card-tint: rgb(139 92 246 / 0.07);
     --card-highlight: rgb(255 255 255 / 0.9);
-    --tint-mix: 0.05;
+    --tint-mix: 0.07;
 
     --scroll-track: 240 238 250;
     --scroll-thumb: 209 202 235;
@@ -373,7 +386,9 @@
 
 
     --card-tint: rgb(34 211 238 / 0.16);
-    --tint-mix: 0.12;
+    /* Crystal is a saturated family by design, so its base sits higher. */
+    --tint-base: 0.14;
+    --tint-mix: 0.14;
     --card-tint-2: rgb(129 140 248 / 0.09);
     --card-highlight: rgb(255 255 255 / 0.16);
     --selection: rgb(103 232 249 / 0.3);
@@ -437,7 +452,15 @@
   }
 
   body {
-    @apply text-text-secondary font-sans antialiased;
+    /*
+     * No `antialiased` here, deliberately. That utility forces grayscale
+     * smoothing, which is what a browser falls back to when it cannot use the
+     * platform's own text renderer. Leaving it off lets each system do what it
+     * is best at — subpixel rendering with ClearType on Windows, Core Text on a
+     * Mac — which is markedly crisper on small type. It matters most on the
+     * label sizes this site uses for figures and captions.
+     */
+    @apply text-text-secondary font-sans;
     background-color: rgb(var(--ink-950));
     overflow-x: hidden;
     transition: background-color 240ms ease, color 240ms ease;
@@ -695,12 +718,26 @@
     box-shadow: var(--shadow-panel);
   }
 
-  /* Glass families get a real blurred backdrop; everything else stays flat. */
-  .surface,
-  .surface-raised,
-  .stat-tile,
-  .plate,
-  .card-live {
+  /*
+   * Backdrop blur is scoped to the one family whose design language is glass.
+   *
+   * It used to be applied to every card in every family, at 4px over a 99%
+   * opaque fill — which blurred almost nothing, because there was almost
+   * nothing showing through to blur. What it did do was force the browser to
+   * composite each card as its own layer, and a composited layer rasterises its
+   * text without subpixel antialiasing. So every card on the site carried a
+   * standing performance cost *and* slightly soft text, in exchange for an
+   * effect that was invisible.
+   *
+   * Crystal is different: its fill really is 34% opaque, so the blur is doing
+   * visible work and the trade is worth paying. Every other family now gets an
+   * opaque, crisply rasterised surface.
+   */
+  [data-appearance="crystal"] .surface,
+  [data-appearance="crystal"] .surface-raised,
+  [data-appearance="crystal"] .stat-tile,
+  [data-appearance="crystal"] .plate,
+  [data-appearance="crystal"] .card-live {
     backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
     -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
   }
@@ -984,6 +1021,21 @@
     contain-intrinsic-size: auto 420px;
   }
 
+  /*
+   * Reveal on scroll.
+   *
+   * `will-change` is held only while a block is waiting to be shown, and given
+   * up the moment it has been. That is not a micro-optimisation: a standing
+   * `will-change: transform` keeps the element on its own compositor layer for
+   * the rest of the page's life, and a composited layer rasterises its text
+   * without subpixel antialiasing. Almost every card and paragraph on this site
+   * sits inside a reveal, so leaving `will-change` on is the difference between
+   * crisp body text and body text that looks slightly out of focus.
+   *
+   * The shown state sets `transform: none` rather than `translate3d(0,0,0)`,
+   * for the same reason — a zero translate is still a translate, and still
+   * promotes the layer.
+   */
   .reveal {
     opacity: 0;
     transform: translate3d(0, 18px, 0);
@@ -995,7 +1047,8 @@
 
   .reveal.is-visible {
     opacity: 1;
-    transform: translate3d(0, 0, 0);
+    transform: none;
+    will-change: auto;
   }
 
   .reveal-scale {
@@ -1004,11 +1057,13 @@
     transition:
       opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
       transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
   }
 
   .reveal-scale.is-visible {
     opacity: 1;
-    transform: scale(1);
+    transform: none;
+    will-change: auto;
   }
 
   .text-balance {

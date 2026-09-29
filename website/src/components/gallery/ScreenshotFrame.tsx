@@ -87,6 +87,8 @@ export function ScreenshotFrame({
         moduleKey={shot.moduleKey}
         name={shot.title}
         capabilities={owner?.capabilities ?? shot.highlights}
+        /* A slide: the run is shown as a strip of plates, not paged. */
+        compact
       />
     </AppFrame>
   );

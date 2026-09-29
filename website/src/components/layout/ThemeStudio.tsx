@@ -3,8 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { appearanceFamilies, themeModes, type AppearanceFamilyEntry, type ThemeModeEntry } from "@/data/themes";
-import { setAppearance, setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
-import { resetStudio, setAccent, setStudio, studioAccents, typefaces, typefaceKeys, useStudio } from "@/lib/useStudio";
+import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
+import {
+  resetStudio,
+  setAccent,
+  setFamily,
+  setStudio,
+  studioAccents,
+  typefaces,
+  typefaceKeys,
+  useStudio,
+} from "@/lib/useStudio";
 import { luminance } from "@/lib/color";
 
 /**
@@ -24,6 +33,20 @@ import { luminance } from "@/lib/color";
  * Nothing is a preview image: every control writes straight to the live page,
  * and the choices survive a reload.
  */
+/**
+ * How the tint dial reads out.
+ *
+ * The dial is a multiplier, so a bare percentage would be honest but opaque.
+ * Naming the ends is what makes the range legible: 0 is no tint at all, 1 is
+ * the richness the family ships with, and the top of the dial is a card plainly
+ * carrying the accent.
+ */
+function tintReadout(value: number): string {
+  if (value === 0) return "None";
+  if (Math.abs(value - 1) < 0.001) return "Family default · 1.00×";
+  return `${value.toFixed(2)}×`;
+}
+
 export function ThemeStudio() {
   const [open, setOpen] = useState(false);
   const [customHex, setCustomHex] = useState("#7C3AED");
@@ -161,7 +184,9 @@ export function ThemeStudio() {
                     key={entry.id}
                     type="button"
                     aria-pressed={active}
-                    onClick={() => setAppearance(entry.id)}
+                    /* Re-bases the palette, so this plate always visibly does
+                       something even after a colour plate was picked. */
+                    onClick={() => setFamily(entry.id)}
                     title={entry.origin}
                     className={cn(
                       "flex items-center gap-2 rounded-card border-2 px-2.5 py-2.5 text-left text-[0.75rem] font-bold transition-colors",
@@ -181,6 +206,10 @@ export function ThemeStudio() {
               })}
             </div>
             <p className="mt-2 text-[0.75rem] font-medium leading-relaxed text-text-muted">{activeFamily.origin}</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-text-faint">
+              Choosing a family sets the palette to that family&apos;s own accent. A colour plate below overrides it
+              again — the last one you touch wins.
+            </p>
           </fieldset>
 
           {/* ── Colour plates ─────────────────────────────────────────── */}
@@ -195,7 +224,7 @@ export function ThemeStudio() {
                 label="Family"
                 colour={activeFamily.swatch}
                 active={studio.accent === null}
-                onClick={() => setAccent("GlassBlue", null)}
+                onClick={() => setAccent("Family", null)}
                 onDark={luminance(activeFamily.swatch) < 0.4}
               />
               {studioAccents.map((entry) => (
@@ -312,11 +341,34 @@ export function ThemeStudio() {
               label="Card tint"
               value={studio.tint}
               min={0}
-              max={2}
+              max={3}
               step={0.05}
-              display={`${Math.round(studio.tint * 100)}%`}
+              display={tintReadout(studio.tint)}
               onChange={(value) => setStudio({ tint: value })}
             />
+
+            {/*
+              The swatch paints the card fill the dial is controlling: the real
+              `.surface` class, the real accent, taken through the same
+              `--tint-mix` the cards read. Nothing here is a colour mixed for a
+              preview image — at 0 it is the surface colour exactly, which in
+              daylight mode is white.
+            */}
+            <div className="flex items-center gap-3 rounded-card border-2 border-line-strong/70 bg-ink-950/60 p-2.5">
+              <span
+                aria-hidden="true"
+                className="surface h-10 w-16 shrink-0"
+                style={{ ["--tint-mix" as string]: `calc(var(--tint-base, 0.1) * ${studio.tint.toFixed(2)})` }}
+              />
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-text-primary">{tintReadout(studio.tint)}</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-text-muted">
+                  {studio.tint === 0
+                    ? "No accent in the fill — cards are exactly the surface colour."
+                    : "The same accent wash every card on the site carries."}
+                </p>
+              </div>
+            </div>
             <Slider
               label="Corner radius"
               value={studio.radius}

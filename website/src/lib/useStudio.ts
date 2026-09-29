@@ -2,7 +2,12 @@
 
 import { useSyncExternalStore } from "react";
 import { rampFor, shift, triplet } from "@/lib/color";
-import { accentPresets } from "@/data/themes";
+import {
+  accentPresets,
+  appearanceFamilies,
+  type AppearanceFamily,
+} from "@/data/themes";
+import { setAppearance } from "@/lib/useTheme";
 
 /**
  * The appearance studio's state.
@@ -20,6 +25,16 @@ import { accentPresets } from "@/data/themes";
 
 export const STUDIO_STORAGE_KEY = "proglass-studio";
 export const STUDIO_VARS_KEY = "proglass-studio-vars";
+
+/**
+ * The `accentKey` used while a palette family is running on its own accent.
+ *
+ * The colour plates and the family plates are two controls over one value, so
+ * they need one vocabulary: "the accent is the family's own" is a state, not
+ * the absence of a state, and naming it is what stops the plate group falling
+ * back to a stale preset name after a family is chosen.
+ */
+export const FAMILY_ACCENT_KEY = "Family";
 
 export type Studio = {
   /** Base accent hex, or null to leave the active family's own accent alone. */
@@ -44,7 +59,7 @@ export type Studio = {
 
 export const defaultStudio: Studio = {
   accent: null,
-  accentKey: "GlassBlue",
+  accentKey: FAMILY_ACCENT_KEY,
   brightness: 0,
   vividness: 0,
   tint: 1,
@@ -90,18 +105,31 @@ function readStored(): Studio {
 function subscribe(listener: () => void): () => void {
   listeners.add(listener);
 
-  // A mode change repaints lightness, so the accent ramp has to be rebuilt for
-  // the new contrast target. Watching the attribute is cheaper and sturdier
-  // than threading a callback through the theme store.
+  /*
+   * Watch both attributes, not just the mode.
+   *
+   * A mode change repaints lightness, so the accent ramp has to be rebuilt for
+   * the new contrast target. A *family* change does too, and for a while this
+   * observer only watched `data-theme` — which was the bug behind the palette
+   * plates appearing to work intermittently. Once a visitor picked a colour
+   * plate, the derived `--brand-*` ramp was written as inline styles on <html>,
+   * and inline styles outrank the stylesheet. Switching family then changed the
+   * attribute but never re-ran this function, so the old ramp stayed on top and
+   * the new family's colours were invisible. Choosing a family before choosing
+   * a colour worked, which is exactly what "not working constantly" describes.
+   */
   const observer = new MutationObserver((records) => {
     for (const record of records) {
-      if (record.attributeName === "data-theme") {
+      if (record.attributeName === "data-theme" || record.attributeName === "data-appearance") {
         applyStudioVars(read());
         break;
       }
     }
   });
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["data-theme", "data-appearance"],
+  });
 
   return () => {
     listeners.delete(listener);
@@ -146,13 +174,18 @@ export type TypefaceKey = keyof typeof typefaces;
 
 export const typefaceKeys = Object.keys(typefaces) as TypefaceKey[];
 
-/** The accent each family is built around, used when no accent is picked. */
-const FAMILY_ACCENT: Record<string, string> = {
-  studio: "#8B5CF6",
-  monet: "#E879A6",
-  industrial: "#38BDF8",
-  crystal: "#22D3EE",
-};
+/**
+ * The accent each family is built around, used when no accent is picked.
+ *
+ * Read from the family table itself rather than kept in a second list here: the
+ * swatch on the studio's plate and the base of the ramp have to be the same
+ * colour, and two tables is two chances for them to drift apart.
+ */
+const FAMILY_ACCENT: Record<string, string> = Object.fromEntries(
+  appearanceFamilies.map((entry) => [entry.id, entry.swatch]),
+);
+
+
 
 /** Writes the derived variables onto <html> and remembers them for the boot. */
 export function applyStudioVars(studio: Studio) {
@@ -182,8 +215,17 @@ export function applyStudioVars(studio: Studio) {
     vars["--pool-1"] = `rgb(${triplet(pool)} / ${target === "dark" ? 0.2 : 0.16})`;
   }
 
-  // The wash inside a card fill: the one place the tint dial lands.
-  vars["--tint-mix"] = ((target === "dark" ? 0.08 : 0.05) * studio.tint).toFixed(4);
+  /*
+   * The wash inside a card fill: the one place the tint dial lands.
+   *
+   * Written as a multiplier over `--tint-base` rather than as a fixed dark/light
+   * number, so the dial means "how rich is this card, relative to how rich this
+   * palette wants its cards to be". A family that is meant to be saturated —
+   * Crystal — keeps its own depth, and one dial still spans from a card that is
+   * exactly its surface colour (0) to a card that is plainly carrying the
+   * accent (3×).
+   */
+  vars["--tint-mix"] = `calc(var(--tint-base, 0.1) * ${studio.tint.toFixed(2)})`;
 
   vars["--radius-scale"] = String(studio.radius);
   vars["--font-sans"] = typefaces[studio.typeface]?.stack ?? typefaces.inter.stack;
@@ -239,6 +281,30 @@ export function setStudio(patch: Partial<Studio>) {
     /* Storage may be unavailable. */
   }
   emit();
+}
+
+/**
+ * Switch palette family — and re-base the palette on it.
+ *
+ * Each family ships its own hand-tuned accent ramp in the stylesheet. A colour
+ * plate the visitor picked earlier overrides that ramp with inline styles, so
+ * without clearing it, choosing a family would change the family's name and
+ * nothing else. Clicking a family therefore means "show me this palette", and
+ * the accent goes back to the family's own colour; the brightness and vividness
+ * dials are the visitor's tuning and are left alone, so the ramp is rebuilt
+ * from the new family's accent rather than discarded.
+ *
+ * Picking a colour plate afterwards overrides the family again. The two
+ * controls read as one choice with a clear precedence, which is what makes both
+ * of them always do something visible.
+ */
+export function setFamily(family: AppearanceFamily) {
+  setAppearance(family);
+  setStudio({ accent: null, accentKey: FAMILY_ACCENT_KEY });
+}
+
+export function isFamilyAccentKey(key: string): boolean {
+  return key === FAMILY_ACCENT_KEY;
 }
 
 /** Preset accent, or a custom hex chosen by the visitor. */

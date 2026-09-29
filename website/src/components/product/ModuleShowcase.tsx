@@ -111,6 +111,8 @@ function ModulePanel({ module }: { module: ProductModule }) {
           moduleKey={module.moduleKey}
           name={module.name}
           capabilities={module.capabilities}
+          /* A card in a grid of cards: a row of thumbnails, not a pager. */
+          compact
         />
       </div>
 

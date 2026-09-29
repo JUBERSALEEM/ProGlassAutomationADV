@@ -12,6 +12,8 @@ import {
   type DemoView,
 } from "@/data/liveDemos";
 import { cn } from "@/lib/cn";
+import { SheetGallery } from "@/components/optimization/SheetGallery";
+import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 
 /**
  * The live module preview.
@@ -303,54 +305,42 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
  * Optimizer engine — a real shelf packer over the cut list
  * ════════════════════════════════════════════════════════════════════════ */
 
-type Placed = { x: number; y: number; w: number; h: number; piece: string; sheet: number };
-
 /**
- * Shelf packing with a rotating piece, which is how a guillotine optimizer
- * behaves in practice: fill a shelf left to right, then start the next one.
- * Every metric below is computed from what actually got placed.
+ * The plate set for the sample cut list.
+ *
+ * The packing itself lives in `src/lib/guillotinePack.ts`, shared with the
+ * homepage and the optimization page so every plate drawing on this site comes
+ * out of one implementation and they cannot disagree with each other.
+ *
+ * It is a shelf rule — the simplest guillotine-cuttable strategy — used to
+ * illustrate how a run spreads across plates. The engine is not that: it
+ * searches five families and six plate patterns. Everything printed here is
+ * arithmetic over the pieces actually placed, and a piece that no plate can
+ * hold is reported rather than dropped.
  */
-function pack(
-  parts: { piece: string; w: number; h: number }[],
-  sheetW: number,
-  sheetH: number,
-): { placed: Placed[]; sheets: number } {
-  const kerf = optimizerLimits.kerf;
-  const usableW = sheetW - optimizerLimits.marginLeft - optimizerLimits.marginRight;
-  const usableH = sheetH - optimizerLimits.marginTop - optimizerLimits.marginBottom;
-  const placed: Placed[] = [];
-  let sheet = 0;
-  let shelfY = optimizerLimits.marginTop;
-  let shelfX = optimizerLimits.marginLeft;
-  let shelfH = 0;
-
-  for (const part of parts) {
-    let w = part.w;
-    let h = part.h;
-    if (w > usableW && h <= usableW) {
-      w = part.h;
-      h = part.w;
-    }
-    if (w > usableW || h > usableH) continue;
-
-    if (shelfX + w > sheetW - optimizerLimits.marginRight) {
-      shelfY += shelfH + kerf;
-      shelfX = optimizerLimits.marginLeft;
-      shelfH = 0;
-    }
-    if (shelfY + h > sheetH - optimizerLimits.marginBottom) {
-      sheet += 1;
-      shelfY = optimizerLimits.marginTop;
-      shelfX = optimizerLimits.marginLeft;
-      shelfH = 0;
-    }
-
-    placed.push({ x: shelfX, y: shelfY, w, h, piece: part.piece, sheet });
-    shelfX += w + kerf;
-    shelfH = Math.max(shelfH, h);
-  }
-
-  return { placed, sheets: placed.length > 0 ? sheet + 1 : 0 };
+function usePackedSample(parts: { piece: string; w: number; h: number }[], sheet: { label: string; w: number; h: number }) {
+  return useMemo(() => {
+    const result = packGuillotine(
+      parts.map((part) => ({ id: part.piece, width: part.w, height: part.h })),
+      { width: sheet.w, height: sheet.h },
+      /*
+       * `optimizerLimits` names its margins left/right/top/bottom for the
+       * display; the packer takes them as four edges and a kerf. Mapped here,
+       * once, rather than keeping two shapes of the same fact.
+       */
+      {
+        left: optimizerLimits.marginLeft,
+        right: optimizerLimits.marginRight,
+        top: optimizerLimits.marginTop,
+        bottom: optimizerLimits.marginBottom,
+        kerf: optimizerLimits.kerf,
+      },
+    );
+    return {
+      result,
+      plates: plateViews(result, { width: sheet.w, height: sheet.h, label: `${sheet.w} × ${sheet.h}` }),
+    };
+  }, [parts, sheet]);
 }
 
 function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
@@ -374,12 +364,12 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
     });
   }, [demo.views, piecesPerPart]);
 
-  const result = useMemo(() => pack(parts, sheet.w, sheet.h), [parts, sheet]);
+  const { result, plates } = usePackedSample(parts, sheet);
 
   const partArea = parts.reduce((total, part) => total + (part.w * part.h) / 1_000_000, 0);
-  const stockArea = result.sheets * ((sheet.w * sheet.h) / 1_000_000);
-  const usedArea = result.placed.reduce((total, p) => total + (p.w * p.h) / 1_000_000, 0);
-  const utilization = stockArea > 0 ? (usedArea / stockArea) * 100 : 0;
+  const stockArea = result.stockAreaSqm;
+  const usedArea = result.partAreaSqm;
+  const utilization = result.utilizationPct;
   const wastage = stockArea - usedArea;
   const scrap = stockArea - partArea;
 
@@ -429,49 +419,48 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </label>
       </div>
 
-      <div className="relative overflow-hidden rounded-card border border-line/60 bg-ink-950/50 p-2">
-        <div className="live-grid absolute inset-0 opacity-40" aria-hidden="true" />
-        <div className="relative space-y-2">
-          {Array.from({ length: Math.max(result.sheets, 1) }, (_, sheetNo) => {
-            const scale = 100 / sheet.w;
-            const sheetPlaced = result.placed.filter((p) => p.sheet === sheetNo);
-            return (
-              <div key={sheetNo}>
-                <div className="mb-1 flex items-center justify-between font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">
-                  <span>Plate {sheetNo + 1}</span>
-                  <span>
-                    {sheet.w} × {sheet.h} mm · kerf {optimizerLimits.kerf} mm
-                  </span>
-                </div>
-                <div
-                  className="relative w-full overflow-hidden rounded-[0.35rem] border border-line-strong/60 bg-viz-plate"
-                  style={{ aspectRatio: `${sheet.w} / ${sheet.h}` }}
-                >
-                  {sheetPlaced.map((p, i) => (
-                    <span
-                      key={`${p.piece}-${i}`}
-                      className="absolute animate-rise-in rounded-[2px] border border-brand-300/50 bg-viz-part/25"
-                      style={{
-                        left: `${p.x * scale}%`,
-                        top: `${(p.y / sheet.h) * 100}%`,
-                        width: `${p.w * scale}%`,
-                        height: `${(p.h / sheet.h) * 100}%`,
-                        animationDelay: `${i * 26}ms`,
-                      }}
-                      title={`${p.piece} — ${p.w} × ${p.h} mm`}
-                    />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/*
+        Every plate of the run, as thumbnails.
 
+        This replaced a vertical stack of full-width plates. A plate is wider
+        than it is tall, so one drawn across the frame is already ~70% of its
+        width in height — and the sample job needs more than a dozen of them.
+        The old version therefore put a column of near-empty boxes down the
+        page, the last few almost blank, and pushed everything below it out of
+        sight.
+
+        Thumbnails wrapped across the frame keep the whole run visible at the
+        size a glance actually needs. It is the same treatment the application
+        gives it in the 2D View tab, where the Multi-Sheet Gallery exists for
+        precisely this reason.
+      */}
+      <SheetGallery
+        plates={plates}
+        pageSize={compact ? 3 : 6}
+        paginate={!compact}
+        columns={compact ? "grid-cols-3" : "grid-cols-2 sm:grid-cols-3"}
+      />
+
+      {result.unplaced.length > 0 ? (
+        <p className="rounded-card border border-state-warning/40 bg-state-warning/10 px-3 py-2 text-[0.75rem] leading-relaxed text-text-secondary">
+          <strong className="font-semibold text-text-primary">
+            {result.unplaced.length} {result.unplaced.length === 1 ? "piece" : "pieces"} could not be placed
+          </strong>{" "}
+          on a {sheet.w} × {sheet.h} plate — too large for the usable area in either orientation. Choose a larger sheet,
+          or cut {result.unplaced.length === 1 ? "it" : "them"} from stock that can hold {result.unplaced.length === 1 ? "it" : "them"}.
+        </p>
+      ) : null}
+
+      {/*
+        The six figures the application's Summary tab reports for a run, in its
+        order. Sheets used and utilization first, because those are the two a
+        shop owner looks for; wastage, stock, part area and scrap after them.
+        All six are computed from the pieces actually placed.
+      */}
       {!compact ? (
         <dl className="grid grid-cols-3 gap-2 sm:grid-cols-6">
           {[
-            { label: "Sheets used", value: String(result.sheets) },
+            { label: "Sheets used", value: String(result.plates) },
             { label: "Utilization", value: `${utilization.toFixed(1)}%`, good: true },
             { label: "Wastage", value: `${wastage.toFixed(2)} m²`, bad: true },
             { label: "Stock area", value: `${stockArea.toFixed(2)} m²` },
@@ -502,6 +491,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
     </div>
   );
 }
+
 
 /* ══════════════════════════════════════════════════════════════════════════
  * Queue engine — the eight production stages

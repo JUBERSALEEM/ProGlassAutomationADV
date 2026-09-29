@@ -8,7 +8,8 @@ import {
   type AppearanceFamilyEntry,
   type ThemeModeEntry,
 } from "@/data/themes";
-import { setAppearance, setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
+import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
+import { setFamily } from "@/lib/useStudio";
 
 /**
  * Appearance control.
@@ -145,7 +146,7 @@ export function ThemeToggle({ className }: { className?: string }) {
                   key={entry.id}
                   type="button"
                   aria-pressed={active}
-                  onClick={() => setAppearance(entry.id)}
+                  onClick={() => setFamily(entry.id)}
                   className={cn(
                     "flex w-full items-start gap-3 rounded-card border px-2.5 py-2 text-left transition-colors duration-200",
                     active

@@ -261,8 +261,17 @@ function Lightbox({
       aria-modal="true"
       aria-label={`${shot.title} — larger view`}
       onKeyDown={onKeyDown}
-      className="animate-fade-in fixed inset-0 z-[60] flex flex-col bg-ink-950/92 backdrop-blur-md"
+      className="animate-fade-in fixed inset-0 z-[60] flex flex-col"
     >
+      {/*
+        The backdrop is its own layer, carrying both the blur and the fill, and
+        sitting behind the dialog's content. Put the blur on the container
+        instead and the caption, the counter and the buttons — all of them text
+        — inherit a composited layer, which is rasterised without subpixel
+        antialiasing. Down here it costs nothing and blurs only the screenshot
+        it is covering.
+      */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-ink-950/95 backdrop-blur-md" />
       <div className="flex items-center justify-between gap-4 border-b border-line/60 px-4 py-3 sm:px-6">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-text-primary">{shot.title}</p>
