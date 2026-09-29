@@ -74,7 +74,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
           <Container className="relative">
             <nav aria-label="Breadcrumb" className="mb-6">
-              <ol className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+              <ol className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                 <li>
                   <Link href="/" className="transition-colors hover:text-brand-300">
                     Home
@@ -92,16 +92,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-3">
                 <Badge tone="accent">{post.category}</Badge>
-                <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                   {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                 </time>
-                <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                   {post.readingMinutes} min read
                 </span>
               </div>
               <h1 className="mt-5 text-[1.9rem] leading-[1.12] sm:text-[2.4rem]">{post.title}</h1>
               <p className="lede mt-5">{post.summary}</p>
-              <p className="mt-6 text-xs text-text-faint">
+              <p className="mt-6 text-xs text-text-faint font-medium">
                 Written by{" "}
                 <Link href="/developer" className="link-underline">
                   {site.developerName}
@@ -173,7 +173,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   >
                     <div className="flex items-center gap-3">
                       <Badge>{other.category}</Badge>
-                      <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                      <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                         {other.readingMinutes} min
                       </span>
                     </div>

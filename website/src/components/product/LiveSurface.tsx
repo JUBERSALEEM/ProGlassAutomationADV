@@ -54,7 +54,7 @@ export function LiveSurface({
               const active = index === safeIndex;
               return (
                 <button
-                  key={entry.label}
+                  key={`${entry.label}-${index}`}
                   type="button"
                   role="tab"
                   aria-selected={active}
@@ -100,7 +100,7 @@ export function LiveSurface({
 
 function SampleTag() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong/60 bg-ink-800/70 px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong/60 bg-ink-800/70 px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
       <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-400" />
       Sample data · live
     </span>
@@ -230,7 +230,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
               const isSelected = selected === id;
               return (
                 <tr
-                  key={id}
+                  key={`${id}-${index}`}
                   onClick={() => setSelected(isSelected ? null : id)}
                   className={cn(
                     "cursor-pointer border-b border-line/30 transition-colors duration-150",
@@ -278,7 +278,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
             <dl className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               {view.summary.map((item) => (
                 <div key={item.label} className="flex items-baseline gap-1.5">
-                  <dt className="font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-text-faint">
+                  <dt className="font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
                     {item.label}
                   </dt>
                   <dd
@@ -399,14 +399,14 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
 
       <div className="flex flex-wrap items-end gap-4">
         <label className="flex flex-col gap-1">
-          <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint">Sheet</span>
+          <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">Sheet</span>
           <select
             value={sheetIndex}
             onChange={(event) => setSheetIndex(Number(event.target.value))}
             className="rounded-lg border border-line-strong/60 bg-ink-900/80 px-2 py-1 text-[0.6875rem] text-text-primary outline-none"
           >
             {sheetSizes.map((entry, index) => (
-              <option key={entry.label} value={index}>
+              <option key={`${entry.label}-${index}`} value={index}>
                 {entry.label}
               </option>
             ))}
@@ -414,7 +414,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </label>
 
         <label className="flex min-w-[9rem] flex-1 flex-col gap-1">
-          <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint">
+          <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
             Pieces per size · {piecesPerPart}
           </span>
           <input
@@ -437,7 +437,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             const sheetPlaced = result.placed.filter((p) => p.sheet === sheetNo);
             return (
               <div key={sheetNo}>
-                <div className="mb-1 flex items-center justify-between font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-text-faint">
+                <div className="mb-1 flex items-center justify-between font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
                   <span>Plate {sheetNo + 1}</span>
                   <span>
                     {sheet.w} × {sheet.h} mm · kerf {optimizerLimits.kerf} mm
@@ -479,7 +479,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             { label: "Scrap", value: `${scrap.toFixed(2)} m²`, bad: true },
           ].map((item) => (
             <div key={item.label} className="stat-tile px-2.5 py-2">
-              <dt className="font-mono text-[0.5rem] uppercase tracking-[0.12em] text-text-faint">{item.label}</dt>
+              <dt className="font-mono text-[0.5rem] uppercase tracking-[0.12em] text-text-faint font-medium">{item.label}</dt>
               <dd
                 className={cn(
                   "mt-0.5 font-mono text-sm font-semibold tabular-nums",
@@ -495,7 +495,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </dl>
       ) : null}
 
-      <p className="text-[0.625rem] leading-relaxed text-text-faint">
+      <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">
         {demo.blurb} Arranged here with a shelf packer over the sample cut list, so the figures are genuinely
         calculated — change the sheet or the quantity and read them again.
       </p>
@@ -507,13 +507,25 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
  * Queue engine — the eight production stages
  * ════════════════════════════════════════════════════════════════════════ */
 
+/**
+ * A stable identity for a queue row.
+ *
+ * The job number alone is not unique — a cut list can hold several pieces of
+ * the same job, and the stage queues carry rows with no job number at all — so
+ * the key falls back through piece, then reference, then the row's position.
+ */
+function rowKey(row: DemoRow, index: number): string {
+  const label = row.job || row.piece || row.ref || row.note || row.code;
+  return label ? `${label}-${index}` : `row-${index}`;
+}
+
 function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
   const [stage, setStage] = useState(1);
   const rows = demo.views[0]?.rows ?? [];
   const [progress, setProgress] = useState<Record<string, number>>(() =>
     Object.fromEntries(
-      rows.map((row) => [
-        row.job ?? "",
+      rows.map((row, index) => [
+        rowKey(row, index),
         Number(row.qty ?? 0) > 0 ? Number(row.cut ?? 0) / Number(row.qty ?? 1) : 0,
       ]),
     ),
@@ -537,12 +549,12 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </p>
       </div>
 
-      <ol className="flex flex-wrap gap-1.5">
+      <div role="list" aria-label="Production stages" className="flex flex-wrap gap-1.5">
         {stageNames.map((label, index) => {
           const isActive = index + 1 === stage;
           const passed = index + 1 < stage;
           return (
-            <li key={label}>
+            <div role="listitem" key={`stage-${label}-${index}`}>
               <button
                 type="button"
                 onClick={() => setStage(index + 1)}
@@ -557,26 +569,28 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
               >
                 {label}
               </button>
-            </li>
+            </div>
           );
         })}
-      </ol>
+      </div>
 
-      <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto">
-        {rows.map((row) => {
-          const job = row.job ?? "";
-          const done = progress[job] ?? 0;
+      <div role="list" aria-label="Jobs in this stage" className="min-h-0 flex-1 space-y-2 overflow-y-auto">
+        {rows.map((row, index) => {
+          const id = rowKey(row, index);
+          const done = progress[id] ?? 0;
           const qty = Number(row.qty ?? 0);
           const arrived = Math.round(qty * done);
           const ready = done >= 1;
+          const label = row.job || row.piece || row.ref || `Row ${index + 1}`;
           return (
-            <li key={job} className="card-live p-2.5">
+            <div role="listitem" key={`${id}-${index}`} className="card-live p-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="truncate text-[0.6875rem] font-semibold text-text-primary">
-                    {job} · {row.glass}
+                    {label}
+                    {row.glass ? ` · ${row.glass}` : row.spec ? ` · ${row.spec}` : ""}
                   </p>
-                  <p className="truncate text-[0.625rem] text-text-faint">
+                  <p className="truncate text-[0.625rem] text-text-faint font-medium">
                     {row.party} · arrived at {active}: {arrived} of {qty} pieces
                   </p>
                 </div>
@@ -592,7 +606,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
                   </span>
                   <button
                     type="button"
-                    onClick={() => advance(job)}
+                    onClick={() => advance(id)}
                     disabled={ready}
                     className={cn(
                       "rounded-full border px-2 py-0.5 text-[0.5625rem] font-semibold uppercase tracking-[0.1em] transition-colors",
@@ -605,13 +619,13 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
                   </button>
                 </div>
               </div>
-            </li>
+            </div>
           );
         })}
-      </ul>
+      </div>
 
       {!compact ? (
-        <p className="text-[0.625rem] leading-relaxed text-text-faint">
+        <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">
           {demo.blurb} A job becomes dispatch-ready when the full quantity has finished the chain — press Advance to
           walk one through.
         </p>
@@ -637,11 +651,11 @@ function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | un
         </p>
       </div>
 
-      <ol className="flex flex-wrap gap-1.5">
+      <div role="list" aria-label="Steps" className="flex flex-wrap gap-1.5">
         {steps.map((label, index) => {
           const isActive = index + 1 === step;
           return (
-            <li key={label}>
+            <div role="listitem" key={`${label}-${index}`}>
               <button
                 type="button"
                 onClick={() => setStep(index + 1)}
@@ -659,16 +673,16 @@ function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | un
                 </span>
                 {label}
               </button>
-            </li>
+            </div>
           );
         })}
-      </ol>
+      </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
         <TableEngine view={view} compact={compact} />
       </div>
 
-      {!compact ? <p className="text-[0.625rem] leading-relaxed text-text-faint">{demo.footnote ?? demo.blurb}</p> : null}
+      {!compact ? <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p> : null}
     </div>
   );
 }
@@ -714,12 +728,12 @@ function DashboardEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
           const numeric = Number(item.value);
           const scaled = Number.isFinite(numeric) ? Math.max(1, Math.round(numeric * factor)) : null;
           return (
-            <div key={item.label} className="stat-tile p-2.5">
-              <dt className="font-mono text-[0.5rem] uppercase tracking-[0.12em] text-text-faint">{item.label}</dt>
+            <div key={`${item.label}-${index}`} className="stat-tile p-2.5">
+              <dt className="font-mono text-[0.5rem] uppercase tracking-[0.12em] text-text-faint font-medium">{item.label}</dt>
               <dd className="mt-1 font-mono text-lg font-semibold tabular-nums text-text-primary">
                 {scaled !== null ? scaled : item.value}
               </dd>
-              <dd className="mt-0.5 text-[0.5625rem] text-text-faint">
+              <dd className="mt-0.5 text-[0.5625rem] text-text-faint font-medium">
                 {scaled !== null ? (index === 0 ? "across the period" : "across the range") : "—"}
               </dd>
             </div>
@@ -739,7 +753,7 @@ function DashboardEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
       </div>
 
       {!compact && demo.footnote ? (
-        <p className="text-[0.625rem] leading-relaxed text-text-faint">{demo.footnote}</p>
+        <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">{demo.footnote}</p>
       ) : null}
     </div>
   );
@@ -754,7 +768,7 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
     <div className="flex h-full flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <p className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint">{moduleKey}</p>
+        <p className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">{moduleKey}</p>
       </div>
 
       <dl className="space-y-1.5">
@@ -771,26 +785,27 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
 
       {view && view.rows.length > 0 ? (
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <ul className="space-y-1">
-            {view.rows.map((row) => {
+          <div role="list" className="space-y-1">
+            {view.rows.map((row, index) => {
               const cells = Object.entries(row);
               return (
-                <li
-                  key={cells[0]?.[1] ?? "row"}
+                <div
+                  role="listitem"
+                  key={`field-${index}`}
                   className="flex flex-wrap items-baseline justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-ink-800/60"
                 >
                   <span className="text-[0.6875rem] text-text-secondary">{cells[0]?.[1]}</span>
                   <span className="font-mono text-[0.6875rem] text-text-muted">{cells[1]?.[1]}</span>
-                </li>
+                </div>
               );
             })}
-          </ul>
+          </div>
         </div>
       ) : null}
 
       {moduleKey === "Settings" ? <AppearanceDeck /> : null}
 
-      <p className="text-[0.625rem] leading-relaxed text-text-faint">{demo.footnote ?? demo.blurb}</p>
+      <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p>
     </div>
   );
 }
@@ -852,7 +867,7 @@ function EmptyPlate() {
   return (
     <div className="flex h-full min-h-[10rem] flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line-strong/60 bg-ink-950/40 p-5 text-center">
       <p className="text-[0.6875rem] font-semibold text-text-secondary">This screen has no preview yet.</p>
-      <p className="max-w-sm text-[0.625rem] leading-relaxed text-text-faint">
+      <p className="max-w-sm text-[0.625rem] leading-relaxed text-text-faint font-medium">
         The module exists in the application. Its preview is added once the layout is confirmed.
       </p>
     </div>

@@ -87,7 +87,7 @@ export default function HowItWorksPage() {
                         href={`#stage-${stage.id}`}
                         className="group flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors duration-200 hover:bg-ink-850/70"
                       >
-                        <span className="font-mono text-2xs tabular-nums text-text-faint">{stage.index}</span>
+                        <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{stage.index}</span>
                         <span className="text-sm text-text-secondary transition-colors group-hover:text-brand-200">
                           {stage.name}
                         </span>
@@ -138,7 +138,7 @@ export default function HowItWorksPage() {
                 ))}
               </ul>
 
-              <p className="mt-5 text-xs leading-relaxed text-text-faint">
+              <p className="mt-5 text-xs leading-relaxed text-text-faint font-medium">
                 The one write is adjusting a sheet-stock quantity, which requires the SheetStore.Edit permission and a
                 confirmation, and is recorded in the activity log. Over-issue is refused.
               </p>
@@ -238,7 +238,7 @@ export default function HowItWorksPage() {
                 rail: "Overview",
               },
             ].map((moment, index) => (
-              <Reveal key={moment.title} delay={index * 70}>
+              <Reveal key={`${moment.title}-${index}`} delay={index * 70}>
                 <div className="flex h-full flex-col gap-5">
                   <div className="flex items-start gap-4">
                     <IndexChip>{String(index + 1).padStart(2, "0")}</IndexChip>

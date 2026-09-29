@@ -189,7 +189,7 @@ export default function DeveloperPage() {
               <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
                 Estimator first. Author of ProGlass Automation second — self-taught, working alone, still estimating.
               </p>
-              <p className="mt-3 font-mono text-2xs uppercase tracking-[0.16em] text-brand-300/80">
+              <p className="mt-3 font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
                 — Made in {site.developerLocation}
               </p>
             </div>
@@ -203,7 +203,7 @@ export default function DeveloperPage() {
               { label: "Formal training", value: "None in software", hint: "An estimator's background instead." },
             ].map((item) => (
               <div key={item.label} className="stat-tile p-3.5">
-                <dt className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint">
+                <dt className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
                   {item.label}
                 </dt>
                 <dd className="mt-1 text-base font-semibold text-text-primary">{item.value}</dd>
@@ -234,7 +234,7 @@ export default function DeveloperPage() {
 
             <ol className="flow">
               {before.map((item, index) => (
-                <Reveal key={item.title} delay={index * 60}>
+                <Reveal key={`${item.title}-${index}`} delay={index * 60}>
                   <li className="card-live flex gap-4 p-5">
                     <IndexChip>{item.index}</IndexChip>
                     <div className="min-w-0">
@@ -261,9 +261,9 @@ export default function DeveloperPage() {
 
           <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {consequences.map((item, index) => (
-              <Reveal key={item.title} delay={index * 50}>
+              <Reveal key={`${item.title}-${index}`} delay={index * 50}>
                 <article className="card-live card-interactive flex h-full flex-col p-5">
-                  <span className="font-mono text-2xs text-brand-300/80">{item.index}</span>
+                  <span className="font-mono text-2xs text-brand-300">{item.index}</span>
                   <h3 className="mt-2 text-base font-semibold text-text-primary">{item.title}</h3>
                   <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{item.body}</p>
                 </article>
@@ -285,7 +285,7 @@ export default function DeveloperPage() {
 
           <div className="mt-10 grid gap-4 lg:grid-cols-3">
             {principles.map((item, index) => (
-              <Reveal key={item.title} delay={index * 60}>
+              <Reveal key={`${item.title}-${index}`} delay={index * 60}>
                 <article className="surface h-full p-6">
                   <div className="flex items-center gap-3">
                     <IndexChip>{item.index}</IndexChip>
@@ -419,7 +419,7 @@ export default function DeveloperPage() {
                 <Badge tone="neutral">Desktop only</Badge>
                 <Badge tone="neutral">Version {site.version}</Badge>
               </div>
-              <p className="text-xs leading-relaxed text-text-faint">
+              <p className="text-xs leading-relaxed text-text-faint font-medium">
                 Every claim about the software on this site names the file it comes from. If something here cannot be
                 checked, it should not be here — say so and it will be corrected.{" "}
                 <Link href="/sponsors" className="link-underline">

@@ -118,11 +118,11 @@ export default function PricingPage() {
 
                 <div className="flex items-baseline justify-between gap-3">
                   <h3 className="text-lg font-semibold text-text-primary">{edition.name}</h3>
-                  <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                  <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                     Tier {edition.order}
                   </span>
                 </div>
-                <p className="mt-1 font-mono text-2xs uppercase tracking-[0.14em] text-brand-300/80">
+                <p className="mt-1 font-mono text-2xs uppercase tracking-[0.14em] text-brand-300">
                   {edition.positioning}
                 </p>
 
@@ -172,7 +172,7 @@ export default function PricingPage() {
                     <h3 className="text-base font-semibold text-text-primary">{gate.group}</h3>
                     <Badge tone="accent">{gate.minimumEdition} and above</Badge>
                   </div>
-                  <p className="mt-2 font-mono text-xs text-text-faint">requires {gate.requiredFeature}</p>
+                  <p className="mt-2 font-mono text-xs text-text-faint font-medium">requires {gate.requiredFeature}</p>
                   <ul className="mt-4 flex flex-wrap gap-2">
                     {gate.modules.map((module) => (
                       <li
@@ -241,7 +241,7 @@ export default function PricingPage() {
               { title: "Storage", detail: "Local SQLite database files in your user profile, plus a licence file." },
               { title: "Network", detail: "Not required to run. Needed only for updates and any cloud AI provider you choose to configure." },
             ].map((item, index) => (
-              <Reveal key={item.title} delay={index * 50} className="surface p-5">
+              <Reveal key={`${item.title}-${index}`} delay={index * 50} className="surface p-5">
                 <p className="text-sm font-semibold text-text-primary">{item.title}</p>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.detail}</p>
               </Reveal>

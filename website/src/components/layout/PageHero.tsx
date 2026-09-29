@@ -66,7 +66,7 @@ export function PageHero({
       <Container className="relative">
         {breadcrumb ? (
           <nav aria-label="Breadcrumb" className="mb-6">
-            <ol className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+            <ol className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
               {breadcrumb.map((crumb, index) => (
                 <li key={crumb.href} className="flex items-center gap-2">
                   {index > 0 ? <span aria-hidden="true">/</span> : null}
@@ -105,7 +105,7 @@ export function PageHero({
               <dl className="grid grid-cols-2 gap-4">
                 {meta.map((item) => (
                   <div key={item.label} className="rounded-card border border-line/60 bg-ink-900/50 p-4">
-                    <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">{item.label}</dt>
+                    <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{item.label}</dt>
                     <dd className="mt-1.5 text-sm font-medium text-text-secondary">{item.value}</dd>
                   </div>
                 ))}

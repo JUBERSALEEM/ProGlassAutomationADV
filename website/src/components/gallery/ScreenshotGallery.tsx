@@ -97,13 +97,13 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
               )}
             >
               {label}
-              <span className="ml-1.5 font-mono text-[0.625rem] tabular-nums text-text-faint">{count}</span>
+              <span className="ml-1.5 font-mono text-[0.625rem] tabular-nums text-text-faint font-medium">{count}</span>
             </button>
           );
         })}
       </div>
 
-      <p className="mt-5 text-xs leading-relaxed text-text-faint">
+      <p className="mt-5 text-xs leading-relaxed text-text-faint font-medium">
         {visible.length} {visible.length === 1 ? "screen" : "screens"}. Cards carrying a photograph are real assets
         either captured from the application or shipped inside it. Every other card draws the application&apos;s window
         chrome around a working, interactive preview of that module with sample data — labelled as a preview, never
@@ -113,19 +113,31 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
       <ul className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {visible.map((shot, index) => (
           <Reveal key={shot.id} as="li" delay={Math.min(index, 6) * 55}>
-            <button
-              type="button"
-              onClick={(event) => {
-                openerRef.current = event.currentTarget;
-                setOpenIndex(index);
-              }}
-              className="group block w-full text-left"
-              aria-label={`Open ${shot.title} in a larger view`}
-            >
+            {/*
+              The card is a container, not a button: the preview inside it holds
+              its own controls (tabs, sort headers, stage buttons), and a button
+              may not be nested inside a button. The explicit open control sits
+              under the preview, where it cannot collide with any of them.
+            */}
+            <div className="group flex h-full flex-col">
               <div className="transition-transform duration-300 ease-industrial group-hover:-translate-y-1">
                 <ScreenshotFrame shot={shot} />
               </div>
-            </button>
+              <button
+                type="button"
+                onClick={(event) => {
+                  openerRef.current = event.currentTarget;
+                  setOpenIndex(index);
+                }}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-card border border-line-strong/80 bg-ink-800 px-3 py-2 text-xs font-semibold text-text-primary transition-colors duration-200 hover:border-brand-400/60 hover:bg-ink-700"
+              >
+                <span className="sr-only">{shot.title} — </span>
+                Open a larger view
+                <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 3h7v7M13 3 7.5 8.5M11 9.5V13H3V5h3.5" />
+                </svg>
+              </button>
+            </div>
           </Reveal>
         ))}
       </ul>
@@ -166,7 +178,7 @@ function Lightbox({
       <div className="flex items-center justify-between gap-4 border-b border-line/60 px-4 py-3 sm:px-6">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-text-primary">{shot.title}</p>
-          <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+          <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
             {String(position + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} · {shot.moduleKey}
           </p>
         </div>
@@ -272,7 +284,7 @@ function Lightbox({
         </div>
       </div>
 
-      <p className="border-t border-line/60 px-4 py-3 text-center font-mono text-2xs uppercase tracking-[0.14em] text-text-faint sm:px-6">
+      <p className="border-t border-line/60 px-4 py-3 text-center font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium sm:px-6">
         Arrow keys to move · Escape to close
       </p>
     </div>

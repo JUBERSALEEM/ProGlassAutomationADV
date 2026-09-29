@@ -56,7 +56,7 @@ export function StrategyPicker() {
             const selected = index === familyIndex;
             return (
               <button
-                key={item.name}
+                key={`${item.name}-${index}`}
                 ref={(node) => {
                   familyTabs.current[index] = node;
                 }}
@@ -76,12 +76,12 @@ export function StrategyPicker() {
               >
                 {item.name.replace(" — default", "").replace(" — Quick", "")}
                 {item.name.includes("default") ? (
-                  <span className="ml-1.5 font-mono text-[0.625rem] uppercase tracking-[0.1em] text-brand-300/80">
+                  <span className="ml-1.5 font-mono text-[0.625rem] uppercase tracking-[0.1em] text-brand-300">
                     default
                   </span>
                 ) : null}
                 {item.name.includes("Quick") ? (
-                  <span className="ml-1.5 font-mono text-[0.625rem] uppercase tracking-[0.1em] text-text-faint">
+                  <span className="ml-1.5 font-mono text-[0.625rem] uppercase tracking-[0.1em] text-text-faint font-medium">
                     quick run
                   </span>
                 ) : null}
@@ -100,7 +100,7 @@ export function StrategyPicker() {
           <p className="mt-2 text-sm leading-relaxed text-text-muted">{family.detail}</p>
         </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-text-faint">
+        <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium">
           Stage 5 at effort 5 evaluates every ordering against every generator — minutes on a large job rather than
           seconds. The application says so on the control itself and suggests a quick run first.
         </p>
@@ -118,7 +118,7 @@ export function StrategyPicker() {
             const selected = index === patternIndex;
             return (
               <button
-                key={item.name}
+                key={`${item.name}-${index}`}
                 type="button"
                 aria-pressed={selected}
                 onClick={() => setPatternIndex(index)}
@@ -137,11 +137,11 @@ export function StrategyPicker() {
 
         <div aria-live="polite" className="mt-5 rounded-card border border-line/60 bg-ink-950/50 p-4">
           <p className="text-sm font-semibold text-text-primary">{pattern.name}</p>
-          <p className="mt-1 font-mono text-2xs uppercase tracking-[0.12em] text-brand-300/80">{pattern.tagline}</p>
+          <p className="mt-1 font-mono text-2xs uppercase tracking-[0.12em] text-brand-300">{pattern.tagline}</p>
           <p className="mt-2 text-sm leading-relaxed text-text-muted">{pattern.detail}</p>
         </div>
 
-        <p className="mt-4 text-xs leading-relaxed text-text-faint">
+        <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium">
           Every pattern is a tie-break between plans that already use the same number of sheets and leave nothing out.
           None of them may buy its preference by opening another plate.
         </p>

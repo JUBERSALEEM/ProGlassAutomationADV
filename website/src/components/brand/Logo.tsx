@@ -97,7 +97,7 @@ export function Logo({
             Pro<span className="text-brand-300">Glass</span>
           </span>
           {subtitle ? (
-            <span className="mt-0.5 font-mono text-[0.5rem] uppercase tracking-[0.28em] text-text-faint">
+            <span className="mt-0.5 font-mono text-[0.5rem] uppercase tracking-[0.28em] text-text-faint font-medium">
               {subtitle}
             </span>
           ) : null}

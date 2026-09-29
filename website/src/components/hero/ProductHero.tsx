@@ -108,7 +108,7 @@ export function ProductHero() {
               className="lg:translate-x-2"
               note={
                 <>
-                  <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300/80">
+                  <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
                     Interface map
                   </span>{" "}
                   — the rail groups, module labels and top-bar elements are the application&apos;s own
@@ -126,7 +126,7 @@ export function ProductHero() {
 
             {/* Floating detail card — real fields from the proforma Step 9. */}
             <div className="menu-card absolute -bottom-6 -left-3 w-56 rounded-panel p-4 shadow-raised sm:-left-8 sm:w-64">
-              <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint">Proforma · Step 9</p>
+              <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint font-medium">Proforma · Step 9</p>
               <p className="mt-2 text-sm font-semibold text-text-primary">Profit &amp; loss snapshot</p>
               <dl className="mt-3 space-y-1.5 text-xs">
                 {[

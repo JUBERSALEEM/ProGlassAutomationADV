@@ -45,12 +45,12 @@ export function LegalPage({
           <div className="measure">
             <ol className="mb-10 space-y-1.5 border-l border-line-strong/60 pl-5">
               {sections.map((section, index) => (
-                <li key={section.heading}>
+                <li key={`${section.heading}-${index}`}>
                   <a
                     href={`#section-${index + 1}`}
                     className="text-sm text-text-muted transition-colors hover:text-brand-200"
                   >
-                    <span className="mr-2 font-mono text-2xs tabular-nums text-text-faint">
+                    <span className="mr-2 font-mono text-2xs tabular-nums text-text-faint font-medium">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     {section.heading}
@@ -61,9 +61,9 @@ export function LegalPage({
 
             <div className="space-y-10">
               {sections.map((section, index) => (
-                <section key={section.heading} id={`section-${index + 1}`} className="scroll-mt-28">
+                <section key={`${section.heading}-${index}`} id={`section-${index + 1}`} className="scroll-mt-28">
                   <h2 className="flex items-baseline gap-3 text-lg font-semibold text-text-primary sm:text-xl">
-                    <span className="font-mono text-sm text-brand-300/80">
+                    <span className="font-mono text-sm text-brand-300">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     {section.heading}

@@ -5,18 +5,22 @@ import { cn } from "@/lib/cn";
 import { appearanceFamilies, themeModes, type AppearanceFamilyEntry, type ThemeModeEntry } from "@/data/themes";
 import { setAppearance, setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
 import { resetStudio, setAccent, setStudio, studioAccents, useStudio } from "@/lib/useStudio";
+import { luminance } from "@/lib/color";
 
 /**
- * The appearance studio.
+ * The theme studio.
  *
- * A panel the visitor opens from the edge of the screen and re-points the site
- * with while they are reading it: mode, palette family, accent, how rich the
- * surfaces are, how round the corners are, and the colour of money. Nothing is
- * a preview — every control writes straight to the live page, and the choices
- * survive a reload.
+ * A panel the visitor opens from the corner of the screen and re-points the site
+ * with while they are reading it. Everything is a control you can see:
  *
- * It exists because a shop owner looking at a website about their own software
- * will want to see it in their colour, not in the developer's.
+ *   Mode        three plates — Light, Dark, System
+ *   Colours     all sixteen accent plates the application ships, plus a custom
+ *               colour you can pick or type
+ *   Surfaces    sliders for tint, corner radius, brightness and vividness
+ *   Money       the colours used wherever a figure is money
+ *
+ * Nothing is a preview image: every control writes straight to the live page,
+ * and the choices survive a reload.
  */
 export function ThemeStudio() {
   const [open, setOpen] = useState(false);
@@ -27,6 +31,14 @@ export function ThemeStudio() {
   const mode = useThemeMode();
   const family = useAppearance();
   const studio = useStudio();
+
+  // The header dropdown can open the studio, so there is one obvious way in
+  // wherever the visitor happens to look first.
+  useEffect(() => {
+    const openStudio = () => setOpen(true);
+    window.addEventListener("proglass-open-studio", openStudio);
+    return () => window.removeEventListener("proglass-open-studio", openStudio);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -59,142 +71,176 @@ export function ThemeStudio() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        aria-controls="appearance-studio"
-        className="group fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full border border-brand-400/45 bg-ink-900 px-3.5 py-2.5 text-xs font-semibold text-text-primary shadow-raised transition-colors hover:border-brand-300/70"
+        aria-controls="theme-studio"
+        className="menu-card group fixed bottom-5 right-5 z-40 flex items-center gap-2.5 rounded-full px-4 py-3 text-xs font-bold text-text-primary shadow-raised transition-transform hover:-translate-y-0.5"
       >
-        <span aria-hidden="true" className="grid h-4 w-4 place-items-center">
-          <span className="h-3.5 w-3.5 rounded-full" style={{ background: activeFamily.swatch }} />
+        <span aria-hidden="true" className="flex items-center gap-1">
+          <span className="h-4 w-4 rounded-full ring-2 ring-white/25" style={{ background: activeFamily.swatch }} />
+          <span className="h-4 w-4 -ml-2 rounded-full ring-2 ring-white/25" style={{ background: studio.accent ?? "#8B5CF6" }} />
         </span>
-        <span className="hidden sm:inline">Appearance</span>
-        <span className="sr-only">Open the appearance studio</span>
+        <span>Theme &amp; colour</span>
+        <span className="sr-only">
+          — open the theme studio. Current: {activeMode.label} mode, {activeFamily.label} palette.
+        </span>
       </button>
 
       {open ? (
         <div
           ref={panel}
-          id="appearance-studio"
+          id="theme-studio"
           role="dialog"
-          aria-label="Appearance studio"
-          className="animate-scale-in fixed inset-x-3 bottom-20 z-50 max-h-[74vh] overflow-y-auto rounded-panel border border-line-strong/80 bg-ink-900 p-4 shadow-raised sm:inset-x-auto sm:right-5 sm:w-[22rem] sm:p-5"
+          aria-label="Theme and colour"
+          className="menu-card animate-scale-in fixed inset-x-3 bottom-20 z-50 max-h-[78vh] overflow-y-auto rounded-panel p-4 shadow-raised sm:inset-x-auto sm:right-5 sm:w-[24rem] sm:p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="eyebrow">Appearance studio</p>
-              <p className="mt-1.5 text-xs leading-relaxed text-text-muted">
-                Adjust this site while it runs. Everything here maps to a real setting in the application.
+              <p className="eyebrow">Theme &amp; colour</p>
+              <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-secondary">
+                Change how this site looks while you use it. Every choice is saved, and every one maps to a real
+                setting in the application.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-full border border-line-strong/70 px-2 py-0.5 text-[0.625rem] text-text-muted transition-colors hover:text-text-primary"
+              className="rounded-full border border-line-strong/80 px-2.5 py-1 text-[0.625rem] font-semibold text-text-secondary transition-colors hover:text-text-primary"
             >
               Close
             </button>
           </div>
 
-          {/* ── Mode ──────────────────────────────────────────────────── */}
+          {/* ── Mode plates ───────────────────────────────────────────── */}
           <fieldset className="mt-5">
             <legend className="mono-label">Mode</legend>
-            <div className="mt-2 grid grid-cols-3 gap-1.5">
-              {themeModes.map((entry) => (
-                <button
-                  key={entry.id}
-                  type="button"
-                  aria-pressed={entry.id === mode}
-                  onClick={() => setThemeMode(entry.id)}
-                  title={entry.hint}
-                  className={cn(
-                    "rounded-card border px-2 py-2 text-[0.6875rem] font-medium transition-colors",
-                    entry.id === mode
-                      ? "border-brand-400/60 bg-brand-400/12 text-text-primary"
-                      : "border-line/70 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
-                  )}
-                >
-                  {entry.label}
-                </button>
-              ))}
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {themeModes.map((entry) => {
+                const active = entry.id === mode;
+                return (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setThemeMode(entry.id)}
+                    title={entry.hint}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.6875rem] font-bold transition-colors",
+                      active
+                        ? "border-brand-400 bg-brand-500/15 text-text-primary"
+                        : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
+                    )}
+                  >
+                    {/* A miniature of the mode, so the plate reads at a glance. */}
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "flex h-6 w-full items-center justify-center rounded-[0.3rem] border text-[0.5rem] font-bold uppercase tracking-wider",
+                        entry.id === "dark" && "border-white/20 bg-[#120D2E] text-white",
+                        entry.id === "light" && "border-black/15 bg-white text-black",
+                        entry.id === "system" && "border-line-strong bg-gradient-to-r from-white to-[#120D2E] text-black",
+                      )}
+                    >
+                      {entry.label}
+                    </span>
+                    {entry.label}
+                  </button>
+                );
+              })}
             </div>
           </fieldset>
 
           {/* ── Palette family ────────────────────────────────────────── */}
           <fieldset className="mt-4">
             <legend className="mono-label">Palette family</legend>
-            <div className="mt-2 grid grid-cols-2 gap-1.5">
-              {appearanceFamilies.map((entry) => (
-                <button
-                  key={entry.id}
-                  type="button"
-                  aria-pressed={entry.id === family}
-                  onClick={() => setAppearance(entry.id)}
-                  title={entry.origin}
-                  className={cn(
-                    "flex items-center gap-2 rounded-card border px-2.5 py-2 text-left text-[0.6875rem] font-medium transition-colors",
-                    entry.id === family
-                      ? "border-brand-400/60 bg-brand-400/10 text-text-primary"
-                      : "border-line/70 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
-                  )}
-                >
-                  <span aria-hidden="true" className="h-3 w-3 rounded-full" style={{ background: entry.swatch }} />
-                  {entry.label}
-                </button>
-              ))}
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              {appearanceFamilies.map((entry) => {
+                const active = entry.id === family;
+                return (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setAppearance(entry.id)}
+                    title={entry.origin}
+                    className={cn(
+                      "flex items-center gap-2 rounded-card border-2 px-2.5 py-2.5 text-left text-[0.6875rem] font-bold transition-colors",
+                      active
+                        ? "border-brand-400 bg-brand-500/15 text-text-primary"
+                        : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
+                    )}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="h-4 w-4 shrink-0 rounded-full ring-2 ring-white/20"
+                      style={{ background: entry.swatch }}
+                    />
+                    {entry.label}
+                  </button>
+                );
+              })}
             </div>
-            <p className="mt-2 text-[0.625rem] leading-relaxed text-text-faint">{activeFamily.origin}</p>
+            <p className="mt-2 text-[0.6875rem] font-medium leading-relaxed text-text-muted">{activeFamily.origin}</p>
           </fieldset>
 
-          {/* ── Accent ───────────────────────────────────────────────── */}
+          {/* ── Colour plates ─────────────────────────────────────────── */}
           <fieldset className="mt-4">
-            <legend className="mono-label">Accent</legend>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <button
-                type="button"
-                aria-pressed={studio.accent === null}
+            <legend className="mono-label">Colour plates</legend>
+            <p className="mt-1.5 text-[0.6875rem] font-medium leading-relaxed text-text-muted">
+              The sixteen accents the application ships. Tap one and the whole site takes it.
+            </p>
+
+            <div className="mt-2 grid grid-cols-4 gap-2">
+              <PlateButton
+                label="Family"
+                colour={activeFamily.swatch}
+                active={studio.accent === null}
                 onClick={() => setAccent("GlassBlue", null)}
-                className={cn(
-                  "rounded-full border px-2 py-0.5 text-[0.625rem] transition-colors",
-                  studio.accent === null
-                    ? "border-brand-400/60 text-text-primary"
-                    : "border-line/70 text-text-muted hover:text-text-primary",
-                )}
-              >
-                Family
-              </button>
+                onDark={luminance(activeFamily.swatch) < 0.4}
+              />
               {studioAccents.map((entry) => (
-                <button
+                <PlateButton
                   key={entry.key}
-                  type="button"
-                  aria-pressed={studio.accentKey === entry.key && studio.accent !== null}
-                  aria-label={entry.name}
-                  title={entry.name}
+                  label={entry.name}
+                  colour={entry.hex ?? "#0369A1"}
+                  active={studio.accentKey === entry.key && studio.accent !== null}
                   onClick={() => setAccent(entry.key, entry.hex)}
-                  className={cn(
-                    "h-6 w-6 rounded-full ring-1 ring-inset ring-black/25 transition-transform hover:scale-110",
-                    studio.accentKey === entry.key && studio.accent !== null && "ring-2 ring-brand-300",
-                  )}
-                  style={{ background: entry.hex ?? "rgb(var(--brand-500))" }}
+                  onDark={luminance(entry.hex ?? "#0369A1") < 0.4}
                 />
               ))}
             </div>
 
+            {/* Custom colour: a picker and a field you can type into. */}
             <div className="mt-3 flex items-center gap-2">
               <input
                 type="color"
-                aria-label="Custom accent colour"
+                aria-label="Pick a custom accent colour"
                 value={customHex}
                 onChange={(event) => {
                   setCustomHex(event.target.value);
                   setAccent("Custom", event.target.value);
                 }}
-                className="h-7 w-9 cursor-pointer rounded border border-line-strong/70 bg-transparent"
+                className="h-9 w-11 shrink-0"
               />
-              <span className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint">
-                Custom · {studio.accent ?? "family default"}
-              </span>
+              <label className="flex flex-1 items-center gap-2 rounded-card border-2 border-line-strong/70 bg-ink-900 px-2.5 py-1.5">
+                <span className="font-mono text-[0.625rem] font-bold uppercase tracking-[0.12em] text-text-muted">
+                  Hex
+                </span>
+                <input
+                  value={customHex}
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    setCustomHex(next);
+                    if (/^#?[0-9a-fA-F]{6}$/.test(next.trim())) {
+                      setAccent("Custom", next.trim().startsWith("#") ? next.trim() : `#${next.trim()}`);
+                    }
+                  }}
+                  spellCheck={false}
+                  className="w-full bg-transparent font-mono text-xs font-semibold text-text-primary outline-none"
+                />
+              </label>
             </div>
           </fieldset>
 
-          {/* ── Surface character ────────────────────────────────────── */}
+          {/* ── Surface ───────────────────────────────────────────────── */}
           <fieldset className="mt-4 space-y-3">
             <legend className="mono-label">Surface</legend>
             <Slider
@@ -235,19 +281,19 @@ export function ThemeStudio() {
             />
           </fieldset>
 
-          {/* ── Money ────────────────────────────────────────────────── */}
+          {/* ── Money ─────────────────────────────────────────────────── */}
           <fieldset className="mt-4">
             <legend className="mono-label">Money colours</legend>
-            <p className="mt-1.5 text-[0.625rem] leading-relaxed text-text-faint">
+            <p className="mt-1.5 text-[0.6875rem] font-medium leading-relaxed text-text-muted">
               Used wherever a number is money rather than a label — margins, VAT, wastage, utilization.
             </p>
-            <div className="mt-2 space-y-2">
-              <ColourRow
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <ColourPlate
                 label="Positive"
                 value={studio.moneyPositive}
                 onChange={(value) => setStudio({ moneyPositive: value })}
               />
-              <ColourRow
+              <ColourPlate
                 label="Negative"
                 value={studio.moneyNegative}
                 onChange={(value) => setStudio({ moneyNegative: value })}
@@ -259,17 +305,49 @@ export function ThemeStudio() {
             <button
               type="button"
               onClick={resetStudio}
-              className="rounded-full border border-line-strong/70 px-3 py-1.5 text-[0.6875rem] font-medium text-text-muted transition-colors hover:border-brand-400/50 hover:text-text-primary"
+              className="rounded-full border-2 border-line-strong/80 px-3 py-1.5 text-[0.6875rem] font-bold text-text-secondary transition-colors hover:border-brand-400/60 hover:text-text-primary"
             >
               Reset everything
             </button>
-            <p className="text-right font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-text-faint">
+            <p className="text-right font-mono text-[0.5625rem] font-semibold uppercase tracking-[0.12em] text-text-muted">
               Saved · {activeMode.label} · {activeFamily.label}
             </p>
           </div>
         </div>
       ) : null}
     </>
+  );
+}
+
+/** One accent plate: a filled swatch with its own name printed on it. */
+function PlateButton({
+  label,
+  colour,
+  active,
+  onClick,
+  onDark,
+}: {
+  label: string;
+  colour: string;
+  active: boolean;
+  onClick: () => void;
+  onDark: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      aria-label={`${label} colour plate`}
+      title={label}
+      onClick={onClick}
+      className={cn(
+        "flex h-14 flex-col items-center justify-end gap-1 rounded-card border-2 p-1.5 text-[0.5625rem] font-bold uppercase tracking-wider transition-transform hover:-translate-y-0.5",
+        active ? "border-text-primary" : "border-line-strong/60",
+      )}
+      style={{ background: colour, color: onDark ? "#FFFFFF" : "#0B0820" }}
+    >
+      <span className="max-w-full truncate drop-shadow-sm">{label}</span>
+    </button>
   );
 }
 
@@ -293,8 +371,8 @@ function Slider({
   return (
     <label className="block">
       <span className="flex items-baseline justify-between gap-3">
-        <span className="text-[0.6875rem] font-medium text-text-secondary">{label}</span>
-        <span className="font-mono text-[0.625rem] tabular-nums text-text-faint">{display}</span>
+        <span className="text-[0.75rem] font-bold text-text-primary">{label}</span>
+        <span className="font-mono text-[0.625rem] font-semibold tabular-nums text-text-muted">{display}</span>
       </span>
       <input
         type="range"
@@ -302,14 +380,15 @@ function Slider({
         max={max}
         step={step}
         value={value}
+        aria-label={label}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-1.5 w-full accent-[rgb(var(--brand-400))]"
+        className="mt-1"
       />
     </label>
   );
 }
 
-function ColourRow({
+function ColourPlate({
   label,
   value,
   onChange,
@@ -319,17 +398,18 @@ function ColourRow({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="flex items-center justify-between gap-3">
-      <span className="text-[0.6875rem] font-medium text-text-secondary">{label}</span>
-      <span className="flex items-center gap-2">
-        <span className="font-mono text-[0.625rem] uppercase tracking-[0.1em] text-text-faint">{value}</span>
+    <div className="rounded-card border-2 border-line-strong/70 p-2">
+      <p className="text-[0.6875rem] font-bold text-text-primary">{label}</p>
+      <div className="mt-1.5 flex items-center gap-2">
         <input
           type="color"
           value={value}
+          aria-label={`${label} amount colour`}
           onChange={(event) => onChange(event.target.value)}
-          className="h-6 w-8 cursor-pointer rounded border border-line-strong/70 bg-transparent"
+          className="h-7 w-9 shrink-0"
         />
-      </span>
-    </label>
+        <span className="font-mono text-[0.625rem] font-semibold uppercase text-text-muted">{value}</span>
+      </div>
+    </div>
   );
 }

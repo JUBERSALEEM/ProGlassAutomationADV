@@ -46,7 +46,7 @@ export function ScreenshotFrame({
         </div>
         <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3">
           <p className="text-sm font-medium text-text-primary">{shot.title}</p>
-          <p className="mt-1 text-xs leading-relaxed text-text-faint">
+          <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">
             {shot.assetNote ??
               shot.caption}
           </p>
@@ -68,7 +68,7 @@ export function ScreenshotFrame({
       className={className}
       note={
         <>
-          <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300/80">
+          <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
             Interactive preview
           </span>{" "}
           — this is a working reconstruction of the {shot.title} screen, not a screen capture. {shot.caption}

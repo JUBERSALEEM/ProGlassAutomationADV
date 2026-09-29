@@ -58,21 +58,21 @@ export default function ScreenshotsPage() {
               <div>
                 <p className="font-mono text-2xl font-semibold text-text-primary">{published}</p>
                 <p className="mt-2 text-sm font-medium text-text-secondary">Published screen captures</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint">
+                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">
                   Photographs of the running application. There are none yet.
                 </p>
               </div>
               <div>
                 <p className="font-mono text-2xl font-semibold text-text-primary">{repoAssets}</p>
                 <p className="mt-2 text-sm font-medium text-text-secondary">Illustrations from the application</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint">
+                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">
                   Real assets that ship inside the product — the SGU, DGU, lamination and DGU + lamination renders.
                 </p>
               </div>
               <div>
                 <p className="font-mono text-2xl font-semibold text-text-primary">{pending}</p>
                 <p className="mt-2 text-sm font-medium text-text-secondary">Interactive previews</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint">
+                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">
                   Real window chrome, real module labels and real fields, with sample data you can sort, filter and
                   step through. Clearly labelled as a preview, never presented as a screen capture.
                 </p>
@@ -81,7 +81,7 @@ export default function ScreenshotsPage() {
           </Reveal>
 
           <Reveal delay={80}>
-            <p className="mt-5 max-w-4xl text-xs leading-relaxed text-text-faint">
+            <p className="mt-5 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">
               This website was built from the application&apos;s source tree, in an environment where the Windows desktop
               application could not be launched, so no photographs of a running build exist yet. Rather than generating
               images and captioning them as screenshots, each card draws the application&apos;s own window chrome around a

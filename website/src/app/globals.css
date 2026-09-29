@@ -55,10 +55,10 @@
     --glass-rose: 244 114 182;
 
     /* ── Text ────────────────────────────────────────────────────────── */
-    --text-1: 245 243 255;   /* headings        #F5F3FF */
-    --text-2: 199 195 224;   /* body            #C7C3E0 */
-    --text-3: 162 156 196;   /* muted           #A29CC4 */
-    --text-4: 126 119 163;   /* faint / labels  #7E77A3 */
+    --text-1: 255 255 255;   /* headings        #FFFFFF */
+    --text-2: 233 230 248;   /* body            #E9E6F8 */
+    --text-3: 208 203 232;   /* muted           #D0CBE8 */
+    --text-4: 182 176 214;   /* faint / labels  #B6B0D6 */
 
     /* ── State ───────────────────────────────────────────────────────── */
     --state-success: 52 211 153;
@@ -92,6 +92,8 @@
     /* Card tinting: the violet wash that keeps cards off plain grey. */
     --card-tint: rgb(139 92 246 / 0.1);
     --card-highlight: rgb(255 255 255 / 0.06);
+    /* How much accent sits in a card fill. Driven by the theme studio. */
+    --tint-mix: 0.08;
 
     --scroll-track: 11 8 32;
     --scroll-thumb: 42 33 89;
@@ -125,12 +127,14 @@
     --edge-alpha: 1;
 
     /* The four corner wedges — the colour that makes a corner a corner. */
-    --corner-1: rgb(167 139 250 / 0.6);
-    --corner-2: rgb(34 211 238 / 0.42);
-    --corner-3: rgb(244 114 182 / 0.4);
-    --corner-4: rgb(139 92 246 / 0.5);
-    --corner-size: 4.75rem;
-    --corner-opacity: 0.9;
+    --corner-1: rgb(196 181 253 / 0.95);
+    --corner-2: rgb(103 232 249 / 0.8);
+    --corner-3: rgb(244 114 182 / 0.78);
+    --corner-4: rgb(167 139 250 / 0.9);
+    /* Arm length and weight of the corner bracket. */
+    --corner-arm: 3.25rem;
+    --corner-thickness: 2px;
+    --corner-opacity: 1;
 
     /* ── Live preview surfaces ─────────────────────────────────────────
        The interactive module previews inside the application frame. */
@@ -172,10 +176,10 @@
     --glass-green: 22 163 74;
     --glass-rose: 190 24 93;
 
-    --text-1: 27 22 54;      /* #1B1636 */
-    --text-2: 63 56 96;      /* #3F3860 */
-    --text-3: 93 85 128;     /* #5D5580 */
-    --text-4: 131 123 166;   /* #837BA6 */
+    --text-1: 12 8 26;       /* #0C081A — near black */
+    --text-2: 28 22 52;      /* #1C1634 */
+    --text-3: 46 38 76;      /* #2E264C */
+    --text-4: 74 65 108;     /* #4A416C — still readable, never grey */
 
     --state-success: 5 150 105;
     --state-warning: 180 83 9;
@@ -204,6 +208,7 @@
 
     --card-tint: rgb(139 92 246 / 0.07);
     --card-highlight: rgb(255 255 255 / 0.9);
+    --tint-mix: 0.05;
 
     --scroll-track: 240 238 250;
     --scroll-thumb: 209 202 235;
@@ -228,10 +233,10 @@
     --edge-b: rgb(226 222 243 / 0.9);
     --edge-c: rgb(14 116 144 / 0.35);
 
-    --corner-1: rgb(124 58 237 / 0.45);
-    --corner-2: rgb(14 116 144 / 0.35);
-    --corner-3: rgb(190 24 93 / 0.3);
-    --corner-4: rgb(109 40 217 / 0.4);
+    --corner-1: rgb(109 40 217 / 0.9);
+    --corner-2: rgb(8 145 178 / 0.8);
+    --corner-3: rgb(190 24 93 / 0.75);
+    --corner-4: rgb(124 58 237 / 0.85);
 
     --viz-grid: rgb(226 222 243 / 0.9);
     --viz-part: rgb(124 58 237 / 0.8);
@@ -336,14 +341,16 @@
     --edge-b: rgb(34 211 238 / 0.45);
     --edge-c: rgb(255 255 255 / 0.22);
 
-    --corner-1: rgb(255 255 255 / 0.52);
-    --corner-2: rgb(103 232 249 / 0.55);
-    --corner-3: rgb(129 140 248 / 0.45);
-    --corner-4: rgb(255 255 255 / 0.34);
-    --corner-size: 5.5rem;
+    --corner-1: rgb(255 255 255 / 0.9);
+    --corner-2: rgb(103 232 249 / 0.9);
+    --corner-3: rgb(129 140 248 / 0.8);
+    --corner-4: rgb(255 255 255 / 0.7);
+    --corner-arm: 3.75rem;
+    --corner-thickness: 3px;
     --corner-opacity: 1;
 
     --card-tint: rgb(34 211 238 / 0.16);
+    --tint-mix: 0.12;
     --card-tint-2: rgb(129 140 248 / 0.09);
     --card-highlight: rgb(255 255 255 / 0.16);
     --selection: rgb(103 232 249 / 0.3);
@@ -364,10 +371,10 @@
     --edge-a: rgb(255 255 255 / 0.95);
     --edge-b: rgb(8 145 178 / 0.35);
     --edge-c: rgb(255 255 255 / 0.7);
-    --corner-1: rgb(255 255 255 / 0.9);
-    --corner-2: rgb(34 211 238 / 0.4);
-    --corner-3: rgb(129 140 248 / 0.32);
-    --corner-4: rgb(8 145 178 / 0.32);
+    --corner-1: rgb(255 255 255 / 1);
+    --corner-2: rgb(8 145 178 / 0.8);
+    --corner-3: rgb(129 140 248 / 0.7);
+    --corner-4: rgb(8 145 178 / 0.85);
     --viz-grid: rgb(8 145 178 / 0.22);
     --viz-part: rgb(8 145 178 / 0.85);
     --viz-part-2: rgb(129 140 248 / 0.8);
@@ -507,11 +514,11 @@
 
   /* Eyebrow label — small, spaced, technical. */
   .eyebrow {
-    @apply text-2xs font-semibold uppercase tracking-[0.22em] text-brand-300;
+    @apply text-2xs font-bold uppercase tracking-[0.22em] text-brand-300;
   }
 
   .lede {
-    @apply text-base leading-[1.75] text-text-secondary sm:text-lg sm:leading-[1.78];
+    @apply text-base font-medium leading-[1.75] text-text-secondary sm:text-lg sm:leading-[1.78];
   }
 
   /*
@@ -547,70 +554,74 @@
 
   /*
    * ═══ CARD SYSTEM ═════════════════════════════════════════════════════════
-   * One build, five tiers. Every card is composed of four things:
+   * Cards are an outline, not a panel with decoration inside. Each one is made
+   * of exactly three things and nothing else:
    *
-   *   1. a tinted fill           — violet, never neutral black or grey
+   *   1. a flat tinted fill      — one colour, no inner glow, no wash, no sheen
    *   2. a gradient hairline     — a real border, drawn with a mask so the
-   *                                colour can run around the corner
-   *   3. four corner wedges      — the coloured corner that finishes the frame
-   *   4. a soft accent shadow    — so the card sits above the page, not in it
+   *                                colour can travel around the corner
+   *   3. four bold corner brackets — an L of accent at each corner, the detail
+   *                                that makes the frame read as engineered
    *
-   * All four read the family dials (`--surface-alpha`, `--edge-*`, `--corner-*`),
-   * which is why switching to Crystal turns every one of them into glass.
+   * There is deliberately no radial tint, no top highlight and no inner
+   * shadow: the surface stays quiet so the content on it is the only thing
+   * with detail. Everything reads the family dials, so Crystal still glasses
+   * the whole site by changing values rather than structure.
    */
 
   .surface,
   .surface-raised,
   .stat-tile,
   .plate,
-  .card-live {
+  .card-live,
+  .card-accent,
+  .card-glass {
     position: relative;
     border: 1px solid transparent;
     background-clip: padding-box;
   }
 
-  /* The fill: a diagonal gradient plus the violet wash at the top-left. */
   .surface,
   .stat-tile,
   .plate,
   .card-live {
-    background-image:
-      radial-gradient(130% 100% at 0% 0%, var(--card-tint), transparent 60%),
-      radial-gradient(90% 80% at 100% 100%, var(--card-tint-2, transparent), transparent 62%),
-      linear-gradient(180deg, var(--card-highlight), transparent 32%),
-      linear-gradient(
-        158deg,
-        rgb(var(--ink-900) / var(--surface-alpha)) 0%,
-        rgb(var(--ink-850) / var(--surface-alpha-2)) 48%,
-        rgb(var(--ink-900) / var(--surface-alpha)) 100%
-      );
-    box-shadow: var(--shadow-panel);
-    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
-    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
+    background-color: rgb(var(--ink-900) / var(--surface-alpha));
+    /* One flat wash of the accent — the card's colour, not a pattern on it. */
+    background-image: linear-gradient(
+      rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha))),
+      rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha)))
+    );
   }
 
   .surface {
     border-radius: theme("borderRadius.card");
+    box-shadow: var(--shadow-panel);
   }
 
   .surface-raised,
   .plate {
     border-radius: theme("borderRadius.panel");
-    background-image:
-      radial-gradient(130% 100% at 0% 0%, var(--card-tint), transparent 58%),
-      radial-gradient(90% 80% at 100% 100%, var(--card-tint-2, transparent), transparent 60%),
-      linear-gradient(180deg, var(--card-highlight), transparent 30%),
-      linear-gradient(
-        158deg,
-        rgb(var(--ink-850) / var(--surface-alpha)) 0%,
-        rgb(var(--ink-800) / var(--surface-alpha-2)) 52%,
-        rgb(var(--ink-900) / var(--surface-alpha)) 100%
-      );
+    background-color: rgb(var(--ink-850) / var(--surface-alpha));
+    background-image: linear-gradient(
+      rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha))),
+      rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha)))
+    );
     box-shadow: var(--shadow-raised);
   }
 
   .stat-tile {
     border-radius: theme("borderRadius.card");
+    box-shadow: var(--shadow-panel);
+  }
+
+  /* Glass families get a real blurred backdrop; everything else stays flat. */
+  .surface,
+  .surface-raised,
+  .stat-tile,
+  .plate,
+  .card-live {
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
   }
 
   /* ── 2 · gradient hairline, drawn as a ring so it follows every corner ── */
@@ -644,7 +655,13 @@
     mask-composite: exclude;
   }
 
-  /* ── 3 · the coloured corner ─────────────────────────────────────────── */
+  /*
+   * ── 3 · the corner brackets ────────────────────────────────────────────
+   * Four short arms of accent, one per corner, drawn just inside the hairline.
+   * Bold by design: this is the detail that gives a card its edge, so the arms
+   * are solid at the corner and fall away quickly rather than bleeding across
+   * the face.
+   */
   .surface::after,
   .surface-raised::after,
   .stat-tile::after,
@@ -654,36 +671,36 @@
   .card-glass::after {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: 2px;
     border-radius: inherit;
     pointer-events: none;
     opacity: var(--corner-opacity);
     background-image:
-      linear-gradient(135deg, var(--corner-1) 0, transparent 62%),
-      linear-gradient(225deg, var(--corner-2) 0, transparent 62%),
-      linear-gradient(45deg, var(--corner-3) 0, transparent 62%),
-      linear-gradient(315deg, var(--corner-4) 0, transparent 62%);
-    background-size: var(--corner-size) var(--corner-size);
-    background-position: top left, top right, bottom right, bottom left;
+      /* horizontal arms */
+      linear-gradient(90deg, var(--corner-1) 0, transparent 100%),
+      linear-gradient(270deg, var(--corner-2) 0, transparent 100%),
+      linear-gradient(90deg, var(--corner-3) 0, transparent 100%),
+      linear-gradient(270deg, var(--corner-4) 0, transparent 100%),
+      /* vertical arms, same four corners */
+      linear-gradient(180deg, var(--corner-1) 0, transparent 100%),
+      linear-gradient(180deg, var(--corner-2) 0, transparent 100%),
+      linear-gradient(0deg, var(--corner-3) 0, transparent 100%),
+      linear-gradient(0deg, var(--corner-4) 0, transparent 100%);
+    background-size: var(--corner-arm) var(--corner-thickness),
+      var(--corner-arm) var(--corner-thickness),
+      var(--corner-arm) var(--corner-thickness),
+      var(--corner-arm) var(--corner-thickness),
+      var(--corner-thickness) var(--corner-arm),
+      var(--corner-thickness) var(--corner-arm),
+      var(--corner-thickness) var(--corner-arm),
+      var(--corner-thickness) var(--corner-arm);
+    background-position:
+      top left, top right, bottom right, bottom left,
+      top left, top right, bottom right, bottom left;
     background-repeat: no-repeat;
   }
 
-  /* Specular streak — inert everywhere except the glass family. */
-  .surface .specular,
-  .surface-raised .specular,
-  .plate .specular {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    background: linear-gradient(
-      142deg,
-      rgb(255 255 255 / var(--surface-specular)) 0%,
-      transparent 44%
-    );
-  }
-
-  /* Cards keep their own content above the decoration. */
+  /* Cards keep their own content above the frame. */
   .surface > *,
   .surface-raised > *,
   .stat-tile > *,
@@ -693,7 +710,7 @@
     z-index: 1;
   }
 
-  /* Interactive card: lifts and warms its border on hover/focus. */
+  /* Interactive card: lifts and drives its corners to full strength. */
   .card-interactive {
     transition:
       transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
@@ -707,24 +724,22 @@
     box-shadow: var(--shadow-glow);
     --edge-alpha: 1;
     --corner-opacity: 1;
+    --corner-thickness: 3px;
   }
 
-  /* Accent card: a filled brand panel for the one thing that outranks a page. */
+  /* Accent card: the same frame, filled with the accent instead of a surface. */
   .card-accent {
-    position: relative;
-    overflow: hidden;
     border-radius: theme("borderRadius.panel");
-    border: 1px solid transparent;
+    background-color: rgb(var(--ink-850) / var(--surface-alpha));
     background-image: linear-gradient(
       150deg,
-      rgb(var(--brand-600) / 0.42) 0%,
-      rgb(var(--ink-850) / var(--surface-alpha)) 48%,
-      rgb(var(--ink-900) / var(--surface-alpha)) 100%
+      rgb(var(--brand-600) / 0.3) 0%,
+      rgb(var(--brand-600) / 0.08) 46%,
+      transparent 100%
     );
-    background-clip: padding-box;
     box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.08),
-      0 30px 70px -34px rgb(var(--brand-500) / 0.65);
+      inset 0 1px 0 0 rgb(255 255 255 / 0.06),
+      0 30px 70px -34px rgb(var(--brand-500) / 0.55);
   }
 
   .card-accent > * {
@@ -734,20 +749,16 @@
 
   /* Glass card: the iridescent variant, for glass build-up content. */
   .card-glass {
-    position: relative;
-    overflow: hidden;
     border-radius: theme("borderRadius.panel");
-    border: 1px solid transparent;
+    background-color: rgb(var(--ink-850) / var(--surface-alpha));
     background-image: linear-gradient(
       148deg,
-      rgb(var(--glass-teal) / 0.16) 0%,
-      rgb(var(--ink-850) / var(--surface-alpha)) 42%,
-      rgb(var(--brand-600) / 0.18) 100%
+      rgb(var(--glass-teal) / 0.14) 0%,
+      transparent 58%
     );
-    background-clip: padding-box;
     box-shadow:
-      inset 0 1px 0 0 rgb(255 255 255 / 0.07),
-      0 26px 60px -32px rgb(var(--glass-teal) / 0.5);
+      inset 0 1px 0 0 rgb(255 255 255 / 0.06),
+      0 26px 60px -32px rgb(var(--glass-teal) / 0.45);
   }
 
   .card-glass > * {
@@ -755,7 +766,7 @@
     z-index: 1;
   }
 
-  /* Live preview surface: the interactive frame content. */
+  /* Live preview surface: the frame content. */
   .card-live {
     border-radius: theme("borderRadius.card");
     box-shadow: var(--shadow-panel);
@@ -780,9 +791,6 @@
     position: relative;
     background-color: rgb(var(--ink-900));
     border: 1px solid rgb(var(--line-strong) / 0.85);
-    background-image:
-      radial-gradient(120% 90% at 100% 0%, var(--card-tint), transparent 58%),
-      linear-gradient(180deg, rgb(var(--ink-850)) 0%, rgb(var(--ink-900)) 100%);
   }
 
   .menu-card::after {
@@ -807,7 +815,7 @@
 
   /* Small pill used for tags, counts and inline metadata. */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-line-strong/70 bg-ink-800/70 px-2.5 py-1 font-mono text-2xs uppercase tracking-[0.12em] text-text-muted;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line-strong/80 bg-ink-800 px-2.5 py-1 font-mono text-2xs font-semibold uppercase tracking-[0.12em] text-text-secondary;
   }
 
   /* Rivet detail: a hairline top highlight used on product frames. */
@@ -824,8 +832,82 @@
     box-shadow: var(--shadow-raised);
   }
 
+  /*
+   * Range control.
+   *
+   * The browser default is a hairline that disappears against a dark surface,
+   * so the track is drawn full width and the thumb is a real handle you can
+   * see and grab.
+   */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 1.5rem;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      rgb(var(--brand-400) / 0.75),
+      rgb(var(--brand-600) / 0.5)
+    );
+    border: 1px solid rgb(var(--line-strong) / 0.9);
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: -7px;
+    height: 18px;
+    width: 18px;
+    border-radius: 999px;
+    background: rgb(var(--text-1));
+    border: 3px solid rgb(var(--brand-500));
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.45);
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 6px;
+    border-radius: 999px;
+    background: rgb(var(--brand-500) / 0.6);
+    border: 1px solid rgb(var(--line-strong) / 0.9);
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    height: 16px;
+    width: 16px;
+    border-radius: 999px;
+    background: rgb(var(--text-1));
+    border: 3px solid rgb(var(--brand-500));
+  }
+
+  /* Swatch inputs need a visible frame, not the browser's grey box. */
+  input[type="color"] {
+    -webkit-appearance: none;
+    appearance: none;
+    border: 2px solid rgb(var(--line-strong));
+    border-radius: 0.5rem;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 2px;
+  }
+
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 0.35rem;
+  }
+
   .mono-label {
-    @apply font-mono text-2xs uppercase tracking-[0.16em] text-text-faint;
+    @apply font-mono text-2xs font-semibold uppercase tracking-[0.16em] text-text-muted;
   }
 
   .link-underline {

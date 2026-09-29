@@ -28,7 +28,7 @@ export function Accordion({
         const panelId = `${baseId}-panel-${index}`;
         const buttonId = `${baseId}-button-${index}`;
         return (
-          <div key={item.id ?? item.question}>
+          <div key={`${item.id ?? item.question}-${index}`}>
             <h3>
               <button
                 id={buttonId}

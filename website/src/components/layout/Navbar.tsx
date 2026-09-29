@@ -13,6 +13,9 @@ type NavChild = { label: string; href: string; description?: string };
 type NavEntry = { label: string; href?: string; children?: NavChild[] };
 
 const entries: NavEntry[] = [
+  /* Home comes first and is a plain link: the way back to the front page should
+     never be behind a menu. */
+  { label: "Home", href: "/" },
   {
     label: "Product",
     children: [
@@ -188,7 +191,7 @@ export function Navbar() {
                             <ArrowRight className="opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                           </span>
                           {child.description ? (
-                            <span className="text-xs leading-relaxed text-text-faint">{child.description}</span>
+                            <span className="text-xs leading-relaxed text-text-faint font-medium">{child.description}</span>
                           ) : null}
                         </Link>
                       ))}
@@ -261,7 +264,7 @@ export function Navbar() {
                           >
                             <span className="text-sm font-medium text-text-primary">{child.label}</span>
                             {child.description ? (
-                              <span className="text-xs leading-snug text-text-faint">{child.description}</span>
+                              <span className="text-xs leading-snug text-text-faint font-medium">{child.description}</span>
                             ) : null}
                           </Link>
                         </li>
@@ -282,7 +285,7 @@ export function Navbar() {
             </ButtonLink>
           </div>
 
-          <p className="mt-6 font-mono text-2xs uppercase tracking-[0.18em] text-text-faint">
+          <p className="mt-6 font-mono text-2xs uppercase tracking-[0.18em] text-text-faint font-medium">
             Desktop software · v{site.version} · No account required
           </p>
         </div>

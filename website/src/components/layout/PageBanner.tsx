@@ -170,7 +170,7 @@ export function PageBanner({
         </defs>
 
         {cells.map((cell, index) => (
-          <g key={`${cell.x}-${cell.y}-${index}`}>
+          <g key={`cell-${cell.x}-${cell.y}-${index}`}>
             <rect
               x={cell.x * unit + gap / 2}
               y={cell.y * unit + gap / 2}

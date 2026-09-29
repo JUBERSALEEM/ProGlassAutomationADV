@@ -253,7 +253,7 @@ export function NestingDemo() {
             ) : null}
           </svg>
 
-          <p className="mt-3 text-xs leading-relaxed text-text-faint">
+          <p className="mt-3 text-xs leading-relaxed text-text-faint font-medium">
             Illustration of the guillotine model, drawn to scale from the worked example below. It is not a recording of
             a live run.
           </p>
@@ -272,7 +272,7 @@ export function NestingDemo() {
             <ol className="mt-3 space-y-1">
               {STEPS.map((label, index) => (
                 <li
-                  key={label}
+                  key={`${label}-${index}`}
                   className={cn(
                     "flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors duration-300",
                     index === step
@@ -327,7 +327,7 @@ export function NestingDemo() {
               <Metric label="Used area" value={`${exampleMetrics.usedSqm} m²`} />
               <Metric label="Stock area" value={`${exampleMetrics.stockSqm} m²`} />
             </dl>
-            <p className="mt-4 text-xs leading-relaxed text-text-faint">
+            <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium">
               These six numbers come from the plate and piece sizes drawn above. They are not a benchmark, and the
               engine makes no savings claim — it reports what it produced for the cutting list you gave it.
             </p>
@@ -345,7 +345,7 @@ function TrimHatch({ x, y, w, h }: { x: number; y: number; w: number; h: number 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: "accent" }) {
   return (
     <div>
-      <dt className="text-2xs uppercase tracking-[0.12em] text-text-faint">{label}</dt>
+      <dt className="text-2xs uppercase tracking-[0.12em] text-text-faint font-medium">{label}</dt>
       <dd
         className={cn(
           "mt-0.5 font-mono text-lg font-semibold tabular-nums",

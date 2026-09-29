@@ -61,10 +61,10 @@ export default function BlogPage() {
               >
                 <div className="flex flex-wrap items-center gap-3">
                   <Badge tone="accent">{lead.category}</Badge>
-                  <time dateTime={lead.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                  <time dateTime={lead.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                     {new Date(lead.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                   </time>
-                  <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                  <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                     {lead.readingMinutes} min read
                   </span>
                 </div>
@@ -100,7 +100,7 @@ export default function BlogPage() {
                 >
                   <div className="flex flex-wrap items-center gap-3">
                     <Badge>{post.category}</Badge>
-                    <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                    <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                     </time>
                   </div>
@@ -112,7 +112,7 @@ export default function BlogPage() {
                     <span className="link-underline text-xs">
                       Read the note <ArrowRight />
                     </span>
-                    <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                    <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {post.readingMinutes} min
                     </span>
                   </div>
@@ -122,7 +122,7 @@ export default function BlogPage() {
           </ul>
 
           <Reveal delay={120} className="mt-8">
-            <p className="text-xs leading-relaxed text-text-faint">
+            <p className="text-xs leading-relaxed text-text-faint font-medium">
               More notes will be published here as work continues. There is no schedule to promise and no editorial
               calendar to keep — each note goes up when there is something worth saying.
             </p>

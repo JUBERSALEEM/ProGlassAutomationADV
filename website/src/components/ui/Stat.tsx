@@ -32,7 +32,7 @@ export function StatCounter({
         {suffix ? <span className="text-lg text-brand-300">{suffix}</span> : null}
       </p>
       <p className="mt-2 text-sm font-medium text-text-secondary">{label}</p>
-      {hint ? <p className="mt-1 text-xs leading-relaxed text-text-faint">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{hint}</p> : null}
     </div>
   );
 }
@@ -53,7 +53,7 @@ export function StatBadge({
     <div className={cn("stat-tile p-5", className)}>
       <p className="font-mono text-xl font-semibold leading-tight text-text-primary">{value}</p>
       <p className="mt-2 text-sm font-medium text-text-secondary">{label}</p>
-      {hint ? <p className="mt-1 text-xs leading-relaxed text-text-faint">{hint}</p> : null}
+      {hint ? <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{hint}</p> : null}
     </div>
   );
 }

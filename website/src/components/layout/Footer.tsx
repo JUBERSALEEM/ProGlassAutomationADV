@@ -35,7 +35,7 @@ export function Footer() {
               Industrial glass-fabrication software for Windows. Estimation, production preparation, stock, dispatch,
               VAT invoicing, statements and reporting — on one machine, in one application.
             </p>
-            <dl className="mt-6 space-y-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+            <dl className="mt-6 space-y-1.5 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
               <div className="flex gap-2">
                 <dt>Version</dt>
                 <dd className="text-text-muted">{site.version}</dd>
@@ -60,8 +60,8 @@ export function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col gap-4 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-text-faint">{site.copyrightLine}</p>
-          <p className="text-xs text-text-faint">
+          <p className="text-xs text-text-faint font-medium">{site.copyrightLine}</p>
+          <p className="text-xs text-text-faint font-medium">
             ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing
             to sign in to on this website.
           </p>

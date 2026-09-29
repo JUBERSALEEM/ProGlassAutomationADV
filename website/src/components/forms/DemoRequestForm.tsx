@@ -211,7 +211,7 @@ export function DemoRequestForm() {
             {errors.message}
           </p>
         ) : (
-          <p id="message-hint" className="mt-1.5 text-xs text-text-faint">
+          <p id="message-hint" className="mt-1.5 text-xs text-text-faint font-medium">
             Mention your glass types, how many people would use it, and whether cutting optimization matters to you.
           </p>
         )}
@@ -235,7 +235,7 @@ export function DemoRequestForm() {
         <Button type="submit" size="lg" loading={status === "submitting"} disabled={status === "submitting"}>
           {status === "submitting" ? "Sending…" : "Send request"}
         </Button>
-        <p className="text-xs leading-relaxed text-text-faint">
+        <p className="text-xs leading-relaxed text-text-faint font-medium">
           We reply by email. No account is created, and nothing you type here is stored on this website.
         </p>
       </div>
@@ -269,7 +269,7 @@ function Field({
       <label htmlFor={name} className="flex items-baseline gap-2 text-sm font-medium text-text-secondary">
         {label}
         {required ? <span className="text-state-danger">*</span> : null}
-        {hint ? <span className="text-xs font-normal text-text-faint">{hint}</span> : null}
+        {hint ? <span className="text-xs font-normal text-text-faint font-medium">{hint}</span> : null}
       </label>
       <input
         id={name}

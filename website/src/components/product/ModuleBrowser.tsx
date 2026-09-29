@@ -94,7 +94,7 @@ export function ModuleBrowser() {
         </label>
       </div>
 
-      <p className="mt-4 text-xs leading-relaxed text-text-faint" role="status">
+      <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium" role="status">
         {visible.length} of {modules.length} modules shown
         {group === "all" ? "" : ` in ${group}`}
         {query.trim() ? ` matching “${query.trim()}”` : ""}.
@@ -108,7 +108,7 @@ export function ModuleBrowser() {
               <h3 className="font-mono text-sm font-semibold uppercase tracking-[0.18em] text-brand-300">
                 {groupName}
               </h3>
-              <p className="text-xs text-text-faint">
+              <p className="text-xs text-text-faint font-medium">
                 {counts.find((entry) => entry.group === groupName)?.note}
               </p>
             </div>
@@ -140,7 +140,7 @@ function ModuleCard({ module }: { module: ProductModule }) {
   return (
     <article className="surface card-interactive flex h-full flex-col p-5">
       <div className="flex items-start justify-between gap-3">
-        <span className="font-mono text-2xs tabular-nums text-text-faint">{module.number}</span>
+        <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{module.number}</span>
         <Badge tone="neutral">{module.railGroup}</Badge>
       </div>
 
@@ -193,7 +193,7 @@ function FilterChip({
       )}
     >
       {children}
-      <span className="ml-1.5 font-mono text-[0.625rem] tabular-nums text-text-faint">{count}</span>
+      <span className="ml-1.5 font-mono text-[0.625rem] tabular-nums text-text-faint font-medium">{count}</span>
     </button>
   );
 }

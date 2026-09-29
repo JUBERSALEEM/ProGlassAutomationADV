@@ -99,14 +99,28 @@ function subscribe(listener: () => void): () => void {
   };
 }
 
+/** The accent each family is built around, used when no accent is picked. */
+const FAMILY_ACCENT: Record<string, string> = {
+  studio: "#8B5CF6",
+  monet: "#E879A6",
+  industrial: "#38BDF8",
+  crystal: "#22D3EE",
+};
+
 /** Writes the derived variables onto <html> and remembers them for the boot. */
 export function applyStudioVars(studio: Studio) {
   const root = document.documentElement;
   const target = root.getAttribute("data-theme") === "daylight" ? "light" : "dark";
   const vars: Record<string, string> = {};
 
-  if (studio.accent) {
-    const ramp = rampFor(studio.accent, target, studio.brightness, studio.vividness);
+  const family = root.getAttribute("data-appearance") ?? "studio";
+  const base = studio.accent ?? FAMILY_ACCENT[family] ?? FAMILY_ACCENT["studio"]!;
+  // A family on its own keeps its hand-tuned ramp; the moment the visitor
+  // moves any ramp control, the ramp is rebuilt from that family's colour.
+  const tuned = studio.brightness !== 0 || studio.vividness !== 0 || studio.accent !== null;
+
+  if (tuned) {
+    const ramp = rampFor(base, target, studio.brightness, studio.vividness);
     vars["--brand-50"] = ramp["50"];
     vars["--brand-200"] = ramp["200"];
     vars["--brand-300"] = ramp["300"];
@@ -115,22 +129,14 @@ export function applyStudioVars(studio: Studio) {
     vars["--brand-600"] = ramp["600"];
     vars["--brand-700"] = ramp["700"];
 
-    // The ambient pools and card wash follow the accent so the page does not
-    // end up with a green accent over a violet glow.
-    const pool = shift(studio.accent, 0.08, 0.1);
+    // The ambient pools follow the accent too, so the page never ends up with a
+    // green accent sitting over a violet glow.
+    const pool = shift(base, 0.08, 0.1);
     vars["--pool-1"] = `rgb(${triplet(pool)} / ${target === "dark" ? 0.2 : 0.16})`;
-    vars["--card-tint"] = `rgb(${triplet(pool)} / ${(target === "dark" ? 0.13 : 0.09) * studio.tint})`;
-  } else if (studio.tint !== 1) {
-    const family = root.getAttribute("data-appearance") ?? "studio";
-    const byFamily: Record<string, [number, number, number]> = {
-      studio: [139, 92, 246],
-      monet: [244, 114, 182],
-      industrial: [56, 189, 248],
-      crystal: [34, 211, 238],
-    };
-    const [r, g, b] = byFamily[family] ?? byFamily["studio"]!;
-    vars["--card-tint"] = `rgb(${r} ${g} ${b} / ${(target === "dark" ? 0.12 : 0.08) * studio.tint})`;
   }
+
+  // The wash inside a card fill: the one place the tint dial lands.
+  vars["--tint-mix"] = ((target === "dark" ? 0.08 : 0.05) * studio.tint).toFixed(4);
 
   vars["--radius-scale"] = String(studio.radius);
   vars["--money-positive"] = triplet(hexToTriplet(studio.moneyPositive));

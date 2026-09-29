@@ -88,6 +88,15 @@ export const realRail: RailGroup[] = [
   },
 ];
 
+/** A stable, unique fragment for the frame's SVG defs. */
+function slugForId(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
+}
+
 function RailRow({ label, active, muted }: { label: string; active?: boolean; muted?: boolean }) {
   return (
     <span
@@ -132,7 +141,7 @@ export function AppFrame({
       {/* ── Window chrome ─────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-ink-900/85 px-3 py-2 sm:px-4">
         <div className="flex items-center gap-2.5">
-          <LogoMark size={20} id="frame-logo" />
+          <LogoMark size={20} id={`frame-${slugForId(title)}`} />
           <span className="font-mono text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-text-faint">
             ProGlass Automation
           </span>
@@ -171,13 +180,13 @@ export function AppFrame({
           <div className="flex items-center justify-between gap-3 border-b border-line/60 bg-ink-900/45 px-3 py-2">
             <p className="truncate text-xs font-semibold text-text-primary sm:text-sm">{title}</p>
             <div className="flex items-center gap-2" aria-hidden="true">
-              <span className="hidden font-mono text-[0.5625rem] tracking-[0.14em] text-text-faint sm:inline">10:30</span>
+              <span className="hidden font-mono text-[0.5625rem] tracking-[0.14em] text-text-faint font-medium sm:inline">10:30</span>
               <span className="h-5 w-5 rounded-[0.3rem] border border-line-strong/70 bg-ink-800" />
               <span className="flex items-center gap-1.5 rounded-[0.35rem] border border-line-strong/70 bg-ink-800 px-1.5 py-0.5">
                 <span className="grid h-3.5 w-3.5 place-items-center rounded-full bg-brand-400/20 text-[0.4375rem] font-bold text-brand-200">
                   AB
                 </span>
-                <span className="font-mono text-[0.5rem] uppercase tracking-[0.1em] text-text-faint">Admin</span>
+                <span className="font-mono text-[0.5rem] uppercase tracking-[0.1em] text-text-faint font-medium">Admin</span>
               </span>
             </div>
           </div>
@@ -187,7 +196,7 @@ export function AppFrame({
       </div>
 
       {note ? (
-        <figcaption className="border-t border-line/60 bg-ink-950/60 px-3 py-2.5 text-xs leading-relaxed text-text-faint sm:px-4">
+        <figcaption className="border-t border-line/60 bg-ink-950/60 px-3 py-2.5 text-xs leading-relaxed text-text-faint font-medium sm:px-4">
           {note}
         </figcaption>
       ) : null}

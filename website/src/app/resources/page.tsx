@@ -91,7 +91,7 @@ export default function ResourcesPage() {
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap items-center gap-3">
                       <Badge tone="accent">{guide.category}</Badge>
-                      <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                      <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                         {guide.readingMinutes} min read
                       </span>
                     </div>
@@ -150,7 +150,7 @@ export default function ResourcesPage() {
                 >
                   <div className="flex items-center gap-3">
                     <Badge>{post.category}</Badge>
-                    <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                    <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {post.readingMinutes} min
                     </span>
                   </div>

@@ -10,10 +10,12 @@ import { StatCounter } from "@/components/ui/Stat";
 import { Accordion } from "@/components/ui/Accordion";
 import { ProductHero } from "@/components/hero/ProductHero";
 import { WorkflowRail } from "@/components/product/WorkflowRail";
+import { AppearancePreview } from "@/components/layout/AppearancePreview";
 import { ModuleShowcase } from "@/components/product/ModuleShowcase";
 import { ProductSlider } from "@/components/product/ProductSlider";
 import { NestingDemo } from "@/components/optimization/NestingDemo";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
+import { cn } from "@/lib/cn";
 import { modules } from "@/data/modules";
 import { glass3d } from "@/data/assets";
 import { featureGroups } from "@/data/features";
@@ -55,6 +57,31 @@ export default function HomePage() {
     <>
       <ProductHero />
 
+      {/* ═══ 01b · The facts strip ═══════════════════════════════════ */}
+      <div className="border-y border-line-strong/50 bg-ink-900">
+        <Container>
+          <ul className="grid divide-line/50 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
+            {[
+              { value: "Windows desktop", label: "Installed software, not a browser tab" },
+              { value: "Local SQLite", label: "Your data on your machine, 16 databases" },
+              { value: "No account", label: "Nothing to sign up for, nothing to log into" },
+              { value: `${site.locales} languages`, label: "Interface translated, not just labelled" },
+            ].map((fact, index) => (
+              <li
+                key={fact.value}
+                className={cn(
+                  "flex flex-col gap-1 py-5 sm:px-6 lg:px-8",
+                  index === 0 && "sm:pl-0",
+                )}
+              >
+                <span className="text-base font-bold text-text-primary">{fact.value}</span>
+                <span className="text-xs font-medium leading-relaxed text-text-muted">{fact.label}</span>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </div>
+
       {/* ═══ 02 · What ProGlass is ═══════════════════════════════════ */}
       <Section tone="raised" id="what" aria-labelledby="what-heading">
         <Container>
@@ -95,7 +122,7 @@ export default function HomePage() {
                   body: "Margins that do not move after the fact: the profit snapshot is written once and reported forever, and a stale price basis is flagged.",
                 },
               ].map((card, index) => (
-                <div key={card.title} className="surface p-5">
+                <div key={`${card.title}-${index}`} className="surface p-5">
                   <p className="eyebrow mb-2">{String(index + 1).padStart(2, "0")}</p>
                   <h3 className="text-base font-semibold text-text-primary">{card.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{card.body}</p>
@@ -119,7 +146,7 @@ export default function HomePage() {
           <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-14">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <ChainDiagram />
-              <p className="mt-6 text-xs leading-relaxed text-text-faint">
+              <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">
                 Status vocabularies and handoff guarantees are taken from the application&apos;s own workflow
                 documentation and the transition code that enforces them.
               </p>
@@ -139,7 +166,7 @@ export default function HomePage() {
               title="What is actually in the application."
               lead="Each card names where in the source tree the behaviour is defined, so a claim can be checked rather than believed. These are counts of what the repository contains — modules, locales, databases and tests. They are not performance claims, and the application makes none."
             />
-            <p className="max-w-sm text-xs leading-relaxed text-text-faint">
+            <p className="max-w-sm text-xs leading-relaxed text-text-faint font-medium">
               Counted against the application tree on {site.statsMeasuredOn}: {site.framework}, {site.pattern}, {site.database}. obj/, bin/ and .git/ are excluded.
             </p>
           </div>
@@ -162,9 +189,9 @@ export default function HomePage() {
               { value: "14", label: "Report surfaces", hint: "Executive, relationships, documents and the financial reports, behind one hub." },
             ].map((fact) => (
               <div key={fact.label} className="stat-tile p-5">
-                <p className="font-mono text-2xl font-semibold text-text-primary">{fact.value}</p>
-                <p className="mt-2 text-sm font-medium text-text-secondary">{fact.label}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint">{fact.hint}</p>
+                <p className="font-mono text-3xl font-bold text-text-primary">{fact.value}</p>
+                <p className="mt-2 text-sm font-bold text-text-primary">{fact.label}</p>
+                <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">{fact.hint}</p>
               </div>
             ))}
           </div>
@@ -258,7 +285,7 @@ export default function HomePage() {
             <Reveal delay={100} className="lg:sticky lg:top-28 lg:self-start">
               <div className="plate p-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint">
+                  <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint font-medium">
                     Step 9 · Profit &amp; loss
                   </p>
                   <Badge tone="accent">Single pricing engine</Badge>
@@ -279,7 +306,7 @@ export default function HomePage() {
                   ))}
                 </dl>
 
-                <p className="mt-5 border-t border-line/60 pt-4 text-xs leading-relaxed text-text-faint">
+                <p className="mt-5 border-t border-line/60 pt-4 text-xs leading-relaxed text-text-faint font-medium">
                   An ERP that quietly recalculates yesterday&apos;s quote with today&apos;s glass prices is not an ERP.
                   When sheet-store prices move, the affected row is flagged rather than silently rescored.
                 </p>
@@ -318,7 +345,7 @@ export default function HomePage() {
               <div key={item.label} className="surface-raised p-5">
                 <p className="font-mono text-xl font-semibold text-brand-300">{item.value}</p>
                 <p className="mt-2 text-sm font-medium text-text-secondary">{item.label}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint">{item.hint}</p>
+                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{item.hint}</p>
               </div>
             ))}
           </Reveal>
@@ -345,6 +372,39 @@ export default function HomePage() {
         </Container>
       </Section>
 
+      {/* ═══ 08c · Appearance ═════════════════════════════════════════ */}
+      <Section tone="sunken" aria-labelledby="appearance-heading">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] lg:items-center lg:gap-16">
+            <div>
+              <SectionHeading
+                id="appearance-heading"
+                eyebrow="Appearance"
+                title="Four families, sixteen accents — and you can try them here."
+                lead="The application ships four visual families and sixteen accent presets, all chosen from Settings. The same controls drive this website: press a plate below and the page you are reading re-themes itself."
+                gradient
+              />
+              <Reveal delay={120} className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href="/features" size="lg" trailing={<ArrowRight />}>
+                  See the modules
+                </ButtonLink>
+                <ButtonLink href="/developer" variant="secondary" size="lg">
+                  Who built it
+                </ButtonLink>
+              </Reveal>
+              <p className="mt-6 text-xs font-medium leading-relaxed text-text-muted">
+                Accent values are transcribed from the application&apos;s own preset table, so the swatch you press is the
+                colour the product uses.
+              </p>
+            </div>
+
+            <Reveal delay={80}>
+              <AppearancePreview />
+            </Reveal>
+          </div>
+        </Container>
+      </Section>
+
       {/* ═══ 08b · Sponsorship ═══════════════════════════════════════ */}
       <Section aria-labelledby="sponsors-heading">
         <Container>
@@ -353,7 +413,7 @@ export default function HomePage() {
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
                 <div>
                   <p className="eyebrow">Open to help</p>
-                  <h2 id="sponsors-heading" className="mt-3 text-2xl leading-tight sm:text-3xl">
+                  <h2 id="sponsors-heading" className="mt-3 text-3xl leading-tight sm:text-4xl">
                     One developer, and room for a few more hands.
                   </h2>
                   <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">
@@ -380,7 +440,7 @@ export default function HomePage() {
                       key={item.label}
                       className="flex items-baseline justify-between gap-4 rounded-card border border-line/60 bg-ink-950/40 px-4 py-3"
                     >
-                      <span className="text-xs uppercase tracking-[0.14em] text-text-faint">{item.label}</span>
+                      <span className="text-xs uppercase tracking-[0.14em] text-text-faint font-medium">{item.label}</span>
                       <span className="text-sm font-medium text-text-secondary">{item.value}</span>
                     </li>
                   ))}
@@ -412,7 +472,7 @@ export default function HomePage() {
                     {group.items.slice(0, 4).map((item) => (
                       <li key={item.title}>
                         <p className="text-sm font-medium text-text-secondary">{item.title}</p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-text-faint">{item.detail}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-text-faint font-medium">{item.detail}</p>
                       </li>
                     ))}
                   </ul>
@@ -476,7 +536,7 @@ export default function HomePage() {
                   />
                   <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-transparent" />
                 </div>
-                <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint">
+                <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint font-medium">
                   Application asset · Resources/Glass3D/dgulam-3d.png
                 </figcaption>
               </figure>
@@ -584,7 +644,7 @@ export default function HomePage() {
                     ["Activation", "Offline licence file"],
                   ].map(([term, detail]) => (
                     <div key={term} className="rounded-card border border-line/60 bg-ink-950/50 p-4">
-                      <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">{term}</dt>
+                      <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{term}</dt>
                       <dd className="mt-1.5 text-sm font-medium text-text-secondary">{detail}</dd>
                     </div>
                   ))}
@@ -604,8 +664,8 @@ function ChainDiagram() {
   return (
     <ol className="space-y-1.5">
       {stages.map((stage, index) => (
-        <li key={stage} className="flex items-center gap-3">
-          <span className="font-mono text-2xs tabular-nums text-text-faint">{String(index + 1).padStart(2, "0")}</span>
+        <li key={`${stage}-${index}`} className="flex items-center gap-3">
+          <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{String(index + 1).padStart(2, "0")}</span>
           <span className="flex-1 rounded-lg border border-line/60 bg-ink-900/60 px-3 py-2 text-sm text-text-secondary">
             {stage}
           </span>

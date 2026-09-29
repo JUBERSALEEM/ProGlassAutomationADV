@@ -7,7 +7,7 @@ export default function NotFound() {
     <Section className="min-h-[70vh]">
       <Container>
         <div className="max-w-2xl">
-          <p className="font-mono text-2xs uppercase tracking-[0.22em] text-brand-300/80">Error 404</p>
+          <p className="font-mono text-2xs uppercase tracking-[0.22em] text-brand-300">Error 404</p>
           <h1 className="mt-5 text-3xl leading-tight sm:text-4xl">That page is not here.</h1>
           <p className="lede mt-5">
             The link may be out of date, or the page may never have existed. Everything on this site is reachable from the

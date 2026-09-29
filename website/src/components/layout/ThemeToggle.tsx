@@ -174,8 +174,20 @@ export function ThemeToggle({ className }: { className?: string }) {
             })}
           </div>
 
-          <p className="mt-3 border-t border-line/60 px-1 pt-3 text-[0.6875rem] leading-relaxed text-text-faint">
-            The application ships the same idea in Settings → Appearance: four visual families and 16 accent presets.
+          <p className="mt-3 border-t border-line/60 px-1 pt-3 text-[0.6875rem] font-medium leading-relaxed text-text-muted">
+            The application ships the same idea in Settings → Appearance. For the full set — sixteen colour plates,
+            corner radius, money colours — open the{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                window.dispatchEvent(new Event("proglass-open-studio"));
+              }}
+              className="font-bold text-brand-300 underline decoration-brand-400/50 underline-offset-2 hover:text-brand-200"
+            >
+              theme studio
+            </button>
+            .
           </p>
         </div>
       ) : null}

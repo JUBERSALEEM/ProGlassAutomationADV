@@ -153,7 +153,7 @@ export default function OptimizationPage() {
                     <th
                       key={heading}
                       scope="col"
-                      className="border-b border-line-strong/70 px-4 py-3 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint"
+                      className="border-b border-line-strong/70 px-4 py-3 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium"
                     >
                       {heading}
                     </th>
@@ -176,7 +176,7 @@ export default function OptimizationPage() {
             </table>
           </div>
 
-          <p className="mt-5 max-w-3xl text-xs leading-relaxed text-text-faint">
+          <p className="mt-5 max-w-3xl text-xs leading-relaxed text-text-faint font-medium">
             The thick bucket is deliberately asymmetric: thick glass takes no trim on the top edge. The minimum breakout
             is the narrowest offcut worth keeping — anything thinner is reported as trim waste rather than counted as
             reusable stock.
@@ -212,7 +212,7 @@ export default function OptimizationPage() {
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {cutComplexities.map((item, index) => (
-              <Reveal key={item.name} delay={index * 50} className="surface flex flex-col p-5">
+              <Reveal key={`${item.name}-${index}`} delay={index * 50} className="surface flex flex-col p-5">
                 <IndexChip className="h-7 w-7 text-[0.6875rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
                 <p className="mt-4 text-sm font-semibold text-text-primary">{item.name}</p>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.detail}</p>
@@ -247,7 +247,7 @@ export default function OptimizationPage() {
 
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             {verificationOracles.map((oracle, index) => (
-              <Reveal key={oracle.name} delay={index * 70} className="surface-raised p-6">
+              <Reveal key={`${oracle.name}-${index}`} delay={index * 70} className="surface-raised p-6">
                 <p className="eyebrow">{oracle.evidence}</p>
                 <h3 className="mt-3 text-base font-semibold text-text-primary">{oracle.name} check</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{oracle.checks}</p>
@@ -314,14 +314,14 @@ export default function OptimizationPage() {
               <Reveal key={tab.id} id={tab.id} delay={index * 45} className="surface p-5">
                 <div className="flex items-center justify-between gap-3">
                   <p className="font-mono text-sm font-semibold text-brand-300">{tab.label}</p>
-                  <span className="font-mono text-2xs tabular-nums text-text-faint">
+                  <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-text-muted">{tab.summary}</p>
                 <ul className="mt-4 space-y-2 border-t border-line/60 pt-4">
                   {tab.bullets.map((bullet) => (
-                    <li key={bullet} className="flex gap-2.5 text-xs leading-relaxed text-text-faint">
+                    <li key={bullet} className="flex gap-2.5 text-xs leading-relaxed text-text-faint font-medium">
                       <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-line-strong" />
                       {bullet}
                     </li>
@@ -380,7 +380,7 @@ export default function OptimizationPage() {
                 railActive="Optimization"
                 note={
                   <>
-                    <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300/80">Interface map</span>{" "}
+                    <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">Interface map</span>{" "}
                     — the tab set and labels are the application&apos;s own (Views/Optimization/Tabs). The panel is a
                     working preview with sample data, not a screen capture.
                   </>
@@ -477,7 +477,7 @@ function EnginePipeline() {
       <p className="mono-label">How a run is produced</p>
       <ol className="mt-5">
         {enginePipeline.map((stage, index) => (
-          <li key={stage.step} className="relative flex gap-4 pb-5 last:pb-0">
+          <li key={`${stage.step}-${index}`} className="relative flex gap-4 pb-5 last:pb-0">
             {index < enginePipeline.length - 1 ? (
               <span aria-hidden="true" className="absolute left-[0.6875rem] top-6 bottom-0 w-px bg-line-strong" />
             ) : null}

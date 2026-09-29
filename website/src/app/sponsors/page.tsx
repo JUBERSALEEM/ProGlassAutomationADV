@@ -213,7 +213,7 @@ export default function SponsorsPage() {
                     key={item.step}
                     className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-4"
                   >
-                    <span className="font-mono text-2xs text-brand-300/80">{item.step}</span>
+                    <span className="font-mono text-2xs text-brand-300">{item.step}</span>
                     <div>
                       <p className="text-sm font-semibold text-text-secondary">{item.title}</p>
                       <p className="mt-1 text-sm leading-relaxed text-text-muted">{item.body}</p>

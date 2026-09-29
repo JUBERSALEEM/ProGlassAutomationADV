@@ -79,7 +79,7 @@ export default function AboutPage() {
                     body: "If the profit figure changes depending on when you opened the screen, it cannot be used to price the next job. It has to be written once and read forever.",
                   },
                 ].map((item, index) => (
-                  <div key={item.title} className="flex gap-4">
+                  <div key={`${item.title}-${index}`} className="flex gap-4">
                     <IndexChip>{String(index + 1).padStart(2, "0")}</IndexChip>
                     <div className="surface flex-1 p-5">
                       <p className="text-sm font-semibold text-text-primary">{item.title}</p>
@@ -119,7 +119,7 @@ export default function AboutPage() {
                 body: "Real grid geometry crosses from quotation to job order — sheet selections and air-spacer gaps included — so the panel that was priced is the panel that gets built.",
               },
             ].map((pillar, index) => (
-              <Reveal key={pillar.title} delay={index * 70} className="surface-raised p-6">
+              <Reveal key={`${pillar.title}-${index}`} delay={index * 70} className="surface-raised p-6">
                 <p className="eyebrow mb-3">{String(index + 1).padStart(2, "0")}</p>
                 <h3 className="text-lg font-semibold text-text-primary">{pillar.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-text-muted">{pillar.body}</p>
@@ -152,7 +152,7 @@ export default function AboutPage() {
                   ["Measured", `Counts below taken from the application tree on ${site.statsMeasuredOn}`],
                 ].map(([term, detail]) => (
                   <div key={term} className="flex flex-col gap-1 rounded-card border border-line/60 bg-ink-900/50 p-4 sm:flex-row sm:gap-4">
-                    <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                    <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {term}
                     </dt>
                     <dd className="text-sm leading-relaxed text-text-secondary">{detail}</dd>
@@ -222,7 +222,7 @@ export default function AboutPage() {
                 body: "The one who wants the margin visible at the moment of quoting rather than at the end of the quarter.",
               },
             ].map((item, index) => (
-              <Reveal key={item.title} delay={index * 50} className="surface p-5">
+              <Reveal key={`${item.title}-${index}`} delay={index * 50} className="surface p-5">
                 <h3 className="text-sm font-semibold text-text-primary">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.body}</p>
               </Reveal>

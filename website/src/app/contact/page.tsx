@@ -75,7 +75,7 @@ export default function ContactPage() {
                   ].map((item) => (
                     <li key={item.title}>
                       <p className="text-sm font-medium text-text-secondary">{item.title}</p>
-                      <p className="mt-0.5 text-xs leading-relaxed text-text-faint">{item.detail}</p>
+                      <p className="mt-0.5 text-xs leading-relaxed text-text-faint font-medium">{item.detail}</p>
                     </li>
                   ))}
                 </ul>

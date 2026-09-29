@@ -104,7 +104,7 @@ export function ProductSlider({
             <div className={cn("overflow-hidden rounded-panel", aspectClass)}>{slide.content}</div>
             <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <p className="text-sm font-medium text-text-primary">{slide.label}</p>
-              {slide.caption ? <p className="text-xs text-text-faint">{slide.caption}</p> : null}
+              {slide.caption ? <p className="text-xs text-text-faint font-medium">{slide.caption}</p> : null}
             </div>
           </div>
         ))}
@@ -139,7 +139,7 @@ export function ProductSlider({
           ))}
         </ul>
 
-        <p className="font-mono text-2xs tabular-nums text-text-faint">
+        <p className="font-mono text-2xs tabular-nums text-text-faint font-medium">
           {String(index + 1).padStart(2, "0")} / {String(count).padStart(2, "0")}
         </p>
       </div>

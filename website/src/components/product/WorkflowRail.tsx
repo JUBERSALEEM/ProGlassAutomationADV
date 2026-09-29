@@ -41,13 +41,13 @@ export function WorkflowRail({ compact = false }: { compact?: boolean }) {
                 <>
                   <dl className="mt-3.5 space-y-2 border-t border-line/50 pt-3.5">
                     <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
-                      <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                      <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                         Carries forward
                       </dt>
                       <dd className="text-sm text-text-secondary">{stage.handoff}</dd>
                     </div>
                     <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
-                      <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                      <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                         Guarantee
                       </dt>
                       <dd className="text-sm leading-relaxed text-text-muted">{stage.guarantee}</dd>
