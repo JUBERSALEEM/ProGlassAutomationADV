@@ -53,6 +53,24 @@ const entries: NavEntry[] = [
  * transparent edge that only resolves on hover. The entry you are on, or have
  * open, keeps its edge and its wash, so the panel always says where you are.
  */
+/*
+ * A glyph per item.
+ *
+ * Cards alone were still a row of words. Each entry now carries a small icon in
+ * the same weight the rest of the site draws its marks in — 1.6 px strokes on a
+ * 16-unit grid — which is what makes the panel read as a designed navigation
+ * rather than as a list of links with borders around them.
+ */
+const NAV_ICONS: Record<string, string> = {
+  Home: "M2.5 7.5 8 3l5.5 4.5V13a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5z",
+  Product: "M3 3.5h4v4H3zM9 3.5h4v4H9zM3 9.5h4v4H3zM9 9.5h4v4H9z",
+  Optimization: "M3.5 12.5 12.5 3.5M6 3.5h6.5V10M4 10l4 4",
+  Resources: "M3.5 3.5h6a2 2 0 0 1 2 2v7h-8zM11.5 5.5h3v7h-3zM5 6.5h5M5 9h5",
+  About: "M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 7.5v4M8 5.2v.6",
+  Developer: "M6 4 2.5 8 6 12M10 4l3.5 4L10 12",
+  Sponsors: "M8 13S3 10 3 6.6A2.6 2.6 0 0 1 8 5.2 2.6 2.6 0 0 1 13 6.6C13 10 8 13 8 13z",
+};
+
 const NAV_BAR =
   "hidden items-center gap-0.5 rounded-panel border-2 border-line-strong/50 bg-ink-900/55 p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] lg:flex";
 const NAV_CARD =
@@ -60,6 +78,24 @@ const NAV_CARD =
 const NAV_CARD_OFF =
   "border-transparent text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary";
 const NAV_CARD_ON = "border-brand-400/60 bg-brand-500/14 text-text-primary";
+
+function NavGlyph({ path }: { path?: string }) {
+  if (!path) return null;
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 16 16"
+      className="h-3.5 w-3.5 shrink-0 opacity-80"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d={path} />
+    </svg>
+  );
+}
 
 export function Navbar() {
   const pathname = usePathname();
@@ -158,6 +194,7 @@ export function Navbar() {
                   aria-current={active ? "page" : undefined}
                   className={cn(NAV_CARD, active ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
+                  <NavGlyph path={NAV_ICONS[entry.label]} />
                   {entry.label}
                 </Link>
               );
@@ -181,6 +218,7 @@ export function Navbar() {
                   onClick={() => setOpenMenu(open ? null : entry.label)}
                   className={cn(NAV_CARD, active || open ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
+                  <NavGlyph path={NAV_ICONS[entry.label]} />
                   {entry.label}
                   <svg
                     aria-hidden="true"

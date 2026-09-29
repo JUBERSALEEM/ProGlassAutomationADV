@@ -31,7 +31,7 @@ export const businessChain: ChainStage[] = [
     moduleKey: "Inquiry",
     statuses: ["Received", "Prepared", "Sent", "Confirmed", "Hold", "Cancelled"],
     summary: "A customer request arrives with a scope of supply: build type, specification, colours, W×H, quantity and expected rate.",
-    handoff: "BOQ rows → the proforma's Step 5 spec grid",
+    handoff: "BOQ rows → the proforma's step-5 specification grid",
     guarantee:
       "The copy is atomic. A row that cannot be imported stays on the inquiry as a note — it is never dropped and never guessed at. Conversion is permission-gated and logged.",
     evidence: "Services/ProformaInvoice/InquiryBoqConversion.cs",
@@ -43,7 +43,8 @@ export const businessChain: ChainStage[] = [
     name: "Proforma Invoice",
     moduleKey: "ProformaInvoice",
     statuses: ["Draft", "Sent", "Approved", "Rejected", "Expired", "Cancelled"],
-    summary: "The 9-step wizard prices the job: company, client, project, pricing, spec grid, charges, summary, attachments, profit & loss.",
+    summary:
+      "The 9-step wizard prices the job: company, client, project, pricing, the step-5 specification grid, charges, print preview, attachments, profit & loss.",
     handoff: "Real grid geometry and the Step-9 profit snapshot",
     guarantee:
       "Step 9 is the application's single pricing engine. Its snapshot is what every downstream screen reads — reporting never recomputes money, it flags drift.",

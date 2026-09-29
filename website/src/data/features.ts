@@ -27,8 +27,9 @@ export const featureGroups: FeatureGroup[] = [
       { title: "LAM", detail: "Laminated build-up with PVB thickness, per-pane colour and treatment." },
       { title: "DGU + LAM", detail: "A laminated pane inside a double-glazed unit, priced as one build-up." },
       {
-        title: "Multi-spec grid",
-        detail: "W1 / H1 / W2 / H2 × quantity → SQM + value, with Excel-like paste for large lists and manual overrides that carry provenance.",
+        title: "Step 5 specification grid",
+        detail:
+          "One block per specification: # · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, with Excel-like paste for large lists and manual overrides that carry provenance.",
       },
       {
         title: "Charges, wastage and discount",

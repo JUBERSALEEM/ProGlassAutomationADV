@@ -348,7 +348,10 @@ export default function HomePage() {
                   ["Client", "Customer, TRN and billing profile with duplicate detection."],
                   ["Project", "Project identifier, contract reference and site mapping."],
                   ["Pricing", "Rates per build type, sheet selection, air space and processing."],
-                  ["Spec grid", "W1 / H1 / W2 / H2 × qty → SQM + value, with BOQ import and overrides."],
+                  [
+                    "Specification grid (step 5)",
+                    "# · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, one block per specification — with BOQ import and overrides.",
+                  ],
                   ["Charges", "Predefined charges, wastage and custom rows."],
                   ["Summary", "VAT 5% round-safe totals and discount."],
                   ["Attachments", "Evidence chain with SHA-256 manifest deduplication."],
