@@ -491,8 +491,7 @@ kpis.forEach((item, index) => {
       strokeWidth: 1,
       radius: 12,
     }),
-    rect(x + 14, tileTop + 14, 12, 3, { fill: palette.brand400, radius: 2, opacity: 0.8 }),
-    text(x + 14, tileTop + 36, item.label.toUpperCase(), {
+    text(x + 14, tileTop + 30, item.label.toUpperCase(), {
       size: 10,
       fill: rgba(palette.text3, 0.55),
       family: MONO,
