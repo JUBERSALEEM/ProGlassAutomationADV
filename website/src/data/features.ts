@@ -42,6 +42,11 @@ export const featureGroups: FeatureGroup[] = [
           "The moment a row's billable area reaches 4 m² it takes the specification's SurplusRate — base rate × (1 + SURCHARGE %), 20% as the shop's standard for oversize work. Rows beside it stay on base, and the switch also fires on a change to the base rate or the percentage.",
       },
       {
+        title: "Working the grid like a spreadsheet",
+        detail:
+          "Find and find-and-replace across the rows, paste REF / W1 / H1 / W2 / H2 / QTY straight from Excel or a BOQ, generate rows in bulk up to ten thousand, and delete a line from the row itself. Under it all sits the grand total summary: one row per specification — qty, total SQM, value — and the grand row across them, read-only, rolled up before Step 6 adds charges.",
+      },
+      {
         title: "QUICK, OPTIMIZE, VIEW RESULT",
         detail:
           "The grid's own action bar: QUICK makes the one fast pass Step 6 takes its sheet quantity from, OPTIMIZE searches the plans for fewest unplaced pieces then fewest sheets then highest utilisation, and VIEW RESULT opens the optimisation module on its summary.",

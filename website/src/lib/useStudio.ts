@@ -192,13 +192,20 @@ function subscribe(listener: () => void): () => void {
  * font and Tailwind's `font-sans` utility reads, so one control re-sets the
  * whole site the same way the corner slider re-corners it.
  *
- * This is the site's list, not the application's: `FontService` enumerates the
- * families installed on the machine and imports any font file the user drops
- * in, and a browser can do neither — it cannot list system fonts and it will
- * not load an arbitrary local file. What the application's typography settings
- * *do* to the interface — weight, italic, underline, scale, density — is
- * mirrored exactly, in `studioTypography` below, because those are properties
- * of the text rather than a catalogue of installed faces.
+ * The list has two halves, and they are the application's two halves. The
+ * first four are bundled: the site serves them itself, so they are the same
+ * font on every machine. The rest are *installed* families — named, not
+ * downloaded — and the browser resolves them from the visitor's own system,
+ * which is exactly what `FontService` does when it enumerates the fonts on the
+ * computer and applies the one that is picked. A browser cannot list what is
+ * installed, so this half is a list of the families that ship with Windows,
+ * macOS and Android; whichever machine opens the site has several of them, and
+ * every stack ends in a generic family so a visitor with none still gets type.
+ *
+ * What the application's typography settings *do* to the interface — weight,
+ * italic, underline, scale, density — is mirrored exactly too, in
+ * `studioTypography` below, because those are properties of the text rather
+ * than a catalogue of faces.
  */
 export const typefaces = {
   inter: {
@@ -225,11 +232,110 @@ export const typefaces = {
     stack: "var(--font-mono), Consolas, Cascadia Mono, ui-monospace, monospace",
     sample: "3210 × 2250 · 94.36% used · 4 plates · 15 / 15 / 3 / 3 mm margins.",
   },
+
+  /*
+   * ── The families installed on the visitor's own machine ──────────────
+   *
+   * This is the second half of `FontService`: it lists the fonts the machine
+   * has, and applying one sets `App.Config.Appearance.FontFamilyName` to that
+   * name. A browser does the same thing when a stylesheet names a family that
+   * is not downloaded — it asks the operating system for it — so naming these
+   * is not a fallback chain, it is the same feature. Nothing is fetched: the
+   * face is already on the visitor's computer.
+   *
+   * The list is the one `FontService` looks for first — Segoe UI is its
+   * `DefaultFontFamily` — plus the families that ship with Windows, macOS and
+   * Android, so whichever machine opens the site has several of them. A
+   * visitor whose machine has none of them still gets a rendered page: the
+   * stack ends in a generic family, which is why every entry below has one.
+   */
+  segoe: {
+    name: "Segoe UI",
+    character: "The application's own default — FontService.DefaultFontFamily.",
+    stack: '"Segoe UI Variable", "Segoe UI", system-ui, sans-serif',
+    sample: "This is the face ProGlass Automation itself is set in.",
+  },
+  system: {
+    name: "System UI",
+    character: "Whatever the operating system uses for its own interface.",
+    stack: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
+    sample: "The face your machine already uses for menus, dialogs and mail.",
+  },
+  arial: {
+    name: "Arial / Helvetica",
+    character: "The face a drawing or a supplier's quotation is as likely as any to arrive in.",
+    stack: "Arial, Helvetica, Liberation Sans, sans-serif",
+    sample: "Cut length 1,600 mm · net area 1.76 m² · rate 185.00 per m².",
+  },
+  verdana: {
+    name: "Verdana",
+    character: "Wide and open. Legible across a factory floor at a distance.",
+    stack: "Verdana, Geneva, DejaVu Sans, sans-serif",
+    sample: "QUANTITY 45 · TOTAL SQM 87.68 · AED 16,832.80",
+  },
+  tahoma: {
+    name: "Tahoma",
+    character: "Tight and solid at small sizes — reads well on a dense grid.",
+    stack: "Tahoma, Segoe UI, sans-serif",
+    sample: "W1 2400 · H1 1600 · SQM 3.840 · RATE 210.00",
+  },
+  trebuchet: {
+    name: "Trebuchet MS",
+    character: "Humanist, with a tall x-height that survives being printed small.",
+    stack: '"Trebuchet MS", "Lucida Grande", sans-serif',
+    sample: "Delivered 40 pieces · balance 5 pieces · DN-1841",
+  },
+  georgia: {
+    name: "Georgia",
+    character: "A screen serif with old-style figures — softer in a long paragraph.",
+    stack: "Georgia, Times New Roman, serif",
+    sample: "The estimator writes the quotation; the works order carries it forward.",
+  },
+  times: {
+    name: "Times New Roman",
+    character: "The face a letter from a main contractor arrives in.",
+    stack: '"Times New Roman", Times, serif',
+    sample: "Kindly find attached proforma invoice AZT-POD-2026 for the above project.",
+  },
+  courier: {
+    name: "Courier New",
+    character: "Monospaced and typewriter-plain — what a legacy printout looked like.",
+    stack: '"Courier New", Courier, monospace',
+    sample: "SHT-6001 CLEAR 6MM 3210X2250 RACK A1 46 PLATES",
+  },
+  consolas: {
+    name: "Consolas",
+    character: "FontFamily.Code — the application sets its own code and figures in it.",
+    stack: "Consolas, Cascadia Mono, DejaVu Sans Mono, monospace",
+    sample: "CalculatePanel(400, 300) => 0.500  ·  row.Sqm1 >= 4m",
+  },
 } as const;
 
 export type TypefaceKey = keyof typeof typefaces;
 
 export const typefaceKeys = Object.keys(typefaces) as TypefaceKey[];
+
+/**
+ * The two halves of the list, in the studio's own order.
+ *
+ * `bundled` is what this site ships and serves itself; `installed` is what the
+ * visitor's machine already has, which is the half `FontService` enumerates.
+ * The split is the desktop application's own: a font it ships or defaults to,
+ * and a font it finds on the computer.
+ */
+export const bundledTypefaceKeys: TypefaceKey[] = ["inter", "plex", "serif", "mono"];
+export const installedTypefaceKeys: TypefaceKey[] = [
+  "segoe",
+  "system",
+  "arial",
+  "verdana",
+  "tahoma",
+  "trebuchet",
+  "georgia",
+  "times",
+  "courier",
+  "consolas",
+];
 
 /**
  * The application's typography switches, as the studio offers them.

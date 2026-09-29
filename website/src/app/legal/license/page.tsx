@@ -76,7 +76,7 @@ export default function LicensePage() {
             heading: "The fonts on this website",
             paragraphs: [
               "The application's licence and this website's assets are separate things, and the typefaces are the part of the second one with an upstream author. Every face used here is self-hosted — opening a page never calls a font service — and each is under the SIL Open Font License 1.1, which permits commercial use and redistribution as part of a website:",
-              "Inter (Rasmus Andersson), JetBrains Mono (JetBrains), Source Serif 4 (Frank Grießhammer, Adobe) and IBM Plex Sans (IBM). The theme and colour panel switches the site between Inter, IBM Plex Sans and Source Serif 4; JetBrains Mono is fixed, because every figure here is meant to line up in a column. All four are served from this origin, which is what lets the privacy page state plainly that visiting a page does not call a font service.",
+              "Inter (Rasmus Andersson), JetBrains Mono (JetBrains), Source Serif 4 (Frank Grießhammer, Adobe) and IBM Plex Sans (IBM). Those four are served from this origin, which is what lets the privacy page state plainly that visiting a page does not call a font service. The theme and colour panel offers them under “bundled with this site”, and beneath them a second group — Segoe UI, the system face, Arial, Verdana, Tahoma, Trebuchet MS, Georgia, Times New Roman, Courier New and Consolas — which are not downloaded at all: the browser resolves them from the visitor's own computer, so they carry no licence obligation here and none is claimed.",
             ],
           },
           {

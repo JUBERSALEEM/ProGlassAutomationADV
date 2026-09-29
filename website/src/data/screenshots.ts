@@ -112,7 +112,8 @@ export const screenshots: Screenshot[] = [
     highlights: [
       "The specification grid on step 5: # · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, on a block carrying glass type, specification, base rate and SURCHARGE %",
       "Every panel bills at least 0.5 m², and a panel that reaches 4 m² prices at base + the specification's surcharge",
-      "QUICK / OPTIMIZE / VIEW RESULT on the grid; Step 6 takes its sheet quantity from the run",
+      "QUICK / OPTIMIZE / VIEW RESULT on the grid — with the engine's own progress readout — and Step 6 takes its sheet quantity and utilisation from the run",
+      "Find and replace, Excel paste, bulk row generation and a grand total summary rolled up under the grid",
       "Step 9 profit & loss: overview, services, sheets and a spec-by-spec check — the single pricing engine, whose snapshot everything downstream reads",
     ],
     tags: ["Estimation", "Quotation", "VAT"],

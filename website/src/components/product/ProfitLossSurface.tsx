@@ -332,6 +332,59 @@ export function ProfitLossSurface({
             />
           </div>
 
+          {/*
+            ── 5 · RESULT — BASE AND TARGET BALANCE ─────────────────────────
+            The section the desktop view puts under the money: the same
+            answer asked twice, once against the base price and once against
+            the target, with a balance in per-m² and in value for each. The
+            status chip flips on sign, and the U-insert line says whether the
+            treatment is inside the given price — the app's own toggle.
+          */}
+          <p className="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+            5 · Result — base and target balance
+          </p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
+              <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Status</p>
+              <p
+                className={cn(
+                  "mt-1 inline-flex rounded-full border px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.1em] font-semibold",
+                  totals.aboveTarget
+                    ? "border-money-positive/45 bg-money-positive/12 text-money-positive"
+                    : "border-amber-400/45 bg-amber-400/12 text-amber-300",
+                )}
+              >
+                {totals.aboveTarget ? "Above target" : "Below target"}
+              </p>
+              <p className="mt-1.5 text-[0.6875rem] leading-snug text-text-muted font-medium">
+                {totals.aboveTarget
+                  ? "Final required target met and exceeded on the given price."
+                  : "The given price does not reach the required target."}
+              </p>
+            </div>
+            <BalanceCard
+              title="Base"
+              percent={`${fmtPct(totals.marginVsBase)} margin against base price`}
+              perSqm={`AED ${cash(totals.givenPerSqm - totals.basePricePerSqm)}`}
+              value={`AED ${cash(totals.revenue - totals.baseValue)}`}
+              positive={totals.revenue - totals.baseValue >= 0}
+            />
+            <BalanceCard
+              title="Target"
+              percent={`${fmtPct(totals.marginVsTarget)} margin against target`}
+              perSqm={`AED ${cash(totals.givenPerSqm - totals.requiredPerSqm)}`}
+              value={`AED ${cash(totals.difference)}`}
+              positive={totals.aboveTarget}
+            />
+          </div>
+
+          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <MoneyRow label="Given price (Step 5 base price)" value={`AED ${cash(totals.basePricePerSqm)} / m²`} note="base rate paid by the customer, area-weighted" />
+            <MoneyRow label="Cost-based profit margin" value={fmtPct(totals.glassMarginPercent)} note="net revenue less the glass cost only" tone={totals.glassMarginPercent >= 0 ? "good" : "watch"} />
+            <MoneyRow label="Given judged for the margin" value={`AED ${cash(totals.givenPerSqm)} / m²`} note={`against a required AED ${cash(totals.requiredPerSqm)} / m²`} />
+            <MoneyRow label="U-insert inside given" value="Toggle off" note="the treatment is not counted inside the given price on this specification" />
+          </div>
+
           <p className="mt-3 text-[0.6875rem] leading-relaxed text-text-faint font-medium">
             Cost is the Sheet Store purchase price of each glass, over the same billable square metres Step 5 charged — the sub-0.5 m²
             floor included, because the offcut is bought and thrown away. Change anything on Step 5 and every figure here moves with it;
@@ -350,7 +403,7 @@ export function ProfitLossSurface({
             <caption className="sr-only">Charge rows raised by the pricing estimator, with the area they apply to.</caption>
             <thead>
               <tr className="border-b border-line/60">
-                {["Service", "Basis", "Applied area", "Charge", "Total", "Cost", "Profit", "Margin %"].map((heading, index) => (
+                {["Service", "Spec", "Charge", "Area", "Cost", "Profit", "Margin %", "Total"].map((heading, index) => (
                   <th
                     key={heading}
                     scope="col"
@@ -371,29 +424,37 @@ export function ProfitLossSurface({
                 return (
                   <tr key={service.key} className={cn("border-b border-line/40 last:border-0 hover:bg-ink-800/40", service.dguOnly && !hasDgu ? "opacity-55" : "")}>
                     <td className="px-2.5 py-1.5 text-[0.75rem] text-text-secondary">{service.label}</td>
-                    <td className="px-2.5 py-1.5 font-mono text-[0.6875rem] text-text-faint">{service.basis}</td>
-                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-muted tabular-nums">
-                      {perSqm ? `${totals.area.toFixed(2)} m²` : "—"}
+                    <td className="px-2.5 py-1.5 font-mono text-[0.6875rem] text-text-faint">
+                      {service.basis}
+                      {service.dguOnly && !hasDgu ? " · SGU" : ""}
                     </td>
                     <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-secondary tabular-nums">{cash(service.rate)}</td>
+                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-muted tabular-nums">
+                      {total === null ? "—" : `${totals.area.toFixed(2)} m²`}
+                    </td>
+                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint tabular-nums">
+                      {service.costed ? "—" : "not costed"}
+                    </td>
+                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint tabular-nums">—</td>
+                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint tabular-nums">—</td>
                     <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-secondary tabular-nums">
                       {total === null ? "—" : cash(total)}
                     </td>
-                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint tabular-nums">
-                      {service.dguOnly && !hasDgu ? "SGU" : service.costed ? "—" : "not costed"}
-                    </td>
-                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint tabular-nums">—</td>
-                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint tabular-nums">—</td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
-          <p className="mt-2 rounded-lg border border-line/50 bg-ink-900/40 px-2.5 py-2 text-[0.75rem] leading-relaxed text-text-muted font-medium">
-            {pnl.services.some((service) => !service.costed)
-              ? "No costed lines yet. Press RECALCULATE once Step 5 has glass items and the estimator's costs are entered — the charge rows above are the estimator's own, and their service cost comes from Step 4's pane and sheet source."
-              : "Every charge on this job carries a cost."}
-          </p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line/50 bg-ink-900/40 px-2.5 py-2">
+            <p className="text-[0.75rem] leading-relaxed text-text-muted font-medium">
+              {pnl.services.some((service) => !service.costed)
+                ? "No costed lines yet. Press RECALCULATE once Step 5 has glass items and the estimator's costs are entered — the charge rows above are the estimator's own, and their service cost comes from Step 4's pane and sheet source."
+                : "Every charge on this job carries a cost."}
+            </p>
+            <p className="font-mono text-[0.75rem] font-semibold text-text-secondary">
+              Overall service margin — not costed yet
+            </p>
+          </div>
         </div>
       ) : null}
 
@@ -476,7 +537,18 @@ export function ProfitLossSurface({
             <caption className="sr-only">Each Step 5 specification: its area, what it is given at, what the target requires and the difference.</caption>
             <thead>
               <tr className="border-b border-line/60">
-                {["Glass / specification", "Area", "Given value", "Required target value", "Difference", "Margin %", "Base", "Surcharge %"].map((heading, index) => (
+                {[
+                  "Glass / specification",
+                  "Area",
+                  "Given value",
+                  "Required target value",
+                  "Difference",
+                  "Margin %",
+                  "Base",
+                  "Surcharge %",
+                  "Target uplift",
+                  "Validation",
+                ].map((heading, index) => (
                   <th
                     key={heading}
                     scope="col"
@@ -525,6 +597,26 @@ export function ProfitLossSurface({
                         </span>
                       ) : null}
                     </td>
+                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-muted tabular-nums">
+                      / m² {cash(spec.area > 0 ? spec.required / spec.area - spec.baseRate : 0)}
+                    </td>
+                    <td className="px-2.5 py-1.5 text-right">
+                      <span
+                        className={cn(
+                          "rounded-full border px-1.5 py-px font-mono text-[0.625rem] uppercase tracking-[0.08em] font-semibold",
+                          difference >= 0
+                            ? "border-money-positive/45 bg-money-positive/12 text-money-positive"
+                            : "border-amber-400/45 bg-amber-400/12 text-amber-300",
+                        )}
+                      >
+                        {difference >= 0 ? "Above" : "Below"}
+                      </span>
+                      {spec.floored > 0 ? (
+                        <span className="ml-1.5 font-mono text-[0.625rem] text-text-faint">
+                          {spec.floored} floored
+                        </span>
+                      ) : null}
+                    </td>
                   </tr>
                 );
               })}
@@ -544,7 +636,7 @@ export function ProfitLossSurface({
                   {totals.difference >= 0 ? "+" : "−"}
                   {cash(Math.abs(totals.difference))}
                 </td>
-                <td colSpan={3} />
+                <td colSpan={5} />
               </tr>
             </tfoot>
           </table>
@@ -590,6 +682,45 @@ function MoneyRow({
         {value}
       </p>
       <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">{note}</p>
+    </div>
+  );
+}
+
+/**
+ * BASE or TARGET, asked the same way.
+ *
+ * The desktop view prints both halves of the balance in the same shape — a
+ * margin against that price, the difference per square metre, and the
+ * difference in money — so the two are comparable line for line rather than
+ * one being a figure and the other a paragraph.
+ */
+function BalanceCard({
+  title,
+  percent,
+  perSqm,
+  value,
+  positive,
+}: {
+  title: string;
+  percent: string;
+  perSqm: string;
+  value: string;
+  positive: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
+      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">{title}</p>
+      <p className="mt-1 text-[0.875rem] font-semibold text-text-primary">{percent}</p>
+      <dl className="mt-1.5 space-y-1">
+        <div className="flex items-baseline justify-between gap-2">
+          <dt className="text-[0.6875rem] text-text-muted font-medium">{title === "Base" ? "Base balance" : "Target balance"}</dt>
+          <dd className={cn("font-mono text-[0.75rem] tabular-nums", positive ? "text-money-positive" : "text-amber-300")}>{perSqm} / m²</dd>
+        </div>
+        <div className="flex items-baseline justify-between gap-2">
+          <dt className="text-[0.6875rem] text-text-muted font-medium">{title === "Base" ? "Base balance value" : "Target balance value"}</dt>
+          <dd className={cn("font-mono text-[0.75rem] tabular-nums", positive ? "text-money-positive" : "text-amber-300")}>{value}</dd>
+        </div>
+      </dl>
     </div>
   );
 }

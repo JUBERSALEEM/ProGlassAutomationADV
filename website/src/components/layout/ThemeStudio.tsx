@@ -5,6 +5,8 @@ import { cn } from "@/lib/cn";
 import { appearanceFamilies, themeModes, type AppearanceFamilyEntry, type ThemeModeEntry } from "@/data/themes";
 import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
 import {
+  bundledTypefaceKeys,
+  installedTypefaceKeys,
   resetStudio,
   setAccent,
   setFamily,
@@ -12,7 +14,6 @@ import {
   studioAccents,
   studioTypography,
   typefaces,
-  typefaceKeys,
   useStudio,
 } from "@/lib/useStudio";
 import { luminance } from "@/lib/color";
@@ -269,41 +270,25 @@ export function ThemeStudio() {
           <fieldset className="mt-4">
             <legend className="mono-label">Typeface</legend>
             <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">
-              Four faces, all served from this site. Every one carries a real italic and a full weight range, so bold,
-              bold italic and underlining below are drawn — not slanted and thickened by the browser.
+              Fourteen families in two groups — the four this site serves, and ten the browser resolves from your own
+              computer. The bundled four carry a real italic and a full weight range, so bold, bold italic and
+              underlining below are drawn rather than slanted and thickened.
             </p>
 
-            <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {typefaceKeys.map((key) => {
-                const face = typefaces[key];
-                const active = key === studio.typeface;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setStudio({ typeface: key })}
-                    title={face.character}
-                    className={cn(
-                      "rounded-card border-2 px-2 py-2 text-left transition-colors",
-                      active
-                        ? "border-brand-400 bg-brand-500/15"
-                        : "border-line-strong/70 hover:border-brand-400/60",
-                    )}
-                  >
-                    <span
-                      className={cn("block text-sm font-bold leading-tight", active ? "text-text-primary" : "text-text-secondary")}
-                      style={{ fontFamily: face.stack }}
-                    >
-                      {face.name}
-                    </span>
-                    <span className="mt-0.5 block text-xs font-semibold leading-tight text-text-muted" style={{ fontFamily: face.stack }}>
-                      Aa Bb 0123
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            <FaceGrid
+              caption="Bundled with this site"
+              note="Served from here, so these four are the same face on every machine."
+              keys={bundledTypefaceKeys}
+              current={studio.typeface}
+              columns="grid-cols-2 sm:grid-cols-4"
+            />
+            <FaceGrid
+              caption="Installed on your machine"
+              note="Named, not downloaded — the browser takes them from your own system, the way FontService takes a font from the computer it runs on."
+              keys={installedTypefaceKeys}
+              current={studio.typeface}
+              columns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+            />
 
             {/*
               The specimen. Not a picture of the choice — the live body font, in
@@ -668,5 +653,64 @@ function ToggleChip({
     >
       {label} · {active ? "on" : "off"}
     </button>
+  );
+}
+
+/**
+ * One group of families.
+ *
+ * The desktop application's font picker has exactly these two halves — what it
+ * ships and what the machine has — and each button is set in the face it
+ * offers, so the choice is made by looking at the thing itself rather than at
+ * its name.
+ */
+function FaceGrid({
+  caption,
+  note,
+  keys,
+  current,
+  columns,
+}: {
+  caption: string;
+  note: string;
+  keys: readonly string[];
+  current: string;
+  columns: string;
+}) {
+  return (
+    <div className="mt-3">
+      <p className="mono-label">{caption}</p>
+      <p className="mt-1 text-xs font-medium leading-relaxed text-text-muted">{note}</p>
+      <div className={cn("mt-2 grid gap-2", columns)}>
+        {keys.map((key) => {
+          const face = typefaces[key as keyof typeof typefaces];
+          if (!face) return null;
+          const active = key === current;
+          return (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setStudio({ typeface: key as keyof typeof typefaces })}
+              title={face.character}
+              className={cn(
+                "rounded-card border-2 px-2 py-2 text-left transition-colors",
+                active ? "border-brand-400 bg-brand-500/15" : "border-line-strong/70 hover:border-brand-400/60",
+              )}
+            >
+              <span
+                className={cn("block text-xs font-bold leading-tight", active ? "text-text-primary" : "text-text-secondary")}
+                style={{ fontFamily: face.stack }}
+              >
+                {face.name}
+              </span>
+              <span className="mt-0.5 block text-xs font-semibold leading-tight text-text-muted" style={{ fontFamily: face.stack }}>
+                Aa Bb 0123
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
   );
 }

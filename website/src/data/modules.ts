@@ -181,6 +181,8 @@ export const modules: ProductModule[] = [
       "9-step wizard with company and client cards",
       "SGU / DGU / LAM / DGU + LAM build-up pricing",
       "Dimension grid (W1·H1·W2·H2 × Qty) with SQM and value, plus BOQ import",
+      "Grid commands: find and replace, paste from Excel or a BOQ, generate rows, per-row delete",
+      "Grand total summary — one row per specification and the grand row, alongside every spec footer",
       "0.5 m² minimum billable area per panel; base + surcharge rate at 4 m²",
       "QUICK / OPTIMIZE / VIEW RESULT on the grid, feeding Step 6 its sheet quantity",
       "Step 9 profit & loss: overview, services, sheets and a spec-by-spec check",

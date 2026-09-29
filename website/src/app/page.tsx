@@ -350,7 +350,7 @@ export default function HomePage() {
                   ["Pricing", "Rates per build type, sheet selection, air space and processing."],
                   [
                     "Specification grid (step 5)",
-                    "# · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, one block per specification, with BOQ import and QUICK / OPTIMIZE / VIEW RESULT on the bar. Every panel bills at least 0.5 m², and one that reaches 4 m² takes the specification's surcharge rate.",
+                    "# · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value, one block per specification, with BOQ import, find and replace, Excel paste, bulk row generation and QUICK / OPTIMIZE / VIEW RESULT on the bar — then the grand total summary rolled up under it. Every panel bills at least 0.5 m², and one that reaches 4 m² takes the specification's surcharge rate.",
                   ],
                   ["Charges", "Predefined charges, wastage and custom rows."],
                   ["Summary", "VAT 5% round-safe totals and discount."],
