@@ -151,24 +151,37 @@ export function ProductHero() {
           </Reveal>
         </div>
 
-        {/* ── Brand banner: a real asset from the repository ───────── */}
+        {/* ── Brand banner: the repository's own front-page artwork ──
+            `README_ASSETS/hero.png` is what the GitHub README shows and what a
+            shared link unfurls as, so it is drawn from the product's own
+            tokens and figures by `scripts/render-hero-banner.mts` — the plate
+            geometry on it is the plan this page draws, from the same packer. */}
         <Reveal delay={120} className="mt-16 sm:mt-20">
           <div className="plate overflow-hidden">
             <div className="relative aspect-[3/1] w-full">
               <Image
                 src="/images/brand/proglass-hero-banner-1920.png"
-                alt="ProGlass Automation brand banner: a glass cutting table, a rack of sheets and the workflow steps from quotation to delivery"
+                alt="ProGlass Automation brand banner: the application's Optimization screen showing a verified cutting plan of four plates at 85.6 % yield, beside the product mark and the line 'Glass business management, built around your workflow.'"
                 fill
                 sizes="(max-width: 1024px) 100vw, 1200px"
                 className="object-cover"
                 priority
               />
+              {/*
+                A light veil only. The illustration used to be a landscape
+                scene with empty sky along the bottom, so the old overlay was
+                opaque enough to bury it; the banner now carries a cutting plan
+                and a table of glass references down to its lower edge, and an
+                opaque gradient would hide the very figures it was redrawn to
+                show. The caption below therefore sits in its own chip instead
+                of relying on the veil for contrast.
+              */}
               <div
                 aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/25 to-transparent"
+                className="absolute inset-0 bg-gradient-to-t from-ink-950/55 via-ink-950/10 to-transparent"
               />
-              <p className="absolute bottom-4 left-4 right-4 font-mono text-2xs uppercase tracking-[0.18em] text-text-secondary sm:bottom-5 sm:left-6">
-                Brand asset shipped inside the application · README_ASSETS/hero.png
+              <p className="absolute bottom-3 left-3 rounded-full border border-line-strong/60 bg-ink-950/80 px-3 py-1.5 font-mono text-2xs uppercase tracking-[0.18em] text-text-secondary sm:bottom-4 sm:left-4">
+                Every figure drawn from the app&rsquo;s own plan · README_ASSETS/hero.png
               </p>
             </div>
           </div>

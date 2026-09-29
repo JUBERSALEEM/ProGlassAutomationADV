@@ -18,6 +18,7 @@ import {
   batchOneWeightKg,
   deliveredTotals,
   groupTotals,
+  lineArea,
   lineValue,
   pieceArea,
   pieceWeight,
@@ -53,6 +54,16 @@ const plain = (value: number, decimals = 2) =>
   value.toLocaleString("en-AE", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 
 const mm = (value: number) => value.toLocaleString("en-AE");
+
+/**
+ * The two header-cell treatments, shared by every column in the Step 5 grid.
+ *
+ * Eleven columns cannot carry an inline class each without the table becoming
+ * unreadable to edit, and the two styles are genuinely two: a left-aligned label
+ * column and a right-aligned numeric one.
+ */
+const TH = "px-4 py-3 text-right font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium";
+const THL = "px-4 py-3 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium";
 
 export default function WorkedExamplePage() {
   return (
@@ -211,8 +222,25 @@ export default function WorkedExamplePage() {
             id="quotation-heading"
             eyebrow="The quotation"
             title="Twenty-two lines, priced three ways."
-            lead="The proforma is priced by specification group: clear tempered for the main facade, tinted where the sun hits, and a double-glazed Low-E unit for the energy-efficient zones. Each line carries its glass reference, its size, its rate and the area it works out to."
+            lead="The proforma is priced by specification group: clear tempered for the main facade, tinted where the sun hits, and a double-glazed Low-E unit for the energy-efficient zones. Each line carries its specification exactly as Step 5 holds it — serial, glass reference, outer pane W1 × H1, inner pane W2 × H2 where there is one, quantity, area, rate and value."
           />
+
+          {/*
+            The column legend.
+
+            A dash in W2/H2 is a rendered convention, not the stored value: the
+            seeder writes 0 for a single-glazed line (SampleDataService.cs, the
+            CT- and TT- groups), and the application's grid binds that integer
+            straight into a TextBox. Printing five zeros would read as broken
+            data rather than as "there is no second pane", so the dash is used
+            and explained here — the reader is told what the application stores
+            rather than being left to guess.
+          */}
+          <p className="mt-5 text-xs leading-relaxed text-text-muted">
+            <span className="font-mono text-text-faint">—</span> in W2 or H2 means the line has no second pane. The
+            application stores <span className="font-mono text-text-faint">0</span> in those cells for single glazing;
+            a double-glazed line carries both pairs, and in this seeded job the two panes are cut to the same size.
+          </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             {groupTotals.map((group) => (
@@ -235,9 +263,15 @@ export default function WorkedExamplePage() {
                 <div className="surface overflow-hidden">
                   <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-line/60 bg-ink-900/60 px-5 py-4">
                     <div>
-                      <h3 className="text-base font-semibold text-text-primary">
-                        {group.number}. {group.name}
-                      </h3>
+                      {/*
+                        The application's own heading for this block. Step 5's
+                        grid is a SPECIFICATION, and the rows under it are its
+                        cutting lines — the word is the product's, not a label
+                        invented here. See Themes/Languages/en-US.xaml, key
+                        `Dg.Specification`.
+                      */}
+                      <p className="mono-label">Specification {group.number}</p>
+                      <h3 className="mt-1.5 text-base font-semibold text-text-primary">{group.name}</h3>
                       <p className="mt-1 text-xs text-text-faint font-medium">
                         {group.glassType === "DGU" ? "Double-glazed unit" : "Single glazed"} · base rate AED{" "}
                         {aed(group.baseRate)}/m² · {totals.lines} lines
@@ -247,61 +281,92 @@ export default function WorkedExamplePage() {
                   </div>
 
                   <div className="overflow-x-auto">
-                    <table className="w-full min-w-[54rem] border-collapse text-sm">
+                    <table className="w-full min-w-[62rem] border-collapse text-sm">
                       <caption className="sr-only">
                         Group {group.number}, {group.name}: every quotation line with its size, area, rate and value.
                       </caption>
                       <thead>
                         <tr className="border-b border-line/60 text-left">
-                          <th scope="col" className="px-4 py-3 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">#</th>
-                          <th scope="col" className="px-4 py-3 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">Glass ref</th>
-                          <th scope="col" className="px-4 py-3 text-right font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">W × H (mm)</th>
-                          <th scope="col" className="px-4 py-3 text-right font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">Pieces</th>
-                          <th scope="col" className="px-4 py-3 text-right font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">m² / pc</th>
-                          <th scope="col" className="px-4 py-3 text-right font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">Rate / m²</th>
-                          <th scope="col" className="px-4 py-3 text-right font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">Line value</th>
-                          <th scope="col" className="px-4 py-3 text-right font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">kg / pc</th>
+                          {/*
+                            The column set is Step 5's, in Step 5's order, under
+                            Step 5's names — `Dg.Hash`, `Dg.GlassRef`, `Dg.W1`,
+                            `Dg.H1`, `Dg.W2`, `Dg.H2`, `Dg.Qty`, `Dg.Sqm`,
+                            `Dg.TotalSqm`, `Dg.Rate`, `Dg.Value` in
+                            Themes/Languages/en-US.xaml. W1/H1 are the outer pane
+                            and W2/H2 the inner; a single-glazed line has no
+                            second pair, and the cells say so rather than being
+                            blank.
+                          */}
+                          <th scope="col" className={THL}>#</th>
+                          <th scope="col" className={THL}>Glass ref</th>
+                          <th scope="col" className={TH} title="Outer pane width, millimetres">W1</th>
+                          <th scope="col" className={TH} title="Outer pane height, millimetres">H1</th>
+                          <th scope="col" className={TH} title="Inner pane width, millimetres — double-glazed lines only">W2</th>
+                          <th scope="col" className={TH} title="Inner pane height, millimetres — double-glazed lines only">H2</th>
+                          <th scope="col" className={TH} title="Pieces in this line">Qty</th>
+                          <th scope="col" className={TH} title="Square metres for one piece">SQM</th>
+                          <th scope="col" className={TH} title="Total square metres: SQM × Qty">T.SQM</th>
+                          <th scope="col" className={TH} title="Rate per square metre">Rate</th>
+                          <th scope="col" className={TH} title="Line value from the rate">Value</th>
                         </tr>
                       </thead>
                       <tbody>
                         {group.lines.map((line) => (
                           <tr key={`${group.number}-${line.ref}`} className="border-b border-line/40 last:border-0">
                             <td className="px-4 py-2.5 font-mono text-xs text-text-faint">{line.serial}</td>
-                            <td className="px-4 py-2.5 font-mono text-xs text-text-secondary">
-                              {line.ref}
-                              {line.secondPane ? (
-                                <span className="ml-2 text-text-faint">×2 lites</span>
-                              ) : null}
+                            <td className="px-4 py-2.5 font-mono text-xs text-text-secondary">{line.ref}</td>
+                            <td className="px-4 py-2.5 text-right font-mono text-xs text-text-secondary tabular-nums">
+                              {mm(line.widthMm)}
                             </td>
-                            <td className="px-4 py-2.5 text-right font-mono text-xs text-text-muted">
-                              {mm(line.widthMm)} × {mm(line.heightMm)}
+                            <td className="px-4 py-2.5 text-right font-mono text-xs text-text-secondary tabular-nums">
+                              {mm(line.heightMm)}
+                            </td>
+                            <td
+                              className="px-4 py-2.5 text-right font-mono text-xs text-text-muted tabular-nums"
+                              title={
+                                line.secondPane
+                                  ? "Inner pane width — the seeder cuts both panes to the same size on this line"
+                                  : "No second pane on a single-glazed line; the application stores 0 here"
+                              }
+                            >
+                              {line.secondPane ? mm(line.secondPane.widthMm) : "—"}
+                            </td>
+                            <td
+                              className="px-4 py-2.5 text-right font-mono text-xs text-text-muted tabular-nums"
+                              title={
+                                line.secondPane
+                                  ? "Inner pane height — the seeder cuts both panes to the same size on this line"
+                                  : "No second pane on a single-glazed line; the application stores 0 here"
+                              }
+                            >
+                              {line.secondPane ? mm(line.secondPane.heightMm) : "—"}
                             </td>
                             <td className="px-4 py-2.5 text-right text-text-secondary tabular-nums">{line.qty}</td>
                             <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">{plain(pieceArea(line))}</td>
+                            <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">{plain(lineArea(line))}</td>
                             <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">{aed(line.rate)}</td>
                             <td className="px-4 py-2.5 text-right font-medium text-text-primary tabular-nums">
                               {aed(lineValue(line))}
-                            </td>
-                            <td className="px-4 py-2.5 text-right text-text-muted tabular-nums">
-                              {plain(pieceWeight(line), 1)}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot>
                         <tr className="border-t border-line/60 bg-ink-900/50">
-                          <td colSpan={3} className="px-4 py-3 text-xs font-medium text-text-secondary">
-                            Group {group.number} subtotal
+                          <td colSpan={6} className="px-4 py-3 text-xs font-medium text-text-secondary">
+                            Specification {group.number} · {totals.lines} lines
                           </td>
-                          <td className="px-4 py-3 text-right text-text-secondary tabular-nums">{totals.pieces}</td>
-                          <td className="px-4 py-3 text-right text-text-secondary tabular-nums">
+                          <td className="px-4 py-3 text-right font-semibold text-text-secondary tabular-nums">
+                            {totals.pieces}
+                          </td>
+                          <td className="px-4 py-3" />
+                          <td className="px-4 py-3 text-right font-semibold text-text-secondary tabular-nums">
                             {plain(totals.squareMetres)}
                           </td>
                           <td className="px-4 py-3" />
                           <td className="px-4 py-3 text-right font-semibold text-text-primary tabular-nums">
                             {aed(totals.subtotal)}
                           </td>
-                          <td className="px-4 py-3" />
                         </tr>
                       </tfoot>
                     </table>

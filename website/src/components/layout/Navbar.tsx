@@ -186,23 +186,47 @@ export function Navbar() {
                 </button>
 
                 {open ? (
-                  <div className="absolute left-1/2 top-full w-72 -translate-x-1/2 pt-3">
-                    <div className="menu-card animate-scale-in rounded-panel p-1.5 shadow-raised">
-                      {entry.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className="group flex flex-col gap-0.5 rounded-card px-3 py-2.5 transition-colors duration-200 hover:bg-ink-800"
-                        >
-                          <span className="flex items-center gap-1.5 text-sm font-medium text-text-primary">
-                            {child.label}
-                            <ArrowRight className="opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
-                          </span>
-                          {child.description ? (
-                            <span className="text-xs leading-relaxed text-text-faint font-medium">{child.description}</span>
-                          ) : null}
-                        </Link>
-                      ))}
+                  /*
+                   * The menu is a stack of cards, not a list of links.
+                   *
+                   * It used to be plain rows with a hover fill — the panel had
+                   * the card edge, but nothing inside it did, so it read as a
+                   * dropdown bolted onto a product whose whole interface is
+                   * cards. Each destination is now a card in its own right:
+                   * numbered, titled, described, with the same edge, radius and
+                   * accent-on-hover treatment as every other card on the site.
+                   */
+                  <div className="absolute left-1/2 top-full w-[22rem] -translate-x-1/2 pt-3">
+                    <div className="menu-card animate-scale-in rounded-panel p-2 shadow-raised">
+                      <p className="mono-label px-2.5 pb-2 pt-1">{entry.label}</p>
+                      <ul className="space-y-1.5">
+                        {entry.children.map((child, index) => (
+                          <li key={child.href}>
+                            <Link
+                              href={child.href}
+                              className="card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5"
+                            >
+                              <span
+                                aria-hidden="true"
+                                className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 font-mono text-[0.625rem] font-bold text-brand-200"
+                              >
+                                {String(index + 1).padStart(2, "0")}
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <span className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
+                                  {child.label}
+                                  <ArrowRight className="opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                                </span>
+                                {child.description ? (
+                                  <span className="mt-0.5 block text-xs font-medium leading-relaxed text-text-muted">
+                                    {child.description}
+                                  </span>
+                                ) : null}
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                 ) : null}
@@ -263,17 +287,29 @@ export function Navbar() {
                 ) : (
                   <>
                     <p className="eyebrow mb-2">{entry.label}</p>
-                    <ul className="space-y-0.5">
-                      {entry.children?.map((child) => (
+                    {/* The same card treatment as the desktop menu: a sheet
+                        of cards, numbered, each with its own edge. */}
+                    <ul className="space-y-1.5">
+                      {entry.children?.map((child, index) => (
                         <li key={child.href}>
                           <Link
                             href={child.href}
-                            className="flex flex-col gap-0.5 rounded-lg px-2 py-2.5 transition-colors duration-200 hover:bg-ink-900/80"
+                            className="card-interactive group flex items-start gap-3 rounded-card border-2 border-line-strong/60 bg-ink-900/70 px-3 py-2.5"
                           >
-                            <span className="text-sm font-medium text-text-primary">{child.label}</span>
-                            {child.description ? (
-                              <span className="text-xs leading-snug text-text-faint font-medium">{child.description}</span>
-                            ) : null}
+                            <span
+                              aria-hidden="true"
+                              className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-[0.4rem] border border-brand-400/35 bg-brand-500/12 font-mono text-[0.625rem] font-bold text-brand-200"
+                            >
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="text-sm font-semibold text-text-primary">{child.label}</span>
+                              {child.description ? (
+                                <span className="mt-0.5 block text-xs font-medium leading-snug text-text-muted">
+                                  {child.description}
+                                </span>
+                              ) : null}
+                            </span>
                           </Link>
                         </li>
                       ))}

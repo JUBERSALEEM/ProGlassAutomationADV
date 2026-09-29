@@ -27,12 +27,25 @@ import { luminance } from "@/lib/color";
  *               colour you can pick or type
  *   Typefaces   four self-hosted faces, with a specimen in bold, bold italic
  *               and underline
- *   Surfaces    sliders for tint, corner radius, brightness and vividness
+ *   Surfaces    sliders for tint, the card edge, corner radius and brightness
  *   Money       the colours used wherever a figure is money
  *
  * Nothing is a preview image: every control writes straight to the live page,
  * and the choices survive a reload.
  */
+/**
+ * How the card-edge dial reads out, in the application's own vocabulary.
+ *
+ * The product's settings describe 1.5 as the subtle hairline and 2 as the
+ * defined card edge (see AppConfig.CardBorderThickness and CardEdgeThickness),
+ * so the dial names those two rather than only reporting a pixel count.
+ */
+function edgeReadout(value: number): string {
+  if (Math.abs(value - 1.5) < 0.001) return "1.5 px · hairline";
+  if (Math.abs(value - 2) < 0.001) return "2 px · defined edge";
+  return `${value.toFixed(2)} px`;
+}
+
 /**
  * How the tint dial reads out.
  *
@@ -369,6 +382,46 @@ export function ThemeStudio() {
                 </p>
               </div>
             </div>
+            {/*
+              Card edge — the border line, and the corner it turns on a radius.
+              The two dials sit together because they are one decision in the
+              product: `CardEdgeThickness` and `CardCornerRadius` are set side by
+              side in the application's SETTINGS, and the preview below shows
+              both at once rather than making the reader imagine them.
+            */}
+            <Slider
+              label="Card edge"
+              value={studio.edge}
+              min={1}
+              max={4}
+              step={0.25}
+              display={edgeReadout(studio.edge)}
+              onChange={(value) => setStudio({ edge: value })}
+            />
+
+            <div className="flex items-center gap-3 rounded-card border-2 border-line-strong/70 bg-ink-950/60 p-2.5">
+              <span
+                aria-hidden="true"
+                className="grid h-10 w-16 shrink-0 place-items-center bg-ink-900"
+                style={{
+                  border: `${studio.edge}px solid var(--card-edge)`,
+                  borderRadius: `calc(12px * ${studio.radius})`,
+                }}
+              />
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-text-primary">
+                  {edgeReadout(studio.edge)} · {studio.radius.toFixed(2)}× radius
+                </p>
+                <p className="mt-0.5 text-xs leading-relaxed text-text-muted">
+                  {studio.edge <= 1.5
+                    ? "The subtle hairline the application uses for inputs and gridlines."
+                    : studio.edge <= 2
+                      ? "The defined card edge the application ships as its default."
+                      : "A bold industrial edge — padding follows it, so content is never crowded."}
+                </p>
+              </div>
+            </div>
+
             <Slider
               label="Corner radius"
               value={studio.radius}

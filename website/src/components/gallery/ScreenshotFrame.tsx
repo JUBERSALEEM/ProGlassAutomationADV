@@ -41,9 +41,9 @@ export function ScreenshotFrame({
             fill
             sizes={
               modal
-                ? // The lightbox image column is 1.7fr of a max-w-5xl grid, so it
-                  // is ~630px wide once the container padding and gap are taken off.
-                  "(max-width: 1024px) 100vw, 640px"
+                ? // The lightbox gives the preview the whole width, so the largest
+                  // raster is the right one to hand the browser.
+                  "(max-width: 1024px) 100vw, 1600px"
                 : // The gallery grid itself is `sm:grid-cols-2 xl:grid-cols-3`, so the
                   // half-width guess has to hold until 1280px, not until 1024px.
                   "(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
@@ -74,6 +74,8 @@ export function ScreenshotFrame({
       title={shot.title}
       railActive={railLabelFor(shot.moduleKey)}
       className={className}
+      /* Opened large, the preview is given a taller body than it needs inline. */
+      tall={modal}
       note={
         <>
           <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">

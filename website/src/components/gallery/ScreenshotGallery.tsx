@@ -334,11 +334,31 @@ function Lightbox({
           onStep(dx < 0 ? 1 : -1);
         }}
       >
-        <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
-          <div className="animate-scale-in">
-            <ScreenshotFrame shot={shot} modal />
-          </div>
+        {/*
+          Full landscape, not a two-column squeeze.
+          
+          The preview used to sit in a `max-w-5xl` grid beside a details column,
+          so on a large screen it was given about 57% of 1024px — roughly 580px
+          to show an application window. Every label, figure and column heading
+          in the reconstruction was too small to read, which defeats the point of
+          opening it.
+          
+          The preview now takes the whole width up to a generous cap and the
+          details move underneath it, where they cost nothing. A 16:9-ish window
+          gets the full measure of the screen and every detail is legible.
+        */}
+        <div className="animate-scale-in mx-auto w-full max-w-[100rem]">
+          <ScreenshotFrame shot={shot} modal />
+        </div>
 
+        {/*
+          Two columns under the preview: the description on the left where the
+          prose has room to breathe, the facts on the right where they can be
+          scanned. A third column would be empty — there are only two blocks of
+          content here, and padding the layout out to three would just make the
+          caption narrow again.
+        */}
+        <div className="mx-auto mt-8 grid w-full max-w-[100rem] gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
           <div className="space-y-5">
             <div>
               <p className="eyebrow">What this screen does</p>
@@ -347,7 +367,9 @@ function Lightbox({
 
             <div>
               <p className="eyebrow">In the module</p>
-              <ul className="mt-3 space-y-2">
+              {/* Two columns of bullets: with the preview full width there is
+                  no reason to stack five short lines into one tall list. */}
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
                 {shot.highlights.map((item) => (
                   <li key={item} className="flex gap-2.5 text-sm leading-relaxed text-text-muted">
                     <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
@@ -356,28 +378,28 @@ function Lightbox({
                 ))}
               </ul>
             </div>
-
-            <dl className="surface space-y-2 p-4 text-xs">
-              <div className="flex gap-3">
-                <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Module</dt>
-                <dd className="font-mono text-text-secondary">{shot.moduleKey}</dd>
-              </div>
-              <div className="flex gap-3">
-                <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Source</dt>
-                <dd className="text-text-secondary">{shot.evidence}</dd>
-              </div>
-              <div className="flex gap-3">
-                <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Status</dt>
-                <dd className="text-text-secondary">
-                  {shot.source === "capture"
-                    ? "Screen capture of the application"
-                    : shot.source === "repo"
-                      ? "Asset shipped inside the application"
-                      : "Interactive preview — real chrome and fields, sample data"}
-                </dd>
-              </div>
-            </dl>
           </div>
+
+          <dl className="surface h-fit space-y-3 p-5 text-xs">
+            <div className="flex gap-3">
+              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Module</dt>
+              <dd className="font-mono text-text-secondary">{shot.moduleKey}</dd>
+            </div>
+            <div className="flex gap-3">
+              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Source</dt>
+              <dd className="text-text-secondary">{shot.evidence}</dd>
+            </div>
+            <div className="flex gap-3">
+              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Status</dt>
+              <dd className="text-text-secondary">
+                {shot.source === "capture"
+                  ? "Screen capture of the application"
+                  : shot.source === "repo"
+                    ? "Asset shipped inside the application"
+                    : "Interactive preview — real chrome and fields, sample data"}
+              </dd>
+            </div>
+          </dl>
         </div>
       </div>
 

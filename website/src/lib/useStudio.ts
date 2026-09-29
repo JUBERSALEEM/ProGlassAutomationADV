@@ -49,6 +49,12 @@ export type Studio = {
   tint: number;
   /** Corner scale, 0.4 … 1.6. */
   radius: number;
+  /**
+   * Card edge weight in pixels — the application's "Define Card Edges" setting.
+   * 1.5 is the subtle hairline the app uses, 2 is the defined card edge it
+   * ships as the default (AppConfig.CardBorderThickness / CardEdgeThickness).
+   */
+  edge: number;
   /** Which of the shipped typefaces the site is set in. */
   typeface: TypefaceKey;
   /** Money colours, read wherever a figure is a number rather than a label. */
@@ -64,6 +70,7 @@ export const defaultStudio: Studio = {
   vividness: 0,
   tint: 1,
   radius: 1,
+  edge: 2,
   typeface: "inter",
   moneyPositive: "#34D399",
   moneyNegative: "#FB7185",
@@ -95,6 +102,12 @@ function readStored(): Studio {
     // the components. An unknown typeface key would render no font and, in the
     // specimen, read a property off `undefined`.
     if (!(merged.typeface in typefaces)) merged.typeface = defaultStudio.typeface;
+
+    // Same reasoning for the numeric dials: a stored value that is not a finite
+    // number would turn a `calc()` into `NaN` and take the card frame with it.
+    if (!Number.isFinite(merged.edge)) merged.edge = defaultStudio.edge;
+    if (!Number.isFinite(merged.radius)) merged.radius = defaultStudio.radius;
+    if (!Number.isFinite(merged.tint)) merged.tint = defaultStudio.tint;
 
     return merged;
   } catch {
@@ -228,6 +241,19 @@ export function applyStudioVars(studio: Studio) {
   vars["--tint-mix"] = `calc(var(--tint-base, 0.1) * ${studio.tint.toFixed(2)})`;
 
   vars["--radius-scale"] = String(studio.radius);
+
+  /*
+   * The card edge — the application's "Define Card Edges" setting.
+   *
+   * Only the width is written here. The padding that follows it is already
+   * expressed in the stylesheet as `calc(1.5rem + max(0px, var(--card-edge-width)
+   * - 2px))`, which is the same arithmetic the application's
+   * `ApplyCardEdgePaddingResources` applies, so a bolder edge never crowds the
+   * content inside it. Writing the padding here as well would be a second copy
+   * of one rule, and the two would drift.
+   */
+  const edge = Number.isFinite(studio.edge) ? Math.min(4, Math.max(1, studio.edge)) : defaultStudio.edge;
+  vars["--card-edge-width"] = `${edge}px`;
   vars["--font-sans"] = typefaces[studio.typeface]?.stack ?? typefaces.inter.stack;
   vars["--money-positive"] = triplet(hexToTriplet(studio.moneyPositive));
   vars["--money-negative"] = triplet(hexToTriplet(studio.moneyNegative));

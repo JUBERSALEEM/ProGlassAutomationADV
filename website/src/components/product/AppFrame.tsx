@@ -119,6 +119,7 @@ export function AppFrame({
   note,
   className,
   compact,
+  tall,
 }: {
   title: string;
   railActive?: string;
@@ -126,6 +127,11 @@ export function AppFrame({
   note?: ReactNode;
   className?: string;
   compact?: boolean;
+  /**
+   * A taller body, for a frame shown in the lightbox at full width where an
+   * inline-sized preview would look cramped and hide detail.
+   */
+  tall?: boolean;
 }) {
   return (
     <figure className={cn("plate shadow-raised", className)}>
@@ -182,7 +188,14 @@ export function AppFrame({
             </div>
           </div>
 
-          <div className="min-h-[13rem] bg-ink-850/30 p-3 sm:min-h-[16rem] sm:p-5">{children}</div>
+          <div
+            className={cn(
+              "bg-ink-850/30 p-3 sm:p-5",
+              tall ? "min-h-[20rem] sm:min-h-[26rem]" : "min-h-[13rem] sm:min-h-[16rem]",
+            )}
+          >
+            {children}
+          </div>
         </div>
       </div>
 
