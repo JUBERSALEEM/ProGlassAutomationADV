@@ -99,7 +99,7 @@ function ModulePanel({ module }: { module: ProductModule }) {
         <span className="inline-flex items-center gap-2.5 rounded-full border border-line-strong/70 bg-ink-900/70 px-3 py-1.5">
           <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-400" />
           <span className="text-xs font-medium text-text-primary">{module.railLabel}</span>
-          <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
+          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
             {module.railGroup}
           </span>
         </span>

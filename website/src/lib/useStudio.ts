@@ -34,6 +34,8 @@ export type Studio = {
   tint: number;
   /** Corner scale, 0.4 … 1.6. */
   radius: number;
+  /** Which of the shipped typefaces the site is set in. */
+  typeface: TypefaceKey;
   /** Money colours, read wherever a figure is a number rather than a label. */
   moneyPositive: string;
   moneyNegative: string;
@@ -47,6 +49,7 @@ export const defaultStudio: Studio = {
   vividness: 0,
   tint: 1,
   radius: 1,
+  typeface: "inter",
   moneyPositive: "#34D399",
   moneyNegative: "#FB7185",
   moneyNeutral: "",
@@ -71,7 +74,14 @@ function readStored(): Studio {
     const raw = window.localStorage.getItem(STUDIO_STORAGE_KEY);
     if (!raw) return defaultStudio;
     const parsed = JSON.parse(raw) as Partial<Studio>;
-    return { ...defaultStudio, ...parsed };
+    const merged = { ...defaultStudio, ...parsed };
+
+    // A value stored by an older build — or edited by hand — must never reach
+    // the components. An unknown typeface key would render no font and, in the
+    // specimen, read a property off `undefined`.
+    if (!(merged.typeface in typefaces)) merged.typeface = defaultStudio.typeface;
+
+    return merged;
   } catch {
     return defaultStudio;
   }
@@ -98,6 +108,43 @@ function subscribe(listener: () => void): () => void {
     observer.disconnect();
   };
 }
+
+/**
+ * The typefaces the studio offers.
+ *
+ * All four are self-hosted from `src/fonts` (see layout.tsx), so switching
+ * family never reaches a network host and never flashes. Each face is a
+ * variable font carrying its own italic, which is what makes bold, bold italic
+ * and underline render as real typography rather than a synthesised slant.
+ *
+ * The choice lands on `--font-sans`, which `globals.css` binds to the body
+ * font and Tailwind's `font-sans` utility reads, so one control re-sets the
+ * whole site the same way the corner slider re-corners it.
+ */
+export const typefaces = {
+  inter: {
+    name: "Inter",
+    character: "Neutral, tight, made for interfaces. The default.",
+    stack: "var(--font-inter), Segoe UI, system-ui, sans-serif",
+    sample: "Every figure on this page is a number a shop floor works from.",
+  },
+  plex: {
+    name: "IBM Plex Sans",
+    character: "Engineering-console character, with an italic that leans cleanly.",
+    stack: "var(--font-plex), Segoe UI, system-ui, sans-serif",
+    sample: "Cut length, offcut area and kerf are read together, never alone.",
+  },
+  serif: {
+    name: "Source Serif 4",
+    character: "A reading face with real italic forms — good in long paragraphs.",
+    stack: "var(--font-serif), Georgia, Times New Roman, serif",
+    sample: "The estimator writes the quotation; the works order carries it forward.",
+  },
+} as const;
+
+export type TypefaceKey = keyof typeof typefaces;
+
+export const typefaceKeys = Object.keys(typefaces) as TypefaceKey[];
 
 /** The accent each family is built around, used when no accent is picked. */
 const FAMILY_ACCENT: Record<string, string> = {
@@ -139,6 +186,7 @@ export function applyStudioVars(studio: Studio) {
   vars["--tint-mix"] = ((target === "dark" ? 0.08 : 0.05) * studio.tint).toFixed(4);
 
   vars["--radius-scale"] = String(studio.radius);
+  vars["--font-sans"] = typefaces[studio.typeface]?.stack ?? typefaces.inter.stack;
   vars["--money-positive"] = triplet(hexToTriplet(studio.moneyPositive));
   vars["--money-negative"] = triplet(hexToTriplet(studio.moneyNegative));
   if (studio.moneyNeutral) {

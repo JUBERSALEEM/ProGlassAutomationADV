@@ -66,7 +66,7 @@ export function AppearancePreview() {
               onClick={() => setAppearance(entry.id)}
               title={entry.origin}
               className={cn(
-                "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.6875rem] font-bold transition-colors",
+                "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.75rem] font-bold transition-colors",
                 active
                   ? "border-brand-400 bg-brand-500/15 text-text-primary"
                   : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
@@ -146,7 +146,7 @@ function Plate({
       title={label}
       onClick={onClick}
       className={cn(
-        "flex h-12 items-end justify-center rounded-card border-2 p-1 text-[0.5rem] font-bold uppercase tracking-wide transition-transform hover:-translate-y-0.5",
+        "flex h-12 items-end justify-center rounded-card border-2 p-1 text-[0.625rem] font-bold uppercase tracking-wide transition-transform hover:-translate-y-0.5",
         active ? "border-text-primary" : "border-line-strong/60",
       )}
       style={{ background: colour, color: onDark ? "#FFFFFF" : "#0B0820" }}

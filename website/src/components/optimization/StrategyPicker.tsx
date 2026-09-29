@@ -76,12 +76,12 @@ export function StrategyPicker() {
               >
                 {item.name.replace(" — default", "").replace(" — Quick", "")}
                 {item.name.includes("default") ? (
-                  <span className="ml-1.5 font-mono text-[0.625rem] uppercase tracking-[0.1em] text-brand-300">
+                  <span className="ml-1.5 font-mono text-[0.75rem] uppercase tracking-[0.1em] text-brand-300">
                     default
                   </span>
                 ) : null}
                 {item.name.includes("Quick") ? (
-                  <span className="ml-1.5 font-mono text-[0.625rem] uppercase tracking-[0.1em] text-text-faint font-medium">
+                  <span className="ml-1.5 font-mono text-[0.75rem] uppercase tracking-[0.1em] text-text-faint font-medium">
                     quick run
                   </span>
                 ) : null}

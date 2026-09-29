@@ -89,6 +89,26 @@
     --pool-2: rgb(34 211 238 / 0.07);
     --pool-3: rgb(244 114 182 / 0.06);
 
+    /*
+     * The wallpaper. Four layers over the page colour, in this order from the
+     * back: a violet-to-cyan wash across the top, an etched millimetre grid
+     * masked so it only breathes around the edges, a polished sheen angled off
+     * the top-left corner, and a vignette that pulls the page edges down so
+     * running text always sits on the quietest part of the surface.
+     *
+     * All of it is gradient arithmetic on <body> and one masked pseudo-element
+     * — no image file, no network request, and every value follows the palette
+     * family and the light/dark mode the visitor picked.
+     */
+    --wall-grid: rgb(167 139 250 / 0.075);
+    --wall-grid-major: rgb(167 139 250 / 0.11);
+    --wall-grid-size: 56px 56px;
+    --wall-grid-major-size: 280px 280px;
+    --wall-wash-1: rgb(139 92 246 / 0.22);
+    --wall-wash-2: rgb(34 211 238 / 0.09);
+    --wall-sheen: rgb(255 255 255 / 0.045);
+    --wall-vignette: rgb(4 2 14 / 0.55);
+
     /* Card tinting: the violet wash that keeps cards off plain grey. */
     --card-tint: rgb(139 92 246 / 0.1);
     --card-highlight: rgb(255 255 255 / 0.06);
@@ -115,26 +135,35 @@
     --surface-blur: 3px;        /* backdrop blur behind a card  */
     --surface-sat: 130%;        /* backdrop saturation          */
     --surface-specular: 0;      /* diagonal light streak        */
+    /* ── Card geometry — the app's own tokens ──────────────────────────
+       Values are read from the desktop application, not invented:
+
+         CardCornerRadius       12   Themes/DarkTheme.xaml
+         CardCornerRadiusLarge  16   (dialogs and heroes)
+         CardBorderThickness   1.5   the subtle hairline: inputs, gridlines
+         CardEdgeThickness       2   the defined edge around a card
+
+       The two weights are kept apart on purpose — the app's own note says a
+       bold card edge must never inflate text boxes and table gridlines — so
+       `--card-hairline` is what inputs and inner rules use, and
+       `--card-edge-width` is the card's own outline. */
+    --card-radius: calc(12px * var(--radius-scale));
+    --card-radius-large: calc(16px * var(--radius-scale));
+    --card-hairline: 1.5px;
+    --card-edge-width: 2px;
+
+    /* The edge colour: subtle by default, accent on interaction. */
     --card-edge: rgb(42 33 89 / 0.9);
+    --card-edge-hover: rgb(var(--brand-400) / 0.75);
+    /* Padding grows with the edge weight so a thicker stroke never crowds
+       the content — ThemeManager.ApplyCardEdgePaddingResources. */
+    --card-pad: calc(1.5rem + max(0px, var(--card-edge-width) - 2px));
+    --card-pad-sm: calc(1rem + max(0px, var(--card-edge-width) - 2px));
     --tint-alpha: 0.11;         /* violet wash strength         */
     --tint-alpha-2: 0.05;       /* second wash, opposite corner */
     --card-tint-2: rgb(34 211 238 / 0.05);
 
-    /* Gradient hairline that runs around every card. */
-    --edge-a: rgb(167 139 250 / 0.55);
-    --edge-b: rgb(42 33 89 / 0.75);
-    --edge-c: rgb(34 211 238 / 0.4);
-    --edge-alpha: 1;
 
-    /* The four corner wedges — the colour that makes a corner a corner. */
-    --corner-1: rgb(196 181 253 / 0.95);
-    --corner-2: rgb(103 232 249 / 0.8);
-    --corner-3: rgb(244 114 182 / 0.78);
-    --corner-4: rgb(167 139 250 / 0.9);
-    /* Arm length and weight of the corner bracket. */
-    --corner-arm: 3.25rem;
-    --corner-thickness: 2px;
-    --corner-opacity: 1;
 
     /* ── Live preview surfaces ─────────────────────────────────────────
        The interactive module previews inside the application frame. */
@@ -150,6 +179,17 @@
 
   [data-theme="daylight"] {
     color-scheme: light;
+
+    /* The same wallpaper, read on paper: the grid becomes ink, the wash
+       becomes a tint, and the vignette turns into a gentle edge shade. */
+    --wall-grid: rgb(76 29 149 / 0.055);
+    --wall-grid-major: rgb(76 29 149 / 0.08);
+    --wall-grid-size: 56px 56px;
+    --wall-grid-major-size: 280px 280px;
+    --wall-wash-1: rgb(139 92 246 / 0.16);
+    --wall-wash-2: rgb(14 116 144 / 0.07);
+    --wall-sheen: rgb(255 255 255 / 0.6);
+    --wall-vignette: rgb(76 29 149 / 0.1);
 
     /* Surfaces: warm paper with a violet cast, not flat grey. */
     --ink-950: 246 245 252;  /* page      #F6F5FC */
@@ -229,14 +269,7 @@
     --tint-alpha-2: 0.04;
     --card-tint-2: rgb(14 116 144 / 0.05);
 
-    --edge-a: rgb(124 58 237 / 0.45);
-    --edge-b: rgb(226 222 243 / 0.9);
-    --edge-c: rgb(14 116 144 / 0.35);
 
-    --corner-1: rgb(109 40 217 / 0.9);
-    --corner-2: rgb(8 145 178 / 0.8);
-    --corner-3: rgb(190 24 93 / 0.75);
-    --corner-4: rgb(124 58 237 / 0.85);
 
     --viz-grid: rgb(226 222 243 / 0.9);
     --viz-part: rgb(124 58 237 / 0.8);
@@ -337,17 +370,7 @@
     --tint-alpha: 0.16;
     --tint-alpha-2: 0.08;
 
-    --edge-a: rgb(255 255 255 / 0.62);
-    --edge-b: rgb(34 211 238 / 0.45);
-    --edge-c: rgb(255 255 255 / 0.22);
 
-    --corner-1: rgb(255 255 255 / 0.9);
-    --corner-2: rgb(103 232 249 / 0.9);
-    --corner-3: rgb(129 140 248 / 0.8);
-    --corner-4: rgb(255 255 255 / 0.7);
-    --corner-arm: 3.75rem;
-    --corner-thickness: 3px;
-    --corner-opacity: 1;
 
     --card-tint: rgb(34 211 238 / 0.16);
     --tint-mix: 0.12;
@@ -368,13 +391,6 @@
     --surface-blur: 30px;
     --surface-sat: 180%;
     --card-edge: rgb(255 255 255 / 0.85);
-    --edge-a: rgb(255 255 255 / 0.95);
-    --edge-b: rgb(8 145 178 / 0.35);
-    --edge-c: rgb(255 255 255 / 0.7);
-    --corner-1: rgb(255 255 255 / 1);
-    --corner-2: rgb(8 145 178 / 0.8);
-    --corner-3: rgb(129 140 248 / 0.7);
-    --corner-4: rgb(8 145 178 / 0.85);
     --viz-grid: rgb(8 145 178 / 0.22);
     --viz-part: rgb(8 145 178 / 0.85);
     --viz-part-2: rgb(129 140 248 / 0.8);
@@ -421,16 +437,81 @@
   }
 
   body {
-    @apply bg-ink-950 text-text-secondary font-sans antialiased;
-    /* Three very wide, very soft light pools. They never move. */
-    background-image:
-      radial-gradient(1100px 620px at 12% -8%, var(--pool-1), transparent 62%),
-      radial-gradient(900px 520px at 92% 4%, var(--pool-2), transparent 58%),
-      radial-gradient(760px 460px at 68% 96%, var(--pool-3), transparent 60%),
-      radial-gradient(640px 420px at 30% 78%, var(--pool-2), transparent 66%);
-    background-attachment: fixed;
+    @apply text-text-secondary font-sans antialiased;
+    background-color: rgb(var(--ink-950));
     overflow-x: hidden;
     transition: background-color 240ms ease, color 240ms ease;
+
+    /*
+     * The wallpaper, back to front. It sits on <body> rather than on a wrapper
+     * element so it survives every layout change, and every layer is fixed so
+     * scrolling moves the page over a still surface — which is what makes a
+     * background read as a room rather than as a texture glued to one section.
+     *
+     * Layer by layer:
+     *   1–2  the two strongest washes. They have their own tokens, set per
+     *        palette family, so switching family re-hues the top of every page
+     *        without touching the shared pools below it
+     *   3–4  the two quieter pools, which come from the family's `--pool-*`
+     *        values like every other ambient light on the site
+     *   5    the polished sheen, raked off the top-left corner
+     *   6    the vignette, darkening all four edges
+     *
+     * The etched grid lives on `body::before` instead, one layer up, because it
+     * needs a mask to fade out — a repeating gradient cannot be masked in
+     * place, and an unmasked grid draws a line straight through running text.
+     */
+    background-image:
+      /* 1–4 · ambient pools */
+      radial-gradient(1180px 660px at 10% -10%, var(--wall-wash-1), transparent 62%),
+      radial-gradient(940px 560px at 94% 2%, var(--wall-wash-2), transparent 58%),
+      radial-gradient(820px 500px at 70% 98%, var(--pool-3), transparent 62%),
+      radial-gradient(700px 440px at 26% 74%, var(--pool-2), transparent 66%),
+      /* 5 · polished sheen */
+      linear-gradient(
+        152deg,
+        var(--wall-sheen) 0%,
+        transparent 26%,
+        transparent 74%,
+        var(--wall-sheen) 100%
+      ),
+      /* 6 · vignette */
+      radial-gradient(150% 120% at 50% 0%, transparent 34%, var(--wall-vignette) 100%);
+    background-size: auto, auto, auto, auto, auto, auto;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
+  /*
+   * The etched grid: two weights of line, sitting just above the page colour
+   * and underneath everything else on the page. The mask is the whole point —
+   * the grid is strongest behind the opening screen and dissolves before it
+   * reaches the running text, so it reads as a surface the content sits on
+   * rather than as graph paper behind the words.
+   */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to bottom, var(--wall-grid) 0 1px, transparent 1px),
+      linear-gradient(to right, var(--wall-grid) 0 1px, transparent 1px),
+      linear-gradient(to bottom, var(--wall-grid-major) 0 1px, transparent 1px),
+      linear-gradient(to right, var(--wall-grid-major) 0 1px, transparent 1px);
+    background-size:
+      var(--wall-grid-size), var(--wall-grid-size),
+      var(--wall-grid-major-size), var(--wall-grid-major-size);
+    -webkit-mask-image: radial-gradient(130% 78% at 50% -6%, #000 0%, rgb(0 0 0 / 0.4) 52%, transparent 82%);
+    mask-image: radial-gradient(130% 78% at 50% -6%, #000 0%, rgb(0 0 0 / 0.4) 52%, transparent 82%);
+  }
+
+  /* The wallpaper is decoration; printing it would only waste toner. */
+  @media print {
+    body::before {
+      display: none;
+    }
   }
 
   h1,
@@ -554,19 +635,19 @@
 
   /*
    * ═══ CARD SYSTEM ═════════════════════════════════════════════════════════
-   * Cards are an outline, not a panel with decoration inside. Each one is made
-   * of exactly three things and nothing else:
+   * The card is the application's card, built from the tokens the desktop app
+   * uses (see the geometry block above for where each value comes from):
    *
-   *   1. a flat tinted fill      — one colour, no inner glow, no wash, no sheen
-   *   2. a gradient hairline     — a real border, drawn with a mask so the
-   *                                colour can travel around the corner
-   *   3. four bold corner brackets — an L of accent at each corner, the detail
-   *                                that makes the frame read as engineered
+   *   1. a flat tinted fill        — one colour, no inner glow, no sheen
+   *   2. a real border on a round corner
+   *                                — uniform weight, round arc, no mitre
+   *   3. padding that follows the edge weight
+   *                                — so a bold edge never crowds the content
    *
-   * There is deliberately no radial tint, no top highlight and no inner
-   * shadow: the surface stays quiet so the content on it is the only thing
-   * with detail. Everything reads the family dials, so Crystal still glasses
-   * the whole site by changing values rather than structure.
+   * There is no radial tint, no top highlight and no inner shadow, and the
+   * corner-bracket decoration this used to draw is gone: the product draws a
+   * rounded border, not a bracket. Everything still reads the family dials, so
+   * Crystal glasses the whole site by changing values rather than structure.
    */
 
   .surface,
@@ -624,108 +705,72 @@
     -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
   }
 
-  /* ── 2 · gradient hairline, drawn as a ring so it follows every corner ── */
-  .surface::before,
-  .surface-raised::before,
-  .stat-tile::before,
-  .plate::before,
-  .card-live::before,
-  .card-accent::before,
-  .card-glass::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    pointer-events: none;
-    background: linear-gradient(
-      145deg,
-      var(--edge-a) 0%,
-      var(--edge-b) 42%,
-      var(--edge-c) 100%
-    );
-    opacity: var(--edge-alpha);
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    mask-composite: exclude;
+  /* ── 2 · the card edge ──────────────────────────────────────────────────
+   * This is the application's card, not a look-alike: a continuous stroke of
+   * uniform weight sitting on a rounded corner.
+   *
+   *   · one border, `--card-edge-width` (2px by default, the "Define Card
+   *     Edges" weight the desktop app exposes as a setting)
+   *   · one radius, 12px, scaled by the appearance studio exactly as the app's
+   *     radius slider scales CardCornerRadius
+   *   · the corners are round, not mitred — the stroke follows the arc, which
+   *     is what a WPF Border with CornerRadius draws
+   *
+   * The previous treatment drew a masked gradient ring plus four corner
+   * brackets. It was decorative; it was not how the product looks, and a
+   * bracket is not a border. Removed. */
+  .surface,
+  .surface-raised,
+  .stat-tile,
+  .plate,
+  .card-live,
+  .card-accent,
+  .card-glass {
+    border: var(--card-edge-width) solid var(--card-edge);
   }
 
-  /*
-   * ── 3 · the corner brackets ────────────────────────────────────────────
-   * Four short arms of accent, one per corner, drawn just inside the hairline.
-   * Bold by design: this is the detail that gives a card its edge, so the arms
-   * are solid at the corner and fall away quickly rather than bleeding across
-   * the face.
-   */
-  .surface::after,
-  .surface-raised::after,
-  .stat-tile::after,
-  .plate::after,
-  .card-live::after,
-  .card-accent::after,
-  .card-glass::after {
-    content: "";
-    position: absolute;
-    inset: 2px;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: var(--corner-opacity);
-    background-image:
-      /* horizontal arms */
-      linear-gradient(90deg, var(--corner-1) 0, transparent 100%),
-      linear-gradient(270deg, var(--corner-2) 0, transparent 100%),
-      linear-gradient(90deg, var(--corner-3) 0, transparent 100%),
-      linear-gradient(270deg, var(--corner-4) 0, transparent 100%),
-      /* vertical arms, same four corners */
-      linear-gradient(180deg, var(--corner-1) 0, transparent 100%),
-      linear-gradient(180deg, var(--corner-2) 0, transparent 100%),
-      linear-gradient(0deg, var(--corner-3) 0, transparent 100%),
-      linear-gradient(0deg, var(--corner-4) 0, transparent 100%);
-    background-size: var(--corner-arm) var(--corner-thickness),
-      var(--corner-arm) var(--corner-thickness),
-      var(--corner-arm) var(--corner-thickness),
-      var(--corner-arm) var(--corner-thickness),
-      var(--corner-thickness) var(--corner-arm),
-      var(--corner-thickness) var(--corner-arm),
-      var(--corner-thickness) var(--corner-arm),
-      var(--corner-thickness) var(--corner-arm);
-    background-position:
-      top left, top right, bottom right, bottom left,
-      top left, top right, bottom right, bottom left;
-    background-repeat: no-repeat;
+  .surface,
+  .stat-tile,
+  .plate,
+  .card-live {
+    border-radius: var(--card-radius);
   }
 
-  /* Cards keep their own content above the frame. */
-  .surface > *,
-  .surface-raised > *,
-  .stat-tile > *,
-  .plate > *,
-  .card-live > * {
-    position: relative;
-    z-index: 1;
+  .surface-raised {
+    border-radius: var(--card-radius-large);
   }
 
-  /* Interactive card: lifts and drives its corners to full strength. */
+  /* The card's own padding follows the edge weight. */
+  .card-pad {
+    padding: var(--card-pad);
+  }
+
+  .card-pad-sm {
+    padding: var(--card-pad-sm);
+  }
+
+  /* ── 3 · interaction ────────────────────────────────────────────────────
+   * From the app's TaskCardStyle trigger: the border takes the accent and a
+   * soft accent shadow appears behind the card. No lift, no scale — the
+   * desktop app does not move a card under the cursor, and neither does this. */
   .card-interactive {
     transition:
-      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
-      border-color 260ms ease;
+      border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .card-interactive:hover,
-  .card-interactive:focus-within {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-glow);
-    --edge-alpha: 1;
-    --corner-opacity: 1;
-    --corner-thickness: 3px;
+  .card-interactive:focus-visible {
+    border-color: var(--card-edge-hover);
+    box-shadow: 0 0 16px 0 rgb(var(--brand-500) / 0.18);
   }
+
+  /* A status stripe down the left edge — PriorityCardStyle's `4,1,1,1`. */
+  .card-stripe {
+    border-left-width: 4px;
+    border-left-color: var(--stripe-color, var(--card-edge-hover));
+  }
+
 
   /* Accent card: the same frame, filled with the accent instead of a surface. */
   .card-accent {
@@ -783,29 +828,15 @@
    * Dropdown menu panel.
    *
    * Deliberately opaque: a menu over a photograph or over moving content has to
-   * be readable, so this is a solid fill with a real border and the same
-   * coloured corner as the rest of the card system — no backdrop blur, no
-   * translucency.
+   * be readable, so this is a solid fill with the same edge and radius as every
+   * card — no backdrop blur, no translucency.
    */
   .menu-card {
     position: relative;
     background-color: rgb(var(--ink-900));
-    border: 1px solid rgb(var(--line-strong) / 0.85);
-  }
-
-  .menu-card::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    opacity: var(--corner-opacity);
-    background-image:
-      linear-gradient(135deg, var(--corner-1) 0, transparent 60%),
-      linear-gradient(315deg, var(--corner-4) 0, transparent 60%);
-    background-size: var(--corner-size) var(--corner-size);
-    background-position: top left, bottom right;
-    background-repeat: no-repeat;
+    /* Same edge and radius as every card — a menu is a card that opens. */
+    border: var(--card-edge-width) solid var(--card-edge);
+    border-radius: var(--card-radius);
   }
 
   .menu-card > * {
@@ -1085,11 +1116,7 @@
 
   /* The decorative layers: gradients, glow, plates, banners and card chrome. */
   .plate,
-  .glow-layer,
-  .surface::before,
-  .surface::after,
-  .surface-raised::before,
-  .surface-raised::after {
+  .glow-layer {
     display: none !important;
   }
 

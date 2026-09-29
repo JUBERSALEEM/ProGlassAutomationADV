@@ -83,11 +83,19 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "Segoe UI", "system-ui", "sans-serif"],
+        /* Bound to the studio's typeface control; falls back to the site default. */
+        sans: ["var(--font-sans, var(--font-inter))", "Segoe UI", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "Consolas", "monospace"],
       },
       fontSize: {
-        "2xs": ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.06em" }],
+        /*
+         * The site's label size: eyebrows, mono labels, table captions and the
+         * small print under a figure. 12px is the floor for anything a reader
+         * is meant to read — below that it stops being a label and becomes
+         * texture. Anything smaller than this in the codebase is inside a
+         * miniature of the application window, where the whole mock is scaled.
+         */
+        "2xs": ["0.75rem", { lineHeight: "1.05rem", letterSpacing: "0.05em" }],
       },
       borderRadius: {
         /* Scaled by the appearance studio, so one control re-corners the site. */

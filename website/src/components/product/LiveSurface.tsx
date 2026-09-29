@@ -60,7 +60,7 @@ export function LiveSurface({
                   aria-selected={active}
                   onClick={() => setViewIndex(index)}
                   className={cn(
-                    "rounded-full px-2.5 py-1 text-[0.6875rem] font-medium transition-colors duration-200",
+                    "rounded-full px-2.5 py-1 text-[0.75rem] font-medium transition-colors duration-200",
                     active
                       ? "bg-brand-400/18 text-brand-100 ring-1 ring-inset ring-brand-400/40"
                       : "text-text-muted hover:bg-ink-800/70 hover:text-text-primary",
@@ -100,7 +100,7 @@ export function LiveSurface({
 
 function SampleTag() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong/60 bg-ink-800/70 px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong/60 bg-ink-800/70 px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
       <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-400" />
       Sample data · live
     </span>
@@ -118,7 +118,7 @@ function SearchBox({ value, onChange, label }: { value: string; onChange: (next:
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={label}
-        className="w-24 bg-transparent text-[0.6875rem] text-text-primary outline-none placeholder:text-text-faint focus:w-36 sm:w-32"
+        className="w-24 bg-transparent text-[0.75rem] text-text-primary outline-none placeholder:text-text-faint focus:w-36 sm:w-32"
       />
     </label>
   );
@@ -131,7 +131,7 @@ function StatusPill({ value }: { value: string }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-0.5 text-[0.625rem] font-medium",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-0.5 text-[0.75rem] font-medium",
         positive && "border-money-positive/35 text-money-positive",
         warning && !positive && "border-state-warning/35 text-state-warning",
         !positive && !warning && "border-line-strong/60 text-text-muted",
@@ -195,7 +195,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
                   key={column.key}
                   scope="col"
                   className={cn(
-                    "whitespace-nowrap px-2 py-1.5 font-mono text-[0.5625rem] font-semibold uppercase tracking-[0.14em] text-text-faint",
+                    "whitespace-nowrap px-2 py-1.5 font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-text-faint",
                     column.align === "right" && "text-right",
                     column.hideBelow === "sm" && "hidden sm:table-cell",
                     column.hideBelow === "md" && "hidden md:table-cell",
@@ -216,7 +216,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
                     )}
                   >
                     {column.label}
-                    <span aria-hidden="true" className="text-[0.5rem]">
+                    <span aria-hidden="true" className="text-[0.625rem]">
                       {sortKey === column.key ? (ascending ? "▲" : "▼") : "⇅"}
                     </span>
                   </button>
@@ -241,7 +241,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
                     <td
                       key={column.key}
                       className={cn(
-                        "whitespace-nowrap px-2 py-1.5 text-[0.6875rem]",
+                        "whitespace-nowrap px-2 py-1.5 text-[0.75rem]",
                         column.kind === "money" && "font-mono tabular-nums text-money-neutral",
                         column.kind === "num" && "font-mono tabular-nums text-text-secondary",
                         column.kind === "status" && "text-text-muted",
@@ -259,7 +259,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
             })}
             {visible.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="px-2 py-6 text-center text-[0.6875rem] text-text-faint">
+                <td colSpan={columns.length} className="px-2 py-6 text-center text-[0.75rem] text-text-faint">
                   No rows match “{query}”.
                 </td>
               </tr>
@@ -270,7 +270,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
 
       {!compact ? (
         <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3 border-t border-line/50 pt-2.5">
-          <p className="text-[0.6875rem] text-text-faint">
+          <p className="text-[0.75rem] text-text-faint">
             {visible.length} of {rows.length} rows
             {selected ? " · one row selected" : ""}
           </p>
@@ -278,12 +278,12 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
             <dl className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               {view.summary.map((item) => (
                 <div key={item.label} className="flex items-baseline gap-1.5">
-                  <dt className="font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+                  <dt className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">
                     {item.label}
                   </dt>
                   <dd
                     className={cn(
-                      "font-mono text-[0.6875rem] font-semibold tabular-nums",
+                      "font-mono text-[0.75rem] font-semibold tabular-nums",
                       item.money ? "text-money-neutral" : "text-text-primary",
                     )}
                   >
@@ -390,7 +390,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         <button
           type="button"
           onClick={() => setRun((value) => value + 1)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-brand-400/45 bg-brand-500/14 px-3 py-1 text-[0.6875rem] font-semibold text-brand-100 transition-colors hover:border-brand-300/70"
+          className="inline-flex items-center gap-1.5 rounded-full border border-brand-400/45 bg-brand-500/14 px-3 py-1 text-[0.75rem] font-semibold text-brand-100 transition-colors hover:border-brand-300/70"
         >
           <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full bg-brand-300", run > 0 && "animate-pulse-soft")} />
           {run === 0 ? "Run optimizer" : `Re-run · pass ${run + 1}`}
@@ -399,11 +399,11 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
 
       <div className="flex flex-wrap items-end gap-4">
         <label className="flex flex-col gap-1">
-          <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">Sheet</span>
+          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">Sheet</span>
           <select
             value={sheetIndex}
             onChange={(event) => setSheetIndex(Number(event.target.value))}
-            className="rounded-lg border border-line-strong/60 bg-ink-900/80 px-2 py-1 text-[0.6875rem] text-text-primary outline-none"
+            className="rounded-lg border border-line-strong/60 bg-ink-900/80 px-2 py-1 text-[0.75rem] text-text-primary outline-none"
           >
             {sheetSizes.map((entry, index) => (
               <option key={`${entry.label}-${index}`} value={index}>
@@ -414,7 +414,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </label>
 
         <label className="flex min-w-[9rem] flex-1 flex-col gap-1">
-          <span className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
+          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
             Pieces per size · {piecesPerPart}
           </span>
           <input
@@ -437,7 +437,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             const sheetPlaced = result.placed.filter((p) => p.sheet === sheetNo);
             return (
               <div key={sheetNo}>
-                <div className="mb-1 flex items-center justify-between font-mono text-[0.5625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+                <div className="mb-1 flex items-center justify-between font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">
                   <span>Plate {sheetNo + 1}</span>
                   <span>
                     {sheet.w} × {sheet.h} mm · kerf {optimizerLimits.kerf} mm
@@ -479,7 +479,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             { label: "Scrap", value: `${scrap.toFixed(2)} m²`, bad: true },
           ].map((item) => (
             <div key={item.label} className="stat-tile px-2.5 py-2">
-              <dt className="font-mono text-[0.5rem] uppercase tracking-[0.12em] text-text-faint font-medium">{item.label}</dt>
+              <dt className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">{item.label}</dt>
               <dd
                 className={cn(
                   "mt-0.5 font-mono text-sm font-semibold tabular-nums",
@@ -495,7 +495,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </dl>
       ) : null}
 
-      <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">
+      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">
         {demo.blurb} Arranged here with a shelf packer over the sample cut list, so the figures are genuinely
         calculated — change the sheet or the quantity and read them again.
       </p>
@@ -544,7 +544,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
     <div className="flex h-full flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <p className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-brand-300">
+        <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-300">
           Stage {stage} of 8 · {active}
         </p>
       </div>
@@ -559,7 +559,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
                 type="button"
                 onClick={() => setStage(index + 1)}
                 className={cn(
-                  "rounded-full border px-2.5 py-1 text-[0.625rem] font-medium transition-colors duration-200",
+                  "rounded-full border px-2.5 py-1 text-[0.75rem] font-medium transition-colors duration-200",
                   isActive
                     ? "border-brand-400/60 bg-brand-400/16 text-brand-100"
                     : passed
@@ -586,11 +586,11 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             <div role="listitem" key={`${id}-${index}`} className="card-live p-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="truncate text-[0.6875rem] font-semibold text-text-primary">
+                  <p className="truncate text-[0.75rem] font-semibold text-text-primary">
                     {label}
                     {row.glass ? ` · ${row.glass}` : row.spec ? ` · ${row.spec}` : ""}
                   </p>
-                  <p className="truncate text-[0.625rem] text-text-faint font-medium">
+                  <p className="truncate text-[0.75rem] text-text-faint font-medium">
                     {row.party} · arrived at {active}: {arrived} of {qty} pieces
                   </p>
                 </div>
@@ -601,7 +601,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
                       style={{ width: `${Math.round(done * 100)}%` }}
                     />
                   </div>
-                  <span className="w-9 text-right font-mono text-[0.625rem] tabular-nums text-text-secondary">
+                  <span className="w-9 text-right font-mono text-[0.75rem] tabular-nums text-text-secondary">
                     {Math.round(done * 100)}%
                   </span>
                   <button
@@ -609,7 +609,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
                     onClick={() => advance(id)}
                     disabled={ready}
                     className={cn(
-                      "rounded-full border px-2 py-0.5 text-[0.5625rem] font-semibold uppercase tracking-[0.1em] transition-colors",
+                      "rounded-full border px-2 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-[0.1em] transition-colors",
                       ready
                         ? "border-money-positive/40 text-money-positive"
                         : "border-line-strong/70 text-text-muted hover:border-brand-400/50 hover:text-text-primary",
@@ -625,7 +625,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
       </div>
 
       {!compact ? (
-        <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">
+        <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">
           {demo.blurb} A job becomes dispatch-ready when the full quantity has finished the chain — press Advance to
           walk one through.
         </p>
@@ -646,7 +646,7 @@ function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | un
     <div className="flex h-full flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <p className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-brand-300">
+        <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-300">
           Step {step} of {steps.length || 1}
         </p>
       </div>
@@ -660,7 +660,7 @@ function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | un
                 type="button"
                 onClick={() => setStep(index + 1)}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.625rem] font-medium transition-colors duration-200",
+                  "flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.75rem] font-medium transition-colors duration-200",
                   isActive
                     ? "border-brand-400/60 bg-brand-400/16 text-brand-100"
                     : index + 1 < step
@@ -668,7 +668,7 @@ function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | un
                       : "border-line-strong/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
                 )}
               >
-                <span aria-hidden="true" className="font-mono text-[0.5rem] opacity-70">
+                <span aria-hidden="true" className="font-mono text-[0.625rem] opacity-70">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 {label}
@@ -682,7 +682,7 @@ function WizardEngine({ demo, view, compact }: { demo: Demo; view: DemoView | un
         <TableEngine view={view} compact={compact} />
       </div>
 
-      {!compact ? <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p> : null}
+      {!compact ? <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p> : null}
     </div>
   );
 }
@@ -711,7 +711,7 @@ function DashboardEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
               aria-pressed={entry === range}
               onClick={() => setRange(entry)}
               className={cn(
-                "rounded-full px-2.5 py-0.5 text-[0.5625rem] font-semibold uppercase tracking-[0.1em] transition-colors",
+                "rounded-full px-2.5 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-[0.1em] transition-colors",
                 entry === range
                   ? "bg-brand-400/18 text-brand-100 ring-1 ring-inset ring-brand-400/40"
                   : "text-text-faint hover:text-text-primary",
@@ -729,11 +729,11 @@ function DashboardEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
           const scaled = Number.isFinite(numeric) ? Math.max(1, Math.round(numeric * factor)) : null;
           return (
             <div key={`${item.label}-${index}`} className="stat-tile p-2.5">
-              <dt className="font-mono text-[0.5rem] uppercase tracking-[0.12em] text-text-faint font-medium">{item.label}</dt>
+              <dt className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">{item.label}</dt>
               <dd className="mt-1 font-mono text-lg font-semibold tabular-nums text-text-primary">
                 {scaled !== null ? scaled : item.value}
               </dd>
-              <dd className="mt-0.5 text-[0.5625rem] text-text-faint font-medium">
+              <dd className="mt-0.5 text-[0.6875rem] text-text-faint font-medium">
                 {scaled !== null ? (index === 0 ? "across the period" : "across the range") : "—"}
               </dd>
             </div>
@@ -753,7 +753,7 @@ function DashboardEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
       </div>
 
       {!compact && demo.footnote ? (
-        <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">{demo.footnote}</p>
+        <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{demo.footnote}</p>
       ) : null}
     </div>
   );
@@ -768,7 +768,7 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
     <div className="flex h-full flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <p className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">{moduleKey}</p>
+        <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">{moduleKey}</p>
       </div>
 
       <dl className="space-y-1.5">
@@ -777,8 +777,8 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
             key={item.label}
             className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line/40 pb-1.5 last:border-0"
           >
-            <dt className="text-[0.6875rem] font-medium text-text-secondary">{item.label}</dt>
-            <dd className="font-mono text-[0.6875rem] text-text-muted">{item.value}</dd>
+            <dt className="text-[0.75rem] font-medium text-text-secondary">{item.label}</dt>
+            <dd className="font-mono text-[0.75rem] text-text-muted">{item.value}</dd>
           </div>
         ))}
       </dl>
@@ -794,8 +794,8 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
                   key={`field-${index}`}
                   className="flex flex-wrap items-baseline justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-ink-800/60"
                 >
-                  <span className="text-[0.6875rem] text-text-secondary">{cells[0]?.[1]}</span>
-                  <span className="font-mono text-[0.6875rem] text-text-muted">{cells[1]?.[1]}</span>
+                  <span className="text-[0.75rem] text-text-secondary">{cells[0]?.[1]}</span>
+                  <span className="font-mono text-[0.75rem] text-text-muted">{cells[1]?.[1]}</span>
                 </div>
               );
             })}
@@ -805,7 +805,7 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
 
       {moduleKey === "Settings" ? <AppearanceDeck /> : null}
 
-      <p className="text-[0.625rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p>
+      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p>
     </div>
   );
 }
@@ -825,8 +825,8 @@ function AppearanceDeck() {
 
   return (
     <div className="card-accent p-3">
-      <p className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-brand-200">Live · changes this site</p>
-      <p className="mt-1.5 text-[0.6875rem] leading-relaxed text-text-secondary">
+      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-200">Live · changes this site</p>
+      <p className="mt-1.5 text-[0.75rem] leading-relaxed text-text-secondary">
         These are the application&apos;s four families. Pressing one re-themes this page, which is exactly what it does
         to the application.
       </p>
@@ -852,7 +852,7 @@ function FamilyButton({ id, label }: { id: string; label: string }) {
         }
         window.dispatchEvent(new Event("proglass-theme"));
       }}
-      className="rounded-full border border-line-strong/70 bg-ink-900/70 px-2.5 py-1 text-[0.625rem] font-medium text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary"
+      className="rounded-full border border-line-strong/70 bg-ink-900/70 px-2.5 py-1 text-[0.75rem] font-medium text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary"
     >
       {label}
     </button>
@@ -866,8 +866,8 @@ function FamilyButton({ id, label }: { id: string; label: string }) {
 function EmptyPlate() {
   return (
     <div className="flex h-full min-h-[10rem] flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line-strong/60 bg-ink-950/40 p-5 text-center">
-      <p className="text-[0.6875rem] font-semibold text-text-secondary">This screen has no preview yet.</p>
-      <p className="max-w-sm text-[0.625rem] leading-relaxed text-text-faint font-medium">
+      <p className="text-[0.75rem] font-semibold text-text-secondary">This screen has no preview yet.</p>
+      <p className="max-w-sm text-[0.75rem] leading-relaxed text-text-faint font-medium">
         The module exists in the application. Its preview is added once the layout is confirmed.
       </p>
     </div>

@@ -33,13 +33,33 @@ import type { NextConfig } from "next";
  * If this site ever grows a form of user-authored content, the nonce middleware
  * becomes mandatory and the static trade has to be reconsidered.
  */
+/**
+ * Development needs two things production must never have.
+ *
+ *   `'unsafe-eval'` — React's development build reconstructs callstacks with
+ *   `eval()`, and Next's dev server eval-maps modules for hot reload. React
+ *   states plainly that it never calls `eval()` in a production build, so the
+ *   production policy below does not carry the exception. Shipping
+ *   `'unsafe-eval'` to visitors would let an injected string execute; keeping
+ *   it out of production is the whole point of having the directive.
+ *
+ *   `ws:` / `wss:` in `connect-src` — the hot-reload socket is a WebSocket,
+ *   which `'self'` does not cover in every engine.
+ *
+ * This is what the console error "eval() is not supported in this environment"
+ * was reporting: a production policy being applied to a development server.
+ */
+const isDevelopment = process.env.NODE_ENV !== "production";
+
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  isDevelopment
+    ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+    : "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  isDevelopment ? "connect-src 'self' ws: wss:" : "connect-src 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",

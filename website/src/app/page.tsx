@@ -13,7 +13,7 @@ import { WorkflowRail } from "@/components/product/WorkflowRail";
 import { AppearancePreview } from "@/components/layout/AppearancePreview";
 import { ModuleShowcase } from "@/components/product/ModuleShowcase";
 import { ProductSlider } from "@/components/product/ProductSlider";
-import { NestingDemo } from "@/components/optimization/NestingDemo";
+import { SheetPlanStrip } from "@/components/optimization/SheetPlanStrip";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
 import { cn } from "@/lib/cn";
 import { modules } from "@/data/modules";
@@ -235,7 +235,7 @@ export default function HomePage() {
                         →
                       </span>
                     ) : null}
-                    <span className="rounded-full border border-line-strong/70 px-3 py-1.5 font-mono text-[0.6875rem] text-text-secondary">
+                    <span className="rounded-full border border-line-strong/70 px-3 py-1.5 font-mono text-[0.75rem] text-text-secondary">
                       {document.example}
                       <span className="ml-1.5 text-text-faint">{document.status}</span>
                     </span>
@@ -356,7 +356,7 @@ export default function HomePage() {
                 ].map(([step, detail], index) => (
                   <Reveal key={step} as="li" delay={index * 40}>
                     <div className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-3.5 transition-colors duration-300 hover:border-line-strong">
-                      <IndexChip className="h-7 w-7 text-[0.6875rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
+                      <IndexChip className="h-7 w-7 text-[0.75rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-text-primary">{step}</p>
                         <p className="mt-0.5 text-xs leading-relaxed text-text-muted">{detail}</p>
@@ -425,9 +425,15 @@ export default function HomePage() {
             </ButtonLink>
           </div>
 
-          <Reveal delay={80} className="mt-10">
-            <NestingDemo />
-          </Reveal>
+          {/*
+            The compact strip rather than the full demonstration: one box per
+            plate, side by side, so a multi-plate job reads at a glance instead
+            of pushing the rest of the page below the fold. The animated
+            demonstration still runs on /optimization.
+          */}
+          <div className="mt-10">
+            <SheetPlanStrip />
+          </div>
 
           <Reveal delay={140} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[

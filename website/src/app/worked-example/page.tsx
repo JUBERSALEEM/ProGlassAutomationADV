@@ -192,7 +192,7 @@ export default function WorkedExamplePage() {
                   <p className="mt-auto border-t border-line/60 pt-4 text-xs leading-relaxed text-text-faint font-medium">
                     {document.handoff}
                   </p>
-                  <p className="mt-3 font-mono text-[0.625rem] leading-relaxed text-text-faint">{document.evidence}</p>
+                  <p className="mt-3 font-mono text-[0.75rem] leading-relaxed text-text-faint">{document.evidence}</p>
                 </article>
               </Reveal>
             ))}
@@ -221,7 +221,7 @@ export default function WorkedExamplePage() {
                 className="rounded-full border border-line-strong/70 px-3.5 py-1.5 text-xs font-medium text-text-muted"
               >
                 Group {group.number}: {group.name}
-                <span className="ml-1.5 font-mono text-[0.625rem] text-text-faint">
+                <span className="ml-1.5 font-mono text-[0.75rem] text-text-faint">
                   {group.lines} lines · {group.pieces} pcs
                 </span>
               </span>
@@ -641,7 +641,7 @@ export default function WorkedExamplePage() {
                               className={`px-4 py-2.5 text-right tabular-nums ${low ? "font-semibold text-state-warning" : "text-text-muted"}`}
                             >
                               {item.reorderLevel}
-                              {low ? <span className="ml-2 font-mono text-[0.625rem]">LOW</span> : null}
+                              {low ? <span className="ml-2 font-mono text-[0.75rem]">LOW</span> : null}
                             </td>
                           </tr>
                         );

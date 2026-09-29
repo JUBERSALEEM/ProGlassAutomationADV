@@ -97,7 +97,7 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
               )}
             >
               {label}
-              <span className="ml-1.5 font-mono text-[0.625rem] tabular-nums text-text-faint font-medium">{count}</span>
+              <span className="ml-1.5 font-mono text-[0.75rem] tabular-nums text-text-faint font-medium">{count}</span>
             </button>
           );
         })}

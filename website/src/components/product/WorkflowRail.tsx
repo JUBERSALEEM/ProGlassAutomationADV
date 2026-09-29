@@ -58,7 +58,7 @@ export function WorkflowRail({ compact = false }: { compact?: boolean }) {
                     {stage.statuses.map((status) => (
                       <span
                         key={status}
-                        className="rounded-md border border-line-strong/60 bg-ink-850/80 px-2 py-0.5 font-mono text-[0.625rem] tracking-tight text-text-muted"
+                        className="rounded-md border border-line-strong/60 bg-ink-850/80 px-2 py-0.5 font-mono text-[0.75rem] tracking-tight text-text-muted"
                       >
                         {status}
                       </span>

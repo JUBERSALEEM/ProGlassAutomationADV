@@ -92,7 +92,7 @@ function RailRow({ label, active, muted }: { label: string; active?: boolean; mu
   return (
     <span
       className={cn(
-        "flex h-6 items-center gap-2 truncate rounded-[0.3rem] px-1.5 text-[0.6875rem] leading-none",
+        "flex h-6 items-center gap-2 truncate rounded-[0.3rem] px-1.5 text-[0.75rem] leading-none",
         active
           ? "bg-brand-400/16 font-semibold text-brand-100 ring-1 ring-inset ring-brand-400/35"
           : muted
@@ -133,7 +133,7 @@ export function AppFrame({
       <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-ink-900/85 px-3 py-2 sm:px-4">
         <div className="flex items-center gap-2.5">
           <LogoMark size={20} />
-          <span className="font-mono text-[0.625rem] font-semibold uppercase tracking-[0.18em] text-text-faint">
+          <span className="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-text-faint">
             ProGlass Automation
           </span>
         </div>
@@ -153,7 +153,7 @@ export function AppFrame({
           >
             {realRail.map((group) => (
               <div key={group.label} className="space-y-0.5">
-                <p className="px-1.5 pb-0.5 font-mono text-[0.5625rem] font-semibold tracking-[0.16em] text-text-faint/70">
+                <p className="px-1.5 pb-0.5 font-mono text-[0.6875rem] font-semibold tracking-[0.16em] text-text-faint/70">
                   {group.label}
                 </p>
                 <div className="space-y-px">
@@ -171,13 +171,13 @@ export function AppFrame({
           <div className="flex items-center justify-between gap-3 border-b border-line/60 bg-ink-900/45 px-3 py-2">
             <p className="truncate text-xs font-semibold text-text-primary sm:text-sm">{title}</p>
             <div className="flex items-center gap-2" aria-hidden="true">
-              <span className="hidden font-mono text-[0.5625rem] tracking-[0.14em] text-text-faint font-medium sm:inline">10:30</span>
+              <span className="hidden font-mono text-[0.6875rem] tracking-[0.14em] text-text-faint font-medium sm:inline">10:30</span>
               <span className="h-5 w-5 rounded-[0.3rem] border border-line-strong/70 bg-ink-800" />
               <span className="flex items-center gap-1.5 rounded-[0.35rem] border border-line-strong/70 bg-ink-800 px-1.5 py-0.5">
-                <span className="grid h-3.5 w-3.5 place-items-center rounded-full bg-brand-400/20 text-[0.4375rem] font-bold text-brand-200">
+                <span className="grid h-4 w-4 place-items-center rounded-full bg-brand-400/20 text-[0.625rem] font-bold text-brand-200">
                   AB
                 </span>
-                <span className="font-mono text-[0.5rem] uppercase tracking-[0.1em] text-text-faint font-medium">Admin</span>
+                <span className="font-mono text-[0.625rem] uppercase tracking-[0.1em] text-text-faint font-medium">Admin</span>
               </span>
             </div>
           </div>

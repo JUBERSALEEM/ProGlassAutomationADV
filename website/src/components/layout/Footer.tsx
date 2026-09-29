@@ -24,7 +24,7 @@ function Column({ title, links }: { title: string; links: readonly { label: stri
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-line-strong/50 bg-ink-950">
+    <footer className="relative border-t border-line-strong/50 bg-ink-950/80 backdrop-blur-sm">
       {/* Violet band along the top edge of the footer. */}
       <div aria-hidden="true" className="rule-violet absolute inset-x-0 -top-px" />
       <div className="shell py-14 lg:py-16">

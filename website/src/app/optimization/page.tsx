@@ -221,7 +221,7 @@ export default function OptimizationPage() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {cutComplexities.map((item, index) => (
               <Reveal key={`${item.name}-${index}`} delay={index * 50} className="surface flex flex-col p-5">
-                <IndexChip className="h-7 w-7 text-[0.6875rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
+                <IndexChip className="h-7 w-7 text-[0.75rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
                 <p className="mt-4 text-sm font-semibold text-text-primary">{item.name}</p>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.detail}</p>
               </Reveal>
@@ -491,7 +491,7 @@ function EnginePipeline() {
             ) : null}
             <span
               aria-hidden="true"
-              className="relative z-10 mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border border-line-strong/80 bg-ink-900 font-mono text-[0.5625rem] text-brand-300"
+              className="relative z-10 mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md border border-line-strong/80 bg-ink-900 font-mono text-[0.6875rem] text-brand-300"
             >
               {String(index + 1).padStart(2, "0")}
             </span>

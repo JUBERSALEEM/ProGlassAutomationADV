@@ -123,7 +123,7 @@ export function ThemeToggle({ className }: { className?: string }) {
                   onClick={() => setThemeMode(entry.id)}
                   title={entry.hint}
                   className={cn(
-                    "flex flex-col items-center gap-1.5 rounded-card border px-2 py-2.5 text-[0.6875rem] font-medium transition-colors duration-200",
+                    "flex flex-col items-center gap-1.5 rounded-card border px-2 py-2.5 text-[0.75rem] font-medium transition-colors duration-200",
                     active
                       ? "border-brand-400/60 bg-brand-400/12 text-text-primary"
                       : "border-line/70 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
@@ -167,14 +167,14 @@ export function ThemeToggle({ className }: { className?: string }) {
                     >
                       {entry.label}
                     </span>
-                    <span className="mt-0.5 block text-[0.6875rem] leading-snug text-text-faint">{entry.origin}</span>
+                    <span className="mt-0.5 block text-[0.75rem] leading-snug text-text-faint">{entry.origin}</span>
                   </span>
                 </button>
               );
             })}
           </div>
 
-          <p className="mt-3 border-t border-line/60 px-1 pt-3 text-[0.6875rem] font-medium leading-relaxed text-text-muted">
+          <p className="mt-3 border-t border-line/60 px-1 pt-3 text-[0.75rem] font-medium leading-relaxed text-text-muted">
             The application ships the same idea in Settings → Appearance. For the full set — sixteen colour plates,
             corner radius, money colours — open the{" "}
             <button

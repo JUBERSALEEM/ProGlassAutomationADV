@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { appearanceFamilies, themeModes, type AppearanceFamilyEntry, type ThemeModeEntry } from "@/data/themes";
 import { setAppearance, setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
-import { resetStudio, setAccent, setStudio, studioAccents, useStudio } from "@/lib/useStudio";
+import { resetStudio, setAccent, setStudio, studioAccents, typefaces, typefaceKeys, useStudio } from "@/lib/useStudio";
 import { luminance } from "@/lib/color";
 
 /**
@@ -16,6 +16,8 @@ import { luminance } from "@/lib/color";
  *   Mode        three plates — Light, Dark, System
  *   Colours     all sixteen accent plates the application ships, plus a custom
  *               colour you can pick or type
+ *   Typefaces   four self-hosted faces, with a specimen in bold, bold italic
+ *               and underline
  *   Surfaces    sliders for tint, corner radius, brightness and vividness
  *   Money       the colours used wherever a figure is money
  *
@@ -103,7 +105,7 @@ export function ThemeStudio() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-full border border-line-strong/80 px-2.5 py-1 text-[0.625rem] font-semibold text-text-secondary transition-colors hover:text-text-primary"
+              className="rounded-full border border-line-strong/80 px-2.5 py-1 text-[0.75rem] font-semibold text-text-secondary transition-colors hover:text-text-primary"
             >
               Close
             </button>
@@ -123,7 +125,7 @@ export function ThemeStudio() {
                     onClick={() => setThemeMode(entry.id)}
                     title={entry.hint}
                     className={cn(
-                      "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.6875rem] font-bold transition-colors",
+                      "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.75rem] font-bold transition-colors",
                       active
                         ? "border-brand-400 bg-brand-500/15 text-text-primary"
                         : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
@@ -133,7 +135,7 @@ export function ThemeStudio() {
                     <span
                       aria-hidden="true"
                       className={cn(
-                        "flex h-6 w-full items-center justify-center rounded-[0.3rem] border text-[0.5rem] font-bold uppercase tracking-wider",
+                        "flex h-6 w-full items-center justify-center rounded-[0.3rem] border text-[0.625rem] font-bold uppercase tracking-wider",
                         entry.id === "dark" && "border-white/20 bg-[#120D2E] text-white",
                         entry.id === "light" && "border-black/15 bg-white text-black",
                         entry.id === "system" && "border-line-strong bg-gradient-to-r from-white to-[#120D2E] text-black",
@@ -162,7 +164,7 @@ export function ThemeStudio() {
                     onClick={() => setAppearance(entry.id)}
                     title={entry.origin}
                     className={cn(
-                      "flex items-center gap-2 rounded-card border-2 px-2.5 py-2.5 text-left text-[0.6875rem] font-bold transition-colors",
+                      "flex items-center gap-2 rounded-card border-2 px-2.5 py-2.5 text-left text-[0.75rem] font-bold transition-colors",
                       active
                         ? "border-brand-400 bg-brand-500/15 text-text-primary"
                         : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
@@ -178,13 +180,13 @@ export function ThemeStudio() {
                 );
               })}
             </div>
-            <p className="mt-2 text-[0.6875rem] font-medium leading-relaxed text-text-muted">{activeFamily.origin}</p>
+            <p className="mt-2 text-[0.75rem] font-medium leading-relaxed text-text-muted">{activeFamily.origin}</p>
           </fieldset>
 
           {/* ── Colour plates ─────────────────────────────────────────── */}
           <fieldset className="mt-4">
             <legend className="mono-label">Colour plates</legend>
-            <p className="mt-1.5 text-[0.6875rem] font-medium leading-relaxed text-text-muted">
+            <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
               The sixteen accents the application ships. Tap one and the whole site takes it.
             </p>
 
@@ -221,7 +223,7 @@ export function ThemeStudio() {
                 className="h-9 w-11 shrink-0"
               />
               <label className="flex flex-1 items-center gap-2 rounded-card border-2 border-line-strong/70 bg-ink-900 px-2.5 py-1.5">
-                <span className="font-mono text-[0.625rem] font-bold uppercase tracking-[0.12em] text-text-muted">
+                <span className="font-mono text-[0.75rem] font-bold uppercase tracking-[0.12em] text-text-muted">
                   Hex
                 </span>
                 <input
@@ -237,6 +239,69 @@ export function ThemeStudio() {
                   className="w-full bg-transparent font-mono text-xs font-semibold text-text-primary outline-none"
                 />
               </label>
+            </div>
+          </fieldset>
+
+          {/* ── Typeface ──────────────────────────────────────────────── */}
+          <fieldset className="mt-4">
+            <legend className="mono-label">Typeface</legend>
+            <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">
+              Four faces, all served from this site. Every one carries a real italic and a full weight range, so bold,
+              bold italic and underlining below are drawn — not slanted and thickened by the browser.
+            </p>
+
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              {typefaceKeys.map((key) => {
+                const face = typefaces[key];
+                const active = key === studio.typeface;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setStudio({ typeface: key })}
+                    title={face.character}
+                    className={cn(
+                      "rounded-card border-2 px-2 py-2 text-left transition-colors",
+                      active
+                        ? "border-brand-400 bg-brand-500/15"
+                        : "border-line-strong/70 hover:border-brand-400/60",
+                    )}
+                  >
+                    <span
+                      className={cn("block text-sm font-bold leading-tight", active ? "text-text-primary" : "text-text-secondary")}
+                      style={{ fontFamily: face.stack }}
+                    >
+                      {face.name}
+                    </span>
+                    <span className="mt-0.5 block text-xs font-semibold leading-tight text-text-muted" style={{ fontFamily: face.stack }}>
+                      Aa Bb 0123
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/*
+              The specimen. Not a picture of the choice — the live body font, in
+              the four treatments the site actually uses. Adding a face that
+              cannot draw its own italic would show up right here.
+            */}
+            <div className="mt-2 rounded-card border-2 border-line-strong/70 bg-ink-900/70 p-3">
+              <p className="text-base leading-relaxed text-text-primary">
+                {typefaces[studio.typeface].sample}
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-text-secondary">
+                <strong className="font-bold">Cut length</strong> is <strong className="font-bold">bold</strong> ·{" "}
+                <em className="font-bold italic">offcut area</em> is <strong className="font-bold italic">bold italic</strong> ·{" "}
+                <span className="underline decoration-brand-400 decoration-2 underline-offset-2">net area</span> is{" "}
+                <span className="font-bold underline decoration-brand-400 decoration-2 underline-offset-2">
+                  bold underlined
+                </span>
+              </p>
+              <p className="mt-2 font-mono text-xs text-text-muted">
+                1,600 × 1,100 mm · 2.5 kg/m²/mm · 34,762.19
+              </p>
             </div>
           </fieldset>
 
@@ -284,7 +349,7 @@ export function ThemeStudio() {
           {/* ── Money ─────────────────────────────────────────────────── */}
           <fieldset className="mt-4">
             <legend className="mono-label">Money colours</legend>
-            <p className="mt-1.5 text-[0.6875rem] font-medium leading-relaxed text-text-muted">
+            <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
               Used wherever a number is money rather than a label — margins, VAT, wastage, utilization.
             </p>
             <div className="mt-2 grid grid-cols-2 gap-2">
@@ -305,11 +370,11 @@ export function ThemeStudio() {
             <button
               type="button"
               onClick={resetStudio}
-              className="rounded-full border-2 border-line-strong/80 px-3 py-1.5 text-[0.6875rem] font-bold text-text-secondary transition-colors hover:border-brand-400/60 hover:text-text-primary"
+              className="rounded-full border-2 border-line-strong/80 px-3 py-1.5 text-[0.75rem] font-bold text-text-secondary transition-colors hover:border-brand-400/60 hover:text-text-primary"
             >
               Reset everything
             </button>
-            <p className="text-right font-mono text-[0.5625rem] font-semibold uppercase tracking-[0.12em] text-text-muted">
+            <p className="text-right font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-text-muted">
               Saved · {activeMode.label} · {activeFamily.label}
             </p>
           </div>
@@ -341,7 +406,7 @@ function PlateButton({
       title={label}
       onClick={onClick}
       className={cn(
-        "flex h-14 flex-col items-center justify-end gap-1 rounded-card border-2 p-1.5 text-[0.5625rem] font-bold uppercase tracking-wider transition-transform hover:-translate-y-0.5",
+        "flex h-14 flex-col items-center justify-end gap-1 rounded-card border-2 p-1.5 text-[0.6875rem] font-bold uppercase tracking-wider transition-transform hover:-translate-y-0.5",
         active ? "border-text-primary" : "border-line-strong/60",
       )}
       style={{ background: colour, color: onDark ? "#FFFFFF" : "#0B0820" }}
@@ -372,7 +437,7 @@ function Slider({
     <label className="block">
       <span className="flex items-baseline justify-between gap-3">
         <span className="text-[0.75rem] font-bold text-text-primary">{label}</span>
-        <span className="font-mono text-[0.625rem] font-semibold tabular-nums text-text-muted">{display}</span>
+        <span className="font-mono text-[0.75rem] font-semibold tabular-nums text-text-muted">{display}</span>
       </span>
       <input
         type="range"
@@ -399,7 +464,7 @@ function ColourPlate({
 }) {
   return (
     <div className="rounded-card border-2 border-line-strong/70 p-2">
-      <p className="text-[0.6875rem] font-bold text-text-primary">{label}</p>
+      <p className="text-[0.75rem] font-bold text-text-primary">{label}</p>
       <div className="mt-1.5 flex items-center gap-2">
         <input
           type="color"
@@ -408,7 +473,7 @@ function ColourPlate({
           onChange={(event) => onChange(event.target.value)}
           className="h-7 w-9 shrink-0"
         />
-        <span className="font-mono text-[0.625rem] font-semibold uppercase text-text-muted">{value}</span>
+        <span className="font-mono text-[0.75rem] font-semibold uppercase text-text-muted">{value}</span>
       </div>
     </div>
   );

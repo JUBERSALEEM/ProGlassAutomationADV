@@ -144,7 +144,7 @@ export function ProductHero() {
 
             {/* Floating chain chip. */}
             <div className="menu-card absolute -right-2 -top-5 hidden rounded-full px-3.5 py-2 shadow-raised sm:block">
-              <span className="font-mono text-[0.625rem] uppercase tracking-[0.14em] text-brand-200">
+              <span className="font-mono text-[0.75rem] uppercase tracking-[0.14em] text-brand-200">
                 {chainVerbs.slice(0, 5).join(" → ")}
               </span>
             </div>

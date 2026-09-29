@@ -34,6 +34,38 @@ const mono = localFont({
   fallback: ["Consolas", "ui-monospace", "monospace"],
 });
 
+/*
+ * The two optional faces offered by the appearance studio's typeface control.
+ *
+ * Both are loaded here rather than swapped in from a network host, for the same
+ * reason as the two above: the privacy page states plainly that opening a page
+ * never calls a third-party font service, and a font switcher that fetched from
+ * a CDN would make that sentence false. Each carries the upright and the italic
+ * of its variable weight axis, so bold, bold italic and underline all have a
+ * real face to draw with instead of a synthesised slant.
+ */
+const serif = localFont({
+  src: [
+    { path: "../fonts/SourceSerif4-Variable-latin.woff2", style: "normal" },
+    { path: "../fonts/SourceSerif4-Variable-latin-italic.woff2", style: "italic" },
+  ],
+  display: "swap",
+  weight: "200 900",
+  variable: "--font-serif",
+  fallback: ["Georgia", "Times New Roman", "serif"],
+});
+
+const plex = localFont({
+  src: [
+    { path: "../fonts/IBMPlexSans-Variable-latin.woff2", style: "normal" },
+    { path: "../fonts/IBMPlexSans-Variable-latin-italic.woff2", style: "italic" },
+  ],
+  display: "swap",
+  weight: "100 700",
+  variable: "--font-plex",
+  fallback: ["Segoe UI", "system-ui", "sans-serif"],
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
@@ -107,7 +139,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-appearance="studio"
       /* The boot script sets these before paint; the server renders the default. */
       suppressHydrationWarning
-      className={`${inter.variable} ${mono.variable}`}
+      className={`${inter.variable} ${mono.variable} ${serif.variable} ${plex.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />

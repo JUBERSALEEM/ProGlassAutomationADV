@@ -7,15 +7,16 @@ import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
+import { history, workingDocuments, workingMethod } from "@/data/developerHistory";
 import { StatCounter, StatBadge } from "@/components/ui/Stat";
 import { site } from "@/lib/site";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "The developer — a glass estimator, not a coder",
+  title: "The developer — one glass estimator, working alone",
   description:
-    "ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained engineer. One person, no team, no investors.",
+    "ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained engineer. Its audits, fixes and open work are dated and public.",
   path: "/developer",
   keywords: [
     "ProGlass Automation developer",
@@ -154,11 +155,11 @@ export default function DeveloperPage() {
         banner="people"
         title={
           <>
-            An estimator who got tired of
-            <span className="text-gradient block">doing the same job five times.</span>
+            One glass estimator,
+            <span className="text-gradient block">working alone, writing his own tools.</span>
           </>
         }
-        lead="ProGlass Automation was not written by a software company. It was written by one glass estimator, working alone, who found his own job harder than it needed to be and decided to make it simpler — for himself first, and then for anyone doing the same work."
+        lead="ProGlass Automation has no company behind it. It was written by Juber Saleem, who estimates glass for a living and started building the software he needed because the paper version of the job kept costing him time. He is still estimating. How the application got to version 2.0.11 is written down, dated, and open to reading — and that record is a better description of its author than any biography."
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Developer", href: "/developer" },
@@ -180,30 +181,77 @@ export default function DeveloperPage() {
           </>
         }
       >
-        {/* ── Byline card ─────────────────────────────────────────────── */}
-        <div className="surface-raised grid gap-6 p-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-10 lg:p-8">
-          <div className="flex items-start gap-5">
-            <span
-              aria-hidden="true"
-              className="grid h-16 w-16 shrink-0 place-items-center rounded-panel border border-brand-400/40 bg-gradient-to-br from-brand-500/25 to-ink-950 text-xl font-semibold text-brand-100 sm:h-20 sm:w-20 sm:text-2xl"
-            >
-              {site.developerName
-                .split(" ")
-                .map((part) => part.charAt(0))
-                .join("")}
-            </span>
-            <div className="min-w-0">
-              <p className="text-xl font-semibold text-text-primary sm:text-2xl">{site.developerName}</p>
-              <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
-                Estimator first. Author of ProGlass Automation second — self-taught, working alone, still estimating.
-              </p>
-              <p className="mt-3 font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
-                — Made in {site.developerLocation}
-              </p>
+        {/*
+          The profile. This is the first thing on the page because the question
+          a visitor arrives with is "who wrote this?", and the answer is a
+          person rather than a company. Everything asserted here is either a
+          fact about the application (the stack, the counts, the file paths) or
+          a statement the author has made about himself; there is no school, no
+          employer and no years-of-experience figure, because none of those are
+          established anywhere.
+        */}
+        <div className="surface-raised grid gap-8 p-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-12 lg:p-9">
+          <div>
+            <div className="flex items-start gap-5">
+              <span
+                aria-hidden="true"
+                className="grid h-16 w-16 shrink-0 place-items-center rounded-panel border-2 border-brand-400/50 bg-gradient-to-br from-brand-500/30 to-ink-950 text-xl font-semibold text-brand-100 sm:h-20 sm:w-20 sm:text-2xl"
+              >
+                {site.developerName
+                  .split(" ")
+                  .map((part) => part.charAt(0))
+                  .join("")}
+              </span>
+              <div className="min-w-0">
+                <p className="text-2xl font-semibold leading-tight text-text-primary">{site.developerName}</p>
+                <p className="mt-1.5 text-sm font-medium leading-relaxed text-text-secondary">
+                  Glass estimator · author of ProGlass Automation
+                </p>
+                <p className="mt-2.5 font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
+                  Working from {site.developerLocation} · version {site.version}
+                </p>
+              </div>
+            </div>
+
+            <p className="mt-5 text-sm leading-relaxed text-text-secondary">
+              He prices glass for a living, and the software began as a way to stop retyping the same measurements.
+              There was no plan to sell it and no company formed to build it: the first version was one estimator
+              removing the parts of his own day he kept getting wrong. What made it a product is the discovery that the
+              same day is happening in glass shops everywhere.
+            </p>
+
+            {/*
+              Three things he still does himself. Each one is stated elsewhere on
+              this site — estimating, maintaining, supporting — so this is a
+              summary rather than a new claim.
+            */}
+            <dl className="mt-6 grid gap-3 sm:grid-cols-3">
+              {[
+                { label: "His day job", value: "Estimating glass", note: "Sizing, pricing, wastage, delivery." },
+                { label: "On this project", value: "Everything", note: "Code, documents, tests, this site." },
+                { label: "On support", value: "The only tier", note: "Questions arrive at his inbox." },
+              ].map((item) => (
+                <div key={item.label} className="stat-tile p-3.5">
+                  <dt className="mono-label">{item.label}</dt>
+                  <dd className="mt-1.5 text-base font-semibold text-text-primary">{item.value}</dd>
+                  <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{item.note}</dd>
+                </div>
+              ))}
+            </dl>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Badge tone="neutral">Sole author</Badge>
+              <Badge tone="neutral">Self-taught</Badge>
+              <Badge tone="neutral">Estimator, not engineer</Badge>
+              <Badge tone="neutral">No team, no investors</Badge>
             </div>
           </div>
 
-          <dl className="grid grid-cols-2 gap-3 self-center sm:grid-cols-4 lg:grid-cols-2">
+          {/*
+            The other half of the answer: the four facts a visitor actually
+            weighs when they find out a product is one person's work.
+          */}
+          <dl className="grid grid-cols-2 gap-3 self-center">
             {[
               { label: "People on the project", value: "One", hint: "No team, no agency, no contractors." },
               { label: "Own development PC", value: "None yet", hint: "Built on borrowed and shared machines." },
@@ -211,16 +259,92 @@ export default function DeveloperPage() {
               { label: "Formal training", value: "None in software", hint: "An estimator's background instead." },
             ].map((item) => (
               <div key={item.label} className="stat-tile p-3.5">
-                <dt className="font-mono text-[0.5625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
-                  {item.label}
-                </dt>
-                <dd className="mt-1 text-base font-semibold text-text-primary">{item.value}</dd>
-                <dd className="mt-1 text-[0.6875rem] leading-relaxed text-text-faint">{item.hint}</dd>
+                <dt className="mono-label">{item.label}</dt>
+                <dd className="mt-1.5 text-base font-semibold text-text-primary">{item.value}</dd>
+                <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{item.hint}</dd>
               </div>
             ))}
           </dl>
         </div>
       </PageHero>
+
+      {/* ── The working history, from the repository's own documents ──── */}
+      <Section aria-labelledby="history-heading">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.5fr)] lg:gap-16">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <SectionHeading
+                id="history-heading"
+                eyebrow="The developer's history"
+                title="The project's history is written down, dated, and open to reading."
+                lead="There is no CV here, because a CV is the part of a person you cannot check. What exists instead is six working documents at the root of the repository, each carrying the date it was written, describing what broke, what the evidence was, what changed and what is still open. Read together they are a working history of the software — and of its author — more specific than any biography."
+              />
+
+              <div className="surface mt-7 p-4">
+                <p className="mono-label">The documents</p>
+                <ul className="mt-3 space-y-2">
+                  {workingDocuments.map((doc) => (
+                    <li key={doc} className="font-mono text-[0.6875rem] leading-relaxed text-text-muted">
+                      {doc}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3.5 text-xs leading-relaxed text-text-faint">
+                  All six are at the root of the repository. Nothing on this page quotes a figure that is not in one of
+                  them.
+                </p>
+              </div>
+            </div>
+
+            <ol className="relative space-y-4 border-l-2 border-line-strong/60 pl-6 sm:pl-8">
+              {history.map((entry, index) => (
+                <Reveal key={`${entry.date}-${entry.title}`} delay={index * 45}>
+                  <li className="relative">
+                    {/* The marker on the rule. */}
+                    <span
+                      aria-hidden="true"
+                      className="absolute -left-[1.9rem] top-6 h-3 w-3 rounded-full border-2 border-brand-400 bg-ink-950 sm:-left-[2.4rem]"
+                    />
+                    <article className="card-live card-interactive p-5 sm:p-6">
+                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">{entry.tag}</span>
+                        <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                          {entry.date}
+                        </span>
+                      </div>
+                      <h3 className="mt-2 text-lg font-semibold leading-snug text-text-primary">{entry.title}</h3>
+                      <p className="mt-2.5 text-sm leading-relaxed text-text-secondary">{entry.body}</p>
+                      <p className="mt-3.5 border-t border-line/60 pt-3 font-mono text-[0.6875rem] leading-relaxed text-text-faint">
+                        {entry.source}
+                      </p>
+                    </article>
+                  </li>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+
+          {/* How the work is done — habits the documents themselves show. */}
+          <div className="mt-14">
+            <SectionHeading
+              eyebrow="The method"
+              title="Four habits you can check against the files above."
+              lead="None of these is a claim about character. Each one is visible in the documents this page just cited, which is the only reason it is on the page at all."
+            />
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {workingMethod.map((item, index) => (
+                <Reveal key={item.title} delay={index * 50}>
+                  <article className="surface h-full p-5">
+                    <IndexChip>{item.index}</IndexChip>
+                    <h3 className="mt-3 text-base font-semibold text-text-primary">{item.title}</h3>
+                    <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </Container>
+      </Section>
 
       {/* ── How it started ───────────────────────────────────────────── */}
       <Section aria-labelledby="start-heading">
