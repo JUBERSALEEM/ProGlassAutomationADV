@@ -26,6 +26,10 @@ python3 scripts/audit-site.py            # crawl http://127.0.0.1:3000
 python3 scripts/audit-site.py https://…  # or any deployed origin
 ```
 
+Run `npm run doctor` at any time to see the revision in the tree, whether every
+declared dependency is installed, and whether anything under `src/` imports a
+package `package.json` does not declare.
+
 The site's only runtime dependencies are Next, React and React DOM. Markdown for
 the blog is parsed by `src/lib/markdown.ts`, written for this project, so a build
 depends on nothing that can go missing from a package registry.

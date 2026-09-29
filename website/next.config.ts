@@ -1,5 +1,29 @@
 import type { NextConfig } from "next";
 
+import { inspectDeps, formatProblems } from "./scripts/dep-check.mjs";
+
+/**
+ * Fail at configuration time, before anything is compiled.
+ *
+ * Why here, and not only in the npm scripts: `npx next build` never runs a
+ * script from package.json. npx fetches its own copy of Next, that copy starts
+ * fine, and the build then dies on the first import it cannot resolve — naming
+ * the import (once, `marked` from the blog loader) rather than the real cause,
+ * which is that the project's node_modules was never installed. Config is
+ * loaded on every path into Next, including that one, and this file needs no
+ * dependency to be read — the `next` import above is a type and disappears at
+ * compile time.
+ *
+ * A failure here is a sentence, not a module-resolution trace: what is missing,
+ * what to run, and which revision the tree says it is. See scripts/dep-check.mjs.
+ */
+{
+  const problems = inspectDeps(process.cwd());
+  if (problems.missing.length > 0 || problems.undeclared.length > 0) {
+    throw new Error(formatProblems(problems, process.cwd()));
+  }
+}
+
 /**
  * ProGlass Automation — product website configuration.
  *

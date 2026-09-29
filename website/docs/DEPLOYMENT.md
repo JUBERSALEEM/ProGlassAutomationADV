@@ -157,11 +157,31 @@ npm ci
 npm run dev        # or: npm run build && npm start
 ```
 
-Two things now stop you hitting this again:
+Three things now stop you hitting this again:
 
 - the commands are **`npm run dev`** and **`npm run build`**, never `npx next …`;
-- `npm run build` and `npm run dev` first run `scripts/check-deps.mjs`, which
-  refuses to continue when the tree is missing and prints exactly what to run.
+- `scripts/check-deps.mjs` refuses to continue when the tree is incomplete, and
+  prints exactly what to run — it is wired to `predev` and `prebuild`;
+- `next.config.ts` runs the same check (from `scripts/dep-check.mjs`), because
+  config is loaded on **every** path into Next, including `npx next build`,
+  which runs no npm script at all. So even that route now answers with the
+  reason rather than a module-resolution trace naming an import.
+
+`npm run doctor` prints the state of the tree at any time — the revision it is
+reading, whether all declared dependencies are installed, and whether anything
+under `src/` imports a package `package.json` does not declare.
+
+**Switching revisions with a dev server running** is the one case the checks
+cannot catch, because nothing is being compiled for the first time: a dev server
+started against an older tree keeps the module graph it compiled, and can keep
+replaying the same error — the same file content, from a tree that no longer
+contains it — until it is restarted. After `git pull` or `git checkout`:
+
+```bash
+# stop the dev server first (Ctrl-C), then:
+rm -rf website/.next
+cd website && npm ci && npm run dev
+```
 
 On a Linux server or in CI, `npm ci` needs the committed
 `website/package-lock.json` — it is in the repository, and it is what makes the
@@ -518,7 +538,8 @@ everywhere: **the site is in `website/`**, and **Node 22**.
 | Symptom | Cause | Fix |
 |---|---|---|
 | `Module not found: Can't resolve …` (any package) | dependencies were never installed in `website/` — usually because `npx next build` was run instead of `npm run build` | `cd website && npm ci`, then `npm run build`. The pre-build guard prints this for you before Next starts |
-| `Module not found: Can't resolve …` in the dev overlay, for a package you have never heard of | the file being compiled is from an older revision of the tree, or a dependency was removed and the import was left behind — installing cannot satisfy either | `git log --oneline -1` shows which copy you are building; take the current revision, then `npm ci`. `npm run dev` and `npm run build` now run `scripts/check-deps.mjs`, which prints exactly this |
+| `Can't resolve …` for a package you have never heard of, after `npm ci` | the file being compiled is from an older revision of the tree, or a dependency was removed and the import was left behind — installing cannot satisfy either | `npm run doctor` names the package and the file; `git log --oneline -1` says which copy you are building. Take the current revision |
+| the same old error keeps coming back after the fix, same file content each time | the dev server started against an older tree is still serving its compiled module graph | stop it, `rm -rf website/.next`, `npm ci`, `npm run dev`, then hard-reload the browser tab |
 | Build fails: *no `package.json`* / it tries to build a `.sln` | the host's root directory is the repository root | set **Root Directory = `website`** |
 | Build fails on Node version or on `node:fs` | Node too old, or the WPF project was built instead | **Node.js Version = 22.x** in the project settings |
 | Site deploys but every page is unstyled | the build output directory was changed from `.next` | reset **Output Directory** to the default |

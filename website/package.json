@@ -12,6 +12,7 @@
     "start": "next start -H 0.0.0.0 -p 3000",
     "lint": "eslint src scripts",
     "typecheck": "tsc --noEmit",
+    "doctor": "node scripts/check-deps.mjs --report",
     "assets:optimize": "node scripts/optimize-assets.mjs"
   },
   "dependencies": {
