@@ -132,6 +132,11 @@ is held to in review: it crawls every route, checks every internal link and
 image, the per-page metadata, one `h1` per page, image `alt` text, duplicate
 ids, and the bundle budget.
 
+> **Audit the built site, not the dev server.** `npm run dev` serves HTML with
+> the development runtime inlined, so a page that is comfortably inside the
+> budget in production will report as over it against a dev server. The numbers
+> above — and in [step 5](#5--verify-it-is-really-live) — are from `npm start`.
+
 ### The `Can't resolve 'marked'` build error
 
 If you see:
@@ -529,6 +534,8 @@ everywhere: **the site is in `website/`**, and **Node 22**.
 | Old content after a deploy | browser or CDN cache | hard-reload (`Ctrl/Cmd + Shift + R`); confirm the deployment's *Ready* timestamp is newer than your commit |
 | `HSTS preload` warning from a checker | the header is sent with `preload` before the domain is submitted to the preload list | harmless; submit at <https://hstspreload.org> only once you are certain every subdomain will stay HTTPS — preload is hard to undo |
 | `The build cache is stale` locally | a `.next` directory left from a different commit | the `dev` script tells you; `rm -rf .next` and rebuild |
+| The audit reports `/how-it-works` or `/developer` over the HTML budget | it was run against `npm run dev`, whose HTML carries the dev runtime | audit the production build: `npm run build && npm start`, then re-run |
+| A build on a fresh machine behaves differently from yours | `npm install` resolved newer minor versions than your lockfile pins | always `npm ci`; it installs exactly what `package-lock.json` records |
 
 ---
 
