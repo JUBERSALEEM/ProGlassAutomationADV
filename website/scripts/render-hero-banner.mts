@@ -225,7 +225,7 @@ function pill(
     fill,
     stroke,
     color,
-    size = 12.5,
+    size = 15.5,
     family = MONO,
     weight = 500,
     tracking = 0.06,
@@ -353,12 +353,12 @@ for (const [index, colour] of [palette.rose, "#FBBF24", palette.green].entries()
 }
 layers.push(
   text(win.x + 84, win.y + 31, `${site.name} · Dashboard`, { size: 15, fill: palette.text1, weight: 600 }),
-  text(win.x + 320, win.y + 31, `v${site.version}`, { size: 12.5, fill: rgba(palette.text3, 0.7), family: MONO }),
+  text(win.x + 372, win.y + 31, `v${site.version}`, { size: 15.5, fill: rgba(palette.text3, 0.85), family: MONO }),
 );
 /* The window's own top-right controls, as the frame on `/` draws them. */
 layers.push(
   text(win.x + win.width - 196, win.y + 31, "10:30", {
-    size: 12,
+    size: 14.5,
     fill: rgba(palette.text3, 0.55),
     family: MONO,
     anchor: "end",
@@ -368,14 +368,14 @@ layers.push(
 const adminChip = pill(win.x + win.width - 156, win.y + 17, "ADMIN", {
   fill: rgba(palette.ink800, 0.9),
   stroke: palette.lineStrong,
-  color: rgba(palette.text3, 0.8),
+  color: rgba(palette.text3, 0.9),
   height: 22,
-  size: 11,
+  size: 13.5,
   padX: 24,
 });
 layers.push(
   `<circle cx="${win.x + win.width - 145}" cy="${win.y + 28}" r="7" fill="${rgba(palette.brand400, 0.22)}" />`,
-  text(win.x + win.width - 145, win.y + 32, "AB", { size: 8.5, fill: palette.brand200, family: MONO, weight: 700, anchor: "middle" }),
+  text(win.x + win.width - 145, win.y + 32, "AB", { size: 11.5, fill: palette.brand200, family: MONO, weight: 700, anchor: "middle" }),
   adminChip.svg,
 );
 
@@ -392,7 +392,7 @@ let railCursor = rail.y + 34;
 for (const group of railGroups) {
   layers.push(
     text(rail.x + 20, railCursor, group.group.toUpperCase(), {
-      size: 10.5,
+      size: 13,
       fill: rgba(palette.text3, 0.55),
       family: MONO,
       weight: 600,
@@ -430,7 +430,7 @@ for (const group of railGroups) {
  */
 layers.push(
   text(rail.x + 20, rail.y + rail.height - 84, "SYSTEM", {
-    size: 10.5,
+    size: 13,
     fill: rgba(palette.text3, 0.55),
     family: MONO,
     weight: 600,
@@ -447,7 +447,7 @@ layers.push(
  * values are read from the demo's own summary — nothing here is typed in. */
 layers.push(
   text(main.x, main.y + 24, "Overview dashboard", { size: 23, fill: palette.text1, weight: 700, tracking: -0.01 }),
-  text(main.x, main.y + 42, dashboard.blurb, { size: 12.5, fill: rgba(palette.text3, 0.7) }),
+  text(main.x, main.y + 42, dashboard.blurb, { size: 15.5, fill: rgba(palette.text3, 0.85) }),
 );
 
 /* The sample-data tag, and the range chips the preview offers. */
@@ -456,7 +456,7 @@ const tag = pill(main.x + 322, main.y + 4, "SAMPLE DATA · LIVE", {
   stroke: palette.lineStrong,
   color: rgba(palette.text3, 0.85),
   height: 24,
-  size: 10.5,
+  size: 13,
   padX: 24,
 });
 layers.push(
@@ -480,8 +480,8 @@ for (const chip of [...rangeChips].reverse()) {
       radius: 12,
     }),
     text(chipX + chip.width / 2, main.y + 21, chip.label, {
-      size: 12,
-      fill: active ? palette.brand200 : rgba(palette.text3, 0.75),
+      size: 14.5,
+      fill: active ? palette.brand200 : rgba(palette.text3, 0.88),
       weight: active ? 600 : 500,
       anchor: "middle",
     }),
@@ -504,7 +504,7 @@ kpis.forEach((item, index) => {
       radius: 12,
     }),
     text(x + 14, tileTop + 30, item.label.toUpperCase(), {
-      size: 10,
+      size: 12.5,
       fill: rgba(palette.text3, 0.55),
       family: MONO,
       weight: 600,
@@ -518,8 +518,8 @@ kpis.forEach((item, index) => {
       tracking: -0.02,
     }),
     text(x + 14, tileTop + 86, index === 0 ? "across the period" : "across the range", {
-      size: 10,
-      fill: rgba(palette.text3, 0.6),
+      size: 12.5,
+      fill: rgba(palette.text3, 0.78),
       family: MONO,
     }),
   );
@@ -554,7 +554,7 @@ const chartFloor = chartTop + chartHeight - barPad + 14;
 ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach((day, index) => {
   layers.push(
     text(main.x + barPad + index * (barWidth + barGap) + barWidth / 2, chartFloor, day, {
-      size: 9.5,
+      size: 12,
       fill: rgba(palette.text3, 0.45),
       family: MONO,
       anchor: "middle",
@@ -564,7 +564,7 @@ const chartFloor = chartTop + chartHeight - barPad + 14;
 
 if (dashboard.footnote) {
   layers.push(
-    text(main.x, chartFloor + 22, dashboard.footnote, { size: 11.5, fill: rgba(palette.text3, 0.6) }),
+    text(main.x, chartFloor + 22, dashboard.footnote, { size: 14.5, fill: rgba(palette.text3, 0.78) }),
   );
 }
 
@@ -588,8 +588,8 @@ layers.push(
     radius: 16,
   }),
   text(card.x + 16, card.y + 24, "PROFORMA · STEP 9", {
-    size: 10.5,
-    fill: rgba(palette.text3, 0.6),
+    size: 13,
+    fill: rgba(palette.text3, 0.78),
     family: MONO,
     weight: 600,
     tracking: 0.16,
@@ -612,9 +612,9 @@ moneyRows.forEach(([label, value], index) => {
   const y = card.y + 76 + index * 22;
   const last = index === moneyRows.length - 1;
   layers.push(
-    text(card.x + 16, y, label, { size: 12, fill: rgba(palette.text3, 0.75) }),
+    text(card.x + 16, y, label, { size: 14.5, fill: rgba(palette.text3, 0.88) }),
     text(card.x + card.width - 16, y, value, {
-      size: 12.5,
+      size: 15.5,
       fill: last ? palette.brand200 : palette.text2,
       family: MONO,
       weight: last ? 700 : 500,
@@ -625,17 +625,17 @@ moneyRows.forEach(([label, value], index) => {
 
 /* The chain chip: the first five verbs, as the hero prints them. */
 const chainLabel = chainVerbs.slice(0, 5).join("  →  ");
-const chainWidth = Math.round(chainLabel.length * 12.5 * 0.6 + 30 + chainLabel.length * 12.5 * 0.08);
+const chainWidth = Math.round(chainLabel.length * 15.5 * 0.62 + 34 + chainLabel.length * 15.5 * 0.06);
 const chainChipX = win.x + win.width - 34 - chainWidth;
 layers.push(
-  rect(chainChipX, win.y - 12, chainWidth, 34, {
+  rect(chainChipX, win.y - 34, chainWidth, 34, {
     fill: rgba(palette.ink900, 0.97),
     stroke: palette.lineStrong,
     strokeWidth: 1.5,
     radius: 17,
   }),
-  text(chainChipX + chainWidth / 2, win.y + 9, chainLabel, {
-    size: 12.5,
+  text(chainChipX + chainWidth / 2, win.y - 13, chainLabel, {
+    size: 15.5,
     fill: palette.brand200,
     family: MONO,
     weight: 500,
@@ -666,8 +666,8 @@ layers.push(
   `<text x="${col.x + 60}" y="174" font-family="${SANS}" font-size="28" font-weight="600" letter-spacing="${n(28 * -0.02)}">` +
     `<tspan fill="${palette.text1}">Pro</tspan><tspan fill="${palette.brand300}">Glass</tspan></text>`,
   text(col.x + 60, 194, "AUTOMATION", {
-    size: 11.5,
-    fill: rgba(palette.text3, 0.6),
+    size: 14.5,
+    fill: rgba(palette.text3, 0.78),
     family: MONO,
     weight: 500,
     tracking: 0.28,
@@ -690,11 +690,11 @@ const stackLine = [
 layers.push(
   line(col.x, 242, col.x + 28, 242, rgba(palette.brand400, 0.7), 1.5),
   text(col.x + 40, 246, stackLine, {
-    size: 13,
+    size: 14,
     fill: palette.brand200,
     family: MONO,
     weight: 500,
-    tracking: 0.14,
+    tracking: 0.09,
   }),
 );
 
@@ -723,21 +723,21 @@ const figures = [
   { value: `${proformaSteps.length}`, label: "PROFORMA STEPS" },
 ];
 figures.forEach((figure, index) => {
-  const x = col.x + index * 208;
+  const x = col.x + index * 190;
   if (index > 0) {
     layers.push(line(x - 26, 474, x - 26, 542, rgba(palette.lineStrong, 0.85), 1));
   }
   layers.push(
     text(x, 508, figure.value, { size: 30, fill: palette.text1, weight: 700, tracking: -0.02 }),
-    text(x, 532, figure.label, { size: 11, fill: rgba(palette.text3, 0.6), family: MONO, weight: 600, tracking: 0.2 }),
+    text(x, 532, figure.label, { size: 13.5, fill: rgba(palette.text3, 0.78), family: MONO, weight: 600, tracking: 0.2 }),
   );
 });
 
 /* The chain, in the words the site uses for it. */
 layers.push(
-  line(col.x, 578, col.x + col.width, 578, rgba(palette.lineStrong, 0.7), 1),
-  text(col.x, 612, chainVerbs.join("  →  "), {
-    size: 12.5,
+  line(col.x, 578, col.x + 520, 578, rgba(palette.lineStrong, 0.7), 1),
+  text(col.x, 612, chainVerbs.slice(0, 5).join("  →  "), {
+    size: 15.5,
     fill: rgba(palette.text3, 0.72),
     family: MONO,
     weight: 500,
@@ -775,7 +775,7 @@ for (const label of navItems) {
 }
 
 const ctaLabel = "Request a Demo";
-const ctaWidth = Math.round(measure(ctaLabel, 13, MONO) + 34);
+const ctaWidth = Math.round(measure(ctaLabel, 16, MONO) + 40);
 const ctaX = bar.x + bar.width - 18 - ctaWidth;
 const toggleX = ctaX - 44;
 
@@ -810,7 +810,7 @@ for (const item of navCards) {
       radius: 12,
     }),
     `<g transform="translate(${item.x + 10} ${bar.y + 22}) scale(0.875)" fill="none" stroke="${
-      active ? palette.text1 : rgba(palette.text3, 0.8)
+      active ? palette.text1 : rgba(palette.text3, 0.9)
     }" stroke-width="${1.6 / 0.875}" stroke-linecap="round" stroke-linejoin="round" opacity="${active ? 1 : 0.8}">` +
       `<path d="${navIcons[item.label] ?? ""}" /></g>`,
     text(item.x + 30, bar.y + 34, item.label, {
@@ -838,7 +838,7 @@ layers.push(
     radius: 10,
   }),
   text(ctaX + ctaWidth / 2, bar.y + 34, ctaLabel, {
-    size: 13,
+    size: 16,
     fill: "#FFFFFF",
     weight: 600,
     anchor: "middle",
