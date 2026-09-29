@@ -1,0 +1,926 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * THEME TOKENS
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Two themes, one vocabulary. Every colour is a raw RGB triplet so Tailwind can
+ * apply opacity modifiers (`bg-ink-900/70`) without knowing the theme, and every
+ * component in the site is written against `ink` / `line` / `brand` / `text` /
+ * `state` only — so a theme switch repaints the whole site with no markup change.
+ *
+ *   Midnight  (default)  deep violet, the product's own dark shell
+ *   Daylight             light surfaces with the same violet identity
+ *
+ * `data-theme` is set on <html> before first paint by the inline script in
+ * layout.tsx, so there is no flash of the wrong theme.
+ */
+
+@layer base {
+  :root,
+  [data-theme="midnight"] {
+    color-scheme: dark;
+
+    --shell-max: 84rem;
+    --nav-height: 4.25rem;
+
+    /* ── Surfaces: violet, never neutral black ─────────────────────────── */
+    --ink-950: 11 8 32;      /* page background            #0B0820 */
+    --ink-900: 18 13 46;     /* card surface               #120D2E */
+    --ink-850: 23 17 56;     /* raised surface             #171138 */
+    --ink-800: 29 22 70;     /* elevated / inset           #1D1646 */
+    --ink-700: 37 27 87;     /* highest tier               #251B57 */
+
+    /* ── Borders ──────────────────────────────────────────────────────── */
+    --line: 42 33 89;        /* #2A2159 */
+    --line-soft: 34 26 74;   /* #221A4A */
+    --line-strong: 59 47 122;/* #3B2F7A */
+
+    /* ── Brand: violet ───────────────────────────────────────────────── */
+    --brand-50: 245 243 255;
+    --brand-200: 221 214 254;
+    --brand-300: 196 181 253; /* text accent on dark   #C4B5FD */
+    --brand-400: 167 139 250; /* buttons / accents     #A78BFA */
+    --brand-500: 139 92 246;  /* #8B5CF6 */
+    --brand-600: 124 58 237;  /* #7C3AED */
+    --brand-700: 109 40 217;  /* #6D28D9 */
+
+    /* ── Secondary "glass" accents, used sparingly for glass content ──── */
+    --glass-teal: 45 212 191;
+    --glass-cyan: 34 211 238;
+    --glass-green: 74 222 128;
+    --glass-rose: 244 114 182;
+
+    /* ── Text ────────────────────────────────────────────────────────── */
+    --text-1: 245 243 255;   /* headings        #F5F3FF */
+    --text-2: 199 195 224;   /* body            #C7C3E0 */
+    --text-3: 162 156 196;   /* muted           #A29CC4 */
+    --text-4: 126 119 163;   /* faint / labels  #7E77A3 */
+
+    /* ── State ───────────────────────────────────────────────────────── */
+    --state-success: 52 211 153;
+    --state-warning: 251 191 36;
+    --state-danger: 251 113 133;
+    --state-info: 167 139 250;
+
+    /* Text placed on a filled brand surface. */
+    --on-accent: 12 7 32;
+
+    /* ── Elevation ───────────────────────────────────────────────────── */
+    --shadow-panel:
+      0 1px 0 0 rgb(255 255 255 / 0.05) inset,
+      0 24px 48px -26px rgb(6 2 24 / 0.9);
+    --shadow-raised:
+      0 1px 0 0 rgb(255 255 255 / 0.07) inset,
+      0 34px 80px -34px rgb(6 2 24 / 0.95),
+      0 0 0 1px rgb(139 92 246 / 0.1);
+    --shadow-glow:
+      0 0 0 1px rgb(167 139 250 / 0.2),
+      0 26px 64px -28px rgb(139 92 246 / 0.42);
+    --shadow-glow-strong:
+      0 0 0 1px rgb(167 139 250 / 0.34),
+      0 34px 84px -26px rgb(139 92 246 / 0.55);
+
+    /* Ambient light pools behind the page. */
+    --pool-1: rgb(139 92 246 / 0.16);
+    --pool-2: rgb(34 211 238 / 0.07);
+    --pool-3: rgb(244 114 182 / 0.06);
+
+    /* Card tinting: the violet wash that keeps cards off plain grey. */
+    --card-tint: rgb(139 92 246 / 0.1);
+    --card-highlight: rgb(255 255 255 / 0.06);
+
+    --scroll-track: 11 8 32;
+    --scroll-thumb: 42 33 89;
+
+    --selection: rgb(167 139 250 / 0.3);
+
+    /* ── Money ─────────────────────────────────────────────────────────
+       Every figure a shop owner reads as profit, cost or loss uses these.
+       The appearance studio can re-point them live. */
+    --money-positive: 52 211 153;
+    --money-negative: 251 113 133;
+    --money-neutral: 199 195 224;
+
+    /* ── Surface character ─────────────────────────────────────────────
+       One set of dials shared by every card class, so a family can change
+       how solid a card feels without touching a component. */
+    --surface-alpha: 0.97;      /* card fill opacity            */
+    --surface-alpha-2: 0.93;    /* card fill mid-stop           */
+    --surface-blur: 3px;        /* backdrop blur behind a card  */
+    --surface-sat: 130%;        /* backdrop saturation          */
+    --surface-specular: 0;      /* diagonal light streak        */
+    --card-edge: rgb(42 33 89 / 0.9);
+    --tint-alpha: 0.11;         /* violet wash strength         */
+    --tint-alpha-2: 0.05;       /* second wash, opposite corner */
+    --card-tint-2: rgb(34 211 238 / 0.05);
+
+    /* Gradient hairline that runs around every card. */
+    --edge-a: rgb(167 139 250 / 0.55);
+    --edge-b: rgb(42 33 89 / 0.75);
+    --edge-c: rgb(34 211 238 / 0.4);
+    --edge-alpha: 1;
+
+    /* The four corner wedges — the colour that makes a corner a corner. */
+    --corner-1: rgb(167 139 250 / 0.6);
+    --corner-2: rgb(34 211 238 / 0.42);
+    --corner-3: rgb(244 114 182 / 0.4);
+    --corner-4: rgb(139 92 246 / 0.5);
+    --corner-size: 4.75rem;
+    --corner-opacity: 0.9;
+
+    /* ── Live preview surfaces ─────────────────────────────────────────
+       The interactive module previews inside the application frame. */
+    --viz-grid: rgb(42 33 89 / 0.6);
+    --viz-part: rgb(167 139 250 / 0.85);
+    --viz-part-2: rgb(34 211 238 / 0.8);
+    --viz-scrap: rgb(244 114 182 / 0.55);
+    --viz-plate: rgb(29 22 70 / 0.9);
+
+    /* Corner rounding, scaled live by the appearance studio. */
+    --radius-scale: 1;
+  }
+
+  [data-theme="daylight"] {
+    color-scheme: light;
+
+    /* Surfaces: warm paper with a violet cast, not flat grey. */
+    --ink-950: 246 245 252;  /* page      #F6F5FC */
+    --ink-900: 255 255 255;  /* card      #FFFFFF */
+    --ink-850: 252 251 255;  /* raised    #FCFBFF */
+    --ink-800: 244 242 253;  /* inset     #F4F2FD */
+    --ink-700: 236 233 250;  /* highest   #ECE9FA */
+
+    --line: 226 222 243;     /* #E2DEF3 */
+    --line-soft: 237 234 249;/* #EDEAF9 */
+    --line-strong: 209 202 235;/* #D1CAEB */
+
+    /* Same hue, re-weighted for contrast against light surfaces. */
+    --brand-50: 237 233 254;
+    --brand-200: 196 181 253;
+    --brand-300: 109 40 217;  /* text accent on light  #6D28D9 */
+    --brand-400: 124 58 237;  /* buttons               #7C3AED */
+    --brand-500: 109 40 217;  /* #6D28D9 */
+    --brand-600: 91 33 182;   /* #5B21B6 */
+    --brand-700: 76 29 149;   /* #4C1D95 */
+
+    --glass-teal: 13 148 136;
+    --glass-cyan: 14 116 144;
+    --glass-green: 22 163 74;
+    --glass-rose: 190 24 93;
+
+    --text-1: 27 22 54;      /* #1B1636 */
+    --text-2: 63 56 96;      /* #3F3860 */
+    --text-3: 93 85 128;     /* #5D5580 */
+    --text-4: 131 123 166;   /* #837BA6 */
+
+    --state-success: 5 150 105;
+    --state-warning: 180 83 9;
+    --state-danger: 225 29 72;
+    --state-info: 109 40 217;
+
+    --on-accent: 255 255 255;
+
+    --shadow-panel:
+      0 1px 0 0 rgb(255 255 255 / 0.9) inset,
+      0 18px 40px -28px rgb(76 29 149 / 0.28);
+    --shadow-raised:
+      0 1px 0 0 rgb(255 255 255 / 0.95) inset,
+      0 26px 60px -30px rgb(76 29 149 / 0.32),
+      0 0 0 1px rgb(124 58 237 / 0.08);
+    --shadow-glow:
+      0 0 0 1px rgb(124 58 237 / 0.22),
+      0 22px 54px -26px rgb(124 58 237 / 0.42);
+    --shadow-glow-strong:
+      0 0 0 1px rgb(124 58 237 / 0.34),
+      0 28px 70px -24px rgb(124 58 237 / 0.5);
+
+    --pool-1: rgb(139 92 246 / 0.16);
+    --pool-2: rgb(56 189 248 / 0.1);
+    --pool-3: rgb(244 114 182 / 0.07);
+
+    --card-tint: rgb(139 92 246 / 0.07);
+    --card-highlight: rgb(255 255 255 / 0.9);
+
+    --scroll-track: 240 238 250;
+    --scroll-thumb: 209 202 235;
+
+    --selection: rgb(124 58 237 / 0.22);
+
+    --money-positive: 5 150 105;
+    --money-negative: 225 29 72;
+    --money-neutral: 63 56 96;
+
+    --surface-alpha: 0.99;
+    --surface-alpha-2: 0.97;
+    --surface-blur: 4px;
+    --surface-sat: 130%;
+    --surface-specular: 0;
+    --card-edge: rgb(226 222 243 / 0.95);
+    --tint-alpha: 0.08;
+    --tint-alpha-2: 0.04;
+    --card-tint-2: rgb(14 116 144 / 0.05);
+
+    --edge-a: rgb(124 58 237 / 0.45);
+    --edge-b: rgb(226 222 243 / 0.9);
+    --edge-c: rgb(14 116 144 / 0.35);
+
+    --corner-1: rgb(124 58 237 / 0.45);
+    --corner-2: rgb(14 116 144 / 0.35);
+    --corner-3: rgb(190 24 93 / 0.3);
+    --corner-4: rgb(109 40 217 / 0.4);
+
+    --viz-grid: rgb(226 222 243 / 0.9);
+    --viz-part: rgb(124 58 237 / 0.8);
+    --viz-part-2: rgb(14 116 144 / 0.75);
+    --viz-scrap: rgb(190 24 93 / 0.5);
+    --viz-plate: rgb(244 242 253 / 0.95);
+  }
+
+  /*
+   * ── APPEARANCE FAMILIES ────────────────────────────────────────────────
+   * Mode owns lightness (the blocks above); a family owns hue and character.
+   * Each block below re-hues the accent ramp, the ambient pools and the card
+   * wash — nothing else — so every family works in both modes.
+   *
+   * These follow the application's own appearance families; see
+   * `src/data/themes.ts` for the file each one comes from.
+   */
+
+  /* Studio — this website's palette: the application's Violet accent, deep. */
+  [data-appearance="studio"] {
+    --brand-50: 245 243 255;
+    --brand-200: 221 214 254;
+    --brand-300: 196 181 253;
+    --brand-400: 167 139 250;
+    --brand-500: 139 92 246;
+    --brand-600: 124 58 237;
+    --brand-700: 109 40 217;
+    --pool-1: rgb(139 92 246 / 0.16);
+    --pool-2: rgb(34 211 238 / 0.07);
+    --pool-3: rgb(244 114 182 / 0.06);
+    --card-tint: rgb(139 92 246 / 0.12);
+    --card-tint-2: rgb(34 211 238 / 0.05);
+  }
+
+  /* Monet — the application's Material-You family: a warm accent dusk. */
+  [data-appearance="monet"] {
+    --brand-50: 253 242 248;
+    --brand-200: 251 207 232;
+    --brand-300: 244 164 199;
+    --brand-400: 232 121 166;
+    --brand-500: 214 78 140;
+    --brand-600: 190 24 93;
+    --brand-700: 158 21 78;
+    --pool-1: rgb(244 114 182 / 0.17);
+    --pool-2: rgb(251 146 60 / 0.09);
+    --pool-3: rgb(167 139 250 / 0.08);
+    --card-tint: rgb(244 114 182 / 0.13);
+    --card-tint-2: rgb(251 146 60 / 0.06);
+  }
+
+  /* Industrial — the application's strict default: sky over slate. */
+  [data-appearance="industrial"] {
+    --brand-50: 240 249 255;
+    --brand-200: 186 230 253;
+    --brand-300: 125 211 252;
+    --brand-400: 56 189 248;
+    --brand-500: 14 165 233;
+    --brand-600: 2 132 199;
+    --brand-700: 3 105 161;
+    --pool-1: rgb(56 189 248 / 0.12);
+    --pool-2: rgb(45 212 191 / 0.07);
+    --pool-3: rgb(99 102 241 / 0.05);
+    --card-tint: rgb(56 189 248 / 0.1);
+    --card-tint-2: rgb(45 212 191 / 0.05);
+  }
+
+  /*
+   * Crystal — liquid glass.
+   *
+   * The application's Crystal Fluid family is see-through: surfaces let the
+   * environment through and light bends at the edge. On the site that is
+   * expressed with the same idea — real translucency, a heavy backdrop blur
+   * with saturation pushed up, a bright specular streak across the top-left
+   * and a refractive hairline that reads lighter than the surface around it.
+   *
+   * Nothing here is decorative-only: every value below feeds a card class that
+   * already exists, so switching to Crystal re-glasses the entire site.
+   */
+  [data-appearance="crystal"] {
+    --brand-50: 236 254 255;
+    --brand-200: 165 243 252;
+    --brand-300: 103 232 249;
+    --brand-400: 34 211 238;
+    --brand-500: 8 145 178;
+    --brand-600: 14 116 144;
+    --brand-700: 21 94 117;
+    --pool-1: rgb(34 211 238 / 0.22);
+    --pool-2: rgb(129 140 248 / 0.16);
+    --pool-3: rgb(45 212 191 / 0.14);
+
+    /* Translucency: the card fill drops away and the blur does the work. */
+    --surface-alpha: 0.34;
+    --surface-alpha-2: 0.22;
+    --surface-blur: 34px;
+    --surface-sat: 190%;
+    --surface-specular: 0.2;
+    --card-edge: rgb(255 255 255 / 0.24);
+    --tint-alpha: 0.16;
+    --tint-alpha-2: 0.08;
+
+    --edge-a: rgb(255 255 255 / 0.62);
+    --edge-b: rgb(34 211 238 / 0.45);
+    --edge-c: rgb(255 255 255 / 0.22);
+
+    --corner-1: rgb(255 255 255 / 0.52);
+    --corner-2: rgb(103 232 249 / 0.55);
+    --corner-3: rgb(129 140 248 / 0.45);
+    --corner-4: rgb(255 255 255 / 0.34);
+    --corner-size: 5.5rem;
+    --corner-opacity: 1;
+
+    --card-tint: rgb(34 211 238 / 0.16);
+    --card-tint-2: rgb(129 140 248 / 0.09);
+    --card-highlight: rgb(255 255 255 / 0.16);
+    --selection: rgb(103 232 249 / 0.3);
+    --viz-grid: rgb(255 255 255 / 0.14);
+    --viz-part: rgb(103 232 249 / 0.9);
+    --viz-part-2: rgb(255 255 255 / 0.75);
+    --viz-scrap: rgb(129 140 248 / 0.6);
+    --viz-plate: rgb(255 255 255 / 0.1);
+  }
+
+  /* Light glass: frosted white rather than frosted dark. */
+  [data-theme="daylight"][data-appearance="crystal"] {
+    --surface-alpha: 0.62;
+    --surface-alpha-2: 0.5;
+    --surface-blur: 30px;
+    --surface-sat: 180%;
+    --card-edge: rgb(255 255 255 / 0.85);
+    --edge-a: rgb(255 255 255 / 0.95);
+    --edge-b: rgb(8 145 178 / 0.35);
+    --edge-c: rgb(255 255 255 / 0.7);
+    --corner-1: rgb(255 255 255 / 0.9);
+    --corner-2: rgb(34 211 238 / 0.4);
+    --corner-3: rgb(129 140 248 / 0.32);
+    --corner-4: rgb(8 145 178 / 0.32);
+    --viz-grid: rgb(8 145 178 / 0.22);
+    --viz-part: rgb(8 145 178 / 0.85);
+    --viz-part-2: rgb(129 140 248 / 0.8);
+    --viz-plate: rgb(255 255 255 / 0.75);
+  }
+
+  /* Daylight needs its own re-weighting of the ramps so contrast holds. */
+  [data-theme="daylight"][data-appearance="monet"] {
+    --brand-300: 190 24 93;
+    --brand-400: 190 24 93;
+    --brand-500: 158 21 78;
+    --brand-600: 131 24 67;
+    --brand-700: 112 26 60;
+    --card-tint: rgb(232 121 166 / 0.12);
+  }
+
+  [data-theme="daylight"][data-appearance="industrial"] {
+    --brand-300: 3 105 161;
+    --brand-400: 2 132 199;
+    --brand-500: 3 105 161;
+    --brand-600: 7 89 133;
+    --brand-700: 12 74 110;
+    --card-tint: rgb(56 189 248 / 0.1);
+  }
+
+  [data-theme="daylight"][data-appearance="crystal"] {
+    --brand-300: 14 116 144;
+    --brand-400: 8 145 178;
+    --brand-500: 14 116 144;
+    --brand-600: 21 94 117;
+    --brand-700: 22 78 99;
+    --card-tint: rgb(34 211 238 / 0.1);
+  }
+
+  * {
+    @apply border-line/60;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Anchor targets must clear the sticky header. */
+    scroll-padding-top: calc(var(--nav-height) + 1.5rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 text-text-secondary font-sans antialiased;
+    /* Three very wide, very soft light pools. They never move. */
+    background-image:
+      radial-gradient(1100px 620px at 12% -8%, var(--pool-1), transparent 62%),
+      radial-gradient(900px 520px at 92% 4%, var(--pool-2), transparent 58%),
+      radial-gradient(760px 460px at 68% 96%, var(--pool-3), transparent 60%),
+      radial-gradient(640px 420px at 30% 78%, var(--pool-2), transparent 66%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+    transition: background-color 240ms ease, color 240ms ease;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    @apply text-text-primary font-semibold tracking-tight;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One visible focus treatment everywhere. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-brand-400 ring-offset-2;
+    --tw-ring-offset-color: rgb(var(--ink-950));
+    border-radius: 0.375rem;
+  }
+
+  ::selection {
+    background: var(--selection);
+    color: rgb(var(--text-1));
+  }
+
+  /* Scrollbars follow the theme. */
+  * {
+    scrollbar-color: rgb(var(--scroll-thumb)) rgb(var(--scroll-track));
+    scrollbar-width: thin;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: rgb(var(--scroll-track));
+  }
+  *::-webkit-scrollbar-thumb {
+    background: rgb(var(--scroll-thumb));
+    border-radius: 999px;
+    border: 2px solid rgb(var(--scroll-track));
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--line-strong));
+  }
+
+  img,
+  video {
+    @apply max-w-full h-auto;
+  }
+}
+
+@layer components {
+  /*
+   * The layout is full-bleed. There is no centred maximum-width column: every
+   * band runs to the edge of the viewport and the gutters do the framing, so a
+   * wide screen shows more content rather than more margin.
+   */
+  .shell {
+    @apply w-full px-5 sm:px-7 lg:px-10 xl:px-12 2xl:px-16;
+  }
+
+  /* Body copy is capped so a line stays readable; the band around it is not. */
+  .measure {
+    @apply max-w-measure;
+  }
+
+  .lede-measure {
+    @apply max-w-lede;
+  }
+
+  .section {
+    @apply py-16 sm:py-20 lg:py-24 2xl:py-28;
+  }
+
+  .hairline {
+    @apply border-t border-line/60;
+  }
+
+  /* Eyebrow label — small, spaced, technical. */
+  .eyebrow {
+    @apply text-2xs font-semibold uppercase tracking-[0.22em] text-brand-300;
+  }
+
+  .lede {
+    @apply text-base leading-[1.75] text-text-secondary sm:text-lg sm:leading-[1.78];
+  }
+
+  /*
+   * Vertical rhythm for running text. Applied to a wrapper, it spaces every
+   * child paragraph, list and heading consistently instead of relying on one
+   * margin utility per element — which is where uneven gaps come from.
+   */
+  .flow > * + * {
+    margin-top: var(--flow-gap, 1.15rem);
+  }
+
+  .flow-loose {
+    --flow-gap: 1.6rem;
+  }
+
+  .flow-tight {
+    --flow-gap: 0.6rem;
+  }
+
+  /* A heading that starts a new thought needs more air above it than below. */
+  .flow > h2 + *,
+  .flow > h3 + * {
+    margin-top: 0.85rem;
+  }
+
+  .flow > * + h2 {
+    margin-top: 2.4rem;
+  }
+
+  .flow > * + h3 {
+    margin-top: 1.9rem;
+  }
+
+  /*
+   * ═══ CARD SYSTEM ═════════════════════════════════════════════════════════
+   * One build, five tiers. Every card is composed of four things:
+   *
+   *   1. a tinted fill           — violet, never neutral black or grey
+   *   2. a gradient hairline     — a real border, drawn with a mask so the
+   *                                colour can run around the corner
+   *   3. four corner wedges      — the coloured corner that finishes the frame
+   *   4. a soft accent shadow    — so the card sits above the page, not in it
+   *
+   * All four read the family dials (`--surface-alpha`, `--edge-*`, `--corner-*`),
+   * which is why switching to Crystal turns every one of them into glass.
+   */
+
+  .surface,
+  .surface-raised,
+  .stat-tile,
+  .plate,
+  .card-live {
+    position: relative;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+
+  /* The fill: a diagonal gradient plus the violet wash at the top-left. */
+  .surface,
+  .stat-tile,
+  .plate,
+  .card-live {
+    background-image:
+      radial-gradient(130% 100% at 0% 0%, var(--card-tint), transparent 60%),
+      radial-gradient(90% 80% at 100% 100%, var(--card-tint-2, transparent), transparent 62%),
+      linear-gradient(180deg, var(--card-highlight), transparent 32%),
+      linear-gradient(
+        158deg,
+        rgb(var(--ink-900) / var(--surface-alpha)) 0%,
+        rgb(var(--ink-850) / var(--surface-alpha-2)) 48%,
+        rgb(var(--ink-900) / var(--surface-alpha)) 100%
+      );
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
+    -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
+  }
+
+  .surface {
+    border-radius: theme("borderRadius.card");
+  }
+
+  .surface-raised,
+  .plate {
+    border-radius: theme("borderRadius.panel");
+    background-image:
+      radial-gradient(130% 100% at 0% 0%, var(--card-tint), transparent 58%),
+      radial-gradient(90% 80% at 100% 100%, var(--card-tint-2, transparent), transparent 60%),
+      linear-gradient(180deg, var(--card-highlight), transparent 30%),
+      linear-gradient(
+        158deg,
+        rgb(var(--ink-850) / var(--surface-alpha)) 0%,
+        rgb(var(--ink-800) / var(--surface-alpha-2)) 52%,
+        rgb(var(--ink-900) / var(--surface-alpha)) 100%
+      );
+    box-shadow: var(--shadow-raised);
+  }
+
+  .stat-tile {
+    border-radius: theme("borderRadius.card");
+  }
+
+  /* ── 2 · gradient hairline, drawn as a ring so it follows every corner ── */
+  .surface::before,
+  .surface-raised::before,
+  .stat-tile::before,
+  .plate::before,
+  .card-live::before,
+  .card-accent::before,
+  .card-glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      145deg,
+      var(--edge-a) 0%,
+      var(--edge-b) 42%,
+      var(--edge-c) 100%
+    );
+    opacity: var(--edge-alpha);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  /* ── 3 · the coloured corner ─────────────────────────────────────────── */
+  .surface::after,
+  .surface-raised::after,
+  .stat-tile::after,
+  .plate::after,
+  .card-live::after,
+  .card-accent::after,
+  .card-glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--corner-opacity);
+    background-image:
+      linear-gradient(135deg, var(--corner-1) 0, transparent 62%),
+      linear-gradient(225deg, var(--corner-2) 0, transparent 62%),
+      linear-gradient(45deg, var(--corner-3) 0, transparent 62%),
+      linear-gradient(315deg, var(--corner-4) 0, transparent 62%);
+    background-size: var(--corner-size) var(--corner-size);
+    background-position: top left, top right, bottom right, bottom left;
+    background-repeat: no-repeat;
+  }
+
+  /* Specular streak — inert everywhere except the glass family. */
+  .surface .specular,
+  .surface-raised .specular,
+  .plate .specular {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      142deg,
+      rgb(255 255 255 / var(--surface-specular)) 0%,
+      transparent 44%
+    );
+  }
+
+  /* Cards keep their own content above the decoration. */
+  .surface > *,
+  .surface-raised > *,
+  .stat-tile > *,
+  .plate > *,
+  .card-live > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Interactive card: lifts and warms its border on hover/focus. */
+  .card-interactive {
+    transition:
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 260ms ease;
+  }
+
+  .card-interactive:hover,
+  .card-interactive:focus-within {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow);
+    --edge-alpha: 1;
+    --corner-opacity: 1;
+  }
+
+  /* Accent card: a filled brand panel for the one thing that outranks a page. */
+  .card-accent {
+    position: relative;
+    overflow: hidden;
+    border-radius: theme("borderRadius.panel");
+    border: 1px solid transparent;
+    background-image: linear-gradient(
+      150deg,
+      rgb(var(--brand-600) / 0.42) 0%,
+      rgb(var(--ink-850) / var(--surface-alpha)) 48%,
+      rgb(var(--ink-900) / var(--surface-alpha)) 100%
+    );
+    background-clip: padding-box;
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.08),
+      0 30px 70px -34px rgb(var(--brand-500) / 0.65);
+  }
+
+  .card-accent > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Glass card: the iridescent variant, for glass build-up content. */
+  .card-glass {
+    position: relative;
+    overflow: hidden;
+    border-radius: theme("borderRadius.panel");
+    border: 1px solid transparent;
+    background-image: linear-gradient(
+      148deg,
+      rgb(var(--glass-teal) / 0.16) 0%,
+      rgb(var(--ink-850) / var(--surface-alpha)) 42%,
+      rgb(var(--brand-600) / 0.18) 100%
+    );
+    background-clip: padding-box;
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.07),
+      0 26px 60px -32px rgb(var(--glass-teal) / 0.5);
+  }
+
+  .card-glass > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Live preview surface: the interactive frame content. */
+  .card-live {
+    border-radius: theme("borderRadius.card");
+    box-shadow: var(--shadow-panel);
+  }
+
+  .live-grid {
+    background-image:
+      linear-gradient(to right, var(--viz-grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--viz-grid) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /*
+   * Dropdown menu panel.
+   *
+   * Deliberately opaque: a menu over a photograph or over moving content has to
+   * be readable, so this is a solid fill with a real border and the same
+   * coloured corner as the rest of the card system — no backdrop blur, no
+   * translucency.
+   */
+  .menu-card {
+    position: relative;
+    background-color: rgb(var(--ink-900));
+    border: 1px solid rgb(var(--line-strong) / 0.85);
+    background-image:
+      radial-gradient(120% 90% at 100% 0%, var(--card-tint), transparent 58%),
+      linear-gradient(180deg, rgb(var(--ink-850)) 0%, rgb(var(--ink-900)) 100%);
+  }
+
+  .menu-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: var(--corner-opacity);
+    background-image:
+      linear-gradient(135deg, var(--corner-1) 0, transparent 60%),
+      linear-gradient(315deg, var(--corner-4) 0, transparent 60%);
+    background-size: var(--corner-size) var(--corner-size);
+    background-position: top left, bottom right;
+    background-repeat: no-repeat;
+  }
+
+  .menu-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Small pill used for tags, counts and inline metadata. */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line-strong/70 bg-ink-800/70 px-2.5 py-1 font-mono text-2xs uppercase tracking-[0.12em] text-text-muted;
+  }
+
+  /* Rivet detail: a hairline top highlight used on product frames. */
+  .plate {
+    position: relative;
+    overflow: hidden;
+    border-radius: theme("borderRadius.panel");
+    border: 1px solid rgb(var(--line-strong) / 0.7);
+    background-image: linear-gradient(
+      168deg,
+      rgb(var(--ink-850) / 0.98) 0%,
+      rgb(var(--ink-900) / 0.99) 100%
+    );
+    box-shadow: var(--shadow-raised);
+  }
+
+  .mono-label {
+    @apply font-mono text-2xs uppercase tracking-[0.16em] text-text-faint;
+  }
+
+  .link-underline {
+    @apply relative inline-flex items-center gap-1.5 font-medium text-brand-300 transition-colors duration-200 hover:text-brand-200;
+  }
+
+  /* Section rule with a violet core, used between major page bands. */
+  .rule-violet {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--brand-400) / 0.45) 30%,
+      rgb(var(--brand-400) / 0.45) 70%,
+      transparent
+    );
+  }
+}
+
+@layer utilities {
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .reveal-scale {
+    opacity: 0;
+    transform: scale(0.975);
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-scale.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Violet gradient text for the words that carry a headline. */
+  .text-gradient {
+    background-image: linear-gradient(
+      100deg,
+      rgb(var(--text-1)) 0%,
+      rgb(var(--brand-300)) 52%,
+      rgb(var(--glass-cyan)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Thin horizontal scroller used by the slider strips. */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Reduced motion: content must still arrive complete. Anything that was
+ * hidden by an entrance animation is shown immediately and all transitions
+ * collapse to near-instant.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .reveal,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
