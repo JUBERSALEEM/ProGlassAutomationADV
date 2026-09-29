@@ -453,3 +453,8 @@ ios_*.png
 optimization-top-card-mockups/
 **/optimization-top-card-mockups/**
 *-mockup-*.png
+
+# 2026-09-29: the website's local review notes and the CI workflow drafts are
+# review artefacts, not part of the tree the site builds from. Kept on disk.
+website/REVIEW.md
+.github/workflows/

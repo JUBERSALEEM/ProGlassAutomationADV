@@ -169,7 +169,10 @@ Three things now stop you hitting this again:
 
 `npm run doctor` prints the state of the tree at any time — the revision it is
 reading, whether all declared dependencies are installed, and whether anything
-under `src/` imports a package `package.json` does not declare.
+under `src/` imports a package `package.json` does not declare. **`npm run fix`**
+is the one command that repairs a tree that is already broken: it installs
+whatever is missing, clears `.next`, prints the revision it just repaired, and
+says what to run next.
 
 **Switching revisions with a dev server running** is the one case the checks
 cannot catch, because nothing is being compiled for the first time: a dev server
@@ -540,6 +543,7 @@ everywhere: **the site is in `website/`**, and **Node 22**.
 | `Module not found: Can't resolve …` (any package) | dependencies were never installed in `website/` — usually because `npx next build` was run instead of `npm run build` | `cd website && npm ci`, then `npm run build`. The pre-build guard prints this for you before Next starts |
 | `Can't resolve …` for a package you have never heard of, after `npm ci` | the file being compiled is from an older revision of the tree, or a dependency was removed and the import was left behind — installing cannot satisfy either | `npm run doctor` names the package and the file; `git log --oneline -1` says which copy you are building. Take the current revision |
 | the same old error keeps coming back after the fix, same file content each time | the dev server started against an older tree is still serving its compiled module graph | stop it, `rm -rf website/.next`, `npm ci`, `npm run dev`, then hard-reload the browser tab |
+| the dev overlay keeps showing the same error — same file content — after the fix is in the tree | a development overlay is drawn by the page that hit the error and stays on screen until that page is reloaded; a dev server can also replay the module graph it compiled earlier | `npm run fix`, restart `npm run dev`, then reload the tab completely (`Ctrl-Shift-R`). A production server (`npm start`) cannot show that overlay at all |
 | Build fails: *no `package.json`* / it tries to build a `.sln` | the host's root directory is the repository root | set **Root Directory = `website`** |
 | Build fails on Node version or on `node:fs` | Node too old, or the WPF project was built instead | **Node.js Version = 22.x** in the project settings |
 | Site deploys but every page is unstyled | the build output directory was changed from `.next` | reset **Output Directory** to the default |

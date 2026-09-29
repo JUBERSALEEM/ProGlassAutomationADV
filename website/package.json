@@ -13,6 +13,7 @@
     "lint": "eslint src scripts",
     "typecheck": "tsc --noEmit",
     "doctor": "node scripts/check-deps.mjs --report",
+    "fix": "node scripts/fix.mjs",
     "assets:optimize": "node scripts/optimize-assets.mjs"
   },
   "dependencies": {

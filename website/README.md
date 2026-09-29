@@ -26,6 +26,11 @@ python3 scripts/audit-site.py            # crawl http://127.0.0.1:3000
 python3 scripts/audit-site.py https://…  # or any deployed origin
 ```
 
+If a build or a dev server is already failing, **`npm run fix`** is the one
+command that repairs the state: it installs whatever is missing, clears the
+build cache, reports which revision it just repaired, and tells you what to run
+next. `npm run doctor` only reports.
+
 Run `npm run doctor` at any time to see the revision in the tree, whether every
 declared dependency is installed, and whether anything under `src/` imports a
 package `package.json` does not declare.
