@@ -14,6 +14,21 @@ import { luminance } from "@/lib/color";
  * reach it — so a visitor who lands on the home page can see immediately that
  * the site takes its palette from the product rather than being a fixed design.
  */
+/**
+ * The card-edge weights worth naming.
+ *
+ * 1.5 and 2 are the application's own two: `CardBorderThickness` for the line
+ * an input or a gridline carries, `CardEdgeThickness` for the defined edge a
+ * card carries. The two above them are the same dial taken further, for a
+ * display where 2 px is too fine to see.
+ */
+const EDGE_PRESETS = [
+  { label: "Hairline", edge: 1.5, note: "1.5 px — the line the application gives inputs and gridlines" },
+  { label: "Defined", edge: 2, note: "2 px — the card edge the application ships with" },
+  { label: "Bold", edge: 3, note: "3 px — a heavier edge, with the padding following it" },
+  { label: "Heavy", edge: 4, note: "4 px — the top of the dial" },
+] as const;
+
 export function AppearancePreview() {
   const mode = useThemeMode();
   const family = useAppearance();
@@ -118,7 +133,39 @@ export function AppearancePreview() {
         docked studio writes, and everything drawn with `.surface` — including
         the card samples below — repaints as they move.
       */}
-      <div className="mt-2 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
+      {/* Preset plates, because every other choice in this panel is a plate you
+          press. Four weights the application's settings describe: the 1.5 px
+          hairline its inputs carry, the 2 px card edge it ships with, and two
+          heavier edges for high-DPI or accessibility setups. */}
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {EDGE_PRESETS.map((preset) => {
+          const active = Math.abs(studio.edge - preset.edge) < 0.001;
+          return (
+            <button
+              key={preset.label}
+              type="button"
+              aria-pressed={active}
+              onClick={() => setStudio({ edge: preset.edge })}
+              title={preset.note}
+              className={cn(
+                "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.75rem] font-bold transition-colors",
+                active
+                  ? "border-brand-400 bg-brand-500/15 text-text-primary"
+                  : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
+              )}
+            >
+              <span
+                aria-hidden="true"
+                className="h-4 w-8 rounded-[0.35rem] bg-ink-900"
+                style={{ border: `${preset.edge}px solid var(--card-edge)` }}
+              />
+              {preset.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
         <div className="space-y-3.5">
           <Slider
             label="Card edge"

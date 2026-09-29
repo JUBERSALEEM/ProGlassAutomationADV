@@ -33,36 +33,50 @@ export function ScreenshotFrame({
 }) {
   if (shot.src && shot.source !== "pending") {
     return (
-      <figure className={cn("plate shadow-raised", className)}>
+      <figure className={cn("plate shadow-raised", className, modal && "mx-auto w-fit max-w-full")}>
         {/*
-          Opened large, the asset is contained rather than cropped: the frame
-          keeps its 3:2 shape, and an asset of another shape is letterboxed on
-          the plate colour instead of having its edges cut off. A screenshot
-          cropped to fit is a screenshot that has lost the column the visitor
-          opened it to read.
+          Opened large, the asset is fitted to the window.
+          
+          A screenshot viewer has one job: show the screen as large as the
+          window allows, whole. So in the lightbox the frame is not a fixed
+          3:2 box with a letterbox inside it — the image is capped by the
+          viewport height and by the column width, which means the picture is
+          as big as it can be and still be complete. The frame hugs it, and the
+          plate border sits around the picture rather than around empty space.
+          
+          Inline nothing changes: the gallery is a grid of equal cards, so those
+          keep the 3:2 crop.
         */}
         <div
           className={cn(
-            "relative aspect-[3/2] w-full overflow-hidden",
-            modal && "bg-ink-950",
+            "relative w-full overflow-hidden",
+            modal ? "bg-ink-950" : "aspect-[3/2]",
           )}
         >
+          {modal ? (
+            /* Intrinsic size plus the asset's own ratio, capped by the viewport
+               height and the column width: the picture is as large as the
+               window allows and still whole. */
+            <Image
+              src={shot.src}
+              alt={shot.assetNote ?? shot.title}
+              width={shot.width}
+              height={shot.height}
+              sizes="(max-width: 1024px) 100vw, 1760px"
+              className="mx-auto block h-auto max-h-[calc(100dvh-14rem)] w-auto max-w-full object-contain"
+            />
+          ) : (
           <Image
             src={shot.src}
             alt={shot.assetNote ?? shot.title}
             fill
-            sizes={
-              modal
-                ? // The lightbox gives the preview the whole width, so the largest
-                  // raster is the right one to hand the browser.
-                  "(max-width: 1024px) 100vw, 1600px"
-                : // The gallery grid itself is `sm:grid-cols-2 xl:grid-cols-3`, so the
-                  // half-width guess has to hold until 1280px, not until 1024px.
-                  "(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
-            }
-            className={modal ? "object-contain" : "object-cover"}
+            // The gallery grid is `sm:grid-cols-2 xl:grid-cols-3`, so the
+            // half-width guess has to hold until 1280px, not until 1024px.
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
+            className="object-cover"
             priority={priority}
           />
+          )}
         </div>
         <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3">
           <p className="text-sm font-medium text-text-primary">{shot.title}</p>
