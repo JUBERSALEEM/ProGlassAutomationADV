@@ -1,0 +1,199 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --shell-max: 84rem;
+    --nav-height: 4.25rem;
+  }
+
+  * {
+    @apply border-line/60;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* Anchor targets must clear the sticky header. */
+    scroll-padding-top: calc(var(--nav-height) + 1.5rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 text-text-secondary font-sans antialiased;
+    /* Two very wide, very soft light pools. Subtle, and it never moves. */
+    background-image:
+      radial-gradient(1100px 620px at 12% -8%, rgba(56, 189, 248, 0.09), transparent 62%),
+      radial-gradient(900px 520px at 92% 4%, rgba(45, 212, 191, 0.055), transparent 58%);
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    @apply text-text-primary font-semibold tracking-tight;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One visible focus treatment everywhere. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    @apply outline-none ring-2 ring-brand-400 ring-offset-2 ring-offset-ink-950 rounded-sm;
+  }
+
+  ::selection {
+    background: rgba(56, 189, 248, 0.28);
+    color: #f8fafc;
+  }
+
+  /* Scrollbars tuned for the dark shell. */
+  * {
+    scrollbar-color: #1e293b #070b14;
+    scrollbar-width: thin;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: #070b14;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 999px;
+    border: 2px solid #070b14;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background: #2c3e56;
+  }
+
+  img,
+  video {
+    @apply max-w-full h-auto;
+  }
+}
+
+@layer components {
+  .shell {
+    @apply mx-auto w-full max-w-shell px-5 sm:px-6 lg:px-8;
+  }
+
+  .section {
+    @apply py-16 sm:py-20 lg:py-28;
+  }
+
+  .hairline {
+    @apply border-t border-line/60;
+  }
+
+  /* Eyebrow label — small, spaced, technical. */
+  .eyebrow {
+    @apply text-2xs font-semibold uppercase tracking-[0.22em] text-brand-300/90;
+  }
+
+  .lede {
+    @apply text-base sm:text-lg leading-relaxed text-text-secondary;
+  }
+
+  /* Card surface, three tiers, one vocabulary. */
+  .surface {
+    @apply rounded-card border border-line/70 bg-ink-900/70 backdrop-blur-[2px];
+  }
+
+  .surface-raised {
+    @apply rounded-panel border border-line/70 bg-ink-850/80 shadow-panel;
+  }
+
+  /* Rivet detail: a hairline top highlight used on product frames. */
+  .plate {
+    @apply relative overflow-hidden rounded-panel border border-line/70 bg-ink-850;
+  }
+
+  .plate::before {
+    content: "";
+    @apply pointer-events-none absolute inset-x-0 top-0 h-px;
+    background: linear-gradient(90deg, transparent, rgba(248, 250, 252, 0.22), transparent);
+  }
+
+  .mono-label {
+    @apply font-mono text-2xs uppercase tracking-[0.16em] text-text-faint;
+  }
+
+  .link-underline {
+    @apply relative inline-flex items-center gap-1.5 font-medium text-brand-300 transition-colors duration-200 hover:text-brand-200;
+  }
+}
+
+@layer utilities {
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+    transition:
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  .reveal-scale {
+    opacity: 0;
+    transform: scale(0.975);
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-scale.is-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Thin horizontal scroller used by the slider strips. */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/*
+ * Reduced motion: content must still arrive complete. Anything that was
+ * hidden by an entrance animation is shown immediately and all transitions
+ * collapse to near-instant.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .reveal,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -1,0 +1,93 @@
+import type { ReactNode } from "react";
+import { Container, Section } from "@/components/ui/Container";
+import { PageHero } from "@/components/layout/PageHero";
+
+export type LegalSection = { heading: string; paragraphs: string[]; list?: string[] };
+
+export function LegalPage({
+  eyebrow,
+  title,
+  lead,
+  updated,
+  sections,
+  footer,
+}: {
+  eyebrow: string;
+  title: string;
+  lead: string;
+  updated: string;
+  sections: LegalSection[];
+  footer?: ReactNode;
+}) {
+  return (
+    <>
+      <PageHero
+        eyebrow={eyebrow}
+        title={title}
+        lead={lead}
+        breadcrumb={[
+          { label: "Home", href: "/" },
+          { label: eyebrow, href: `#` },
+        ]}
+        meta={[
+          { label: "Last updated", value: updated },
+          { label: "Applies to", value: "This website and the desktop application" },
+        ]}
+      />
+
+      <Section aria-label={title}>
+        <Container>
+          <div className="mx-auto max-w-prose">
+            <ol className="mb-10 space-y-1.5 border-l border-line-strong/60 pl-5">
+              {sections.map((section, index) => (
+                <li key={section.heading}>
+                  <a
+                    href={`#section-${index + 1}`}
+                    className="text-sm text-text-muted transition-colors hover:text-brand-200"
+                  >
+                    <span className="mr-2 font-mono text-2xs tabular-nums text-text-faint">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    {section.heading}
+                  </a>
+                </li>
+              ))}
+            </ol>
+
+            <div className="space-y-10">
+              {sections.map((section, index) => (
+                <section key={section.heading} id={`section-${index + 1}`} className="scroll-mt-28">
+                  <h2 className="flex items-baseline gap-3 text-lg font-semibold text-text-primary sm:text-xl">
+                    <span className="font-mono text-sm text-brand-300/80">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    {section.heading}
+                  </h2>
+                  <div className="mt-4 space-y-4">
+                    {section.paragraphs.map((paragraph) => (
+                      <p key={paragraph} className="text-sm leading-relaxed text-text-secondary sm:text-base">
+                        {paragraph}
+                      </p>
+                    ))}
+                    {section.list ? (
+                      <ul className="space-y-2.5 pl-1">
+                        {section.list.map((item) => (
+                          <li key={item} className="flex gap-3 text-sm leading-relaxed text-text-muted">
+                            <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/70" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </section>
+              ))}
+            </div>
+
+            {footer ? <div className="mt-12 border-t border-line/60 pt-8">{footer}</div> : null}
+          </div>
+        </Container>
+      </Section>
+    </>
+  );
+}

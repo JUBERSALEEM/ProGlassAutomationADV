@@ -1,0 +1,298 @@
+import type { Metadata } from "next";
+import { Container, Section } from "@/components/ui/Container";
+import { PageHero } from "@/components/layout/PageHero";
+import { ArrowRight, ButtonLink } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Reveal } from "@/components/ui/Reveal";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { Accordion } from "@/components/ui/Accordion";
+import { editions, licenceFacts, licenceGates, openModules } from "@/data/editions";
+import { faq } from "@/data/faq";
+import { pageMetadata } from "@/lib/metadata";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Pricing and licensing editions",
+  description:
+    "ProGlass Automation editions — Trial, Basic, Business, Factory and Enterprise: which modules each tier unlocks, and how offline licensing works.",
+  path: "/pricing",
+  keywords: ["glass software pricing", "glass ERP licence", "ProGlass Automation editions", "glass software licence"],
+});
+
+export default function PricingPage() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Pricing"
+        title="Editions, not subscriptions."
+        lead="ProGlass Automation is licensed per business with a signed licence file activated offline. The editions below are the ones the application itself defines, and the feature gating is the same map the navigation rail uses — so what this page says and what the application does cannot drift apart."
+        breadcrumb={[
+          { label: "Home", href: "/" },
+          { label: "Pricing", href: "/pricing" },
+        ]}
+        meta={[
+          { label: "Editions", value: "5 (Trial → Enterprise)" },
+          { label: "Trial", value: "30 days, all features" },
+          { label: "Activation", value: "Offline licence file" },
+          { label: "Pricing", value: "Quoted per business" },
+        ]}
+        actions={
+          <>
+            <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
+              Request pricing
+            </ButtonLink>
+            <ButtonLink href="/contact" variant="secondary" size="lg">
+              Request a Demo
+            </ButtonLink>
+          </>
+        }
+      />
+
+      {/* ── Why there is no price on this page ───────────────────── */}
+      <Section aria-label="How pricing works">
+        <Container>
+          <Reveal>
+            <div className="surface-raised grid gap-6 p-6 sm:grid-cols-3 sm:p-8">
+              <div className="sm:col-span-2">
+                <h2 className="text-xl font-semibold text-text-primary sm:text-2xl">
+                  There is no price on this page, and that is deliberate.
+                </h2>
+                <p className="mt-4 text-sm leading-relaxed text-text-muted">
+                  ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or
+                  a factory running eight production stages. What you need ranges from the proforma wizard alone to the
+                  full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either
+                  overcharging the first or underdelivering the last.
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-text-muted">
+                  Tell us how many people will use it, which modules matter, and whether cutting optimization is part of
+                  your day. You get a written quote for that scope.
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <ButtonLink href="/contact" size="md" trailing={<ArrowRight />}>
+                    Request pricing
+                  </ButtonLink>
+                  <ButtonLink href="/contact" variant="secondary" size="md">
+                    Request a Demo
+                  </ButtonLink>
+                </div>
+              </div>
+              <ul className="space-y-3 sm:border-l sm:border-line/60 sm:pl-6">
+                {licenceFacts.map((fact) => (
+                  <li key={fact} className="flex gap-3 text-sm leading-relaxed text-text-muted">
+                    <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                    {fact}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
+        </Container>
+      </Section>
+
+      {/* ── Editions ─────────────────────────────────────────────── */}
+      <Section tone="raised" aria-labelledby="editions-heading">
+        <Container>
+          <SectionHeading
+            id="editions-heading"
+            eyebrow="Editions"
+            title="Five tiers, in the order the application compares them."
+            lead="The application compares editions by order, not by name, so a stored licence keeps its meaning as new tiers are appended. The descriptions below are the definitions written on the edition enum itself."
+          />
+
+          <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {editions.map((edition, index) => (
+              <Reveal
+                key={edition.id}
+                delay={index * 60}
+                className={
+                  edition.featured
+                    ? "surface-raised relative flex flex-col border-brand-400/40 p-6 shadow-glow"
+                    : "surface relative flex flex-col p-6"
+                }
+              >
+                {edition.featured ? (
+                  <span className="absolute -top-3 left-6">
+                    <Badge tone="accent">Includes the optimizer</Badge>
+                  </span>
+                ) : null}
+
+                <div className="flex items-baseline justify-between gap-3">
+                  <h3 className="text-lg font-semibold text-text-primary">{edition.name}</h3>
+                  <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
+                    Tier {edition.order}
+                  </span>
+                </div>
+                <p className="mt-1 font-mono text-2xs uppercase tracking-[0.14em] text-brand-300/80">
+                  {edition.positioning}
+                </p>
+
+                <p className="mt-4 rounded-card border border-line/60 bg-ink-950/50 p-3.5 text-sm leading-relaxed text-text-secondary">
+                  {edition.definition}
+                </p>
+
+                <ul className="mt-5 flex-1 space-y-2.5 border-t border-line/60 pt-5">
+                  {edition.includes.map((item) => (
+                    <li key={item} className="flex gap-2.5 text-sm leading-relaxed text-text-muted">
+                      <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/70" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+
+                <ButtonLink
+                  href="/contact"
+                  variant={edition.featured ? "primary" : "secondary"}
+                  size="sm"
+                  className="mt-6"
+                  trailing={<ArrowRight />}
+                >
+                  Ask about {edition.name}
+                </ButtonLink>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      {/* ── Gating map ───────────────────────────────────────────── */}
+      <Section aria-labelledby="gating-heading">
+        <Container>
+          <SectionHeading
+            id="gating-heading"
+            eyebrow="Feature gating"
+            title="Exactly what each edition unlocks."
+            lead="This is the same map the navigation rail consults. A module that is not in this table is open in every edition, and that is written down explicitly rather than left implied."
+          />
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            <div className="space-y-4">
+              {licenceGates.map((gate) => (
+                <Reveal key={gate.group} className="surface-raised p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-base font-semibold text-text-primary">{gate.group}</h3>
+                    <Badge tone="accent">{gate.minimumEdition} and above</Badge>
+                  </div>
+                  <p className="mt-2 font-mono text-xs text-text-faint">requires {gate.requiredFeature}</p>
+                  <ul className="mt-4 flex flex-wrap gap-2">
+                    {gate.modules.map((module) => (
+                      <li
+                        key={module}
+                        className="rounded-lg border border-line-strong/70 bg-ink-900/60 px-2.5 py-1 text-xs text-text-secondary"
+                      >
+                        {module}
+                      </li>
+                    ))}
+                  </ul>
+                </Reveal>
+              ))}
+            </div>
+
+            <Reveal delay={80} className="surface p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <h3 className="text-base font-semibold text-text-primary">Open in every edition</h3>
+                <Badge tone="success">No gate</Badge>
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-text-muted">
+                These modules are explicitly listed as ungated, so a missing entry can never be mistaken for a deliberate
+                free one. A test fails the build if a new module ships without somebody deciding either way.
+              </p>
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {openModules.map((module) => (
+                  <li
+                    key={module}
+                    className="rounded-lg border border-line/60 bg-ink-950/50 px-2.5 py-1 text-xs text-text-muted"
+                  >
+                    {module}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </div>
+
+          <Reveal delay={120} className="mt-6">
+            <div className="surface flex flex-col gap-3 border-brand-400/25 bg-brand-400/[0.04] p-5 sm:flex-row sm:items-start sm:gap-4">
+              <Badge tone="accent" className="shrink-0">
+                Trial
+              </Badge>
+              <p className="text-sm leading-relaxed text-text-muted">
+                During an active 30-day evaluation trial, every feature set is available — including the production stages
+                and the optimization engine. When the trial ends, the normal edition restrictions apply and the
+                application moves to read-only rather than locking you away from your records.
+              </p>
+            </div>
+          </Reveal>
+        </Container>
+      </Section>
+
+      {/* ── Deployment ───────────────────────────────────────────── */}
+      <Section tone="sunken" aria-labelledby="deployment-heading">
+        <Container>
+          <SectionHeading
+            id="deployment-heading"
+            eyebrow="What you need"
+            title="One Windows PC to start."
+            lead="No server, no database administrator and no browser. A small office can point several workstations at a shared database file on the local network."
+          />
+
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { title: "Operating system", detail: "Windows 10 or Windows 11, 64-bit." },
+              { title: "Runtime", detail: ".NET 8 desktop runtime, installed with the application." },
+              { title: "Storage", detail: "Local SQLite database files in your user profile, plus a licence file." },
+              { title: "Network", detail: "Not required to run. Needed only for updates and any cloud AI provider you choose to configure." },
+            ].map((item, index) => (
+              <Reveal key={item.title} delay={index * 50} className="surface p-5">
+                <p className="text-sm font-semibold text-text-primary">{item.title}</p>
+                <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.detail}</p>
+              </Reveal>
+            ))}
+          </div>
+        </Container>
+      </Section>
+
+      {/* ── FAQ ──────────────────────────────────────────────────── */}
+      <Section aria-label="Licensing questions">
+        <Container>
+          <SectionHeading
+            eyebrow="Questions"
+            title="Licensing, deployment and data."
+            lead="The answers below are limited to what the application actually implements."
+            align="center"
+          />
+          <div className="mx-auto mt-10 max-w-3xl">
+            <Accordion
+              items={faq
+                .filter((item) => item.group !== "Product")
+                .map(({ question, answer }) => ({ question, answer }))}
+              defaultOpen={0}
+            />
+          </div>
+        </Container>
+      </Section>
+
+      {/* ── CTA ──────────────────────────────────────────────────── */}
+      <Section tone="raised" aria-label="Request pricing">
+        <Container>
+          <Reveal>
+            <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+              <div>
+                <h2 className="text-2xl leading-tight sm:text-3xl">Tell us what you need, and get a number.</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
+                  How many people, which modules, and whether the cutting table is part of it. Every request is answered by
+                  a person.
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-3">
+                <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
+                  Request pricing
+                </ButtonLink>
+                <ButtonLink href="/features" variant="secondary" size="lg">
+                  What is included
+                </ButtonLink>
+              </div>
+            </div>
+          </Reveal>
+        </Container>
+      </Section>
+    </>
+  );
+}
