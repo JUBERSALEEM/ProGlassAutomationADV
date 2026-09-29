@@ -18,21 +18,32 @@ export function ProductHero() {
   return (
     <section className="relative overflow-hidden pb-12 pt-14 sm:pb-16 sm:pt-20 lg:pb-24 lg:pt-24">
       {/* ── Banner backdrop ──────────────────────────────────────────────
-          A photographic bed of stacked glass panes, heavily veiled so it reads
-          as texture behind the headline rather than as a picture on its own.
-          Decorative: it is not a photograph of any particular workshop, so it
-          is hidden from assistive technology and carries no caption. */}
+          A stack of glass sheets, drawn in the site's own geometry and tokens
+          by `scripts/render-hero-backdrop.mts` and rendered at true 2×.
+
+          It replaced a 1584 px photograph of a workshop, drawn full-bleed and
+          then dimmed to a third of its opacity. That image was being enlarged
+          about 2.3× on a 1920 px screen and diffused by two gradients on top of
+          it, which is what "the background is blurred" was: real detail on
+          screen at a size the file could not carry. Geometry has no such
+          problem — every edge here is a hairline at any size.
+
+          The veil is now a light one, because the picture no longer depends on
+          it: its left third is drawn deliberately quiet, which is where the
+          headline and the buttons sit. Decorative, so it is hidden from
+          assistive technology and carries no caption. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <Image
-          src="/images/brand/banner-glass-fabrication.jpg"
+          src="/images/brand/hero-backdrop-3840.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-right opacity-[0.34]"
+          quality={92}
+          className="object-cover object-right"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink-950 via-ink-950/85 to-ink-950/45" />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-ink-950/70" />
+        <div className="absolute inset-0 bg-gradient-to-r from-ink-950/80 via-ink-950/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-ink-950/45" />
       </div>
 
       {/* Ambient light. Four very wide pools, drifting slowly. */}

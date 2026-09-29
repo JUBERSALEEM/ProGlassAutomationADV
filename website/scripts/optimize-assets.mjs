@@ -19,6 +19,7 @@
  * the renderer produces it at a size nothing else needs:
  *
  *   public/images/brand/proglass-hero-banner-3840.png  → the banner derivatives
+ *   public/images/brand/hero-backdrop-3840.png          → the hero backdrop
  *
  * The banner is drawn edge to edge, so a retina display asks for it at roughly
  * 3584 device pixels on a 1920 px screen. Deriving from the 3840 px master is
@@ -76,6 +77,15 @@ const SITE_TARGETS = [
   {
     source: "public/images/brand/proglass-hero-banner-3840.png",
     dest: "brand/proglass-hero-banner",
+    widths: [1280, 1920, 2560, 3840],
+    fallback: 1920,
+  },
+  {
+    // The home hero's backdrop. It replaced a 1584 px photograph that was
+    // being enlarged 2.3× and then dimmed — the haze people could see behind
+    // the headline. Drawn in SVG by scripts/render-hero-backdrop.mts.
+    source: "public/images/brand/hero-backdrop-3840.png",
+    dest: "brand/hero-backdrop",
     widths: [1280, 1920, 2560, 3840],
     fallback: 1920,
   },

@@ -461,7 +461,8 @@ Good practice while working on something larger:
 
 ```bash
 cd website
-npx tsx scripts/render-hero-banner.mts   # only if you want the banner redrawn
+npx tsx scripts/render-hero-banner.mts    # only if you want the banner redrawn
+npx tsx scripts/render-hero-backdrop.mts  # …and the home hero's backdrop
 npm run assets:optimize -- --from ..
 ```
 
@@ -598,6 +599,8 @@ python3 scripts/audit-site.py https://proglassautomation.com --budget
 
 # ── brand assets (only when artwork changes) ────────────────────────────
 npx tsx scripts/render-hero-banner.mts   # redraw README_ASSETS/hero.png from the data
+npx tsx scripts/render-hero-backdrop.mts # redraw the home hero's backdrop
+npm run assets:optimize                  # re-encode both in AVIF/WebP at every width
 npm run assets:optimize -- --from ..     # re-encode the site's avif/webp/png derivatives
 
 # ── Vercel CLI ──────────────────────────────────────────────────────────
