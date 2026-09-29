@@ -110,7 +110,7 @@ export const screenshots: Screenshot[] = [
     source: "pending",
     evidence: "Views/ProformaInvoice/Step1…Step9, ViewModels/ProformaInvoice/",
     highlights: [
-      "Step 5 multi-spec grid: W1/H1/W2/H2/qty → SQM + value",
+      "The specification grid on step 5: # · glass ref · W1 H1 W2 H2 · qty · SQM · total SQM · rate · value",
       "Step 6 auto-imports sheet colours from Step 5",
       "Step 9 is the single pricing engine — everything downstream reads its snapshot",
     ],

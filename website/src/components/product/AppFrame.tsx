@@ -137,6 +137,10 @@ export function AppFrame({
    * below it both fit without scrolling, and on a large monitor the window grows
    * into real landscape instead of staying a squat strip. The clamp is the
    * honest way to say "as tall as there is room for, within reason".
+   *
+   * A minimum rather than a fixed height, deliberately: a fixed height would
+   * clip a preview that is taller than the clamp — and a preview that has been
+   * clipped has hidden exactly the rows the visitor opened it to read.
    */
   tall?: boolean;
 }) {
@@ -198,7 +202,7 @@ export function AppFrame({
           <div
             className={cn(
               "bg-ink-850/30 p-3 sm:p-5",
-              tall ? "h-[clamp(17rem,58vh,36rem)]" : "min-h-[13rem] sm:min-h-[16rem]",
+              tall ? "min-h-[clamp(17rem,58vh,36rem)]" : "min-h-[13rem] sm:min-h-[16rem]",
             )}
           >
             {children}

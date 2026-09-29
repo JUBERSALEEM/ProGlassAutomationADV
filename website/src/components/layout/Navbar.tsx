@@ -43,19 +43,23 @@ const entries: NavEntry[] = [
 ];
 
 /*
- * The top-level items are cards.
+ * The top panel is a card holding cards.
  *
- * They used to be bare words that only lit up on hover, which read as an
- * unstyled menu bar sitting on top of a product whose entire interface is
- * cards. Each entry is now a card in the same language as the panel it opens:
- * the card edge, the 12 px corner, a violet wash when it is the entry you are
- * on or have open, and the accent on hover.
+ * It used to be bare words on the page background that only lit up under the
+ * pointer, which read as an unstyled menu bar bolted onto a product whose whole
+ * interface is cards. Now the group of items sits inside one raised card — the
+ * card edge, the 16 px panel corner, the same violet wash and hairline the
+ * rest of the site uses — and each item inside it is a card of its own, with a
+ * transparent edge that only resolves on hover. The entry you are on, or have
+ * open, keeps its edge and its wash, so the panel always says where you are.
  */
+const NAV_BAR =
+  "hidden items-center gap-0.5 rounded-panel border-2 border-line-strong/50 bg-ink-900/55 p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] lg:flex";
 const NAV_CARD =
-  "relative flex items-center gap-1.5 rounded-card border-2 px-3 py-1.5 text-sm font-semibold transition-colors duration-200";
+  "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-colors duration-200";
 const NAV_CARD_OFF =
-  "border-line-strong/45 bg-ink-900/40 text-text-muted hover:border-brand-400/55 hover:bg-ink-900/70 hover:text-text-primary";
-const NAV_CARD_ON = "border-brand-400/70 bg-brand-500/12 text-text-primary";
+  "border-transparent text-text-muted hover:border-line-strong/80 hover:bg-ink-800/70 hover:text-text-primary";
+const NAV_CARD_ON = "border-brand-400/60 bg-brand-500/14 text-text-primary";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -143,7 +147,7 @@ export function Navbar() {
         </Link>
 
         {/* ── Desktop navigation ─────────────────────────────────── */}
-        <nav aria-label="Primary" className="hidden items-center gap-1.5 lg:flex">
+        <nav aria-label="Primary" className={NAV_BAR}>
           {entries.map((entry) => {
             const active = isActive(entry);
             if (!entry.children) {

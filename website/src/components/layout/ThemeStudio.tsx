@@ -363,54 +363,71 @@ export function ThemeStudio() {
               </div>
             </div>
             {/*
-              Card edge — the border line, and the corner it turns on a radius.
-              The two dials sit together because they are one decision in the
-              product: `CardEdgeThickness` and `CardCornerRadius` are set side by
-              side in the application's SETTINGS, and the preview below shows
-              both at once rather than making the reader imagine them.
-            */}
-            <Slider
-              label="Card edge"
-              value={studio.edge}
-              min={1}
-              max={4}
-              step={0.25}
-              display={edgeReadout(studio.edge)}
-              onChange={(value) => setStudio({ edge: value })}
-            />
+              ── Card edge ────────────────────────────────────────────────
+              The card's border line and the corner it turns on a radius, under
+              one heading, because that is one decision in the product:
+              `CardEdgeThickness` and `CardCornerRadius` are set side by side in
+              the application's SETTINGS, and the preview shows both at once
+              rather than making the reader imagine them.
 
-            <div className="flex items-center gap-3 rounded-card border-2 border-line-strong/70 bg-ink-950/60 p-2.5">
-              <span
-                aria-hidden="true"
-                className="grid h-10 w-16 shrink-0 place-items-center bg-ink-900"
-                style={{
-                  border: `${studio.edge}px solid var(--card-edge)`,
-                  borderRadius: `calc(12px * ${studio.radius})`,
-                }}
-              />
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-text-primary">
-                  {edgeReadout(studio.edge)} · {studio.radius.toFixed(2)}× radius
-                </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-text-muted">
-                  {studio.edge <= 1.5
-                    ? "The subtle hairline the application uses for inputs and gridlines."
-                    : studio.edge <= 2
-                      ? "The defined card edge the application ships as its default."
-                      : "A bold industrial edge — padding follows it, so content is never crowded."}
-                </p>
+              `CardBorderThickness` and `CardEdgeThickness` are two different
+              weights in the product — 1.5 px for the line an input or a
+              gridline carries, 2 px for the defined edge a card carries — so
+              the dial names both, and the padding follows the edge through
+              `max(0, edge − 2)` the way `ApplyCardEdgePaddingResources` does.
+            */}
+            <div className="rounded-card border-2 border-line-strong/60 bg-ink-950/40 p-3">
+              <p className="text-[0.75rem] font-bold uppercase tracking-[0.14em] text-text-secondary">Card edge</p>
+              <p className="mt-1 text-[0.6875rem] leading-relaxed text-text-muted">
+                The border line on every card, the corner it turns on, and the padding that follows it.
+              </p>
+
+              <div className="mt-3 space-y-3.5">
+                <Slider
+                  label="Border line"
+                  value={studio.edge}
+                  min={1}
+                  max={4}
+                  step={0.25}
+                  display={edgeReadout(studio.edge)}
+                  onChange={(value) => setStudio({ edge: value })}
+                  hint="1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with."
+                />
+                <Slider
+                  label="Corner radius"
+                  value={studio.radius}
+                  min={0.3}
+                  max={1.8}
+                  step={0.05}
+                  display={`${studio.radius.toFixed(2)}×`}
+                  onChange={(value) => setStudio({ radius: value })}
+                  hint="Scales the 12 px card radius, exactly as the radius setting scales it in the application."
+                />
+              </div>
+
+              <div className="mt-3 flex items-center gap-3 rounded-card border-2 border-line-strong/70 bg-ink-950/60 p-2.5">
+                <span
+                  aria-hidden="true"
+                  className="grid h-10 w-16 shrink-0 place-items-center bg-ink-900"
+                  style={{
+                    border: `${studio.edge}px solid var(--card-edge)`,
+                    borderRadius: `calc(12px * ${studio.radius})`,
+                  }}
+                />
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-text-primary">
+                    {edgeReadout(studio.edge)} · {studio.radius.toFixed(2)}× radius
+                  </p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-text-muted">
+                    {studio.edge <= 1.5
+                      ? "The subtle hairline the application uses for inputs and gridlines."
+                      : studio.edge <= 2
+                        ? "The defined card edge the application ships as its default."
+                        : "A bold industrial edge — padding follows it, so content is never crowded."}
+                  </p>
+                </div>
               </div>
             </div>
-
-            <Slider
-              label="Corner radius"
-              value={studio.radius}
-              min={0.3}
-              max={1.8}
-              step={0.05}
-              display={`${studio.radius.toFixed(2)}×`}
-              onChange={(value) => setStudio({ radius: value })}
-            />
             <Slider
               label="Brightness"
               value={studio.brightness}

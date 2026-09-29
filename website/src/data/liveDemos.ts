@@ -157,13 +157,6 @@ const sheetStock: DemoRow[] = [
   { code: "SHT-6006", spec: "Ceramic frit 6 mm", size: "2440 × 1830", plates: "3", reserved: "0", location: "Rack C1" },
 ];
 
-const proformaRows: DemoRow[] = [
-  { line: "01", desc: "DGU 6-12-6 Clear Tempered", w: "1180", h: "2340", qty: "4", area: "11.04", rate: "412.00", amount: "4,548.48" },
-  { line: "02", desc: "SGU 10 mm Clear Tempered", w: "860", h: "1980", qty: "6", area: "10.22", rate: "265.00", amount: "2,708.30" },
-  { line: "03", desc: "Laminated 6.38 Clear", w: "1220", h: "1520", qty: "8", area: "14.84", rate: "338.00", amount: "5,015.92" },
-  { line: "04", desc: "SGU 6 mm Clear", w: "640", h: "1180", qty: "10", area: "7.55", rate: "148.00", amount: "1,117.40" },
-];
-
 /**
  * Step 5's rows, built from the seeded specification groups.
  *
@@ -313,26 +306,6 @@ const bespoke: Record<string, Demo> = {
           { label: "Glass type", value: "SGU" },
           { label: "Base rate", value: "150.00 / m²" },
           { label: "Lines", value: "10" },
-        ],
-      },
-      {
-        label: "Line items",
-        columns: [
-          { key: "line", label: "#" },
-          { key: "desc", label: "Build-up" },
-          { key: "w", label: "W", align: "right", kind: "num", hideBelow: "sm" },
-          { key: "h", label: "H", align: "right", kind: "num", hideBelow: "sm" },
-          { key: "qty", label: "Qty", align: "right", kind: "num" },
-          { key: "area", label: "Area m²", align: "right", kind: "num" },
-          { key: "rate", label: "Rate", align: "right", kind: "money" },
-          { key: "amount", label: "Amount", align: "right", kind: "money" },
-        ],
-        rows: proformaRows,
-        summary: [
-          { label: "Total area", value: "43.65 m²" },
-          { label: "Net", value: "13,390.10", money: true },
-          { label: "VAT 5%", value: "669.51", money: true },
-          { label: "Total", value: "14,059.61", money: true },
         ],
       },
       {
