@@ -3,20 +3,16 @@
  *
  * The failure this exists for: someone clones the repository, runs
  * `npx next build` (or `npx next dev`) without ever running `npm install`, and
- * gets
- *
- *     Module not found: Can't resolve 'marked'
- *
- * from deep inside the blog loader. That message names the wrong thing — the
- * code is fine; the packages are simply not there — and it sends people looking
- * at `src/lib/posts.ts` instead of at their terminal.
+ * gets a "Module not found" error from deep inside a page — naming an import
+ * rather than the actual cause, which is an empty node_modules. That message
+ * sends people looking at the source file instead of at their terminal.
  *
  * So the checks below run before `dev` and before `build` (see package.json)
  * and say what to do instead:
  *
  *   `next` present?      the project's own Next, not a version npx fetched
- *   `marked` present?    the one package whose absence produces the confusion
- *   `react` present?     and the framework itself
+ *   `react` present?     the framework itself, and its DOM renderer
+ *   `sharp` present?     the asset pipeline's encoder
  *   lockfile present?    so the same tree is installed every time
  *
  * It is deliberately cheap — four `existsSync` calls — and it is not a
@@ -34,7 +30,6 @@ const REQUIRED = [
   { name: "next", why: "the framework this project builds on" },
   { name: "react", why: "the component runtime Next renders" },
   { name: "react-dom", why: "the DOM renderer Next renders with" },
-  { name: "marked", why: "the Markdown parser the blog loader imports (src/lib/posts.ts)" },
   { name: "sharp", why: "the image pipeline behind scripts/optimize-assets.mjs" },
 ];
 
@@ -66,9 +61,9 @@ console.error(
         "  package.json. Committing the lockfile is what makes a deploy repeatable.",
 );
 console.error("");
-console.error("  Do not run `npx next …` directly: that fetches a copy of Next into a cache");
-console.error("  and leaves the project's own dependencies missing, which is where the");
-console.error("  \"Can't resolve 'marked'\" build error comes from.");
+console.error("  Do not run `npx next …` directly: that fetches a copy of Next into a");
+console.error("  cache and leaves the project's own dependencies missing, which is where a");
+console.error("  \"Module not found: Can't resolve …\" build error comes from.");
 console.error("");
 
 process.exit(1);

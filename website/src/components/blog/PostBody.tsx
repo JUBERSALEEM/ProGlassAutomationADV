@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
-import type { Token, Tokens } from "marked";
+import type {
+  InlineToken,
+  ListItem,
+  TableCell,
+  Token,
+} from "@/lib/markdown";
 import { cn } from "@/lib/cn";
 
 /**
  * Renders a post's Markdown as React elements.
  *
- * `marked` parses the Markdown into tokens; this file turns those tokens into
+ * `@/lib/markdown` parses the Markdown into tokens; this file turns them into
  * the same typography the rest of the site uses — headings, paragraphs, lists,
  * quotes, code and tables all come out wearing the site's own classes rather
  * than being dumped in as an HTML string.
@@ -31,8 +36,14 @@ function safeHref(href: string | null | undefined): string | null {
   return null;
 }
 
-/** Inline tokens: bold, italic, code, links, line breaks, strikethrough. */
-function inline(tokens: Token[] | undefined, keyPrefix: string): ReactNode[] {
+/**
+ * Inline tokens: bold, italic, code, links, line breaks, strikethrough.
+ *
+ * Accepts block tokens as well, because a list item's children are blocks: an
+ * item that is a single paragraph renders as the item's own text, and anything
+ * else — a nested list, a code fence — is passed through the block renderer.
+ */
+function inline(tokens: (InlineToken | Token)[] | undefined, keyPrefix: string): ReactNode[] {
   if (!tokens) return [];
 
   return tokens.map((token, index) => {
@@ -40,7 +51,7 @@ function inline(tokens: Token[] | undefined, keyPrefix: string): ReactNode[] {
 
     switch (token.type) {
       case "text": {
-        const text = token as Tokens.Text;
+        const text = token as { text: string; tokens?: InlineToken[] };
         // A text token may itself carry nested inline tokens (a link inside bold).
         if (text.tokens?.length) return <Fragment key={key}>{inline(text.tokens, key)}</Fragment>;
         // Leaf text is returned as a string: no wrapper element is needed, and
@@ -48,27 +59,27 @@ function inline(tokens: Token[] | undefined, keyPrefix: string): ReactNode[] {
         return text.text;
       }
       case "escape":
-        return (token as Tokens.Escape).text;
+        return (token as { text: string }).text;
       case "strong":
         return (
           <strong key={key} className="font-semibold text-text-primary">
-            {inline((token as Tokens.Strong).tokens, key)}
+            {inline((token as { tokens: InlineToken[] }).tokens, key)}
           </strong>
         );
       case "em":
-        return <em key={key}>{inline((token as Tokens.Em).tokens, key)}</em>;
+        return <em key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key)}</em>;
       case "del":
-        return <del key={key}>{inline((token as Tokens.Del).tokens, key)}</del>;
+        return <del key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key)}</del>;
       case "codespan":
         return (
           <code key={key} className="rounded bg-ink-850 px-1.5 py-0.5 font-mono text-[0.85em] text-brand-100">
-            {(token as Tokens.Codespan).text}
+            {(token as { text: string }).text}
           </code>
         );
       case "br":
         return <br key={key} />;
       case "link": {
-        const link = token as Tokens.Link;
+        const link = token as { href: string; tokens: InlineToken[] };
         const href = safeHref(link.href);
         const label = inline(link.tokens, key);
         if (!href) return <span key={key}>{label}</span>;
@@ -94,7 +105,11 @@ function inline(tokens: Token[] | undefined, keyPrefix: string): ReactNode[] {
         );
       }
       default: {
-        // Anything unhandled still shows its text rather than vanishing.
+        // A block token in an inline position: unwrap its inline children.
+        if ("tokens" in token && Array.isArray((token as { tokens?: unknown }).tokens)) {
+          return <Fragment key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key)}</Fragment>;
+        }
+        // Anything else unhandled still shows its text rather than vanishing.
         const fallback = "text" in token ? String((token as { text?: string }).text ?? "") : "";
         return fallback ? fallback : null;
       }
@@ -102,7 +117,7 @@ function inline(tokens: Token[] | undefined, keyPrefix: string): ReactNode[] {
   });
 }
 
-function ListBlock({ token, keyPrefix }: { token: Tokens.List; keyPrefix: string }) {
+function ListBlock({ token, keyPrefix }: { token: { ordered: boolean; items: ListItem[] }; keyPrefix: string }) {
   const Tag = token.ordered ? "ol" : "ul";
   return (
     <Tag
@@ -116,20 +131,40 @@ function ListBlock({ token, keyPrefix }: { token: Tokens.List; keyPrefix: string
           key={`${keyPrefix}-${index}`}
           className={cn(
             "text-base leading-relaxed text-text-secondary",
-            !token.ordered && "flex gap-3",
+            !token.ordered && "flex flex-wrap gap-3",
           )}
         >
           {!token.ordered ? (
             <span aria-hidden="true" className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
           ) : null}
-          <span>{inline(item.tokens, `${keyPrefix}-${index}`)}</span>
+          {/*
+            The item's own sentences in the bullet's line, and anything that is
+            not a paragraph — a nested list, a code fence — after it. A `<span>`
+            cannot legally contain a `<ul>`, so the two are siblings rather than
+            nested.
+          */}
+          <span className={cn(!token.ordered && "min-w-0 flex-1")}>
+            {inline(
+              item.tokens.filter((inner): inner is Extract<Token, { type: "paragraph" }> => inner.type === "paragraph"),
+              `${keyPrefix}-${index}`,
+            )}
+          </span>
+          {item.tokens
+            .filter((inner) => inner.type !== "paragraph")
+            .map((inner, innerIndex) => (
+              <PostBlock
+                key={`${keyPrefix}-${index}-${innerIndex}`}
+                token={inner}
+                keyPrefix={`${keyPrefix}-${index}-${innerIndex}`}
+              />
+            ))}
         </li>
       ))}
     </Tag>
   );
 }
 
-function TableBlock({ token, keyPrefix }: { token: Tokens.Table; keyPrefix: string }) {
+function TableBlock({ token, keyPrefix }: { token: { header: TableCell[]; rows: TableCell[][] }; keyPrefix: string }) {
   return (
     <div className="mb-6 overflow-x-auto">
       <table className="w-full min-w-[34rem] border-collapse text-sm">
@@ -166,7 +201,7 @@ function TableBlock({ token, keyPrefix }: { token: Tokens.Table; keyPrefix: stri
 export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: string }) {
   switch (token.type) {
     case "heading": {
-      const heading = token as Tokens.Heading;
+      const heading = token as { depth: number; tokens: InlineToken[] };
       // depth 1 and 2 both land on h2 — see the note at the top of this file.
       const level = Math.min(4, Math.max(2, heading.depth + 1));
       const Tag = `h${level}` as "h2" | "h3" | "h4";
@@ -185,7 +220,7 @@ export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: strin
     }
 
     case "paragraph": {
-      const paragraph = token as Tokens.Paragraph;
+      const paragraph = token as { tokens: InlineToken[] };
       return (
         <p className="mb-4 text-base leading-relaxed text-text-secondary">
           {inline(paragraph.tokens, keyPrefix)}
@@ -194,13 +229,13 @@ export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: strin
     }
 
     case "list":
-      return <ListBlock token={token as Tokens.List} keyPrefix={keyPrefix} />;
+      return <ListBlock token={token as { ordered: boolean; items: ListItem[] }} keyPrefix={keyPrefix} />;
 
     case "table":
-      return <TableBlock token={token as Tokens.Table} keyPrefix={keyPrefix} />;
+      return <TableBlock token={token as { header: TableCell[]; rows: TableCell[][] }} keyPrefix={keyPrefix} />;
 
     case "blockquote": {
-      const quote = token as Tokens.Blockquote;
+      const quote = token as { tokens: Token[] };
       return (
         <blockquote className="surface mb-6 border-l-2 border-brand-400/60 px-5 py-4">
           <div className="text-base leading-relaxed text-text-secondary">
@@ -213,7 +248,7 @@ export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: strin
     }
 
     case "code": {
-      const code = token as Tokens.Code;
+      const code = token as { lang: string | null; text: string };
       return (
         <figure className="mb-6">
           <pre className="surface overflow-x-auto p-4">

@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { marked, type Token } from "marked";
+import { tokenize, type Token } from "@/lib/markdown";
 
 /**
  * Posts, read from `website/posts/*.md`.
@@ -21,10 +21,11 @@ import { marked, type Token } from "marked";
  *      can never reach a visitor, and it can never render half-formatted
  *      either: the same pass rejects Markdown this site does not render.
  *
- * The Markdown itself is *parsed* here (by `marked`) but never converted to an
- * HTML string. It is turned into React elements in `PostBody`, so there is no
- * `dangerouslySetInnerHTML` anywhere on the blog and no way for post content to
- * inject script into a page.
+ * The Markdown itself is *parsed* by `@/lib/markdown` — this repository's own
+ * tokenizer, so the blog depends on nothing that can fail to install — and is
+ * never converted to an HTML string. It is turned into React elements in
+ * `PostBody`, so there is no `dangerouslySetInnerHTML` anywhere on the blog and
+ * no way for post content to inject script into a page.
  */
 
 /** Where posts live, relative to the website root. */
@@ -295,5 +296,5 @@ export function postBySlug(slug: string): Post | undefined {
  * here, next to the validation that guarantees it is safe to render.
  */
 export function postTokens(markdown: string): Token[] {
-  return marked.lexer(markdown, { gfm: true });
+  return tokenize(markdown);
 }

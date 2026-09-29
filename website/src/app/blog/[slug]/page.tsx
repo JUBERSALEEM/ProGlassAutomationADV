@@ -131,7 +131,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <Container>
             <div className="flow measure">
               {/*
-                The Markdown is parsed into tokens by `marked` and rendered here
+                The Markdown is parsed into tokens by the site's own tokenizer and rendered here
                 as React elements — never as an HTML string, so there is no
                 injection path from a post's content into the page.
               */}

@@ -137,24 +137,19 @@ ids, and the bundle budget.
 > budget in production will report as over it against a dev server. The numbers
 > above — and in [step 5](#5--verify-it-is-really-live) — are from `npm start`.
 
-### The `Can't resolve 'marked'` build error
+### If you see `Module not found: Can't resolve …`
 
-If you see:
+the code is **not** broken — **dependencies are not installed**. It almost
+always happens because someone ran `npx next dev` or `npx next build` directly,
+without installing the project first: `npx` happily downloads a copy of Next
+into its cache, so *Next itself* runs — while every other package the project
+needs is still missing, and the first import from one of them fails.
 
-```
-Module not found: Can't resolve 'marked'
-./src/lib/posts.ts:3:1
-```
-
-the code is **not** broken — **dependencies are not installed**. `marked` is the
-Markdown parser the blog loader imports; it is a declared dependency in
-`website/package.json`, and it is present the moment you run `npm ci` or
-`npm install` in `website/`.
-
-This almost always happens because someone ran `npx next dev` or
-`npx next build` directly, without installing the project first. `npx` happily
-downloads a copy of Next into its cache, so *Next itself* runs — while every
-other package the project needs is still missing.
+(The specific case that used to be common here was
+`Can't resolve 'marked'` from the blog loader. The blog no longer uses a
+third-party Markdown parser — parsing lives in `src/lib/markdown.ts`, written
+for this site — so the site's only runtime dependencies are `next`, `react` and
+`react-dom`, and there is correspondingly less to go missing.)
 
 ```bash
 cd website
@@ -522,7 +517,7 @@ everywhere: **the site is in `website/`**, and **Node 22**.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Module not found: Can't resolve 'marked'` | dependencies were never installed in `website/` — usually because `npx next build` was run instead of `npm run build` | `cd website && npm ci`, then `npm run build`. The pre-build guard now prints this for you |
+| `Module not found: Can't resolve …` (any package) | dependencies were never installed in `website/` — usually because `npx next build` was run instead of `npm run build` | `cd website && npm ci`, then `npm run build`. The pre-build guard prints this for you before Next starts |
 | Build fails: *no `package.json`* / it tries to build a `.sln` | the host's root directory is the repository root | set **Root Directory = `website`** |
 | Build fails on Node version or on `node:fs` | Node too old, or the WPF project was built instead | **Node.js Version = 22.x** in the project settings |
 | Site deploys but every page is unstyled | the build output directory was changed from `.next` | reset **Output Directory** to the default |
@@ -530,6 +525,7 @@ everywhere: **the site is in `website/`**, and **Node 22**.
 | Domain works, `www` shows a certificate error | only one of the two names was added in Vercel | add both, then let the non-primary one redirect |
 | Redirect loop between `www` and the apex | both names are set to redirect, or the primary is not set | pick one primary in **Settings → Domains**; the other redirects to it |
 | `/api/og` returns 500 in production | a font the image route fetches is missing, or the route was bundled without its assets | redeploy after confirming the route works locally with `npm start` |
+| Blog posts render as plain text, or a heading disappears | the post uses a construct `src/lib/markdown.ts` does not implement (footnotes, reference links, setext headings, indented code blocks) | write it as one of the supported constructs — see the header comment in that file; the parser is deliberately a documented subset rather than a guess |
 | The contact form says *no mail transport configured* | `DEMO_REQUEST_PROVIDER` is unset | that is deliberate — see [step 7](#7--the-contact-form-needs-a-mail-transport) |
 | Old content after a deploy | browser or CDN cache | hard-reload (`Ctrl/Cmd + Shift + R`); confirm the deployment's *Ready* timestamp is newer than your commit |
 | `HSTS preload` warning from a checker | the header is sent with `preload` before the domain is submitted to the preload list | harmless; submit at <https://hstspreload.org> only once you are certain every subdomain will stay HTTPS — preload is hard to undo |

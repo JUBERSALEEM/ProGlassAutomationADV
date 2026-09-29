@@ -26,6 +26,10 @@ python3 scripts/audit-site.py            # crawl http://127.0.0.1:3000
 python3 scripts/audit-site.py https://…  # or any deployed origin
 ```
 
+The site's only runtime dependencies are Next, React and React DOM. Markdown for
+the blog is parsed by `src/lib/markdown.ts`, written for this project, so a build
+depends on nothing that can go missing from a package registry.
+
 The audit checks every internal link and image, the per-page metadata
 (title, description, canonical, Open Graph, viewport), one-`h1`-per-page,
 missing image `alt` text, and a list of banned marketing phrases.
@@ -36,7 +40,7 @@ See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** — a step-by-step guide from t
 branch to `https://proglassautomation.com`, covering the Vercel project settings
 (the site lives in `website/`, which is the one setting people get wrong), the
 DNS records for the domain, the certificate, the launch checklist, and the
-`Can't resolve 'marked'` build error that appears when dependencies have not been
+`Module not found` build error that appears when dependencies have not been
 installed.
 
 The short version, once the repository is on `main`:
