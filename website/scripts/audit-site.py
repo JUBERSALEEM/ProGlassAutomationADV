@@ -16,7 +16,7 @@ BASE = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:3000"
 
 PAGES = [
     "/", "/features", "/optimization", "/how-it-works", "/screenshots", "/pricing",
-    "/about", "/developer", "/contact", "/resources", "/blog",
+    "/about", "/developer", "/sponsors", "/contact", "/resources", "/blog",
     "/blog/why-the-price-basis-is-stamped", "/blog/guillotine-versus-free-nesting",
     "/blog/why-delivery-balance-is-hard",
     "/legal/privacy", "/legal/terms", "/legal/license",

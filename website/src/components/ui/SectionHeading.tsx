@@ -15,6 +15,7 @@ export function SectionHeading({
   as: Tag = "h2",
   id,
   className,
+  gradient = false,
   children,
 }: {
   eyebrow?: string;
@@ -24,6 +25,8 @@ export function SectionHeading({
   as?: "h1" | "h2" | "h3";
   id?: string;
   className?: string;
+  /** Paints the headline in the accent gradient. Use once per page at most. */
+  gradient?: boolean;
   children?: ReactNode;
 }) {
   return (
@@ -34,7 +37,10 @@ export function SectionHeading({
           {eyebrow}
         </p>
       ) : null}
-      <Tag id={id} className="text-3xl leading-[1.1] sm:text-4xl lg:text-[2.75rem]">
+      <Tag
+        id={id}
+        className={cn("text-3xl leading-[1.1] sm:text-4xl lg:text-[2.75rem]", gradient && "text-gradient")}
+      >
         {title}
       </Tag>
       {lead ? <p className="lede mt-5">{lead}</p> : null}

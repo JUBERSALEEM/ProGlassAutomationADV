@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { site } from "@/lib/site";
+import { themeBootScript } from "@/data/themes";
 
 /**
  * Inter for the interface, JetBrains Mono for the technical labels.
@@ -84,8 +85,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#070B14",
-  colorScheme: "dark",
+  /* The address bar follows the active theme. */
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0B0820" },
+    { media: "(prefers-color-scheme: light)", color: "#F6F5FC" },
+  ],
+  colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,
 };
@@ -130,7 +135,18 @@ const structuredData = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`}>
+    <html
+      lang="en"
+      data-theme="midnight"
+      data-theme-mode="system"
+      data-appearance="studio"
+      /* The boot script sets these before paint; the server renders the default. */
+      suppressHydrationWarning
+      className={`${inter.variable} ${mono.variable}`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
       <body>
         <script
           type="application/ld+json"

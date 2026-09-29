@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
@@ -7,10 +6,10 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ModuleShowcase } from "@/components/product/ModuleShowcase";
 import { Accordion } from "@/components/ui/Accordion";
-import { modules, moduleGroups } from "@/data/modules";
+import { ModuleBrowser } from "@/components/product/ModuleBrowser";
+import { modules } from "@/data/modules";
 import { featureGroups } from "@/data/features";
 import { pageMetadata } from "@/lib/metadata";
-import { site } from "@/lib/site";
 
 export const metadata: Metadata = pageMetadata({
   title: "Features — every module in ProGlass Automation",
@@ -27,8 +26,11 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function FeaturesPage() {
-  const showcase = modules.filter((m) =>
-    ["proforma", "optimization", "sheet-store", "delivery-note", "job-profitability", "reports"].includes(m.id),
+  /* The six modules that decide whether the software fits a business. */
+  const showcase = modules.filter((module) =>
+    ["proforma", "optimization", "sheet-store", "delivery-note", "job-profitability", "reports-hub"].includes(
+      module.id,
+    ),
   );
 
   return (
@@ -42,7 +44,7 @@ export default function FeaturesPage() {
           { label: "Features", href: "/features" },
         ]}
         meta={[
-          { label: "Modules", value: `${site.moduleCount} view areas` },
+          { label: "Navigation targets", value: `${modules.length} across 9 groups` },
           { label: "Build types", value: "SGU · DGU · LAM · DGU+LAM" },
           { label: "Platform", value: "Windows (WPF)" },
           { label: "Data", value: "Local SQLite" },
@@ -65,36 +67,12 @@ export default function FeaturesPage() {
           <SectionHeading
             id="index-heading"
             eyebrow="Index"
-            title="Grouped exactly as the navigation rail groups them."
-            lead="These groupings and labels are the application's own sidebar structure. Nothing here has been re-worded for the website."
+            title="The whole application, grouped as its own rail groups it."
+            lead="Every navigation target in the product, in the nine groups the sidebar actually draws, filterable by group and searchable by capability. Nothing here has been re-worded for the website."
           />
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {moduleGroups.map((group, groupIndex) => {
-              const inGroup = modules.filter((m) => m.railGroup === group);
-              if (inGroup.length === 0) return null;
-              return (
-                <Reveal key={group} delay={groupIndex * 50} className="surface p-5">
-                  <p className="eyebrow mb-4">{group}</p>
-                  <ul className="space-y-2">
-                    {inGroup.map((module) => (
-                      <li key={module.id}>
-                        <Link
-                          href={`#${module.id}`}
-                          className="group flex items-start gap-2.5 text-sm text-text-muted transition-colors duration-200 hover:text-brand-200"
-                        >
-                          <span aria-hidden="true" className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-line-strong transition-colors group-hover:bg-brand-400" />
-                          <span className="min-w-0">
-                            {module.name}
-                            <span className="ml-2 font-mono text-2xs text-text-faint">{module.moduleKey}</span>
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </Reveal>
-              );
-            })}
+          <div className="mt-10">
+            <ModuleBrowser />
           </div>
         </Container>
       </Section>

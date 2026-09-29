@@ -18,9 +18,10 @@ export function ProductHero() {
     <section className="relative overflow-hidden pb-12 pt-14 sm:pb-16 sm:pt-20 lg:pb-24 lg:pt-24">
       {/* Ambient light. Two pools, very wide, no motion. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 left-[8%] h-[34rem] w-[34rem] rounded-full bg-brand-500/12 blur-[120px]" />
-        <div className="absolute -top-24 right-[4%] h-[26rem] w-[26rem] rounded-full bg-glass-teal/8 blur-[110px]" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/30 to-transparent" />
+        <div className="animate-drift-slow absolute -top-40 left-[8%] h-[34rem] w-[34rem] rounded-full bg-brand-500/16 blur-[120px]" />
+        <div className="absolute -top-24 right-[4%] h-[26rem] w-[26rem] rounded-full bg-glass-cyan/10 blur-[110px]" />
+        <div className="absolute bottom-0 left-[38%] h-[20rem] w-[20rem] rounded-full bg-glass-rose/8 blur-[120px]" />
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-transparent" />
       </div>
 
       <div className="shell relative">
@@ -37,7 +38,7 @@ export function ProductHero() {
             <Reveal delay={70}>
               <h1 className="text-[2.1rem] font-semibold leading-[1.06] tracking-tight text-text-primary sm:text-[2.75rem] lg:text-[3.25rem]">
                 Glass business management,
-                <span className="block text-brand-300">built around your workflow.</span>
+                <span className="text-gradient block">built around your workflow.</span>
               </h1>
             </Reveal>
 

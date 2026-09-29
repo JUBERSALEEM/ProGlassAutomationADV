@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { site } from "@/lib/site";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 type NavChild = { label: string; href: string; description?: string };
 type NavEntry = { label: string; href?: string; children?: NavChild[] };
@@ -26,16 +27,14 @@ const entries: NavEntry[] = [
     children: [
       { label: "Resources", href: "/resources", description: "Guides to the glass workflows" },
       { label: "Blog", href: "/blog", description: "Notes on the build and the industry" },
+      { label: "Sponsors", href: "/sponsors", description: "Back the build, or join it" },
     ],
   },
-  {
-    label: "Company",
-    children: [
-      { label: "About ProGlass", href: "/about", description: "What the product is and why it exists" },
-      { label: "Developer", href: "/developer", description: "The person building it" },
-      { label: "Contact", href: "/contact", description: "Request a demo or ask a question" },
-    ],
-  },
+  /* About and Developer are separate pages with separate jobs, and both get a
+     top-level slot rather than being buried in a dropdown. */
+  { label: "About", href: "/about" },
+  { label: "Developer", href: "/developer" },
+  { label: "Sponsors", href: "/sponsors" },
 ];
 
 export function Navbar() {
@@ -100,13 +99,13 @@ export function Navbar() {
       className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-industrial",
         scrolled
-          ? "border-b border-line/60 bg-ink-950/85 backdrop-blur-xl supports-[backdrop-filter]:bg-ink-950/70"
+          ? "border-b border-line-strong/50 bg-ink-950/80 shadow-[0_18px_40px_-32px_rgb(0_0_0/0.9)] backdrop-blur-xl supports-[backdrop-filter]:bg-ink-950/65"
           : "border-b border-transparent bg-transparent",
       )}
     >
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-400 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink-950"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-400 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
       >
         Skip to content
       </a>
@@ -115,7 +114,7 @@ export function Navbar() {
         <Link href="/" className="group flex items-center gap-3" aria-label={`${site.name} — home`}>
           <span
             aria-hidden="true"
-            className="grid h-9 w-9 place-items-center rounded-[0.7rem] bg-gradient-to-br from-brand-300 via-brand-400 to-brand-600 text-xs font-bold text-ink-950 shadow-[0_8px_22px_-10px_rgba(56,189,248,0.9)]"
+            className="grid h-9 w-9 place-items-center rounded-[0.7rem] bg-gradient-to-br from-brand-300 via-brand-400 to-brand-600 text-xs font-bold text-accent-ink shadow-accent"
           >
             PG
           </span>
@@ -187,7 +186,7 @@ export function Navbar() {
 
                 {open ? (
                   <div className="absolute left-1/2 top-full w-72 -translate-x-1/2 pt-3">
-                    <div className="animate-scale-in overflow-hidden rounded-panel border border-line-strong/70 bg-ink-900/95 p-1.5 shadow-raised backdrop-blur-xl">
+                    <div className="animate-scale-in overflow-hidden rounded-panel border border-line-strong/70 bg-ink-900/96 p-1.5 shadow-raised backdrop-blur-xl">
                       {entry.children.map((child) => (
                         <Link
                           key={child.href}
@@ -212,6 +211,7 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
+          <ThemeToggle />
           <ButtonLink href="/screenshots" variant="ghost" size="sm">
             See the app
           </ButtonLink>
@@ -221,18 +221,21 @@ export function Navbar() {
         </div>
 
         {/* ── Mobile trigger ─────────────────────────────────────── */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-expanded={mobileOpen}
-          aria-controls="mobile-menu"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-line-strong/70 bg-ink-900/70 text-text-primary transition-colors duration-200 hover:border-brand-400/50 lg:hidden"
-        >
-          <span className="sr-only">{mobileOpen ? "Close menu" : "Open menu"}</span>
-          <svg viewBox="0 0 20 20" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
-            {mobileOpen ? <path d="M5 5l10 10M15 5 5 15" /> : <path d="M3 6h14M3 10h14M3 14h14" />}
-          </svg>
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setMobileOpen((v) => !v)}
+            aria-expanded={mobileOpen}
+            aria-controls="mobile-menu"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-line-strong/70 bg-ink-900/70 text-text-primary transition-colors duration-200 hover:border-brand-400/50"
+          >
+            <span className="sr-only">{mobileOpen ? "Close menu" : "Open menu"}</span>
+            <svg viewBox="0 0 20 20" className="h-4.5 w-4.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+              {mobileOpen ? <path d="M5 5l10 10M15 5 5 15" /> : <path d="M3 6h14M3 10h14M3 14h14" />}
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* ── Mobile sheet ─────────────────────────────────────────── */}

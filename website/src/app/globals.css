@@ -2,11 +2,267 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * ═══════════════════════════════════════════════════════════════════════════
+ * THEME TOKENS
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Two themes, one vocabulary. Every colour is a raw RGB triplet so Tailwind can
+ * apply opacity modifiers (`bg-ink-900/70`) without knowing the theme, and every
+ * component in the site is written against `ink` / `line` / `brand` / `text` /
+ * `state` only — so a theme switch repaints the whole site with no markup change.
+ *
+ *   Midnight  (default)  deep violet, the product's own dark shell
+ *   Daylight             light surfaces with the same violet identity
+ *
+ * `data-theme` is set on <html> before first paint by the inline script in
+ * layout.tsx, so there is no flash of the wrong theme.
+ */
+
 @layer base {
-  :root {
+  :root,
+  [data-theme="midnight"] {
     color-scheme: dark;
+
     --shell-max: 84rem;
     --nav-height: 4.25rem;
+
+    /* ── Surfaces: violet, never neutral black ─────────────────────────── */
+    --ink-950: 11 8 32;      /* page background            #0B0820 */
+    --ink-900: 18 13 46;     /* card surface               #120D2E */
+    --ink-850: 23 17 56;     /* raised surface             #171138 */
+    --ink-800: 29 22 70;     /* elevated / inset           #1D1646 */
+    --ink-700: 37 27 87;     /* highest tier               #251B57 */
+
+    /* ── Borders ──────────────────────────────────────────────────────── */
+    --line: 42 33 89;        /* #2A2159 */
+    --line-soft: 34 26 74;   /* #221A4A */
+    --line-strong: 59 47 122;/* #3B2F7A */
+
+    /* ── Brand: violet ───────────────────────────────────────────────── */
+    --brand-50: 245 243 255;
+    --brand-200: 221 214 254;
+    --brand-300: 196 181 253; /* text accent on dark   #C4B5FD */
+    --brand-400: 167 139 250; /* buttons / accents     #A78BFA */
+    --brand-500: 139 92 246;  /* #8B5CF6 */
+    --brand-600: 124 58 237;  /* #7C3AED */
+    --brand-700: 109 40 217;  /* #6D28D9 */
+
+    /* ── Secondary "glass" accents, used sparingly for glass content ──── */
+    --glass-teal: 45 212 191;
+    --glass-cyan: 34 211 238;
+    --glass-green: 74 222 128;
+    --glass-rose: 244 114 182;
+
+    /* ── Text ────────────────────────────────────────────────────────── */
+    --text-1: 245 243 255;   /* headings        #F5F3FF */
+    --text-2: 199 195 224;   /* body            #C7C3E0 */
+    --text-3: 162 156 196;   /* muted           #A29CC4 */
+    --text-4: 126 119 163;   /* faint / labels  #7E77A3 */
+
+    /* ── State ───────────────────────────────────────────────────────── */
+    --state-success: 52 211 153;
+    --state-warning: 251 191 36;
+    --state-danger: 251 113 133;
+    --state-info: 167 139 250;
+
+    /* Text placed on a filled brand surface. */
+    --on-accent: 12 7 32;
+
+    /* ── Elevation ───────────────────────────────────────────────────── */
+    --shadow-panel:
+      0 1px 0 0 rgb(255 255 255 / 0.05) inset,
+      0 24px 48px -26px rgb(6 2 24 / 0.9);
+    --shadow-raised:
+      0 1px 0 0 rgb(255 255 255 / 0.07) inset,
+      0 34px 80px -34px rgb(6 2 24 / 0.95),
+      0 0 0 1px rgb(139 92 246 / 0.1);
+    --shadow-glow:
+      0 0 0 1px rgb(167 139 250 / 0.2),
+      0 26px 64px -28px rgb(139 92 246 / 0.42);
+    --shadow-glow-strong:
+      0 0 0 1px rgb(167 139 250 / 0.34),
+      0 34px 84px -26px rgb(139 92 246 / 0.55);
+
+    /* Ambient light pools behind the page. */
+    --pool-1: rgb(139 92 246 / 0.16);
+    --pool-2: rgb(34 211 238 / 0.07);
+    --pool-3: rgb(244 114 182 / 0.06);
+
+    /* Card tinting: the violet wash that keeps cards off plain grey. */
+    --card-tint: rgb(139 92 246 / 0.1);
+    --card-highlight: rgb(255 255 255 / 0.06);
+
+    --scroll-track: 11 8 32;
+    --scroll-thumb: 42 33 89;
+
+    --selection: rgb(167 139 250 / 0.3);
+  }
+
+  [data-theme="daylight"] {
+    color-scheme: light;
+
+    /* Surfaces: warm paper with a violet cast, not flat grey. */
+    --ink-950: 246 245 252;  /* page      #F6F5FC */
+    --ink-900: 255 255 255;  /* card      #FFFFFF */
+    --ink-850: 252 251 255;  /* raised    #FCFBFF */
+    --ink-800: 244 242 253;  /* inset     #F4F2FD */
+    --ink-700: 236 233 250;  /* highest   #ECE9FA */
+
+    --line: 226 222 243;     /* #E2DEF3 */
+    --line-soft: 237 234 249;/* #EDEAF9 */
+    --line-strong: 209 202 235;/* #D1CAEB */
+
+    /* Same hue, re-weighted for contrast against light surfaces. */
+    --brand-50: 237 233 254;
+    --brand-200: 196 181 253;
+    --brand-300: 109 40 217;  /* text accent on light  #6D28D9 */
+    --brand-400: 124 58 237;  /* buttons               #7C3AED */
+    --brand-500: 109 40 217;  /* #6D28D9 */
+    --brand-600: 91 33 182;   /* #5B21B6 */
+    --brand-700: 76 29 149;   /* #4C1D95 */
+
+    --glass-teal: 13 148 136;
+    --glass-cyan: 14 116 144;
+    --glass-green: 22 163 74;
+    --glass-rose: 190 24 93;
+
+    --text-1: 27 22 54;      /* #1B1636 */
+    --text-2: 63 56 96;      /* #3F3860 */
+    --text-3: 93 85 128;     /* #5D5580 */
+    --text-4: 131 123 166;   /* #837BA6 */
+
+    --state-success: 5 150 105;
+    --state-warning: 180 83 9;
+    --state-danger: 225 29 72;
+    --state-info: 109 40 217;
+
+    --on-accent: 255 255 255;
+
+    --shadow-panel:
+      0 1px 0 0 rgb(255 255 255 / 0.9) inset,
+      0 18px 40px -28px rgb(76 29 149 / 0.28);
+    --shadow-raised:
+      0 1px 0 0 rgb(255 255 255 / 0.95) inset,
+      0 26px 60px -30px rgb(76 29 149 / 0.32),
+      0 0 0 1px rgb(124 58 237 / 0.08);
+    --shadow-glow:
+      0 0 0 1px rgb(124 58 237 / 0.22),
+      0 22px 54px -26px rgb(124 58 237 / 0.42);
+    --shadow-glow-strong:
+      0 0 0 1px rgb(124 58 237 / 0.34),
+      0 28px 70px -24px rgb(124 58 237 / 0.5);
+
+    --pool-1: rgb(139 92 246 / 0.16);
+    --pool-2: rgb(56 189 248 / 0.1);
+    --pool-3: rgb(244 114 182 / 0.07);
+
+    --card-tint: rgb(139 92 246 / 0.07);
+    --card-highlight: rgb(255 255 255 / 0.9);
+
+    --scroll-track: 240 238 250;
+    --scroll-thumb: 209 202 235;
+
+    --selection: rgb(124 58 237 / 0.22);
+  }
+
+  /*
+   * ── APPEARANCE FAMILIES ────────────────────────────────────────────────
+   * Mode owns lightness (the blocks above); a family owns hue and character.
+   * Each block below re-hues the accent ramp, the ambient pools and the card
+   * wash — nothing else — so every family works in both modes.
+   *
+   * These follow the application's own appearance families; see
+   * `src/data/themes.ts` for the file each one comes from.
+   */
+
+  /* Studio — this website's palette: the application's Violet accent, deep. */
+  [data-appearance="studio"] {
+    --brand-50: 245 243 255;
+    --brand-200: 221 214 254;
+    --brand-300: 196 181 253;
+    --brand-400: 167 139 250;
+    --brand-500: 139 92 246;
+    --brand-600: 124 58 237;
+    --brand-700: 109 40 217;
+    --pool-1: rgb(139 92 246 / 0.16);
+    --pool-2: rgb(34 211 238 / 0.07);
+    --pool-3: rgb(244 114 182 / 0.06);
+    --card-tint: rgb(139 92 246 / 0.1);
+  }
+
+  /* Monet — the application's Material-You family: a warm accent dusk. */
+  [data-appearance="monet"] {
+    --brand-50: 253 242 248;
+    --brand-200: 251 207 232;
+    --brand-300: 244 164 199;
+    --brand-400: 232 121 166;
+    --brand-500: 214 78 140;
+    --brand-600: 190 24 93;
+    --brand-700: 158 21 78;
+    --pool-1: rgb(244 114 182 / 0.17);
+    --pool-2: rgb(251 146 60 / 0.09);
+    --pool-3: rgb(167 139 250 / 0.08);
+    --card-tint: rgb(244 114 182 / 0.11);
+  }
+
+  /* Industrial — the application's strict default: sky over slate. */
+  [data-appearance="industrial"] {
+    --brand-50: 240 249 255;
+    --brand-200: 186 230 253;
+    --brand-300: 125 211 252;
+    --brand-400: 56 189 248;
+    --brand-500: 14 165 233;
+    --brand-600: 2 132 199;
+    --brand-700: 3 105 161;
+    --pool-1: rgb(56 189 248 / 0.12);
+    --pool-2: rgb(45 212 191 / 0.07);
+    --pool-3: rgb(99 102 241 / 0.05);
+    --card-tint: rgb(56 189 248 / 0.08);
+  }
+
+  /* Crystal — the application's Crystal Fluid family: cool, luminous, glassy. */
+  [data-appearance="crystal"] {
+    --brand-50: 236 254 255;
+    --brand-200: 165 243 252;
+    --brand-300: 103 232 249;
+    --brand-400: 34 211 238;
+    --brand-500: 8 145 178;
+    --brand-600: 14 116 144;
+    --brand-700: 21 94 117;
+    --pool-1: rgb(34 211 238 / 0.14);
+    --pool-2: rgb(45 212 191 / 0.1);
+    --pool-3: rgb(129 140 248 / 0.06);
+    --card-tint: rgb(34 211 238 / 0.09);
+    --card-highlight: rgb(255 255 255 / 0.1);
+  }
+
+  /* Daylight needs its own re-weighting of the ramps so contrast holds. */
+  [data-theme="daylight"][data-appearance="monet"] {
+    --brand-300: 190 24 93;
+    --brand-400: 190 24 93;
+    --brand-500: 158 21 78;
+    --brand-600: 131 24 67;
+    --brand-700: 112 26 60;
+    --card-tint: rgb(232 121 166 / 0.12);
+  }
+
+  [data-theme="daylight"][data-appearance="industrial"] {
+    --brand-300: 3 105 161;
+    --brand-400: 2 132 199;
+    --brand-500: 3 105 161;
+    --brand-600: 7 89 133;
+    --brand-700: 12 74 110;
+    --card-tint: rgb(56 189 248 / 0.1);
+  }
+
+  [data-theme="daylight"][data-appearance="crystal"] {
+    --brand-300: 14 116 144;
+    --brand-400: 8 145 178;
+    --brand-500: 14 116 144;
+    --brand-600: 21 94 117;
+    --brand-700: 22 78 99;
+    --card-tint: rgb(34 211 238 / 0.1);
   }
 
   * {
@@ -22,12 +278,14 @@
 
   body {
     @apply bg-ink-950 text-text-secondary font-sans antialiased;
-    /* Two very wide, very soft light pools. Subtle, and it never moves. */
+    /* Three very wide, very soft light pools. They never move. */
     background-image:
-      radial-gradient(1100px 620px at 12% -8%, rgba(56, 189, 248, 0.09), transparent 62%),
-      radial-gradient(900px 520px at 92% 4%, rgba(45, 212, 191, 0.055), transparent 58%);
+      radial-gradient(1100px 620px at 12% -8%, var(--pool-1), transparent 62%),
+      radial-gradient(900px 520px at 92% 4%, var(--pool-2), transparent 58%),
+      radial-gradient(760px 460px at 68% 96%, var(--pool-3), transparent 60%);
     background-attachment: fixed;
     overflow-x: hidden;
+    transition: background-color 240ms ease, color 240ms ease;
   }
 
   h1,
@@ -45,17 +303,19 @@
 
   /* One visible focus treatment everywhere. */
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-    @apply outline-none ring-2 ring-brand-400 ring-offset-2 ring-offset-ink-950 rounded-sm;
+    @apply outline-none ring-2 ring-brand-400 ring-offset-2;
+    --tw-ring-offset-color: rgb(var(--ink-950));
+    border-radius: 0.375rem;
   }
 
   ::selection {
-    background: rgba(56, 189, 248, 0.28);
-    color: #f8fafc;
+    background: var(--selection);
+    color: rgb(var(--text-1));
   }
 
-  /* Scrollbars tuned for the dark shell. */
+  /* Scrollbars follow the theme. */
   * {
-    scrollbar-color: #1e293b #070b14;
+    scrollbar-color: rgb(var(--scroll-thumb)) rgb(var(--scroll-track));
     scrollbar-width: thin;
   }
   *::-webkit-scrollbar {
@@ -63,15 +323,15 @@
     height: 10px;
   }
   *::-webkit-scrollbar-track {
-    background: #070b14;
+    background: rgb(var(--scroll-track));
   }
   *::-webkit-scrollbar-thumb {
-    background: #1e293b;
+    background: rgb(var(--scroll-thumb));
     border-radius: 999px;
-    border: 2px solid #070b14;
+    border: 2px solid rgb(var(--scroll-track));
   }
   *::-webkit-scrollbar-thumb:hover {
-    background: #2c3e56;
+    background: rgb(var(--line-strong));
   }
 
   img,
@@ -95,31 +355,206 @@
 
   /* Eyebrow label — small, spaced, technical. */
   .eyebrow {
-    @apply text-2xs font-semibold uppercase tracking-[0.22em] text-brand-300/90;
+    @apply text-2xs font-semibold uppercase tracking-[0.22em] text-brand-300;
   }
 
   .lede {
     @apply text-base sm:text-lg leading-relaxed text-text-secondary;
   }
 
-  /* Card surface, three tiers, one vocabulary. */
+  /*
+   * ═══ CARD SYSTEM ═════════════════════════════════════════════════════════
+   * Cards are tinted and lit, never flat black or grey. Each tier is built
+   * from: a violet wash at the top-left, a hairline gradient border, a
+   * one-pixel top highlight, and a soft violet shadow.
+   */
+
   .surface {
-    @apply rounded-card border border-line/70 bg-ink-900/70 backdrop-blur-[2px];
+    position: relative;
+    border-radius: theme("borderRadius.card");
+    border: 1px solid rgb(var(--line) / 0.85);
+    background-image: linear-gradient(
+      158deg,
+      rgb(var(--ink-900) / 0.96) 0%,
+      rgb(var(--ink-850) / 0.92) 46%,
+      rgb(var(--ink-900) / 0.98) 100%
+    );
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(2px);
+  }
+
+  /* Violet wash that keeps the card off neutral grey. */
+  .surface::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 90% at 0% 0%, var(--card-tint), transparent 58%),
+      linear-gradient(180deg, var(--card-highlight), transparent 34%);
+  }
+
+  .surface > * {
+    position: relative;
   }
 
   .surface-raised {
-    @apply rounded-panel border border-line/70 bg-ink-850/80 shadow-panel;
+    position: relative;
+    border-radius: theme("borderRadius.panel");
+    border: 1px solid rgb(var(--line-strong) / 0.7);
+    background-image: linear-gradient(
+      158deg,
+      rgb(var(--ink-850) / 0.98) 0%,
+      rgb(var(--ink-800) / 0.94) 52%,
+      rgb(var(--ink-900) / 0.98) 100%
+    );
+    box-shadow: var(--shadow-raised);
+  }
+
+  .surface-raised::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+      radial-gradient(120% 80% at 4% 0%, var(--card-tint), transparent 55%),
+      linear-gradient(180deg, var(--card-highlight), transparent 30%);
+  }
+
+  .surface-raised > * {
+    position: relative;
+  }
+
+  /* Interactive card: lifts and warms its border on hover/focus. */
+  .card-interactive {
+    transition:
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 260ms ease;
+  }
+
+  .card-interactive:hover,
+  .card-interactive:focus-within {
+    transform: translateY(-3px);
+    border-color: rgb(var(--brand-400) / 0.55);
+    box-shadow: var(--shadow-glow);
+  }
+
+  /* Accent card: a filled violet panel for the one thing on a page that
+     should outrank everything around it. */
+  .card-accent {
+    position: relative;
+    overflow: hidden;
+    border-radius: theme("borderRadius.panel");
+    border: 1px solid rgb(var(--brand-400) / 0.42);
+    background-image: linear-gradient(
+      150deg,
+      rgb(var(--brand-600) / 0.34) 0%,
+      rgb(var(--ink-850) / 0.96) 48%,
+      rgb(var(--ink-900) / 0.98) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.08),
+      0 30px 70px -34px rgb(var(--brand-500) / 0.65);
+  }
+
+  .card-accent::after {
+    content: "";
+    position: absolute;
+    inset: -40% -10% auto auto;
+    width: 26rem;
+    height: 26rem;
+    border-radius: 999px;
+    pointer-events: none;
+    background: radial-gradient(circle, rgb(var(--brand-400) / 0.22), transparent 66%);
+  }
+
+  /* Glass card: the iridescent variant, reserved for glass build-up content. */
+  .card-glass {
+    position: relative;
+    overflow: hidden;
+    border-radius: theme("borderRadius.panel");
+    border: 1px solid rgb(var(--glass-cyan) / 0.3);
+    background-image: linear-gradient(
+      148deg,
+      rgb(var(--glass-teal) / 0.14) 0%,
+      rgb(var(--ink-850) / 0.95) 40%,
+      rgb(var(--brand-600) / 0.16) 100%
+    );
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.07),
+      0 26px 60px -32px rgb(var(--glass-teal) / 0.5);
+  }
+
+  /* Stat tile: a number that deserves its own surface. */
+  .stat-tile {
+    position: relative;
+    overflow: hidden;
+    border-radius: theme("borderRadius.card");
+    border: 1px solid rgb(var(--line) / 0.85);
+    background-image: linear-gradient(
+      162deg,
+      rgb(var(--ink-850) / 0.95) 0%,
+      rgb(var(--ink-900) / 0.98) 100%
+    );
+    box-shadow: var(--shadow-panel);
+  }
+
+  .stat-tile::before {
+    content: "";
+    position: absolute;
+    inset: auto auto -2.5rem -2.5rem;
+    width: 9rem;
+    height: 9rem;
+    border-radius: 999px;
+    pointer-events: none;
+    background: radial-gradient(circle, var(--card-tint), transparent 68%);
+  }
+
+  .stat-tile > * {
+    position: relative;
+  }
+
+  /* Small pill used for tags, counts and inline metadata. */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-line-strong/70 bg-ink-800/70 px-2.5 py-1 font-mono text-2xs uppercase tracking-[0.12em] text-text-muted;
   }
 
   /* Rivet detail: a hairline top highlight used on product frames. */
   .plate {
-    @apply relative overflow-hidden rounded-panel border border-line/70 bg-ink-850;
+    position: relative;
+    overflow: hidden;
+    border-radius: theme("borderRadius.panel");
+    border: 1px solid rgb(var(--line-strong) / 0.7);
+    background-image: linear-gradient(
+      168deg,
+      rgb(var(--ink-850) / 0.98) 0%,
+      rgb(var(--ink-900) / 0.99) 100%
+    );
+    box-shadow: var(--shadow-raised);
   }
 
   .plate::before {
     content: "";
-    @apply pointer-events-none absolute inset-x-0 top-0 h-px;
-    background: linear-gradient(90deg, transparent, rgba(248, 250, 252, 0.22), transparent);
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--brand-300) / 0.55) 22%,
+      rgb(var(--text-1) / 0.5) 50%,
+      rgb(var(--brand-300) / 0.55) 78%,
+      transparent
+    );
+  }
+
+  .plate > * {
+    position: relative;
   }
 
   .mono-label {
@@ -128,6 +563,18 @@
 
   .link-underline {
     @apply relative inline-flex items-center gap-1.5 font-medium text-brand-300 transition-colors duration-200 hover:text-brand-200;
+  }
+
+  /* Section rule with a violet core, used between major page bands. */
+  .rule-violet {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--brand-400) / 0.45) 30%,
+      rgb(var(--brand-400) / 0.45) 70%,
+      transparent
+    );
   }
 }
 
@@ -161,6 +608,19 @@
 
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Violet gradient text for the words that carry a headline. */
+  .text-gradient {
+    background-image: linear-gradient(
+      100deg,
+      rgb(var(--text-1)) 0%,
+      rgb(var(--brand-300)) 52%,
+      rgb(var(--glass-cyan)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   /* Thin horizontal scroller used by the slider strips. */

@@ -23,18 +23,16 @@ function Column({ title, links }: { title: string; links: readonly { label: stri
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-line/60 bg-ink-950">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-400/40 to-transparent"
-      />
+    <footer className="relative border-t border-line-strong/50 bg-ink-950">
+      {/* Violet band along the top edge of the footer. */}
+      <div aria-hidden="true" className="rule-violet absolute inset-x-0 -top-px" />
       <div className="shell py-14 lg:py-16">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_2.6fr]">
           <div className="max-w-sm">
             <div className="flex items-center gap-3">
               <span
                 aria-hidden="true"
-                className="grid h-9 w-9 place-items-center rounded-[0.7rem] bg-gradient-to-br from-brand-300 via-brand-400 to-brand-600 text-xs font-bold text-ink-950"
+                className="grid h-9 w-9 place-items-center rounded-[0.7rem] bg-gradient-to-br from-brand-300 via-brand-400 to-brand-600 text-xs font-bold text-accent-ink"
               >
                 PG
               </span>

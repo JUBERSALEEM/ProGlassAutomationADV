@@ -65,6 +65,7 @@ export const nav = {
     { label: "About", href: "/about" },
     { label: "Developer", href: "/developer" },
     { label: "Resources", href: "/resources" },
+    { label: "Sponsors", href: "/sponsors" },
   ],
   footer: {
     product: [
@@ -77,6 +78,7 @@ export const nav = {
     company: [
       { label: "About ProGlass", href: "/about" },
       { label: "Developer", href: "/developer" },
+      { label: "Sponsors", href: "/sponsors" },
       { label: "Contact", href: "/contact" },
     ],
     resources: [

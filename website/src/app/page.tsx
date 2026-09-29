@@ -145,7 +145,11 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCounter value={site.moduleCount} label="View areas" hint="Folders carrying both views and view-models, one per business area." />
+            <StatCounter
+              value={modules.length}
+              label="Navigation targets"
+              hint="Every module the sidebar can open, across nine groups."
+            />
             <StatCounter value={site.databaseCount} label="SQLite databases" hint="One DbContext per bounded context, with additive-only migrations." />
             <StatCounter value={site.locales} label="Languages" hint="Locales are resource dictionaries — adding one needs no code change." />
             <StatCounter value={site.testCount} label="Test methods" hint={`[Fact] and [Theory] methods across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`} />
@@ -153,11 +157,11 @@ export default function HomePage() {
 
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             {[
-              { value: String(site.roleCount), label: "Roles", hint: `${site.permissionCount} granular permissions, enforced at the service boundary.` },
+              { value: "9", label: "Navigation groups", hint: "Main, Inventory, Sales, Production, Dispatch, Finance, Reports, Master Data, System." },
               { value: "8", label: "Production stages", hint: "Cutting through Doubling / Lamination, each with a workstation view." },
-              { value: "6", label: "Spacer systems in the DGU build-up", hint: "Normal Mill Aluminum, Black Aluminum, Stainless Steel, TGI Spacer, Warm Edge (Super Spacer) and Black Warm Edge — the option names as they appear in the build-up." },
+              { value: "14", label: "Report surfaces", hint: "Executive, relationships, documents and the financial reports, behind one hub." },
             ].map((fact) => (
-              <div key={fact.label} className="surface p-5">
+              <div key={fact.label} className="stat-tile p-5">
                 <p className="font-mono text-2xl font-semibold text-text-primary">{fact.value}</p>
                 <p className="mt-2 text-sm font-medium text-text-secondary">{fact.label}</p>
                 <p className="mt-1 text-xs leading-relaxed text-text-faint">{fact.hint}</p>
@@ -328,7 +332,7 @@ export default function HomePage() {
             id="modules-heading"
             eyebrow="Core modules"
             title="The parts of the job this application holds."
-            lead="Each module below exists in the navigation rail with the label shown. Nothing on this page is a planned feature presented as a shipped one."
+            lead={`Four of the ${modules.length} navigation targets are shown here in depth. Each exists in the rail with the label shown — nothing on this page is a planned feature presented as a shipped one.`}
           />
           <div className="mt-14">
             <ModuleShowcase modules={heroModules} />
@@ -337,6 +341,52 @@ export default function HomePage() {
             <ButtonLink href="/features" size="lg" trailing={<ArrowRight />}>
               See all {modules.length} modules
             </ButtonLink>
+          </Reveal>
+        </Container>
+      </Section>
+
+      {/* ═══ 08b · Sponsorship ═══════════════════════════════════════ */}
+      <Section aria-labelledby="sponsors-heading">
+        <Container>
+          <Reveal>
+            <div className="card-accent p-8 sm:p-10">
+              <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
+                <div>
+                  <p className="eyebrow">Open to help</p>
+                  <h2 id="sponsors-heading" className="mt-3 text-2xl leading-tight sm:text-3xl">
+                    One developer, and room for a few more hands.
+                  </h2>
+                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">
+                    ProGlass Automation is written and maintained by one person. Sponsorship funds work — a cutting
+                    table to test export formats against, reviewed translations, test engineering — and never buys a
+                    roadmap position. The page below states the gaps as they actually are.
+                  </p>
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <ButtonLink href="/sponsors" size="lg" trailing={<ArrowRight />}>
+                      Sponsor the build
+                    </ButtonLink>
+                    <ButtonLink href="/developer" variant="secondary" size="lg">
+                      Meet the developer
+                    </ButtonLink>
+                  </div>
+                </div>
+                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                  {[
+                    { label: "Maintainers", value: "One" },
+                    { label: "Sponsors so far", value: "None — stated plainly" },
+                    { label: "Licence model", value: "Owned, not rented" },
+                  ].map((item) => (
+                    <li
+                      key={item.label}
+                      className="flex items-baseline justify-between gap-4 rounded-card border border-line/60 bg-ink-950/40 px-4 py-3"
+                    >
+                      <span className="text-xs uppercase tracking-[0.14em] text-text-faint">{item.label}</span>
+                      <span className="text-sm font-medium text-text-secondary">{item.value}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </Reveal>
         </Container>
       </Section>

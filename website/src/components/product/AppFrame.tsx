@@ -23,9 +23,14 @@ export type RailGroup = { label: string; items: RailItem[]; open?: boolean };
  *  FINANCE & ACCOUNTING · REPORTS · MASTER DATA · SYSTEM).
  */
 export const realRail: RailGroup[] = [
-  { label: "MAIN", open: true, items: [{ label: "Dashboard" }, { label: "Sheet Store" }, { label: "Specifications" }] },
+  { label: "MAIN", open: true, items: [{ label: "Dashboard" }] },
   {
-    label: "SALES & ORDERS",
+    label: "INVENTORY",
+    open: true,
+    items: [{ label: "Sheet Store" }, { label: "Specifications" }],
+  },
+  {
+    label: "SALES",
     open: true,
     items: [{ label: "Inquiry" }, { label: "Proforma Invoice" }, { label: "Job Order" }, { label: "Tax Invoice" }],
   },
@@ -45,24 +50,40 @@ export const realRail: RailGroup[] = [
       { label: "Doubling / Lamination" },
     ],
   },
-  { label: "DISPATCH", items: [{ label: "Delivery Note" }] },
+  { label: "DISPATCH", items: [{ label: "Delivery Note" }, { label: "Order Report" }] },
   {
-    label: "FINANCE & ACCOUNTING",
-    items: [{ label: "Statement Generator" }, { label: "Report Generator" }, { label: "Job Profitability" }, { label: "VAT Submission" }],
+    label: "FINANCE",
+    items: [
+      { label: "Statement Generator" },
+      { label: "Job Profitability" },
+      { label: "VAT Submission" },
+    ],
   },
   {
     label: "REPORTS",
     items: [
-      { label: "Overview" },
+      { label: "Executive Summary" },
+      { label: "Customers" },
+      { label: "Salesmen" },
+      { label: "Companies" },
+      { label: "Projects" },
       { label: "Proforma Invoice" },
       { label: "Job Order" },
       { label: "Delivery" },
       { label: "Tax Invoice" },
+      { label: "Glass Specs" },
+      { label: "Profitability" },
       { label: "Statement" },
     ],
   },
-  { label: "MASTER DATA", items: [{ label: "Company Center" }, { label: "User Center" }, { label: "System Center" }] },
-  { label: "SYSTEM", items: [{ label: "Logs & Activity" }, { label: "Diagnostics" }, { label: "Settings" }] },
+  {
+    label: "MASTER DATA",
+    items: [{ label: "Company Center" }, { label: "User Center" }],
+  },
+  {
+    label: "SYSTEM",
+    items: [{ label: "System Center" }, { label: "Diagnostics" }, { label: "Settings" }],
+  },
 ];
 
 function RailRow({ label, active, muted }: { label: string; active?: boolean; muted?: boolean }) {
@@ -111,7 +132,7 @@ export function AppFrame({
         <div className="flex items-center gap-2.5">
           <span
             aria-hidden="true"
-            className="grid h-5 w-5 place-items-center rounded-[0.3rem] bg-gradient-to-br from-brand-400 to-brand-600 text-[0.5rem] font-bold text-ink-950"
+            className="grid h-5 w-5 place-items-center rounded-[0.3rem] bg-gradient-to-br from-brand-400 to-brand-600 text-[0.5rem] font-bold text-accent-ink"
           >
             PG
           </span>

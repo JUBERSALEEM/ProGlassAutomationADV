@@ -30,12 +30,19 @@ export function Section({
 }) {
   const tones = {
     default: "",
-    raised: "bg-ink-900/45 border-y border-line/60",
-    sunken: "bg-ink-950/60 border-y border-line/40",
+    raised: "border-y border-line-strong/45 bg-ink-900/55",
+    sunken: "border-y border-line/45 bg-ink-850/60",
   } as const;
 
   return (
     <Tag id={id} className={cn("section relative", tones[tone], className)} {...rest}>
+      {tone === "raised" ? (
+        /* A violet hairline marks the top of a banded section without adding weight. */
+        <>
+          <span aria-hidden="true" className="rule-violet absolute inset-x-0 -top-px" />
+          <span aria-hidden="true" className="rule-violet absolute inset-x-0 -bottom-px" />
+        </>
+      ) : null}
       {children}
     </Tag>
   );

@@ -97,16 +97,16 @@ export function NestingDemo() {
           >
             <defs>
               <linearGradient id="glass-a" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#0EA5E9" stopOpacity="0.36" />
-                <stop offset="100%" stopColor="#22D3EE" stopOpacity="0.2" />
+                <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.36" />
+                <stop offset="100%" stopColor="#2DD4BF" stopOpacity="0.2" />
               </linearGradient>
               <linearGradient id="glass-b" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0%" stopColor="#2DD4BF" stopOpacity="0.32" />
-                <stop offset="100%" stopColor="#38BDF8" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#A78BFA" stopOpacity="0.18" />
               </linearGradient>
               <linearGradient id="glass-c" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#7DD3FC" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#0EA5E9" stopOpacity="0.16" />
+                <stop offset="0%" stopColor="#C4B5FD" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="#7C3AED" stopOpacity="0.16" />
               </linearGradient>
             </defs>
 
@@ -158,7 +158,7 @@ export function NestingDemo() {
 
             {/* Kerf gaps — the blade consumption between pieces */}
             {showKerf ? (
-              <g className="animate-fade-in" fill="#F59E0B" fillOpacity="0.34">
+              <g className="animate-fade-in" fill="#FBBF24" fillOpacity="0.34">
                 <rect x={exampleUsable.x + 1600} y={exampleUsable.y} width={exampleMargins.kerf} height={exampleUsable.height} />
                 <rect x={exampleUsable.x} y={exampleUsable.y + 1100} width={1600} height={exampleMargins.kerf} />
                 <rect
@@ -189,7 +189,7 @@ export function NestingDemo() {
                   width={piece.width}
                   height={piece.height}
                   fill={`url(#glass-${piece.tone})`}
-                  stroke="#7DD3FC"
+                  stroke="#C4B5FD"
                   strokeOpacity="0.55"
                   strokeWidth="3"
                 />
