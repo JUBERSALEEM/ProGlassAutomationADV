@@ -6,7 +6,7 @@ import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { StatCounter } from "@/components/ui/Stat";
+import { StatBadge, StatCounter } from "@/components/ui/Stat";
 import { Accordion } from "@/components/ui/Accordion";
 import { ProductHero } from "@/components/hero/ProductHero";
 import { WorkflowRail } from "@/components/product/WorkflowRail";
@@ -20,6 +20,7 @@ import { modules } from "@/data/modules";
 import { glass3d } from "@/data/assets";
 import { featureGroups } from "@/data/features";
 import { faq } from "@/data/faq";
+import { quotationTotals, seedParties, seededDocuments } from "@/data/workedExample";
 import { screenshots, screenshotById } from "@/data/screenshots";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
@@ -203,6 +204,90 @@ export default function HomePage() {
                 <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">{fact.hint}</p>
               </div>
             ))}
+          </div>
+        </Container>
+      </Section>
+
+      {/* ═══ 04b · Worked example ════════════════════════════════════ */}
+      {/*
+        The scale section above answers "how much is in it". This one answers
+        "what does it look like on a real job" — and every figure in it is read
+        from the workflow the application seeds into an empty database, not
+        written for the page. See data/workedExample.ts, which fails the build
+        if these numbers ever stop matching the seeder.
+      */}
+      <Section aria-labelledby="worked-heading">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:gap-16">
+            <div>
+              <SectionHeading
+                id="worked-heading"
+                eyebrow="Worked example"
+                title="Here is one job, with its real figures."
+                lead="The application can seed a single complete demonstration workflow into an empty database — one enquiry, one quotation, one job order, one partial delivery, one tax invoice. These are its numbers, read straight out of the seeder rather than chosen for a page."
+              />
+
+              <ol className="mt-8 flex flex-wrap items-center gap-2">
+                {seededDocuments.map((document, index) => (
+                  <li key={document.key} className="flex items-center gap-2">
+                    {index > 0 ? (
+                      <span aria-hidden="true" className="text-text-faint">
+                        →
+                      </span>
+                    ) : null}
+                    <span className="rounded-full border border-line-strong/70 px-3 py-1.5 font-mono text-[0.6875rem] text-text-secondary">
+                      {document.example}
+                      <span className="ml-1.5 text-text-faint">{document.status}</span>
+                    </span>
+                  </li>
+                ))}
+              </ol>
+
+              <p className="mt-6 text-sm leading-relaxed text-text-muted">
+                {seedParties.customer.name} · {seedParties.project.name} · contract {seedParties.project.contract}. The
+                quotation is priced in three specification groups and the delivery is deliberately partial, so the
+                balance workflow is visible rather than described.
+              </p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href="/worked-example" size="lg" trailing={<ArrowRight />}>
+                  Walk through the job
+                </ButtonLink>
+                <ButtonLink href="/how-it-works" variant="secondary" size="lg">
+                  How the chain works
+                </ButtonLink>
+              </div>
+
+              <p className="mt-5 max-w-xl text-xs leading-relaxed text-text-faint font-medium">
+                The rates in the seeded job are the sample dataset&apos;s own numbers. ProGlass Automation publishes no
+                price list for glass, and nothing on this site is a market rate.
+              </p>
+            </div>
+
+            <Reveal delay={60}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <StatBadge
+                  value={String(quotationTotals.lines)}
+                  label="Quotation lines"
+                  hint="Three specification groups, SGU and DGU."
+                />
+                <StatBadge
+                  value={String(quotationTotals.pieces)}
+                  label="Pieces of glass"
+                  hint={`${quotationTotals.squareMetres.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m² of glass.`}
+                />
+                <StatBadge
+                  value={`AED ${quotationTotals.subtotal.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  label="Quoted before VAT"
+                  hint="Line values rounded individually, then summed."
+                />
+                <StatBadge
+                  value={`AED ${quotationTotals.grandTotal.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  label="VAT inclusive"
+                  hint="5% through the application's one VAT calculator."
+                />
+              </div>
+            </Reveal>
           </div>
         </Container>
       </Section>

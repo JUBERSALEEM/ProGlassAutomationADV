@@ -169,6 +169,20 @@ export default function HowItWorksPage() {
             The left-hand descriptions are general practice, not a claim about any particular business, and no figures are
             quoted for it. The right-hand column is limited to behaviour that exists in the application.
           </p>
+
+          <div className="surface mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
+              For the numbers rather than the description, the{" "}
+              <Link href="/worked-example" className="link-underline text-brand-200">
+                worked example
+              </Link>{" "}
+              follows one seeded job through all five documents — 22 quotation lines, a partial delivery and the invoice
+              raised from it.
+            </p>
+            <ButtonLink href="/worked-example" variant="secondary" size="sm" trailing={<ArrowRight />}>
+              See the figures
+            </ButtonLink>
+          </div>
         </Container>
       </Section>
 

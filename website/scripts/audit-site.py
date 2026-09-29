@@ -38,7 +38,7 @@ for argument in sys.argv[1:]:
 
 PAGES = [
     "/", "/features", "/optimization", "/how-it-works", "/screenshots", "/pricing",
-    "/about", "/developer", "/sponsors", "/contact", "/resources", "/blog",
+    "/about", "/developer", "/sponsors", "/contact", "/resources", "/blog", "/worked-example",
     "/blog/why-the-price-basis-is-stamped", "/blog/guillotine-versus-free-nesting",
     "/blog/why-delivery-balance-is-hard",
     "/legal/privacy", "/legal/terms", "/legal/license",
@@ -47,7 +47,11 @@ PAGES = [
 # Words that must never appear in customer-facing copy.
 BANNED = [
     r"\bsaas\b", r"\b(we are|our) multi-tenant\b", r"\btenant dashboard\b", r"\bstart (your )?free trial\b",
-    r"\bsubscription plan\b", r"\bcloud workspace\b", r"\b10x\b", r"\b99\.9%",
+    r"\bsubscription plan\b", r"\bcloud workspace\b", r"\b10x\b",
+    # Availability claims, not the number itself: the seeded inventory carries
+    # a real product specification ("argon gas, 99.9% purity") and a rule that
+    # forbids the digits would force that specification off the page.
+    r"\b99\.(9|99)\s*%\s*(uptime|available|availability|reliability)", r"\buptime\b",
     r"\btrusted by \d", r"\blorem ipsum\b", r"revolutionary platform", r"best software ever",
     r"world-class", r"cutting-edge", r"game[- ]chang",
 ]
@@ -63,6 +67,7 @@ BUDGET = {
     "/optimization": {"gz": 55, "nodes": 2600},
     "/how-it-works": {"gz": 40, "nodes": 1700},
     "/screenshots": {"gz": 55, "nodes": 8000},
+    "/worked-example": {"gz": 55, "nodes": 1900},
     "/sponsors": {"gz": 36, "nodes": 900},
 }
 BUDGET_DEFAULT = {"gz": 36, "nodes": 900}

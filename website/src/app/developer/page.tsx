@@ -13,9 +13,9 @@ import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "The developer — an estimator who wrote his own software",
+  title: "The developer — a glass estimator, not a coder",
   description:
-    "ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained software engineer. One person, no team, no investors — and why that shaped the product.",
+    "ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained engineer. One person, no team, no investors.",
   path: "/developer",
   keywords: [
     "ProGlass Automation developer",
@@ -147,7 +147,7 @@ export default function DeveloperPage() {
     <RouteSchema
       path="/developer"
       title="The developer — an estimator who wrote his own software"
-      description="ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained software engineer. One person, no team, no investors — and why that shaped the product."
+      description="ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained engineer. One person, no team, no investors — and how that shaped the product."
     />
       <PageHero
         eyebrow="The developer"

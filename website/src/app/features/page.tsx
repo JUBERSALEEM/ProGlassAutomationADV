@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
@@ -83,6 +84,19 @@ export default function FeaturesPage() {
 
           <div className="mt-10">
             <ModuleBrowser />
+          </div>
+
+          <div className="surface mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
+              A feature list only means something once a job runs through it. The{" "}
+              <Link href="/worked-example" className="link-underline text-brand-200">
+                worked example
+              </Link>{" "}
+              takes one seeded job across the modules above and shows every figure it produces.
+            </p>
+            <ButtonLink href="/worked-example" variant="secondary" size="sm" trailing={<ArrowRight />}>
+              Worked example
+            </ButtonLink>
           </div>
         </Container>
       </Section>

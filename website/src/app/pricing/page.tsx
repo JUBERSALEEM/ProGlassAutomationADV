@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
@@ -275,6 +276,31 @@ export default function PricingPage() {
               defaultOpen={0}
             />
           </div>
+        </Container>
+      </Section>
+
+      {/* ── Worked example ───────────────────────────────────────── */}
+      <Section tone="raised" aria-label="Worked example">
+        <Container>
+          <Reveal>
+            <div className="surface flex flex-col gap-5 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+              <div>
+                <p className="eyebrow">Before you ask for a number</p>
+                <p className="mt-3 max-w-3xl text-sm leading-relaxed text-text-secondary">
+                  Editions are priced by what a business needs, so there is nothing to publish as a list. What can be
+                  shown is a job: the{" "}
+                  <Link href="/worked-example" className="link-underline text-brand-200">
+                    worked example
+                  </Link>{" "}
+                  runs one seeded job end to end — 22 quotation lines, a partial delivery and the tax invoice raised from
+                  it — so you can see what an edition actually carries before deciding which one fits.
+                </p>
+              </div>
+              <ButtonLink href="/worked-example" variant="secondary" size="sm" trailing={<ArrowRight />}>
+                See the job
+              </ButtonLink>
+            </div>
+          </Reveal>
         </Container>
       </Section>
 

@@ -54,12 +54,14 @@ export const nav = {
   product: [
     { label: "Features", href: "/features" },
     { label: "How It Works", href: "/how-it-works" },
+    { label: "Worked Example", href: "/worked-example" },
     { label: "Screenshots", href: "/screenshots" },
   ],
   primary: [
     { label: "Features", href: "/features" },
     { label: "Optimization", href: "/optimization" },
     { label: "How It Works", href: "/how-it-works" },
+    { label: "Worked Example", href: "/worked-example" },
     { label: "Screenshots", href: "/screenshots" },
     { label: "Pricing", href: "/pricing" },
     { label: "About", href: "/about" },
@@ -72,6 +74,7 @@ export const nav = {
       { label: "Features", href: "/features" },
       { label: "Optimization", href: "/optimization" },
       { label: "How It Works", href: "/how-it-works" },
+      { label: "Worked Example", href: "/worked-example" },
       { label: "Screenshots", href: "/screenshots" },
       { label: "Pricing", href: "/pricing" },
     ],

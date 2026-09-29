@@ -21,6 +21,7 @@ const entries: NavEntry[] = [
     children: [
       { label: "Features", href: "/features", description: "Every module, in the app's own vocabulary" },
       { label: "How It Works", href: "/how-it-works", description: "Inquiry to statement, step by step" },
+      { label: "Worked Example", href: "/worked-example", description: "One real job, every figure" },
       { label: "Screenshots", href: "/screenshots", description: "The interface, screen by screen" },
       { label: "Pricing", href: "/pricing", description: "Editions and what each one unlocks" },
     ],
