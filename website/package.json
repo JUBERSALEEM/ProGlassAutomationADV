@@ -5,6 +5,7 @@
   "description": "Official marketing/product website for ProGlass Automation \u2014 the Windows desktop ERP for glass fabrication businesses.",
   "scripts": {
     "predev": "node scripts/check-build-freshness.mjs check",
+    "prebuild": "node scripts/check-deps.mjs",
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "postbuild": "node scripts/check-build-freshness.mjs record",

@@ -30,6 +30,24 @@ The audit checks every internal link and image, the per-page metadata
 (title, description, canonical, Open Graph, viewport), one-`h1`-per-page,
 missing image `alt` text, and a list of banned marketing phrases.
 
+## Deploying it
+
+See **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** — a step-by-step guide from this
+branch to `https://proglassautomation.com`, covering the Vercel project settings
+(the site lives in `website/`, which is the one setting people get wrong), the
+DNS records for the domain, the certificate, the launch checklist, and the
+`Can't resolve 'marked'` build error that appears when dependencies have not been
+installed.
+
+The short version, once the repository is on `main`:
+
+```
+Vercel → Add New → Project → import this repository
+Root Directory: website      Node.js: 22.x      Environment variables: none
+Deploy → then Settings → Domains → add the domain and its www form
+→ add the two DNS records Vercel shows at your registrar → done
+```
+
 ## Pages
 
 | Route | What it is |
