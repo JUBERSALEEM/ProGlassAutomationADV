@@ -100,13 +100,19 @@
      * — no image file, no network request, and every value follows the palette
      * family and the light/dark mode the visitor picked.
      */
-    --wall-grid: rgb(167 139 250 / 0.075);
-    --wall-grid-major: rgb(167 139 250 / 0.11);
+    /* Raised a little when the wallpaper moved to its own composited layer:
+       now that the grid is painted at device resolution rather than scaled from
+       a cached tile, slightly more definition costs nothing and the surface
+       reads as etched metal instead of as a faint wash. */
+    --wall-grid: rgb(167 139 250 / 0.09);
+    --wall-grid-major: rgb(167 139 250 / 0.135);
     --wall-grid-size: 56px 56px;
     --wall-grid-major-size: 280px 280px;
     --wall-wash-1: rgb(139 92 246 / 0.22);
     --wall-wash-2: rgb(34 211 238 / 0.09);
-    --wall-sheen: rgb(255 255 255 / 0.045);
+    /* Halved from 0.045: on a dark page a white wash is the difference
+       between a surface with light on it and a surface behind fog. */
+    --wall-sheen: rgb(255 255 255 / 0.022);
     --wall-vignette: rgb(4 2 14 / 0.55);
 
     /* Card tinting: the violet wash that keeps cards off plain grey. */
@@ -465,32 +471,47 @@
     overflow-x: hidden;
     transition: background-color 240ms ease, color 240ms ease;
 
-    /*
-     * The wallpaper, back to front. It sits on <body> rather than on a wrapper
-     * element so it survives every layout change, and every layer is fixed so
-     * scrolling moves the page over a still surface — which is what makes a
-     * background read as a room rather than as a texture glued to one section.
-     *
-     * Layer by layer:
-     *   1–2  the two strongest washes. They have their own tokens, set per
-     *        palette family, so switching family re-hues the top of every page
-     *        without touching the shared pools below it
-     *   3–4  the two quieter pools, which come from the family's `--pool-*`
-     *        values like every other ambient light on the site
-     *   5    the polished sheen, raked off the top-left corner
-     *   6    the vignette, darkening all four edges
-     *
-     * The etched grid lives on `body::before` instead, one layer up, because it
-     * needs a mask to fade out — a repeating gradient cannot be masked in
-     * place, and an unmasked grid draws a line straight through running text.
-     */
+  }
+
+  /*
+   * The wallpaper, back to front, on a fixed layer of its own.
+   *
+   * Layer by layer:
+   *   1–2  the two strongest washes. They have their own tokens, set per palette
+   *        family, so switching family re-hues the top of every page without
+   *        touching the shared pools below it
+   *   3–4  the two quieter pools, which come from the family's `--pool-*` values
+   *        like every other ambient light on the site
+   *   5    the sheen, raked off the top-left corner
+   *   6    the vignette, darkening all four edges
+   *
+   * Why this is a fixed element and not `background-attachment: fixed` on
+   * `body`, which is what it used to be: Chromium paints a fixed-attachment
+   * background on a scroll container into a cached tile and then *scales that
+   * tile*, so the surface of the whole page — on this site, most of what a
+   * visitor sees — is drawn below device resolution and reads as soft. The
+   * effect is strongest with `overflow-x: hidden` on the same element, which
+   * this body also has. A fixed `<div>`-like layer is painted by the compositor
+   * at device resolution instead, and scrolling still moves the page over a
+   * still surface, which is the point of fixing it at all.
+   *
+   * The etched grid lives on `body::before`, one layer up, because it needs a
+   * mask to fade out — a repeating gradient cannot be masked in place, and an
+   * unmasked grid draws a line straight through running text.
+   */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
     background-image:
       /* 1–4 · ambient pools */
       radial-gradient(1180px 660px at 10% -10%, var(--wall-wash-1), transparent 62%),
       radial-gradient(940px 560px at 94% 2%, var(--wall-wash-2), transparent 58%),
       radial-gradient(820px 500px at 70% 98%, var(--pool-3), transparent 62%),
       radial-gradient(700px 440px at 26% 74%, var(--pool-2), transparent 66%),
-      /* 5 · polished sheen */
+      /* 5 · sheen */
       linear-gradient(
         152deg,
         var(--wall-sheen) 0%,
@@ -500,8 +521,6 @@
       ),
       /* 6 · vignette */
       radial-gradient(150% 120% at 50% 0%, transparent 34%, var(--wall-vignette) 100%);
-    background-size: auto, auto, auto, auto, auto, auto;
-    background-attachment: fixed;
     background-repeat: no-repeat;
   }
 
@@ -532,7 +551,8 @@
 
   /* The wallpaper is decoration; printing it would only waste toner. */
   @media print {
-    body::before {
+    body::before,
+    body::after {
       display: none;
     }
   }
