@@ -56,6 +56,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       keywords: [t(post.category), t("glass software"), t("ProGlass Automation")],
       ogEyebrow: t(post.category),
     }),
+    /*
+     * The headline alone, without the ` · ProGlass Automation` the layout
+     * appends to every other page. A note title is a sentence, not a label —
+     * the longest one here is 52 characters, and the suffix took it to 73,
+     * which is past the point a search result truncates it. The brand is in
+     * the Open Graph card, the canonical URL, the structured data and the
+     * breadcrumb on the page itself; it does not need the last word here too.
+     */
+    title: { absolute: t(post.title) },
   };
 }
 

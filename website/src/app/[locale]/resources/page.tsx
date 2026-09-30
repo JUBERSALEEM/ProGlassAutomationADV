@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
   locale: t.locale,
-  title: t("Guides to glass estimation and optimization"),
+  title: t("Guides to glass estimation"),
   description: t("Guides for glass businesses: the vocabulary of an order, why a cutting plan must be cuttable, and how stock accuracy works when movements are recorded."),
   path: "/resources",
   keywords: ["glass estimation guide", "glass cutting optimization guide", "glass industry terminology", "glass stock management guide"],
@@ -36,7 +36,7 @@ export default async function ResourcesPage({ params }: PageProps) {
     <RouteSchema
       locale={locale}
       path="/resources"
-      title={t("Guides to glass estimation and optimization")}
+      title={t("Guides to glass estimation")}
       description={t("Guides for glass businesses: the vocabulary of an order, why a cutting plan must be cuttable, and how stock accuracy works when movements are recorded.")}
     />
       <PageHero

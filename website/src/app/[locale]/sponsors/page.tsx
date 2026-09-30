@@ -241,6 +241,9 @@ export default async function SponsorsPage({ params }: PageProps) {
                     <ButtonLink href="/developer" variant="secondary" size="sm">
           {t("Who is building it")}
         </ButtonLink>
+                    <ButtonLink href="/collaborate" variant="secondary" size="sm">
+          {t("Partnership, not sponsorship")}
+        </ButtonLink>
                   </div>
                 </div>
 

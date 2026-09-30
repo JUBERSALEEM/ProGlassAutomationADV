@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
   locale: t.locale,
-  title: t("Contact — request a demo of ProGlass Automation"),
+  title: t("Contact — request a demo"),
   description: t("Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply."),
   path: "/contact",
   keywords: ["request glass software demo", t("contact ProGlass Automation"), t("glass ERP demo")],
@@ -33,7 +33,7 @@ export default async function ContactPage({ params }: PageProps) {
     <RouteSchema
       locale={locale}
       path="/contact"
-      title={t("Contact — request a demo of ProGlass Automation")}
+      title={t("Contact — request a demo")}
       description={t("Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply.")}
     />
       <PageHero

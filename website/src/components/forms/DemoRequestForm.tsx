@@ -125,8 +125,8 @@ export function DemoRequestForm() {
         <p className="mt-2 text-sm leading-relaxed text-text-muted">
           {t("Thank you. Your request has been recorded and will be answered by email. If you would rather not wait, write")}
           to{" "}
-          <a className="link-underline" href="mailto:proglassautomation@gmail.com">
-            proglassautomation@gmail.com
+          <a className="link-underline" href={`mailto:${site.developerEmail}`}>
+            {site.developerEmail}
           </a>{" "}
           directly.
         </p>

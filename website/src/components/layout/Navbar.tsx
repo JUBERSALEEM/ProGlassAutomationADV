@@ -42,7 +42,14 @@ const entries: NavEntry[] = [
      top-level slot rather than being buried in a dropdown. */
   { label: "About", href: "/about" },
   { label: "Developer", href: "/developer" },
-  { label: "Sponsors", href: "/sponsors" },
+  /*
+   * Collaboration takes the top-level slot, and Sponsors keeps the one it
+   * already had inside this same nav's Resources menu (and in the footer, and
+   * on the collaboration page itself). Adding an eighth top-level item instead
+   * would push the pill past what `lg` has room for, and a navigation that
+   * wraps is worse than one page reached by two routes.
+   */
+  { label: "Collaborate", href: "/collaborate" },
 ];
 
 /*

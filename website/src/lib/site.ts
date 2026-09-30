@@ -66,6 +66,7 @@ export const nav = {
     { label: "Pricing", href: "/pricing" },
     { label: "About", href: "/about" },
     { label: "Developer", href: "/developer" },
+    { label: "Collaborate", href: "/collaborate" },
     { label: "Resources", href: "/resources" },
     { label: "Sponsors", href: "/sponsors" },
   ],
@@ -81,6 +82,7 @@ export const nav = {
     company: [
       { label: "About ProGlass", href: "/about" },
       { label: "Developer", href: "/developer" },
+      { label: "Collaborate", href: "/collaborate" },
       { label: "Sponsors", href: "/sponsors" },
       { label: "Contact", href: "/contact" },
     ],

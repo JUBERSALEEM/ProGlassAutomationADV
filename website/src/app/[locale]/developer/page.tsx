@@ -7,7 +7,7 @@ import { Badge, IndexChip } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Accordion } from "@/components/ui/Accordion";
-import { history, workingDocuments, workingMethod } from "@/data/developerHistory";
+import { dream, history, journey, overthinking, workingDocuments, workingMethod } from "@/data/developerHistory";
 import { StatCounter, StatBadge } from "@/components/ui/Stat";
 import { site } from "@/lib/site";
 import { RouteSchema } from "@/components/seo/RouteSchema";
@@ -20,8 +20,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
   locale: t.locale,
-  title: t("The developer — one glass estimator, working alone"),
-  description: t("ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained engineer. Its audits, fixes and open work are dated and public."),
+  title: t("The developer — one glass estimator"),
+  description: t("ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained engineer: how it started, and what he intends to build."),
   path: "/developer",
   keywords: [t("ProGlass Automation developer"), t("Juber Saleem"), "glass estimator software", t("self-taught WPF developer"), "glass fabrication software author"],
   ogEyebrow: t("The developer"),
@@ -136,6 +136,10 @@ const faq = [
     answer: t("Judge it by what is in the repository rather than by the author's job title. The application is covered by a test suite, held to zero-warning builds, and every claim about it on this site names the file where the behaviour lives so it can be checked."),
   },
   {
+    question: t("Is the author looking for help with it?"),
+    answer: t("Yes, and it is the one part of this page that is a request rather than a record. The application is one person's work on borrowed machines, and it needs a fabricator's performance data, a backer, a machine or a second pair of hands to go further. What each of those means, and what comes back for it, is set out on the collaboration page."),
+  },
+  {
     question: t("Who do I speak to if something is wrong?"),
     answer:
       t.template`The person who wrote it. A question about why the optimiser chose a particular plan, or a request to change how a charge row behaves, reaches the same inbox: ${site.developerEmail}.`,
@@ -148,7 +152,7 @@ const faq = [
     <RouteSchema
       locale={locale}
       path="/developer"
-      title={t("The developer — an estimator who wrote his own software")}
+      title={t("The developer — one glass estimator")}
       description={t("ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained engineer. One person, no team, no investors — and how that shaped the product.")}
     />
       <PageHero
@@ -175,8 +179,8 @@ const faq = [
             <ButtonLink href={`mailto:${site.developerEmail}`} size="lg" trailing={<ArrowRight />} external>
           {t("Email the developer")}
         </ButtonLink>
-            <ButtonLink href="/sponsors" variant="secondary" size="lg">
-          {t("What he still needs")}
+            <ButtonLink href="/collaborate" variant="secondary" size="lg">
+          {t("What he is asking for")}
         </ButtonLink>
           </>
         }
@@ -262,6 +266,131 @@ const faq = [
           </dl>
         </div>
       </PageHero>
+
+      {/* ── The journey ─────────────────────────────────────────────────
+          Four phases that happened and one that has not. The engineering
+          record sits under this, dated and checkable; this is the story the
+          record is evidence for, because "who wrote this" is a question about
+          the person and not about the commit log. */}
+      <Section aria-labelledby="journey-heading">
+        <Container>
+          <SectionHeading
+            id="journey-heading"
+            eyebrow={t("The journey")}
+            title={t("From a glass counter to a product nobody else had to write.")}
+            lead={t("An estimator who could not find software that knew what an SGU air space was, and wrote one instead. The order below is the order it happened in — the last entry is the part still being decided.")}
+          />
+
+          <ol className="mt-12 grid gap-5 lg:grid-cols-2">
+            {journey.map((phase, index) => {
+              /* The open phase is the last one and has no proof to cite, so it
+                 is the one card drawn with an accent edge rather than
+                 pretending to be another closed chapter. */
+              const open = index === journey.length - 1;
+              return (
+                <Reveal key={phase.index} as="li" delay={Math.min(index, 4) * 60}>
+                  <article
+                    className={
+                      open
+                        ? "surface-raised card-pad card-interactive flex h-full flex-col border-brand-400/35"
+                        : "surface card-pad card-interactive flex h-full flex-col"
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <IndexChip>{phase.index}</IndexChip>
+                        <h3 className="card-title">{t(phase.title)}</h3>
+                      </div>
+                      <span className="mono-label shrink-0">{t(phase.when)}</span>
+                    </div>
+                    <p className="mt-4 text-sm leading-relaxed text-text-muted">{t(phase.body)}</p>
+                    {phase.proof ? (
+                      <p className="mono-label mt-auto pt-5">
+                        <span className="sr-only">{t("In the source tree:")}</span>
+                        {t(phase.proof)}
+                      </p>
+                    ) : null}
+                  </article>
+                </Reveal>
+              );
+            })}
+          </ol>
+        </Container>
+      </Section>
+
+      {/* ── When overthinking is used in success ───────────────────────── */}
+      <Section tone="raised" aria-labelledby="overthinking-heading">
+        <Container>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.25fr)] lg:gap-16">
+            <div className="lg:sticky lg:top-28 lg:self-start">
+              <SectionHeading
+                id="overthinking-heading"
+                eyebrow={t("When overthinking is used in success")}
+                title={t(overthinking.thesis)}
+                lead={t(overthinking.lead)}
+              />
+              <p className="mt-6 rounded-card border border-line/60 bg-ink-950/40 p-4 text-xs font-medium leading-relaxed text-text-faint">
+                {t(overthinking.cost)}
+              </p>
+            </div>
+
+            <ol className="flow">
+              {overthinking.points.map((point, index) => (
+                <Reveal key={point.index} as="li" delay={index * 60}>
+                  <div className="card-live flex gap-4 p-5 sm:p-6">
+                    <IndexChip>{point.index}</IndexChip>
+                    <div className="min-w-0">
+                      <h3 className="card-title">{t(point.title)}</h3>
+                      <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(point.body)}</p>
+                      {point.proof ? (
+                        <p className="mono-label mt-3.5 border-t border-line/60 pt-3">
+                          <span className="sr-only">{t("In the source tree:")}</span>
+                          {point.proof}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </ol>
+          </div>
+        </Container>
+      </Section>
+
+      {/* ── The dream ────────────────────────────────────────────────── */}
+      <Section aria-labelledby="dream-heading">
+        <Container>
+          <div className="glass-primary card-pad">
+            <div className="glass-primary-head">
+              <div className="min-w-0">
+                <p className="eyebrow">{t("What it is for")}</p>
+                <h2 id="dream-heading" className="display-2 mt-3">
+                  {t("Not a side project that stays one.")}
+                </h2>
+              </div>
+              <Badge tone="accent">{t("Stated as an intention")}</Badge>
+            </div>
+
+            <p className="max-w-3xl pt-6 text-sm leading-relaxed text-text-secondary">{t(dream.lead)}</p>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {dream.intentions.map((item) => (
+                <div key={t(item.title)} className="surface-raised p-5">
+                  <h3 className="card-title">{t(item.title)}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
+                </div>
+              ))}
+            </div>
+
+            <figure className="mt-8 border-t border-line/60 pt-6">
+              <blockquote className="max-w-3xl text-base leading-relaxed text-text-secondary sm:text-lg">
+                &ldquo;{t(dream.quote)}&rdquo;
+              </blockquote>
+              <figcaption className="mono-label mt-4">{t(dream.attribution)}</figcaption>
+            </figure>
+          </div>
+        </Container>
+      </Section>
 
       {/* ── The working history, from the repository's own documents ──── */}
       <Section aria-labelledby="history-heading">
@@ -476,11 +605,11 @@ const faq = [
                 lead={t("There is no office, no second developer, no designer, no translator and no one on support. The build is as far along as one estimator working evenings could take it. The next stage needs help, and the gaps are listed by name rather than hinted at.")}
               />
               <div className="mt-8 flex flex-wrap gap-3">
-                <ButtonLink href="/sponsors" size="lg" trailing={<ArrowRight />}>
-          {t("See the eight gaps")}
+                <ButtonLink href="/collaborate" size="lg" trailing={<ArrowRight />}>
+          {t("See what is being asked for")}
         </ButtonLink>
-                <ButtonLink href="/contact" variant="secondary" size="lg">
-          {t("Offer a hand")}
+                <ButtonLink href="/sponsors" variant="secondary" size="lg">
+          {t("See the eight gaps")}
         </ButtonLink>
               </div>
             </div>
@@ -524,8 +653,8 @@ const faq = [
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
         </ButtonLink>
-                <ButtonLink href="/about" variant="secondary" size="lg">
-          {t("About the product")}
+                <ButtonLink href="/collaborate" variant="secondary" size="lg">
+          {t("Work with the developer")}
         </ButtonLink>
               </div>
             </div>
@@ -539,8 +668,12 @@ const faq = [
               </div>
               <p className="text-xs leading-relaxed text-text-faint font-medium">
 {t("Every claim about the software on this site names the file it comes from. If something here cannot be checked, it should not be here — say so and it will be corrected.")}.{" "}
+                <Link href="/collaborate" className="link-underline">
+          {t("Collaboration")}
+        </Link>{" "}
+                {t("and")}{" "}
                 <Link href="/sponsors" className="link-underline">
-          {t("Sponsorship and contribution")}
+          {t("sponsorship")}
         </Link>
               </p>
             </div>

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
   locale: t.locale,
-  title: t("Blog — notes on glass software and the industry"),
+  title: t("Blog — notes on glass software"),
   description: t("Notes from building ProGlass Automation: why quoted figures carry a price basis, guillotine versus free nesting, and why delivery balances are hard."),
   path: "/blog",
   keywords: ["glass industry blog", "glass software engineering", "cutting optimization article", t("ERP design notes")],
@@ -39,7 +39,7 @@ export default async function BlogPage({ params }: PageProps) {
     <RouteSchema
       locale={locale}
       path="/blog"
-      title={t("Blog — notes on glass software and the industry")}
+      title={t("Blog — notes on glass software")}
       description={t("Notes from building ProGlass Automation: why quoted figures carry a price basis, guillotine versus free nesting, and why delivery balances are hard.")}
       type="CollectionPage"
       items={posts.map((post) => ({ name: post.title, url: `${site.url}/blog/${post.slug}` }))}

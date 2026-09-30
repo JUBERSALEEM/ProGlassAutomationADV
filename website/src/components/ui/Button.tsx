@@ -44,6 +44,24 @@ export function ButtonLink({
 }: CommonProps & { href: string; external?: boolean } & Omit<ComponentPropsWithoutRef<"a">, "href" | "children" | "className">) {
   const classes = cn(base, variants[variant], sizes[size], variant === "quiet" && "h-auto px-0", className);
 
+  /*
+   * A protocol link is not a route. `mailto:` and `tel:` go straight through
+   * the locale-aware `next/link` wrapper otherwise, and `hrefIn` — which is
+   * right to assume every href it sees is a path — turns them into
+   * `/mailto:…`. They are plain anchors: there is no route to prefetch and no
+   * language to keep, and opening the mail client in a new tab is not what a
+   * visitor pressing "Email the developer" asked for.
+   */
+  const isProtocolLink = /^(mailto:|tel:|sms:)/i.test(href);
+  if (isProtocolLink) {
+    return (
+      <a href={href} className={classes} {...rest}>
+        {children}
+        {trailing}
+      </a>
+    );
+  }
+
   if (external) {
     return (
       <a href={href} className={classes} rel="noreferrer noopener" target="_blank" {...rest}>

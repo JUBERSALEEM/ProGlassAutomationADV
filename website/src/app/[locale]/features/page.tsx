@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
   locale: t.locale,
-  title: t("Features — every module in ProGlass Automation"),
+  title: t("Features — every ProGlass module"),
   description: t("Inside ProGlass Automation: proforma estimation, SGU/DGU/lamination pricing, job orders, cutting optimization, sheet store, production, delivery and reports."),
   path: "/features",
   keywords: ["glass estimation software features", t("glass ERP modules"), "proforma invoice software", "glass stock management software", "glass production management"],
@@ -50,7 +50,7 @@ export default async function FeaturesPage({ params }: PageProps) {
     <RouteSchema
       locale={locale}
       path="/features"
-      title={t("Features — every module in ProGlass Automation")}
+      title={t("Features — every ProGlass module")}
       description={t("Inside ProGlass Automation: proforma estimation, SGU/DGU/lamination pricing, job orders, cutting optimization, sheet store, production, delivery and reports.")}
     />
       <PageHero

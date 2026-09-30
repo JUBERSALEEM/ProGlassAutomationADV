@@ -30,6 +30,7 @@ const pages: { path: string; priority: number; changeFrequency: ChangeFrequency 
   { path: "/about", priority: 0.7, changeFrequency: "yearly" },
   { path: "/developer", priority: 0.7, changeFrequency: "monthly" },
   { path: "/sponsors", priority: 0.7, changeFrequency: "monthly" },
+  { path: "/collaborate", priority: 0.8, changeFrequency: "monthly" },
   { path: "/contact", priority: 0.7, changeFrequency: "yearly" },
   { path: "/resources", priority: 0.6, changeFrequency: "monthly" },
   { path: "/blog", priority: 0.6, changeFrequency: "weekly" },

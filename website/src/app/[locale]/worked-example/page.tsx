@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const t = await translatorFor(params);
   return pageMetadata({
   locale: t.locale,
-  title: t("Worked example — one glass job, end to end"),
+  title: t("Worked example — one glass job"),
   description: t("One job through ProGlass Automation: 22 quotation lines, 83 pieces and AED 34,762.19 across three specification groups, a partial delivery and its tax invoice."),
   path: "/worked-example",
   keywords: [t("glass fabrication ERP example"), "glass quotation calculation", "glass delivery balance", t("VAT invoice glass"), "cutting optimization example"],
@@ -85,7 +85,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       <RouteSchema
       locale={locale}
         path="/worked-example"
-        title={t("Worked example — one glass job, end to end")}
+        title={t("Worked example — one glass job")}
         description={t("One job through ProGlass Automation: 22 quotation lines, 83 pieces and AED 34,762.19 across three specification groups, a partial delivery and its tax invoice.")}
       />
 

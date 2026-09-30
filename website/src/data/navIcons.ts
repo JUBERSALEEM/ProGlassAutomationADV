@@ -15,4 +15,6 @@ export const navIcons: Record<string, string> = {
   About: "M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 7.5v4M8 5.2v.6",
   Developer: "M6 4 2.5 8 6 12M10 4l3.5 4L10 12",
   Sponsors: "M8 13S3 10 3 6.6A2.6 2.6 0 0 1 8 5.2 2.6 2.6 0 0 1 13 6.6C13 10 8 13 8 13z",
+  /* Two figures and a joined hand: the roles on the collaboration page. */
+  Collaborate: "M6 7.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM12.5 7a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2zM2.5 13c0-1.9 1.6-3.2 3.5-3.2S9.5 11.1 9.5 13M10.5 10.2c1.6.2 3 1.4 3 2.8",
 } as const;

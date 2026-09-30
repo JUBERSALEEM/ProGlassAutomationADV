@@ -48,6 +48,7 @@ const PAGES = [
   "/resources",
   "/blog",
   "/sponsors",
+  "/collaborate",
   "/worked-example",
   "/legal/privacy",
   "/legal/terms",
