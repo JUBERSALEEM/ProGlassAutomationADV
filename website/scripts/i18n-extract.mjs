@@ -77,7 +77,13 @@ const CSS_VALUE = /^(?:\(|["']?[A-Za-z ]+["']?,\s*)+(?:serif|sans-serif|monospac
 
 function isContent(value) {
   const text = value.trim();
-  if (text.length < 2 || text.length > 400) return false;
+  /* The cap used to be 400 characters, which is shorter than several of the
+     paragraphs this site writes — a module's `detail`, a pricing rule, a
+     developer note. Those were dropped by the length test alone, so the
+     longest explanations on the site were the ones that could never be
+     translated. 900 covers every paragraph in the repository and still
+     excludes anything that is really a file. */
+  if (text.length < 2 || text.length > 900) return false;
   if (CSS_VALUE.test(text)) return false;
   if (looksLikeCode(text)) return false;
   if (NOT_PROSE.test(text)) return false;
@@ -117,7 +123,11 @@ async function* walk(dir) {
 const NOT_TRANSLATABLE = [
   /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+\.?/,          // AppConfig.FontStyleName
   /^[\w.]+\s*=\s*/,                                          // FontUnderline = true
-  /^(?:DXF|PDF|Excel|CSV|SQLite|SGU|DGU|LAM|OPT|ISO|DAT)\b.*\b(?:·|\.)/, // format lists
+  /* Format lists are handled by `isFormatList` below, not here. The rule used
+     to be "starts with a format token and contains a full stop", which threw
+     away every sentence that begins with the trade's own vocabulary —
+     "SGU, DGU, lamination and DGU + lamination." is a heading on this site,
+     and it was untranslatable in all fifteen languages because of it. */
   /[,.]\s*(?:serif|sans-serif|monospace|system-ui)\b/,       // font stacks
   /^\(|^═══|^\.[A-Z]|\.(?:tsx?|json|cs|xaml)\b/,            // CSS, banners, filenames
   /^(?:AED|USD|EUR|GBP)\s?[\d.,]+$/,                          // money as a symbol
@@ -155,12 +165,30 @@ const keys = new Set();
    rows behind the galleries, guides and examples. */
 const origin = new Map();
 
+/**
+ * A list of file formats is not a sentence: "PDF / Excel / CSV export",
+ * "DXF · OPT · ISO · DAT". What makes it a list is that almost nothing is left
+ * once the format tokens and the separators between them are removed — a test
+ * "SGU, DGU, lamination and DGU + lamination." passes, because two thirds of
+ * it is prose.
+ */
+const FORMAT_TOKENS = /\b(?:DXF|PDF|Excel|CSV|SQLite|SGU|DGU|LAM|OPT|ISO|DAT)\b/g;
+
+function isFormatList(text) {
+  const tokens = text.match(FORMAT_TOKENS);
+  if (!tokens || tokens.length < 2) return false;
+  const rest = text.replace(FORMAT_TOKENS, " ").replace(/[\s/·,.;:()+&—–-]+/g, "");
+  return rest.length < 12;
+}
+
 function translatable(value) {
   const text = value.trim();
   if (!text) return false;
   if (NAMES.has(text)) return false;
   if (REPO_PATH.test(text)) return false;
-  return !NOT_TRANSLATABLE.some((pattern) => pattern.test(text));
+  if (NOT_TRANSLATABLE.some((pattern) => pattern.test(text))) return false;
+  if (isFormatList(text)) return false;
+  return true;
 }
 
 /* ── call sites ─────────────────────────────────────────────────────── */
@@ -250,9 +278,19 @@ for await (const file of walk("src")) {
   const source = readFileSync(file, "utf8");
   for (const match of source.matchAll(LITERAL)) {
     const value = (match[1] ?? match[2] ?? "").replace(/\\"/g, '"').replace(/\\'/g, "'");
-    if (value.length < 8 || value.length > 400) continue;
-    if (!/\s/.test(value) || !/[A-Z]/.test(value)) continue;
-    if (CLASSISH.test(value)) continue;
+    if (value.length < 8 || value.length > 900) continue;
+    /* A lower-case sentence is prose too. Requiring a capital letter was how
+       "5%, applied with one rounding rule for the whole application" stayed
+       out of the dictionary; the class-list guard below is what actually
+       separates styling from language. */
+    if (!/\s/.test(value)) continue;
+    if (!/[A-Z]/.test(value) && !/[a-z]{3}\s+[a-z]{3}/.test(value)) continue;
+    /* A styling string is lower-case, and it carries a dash or a colon: every
+       Tailwind utility does. A lower-case sentence carries neither — "5%,
+       applied with one rounding rule for the whole application" was read as a
+       class list and dropped, which is how one of the VAT rules on this site
+       stayed English. */
+    if (CLASSISH.test(value) && (value.includes("-") || value.includes(":") || !/\s/.test(value))) continue;
     /* A colour or a CSS paint function is a value, not a sentence — the
        capital-letter rule above lets `radial-gradient(circle, #22D3EE33, …)`
        through, because a hex colour has capitals in it. */

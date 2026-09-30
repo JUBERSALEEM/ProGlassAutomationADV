@@ -38,7 +38,7 @@ export function SheetPlanStrip() {
         <div>
           <p className="text-sm leading-relaxed text-text-secondary">
             {planTotals.pieces} pieces need{" "}
-            <strong className="font-semibold text-text-primary">{planTotals.plates} plates</strong> at this size —{" "}
+            <strong className="font-semibold text-text-primary">{planTotals.plates} plates</strong> {t("at this size —")}—{" "}
             {planTotals.usedSqm} m² of the {planTotals.stockSqm} m² the job draws from stock, the rest returning to the
             racks as offcut.
           </p>

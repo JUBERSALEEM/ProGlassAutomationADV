@@ -97,7 +97,7 @@ export default async function FeaturesPage({ params }: PageProps) {
 
           <div className="surface mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
-              A feature list only means something once a job runs through it. The{" "}
+{t("A feature list only means something once a job runs through it. The")}e{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
                 worked example
               </Link>{" "}

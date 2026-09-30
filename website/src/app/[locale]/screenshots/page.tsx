@@ -122,8 +122,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
 
           <div className="surface mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
-              The previews above use sample data. To see what the same screens hold when one job runs all the way
-              through them, the{" "}
+{t("The previews above use sample data. To see what the same screens hold when one job runs all the way through them, the")}e{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
                 worked example
               </Link>{" "}

@@ -538,8 +538,7 @@ const faq = [
                 <Badge tone="neutral">Version {site.version}</Badge>
               </div>
               <p className="text-xs leading-relaxed text-text-faint font-medium">
-                Every claim about the software on this site names the file it comes from. If something here cannot be
-                checked, it should not be here — say so and it will be corrected.{" "}
+{t("Every claim about the software on this site names the file it comes from. If something here cannot be checked, it should not be here — say so and it will be corrected.")}.{" "}
                 <Link href="/sponsors" className="link-underline">
           {t("Sponsorship and contribution")}
         </Link>

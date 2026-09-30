@@ -280,8 +280,7 @@ export default async function PricingPage({ params }: PageProps) {
               <div>
                 <p className="eyebrow">{t("Before you ask for a number")}</p>
                 <p className="mt-3 max-w-3xl text-sm leading-relaxed text-text-secondary">
-                  Editions are priced by what a business needs, so there is nothing to publish as a list. What can be
-                  shown is a job: the{" "}
+{t("Editions are priced by what a business needs, so there is nothing to publish as a list. What can be shown is a job: the")}e{" "}
                   <Link href="/worked-example" className="link-underline text-brand-200">
                     worked example
                   </Link>{" "}

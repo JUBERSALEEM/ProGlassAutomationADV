@@ -403,7 +403,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
           className="inline-flex items-center gap-1.5 rounded-full border border-brand-400/45 bg-brand-500/14 px-3 py-1 text-[0.75rem] font-semibold text-brand-100 transition-colors hover:border-brand-300/70"
         >
           <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-full bg-brand-300", run > 0 && "animate-pulse-soft")} />
-          {run === 0 ? "Run optimizer" : `Re-run · pass ${run + 1}`}
+          {run === 0 ? t("Run optimizer") : t("Re-run · pass {pass}", { pass: run + 1 })}
         </button>
       </div>
 
@@ -600,7 +600,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
                     {row.glass ? ` · ${row.glass}` : row.spec ? ` · ${row.spec}` : ""}
                   </p>
                   <p className="truncate text-[0.75rem] text-text-faint font-medium">
-                    {row.party} · arrived at {active}: {arrived} of {qty} pieces
+                    {row.party}{t(" · arrived at {time}: {arrived} of {qty} pieces", { time: active, arrived, qty })}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

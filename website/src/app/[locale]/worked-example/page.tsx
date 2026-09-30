@@ -495,7 +495,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                     <li className="flex gap-3">
                       <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
                       <span>
-                        A double-glazed line weighs twice its glass plus the cavity. The heaviest piece in the job is{" "}
+{t("A double-glazed line weighs twice its glass plus the cavity. The heaviest piece in the job is")}s{" "}
                         {(() => {
                           const heaviest = seedSpecGroups
                             .flatMap((group) => group.lines)

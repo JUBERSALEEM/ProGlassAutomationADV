@@ -47,8 +47,14 @@ async function* walk(dir) {
   }
 }
 
-/* A text child: after a `>`, before a `<`, with no tag or expression in it. */
-const TEXT_NODE = />([^<>{}]+)</g;
+/*
+ * A text child: after a `>`, before a `<` — or before an explicit space
+ * expression, `{" "}`. That second case is how the site writes a sentence
+ * that carries a link: the rule was `>…<`, so "…it. The{" "}<Link>" was
+ * invisible to this pass, and the paragraph stayed half-English even after
+ * every dictionary was complete.
+ */
+const TEXT_NODE = /(?<=>)([^<>{}]+)(?=<|\{" "\})/g;
 
 /* Things that are language, so nothing here is a class list. */
 const CLASSISH = /^[a-z0-9\s:.\-\[\]/%(),!&]+$/;

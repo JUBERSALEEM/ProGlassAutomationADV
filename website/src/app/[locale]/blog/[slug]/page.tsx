@@ -126,7 +126,7 @@ export default async function BlogPostPage({ params }: PageProps) {
               <h1 className="mt-5 text-[1.9rem] leading-[1.12] sm:text-[2.4rem]">{t(post.title)}</h1>
               <p className="lede mt-5">{t(post.summary)}</p>
               <p className="mt-6 text-xs text-text-faint font-medium">
-                Written by{" "}
+{t("Written by")}y{" "}
                 <Link href="/developer" className="link-underline">
                   {site.developerName}
                 </Link>

@@ -175,7 +175,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
 
           <div className="surface mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
-              For the numbers rather than the description, the{" "}
+{t("For the numbers rather than the description, the")}e{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
                 worked example
               </Link>{" "}

@@ -226,7 +226,7 @@ export function AppearancePreview() {
 
       {/* A compact view of what the accent list actually is. */}
       <p className="sr-only">
-        Accent presets: {accentPresets.map((entry) => entry.name).join(", ")}.
+        {t("Accent presets:")} {accentPresets.map((entry) => entry.name).join(", ")}.
       </p>
     </div>
   );
