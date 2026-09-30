@@ -152,7 +152,7 @@ for await (const file of walk("src")) {
  * `"bold" ? 700 : 400;` reads as prose, and a dictionary key called
  * ` ? 700 : 400;` is how you find out.
  */
-const LITERAL = /(?<=[:\[,(]\s{0,3})(?:"((?:[^"\\\n]|\\.)*)"|'((?:[^'\\\n]|\\.)*)')\s*(?=[,}\])]|as const|$)/gm;
+const LITERAL = /(?<=[:\[,(][ \t]*(?:\n[ \t]*)?)(?:"((?:[^"\\\n]|\\.)*)"|'((?:[^'\\\n]|\\.)*)')\s*(?=[,}\])]|as const|$)/gm;
 
 for await (const file of walk("src")) {
   if (!DATA_FILES.test(file)) continue;
@@ -163,6 +163,62 @@ for await (const file of walk("src")) {
       keys.add(value);
       if (!origin.has(value)) origin.set(value, "data");
     }
+  }
+}
+
+/* ── tables inside components ─────────────────────────────────────────
+ *
+ * Not all prose is a `t("…")` call or a row in `src/data`. The navigation
+ * draws its own table of entries, the rail its own groups, the appearance
+ * preview its own family names — module-level literals inside a component
+ * file, read at the point of rendering (`{t(child.description)}`) and
+ * therefore invisible to both scans above.
+ *
+ * They are found by the property they are stored under. A string is prose
+ * here when it is the value of a property the site reads into text — `label`,
+ * `description`, `detail`, `evidence` and the rest — which is also why a class
+ * name is never picked up: `className` is not in the list, and neither is
+ * anything else that carries styling.
+ */
+const PROSE_PROPERTIES =
+  "label|title|description|detail|summary|evidence|note|body|heading|hint|caption|question|answer|name|category|status|step|job|text|tagline|blurb|benefit|outcome|purpose|reason|alt|placeholder|eyebrow|kicker|quote|author|role|deliverable|feature|gap|prompt|why|term|meaning|spec|subtitle|value";
+const INLINE_PROPERTY = new RegExp(`\\b(?:${PROSE_PROPERTIES})\\s*:\\s*(?:"((?:[^"\\\\]|\\\\.)*)"|'((?:[^'\\\\]|\\\\.)*)')`, "gm");
+
+/* A style rule is a list of lowercase tokens and punctuation, not a sentence. */
+function isStyling(value) {
+  const tokens = value.split(/\s+/);
+  if (tokens.length < 2) return false;
+  return tokens.every((token) => /^[a-z0-9:.[\]()/%#-]+$/.test(token) && !/[A-Z]/.test(token));
+}
+
+/* The first function in a file: everything above it is a table the component
+   reads, which is where a map of titles or a list of navigation rows lives. */
+function moduleScope(text) {
+  const match = /^(?:export\s+)?(?:default\s+)?function\s+[A-Za-z_$]/m.exec(text);
+  return match ? text.slice(0, match.index) : "";
+}
+
+for await (const file of walk("src")) {
+  if (DATA_FILES.test(file)) continue;
+  const source = readFileSync(file, "utf8");
+
+  /* A string stored under a property the site reads as text. */
+  for (const match of source.matchAll(INLINE_PROPERTY)) {
+    const value = (match[1] ?? match[2] ?? "").replace(/\\"/g, '"').replace(/\\'/g, "'");
+    if (!isContent(value) || !translatable(value)) continue;
+    keys.add(value);
+    if (!origin.has(value)) origin.set(value, "table");
+  }
+
+  /* A string in a lookup table — `Overview: "Business at a glance"` — where
+     the key names the row rather than the kind of text it is. Only the module
+     scope is scanned, because inside a component a bare string is as likely to
+     be a class name as a sentence, and styling is not language. */
+  for (const match of moduleScope(source).matchAll(/(?::|^\s*)[ \t]*(?:"((?:[^"\\\n]|\\.)*)")/gm)) {
+    const value = (match[1] ?? "").replace(/\\"/g, '"');
+    if (!isContent(value) || !translatable(value) || isStyling(value)) continue;
+    keys.add(value);
+    if (!origin.has(value)) origin.set(value, "table");
   }
 }
 
@@ -199,5 +255,8 @@ export type DictKey = (typeof KEYS)[number];
   const plan = sorted.map((key, index) => ({ index, key, source: origin.get(key) ?? "literal" }));
   writeFileSync("/tmp/proglass-i18n-plan.json", `${JSON.stringify(plan, null, 1)}\n`);
   console.log(`keys: ${sorted.length} written to src/i18n/dict/keys.ts`);
-  console.log(`work plan: /tmp/proglass-i18n-plan.json (${plan.filter((row) => row.source === "literal").length} literal, ${plan.filter((row) => row.source === "data").length} data)`);
+  const counts = ["literal", "data", "table"].map(
+    (kind) => `${plan.filter((row) => row.source === kind).length} ${kind}`,
+  );
+  console.log(`work plan: /tmp/proglass-i18n-plan.json (${counts.join(", ")})`);
 }

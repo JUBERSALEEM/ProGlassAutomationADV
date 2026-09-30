@@ -301,7 +301,7 @@ export function ProfitLossSurface({
                   totals.aboveTarget ? "text-money-positive" : "text-amber-300",
                 )}
               >
-                {totals.aboveTarget ? "Given price above target" : "Given price below target"}
+                {totals.aboveTarget ? t("Given price above target") : t("Given price below target")}
               </p>
               <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">
                 Given AED {cash(totals.revenue)} against a required AED {cash(totals.required)} — {totals.aboveTarget ? "surplus" : "shortfall"} AED{" "}
@@ -356,7 +356,7 @@ export function ProfitLossSurface({
                     : "border-amber-400/45 bg-amber-400/12 text-amber-300",
                 )}
               >
-                {totals.aboveTarget ? "Above target" : "Below target"}
+                {totals.aboveTarget ? t("Above target") : t("Below target")}
               </p>
               <p className="mt-1.5 text-[0.6875rem] leading-snug text-text-muted font-medium">
                 {totals.aboveTarget
@@ -428,7 +428,7 @@ export function ProfitLossSurface({
                     <td className="px-2.5 py-1.5 text-[0.75rem] text-text-secondary">{t(service.label)}</td>
                     <td className="px-2.5 py-1.5 font-mono text-[0.6875rem] text-text-faint">
                       {service.basis}
-                      {service.dguOnly && !hasDgu ? " · SGU" : ""}
+                      {service.dguOnly && !hasDgu ? t(" · SGU") : ""}
                     </td>
                     <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-secondary tabular-nums">{cash(service.rate)}</td>
                     <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-muted tabular-nums">
@@ -611,7 +611,7 @@ export function ProfitLossSurface({
                             : "border-amber-400/45 bg-amber-400/12 text-amber-300",
                         )}
                       >
-                        {difference >= 0 ? "Above" : "Below"}
+                        {difference >= 0 ? t("Above") : t("Below")}
                       </span>
                       {spec.floored > 0 ? (
                         <span className="ml-1.5 font-mono text-[0.625rem] text-text-faint">
@@ -643,7 +643,7 @@ export function ProfitLossSurface({
             </tfoot>
           </table>
           <p className="mt-2 text-[0.6875rem] leading-snug text-text-faint font-medium">
-            Each Step 5 specification stays separate — its own base rate, its own surcharge, its own rows at {SURCHARGE_THRESHOLD_SQM} m² and
+            {t("Each Step 5 specification stays separate — its own base rate, its own surcharge, its own rows at {SURCHARGE_THRESHOLD_SQM} m² and", { SURCHARGE_THRESHOLD_SQM: SURCHARGE_THRESHOLD_SQM })}
             above. The required value is that specification&apos;s area at its base rate plus {target}%.
           </p>
         </div>

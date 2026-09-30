@@ -202,7 +202,7 @@ export function AppearancePreview() {
                 style={{ background: "var(--card-edge-hover)" }}
               />
               <span className="font-mono text-[0.5625rem] font-semibold uppercase tracking-[0.1em] text-text-faint">
-                {sample === "surface" ? "Card" : sample === "surface-raised" ? "Raised" : "Stat"}
+                {sample === "surface" ? t("Card") : sample === "surface-raised" ? t("Raised") : t("Stat")}
               </span>
             </div>
           ))}

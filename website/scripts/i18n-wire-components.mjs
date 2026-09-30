@@ -157,6 +157,174 @@ function wrapTextLines(text, log) {
   return lines.join("\n");
 }
 
+
+
+/**
+ * The line numbers that are inside a template literal.
+ *
+ * `` `${site.locales} languages` `` is a template, and a template is code: the
+ * braces in it are interpolations, not values in a sentence. Both passes below
+ * read lines, so they need to know where a template starts and ends — the
+ * backticks are counted with a parity flag, and every line inside one is left
+ * alone.
+ */
+function templateLineSet(text) {
+  const inside = new Set();
+  let open = false;
+  text.split("\n").forEach((line, index) => {
+    const ticks = (line.match(/(?<!\\)`/g) ?? []).length;
+    if (open) inside.add(index);
+    if (ticks % 2 === 1) open = !open;
+  });
+  return inside;
+}
+
+/**
+ * A line of text with a value in the middle of it.
+ *
+ *     Desktop software · v{site.version} · No account required
+ *
+ * The literal passes above handle a text node that is the whole line and a
+ * read that is the whole expression; this is the third shape, and it is the one
+ * that leaves the most English behind. The line becomes one sentence with a
+ * placeholder, which is also what makes it translatable — a translator needs
+ * the word order of the whole sentence, not two fragments bolted around a
+ * number:
+ *
+ *     {t("Desktop software · v{version} · No account required", { version: site.version })}
+ *
+ * When one of the interpolations already goes through `t()` — a title that is
+ * itself translated — the template form cannot be used, because the value
+ * would be translated twice. Those lines are split instead, one key per literal
+ * run, which still translates every word on the line.
+ */
+function wrapMixedLines(text, log) {
+  const lines = text.split("\n");
+  const inTemplate = templateLineSet(text);
+  let inComment = false;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (inTemplate.has(i)) continue;
+    /* A backtick on the line means a template, even when it opens and closes
+       on that line — `${site.locales} languages` looks exactly like a sentence
+       with a value in it until you notice the backticks. */
+    if (line.includes("`")) continue;
+    if (/\/\*/.test(line)) inComment = true;
+    if (inComment) {
+      if (/\*\//.test(line)) inComment = false;
+      continue;
+    }
+    if (/^\s*\/\//.test(line)) continue;
+    if (line.includes("<") || line.includes(">")) continue;
+    if (!line.includes("{")) continue;
+    /* A JSX text line is words with values in them. Anything with a statement
+       in it — `;`, or a `:` outside the braces, or an `=` — is code that
+       happens to contain braces, and wrapping it is how a type annotation
+       turns into a translation key. */
+    if (line.includes(";")) continue;
+    if (line.replace(/\{[^{}]*\}/g, "").includes(":")) continue;
+    if (line.replace(/\{[^{}]*\}/g, "").includes("=")) continue;
+    const match = /^(\s*)([^={}[\]]*\{[^{}]*\}[^={}[\]]*)$/.exec(line);
+    if (!match) continue;
+    const body = match[2];
+    if (body.includes("t(")) continue;
+    const letters = body.replace(/\{[^{}]*\}/g, " ").replace(/[^\p{L}]+/gu, "");
+    if (letters.length < 8) continue;
+    if (/\b(?:className|key|href|src|import|from|const|let|var|return)\b/.test(body)) continue;
+    /* Every value on the line has to be a plain read — `x`, `x.y` — because a
+       call or an operator is a computation, and a computation in the middle of
+       a sentence is a line that needs a person, not a codemod. */
+    const reads = body.match(/\{[^{}]*\}/g) ?? [];
+    if (!reads.every((part) => /^\{[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*\}$/.test(part))) continue;
+    if (!/^[\s]*[^\s{]/.test(body) && !/[\p{L}]/u.test(body.split("{")[0])) continue;
+
+    const parts = body.split(/(\{[^{}]*\})/g).filter((part) => part !== "");
+    const names = new Map();
+    const vars = [];
+    let template = "";
+    let splittable = true;
+    for (const part of parts) {
+      if (!part.startsWith("{")) {
+        template += part;
+        continue;
+      }
+      const expression = part.slice(1, -1).trim();
+      if (expression.includes("t(") || expression.includes("`") || expression.includes("(")) {
+        splittable = false;
+        break;
+      }
+      const last = expression.split(".").pop().replace(/[?[\]]/g, "");
+      let name = last || "value";
+      while (names.has(name)) name = `${name}_`;
+      names.set(name, expression);
+      vars.push(name);
+      template += `{${name}}`;
+    }
+
+    if (splittable && vars.length > 0) {
+      const args = vars.map((name) => `${name}: ${names.get(name)}`).join(", ");
+      lines[i] = `${match[1]}{t(${JSON.stringify(template)}, { ${args} })}`;
+      log.push(`mixed “${template.slice(0, 40)}”`);
+      continue;
+    }
+
+    /* Already-translated values in the middle: wrap each literal run. */
+    const rebuilt = parts
+      .map((part) => (part.startsWith("{") ? part : `${isProseLiteral(part) ? `{t(${JSON.stringify(part)})}` : part}`))
+      .join("");
+    if (rebuilt !== line) {
+      lines[i] = `${match[1]}${rebuilt}`;
+      log.push(`split “${body.trim().slice(0, 40)}”`);
+    }
+  }
+  return lines.join("\n");
+}
+
+/** A literal run between two values: prose if it reads as words. */
+function isProseLiteral(text) {
+  const trimmed = text.trim();
+  if (trimmed.length < 4) return false;
+  if (/^[\s·—\-–/|,.:;()\[\]]+$/.test(trimmed)) return false;
+  if (!/\p{L}{2,}\s+\p{L}{2,}|\p{L}{4,}/u.test(trimmed)) return false;
+  return true;
+}
+
+/**
+ * A string inside a JSX expression.
+ *
+ *     {run === 0 ? "Run optimizer" : `Re-run · pass ${run + 1}`}
+ *
+ * Only lines that are a single expression container are touched, because that
+ * is the shape where a quoted string cannot be anything but text: an attribute
+ * or a call has its own line and its own rules above.
+ */
+function wrapExpressionStrings(text, log) {
+  const lines = text.split("\n");
+  const inTemplate = templateLineSet(text);
+  let inComment = false;
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (inTemplate.has(i)) continue;
+    if (line.includes("`")) continue;
+    if (/\/\*/.test(line)) inComment = true;
+    if (inComment) {
+      if (/\*\//.test(line)) inComment = false;
+      continue;
+    }
+    if (/^\s*\/\//.test(line)) continue;
+    if (line.includes("<")) continue;
+    if (!/^\s*\{[\s\S]*\}\s*$/.test(line)) continue;
+    if (line.includes("t(") || line.includes("=>") || line.includes("className")) continue;
+    const wrapped = line.replace(/"((?:[^"\\]|\\.)*)"/g, (whole, value) => {
+      if (!isProse(value)) return whole;
+      log.push(`expression “${value.slice(0, 36)}”`);
+      return `t(${JSON.stringify(value)})`;
+    });
+    lines[i] = wrapped;
+  }
+  return lines.join("\n");
+}
+
 function wrapAttributes(text, log) {
   const names = PROSE_ATTRIBUTES.join("|");
   const pattern = new RegExp(`\\b(${names})=("((?:[^"\\\\]|\\\\.)*)")`, "g");
@@ -386,6 +554,8 @@ for (const file of files) {
   text = unwrapModuleScope(text, log);
   const cut = componentRegionStart(text);
   const head = text.slice(0, cut);
+  text = head + wrapExpressionStrings(text.slice(cut), log);
+  text = text.slice(0, cut) + wrapMixedLines(text.slice(cut), log);
   text = head + wrapAttributes(text.slice(cut), log);
   text = head + wrapTextLines(text.slice(cut), log);
   const cut2 = componentRegionStart(text);

@@ -193,7 +193,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
         </span>
         {waiting.length > 0 ? (
           <span className="rounded-full border border-amber-400/40 bg-amber-400/8 px-2 py-0.5 font-mono text-[0.6875rem] font-medium text-amber-300" title={floorMessages.waitingUpstream}>
-            waiting upstream · {waiting.length}
+            {t("waiting upstream · {length}", { length: waiting.length })}
           </span>
         ) : null}
         <span className="ml-auto font-mono text-[0.6875rem] tabular-nums text-text-faint font-medium">
@@ -328,7 +328,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
                 <span className="text-text-faint">{first.ref} · arrived {first.inQty} · </span>
                 <span className={over ? "text-amber-300" : "text-text-secondary"}>
                   saves {clamped}
-                  {over ? " — clamped" : ""}
+                  {over ? t(" — clamped") : ""}
                 </span>
                 {over ? <span className="text-text-faint"> · {floorMessages.clampedWrite}</span> : null}
               </p>

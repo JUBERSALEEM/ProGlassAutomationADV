@@ -265,7 +265,7 @@ function TableEngine({
             {visible.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="px-2 py-6 text-center text-[0.75rem] text-text-faint">
-                  No rows match “{query}”.
+                  {t("No rows match “{query}”.", { query: query })}
                 </td>
               </tr>
             ) : null}
@@ -277,7 +277,7 @@ function TableEngine({
         <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3 border-t border-line/50 pt-2.5">
           <p className="text-[0.75rem] text-text-faint">
             {visible.length} of {rows.length} rows
-            {selected ? " · one row selected" : ""}
+            {selected ? t(" · one row selected") : ""}
           </p>
           {view.summary && view.summary.length > 0 ? (
             <dl className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
@@ -409,7 +409,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
 
         <label className="flex min-w-[9rem] flex-1 flex-col gap-1">
           <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
-            Pieces per size · {piecesPerPart}
+            {t("Pieces per size · {piecesPerPart}", { piecesPerPart: piecesPerPart })}
           </span>
           <input
             type="range"
@@ -611,7 +611,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
                         : "border-line-strong/70 text-text-muted hover:border-brand-400/50 hover:text-text-primary",
                     )}
                   >
-                    {ready ? "Ready" : "Advance"}
+                    {ready ? t("Ready") : t("Advance")}
                   </button>
                 </div>
               </div>
@@ -930,7 +930,7 @@ function DashboardEngine({
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 rounded-xl border border-line/60 bg-ink-900/40 px-3 py-2">
           <p className="text-[0.8125rem] font-semibold text-text-primary">{t(view.label)}</p>
           <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">
-            {TAB_SUBTITLES[view.label] ?? "Module dashboard"}
+            {TAB_SUBTITLES[view.label] ?? t("Module dashboard")}
           </p>
         </div>
       ) : null}

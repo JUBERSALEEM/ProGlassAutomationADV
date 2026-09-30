@@ -208,7 +208,7 @@ export function ProductHero({ t }: { t: Translator }) {
                 README_ASSETS/hero.png · drawn from the application&rsquo;s own data
               </span>
               <span className="text-xs text-text-faint font-medium">
-                Overview dashboard · {site.version} · sample data, labelled as such
+                {t("Overview dashboard · {version} · sample data, labelled as such", { version: site.version })}
               </span>
             </figcaption>
           </div>

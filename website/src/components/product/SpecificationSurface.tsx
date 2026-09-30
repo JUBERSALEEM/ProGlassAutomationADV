@@ -866,8 +866,8 @@ export function SpecificationSurface({
             <div>
               <p className="text-[0.8125rem] font-semibold text-text-primary">{t(block.name)}</p>
               <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-                Specification {block.number}
-                {block.primary ? " · from the inquiry BOQ" : " · added in this preview"}
+                {t("Specification {number}", { number: block.number })}
+                {block.primary ? t(" · from the inquiry BOQ") : t(" · added in this preview")}
               </p>
             </div>
           </div>
@@ -1210,7 +1210,7 @@ export function SpecificationSurface({
         <table className="w-full min-w-[52rem] border-collapse text-left">
           <caption className="sr-only">
             Specification {block.number}, {t(block.name)}: one row per glass line, priced at the specification&apos;s rate, or at the
-            surcharge rate once a panel reaches {SURCHARGE_THRESHOLD_SQM} square metres.
+            {t("surcharge rate once a panel reaches {SURCHARGE_THRESHOLD_SQM} square metres.", { SURCHARGE_THRESHOLD_SQM: SURCHARGE_THRESHOLD_SQM })}
           </caption>
           <thead className="sticky top-0 z-10 bg-ink-900/95 backdrop-blur">
             <tr className="border-b border-line/60">

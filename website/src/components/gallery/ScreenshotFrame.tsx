@@ -90,7 +90,7 @@ export function ScreenshotFrame({
               shot.caption)}
           </p>
           <p className="mono-label mt-2">
-            {shot.source === "capture" ? "Screen capture" : "Illustration shipped inside the application"} ·{" "}
+            {shot.source === "capture" ? t("Screen capture") : t("Illustration shipped inside the application")} ·{" "}
             {t(shot.evidence)}
           </p>
         </figcaption>

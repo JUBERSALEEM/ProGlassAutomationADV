@@ -260,7 +260,7 @@ export function DemoRequestForm() {
 
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <Button type="submit" size="lg" loading={status === "submitting"} disabled={status === "submitting"}>
-          {status === "submitting" ? "Sending…" : "Send request"}
+          {status === "submitting" ? "Sending…" : t("Send request")}
         </Button>
         <p className="text-xs leading-relaxed text-text-faint font-medium">
           {t("We reply by email. No account is created, and nothing you type here is stored on this website.")}

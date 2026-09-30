@@ -76,7 +76,7 @@ export function StrategyPicker() {
                     : "border-line-strong/70 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
                 )}
               >
-                {item.name.replace(" — default", "").replace(" — Quick", "")}
+                {item.name.replace(t(" — default"), "").replace(t(" — Quick"), "")}
                 {item.name.includes("default") ? (
                   <span className="ml-1.5 font-mono text-[0.75rem] uppercase tracking-[0.1em] text-brand-300">
                     default

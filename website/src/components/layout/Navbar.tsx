@@ -374,7 +374,7 @@ export function Navbar() {
           </div>
 
           <p className="mt-6 font-mono text-2xs uppercase tracking-[0.18em] text-text-faint font-medium">
-            Desktop software · v{site.version} · No account required
+            {t("Desktop software · v{version} · No account required", { version: site.version })}
           </p>
         </div>
       </div>

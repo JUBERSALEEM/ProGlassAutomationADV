@@ -298,7 +298,7 @@ export function NestingDemo() {
 
             <div className="mt-4 flex gap-2">
               <Button size="sm" onClick={start} loading={running}>
-                {step === STEPS.length - 1 ? "Replay" : running ? "Running" : "Play"}
+                {step === STEPS.length - 1 ? t("Replay") : running ? t("Running") : t("Play")}
               </Button>
               <Button
                 size="sm"
