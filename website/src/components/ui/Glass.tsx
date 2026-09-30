@@ -81,8 +81,10 @@ export function GlassCard({
       {head ? (
         <div
           className={cn(
-            "glass-primary-head flex flex-col gap-3 pb-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
-            !children && "glass-primary-head-last pb-0",
+            "glass-primary-head flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
+            /* The header rule is the boundary between the card's title and its
+               body; with no body it would be a line drawn under nothing. */
+            children ? "pb-5" : "border-b-0",
           )}
         >
           <div className="min-w-0">
