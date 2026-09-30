@@ -2262,6 +2262,7 @@ const dict: Overlay = {
   "Vent light": "فتحة تهوية",
   "Verification": "التحقق",
   "Verification oracles": "حاكمان للتحقق",
+  "Version": "الإصدار",
   "View module": "عرض الوحدة",
   "View result": "عرض النتيجة",
   "View screenshots": "عرض الصور",

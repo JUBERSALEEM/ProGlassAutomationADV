@@ -55,6 +55,26 @@ function readLanguage(locale) {
   return entries;
 }
 
+/*
+ * The site and the application do not always write a term the same way: the
+ * site's key may be `Delivery note` where the application's English value is
+ * `Delivery Note`, or `Linear metre` against `Linear Metre (LM)`. Comparing the
+ * two only exactly would throw away translations the product already owns, so
+ * each phrase is also indexed in a normalised form — lower case, punctuation
+ * and spacing flattened, bracketed qualifiers dropped — and a site key that
+ * matches exactly one normalised application entry inherits it. A key that
+ * matches two entries with different translations is left alone: a guess
+ * between two plausible words is not a translation.
+ */
+function normalise(text) {
+  return text
+    .toLowerCase()
+    .replace(/\([^)]*\)/g, " ")
+    .replace(/[\u2019']/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+}
+
 /** Every sentence the site can render — `dict/keys.ts`, written by the extractor. */
 function readKeys() {
   const file = join(website, "src", "i18n", "dict", "keys.ts");
@@ -78,11 +98,36 @@ const summary = [];
 for (const locale of list) {
   const entries = readLanguage(locale);
   const rows = [];
+  const taken = new Set();
+
+  /* Pass one: the site's key is the application's English value. */
   for (const [key, value] of entries) {
     const source = english.get(key);
     if (!source || source === value) continue;
     if (!known.has(source)) continue;
     rows.push(`${source}\t${value}`);
+    taken.add(source);
+  }
+
+  /* Pass two: the same term, written slightly differently on each side. */
+  const byNormal = new Map();
+  for (const [key, value] of entries) {
+    const source = english.get(key);
+    if (!source || source === value) continue;
+    const normal = normalise(source);
+    if (normal.length < 3) continue;
+    const bucket = byNormal.get(normal) ?? new Set();
+    bucket.add(value);
+    byNormal.set(normal, bucket);
+  }
+  for (const sentence of keys) {
+    if (taken.has(sentence)) continue;
+    const normal = normalise(sentence);
+    if (normal.length < 3) continue;
+    const bucket = byNormal.get(normal);
+    if (!bucket || bucket.size !== 1) continue;
+    rows.push(`${sentence}\t${[...bucket][0]}`);
+    taken.add(sentence);
   }
   const batch = join(out, `${locale}.tsv`);
   writeFileSync(batch, rows.length > 0 ? `${rows.join("\n")}\n` : "");
