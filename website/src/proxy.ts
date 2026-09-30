@@ -48,9 +48,14 @@ export function proxy(request: NextRequest) {
      Anything under a shipped code is left alone. */
   if (first && isLocale(first)) return NextResponse.next();
 
-  /* Prefix-free by design: these are files and endpoints, not pages. */
+  /* Prefix-free by design: these are files and endpoints, not pages — there is
+     no German version of a stylesheet, and a static file has no page to be
+     re-addressed into a language. `html` is on the list for the same reason
+     even though it looks like a page: `public/supabase-check.html` is a
+     standalone file, not a route, and without this it would be rewritten to
+     `/en-US/supabase-check.html` and 404. */
   if (pathname.startsWith("/api/") || pathname.startsWith("/_next/")) return NextResponse.next();
-  if (/\.(?:ico|png|jpg|jpeg|webp|avif|svg|woff2?|txt|xml|json|webmanifest)$/i.test(pathname)) {
+  if (/\.(?:ico|png|jpg|jpeg|webp|avif|svg|woff2?|txt|xml|json|webmanifest|html?)$/i.test(pathname)) {
     return NextResponse.next();
   }
 
