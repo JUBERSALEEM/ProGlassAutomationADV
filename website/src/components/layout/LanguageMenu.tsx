@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { LOCALES, type Locale } from "@/i18n/locales";
@@ -60,6 +60,36 @@ function addressFor(locale: Locale, pathname: string, search: string): string {
   return `${bare === "/" ? `/${locale}` : `/${locale}${bare}`}${search}`;
 }
 
+/**
+ * Go to the chosen language — as a document navigation, not a soft one.
+ *
+ * This is deliberate, and it is the fix for two bugs that shared one cause.
+ *
+ * The root layout renders `<html>` with the theme attributes at their defaults
+ * (`data-theme="midnight"`, `data-theme-mode="system"`, `data-appearance="studio"`);
+ * the inline boot script overwrites them before first paint with what the
+ * visitor actually chose. That works on a load, because the script runs on
+ * every load. It does *not* work on a client-side navigation: changing language
+ * is the only navigation that re-renders the root layout — its `locale` param
+ * changed — so the payload's `<html>` attributes are applied over the script's
+ * values, and a visitor who had chosen Light is dropped into the dark default
+ * by the act of choosing a language. A document navigation re-runs the boot
+ * script, so the palette is correct in the first frame.
+ *
+ * The second symptom was that the switch did not look like it worked: a soft
+ * navigation changes `lang` and `dir` on the document already on screen, leaves
+ * a mobile sheet mounted, and may answer from the router cache. A load cannot
+ * do any of that — the server sends the new language's `<html lang>`, `dir`,
+ * translated metadata and dictionaries in one response.
+ *
+ * The cost is one page load for an action a visitor takes rarely, and the
+ * cookie written above is what the proxy reads on that load, so the choice is
+ * honoured on the way in.
+ */
+function goTo(address: string) {
+  window.location.assign(address);
+}
+
 function GlobeIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -81,7 +111,6 @@ function GlobeIcon({ className }: { className?: string }) {
 export function LanguageMenu({ compact = false }: { compact?: boolean }) {
   const { locale, t } = useI18n();
   const pathname = usePathname();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement | null>(null);
 
@@ -106,8 +135,7 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
   const choose = (next: Locale) => {
     remember(next);
     setOpen(false);
-    const search = typeof window === "undefined" ? "" : window.location.search;
-    router.push(addressFor(next, pathname, search));
+    goTo(addressFor(next, pathname, window.location.search));
   };
 
   return (
@@ -215,12 +243,10 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
 export function LanguageMenuBlock() {
   const { locale, t } = useI18n();
   const pathname = usePathname();
-  const router = useRouter();
 
   const choose = (next: Locale) => {
     remember(next);
-    const search = typeof window === "undefined" ? "" : window.location.search;
-    router.push(addressFor(next, pathname, search));
+    goTo(addressFor(next, pathname, window.location.search));
   };
 
   return (
