@@ -121,7 +121,24 @@ software cannot drift apart.
 
 The whole pipeline — how keys are extracted, how a language is filled, how
 coverage is measured, and how to see what English is still on a page — is in
-[`src/i18n/README.md`](src/i18n/README.md).
+[`src/i18n/README.md`](src/i18n/README.md). That file also carries the measured
+breakdown of *why* a page can still read English after the language is changed:
+an untranslated sentence, a sentence no `t()` reaches, or two known strings the
+markup glued together — three different defects with three different fixes.
+
+Translating a whole language is one command on a machine with internet:
+
+```bash
+cd website
+node scripts/i18n-memory-fill.mjs --locale fr-FR    # the application's own wording, where it exists
+node scripts/i18n-machine-fill.mjs --locale fr-FR   # the rest, masked, validated, applied
+node --experimental-strip-types scripts/i18n-audit.mjs
+```
+
+and a two-half hand-relay exists for a machine without it (`--split` / `--print`
+/ `--ingest`). All three paths write through `i18n-apply.mjs`, so there is one
+writer into `src/i18n/dict/<locale>.ts` and one place where a bad row is
+refused.
 
 ## The honesty rules this site is built on
 

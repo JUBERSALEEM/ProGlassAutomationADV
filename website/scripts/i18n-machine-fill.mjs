@@ -44,7 +44,7 @@
  *   node scripts/i18n-machine-fill.mjs --all --dry                # batch, send nothing
  *   node scripts/i18n-machine-fill.mjs --all --mock               # exercise the pipeline offline
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, rmSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 
 const argv = process.argv.slice(2);
@@ -364,7 +364,13 @@ function ingestBatch(locale, wave) {
   const rest = argv.slice(argv.indexOf("--parts") + 1);
   if (argv.includes("--parts")) for (const file of rest) parts.push(readFileSync(file, "utf8"));
   else parts.push(readFileSync(0, "utf8"));
-  const raw = parts.join("");
+  /* A stitched answer: fetch_page cut the array mid-string and the second
+     page starts where it stopped. The newline each piece carries at the seam
+     is not part of the JSON, so it is trimmed there rather than inside a
+     string. */
+  const raw = parts
+    .map((piece, index) => (index === 0 ? piece.replace(/\s+$/, "") : piece.replace(/^\s+/, "")))
+    .join("");
   const body = JSON.parse(raw.replace(/^\s*```(?:json)?/m, "").replace(/```\s*$/m, "").trim());
   const list = Array.isArray(body) ? (Array.isArray(body[0]) ? body[0] : body) : null;
   if (!list || list.length !== prepared.length) {
@@ -447,6 +453,18 @@ function splitQueue(locale, size, source) {
     currentSource += key.length;
   }
   if (current.length > 0) chunks.push(current);
+
+  /* A fresh split re-numbers every chunk, so a chunk file left over from the
+     previous split would be read by `--print` and answered with the wrong
+     question — which is exactly how a batch of German once came back for a
+     plan that no longer existed. Stale files go first. */
+  if (has("--fresh")) {
+    for (const name of readdirSync(OUT)) {
+      if (name.startsWith(`${locale}-c`) && (name.endsWith(".src.json") || name.endsWith(".url"))) {
+        rmSync(`${OUT}/${name}`);
+      }
+    }
+  }
 
   const have = existing(locale);
   chunks.forEach((rows, index) => {

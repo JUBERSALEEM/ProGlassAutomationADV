@@ -99,6 +99,83 @@ Two more rules for anyone writing a batch:
   path and a format name are the same string in every language; they are
   excluded from the key list rather than translated.
 
+## Why a page can still read English, measured
+
+"The language is set to French and the page is still English" has exactly three
+causes, and they are not the same problem. `i18n-rendered-gaps.mjs` separates
+them by reading the built pages and sorting every text node that reads as
+English:
+
+```bash
+node scripts/i18n-rendered-gaps.mjs --locale fr-FR            # counts + worst offenders
+node scripts/i18n-rendered-gaps.mjs --locale fr-FR --dump /tmp/fr.json
+```
+
+1. **Key, not translated** — a sentence the site knows about and this language
+   has not covered yet. On 16 French pages: **1,148 distinct sentences**. This
+   is the whole job, and it is volume: 2,552 sentences per language.
+2. **Not a key** — text no `t()` ever sees, so no dictionary could translate it
+   even if it were perfect. On the same run: **194 fragments** (an array item
+   printed as `{item}`, a template literal, a paragraph split across an inline
+   element). These are wiring defects, reported per file; the ones found so far
+   are fixed.
+3. **Several keys side by side** — markup glued two known strings together. Not
+   a gap; the audit lists them separately so the list means what it says.
+
+Numbers are per language, and they move: `de-DE` currently renders **479**
+untranslated sentences and **196** fragments, `fr-FR` 1,148 and 194.
+
+## Filling two thousand sentences per language
+
+Three tools, in order, none of them clever:
+
+**1. The application's own wording, where it exists.**
+
+```bash
+node scripts/i18n-memory-fill.mjs --all                # writes <locale>-mem.tsv per language
+node --experimental-strip-types scripts/i18n-apply.mjs fr-FR /tmp/i18n/mt/fr-FR-mem.tsv
+```
+
+`Themes/Languages/*.xaml` holds 2,750 strings per language, paired by key with
+the English file. A website key that is byte-for-byte (or case-and-punctuation-
+equal to) an English string in that file takes the application's own
+translation; a key that is several app strings joined by ` · `, ` — `, ` / ` or
+`, ` is composed from them, and refused unless every part resolves. Nothing is
+invented: this pass writes only what the software already says, and it is the
+reason a document name on the site is the document name in the product. It
+yields about 45 keys per language today; it will yield more every time the site
+takes another word from the application.
+
+**2. Machine translation for the rest, through the same applier.**
+
+```bash
+node scripts/i18n-machine-fill.mjs --all                 # needs internet
+node scripts/i18n-machine-fill.mjs --locale de-DE --dry  # batch without sending
+```
+
+It masks the product's own terms and every `{v0}` placeholder before the text
+leaves, and restores them afterwards, so `Delivery Note` cannot come back as
+"Anweisungsgenerator". A row lands only if every placeholder survived and the
+answer is in the right script; the rest are counted and skipped, never pasted.
+
+**3. If the machine running this has no internet** — the sandbox this was built
+in does not — the same script runs in two halves that a person drives:
+
+```bash
+node scripts/i18n-machine-fill.mjs --split --locale de-DE --fresh --max-url 7000 --max-source 6000
+node scripts/i18n-machine-fill.mjs --print --locale de-DE --chunk 3    # one GET URL
+# … open that URL anywhere (browser, phone, another machine) and paste the JSON array back …
+node scripts/i18n-machine-fill.mjs --ingest --locale de-DE --chunk 3 < response.json
+node --experimental-strip-types scripts/i18n-apply.mjs de-DE /tmp/i18n/mt/de-DE-c3.tsv
+```
+
+The queue is frozen once and cut into request-sized chunks, so chunks may be
+fetched in any order; a chunk already applied prints `done`. Guard rails worth
+knowing: the answer's string count must equal the chunk's row count (a
+truncated answer is refused rather than misaligned), a fresh split deletes the
+previous chunk files so a stale URL cannot be answered, and the applier keeps a
+key's own leading space (`" — clamped"` is a key).
+
 ## What is not language
 
 The extractor excludes, deliberately and visibly:
@@ -116,6 +193,17 @@ holes.
 
 ## Where the languages stand
 
-Run `npm run i18n:audit`. Coverage is honest per language, and the site is built
-so the remaining work is data entry through this pipeline rather than code:
-adding a language is a file, and filling one is a batch.
+Run `npm run i18n:audit`. Coverage is honest per language:
+
+| language | entries | notes |
+| --- | --- | --- |
+| ar-AE | 2,552 / 2,552 | 100 % — the reference language, filled by hand and by app import |
+| de-DE | 1,226 / 2,552 | 48 % — mid-grind, machine pass in progress |
+| the other twelve | 297 / 2,552 | the app-memory pass (the software's own vocabulary) is in |
+
+The site is built so the remaining work is data entry through this pipeline
+rather than code: adding a language is a file, and filling one is a batch. The
+one-command path for a machine with internet is
+`node scripts/i18n-machine-fill.mjs --all`; the sandbox this repository was
+developed in has no egress, which is why the hand-driven `--split` / `--print` /
+`--ingest` half exists at all.
