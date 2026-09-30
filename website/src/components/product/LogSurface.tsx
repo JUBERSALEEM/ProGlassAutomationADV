@@ -96,7 +96,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
                   : "text-text-muted hover:bg-ink-800/70 hover:text-text-primary",
               )}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>

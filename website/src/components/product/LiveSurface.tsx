@@ -916,7 +916,7 @@ function DashboardEngine({
               role="tab"
               aria-selected={index === viewIndex}
               onClick={() => onViewIndex(index)}
-              title={TAB_SUBTITLES[entry.label] ?? entry.label}
+              title={t(TAB_SUBTITLES[entry.label] ?? entry.label)}
               className={cn(
                 "rounded-lg border px-2.5 py-1 text-[0.75rem] font-semibold transition-colors duration-200",
                 index === viewIndex
@@ -940,7 +940,7 @@ function DashboardEngine({
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 rounded-xl border border-line/60 bg-ink-900/40 px-3 py-2">
           <p className="text-[0.8125rem] font-semibold text-text-primary">{t(view.label)}</p>
           <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">
-            {TAB_SUBTITLES[view.label] ?? t("Module dashboard")}
+            {t(TAB_SUBTITLES[view.label] ?? "Module dashboard")}
           </p>
         </div>
       ) : null}

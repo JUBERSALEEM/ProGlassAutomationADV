@@ -58,8 +58,10 @@ t("Desktop software · v{version} · No account required", { version: site.versi
 | `npm run i18n:audit` | coverage per language, and where each language's entries came from |
 | `npm run i18n:gaps` | the same, plus `/tmp/proglass-i18n-gaps.json` for batching |
 | `npm run i18n:rendered` | fetch every page and report English that is still on it |
-| `npm run i18n:wire` | run the codemods that put text through the translator |
+| `npm run i18n:wire` | run the page-level codemod: translator, metadata, LocaleLink, prose attributes |
 | `npm run i18n:blocks` | wire the mixed sentences the line-based passes cannot see |
+| `npm run i18n:wire-text` | wrap raw JSX text children that are prose (headings, labels, buttons) |
+| `npm run i18n:wire-fields` | wrap the prose fields a component reads straight into JSX |
 
 `i18n:rendered` is the one that tells the truth about the *page* rather than
 about the dictionary: it separates text the site does not know about (a wiring
@@ -101,10 +103,9 @@ Two more rules for anyone writing a batch:
 
 ## Why a page can still read English, measured
 
-"The language is set to French and the page is still English" has exactly three
-causes, and they are not the same problem. `i18n-rendered-gaps.mjs` separates
-them by reading the built pages and sorting every text node that reads as
-English:
+"The language is set to French and the page is still English" has four causes,
+and they are not the same problem. `i18n-rendered-gaps.mjs` separates them by
+reading the built pages and sorting every text node that reads as English:
 
 ```bash
 node scripts/i18n-rendered-gaps.mjs --locale fr-FR            # counts + worst offenders
@@ -112,18 +113,34 @@ node scripts/i18n-rendered-gaps.mjs --locale fr-FR --dump /tmp/fr.json
 ```
 
 1. **Key, not translated** — a sentence the site knows about and this language
-   has not covered yet. On 16 French pages: **1,148 distinct sentences**. This
-   is the whole job, and it is volume: 2,552 sentences per language.
-2. **Not a key** — text no `t()` ever sees, so no dictionary could translate it
-   even if it were perfect. On the same run: **194 fragments** (an array item
-   printed as `{item}`, a template literal, a paragraph split across an inline
-   element). These are wiring defects, reported per file; the ones found so far
-   are fixed.
-3. **Several keys side by side** — markup glued two known strings together. Not
+   has not covered yet. This is volume, and it is the only one of the four that
+   a dictionary can fix.
+2. **Not extracted** — prose that no pass ever turned into a key, so no
+   dictionary could hold it however complete it was. Round 25 found three of
+   these at once, each of which had been keeping whole sections English in all
+   fifteen languages: quoted values held in page and component literals (the
+   step list on the home page, the paragraph arrays on the legal pages); a code
+   filter that rejected any span containing a semicolon or the word "document."
+   and any string beginning with a digit ("9-step wizard with company and client
+   cards", "0.5 m² minimum billable area per panel"); and table values rendered
+   without `t()`. Fixed by two extractor passes (`i18n-extract.mjs`) and
+   `i18n-wire-fields.mjs`. 2,554 → 2,903 keys.
+3. **Not wired** — a text node no `t()` call reaches: `<p className="eyebrow">
+   Built up, not guessed at</p>` renders as plain text, not as a key. 81 of
+   them, concentrated in eyebrows, card headings, link labels and buttons —
+   which is why the complaint was about *headings*. Fixed by
+   `i18n-wire-text.mjs`, a narrow codemod that edits source and is documented
+   with its guards.
+4. **Several keys side by side** — markup glued two known strings together. Not
    a gap; the audit lists them separately so the list means what it says.
 
-Numbers are per language, and they move: `de-DE` currently renders **479**
-untranslated sentences and **196** fragments, `fr-FR` 1,148 and 194.
+The distinction matters more than the numbers: causes 2 and 3 are invisible to
+a coverage percentage. Arabic read **100 %** of the dictionary and still
+rendered 919 English text nodes, because 188 of them were translated strings
+the component printed without asking for the translation, and the rest were
+strings that had never become keys. After round 25: **573** nodes, **102**
+strings, of which the remainder are endonyms (`Bahasa Indonesia`), seeded log
+lines and a few destructured map labels.
 
 ## Filling two thousand sentences per language
 
