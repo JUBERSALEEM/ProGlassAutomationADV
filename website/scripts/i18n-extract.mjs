@@ -34,9 +34,32 @@ const DATA_FILES = /^src\/(?:data\/[^/]+|lib\/(?:useStudio|site|schema))\.ts$/;
 const NOT_PROSE =
   /^(?:https?:|\/|#|data:|\d|\.|--|@)|\.(?:tsx?|json|css|svg|png|webp|woff2?)$|^[a-z0-9-]+$|^[A-Z0-9_]+$|[{}<>]|=>|&&|\|\||\bpx\b|\bvar\(|\$\{|api\/|\/api/i;
 
-/** Code that leaked into a quoted span, not a sentence. */
+/**
+ * Code that leaked into a quoted span, not a sentence.
+ *
+ * This filter used to reject any span containing a semicolon, and any span
+ * containing the word "window." or "document." — which sounds careful and was
+ * in fact the single largest reason sentences on this site stayed English. A
+ * semicolon is ordinary punctuation in an English sentence ("it is cut,
+ * arrised; it is toughened"), and "the delivery note document." is a noun with
+ * a full stop. Sentences rejected here never become keys, so no dictionary
+ * could ever translate them, however complete it was.
+ *
+ * The test is now about shape rather than vocabulary: a statement, an arrow
+ * function, a DOM call or a declaration is code; a span with a semicolon in
+ * the middle of prose is prose.
+ */
 function looksLikeCode(text) {
-  return /[\n;]|=>|&&|\|\||\bwindow\.|\bdocument\.|\bconst\b|\bfunction\b/.test(text);
+  if (/\n/.test(text)) return true;
+  /* `import` and `export` are ordinary nouns in this domain — "BOQ import",
+     "CNC export" — so only the statement forms are rejected. */
+  if (/=>|&&|\|\||\bconst\b|\bfunction\b/.test(text)) return true;
+  if (/\b(?:import|export)\s+(?:function|const|default|\{|\*)/.test(text)) return true;
+  /* A real DOM or storage call, not the word "document." at the end of one. */
+  if (/\b(?:document|window|localStorage|sessionStorage)\.(?:getElementById|querySelector|addEventListener|createElement|location|documentElement|write|open)\b/.test(text)) return true;
+  /* `name = value;` — an assignment statement dressed as a sentence. */
+  if (/[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*\s*=\s*[^=][^;]*;\s*$/.test(text)) return true;
+  return false;
 }
 
 /* A CSS font stack is not a sentence, and neither is a media query. */
@@ -179,6 +202,47 @@ for await (const file of walk("src")) {
     if (isContent(value) && translatable(value)) {
       keys.add(value);
       if (!origin.has(value)) origin.set(value, "data");
+    }
+  }
+}
+
+/* ── prose in page and component literals ─────────────────────────────
+ *
+ * The site says a great deal through values it holds in its own files: the
+ * step list on the home page, the paragraph arrays on the legal pages, the
+ * column descriptions inside a surface. Those render through `t()` at the
+ * point of use — `{t(detail)}` — but a `t(variable)` call cannot be read
+ * statically, and the earlier passes only looked at `t("literal")` calls and
+ * at `src/data/*.ts`. Everything held in a page or a component was therefore
+ * invisible: wired, rendered through `t()`, and impossible to translate
+ * because no key existed for it.
+ *
+ * This pass reads them by shape. A quoted value that follows `:` `[` `,` `(`
+ * and ends before `,` `}` `]` `)` `as const` or the end of the line is a value;
+ * it is prose when it has a space, carries a capital letter and is not a
+ * class-name list — the last guard is what keeps `mt-0.5 text-xs leading-none`
+ * out of the dictionary, and it works because a styling string has no capitals
+ * and a sentence has at least one.
+ */
+const PROSE_IN_TYPES = /\.tsx?$/;
+const CLASSISH = /^[a-z0-9\s:.\-\[\]/%(),!]+$/;
+
+for await (const file of walk("src")) {
+  if (!PROSE_IN_TYPES.test(file)) continue;
+  if (file.startsWith("src/data/")) continue;
+  const source = readFileSync(file, "utf8");
+  for (const match of source.matchAll(LITERAL)) {
+    const value = (match[1] ?? match[2] ?? "").replace(/\\"/g, '"').replace(/\\'/g, "'");
+    if (value.length < 8 || value.length > 400) continue;
+    if (!/\s/.test(value) || !/[A-Z]/.test(value)) continue;
+    if (CLASSISH.test(value)) continue;
+    /* A colour or a CSS paint function is a value, not a sentence — the
+       capital-letter rule above lets `radial-gradient(circle, #22D3EE33, …)`
+       through, because a hex colour has capitals in it. */
+    if (/#[0-9a-fA-F]{3,8}|\b(?:radial|linear|conic)-gradient\(|\brgba?\(|\bhsla?\(/.test(value)) continue;
+    if (isContent(value) && translatable(value)) {
+      keys.add(value);
+      if (!origin.has(value)) origin.set(value, "table");
     }
   }
 }
