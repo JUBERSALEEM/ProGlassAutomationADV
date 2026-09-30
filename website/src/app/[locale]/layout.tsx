@@ -13,6 +13,7 @@ import { I18nProvider } from "@/i18n/provider";
 import { LOCALE_CODES, dirOf, isLocale, localeInfo, type Locale } from "@/i18n/locales";
 import { ogLocale } from "@/i18n/core";
 import { overlayWithApp, translatorForLocale } from "@/i18n/server";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 /**
  * Inter for the interface, JetBrains Mono for the technical labels.
@@ -251,6 +252,7 @@ export default async function LocaleLayout({
           <Footer t={t} />
           <ThemeStudio />
         </I18nProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
