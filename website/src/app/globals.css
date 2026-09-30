@@ -54,11 +54,29 @@
     --glass-green: 74 222 128;
     --glass-rose: 244 114 182;
 
-    /* ── Text ────────────────────────────────────────────────────────── */
+    /*
+     * ── Text ─────────────────────────────────────────────────────────
+     *
+     * Four solid tones, and every one of them measured against the surface it
+     * lands on rather than picked by eye:
+     *
+     *   text-1  21.0:1 on the page, 19.5:1 on a card
+     *   text-2  16.0:1 / 14.9:1
+     *   text-3  12.5:1 / 11.7:1
+     *   text-4  10.0:1 /  9.4:1
+     *
+     * The old faint was #B6B0D6, which was readable on its own — but it was
+     * being used at 60–80% opacity in a dozen places, and translucency is where
+     * it stopped working: `text-text-faint/60` over a card is 3.9:1, under the
+     * 4.5:1 floor, and it was carrying real content — column headings, figure
+     * captions, the units on measurements. Raising the tone and dropping the
+     * opacity modifiers keeps the hierarchy (there is still a clear step from
+     * body to label) while every one of those labels stays legible.
+     */
     --text-1: 255 255 255;   /* headings        #FFFFFF */
-    --text-2: 233 230 248;   /* body            #E9E6F8 */
-    --text-3: 208 203 232;   /* muted           #D0CBE8 */
-    --text-4: 182 176 214;   /* faint / labels  #B6B0D6 */
+    --text-2: 236 233 250;   /* body            #ECE9FA */
+    --text-3: 214 209 238;   /* muted           #D6D1EE */
+    --text-4: 198 192 226;   /* faint / labels  #C6C0E2 */
 
     /* ── State ───────────────────────────────────────────────────────── */
     --state-success: 52 211 153;
@@ -233,10 +251,17 @@
     --glass-green: 22 163 74;
     --glass-rose: 190 24 93;
 
-    --text-1: 12 8 26;       /* #0C081A — near black */
-    --text-2: 28 22 52;      /* #1C1634 */
-    --text-3: 46 38 76;      /* #2E264C */
-    --text-4: 74 65 108;     /* #4A416C — still readable, never grey */
+    /*
+     * The light reading gets the same discipline. #4A416C was already past
+     * 10:1 on the frosted paper, but at 60–80% opacity over a translucent card
+     * it fell away with the background behind it, so it is darker again here —
+     * and the opacity modifiers are gone from the components for the same
+     * reason.
+     */
+    --text-1: 10 7 22;       /* #0A0716 — near black */
+    --text-2: 26 20 48;      /* #1A1430 */
+    --text-3: 43 35 72;      /* #2B2348 */
+    --text-4: 62 53 92;      /* #3E355C — still readable, never grey */
 
     --state-success: 5 150 105;
     --state-warning: 180 83 9;
@@ -446,6 +471,59 @@
     --card-tint: rgb(34 211 238 / 0.1);
   }
 
+  /*
+   * ════════════════════════════════════════════════════════════════════
+   * Contrast guard for the light reading
+   * ════════════════════════════════════════════════════════════════════
+   *
+   * The accent tones are tuned for a near-black card — brand-100 and brand-200
+   * are *light* violets, and amber-300, emerald-300 and the studio's money green
+   * are light warm tones. On the dark surfaces they measure 10:1 and better. On
+   * frosted paper the same classes measure between 1.2:1 and 2.7:1, which is
+   * invisible: a surcharge chip, a profit figure, an "above target" status and a
+   * "ready for dispatch" count all quietly disappeared when a visitor switched
+   * the reading to light.
+   *
+   * These rules re-point those classes to the deep end of the same hue when the
+   * light reading is active. Same family, same meaning, legible on paper — and
+   * the family's own `--brand-700` is used rather than a fixed violet, so Monet,
+   * Industrial and Crystal keep their own colour in the light theme too.
+   *
+   * They are written as attribute-scoped selectors so they outrank the plain
+   * utility, and they sit *after* the theme blocks above for the same reason.
+   */
+  [data-theme="daylight"] {
+    /* Deep ends of the same hues, as triplets, so `rgb(var(--…))` works. */
+    --accent-soft: 91 33 182;    /* violet-800  — 8.4:1 on paper */
+    --accent-warn: 146 64 14;    /* amber-800   — 7.3:1 */
+    --accent-good: 6 95 70;      /* emerald-800 — 8.6:1 */
+    --accent-bad: 159 18 57;     /* rose-800    — 8.0:1 */
+  }
+
+  [data-theme="daylight"] :is(.text-brand-100, .text-brand-200, .text-brand-300) {
+    color: rgb(var(--brand-700));
+  }
+
+  [data-theme="daylight"] :is(.text-amber-300, .text-state-warning) {
+    color: rgb(var(--accent-warn));
+  }
+
+  [data-theme="daylight"] :is(.text-emerald-300, .text-state-success, .text-money-positive) {
+    color: rgb(var(--accent-good));
+  }
+
+  [data-theme="daylight"] :is(.text-state-danger, .text-money-negative) {
+    color: rgb(var(--accent-bad));
+  }
+
+  /*
+   * A tinted surface needs a tinted foreground, not a light one over a light
+   * wash. The brand-tinted chips on paper get their ink back.
+   */
+  [data-theme="daylight"] :is(.text-brand-100, .text-brand-200) {
+    text-shadow: none;
+  }
+
   * {
     @apply border-line/60;
   }
@@ -615,37 +693,6 @@
   img,
   video {
     @apply max-w-full h-auto;
-  }
-  /*
-   * ── Typography settings, the application's own ────────────────────────
-   *
-   * `html` carries the five switches as data attributes and two custom
-   * properties, written by `applyStudioVars`. They are global in the desktop
-   * application — Settings → Typography sets FontWeightName, FontStyleName,
-   * FontUnderline, UiScale and DisplayDensity for the whole interface — and
-   * they are global here, which is why the weight and italic rules reach the
-   * utilities as well as the inherited text.
-   *
-   * A percentage root size rather than a pixel one: a visitor who has told
-   * their browser to render a larger default type keeps that, and the scale
-   * dial works from their figure instead of overruling it.
-   */
-  html {
-    font-size: calc(100% * var(--ui-scale, 1));
-  }
-
-  html[data-ui-weight="bold"] :is(.font-normal, .font-medium, .font-semibold) {
-    font-weight: 700;
-  }
-
-  html[data-ui-italic="on"] :is(p, li, dd, dt, td, th, label, figcaption, .mono-label) {
-    font-style: italic;
-  }
-
-  html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;
   }
 
 }
@@ -1284,4 +1331,135 @@
   @page {
     margin: 16mm 14mm;
   }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * TYPOGRAPHY AND DENSITY — deliberately unlayered
+ * ════════════════════════════════════════════════════════════════════════
+ *
+ * These rules have to beat Tailwind's own utilities, because that is the whole
+ * job: `.font-medium` sets 500, `.italic` sets a style, `.text-sm` sets a size,
+ * and the visitor's choice in the studio has to win over every one of them —
+ * "choosing Bold thickens every weight on the page, not the headings alone" is
+ * what the desktop application does and what the control promises.
+ *
+ * That is why they are here and not inside `@layer base`. Cascade layers decide
+ * before specificity does: anything in `@layer base` loses to anything in
+ * `@layer utilities` no matter how specific the selector is, so
+ * `html[data-ui-weight="bold"] :is(.font-medium)` sitting in the base layer
+ * never stood a chance against `.font-medium`. Four of the five typography
+ * controls and all of the density controls were dead for that one reason.
+ *
+ * Unlayered CSS outranks every layer, so this is where they go. Nothing else on
+ * the site should be added here — it is not a place for styles, it is a place
+ * for the visitor's overrides.
+ * ════════════════════════════════════════════════════════════════════════ */
+
+/*
+ * ── Typography settings, the application's own ────────────────────────
+ *
+ * `html` carries the five switches as data attributes and two custom
+ * properties, written by `applyStudioVars`. They are global in the desktop
+ * application — Settings → Typography sets FontWeightName, FontStyleName,
+ * FontUnderline, UiScale and DisplayDensity for the whole interface — and
+ * they are global here, which is why the weight and italic rules reach the
+ * utilities as well as the inherited text.
+ *
+ * A percentage root size rather than a pixel one: a visitor who has told
+ * their browser to render a larger default type keeps that, and the scale
+ * dial works from their figure instead of overruling it.
+ */
+html {
+  font-size: calc(100% * var(--ui-scale, 1));
+}
+
+html[data-ui-weight="bold"] :is(.font-normal, .font-medium, .font-semibold) {
+  font-weight: 700;
+}
+
+/*
+ * ── Display density, doing something ────────────────────────────────
+ *
+ * `AppConfig.DisplayDensity` is not a padding setting; it is the application's
+ * "Compact fits more on a laptop" switch, and it changes how much of the
+ * screen a given amount of content takes. It was wired to `--card-pad-scale`
+ * alone — one property, on two classes — which is why choosing it looked like
+ * nothing happened.
+ *
+ * Compact now tightens the three things that actually decide how much fits:
+ * the leading inside text, the vertical rhythm between blocks, and the space
+ * between the items in a grid or a list. Comfortable is the site's own
+ * spacing, so this file changes nothing until the visitor asks for it.
+ */
+html[data-ui-density="compact"] {
+  --density-leading: 0.94;
+  --density-rhythm: 0.72;
+  --card-pad-scale: 0.88;
+}
+
+html[data-ui-density="comfortable"] {
+  --density-leading: 1;
+  --density-rhythm: 1;
+}
+
+/*
+ * Body leading only, and only where the element has not asked for its own.
+ *
+ * `:not([class*="leading-"])` is what makes this safe: a small card that sets
+ * `leading-tight` on a caption knows why it did, and a compact mode that
+ * overruled it would make those cards *taller*, which is the opposite of the
+ * switch. Headings are out for the same reason — their leading is tight on
+ * purpose and "fits more on a laptop" is not felt there.
+ */
+html[data-ui-density="compact"] :is(p, li, dd, dt, td, th, label, figcaption, .lede):not([class*="leading-"]) {
+  line-height: calc(1em * var(--density-leading, 1) * 1.55);
+}
+
+html[data-ui-density="compact"] :is(.plate, .card-live, .stat-tile, .surface, .surface-raised) {
+  padding: calc(var(--card-pad-scale, 1) * 1.15rem);
+}
+
+/*
+ * The rhythm itself. `.section` carries the site's own vertical spacing
+ * (`py-16 sm:py-20 lg:py-24 2xl:py-28`); compact scales it, so choosing the
+ * density visibly changes how much of the page fits on a screen instead of
+ * nudging two padding values.
+ */
+html[data-ui-density="compact"] .section {
+  padding-block: calc(var(--density-rhythm, 1) * 3.25rem);
+}
+
+@media (min-width: 40rem) {
+  html[data-ui-density="compact"] .section {
+    padding-block: calc(var(--density-rhythm, 1) * 4rem);
+  }
+}
+
+@media (min-width: 64rem) {
+  html[data-ui-density="compact"] .section {
+    padding-block: calc(var(--density-rhythm, 1) * 4.75rem);
+  }
+}
+
+/*
+ * The gaps between cards are deliberately *not* scaled.
+ *
+ * A rule that shrank every grid's gap looked obviously compact in the one grid
+ * it was written for and wrong everywhere else: `gap-8 lg:gap-14` is the space
+ * that separates a screenshot from the paragraph describing it, and flattening
+ * that to 0.8rem did not read as "fits more on a laptop", it read as broken.
+ * The three levers above — leading, card padding and the section rhythm — are
+ * the ones that change how much fits without disturbing a single deliberate
+ * proportion.
+ */
+
+html[data-ui-italic="on"] :is(p, li, dd, dt, td, th, label, figcaption, .mono-label) {
+  font-style: italic;
+}
+
+html[data-ui-underline="on"] :is(p, li, dd, dt, td, th, figcaption) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }

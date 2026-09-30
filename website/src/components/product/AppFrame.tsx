@@ -96,8 +96,8 @@ function RailRow({ label, active, muted }: { label: string; active?: boolean; mu
         active
           ? "bg-brand-400/16 font-semibold text-brand-100 ring-1 ring-inset ring-brand-400/35"
           : muted
-            ? "text-text-faint/80"
-            : "text-text-muted/85",
+            ? "text-text-faint"
+            : "text-text-muted",
       )}
     >
       {!muted ? (
@@ -170,7 +170,7 @@ export function AppFrame({
           >
             {realRail.map((group) => (
               <div key={group.label} className="space-y-0.5">
-                <p className="px-1.5 pb-0.5 font-mono text-[0.6875rem] font-semibold tracking-[0.16em] text-text-faint/70">
+                <p className="px-1.5 pb-0.5 font-mono text-[0.6875rem] font-semibold tracking-[0.16em] text-text-faint">
                   {group.label}
                 </p>
                 <div className="space-y-px">
@@ -194,7 +194,7 @@ export function AppFrame({
                 <span className="grid h-4 w-4 place-items-center rounded-full bg-brand-400/20 text-[0.625rem] font-bold text-brand-200">
                   AB
                 </span>
-                <span className="font-mono text-[0.625rem] uppercase tracking-[0.1em] text-text-faint font-medium">Admin</span>
+                <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Admin</span>
               </span>
             </div>
           </div>

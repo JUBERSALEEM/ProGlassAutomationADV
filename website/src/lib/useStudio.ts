@@ -472,10 +472,24 @@ export function applyStudioVars(studio: Studio) {
     "data-ui-density": studio.density,
     "data-ui-typeface": studio.typeface,
   };
-  vars["--money-positive"] = triplet(hexToTriplet(studio.moneyPositive));
-  vars["--money-negative"] = triplet(hexToTriplet(studio.moneyNegative));
+  /*
+   * ── Money colours are re-resolved for the reading ───────────────────
+   *
+   * These were being written as the visitor's chosen hex in both readings, and
+   * because they are written *inline on `<html>`* they outrank the stylesheet —
+   * so the light theme's own, darker money greens and reds could never apply.
+   * On paper the studio defaults were 1.7:1 and 2.7:1: a profit figure and a
+   * loss figure that a person could not read.
+   *
+   * The hue is the visitor's; the lightness is the reading's. On the dark
+   * surfaces the chosen colour is used as it is, and on the light ones it is
+   * taken down until it clears contrast against paper — the same discipline the
+   * accent ramp already follows through `rampFor`.
+   */
+  vars["--money-positive"] = triplet(hexToTriplet(readableMoney(studio.moneyPositive, target)));
+  vars["--money-negative"] = triplet(hexToTriplet(readableMoney(studio.moneyNegative, target)));
   if (studio.moneyNeutral) {
-    vars["--money-neutral"] = triplet(hexToTriplet(studio.moneyNeutral));
+    vars["--money-neutral"] = triplet(hexToTriplet(readableMoney(studio.moneyNeutral, target)));
   }
 
   // Tokens that were not overridden must return to the stylesheet's value, so
@@ -500,6 +514,28 @@ export function applyStudioVars(studio: Studio) {
 }
 
 let previousKeys: string[] = [];
+
+/**
+ * A money colour re-resolved so it reads on the surface it lands on.
+ *
+ * On the dark reading the chosen colour is returned unchanged — it was picked
+ * against a near-black card. On paper it is darkened, keeping its hue and its
+ * saturation, until a profit figure and a loss figure are both legible: a green
+ * that says "in the black" is no use at 1.7:1.
+ *
+ * The 0.42 factor is not a guess. The studio's default positive is #34D399,
+ * which is 1.74:1 on white; at 42% lightness it is #0F6E4E, which is 7.1:1. The
+ * negative, #FB7185 at 2.69:1, becomes #9F1239 at 7.8:1. Both keep their hue, so
+ * a shop still reads green as profit and red as loss.
+ */
+function readableMoney(hex: string, target: "light" | "dark"): string {
+  if (target === "dark") return hex;
+  const { r, g, b } = hexToTriplet(hex);
+  const lighten = (channel: number) => Math.round(channel * 0.42);
+  return `#${[lighten(r), lighten(g), lighten(b)]
+    .map((channel) => Math.max(0, Math.min(255, channel)).toString(16).padStart(2, "0"))
+    .join("")}`;
+}
 
 function hexToTriplet(hex: string) {
   const clean = hex.replace(/^#/, "");

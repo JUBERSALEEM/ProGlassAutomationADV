@@ -72,7 +72,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
       {/* ── PIPELINE CHAIN BAR ─────────────────────────────────────────── */}
       <div className="rounded-xl border border-line/60 bg-ink-900/50 p-2.5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+          <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
             Pipeline chain — all eight stages
           </p>
           <p className="text-[0.6875rem] font-medium text-text-muted">
@@ -120,7 +120,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
 
       {/* ── RELEASE BAR ────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line/60 bg-ink-900/40 px-2.5 py-2">
-        <span className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">Release</span>
+        <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Release</span>
         {releaseCandidates.map((candidate) => (
           <button
             key={candidate.job}
@@ -136,7 +136,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
                 ? "border-brand-400/60 bg-brand-400/16 text-brand-100"
                 : candidate.releasable
                   ? "border-line-strong/60 bg-ink-800/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary"
-                  : "border-line/40 bg-ink-900/50 text-text-faint/70 hover:border-danger/40 hover:text-danger",
+                  : "border-line/40 bg-ink-900/50 text-text-faint hover:border-danger/40 hover:text-danger",
             )}
           >
             {candidate.job} · {candidate.status}
@@ -166,7 +166,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
           { label: kpiLabels.readyForDispatch, value: readyCount, tone: readyCount > 0 ? "text-emerald-300" : "text-text-faint" },
         ].map((tile) => (
           <div key={tile.label} className="rounded-lg border border-line/50 bg-ink-900/50 px-2 py-1.5">
-            <p className="font-mono text-[0.5625rem] uppercase tracking-[0.1em] text-text-faint font-medium">{tile.label}</p>
+            <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{tile.label}</p>
             <p className={cn("text-[0.9375rem] font-semibold tabular-nums", tile.tone || "text-text-primary")}>{tile.value}</p>
           </div>
         ))}
@@ -305,7 +305,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
       */}
       {!compact ? (
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line/60 bg-ink-900/40 px-2.5 py-2">
-          <span className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+          <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
             Done-piece editor — try it
           </span>
           <input

@@ -247,6 +247,22 @@ export const proformaSpec: SpecSurfaceInput = {
       baseRate: mainSpec.baseRate,
       surchargePercent: STANDARD_SURCHARGE_PERCENT,
       primary: true,
+      /*
+       * One rate for the whole specification — the base rate.
+       *
+       * The seeded document stores a rate per line, because it was priced
+       * thickness by thickness and saved that way. The *grid* does not work like
+       * that: BASE is one field and `UpdateAllRowRates` writes it down every row
+       * the moment it moves, so a specification holds one price and the only
+       * rows that differ are the ones that reach 4 m² and take the surcharge
+       * rate. Opening the preview on the per-line stored rates showed a
+       * specification that could never exist on screen — four prices in one
+       * block — and made the surcharge look like it was doing nothing, because a
+       * lifted base could still land under a stored 245.
+       *
+       * The saved document is still on `/worked-example`, parity-locked to
+       * `seedSpecGroups`; this is the working grid.
+       */
       rows: mainLines.map((line) => ({
         serial: line.serial,
         ref: line.ref,
@@ -255,7 +271,8 @@ export const proformaSpec: SpecSurfaceInput = {
         w2: line.secondPane?.widthMm ?? 0,
         h2: line.secondPane?.heightMm ?? 0,
         qty: line.qty,
-        rate: line.rate,
+        rate: mainSpec.baseRate,
+        rateOverride: null,
       })),
     },
   ],
@@ -268,30 +285,48 @@ export const proformaSpec: SpecSurfaceInput = {
   extraBlock: {
     number: 2,
     name: "Oversize — Atrium Skylight",
-    glassType: "SGU",
+    /*
+     * A double-glazed specification, because that is what the seeded document's
+     * third group is (LE-* at 260 / m², second pane equal to the first). It also
+     * means pressing `+ ADD SPEC` shows the half of Step 4 the single-pane
+     * specification has no reason to show: the inner pane and the ASP spacer,
+     * with their width, material and U-insert variant.
+     */
+    glassType: "DGU",
     glassTypes: ["SGU", "DGU", "LAM", "DGU + LAM"],
     baseRate: 245,
     surchargePercent: STANDARD_SURCHARGE_PERCENT,
     rows: [
+      /*
+       * 2400 × 1800 is 4.32 m², so this row prices at the surcharge rate the
+       * moment it is opened: base 245 + 20% = 294. Nothing has to be typed for
+       * the rule to be visible.
+       */
       {
         serial: 1,
         ref: "CT-12-2400x1800",
         w1: 2400,
         h1: 1800,
-        w2: 0,
-        h2: 0,
+        w2: 2400,
+        h2: 1800,
         qty: 3,
-        rate: 294,
+        rate: 245,
+        rateOverride: null,
       },
+      /*
+       * 400 × 300 is 0.12 m² of glass and half a square metre of work, so it
+       * bills at the floor on the specification's base rate.
+       */
       {
         serial: 2,
         ref: "CT-06-0400x0300",
         w1: 400,
         h1: 300,
-        w2: 0,
-        h2: 0,
+        w2: 400,
+        h2: 300,
         qty: 6,
         rate: 245,
+        rateOverride: null,
       },
     ],
   },
@@ -381,11 +416,19 @@ const userRows: DemoRow[] = [
 const bespoke: Record<string, Demo> = {
   Dashboard: {
     /*
-     * The dashboard is not four counters. It is a set of pulses — one per
-     * surface — over a tab per module (`Views/Dashboard/` holds a folder each
-     * for DeliveryNote, JobOrder, ProformaInvoice, SheetStore, Statement and
-     * TaxInvoice beside the Overview), and every panel is titled and subtitled
-     * in the language file:
+     * The dashboard is not four counters. It is `DashboardViewModel.Pages` —
+     * seven pages, in the application's own order, Overview first:
+     *
+     *   Overview · Sheet Store · Proforma Invoice · Job Orders ·
+     *   Deliveries · Tax Invoices · Statements
+     *
+     * Those are the pages' own `TabTitle`s, verbatim, and each carries its
+     * `TabSubtitle` — business at a glance; stock and inventory value; quotes
+     * and conversion; production workload; dispatch and balance; revenue and
+     * ageing; customer balances. `SelectTabCommand` sets `ActivePage` and that
+     * setter calls `LoadAsync()` on the page it switched to, so a tab is a
+     * different screen rather than the same screen with different numbers.
+     * Under the titles, the pulses:
      *
      *   Quote pulse        count of quotes · pipeline volume and confirmation
      *                      · status distribution · top customers
@@ -406,44 +449,96 @@ const bespoke: Record<string, Demo> = {
      * items and one invoice — so nothing here is a fabricated trade volume.
      */
     kind: "dashboard",
-    blurb: "One pulse per surface, over a tab per module — quotes, factory, dispatch, stock, collections.",
+    blurb: "Seven dashboard pages on one design grammar — Overview, Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices, Statements.",
     views: [
       {
-        label: "Quote & production",
+        label: "Overview",
         columns: [],
         rows: [],
         summary: [
-          { label: "Quote pulse", value: "1 quote · INQ-2026-001 confirmed" },
-          { label: "Pipeline", value: "PI-2026-001 approved · 22 items · 3 spec groups" },
-          { label: "Production pulse — in production", value: "JOB-2026-001 · priority High" },
-          { label: "Pending pieces", value: "45 cut · 12 complete on Spec 1" },
+          { label: "Overview — business at a glance", value: "1 inquiry · 1 proforma · 1 job · 1 invoice" },
+          { label: "Order-to-cash pipeline", value: "Quote 1 → Production 1 → Delivery 15 of 22 → Invoice AED 34,762.19 → Payment due in 30 days" },
+          { label: "Quote pulse", value: "INQ-2026-001 confirmed — PI-2026-001, 22 items, 3 spec groups" },
+          { label: "Production pulse", value: "JOB-2026-001 in production · priority High" },
+          { label: "Collections pulse", value: "INV-2026-001 issued · VAT at 5% · due in 30 days" },
+          { label: "Only Overview carries the pipeline rail", value: "stages 4 and 5 read live from the tax-invoice metrics; an unreadable stage shows an em dash, not a zero" },
         ],
       },
       {
-        label: "Dispatch & stock",
+        label: "Sheet Store",
         columns: [],
         rows: [],
         summary: [
-          { label: "Dispatch pulse — delivery notes", value: "DN-2026-001-01 · Dispatching" },
-          { label: "Delivery balance", value: "15 of 22 items leaving · 7 on balance" },
-          { label: "Stock pulse — available SQM", value: "By glass category, live from the sheet store" },
+          { label: "Sheet Store — stock and inventory value", value: "Available SQM by glass category" },
+          { label: "Stock pulse", value: "Clear 6 mm 46 · Clear 8 mm 18 · Clear 10 mm 9 · Clear 12 mm 4" },
           { label: "Category mix", value: "Clear 6 / 8 / 10 / 12 · Tinted 6 / 8 · Low-E 6 · Frosted 5" },
+          { label: "Dummy · split · master sheets", value: "Remnant and part sheets counted with the sheets they came from" },
+          { label: "Reserved", value: "12 sheets committed to released work" },
         ],
       },
       {
-        label: "Collections",
+        label: "Proforma Invoice",
         columns: [],
         rows: [],
         summary: [
-          { label: "Collections pulse", value: "INV-2026-001 issued · due in 30 days" },
-          { label: "Customer balance", value: "Al Noor Glazing Contracting LLC" },
-          { label: "Ageing brackets", value: "Overdue amounts grouped by age" },
+          { label: "Proforma Invoice — quotes and conversion", value: "PI-2026-001 approved · 22 items · 160.79 m²" },
+          { label: "Quote pulse", value: "1 quote · INQ-2026-001 · confirmed" },
+          { label: "Pipeline volume", value: "AED 33,106.85 ex-VAT across 3 specification groups" },
+          { label: "Status distribution", value: "Draft → Issued → Approved → Converted to job order" },
+          { label: "Top customers", value: "Al Noor Glazing Contracting LLC · AZT-POD-2026" },
+        ],
+      },
+      {
+        label: "Job Orders",
+        columns: [],
+        rows: [],
+        summary: [
+          { label: "Job Orders — production workload", value: "JOB-2026-001 · priority High" },
+          { label: "Production pulse — in production", value: "83 pieces across 8 stages" },
+          { label: "Workload and priority mix", value: "High · Normal · Low by station" },
+          { label: "Recent job activity", value: "Cutting 22 rows open 11 · Tempering 10 rows" },
+          { label: "Delivery balance", value: "7 of 22 items still on the floor" },
+        ],
+      },
+      {
+        label: "Deliveries",
+        columns: [],
+        rows: [],
+        summary: [
+          { label: "Deliveries — dispatch and balance", value: "DN-2026-001-01 · Dispatching" },
+          { label: "Dispatch pulse — delivery notes", value: "1 note · 15 of 22 items leaving · 7 on balance" },
+          { label: "Dispatch flow", value: "Job order released → note raised → vehicle loading → delivered" },
+          { label: "Delivery type", value: "Site delivery · Al Noor Glazing Contracting LLC" },
+          { label: "Recent movements", value: "SHJ-48211 · Salim Khan" },
+        ],
+      },
+      {
+        label: "Tax Invoices",
+        columns: [],
+        rows: [],
+        summary: [
+          { label: "Tax Invoices — revenue and ageing", value: "INV-2026-001 · AED 34,762.19 incl. 5% VAT" },
+          { label: "Revenue · VAT · paid · pending", value: "Subtotal 33,106.85 · VAT 1,655.34" },
+          { label: "Ageing brackets", value: "Current · 30 · 60 · 90+ days" },
+          { label: "Collections pulse", value: "Outstanding, overdue and collection risk by customer" },
+          { label: "Past terms", value: "Overdue amounts grouped by age" },
+        ],
+      },
+      {
+        label: "Statements",
+        columns: [],
+        rows: [],
+        summary: [
+          { label: "Statements — customer balances", value: "Al Noor Glazing Contracting LLC" },
           { label: "Statement pulse", value: "Generate a statement to see customer balances here." },
+          { label: "Open items", value: "INV-2026-001 · issued · due in 30 days" },
+          { label: "Ageing", value: "Current · 30 · 60 · 90+ once statements exist" },
+          { label: "Empty state", value: "Every page can say there is nothing yet instead of showing a blank card" },
         ],
       },
     ],
     footnote:
-      "Each panel is titled and subtitled in the language file, and the tab strip changes the module the dashboard is reading — Delivery Note, Job Order, Proforma Invoice, Sheet Store, Statement and Tax Invoice each have their own dashboard folder beside the overview.",
+      "Seven pages on one design grammar: Overview, Sheet Store, Proforma Invoice, Job Orders, Deliveries, Tax Invoices and Statements, in that order. Selecting a tab loads that page — its own KPI band, its own chart and its own feed — so the tab strip switches the screen, not just the numbers. Each page has its own folder under Views/Dashboard/ beside the Overview.",
   },
 
   Inquiry: {

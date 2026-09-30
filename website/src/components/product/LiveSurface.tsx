@@ -94,7 +94,7 @@ export function LiveSurface({
           ) : demo.kind === "wizard" ? (
             <WizardEngine demo={demo} view={view} onViewIndex={setViewIndex} compact={compact} />
           ) : demo.kind === "dashboard" ? (
-            <DashboardEngine demo={demo} compact={compact} />
+            <DashboardEngine demo={demo} view={view} viewIndex={safeIndex} onViewIndex={setViewIndex} compact={compact} />
           ) : demo.kind === "form" ? (
             <FormEngine moduleKey={moduleKey} demo={demo} view={view} />
           ) : (
@@ -274,7 +274,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
             <dl className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
               {view.summary.map((item) => (
                 <div key={item.label} className="flex items-baseline gap-1.5">
-                  <dt className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+                  <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
                     {item.label}
                   </dt>
                   <dd
@@ -463,7 +463,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             { label: "Scrap", value: `${scrap.toFixed(2)} m²`, bad: true },
           ].map((item) => (
             <div key={item.label} className="stat-tile px-2.5 py-2">
-              <dt className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">{item.label}</dt>
+              <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{item.label}</dt>
               <dd
                 className={cn(
                   "mt-0.5 font-mono text-sm font-semibold tabular-nums",
@@ -788,17 +788,72 @@ function StepCard({ step, label, note }: { step: number; label: string; note?: s
 
 const ranges = ["Today", "This week", "This month"] as const;
 
-function DashboardEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
+/**
+ * The dashboard — one pulse per surface, over a tab per module.
+ *
+ * The dashboard is not a single screen of four counters. It is an overview with
+ * a tab strip, and each tab is a different module's dashboard: the quote and
+ * production pulses, the dispatch and stock pulses, the collections pulse. The
+ * engine below used to render `demo.views[0]` and nothing else, so the tab strip
+ * above it moved and the panel never did — which is what "not updating as per
+ * switch the tab" describes. It now reads the active view, so choosing a tab
+ * changes the tiles, the chart and the footnote together.
+ *
+ * The tiles are the application's own panel titles and counts. They are not
+ * scaled by the range control: the figures in this preview are the seeded
+ * workflow's — one confirmed inquiry, one approved proforma of 22 items in 3
+ * groups, one released job, one partial delivery of 15 items and one invoice —
+ * and multiplying a real document count by 3.9 to make a range selector feel
+ * alive would be inventing trade the shop never did. The range says what it
+ * does instead.
+ */
+/*
+ * `TabTitle` → `TabSubtitle`, from the seven dashboard page view models.
+ *
+ * The tab strip carries the titles; the subtitle belongs to the panel the tab
+ * opens, which is where the desktop application prints it.
+ */
+const TAB_SUBTITLES: Record<string, string> = {
+  Overview: "Business at a glance",
+  "Sheet Store": "Stock and inventory value",
+  "Proforma Invoice": "Quotes and conversion",
+  "Job Orders": "Production workload",
+  Deliveries: "Dispatch and balance",
+  "Tax Invoices": "Revenue and ageing",
+  Statements: "Customer balances",
+};
+
+function DashboardEngine({
+  demo,
+  view,
+  viewIndex,
+  onViewIndex,
+  compact,
+}: {
+  demo: Demo;
+  view: DemoView | undefined;
+  viewIndex: number;
+  onViewIndex: (index: number) => void;
+  compact?: boolean;
+}) {
   const [range, setRange] = useState<(typeof ranges)[number]>("This week");
-  const factor = range === "Today" ? 0.22 : range === "This week" ? 1 : 3.9;
-  const summary = demo.views[0]?.summary ?? [];
-  const bars = [0.42, 0.66, 0.38, 0.82, 0.55, 0.94, 0.7].map((value) => Math.min(1, value * (factor / 3.9) + 0.18));
+  const summary = view?.summary ?? [];
+  const rows = view?.rows ?? [];
+  /*
+   * The bar chart is the seeded job's own quantities — the three specification
+   * groups' piece counts — normalised, rather than seven invented days.
+   */
+  const bars = useMemo(() => {
+    const pieces = [45, 24, 14];
+    const peak = Math.max(...pieces);
+    return pieces.map((value) => value / peak);
+  }, []);
 
   return (
-    <div className="flex h-full flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <div className="flex gap-1" role="group" aria-label="Range">
+        <div className="flex gap-1" role="group" aria-label="Period">
           {ranges.map((entry) => (
             <button
               key={entry}
@@ -818,37 +873,109 @@ function DashboardEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </div>
       </div>
 
+      {/*
+        The tab strip the dashboard's own rail carries. It is drawn here rather
+        than only in the frame's chrome because on this module the tabs *are* the
+        screen: each one is a different module's dashboard, and switching one has
+        to change what is below it.
+      */}
+      {demo.views.length > 1 ? (
+        <div
+          role="tablist"
+          aria-label="Dashboard tabs"
+          className="flex flex-wrap gap-1.5 rounded-xl border border-line/60 bg-ink-950/40 p-2"
+        >
+          {demo.views.map((entry, index) => (
+            <button
+              key={entry.label}
+              type="button"
+              role="tab"
+              aria-selected={index === viewIndex}
+              onClick={() => onViewIndex(index)}
+              title={TAB_SUBTITLES[entry.label] ?? entry.label}
+              className={cn(
+                "rounded-lg border px-2.5 py-1 text-[0.75rem] font-semibold transition-colors duration-200",
+                index === viewIndex
+                  ? "border-brand-400/60 bg-brand-400/16 text-brand-100"
+                  : "border-line-strong/50 bg-ink-900/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
+              )}
+            >
+              {entry.label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {/*
+        The panel's own title and subtitle, as `DashboardPageBase` carries them.
+        A tab that changed only the tiles looked like the same screen with
+        different numbers; the heading changes with it, which is what a page
+        switch looks like.
+      */}
+      {view ? (
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 rounded-xl border border-line/60 bg-ink-900/40 px-3 py-2">
+          <p className="text-[0.8125rem] font-semibold text-text-primary">{view.label}</p>
+          <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">
+            {TAB_SUBTITLES[view.label] ?? "Module dashboard"}
+          </p>
+        </div>
+      ) : null}
+
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {summary.map((item, index) => {
-          const numeric = Number(item.value);
-          const scaled = Number.isFinite(numeric) ? Math.max(1, Math.round(numeric * factor)) : null;
-          return (
-            <div key={`${item.label}-${index}`} className="stat-tile p-2.5">
-              <dt className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">{item.label}</dt>
-              <dd className="mt-1 font-mono text-lg font-semibold tabular-nums text-text-primary">
-                {scaled !== null ? scaled : item.value}
-              </dd>
-              <dd className="mt-0.5 text-[0.6875rem] text-text-faint font-medium">
-                {scaled !== null ? (index === 0 ? "across the period" : "across the range") : "—"}
-              </dd>
-            </div>
-          );
-        })}
+        {summary.map((item, index) => (
+          <div key={`${item.label}-${index}`} className="stat-tile p-2.5">
+            <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{item.label}</dt>
+            <dd className="mt-1 text-[0.8125rem] font-semibold leading-snug text-text-primary">{item.value}</dd>
+          </div>
+        ))}
       </dl>
 
-      <div className="flex flex-1 items-end gap-1.5 rounded-card border border-line/60 bg-ink-950/40 p-3">
-        {bars.map((value, index) => (
-          <span
-            key={index}
-            className="flex-1 rounded-t-[3px] bg-gradient-to-t from-brand-600/70 to-glass-cyan/70 transition-[height] duration-500"
-            style={{ height: `${Math.round(value * 100)}%` }}
-            title={`Day ${index + 1}`}
-          />
-        ))}
-      </div>
+      {rows.length > 0 ? (
+        <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-line/60 bg-ink-950/40">
+          <table className="w-full border-collapse text-left">
+            <caption className="sr-only">{view?.label ?? "Dashboard"} — the module&apos;s own panels and figures.</caption>
+            <tbody>
+              {rows.map((row, index) => {
+                const cells = Object.entries(row);
+                return (
+                  <tr key={`row-${index}`} className="border-b border-line/30 last:border-0 hover:bg-ink-800/40">
+                    <th scope="row" className="w-2/5 px-2.5 py-1.5 text-left text-[0.75rem] font-medium text-text-secondary">
+                      {cells[0]?.[1]}
+                    </th>
+                    <td className="px-2.5 py-1.5 font-mono text-[0.75rem] text-text-muted">{cells[1]?.[1]}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="flex flex-1 items-end gap-1.5 rounded-card border border-line/60 bg-ink-950/40 p-3">
+          <p className="sr-only">Piece counts for the dashboard&apos;s selected period.</p>
+          {bars.map((value, index) => (
+            <span
+              key={index}
+              className="flex-1 rounded-t-[3px] bg-gradient-to-t from-brand-600/70 to-glass-cyan/70 transition-[height] duration-500"
+              style={{ height: `${Math.round(value * 100)}%` }}
+              title={
+                ["Main facade — 45 pieces", "Sun-exposed areas — 24 pieces", "Low-E / DGU zones — 14 pieces"][index] ??
+                `Series ${index + 1}`
+              }
+            />
+          ))}
+        </div>
+      )}
 
       {!compact && demo.footnote ? (
         <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{demo.footnote}</p>
+      ) : null}
+
+      {!compact ? (
+        <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">
+          Showing the <span className="text-text-muted">{range.toLowerCase()}</span> period. The figures are the seeded
+          workflow&apos;s own documents, so a wider period does not multiply them — the range control changes which period the
+          dashboard is reading, not how much has been traded.
+        </p>
       ) : null}
     </div>
   );

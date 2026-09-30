@@ -307,7 +307,7 @@ function Field({
         aria-invalid={Boolean(error)}
         aria-describedby={error ? `${name}-error` : undefined}
         className={cn(
-          "mt-2 h-11 w-full rounded-xl border bg-ink-950/60 px-3.5 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-faint/70",
+          "mt-2 h-11 w-full rounded-xl border bg-ink-950/60 px-3.5 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-faint",
           error ? "border-state-danger/70" : "border-line-strong/70 focus:border-brand-400/70",
         )}
       />

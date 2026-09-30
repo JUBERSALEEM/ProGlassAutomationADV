@@ -96,6 +96,22 @@ const config: Config = {
          * miniature of the application window, where the whole mock is scaled.
          */
         "2xs": ["0.75rem", { lineHeight: "1.05rem", letterSpacing: "0.05em" }],
+        /*
+         * The size for chrome that lives *inside* a small card.
+         *
+         * A pill, a sample tag, a column heading in a preview table, a chip
+         * beside a figure: these sit in a box a third the width of a page
+         * column, and at 12px uppercase with wide tracking a row of four of
+         * them — Excel · CSV · PDF · Share cut list — reads louder than the
+         * heading above it and can wrap onto two lines. One step down, and the
+         * tracking comes in with it, which is what actually decides how much
+         * horizontal room the label takes.
+         *
+         * This is not a licence to go smaller everywhere: 2xs remains the floor
+         * for prose, captions and anything a reader is meant to read across a
+         * page. 3xs is for labels inside a card, and nothing here goes below it.
+         */
+        "3xs": ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.04em" }],
       },
       borderRadius: {
         /* Scaled by the appearance studio, so one control re-corners the site. */

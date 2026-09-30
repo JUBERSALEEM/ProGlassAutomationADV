@@ -89,7 +89,7 @@ export function ModuleBrowser() {
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search modules, e.g. tempering, VAT, traceability"
-            className="h-10 w-full rounded-xl border border-line-strong/70 bg-ink-900/70 pl-9 pr-3 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-faint/80 focus:border-brand-400/70"
+            className="h-10 w-full rounded-xl border border-line-strong/70 bg-ink-900/70 pl-9 pr-3 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-faint focus:border-brand-400/70"
           />
         </label>
       </div>

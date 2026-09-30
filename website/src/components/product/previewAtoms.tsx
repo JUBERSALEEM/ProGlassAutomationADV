@@ -13,7 +13,7 @@ import type { ReactNode } from "react";
 /** The honesty tag. Every preview carries it, without exception. */
 export function SampleTag() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong/60 bg-ink-800/70 px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong/60 bg-ink-800/70 px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">
       <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-400" />
       Sample data · live
     </span>
@@ -106,7 +106,7 @@ export function Pill({
  */
 function cnPill({ active = false, disabled = false, tone }: { active?: boolean; disabled?: boolean; tone?: "surcharge" | "floor" }) {
   const base =
-    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.6875rem] font-medium uppercase tracking-[0.1em] transition-colors duration-200";
+    "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-3xs font-medium uppercase tracking-[0.07em] transition-colors duration-200";
   const toneClass =
     tone === "surcharge"
       ? "border-money-positive/45 bg-money-positive/12 text-money-positive"
@@ -116,7 +116,7 @@ function cnPill({ active = false, disabled = false, tone }: { active?: boolean; 
   const stateClass = active
     ? "border-brand-400/60 bg-brand-400/16 text-brand-100 ring-1 ring-inset ring-brand-400/40"
     : disabled
-      ? "border-line/50 text-text-faint/60"
+      ? "border-line/50 text-text-faint"
       : "border-line-strong/60 bg-ink-800/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary";
   return [base, stateClass, toneClass].filter(Boolean).join(" ");
 }

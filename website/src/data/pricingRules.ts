@@ -137,3 +137,205 @@ export const pricingRules = [
     evidence: "SpecGroup.Part2.cs / Part3.cs · row.Sqm1 >= 4m ? SurchargeRate : BaseRate · Dg.SurchargePct",
   },
 ] as const;
+
+/* ══════════════════════════════════════════════════════════════════════════
+ * Step 4 — the glass-type panels
+ * ════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * The four build families the application supports, and the two it does not.
+ *
+ * `SpecGroup.NormalizeSupportedGlassType` accepts SGU, DGU, LAM and DGU+LAM —
+ * "only the four Step 4 build families come through; no triple glazing, and an
+ * out-of-family name degrades with a warning" (`Views/Production/README.md`).
+ * The warning is real behaviour, so the preview shows it rather than hiding the
+ * possibility: the scope is a limit worth being honest about.
+ */
+/**
+ * A dropdown value counts as "not chosen" when it is the None option.
+ *
+ * The application's own test is `!v.Equals("None", OrdinalIgnoreCase)`, but the
+ * polish list's first entry is the longer "None (Standard)", so a straight
+ * comparison against "None" lets it through and the generated name reads
+ * "6mm Clear FT None (Standard)". Starting-with is what the options actually
+ * need.
+ */
+function chosen(value: string | undefined): value is string {
+  return Boolean(value) && !value!.toLowerCase().startsWith("none");
+}
+
+export const glassBuilds = [
+  {
+    code: "SGU",
+    label: "SGU",
+    long: "Single glazed unit",
+    panes: "One pane",
+    /** What the step-4 panel asks for, in the order it asks. */
+    fields: ["Thickness", "Colour", "Treatment", "Sheet size", "Polish", "Panel extra"],
+    name: (v: Record<string, string>) =>
+      [`${v.thickness ?? "6mm"} ${v.colour ?? "Clear"} ${v.treatment ?? "FT"}`.trim(), chosen(v.polish) ? v.polish : "", chosen(v.panelExtra) ? v.panelExtra : ""]
+        .filter(Boolean)
+        .join(" "),
+  },
+  {
+    code: "DGU",
+    label: "DGU",
+    long: "Double glazed unit",
+    panes: "Outer + inner, sealed across a spacer",
+    fields: ["Outer", "ASP spacer", "Spacer extra", "Inner", "Panel extra"],
+    /**
+     * `DguParametersViewModel.GeneratedSpecName`, verbatim:
+     *   "{OuterThickness} {OuterGlassColor} {OuterTreatment} Glass
+     *    + {SpacerWidth} {SpacerExtra}
+     *    + {InnerThickness} {InnerGlassColor} {InnerTreatment} Glass {PanelExtra}"
+     */
+    name: (v: Record<string, string>) =>
+      `${v.thickness ?? "6mm"} ${v.colour ?? "Clear"} ${v.treatment ?? "FT"} Glass + ${v.spacerWidth ?? "12mm ASP"}${
+        chosen(v.spacerExtra) ? ` ${v.spacerExtra}` : ""
+      } + ${v.innerThickness ?? "6mm"} ${v.innerColour ?? "Clear"} ${v.innerTreatment ?? "FT"} Glass${
+        chosen(v.panelExtra) ? ` ${v.panelExtra}` : ""
+      }`,
+  },
+  {
+    code: "LAM",
+    label: "LAM",
+    long: "Laminated",
+    panes: "Two panes bonded across a PVB interlayer",
+    fields: ["Outer", "PVB interlayer", "Inner", "Lamination polish"],
+    /** `LamParametersViewModel.GeneratedSpecName`: outer + PVB + inner. */
+    name: (v: Record<string, string>) =>
+      `${v.thickness ?? "6mm"} ${v.colour ?? "Clear"} ${v.treatment ?? "FT"} Glass + ${v.pvb ?? "1.52mm Clear PVB"} + ${
+        v.innerThickness ?? "6mm"
+      } ${v.innerColour ?? "Clear"} ${v.innerTreatment ?? "FT"} Glass${
+        chosen(v.polish) ? ` With ${v.polish}` : ""
+      }`,
+  },
+  {
+    code: "DGU+LAM",
+    label: "DGU + LAM",
+    long: "Double glazed with a laminated inner",
+    panes: "Outer pane, spacer, then a laminated inner pair",
+    fields: ["Outer", "ASP spacer", "Laminated pair", "Interlayer", "Panel extra"],
+    /** `DguLamParametersViewModel.GeneratedSpecName`. */
+    name: (v: Record<string, string>) =>
+      `${v.thickness ?? "6mm"} ${v.colour ?? "Clear"} ${v.treatment ?? "FT"} Glass + ${v.spacerWidth ?? "12mm ASP"}${
+        chosen(v.spacerExtra) ? ` ${v.spacerExtra}` : ""
+      } + ${v.lamThickness ?? "6mm"} ${v.lamColour ?? "Clear"} ${v.lamTreatment ?? "FT"} Glass + ${
+        v.interlayer ?? "1.52mm Clear PVB"
+      } + ${v.innerThickness ?? "6mm"} ${v.innerColour ?? "Clear"} ${v.innerTreatment ?? "FT"} Glass`,
+  },
+] as const;
+
+export type GlassBuildCode = (typeof glassBuilds)[number]["code"];
+
+/** The build families this site, like the application, refuses. */
+export const unsupportedBuilds = ["Triple glazing (TGU)", "Quadruple glazing", "Vacuum glazing"] as const;
+
+/**
+ * The step-4 dropdown options, read from the parameter view-models.
+ *
+ * `SguParametersViewModel`, `DguParametersViewModel`, `LamParametersViewModel`
+ * and `DguLamParametersViewModel` each declare their own — the thicknesses,
+ * treatments and spacer widths below are those lists, not a plausible subset of
+ * them. Colour is absent on purpose: the application fills colour from Sheet
+ * Store inventory and the built-in defaults were removed by request, so the
+ * colours here are the ones the seeded sheet store actually holds.
+ */
+export const buildOptions = {
+  thickness: ["3mm", "4mm", "5mm", "6mm", "8mm", "10mm", "12mm", "15mm", "19mm"],
+  colour: ["Clear", "Bronze", "Grey", "Low-E", "Frosted"],
+  treatment: ["FT", "Annealed", "Heat Strengthened", "Heat Soaked"],
+  spacerWidth: [
+    "6mm ASP",
+    "8mm ASP",
+    "10mm ASP",
+    "12mm ASP",
+    "14mm ASP",
+    "16mm ASP",
+    "18mm ASP",
+    "20mm ASP",
+    "22mm ASP",
+    "24mm ASP",
+    "26mm ASP",
+    "28mm ASP",
+    "30mm ASP",
+    "32mm ASP",
+  ],
+  spacerMaterial: ["Normal Mill Aluminum", "Black Aluminum", "Warm Edge (Super Spacer)", "Black Warm Edge", "Stainless Steel", "TGI Spacer"],
+  spacerExtra: ["None", "With U-Insert", "With U-Insert As Per DWG"],
+  panelExtra: [
+    "None",
+    "With Overlap",
+    "With Overlap As Per DWG",
+    "With Overlap (SQM)",
+    "With Fanhole",
+    "With Cutout",
+    "With Holes",
+    "With Argon Gas",
+    "With Shutter Bonding",
+  ],
+  polish: ["None (Standard)", "Polished", "Polished Matched LAM", "Edge Grinding"],
+} as const;
+
+/**
+ * What the Step 4 selection is worth per square metre, over the sheet store.
+ *
+ * The estimator does not invent a price: it takes the outer sheet's own rate out
+ * of Sheet Store and adds the inner pane and the spacer on top, which is why a
+ * DGU costs more than the same outer pane on its own and why switching the
+ * build visibly moves the base rate the specification opens on. The three
+ * figures are the shop's adders for the inner pane, the laminated pair and the
+ * ASP, over the outer sheet rate.
+ */
+export const buildRateAdders = {
+  /** Extra per m² over the outer sheet rate for the second pane. */
+  innerPane: 0.62,
+  /** Extra for the laminated pair's interlayer and second bond. */
+  lamination: 0.38,
+  /** The ASP spacer bar and its corner keys, per m² of unit. */
+  spacer: 0.18,
+} as const;
+
+/** The outer sheet rate each build starts from, per the seeded sheet store. */
+export const outerSheetRates: Record<string, number> = {
+  "3mm": 70,
+  "4mm": 82,
+  "5mm": 88,
+  "6mm": 95,
+  "8mm": 120,
+  "10mm": 140,
+  "12mm": 165,
+  "15mm": 205,
+  "19mm": 265,
+};
+
+/**
+ * The selling rate a Step 4 selection produces, per square metre.
+ *
+ * Outer sheet at its purchase rate, then a build-up by family: a second pane for
+ * a DGU, an interlayer for a laminate, both for a DGU + LAM, and the spacer for
+ * anything sealed. It is the same shape as the estimator's own total — a
+ * material cost with the shop's margin on it — and it is deliberately simple,
+ * because it exists to show that *changing the glass type changes the price*,
+ * which is the thing that was missing.
+ */
+export function step4RatePerSqm(code: GlassBuildCode, thickness: string, colour: string, withSpacer: boolean): number {
+  const base = outerSheetRates[thickness] ?? 95;
+  /* Tinted and Low-E sheets cost more than clear, straight out of the store. */
+  const colourFactor =
+    colour === "Low-E" ? 1.9 : colour === "Bronze" || colour === "Grey" ? 1.16 : colour === "Frosted" ? 1.37 : 1;
+  const sheet = base * colourFactor;
+
+  switch (code) {
+    case "SGU":
+      return moneyRate(sheet * 1.58);
+    case "DGU":
+      return moneyRate(sheet * (1 + buildRateAdders.innerPane) * (withSpacer ? 1 + buildRateAdders.spacer : 1) * 1.58);
+    case "LAM":
+      return moneyRate(sheet * (1 + buildRateAdders.lamination) * 1.58);
+    case "DGU+LAM":
+      return moneyRate(sheet * (1 + buildRateAdders.innerPane + buildRateAdders.lamination) * (withSpacer ? 1 + buildRateAdders.spacer : 1) * 1.58);
+    default:
+      return moneyRate(sheet * 1.58);
+  }
+}

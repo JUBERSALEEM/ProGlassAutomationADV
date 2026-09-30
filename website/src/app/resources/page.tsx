@@ -113,7 +113,7 @@ export default function ResourcesPage() {
                 <div className="mt-7 grid gap-6 border-t border-line/60 pt-7 lg:grid-cols-2">
                   {guide.sections.map((section) => (
                     <div key={section.heading}>
-                      <h4 className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300/85">
+                      <h4 className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
                         {section.heading}
                       </h4>
                       <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{section.body}</p>

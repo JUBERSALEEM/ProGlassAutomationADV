@@ -5,6 +5,11 @@ import { Pill, SampleTag } from "@/components/product/previewAtoms";
 import { money, sheetForRef } from "@/data/workedExample";
 import {
   billablePanelSqm,
+  buildOptions,
+  glassBuilds,
+  step4RatePerSqm,
+  unsupportedBuilds,
+  type GlassBuildCode,
   isFloored,
   MIN_PANEL_SQM,
   moneyRate,
@@ -66,8 +71,24 @@ export type SpecRowInput = {
   w2: number;
   h2: number;
   qty: number;
-  /** `GlassItemRow.Rate` as saved on the document. */
+  /**
+   * `GlassItemRow.Rate` as saved on the document.
+   *
+   * The grid opens on the specification's base rate — one rate for the whole
+   * specification, which is what the screen actually shows. `UpdateAllRowRates`
+   * writes that figure down every row every time BASE or SURCHARGE % moves, so
+   * a specification does not hold a different price per line: it holds one
+   * price, and the rows that reach 4 m² take the surcharge rate instead.
+   */
   rate: number;
+  /**
+   * `GlassItemRow.SuppressRateAutoAdjust` — set the moment somebody types a rate
+   * into the RATE cell by hand. From then on the row keeps that figure whatever
+   * BASE, SURCHARGE % or its own dimensions do, which is why a saved quotation's
+   * manually-priced lines survive a reload. `null` means "follow the
+   * specification", and the two rules apply again.
+   */
+  rateOverride?: number | null;
 };
 
 export type SpecBlockInput = {
@@ -150,8 +171,6 @@ export function SpecificationSurface({
   }
   /** Serial of each row a person has touched, so the rate switch is explained. */
   const [edited, setEdited] = useState<Record<string, boolean>>({});
-  /** Rows a person typed a rate over directly — the app leaves these alone. */
-  const [locked, setLocked] = useState<Record<string, boolean>>({});
   /**
    * `Dg.GenerateRows` — how many rows `GENERATE` adds.
    *
@@ -184,15 +203,67 @@ export function SpecificationSurface({
 
   const block = blocks[active] ?? blocks[0]!;
   const rows = block.rows;
+  /** DGU, LAM and DGU + LAM have an inner pane; SGU does not. */
+  const hasInnerPane = block.glassType !== "SGU";
+
+  /**
+   * The Step 4 selection behind the specification — the panel above the grid.
+   *
+   * A specification is not just a rate: it is a *build*. Switching SGU → DGU →
+   * LAM → DGU + LAM changes which panes the rows carry (a DGU has an outer and
+   * an inner, so W2/H2 come alive), what the generated specification name says
+   * (the application composes it from the panel fields — `DguParametersViewModel
+   * .GeneratedSpecName` is `"{outer} + {spacer} + {inner}"`), and what the base
+   * rate opens at, because the estimator prices the inner pane and the spacer on
+   * top of the outer sheet's own rate.
+   *
+   * That is the piece that was missing: the glass type used to be a dropdown
+   * that changed a word and nothing else.
+   */
+  const [build, setBuild] = useState<Record<string, string>>({
+    thickness: "6mm",
+    colour: "Clear",
+    treatment: "FT",
+    innerThickness: "6mm",
+    innerColour: "Clear",
+    innerTreatment: "FT",
+    spacerWidth: "12mm ASP",
+    spacerMaterial: "Normal Mill Aluminum",
+    spacerExtra: "None",
+    panelExtra: "None",
+    pvb: "1.52mm Clear PVB",
+    lamThickness: "6mm",
+    lamColour: "Clear",
+    lamTreatment: "FT",
+    interlayer: "1.52mm Clear PVB",
+    polish: "None (Standard)",
+  });
 
   /* ── the arithmetic ────────────────────────────────────────────────── */
 
+  /*
+   * The one place a row's price is decided.
+   *
+   * `effective` is `SuppressRateAutoAdjust ? typed rate : Sqm1 >= 4 ? SurchargeRate : BaseRate`
+   * — the application's own expression. Every figure on the screen is read from
+   * this map, so there is no second copy of the arithmetic to fall out of step
+   * with it: type a panel past 4 m² and the RATE, the VALUE, the footer and the
+   * banner all move in the same frame, because they are all the same number.
+   *
+   * Before this, the RATE column showed the live `rowRate` while the VALUE
+   * column multiplied by the row's stored rate. The two only agreed until
+   * somebody typed into the grid — which is exactly the state a visitor reaches
+   * in about four seconds, and the reason the base rate and the surcharge looked
+   * like they were not applying.
+   */
   const priced = useMemo(
     () =>
       rows.map((row) => {
         const physical = physicalPanelSqm(row.w1, row.h1);
         const billable = billablePanelSqm(row.w1, row.h1);
-        const rate = rowRate(block.baseRate, block.surchargePercent, billable);
+        const specRate = rowRate(block.baseRate, block.surchargePercent, billable);
+        const overridden = typeof row.rateOverride === "number";
+        const effective = overridden ? moneyRate(row.rateOverride as number) : specRate;
         const totalSqm = billable * row.qty;
         return {
           ...row,
@@ -200,9 +271,13 @@ export function SpecificationSurface({
           billable,
           floored: isFloored(row.w1, row.h1),
           surcharged: surchargeApplies(billable),
-          target: rate,
+          overridden,
+          /** What the two rules say this row should cost, override or not. */
+          specRate,
+          /** What it is actually charged at — what the RATE cell prints. */
+          effective,
           totalSqm,
-          value: money(totalSqm * row.rate),
+          value: money(totalSqm * effective),
           cost: (sheetForRef(row.ref)?.purchase ?? 0) * totalSqm,
         };
       }),
@@ -239,10 +314,14 @@ export function SpecificationSurface({
       entry.rows.reduce(
         (sum, row) => {
           const billable = billablePanelSqm(row.w1, row.h1);
+          const effective =
+            typeof row.rateOverride === "number"
+              ? moneyRate(row.rateOverride)
+              : rowRate(entry.baseRate, entry.surchargePercent, billable);
           return {
             qty: sum.qty + row.qty,
             sqm: sum.sqm + billable * row.qty,
-            value: sum.value + money(billable * row.qty * row.rate),
+            value: sum.value + money(billable * row.qty * effective),
           };
         },
         { qty: 0, sqm: 0, value: 0 },
@@ -288,6 +367,7 @@ export function SpecificationSurface({
       h2: 0,
       qty: 1,
       rate: block.baseRate,
+      rateOverride: null,
     }));
     setBlocks((current) =>
       current.map((entry, index) => (index === active ? { ...entry, rows: [...entry.rows, ...added] } : entry)),
@@ -495,7 +575,7 @@ export function SpecificationSurface({
    * applies it: on the row whose size changed, and only if a person has not
    * typed a rate over it by hand (`SuppressRateAutoAdjust`).
    */
-  function editRow(serial: number, patch: Partial<Pick<SpecRowInput, "w1" | "h1" | "qty">>) {
+  function editRow(serial: number, patch: Partial<Pick<SpecRowInput, "w1" | "h1" | "w2" | "h2" | "qty">>) {
     setBlocks((current) =>
       current.map((entry, index) => {
         if (index !== active) return entry;
@@ -504,9 +584,15 @@ export function SpecificationSurface({
           rows: entry.rows.map((row) => {
             if (row.serial !== serial) return row;
             const next = { ...row, ...patch };
-            if (locked[String(serial)]) return next;
+            /*
+             * A row that was typed over by hand keeps its price only while its
+             * dimensions are left alone. Resizing it puts it back under the two
+             * rules — the same thing the application does when a size edit
+             * arrives, and the reason the rate visibly switches on the row you
+             * are editing rather than silently staying put.
+             */
             const billable = billablePanelSqm(next.w1, next.h1);
-            return { ...next, rate: rowRate(entry.baseRate, entry.surchargePercent, billable) };
+            return { ...next, rate: rowRate(entry.baseRate, entry.surchargePercent, billable), rateOverride: null };
           }),
         };
       }),
@@ -525,32 +611,146 @@ export function SpecificationSurface({
     );
   }
 
+  /**
+   * The specification's generated name, composed the way the panel composes it.
+   *
+   * Read from `glassBuilds`, whose `name` functions are the four view-models'
+   * own `GeneratedSpecName` expressions — so the string on screen is built by
+   * the same rule as the string in the application, field order included.
+   */
+  const generatedName = useMemo(() => {
+    const entry = glassBuilds.find((build2) => build2.code === block.glassType);
+    return entry ? entry.name(build) : block.name;
+  }, [block.glassType, block.name, build]);
+
+  /**
+   * `SelectGlassTypeCard` + `ApplyStep4PricingSnapshot` — switch the build.
+   *
+   * Three things move together, which is the whole point of the handoff:
+   *
+   *   the type      the specification is now an SGU / DGU / LAM / DGU+LAM
+   *   the rate      re-derived from the sheet the outer pane is cut from, plus
+   *                 the inner pane and spacer the build adds
+   *   the rows      a build that has no second pane clears W2/H2 rather than
+   *                 leaving stale figures in columns the grid is no longer
+   *                 showing, and every row re-prices from the new base
+   *
+   * A row typed over by hand is cleared here too, because the application clears
+   * the manual markers on a Step 4 handoff: the specification was re-specified,
+   * so its prices are the specification's again.
+   */
+  function selectBuild(code: GlassBuildCode) {
+    const rate = step4RatePerSqm(
+      code,
+      build.thickness ?? "6mm",
+      build.colour ?? "Clear",
+      code === "DGU" || code === "DGU+LAM",
+    );
+    const carriesInner = code === "DGU" || code === "LAM" || code === "DGU+LAM";
+    const sealed = code === "DGU" || code === "DGU+LAM";
+    setBlocks((current) =>
+      current.map((entry, index) => {
+        if (index !== active) return entry;
+        return {
+          ...entry,
+          glassType: code,
+          baseRate: rate,
+          rows: entry.rows.map((row) => ({
+            ...row,
+            w2: carriesInner ? row.w2 : 0,
+            h2: carriesInner ? row.h2 : 0,
+            rateOverride: null,
+            rate: rowRate(rate, entry.surchargePercent, billablePanelSqm(row.w1, row.h1)),
+          })),
+        };
+      }),
+    );
+    setStatus(
+      `Glass type set to ${code}. Base rate re-derived to ${cash(rate)} /m² from the ${build.thickness} ${build.colour} outer sheet${
+        sealed ? `, the inner pane and the ${build.spacerWidth}` : code === "LAM" ? ", the PVB interlayer and the inner pane" : ""
+      }. ${
+        carriesInner ? "W2 / H2 are live on every row" : "W2 / H2 cleared — a single pane has no second pane to cut"
+      }, all ${block.rows.length} rows re-priced at the new base, and the generated specification name is now “${glassBuilds.find((entry) => entry.code === code)?.name(build) ?? ""}”.`,
+    );
+  }
+
+  function editBuild(patch: Record<string, string>) {
+    const next = { ...build, ...patch };
+    setBuild(next);
+    const code = block.glassType as GlassBuildCode;
+    const rate = step4RatePerSqm(code, next.thickness ?? "6mm", next.colour ?? "Clear", code === "DGU" || code === "DGU+LAM");
+    setBlocks((current) =>
+      current.map((entry, index) =>
+        index !== active
+          ? entry
+          : {
+              ...entry,
+              baseRate: rate,
+              rows: entry.rows.map((row) => ({
+                ...row,
+                rateOverride: null,
+                rate: rowRate(rate, entry.surchargePercent, billablePanelSqm(row.w1, row.h1)),
+              })),
+            },
+      ),
+    );
+    setStatus(
+      `Panel updated — ${Object.keys(patch)[0]} set to ${Object.values(patch)[0]}. The base rate is now ${cash(rate)} /m² and every row has re-priced. The generated specification name follows the panel, so the document and the panel say the same thing.`,
+    );
+  }
+
   function editRate(serial: number, value: number) {
     setBlocks((current) =>
       current.map((entry, index) =>
         index !== active
           ? entry
-          : { ...entry, rows: entry.rows.map((row) => (row.serial === serial ? { ...row, rate: value } : row)) },
+          : {
+              ...entry,
+              rows: entry.rows.map((row) => (row.serial === serial ? { ...row, rate: value, rateOverride: value } : row)),
+            },
       ),
     );
-    setLocked((current) => ({ ...current, [String(serial)]: true }));
-    setStatus(`Rate typed over on ${rows.find((row) => row.serial === serial)?.ref}. The application leaves a typed rate alone until the size changes again.`);
+    const row = rows.find((entry) => entry.serial === serial);
+    const specRate = row ? rowRate(block.baseRate, block.surchargePercent, billablePanelSqm(row.w1, row.h1)) : 0;
+    setStatus(
+      `${row?.ref ?? "Row"} typed over to ${cash(value)} — ${
+        Math.abs(value - specRate) < 0.005 ? "the same as" : value > specRate ? "above" : "below"
+      } the ${cash(specRate)} the specification's own rules would charge. The application leaves a typed rate alone until the size changes again, and moving BASE or SURCHARGE % clears it back to the rules.`,
+    );
   }
 
-  /** `UpdateAllRowRates` — a change to BASE or SURCHARGE % re-prices every row. */
+  /**
+   * `UpdateAllRowRates` — a change to BASE or SURCHARGE % re-prices every row.
+   *
+   * This is the behaviour that was missing: the two fields at the top of the
+   * specification are the specification's price, and moving either one writes
+   * the recalculated rate down every row that has not been typed over. So the
+   * RATE column, the VALUE column, the footer totals and the profit-and-loss
+   * screen all move on the keystroke — and only the rows that have actually
+   * reached 4 m² take the surcharge rate, because the switch is evaluated per
+   * row against that row's own billable area.
+   */
   function editBlock(patch: Partial<Pick<SpecBlockInput, "baseRate" | "surchargePercent">>) {
-    setLocked({});
-    setBlocks((current) => current.map((entry, index) => (index === active ? { ...entry, ...patch } : entry)));
     const next = { ...block, ...patch };
-    const moved = block.rows.filter((row) => {
-      const billable = billablePanelSqm(row.w1, row.h1);
-      return (
-        rowRate(next.baseRate, next.surchargePercent, billable) !==
-        rowRate(block.baseRate, block.surchargePercent, billable)
-      );
-    }).length;
+    setBlocks((current) =>
+      current.map((entry, index) => {
+        if (index !== active) return entry;
+        return {
+          ...entry,
+          ...patch,
+          rows: entry.rows.map((row) => ({
+            ...row,
+            rateOverride: null,
+            rate: rowRate(next.baseRate, next.surchargePercent, billablePanelSqm(row.w1, row.h1)),
+          })),
+        };
+      }),
+    );
+    const onSurcharge = block.rows.filter((row) => surchargeApplies(billablePanelSqm(row.w1, row.h1))).length;
     setStatus(
-      `Specification ${block.number}: base ${next.baseRate.toFixed(2)}, surcharge ${next.surchargePercent}%. Every row re-priced — ${moved} of ${block.rows.length} changed. A row's rate becomes the base rate, or the surcharge rate once its panel reaches ${SURCHARGE_THRESHOLD_SQM} m².`,
+      `Specification ${block.number} re-priced — base ${cash(next.baseRate)}, surcharge ${next.surchargePercent}%. One rate for the whole specification; the ${
+        onSurcharge === 1 ? "1 row" : `${onSurcharge} rows`
+      } at or above ${SURCHARGE_THRESHOLD_SQM} m² now price at ${cash(next.baseRate * (1 + next.surchargePercent / 100))}. Every row, the totals and the profit-and-loss figure above moved with it.`,
     );
   }
 
@@ -558,7 +758,6 @@ export function SpecificationSurface({
     setBlocks(spec.blocks);
     setActive(0);
     setEdited({});
-    setLocked({});
     setRun(null);
     setShowResult(false);
     setStatus(`Inquiry BOQ re-read: ${spec.blocks[0]?.rows.length ?? 0} rows on specification 1, with the rates the document was saved with. Your edits are discarded.`);
@@ -585,6 +784,7 @@ export function SpecificationSurface({
       h2: 0,
       qty: 1,
       rate: block.baseRate,
+      rateOverride: null,
     };
     setBlocks((current) =>
       current.map((entry, index) => (index === active ? { ...entry, rows: [...entry.rows, row] } : entry)),
@@ -663,7 +863,7 @@ export function SpecificationSurface({
             )}
             <div>
               <p className="text-[0.8125rem] font-semibold text-text-primary">{block.name}</p>
-              <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
                 Specification {block.number}
                 {block.primary ? " · from the inquiry BOQ" : " · added in this preview"}
               </p>
@@ -682,27 +882,176 @@ export function SpecificationSurface({
           </div>
         </div>
 
+        {/*
+          ── Step 4 — the build, and the panes it is made of ─────────────
+          The four build families are buttons, because switching between them is
+          the thing worth doing: SGU has one pane, DGU and DGU + LAM add an inner
+          pane and a spacer, LAM bonds two panes across PVB. Pick one and the
+          base rate, the pane columns and the generated specification name all
+          follow. Underneath it, the panel the application shows for that build —
+          the outer pane, the inner pane, and the ASP spacer with its material
+          and its U-insert variant.
+        */}
+        <div className="mt-3 rounded-xl border border-line/60 bg-ink-950/40 p-2.5">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
+              Step 4 · glass type and panes
+            </p>
+            <p className="text-[0.6875rem] font-medium text-text-faint">
+              {glassBuilds.find((entry) => entry.code === block.glassType)?.panes ?? ""} ·{" "}
+              {glassBuilds.find((entry) => entry.code === block.glassType)?.long ?? ""}
+            </p>
+          </div>
+
+          <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label="Glass type">
+            {glassBuilds.map((entry) => (
+              <button
+                key={entry.code}
+                type="button"
+                aria-pressed={block.glassType === entry.code}
+                onClick={() => selectBuild(entry.code)}
+                title={`${entry.long} — ${entry.panes}`}
+                className={cn(
+                  "rounded-lg border px-2.5 py-1 text-[0.75rem] font-semibold transition-colors duration-200",
+                  block.glassType === entry.code
+                    ? "border-brand-400/60 bg-brand-400/16 text-brand-100"
+                    : "border-line-strong/60 bg-ink-900/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
+                )}
+              >
+                {entry.label}
+              </button>
+            ))}
+            {unsupportedBuilds.map((name) => (
+              <span
+                key={name}
+                title={`${name} is not one of the four build families the application supports. An out-of-family name degrades with a warning rather than being priced silently.`}
+                className="cursor-not-allowed rounded-lg border border-line/40 bg-ink-900/30 px-2.5 py-1 text-[0.75rem] font-medium text-text-faint line-through"
+              >
+                {name.split(" (")[0]}
+              </span>
+            ))}
+          </div>
+
+          {/*
+            What the *other* three families bring, said on screen.
+            The inner pane, the ASP spacer and the PVB interlayer only have a
+            control when the build under them has one — that is how the desktop
+            Step 4 panel works — so with SGU selected a visitor sees the outer
+            pane and nothing telling them where the inner one went. One line
+            under the buttons answers that without pretending an SGU has a
+            spacer it does not have.
+          */}
+          <p className="mt-1.5 text-[0.6875rem] font-medium text-text-faint">
+            {block.glassType === "SGU"
+              ? "SGU is a single pane. Choose DGU or DGU + LAM for the inner pane and the ASP spacer, or LAM for the PVB interlayer — the panel below grows those controls with the build."
+              : block.glassType === "LAM"
+                ? "LAM bonds the outer pane to the inner one across PVB. There is no cavity, so no spacer: the interlayer and the inner pane are the controls below."
+                : "The inner pane and the ASP spacer belong to this build — their thickness, colour, width, material and U-insert variant are all selectable below."}
+          </p>
+
+          {/* The generated name, exactly as the panel composes it. */}
+          <p className="mt-2 flex flex-wrap items-baseline gap-2 rounded-lg border border-line/50 bg-ink-900/50 px-2.5 py-1.5">
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Spec</span>
+            <span className="font-mono text-[0.8125rem] font-semibold text-brand-100">{generatedName}</span>
+          </p>
+
+          <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <BuildSelect
+              label="Outer thickness"
+              value={build.thickness ?? "6mm"}
+              options={buildOptions.thickness}
+              onChange={(value) => editBuild({ thickness: value })}
+            />
+            <BuildSelect label="Outer colour" value={build.colour ?? "Clear"} options={buildOptions.colour} onChange={(value) => editBuild({ colour: value })} />
+            <BuildSelect
+              label="Outer treatment"
+              value={build.treatment ?? "FT"}
+              options={buildOptions.treatment}
+              onChange={(value) => editBuild({ treatment: value })}
+            />
+
+            {block.glassType === "SGU" ? (
+              <BuildSelect label="Polish" value={build.polish ?? "None (Standard)"} options={buildOptions.polish} onChange={(value) => editBuild({ polish: value })} />
+            ) : (
+              <BuildSelect
+                label="Inner thickness"
+                value={build.innerThickness ?? "6mm"}
+                options={buildOptions.thickness}
+                onChange={(value) => editBuild({ innerThickness: value })}
+              />
+            )}
+
+            {block.glassType === "DGU" || block.glassType === "DGU+LAM" ? (
+              <>
+                <BuildSelect
+                  label="Inner colour"
+                  value={build.innerColour ?? "Clear"}
+                  options={buildOptions.colour}
+                  onChange={(value) => editBuild({ innerColour: value })}
+                />
+                <BuildSelect
+                  label="Inner treatment"
+                  value={build.innerTreatment ?? "FT"}
+                  options={buildOptions.treatment}
+                  onChange={(value) => editBuild({ innerTreatment: value })}
+                />
+                <BuildSelect
+                  label="Spacer width"
+                  value={build.spacerWidth ?? "12mm ASP"}
+                  options={buildOptions.spacerWidth}
+                  onChange={(value) => editBuild({ spacerWidth: value })}
+                />
+                <BuildSelect
+                  label="Spacer material"
+                  value={build.spacerMaterial ?? "Normal Mill Aluminum"}
+                  options={buildOptions.spacerMaterial}
+                  onChange={(value) => editBuild({ spacerMaterial: value })}
+                />
+                <BuildSelect
+                  label="Spacer extra"
+                  value={build.spacerExtra ?? "None"}
+                  options={buildOptions.spacerExtra}
+                  onChange={(value) => editBuild({ spacerExtra: value })}
+                />
+              </>
+            ) : null}
+
+            {block.glassType === "LAM" || block.glassType === "DGU+LAM" ? (
+              <>
+                <BuildSelect
+                  label={block.glassType === "LAM" ? "PVB interlayer" : "Lam interlayer"}
+                  value={block.glassType === "LAM" ? build.pvb ?? "1.52mm Clear PVB" : build.interlayer ?? "1.52mm Clear PVB"}
+                  options={["0.38mm Clear PVB", "0.76mm Clear PVB", "1.52mm Clear PVB", "1.52mm Grey PVB", "1.52mm White PVB"]}
+                  onChange={(value) => editBuild(block.glassType === "LAM" ? { pvb: value } : { interlayer: value })}
+                />
+                <BuildSelect
+                  label="Lamination polish"
+                  value={build.polish ?? "None (Standard)"}
+                  options={buildOptions.polish}
+                  onChange={(value) => editBuild({ polish: value })}
+                />
+              </>
+            ) : null}
+
+            <BuildSelect
+              label="Panel extra"
+              value={build.panelExtra ?? "None"}
+              options={buildOptions.panelExtra}
+              onChange={(value) => editBuild({ panelExtra: value })}
+            />
+          </div>
+
+          <p className="mt-2 text-[0.6875rem] leading-snug text-text-muted font-medium">
+            The outer sheet rate comes from the sheet store — {cash(step4RatePerSqm(block.glassType as GlassBuildCode, build.thickness ?? "6mm", build.colour ?? "Clear", block.glassType === "DGU" || block.glassType === "DGU+LAM"))} / m² on
+            this build. Changing any field above re-derives the specification&apos;s base rate and re-prices every row, the way
+            <span className="mx-1 font-mono">ApplyStep4PricingSnapshot</span>
+            does on the Continue button.
+          </p>
+        </div>
+
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block">
-            <span className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Glass type</span>
-            <select
-              value={block.glassType}
-              onChange={(event) =>
-                setBlocks((current) =>
-                  current.map((entry, index) => (index === active ? { ...entry, glassType: event.target.value } : entry)),
-                )
-              }
-              className="mt-1 w-full rounded-lg border border-line-strong/60 bg-ink-950/70 px-2 py-1.5 text-[0.8125rem] text-text-primary outline-none focus:border-brand-400/60"
-            >
-              {block.glassTypes.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block">
-            <span className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Base rate</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Base rate</span>
             <input
               type="number"
               step="1"
@@ -713,7 +1062,7 @@ export function SpecificationSurface({
             />
           </label>
           <label className="block">
-            <span className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Surcharge %</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Surcharge %</span>
             <input
               type="number"
               step="1"
@@ -724,7 +1073,7 @@ export function SpecificationSurface({
             />
           </label>
           <div className="rounded-lg border border-line/60 bg-ink-950/50 px-2 py-1.5">
-            <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+            <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
               Rate at {SURCHARGE_THRESHOLD_SQM} m²
             </p>
             <p className="mt-1 font-mono text-[0.875rem] font-semibold tabular-nums text-money-positive">
@@ -784,7 +1133,7 @@ export function SpecificationSurface({
       {replaceOpen ? (
         <div className="flex flex-wrap items-end gap-2 rounded-xl border border-line/60 bg-ink-900/50 p-2.5">
           <label className="block">
-            <span className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Find</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Find</span>
             <input
               value={find}
               onChange={(event) => setFind(event.target.value)}
@@ -793,7 +1142,7 @@ export function SpecificationSurface({
             />
           </label>
           <label className="block">
-            <span className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Replace with</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Replace with</span>
             <input
               value={replaceWith}
               onChange={(event) => setReplaceWith(event.target.value)}
@@ -817,7 +1166,7 @@ export function SpecificationSurface({
             <p className="mb-1.5 text-[0.6875rem] leading-snug text-text-muted font-medium">{clipboardNote}</p>
           ) : null}
           <label className="block">
-            <span className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
               Paste REF · W1 · H1 · W2 · H2 · QTY — one row per line, fields separated by tabs, commas or two spaces
             </span>
             <textarea
@@ -868,7 +1217,7 @@ export function SpecificationSurface({
                   key={heading}
                   scope="col"
                   className={cn(
-                    "whitespace-nowrap px-2.5 py-2 font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint font-medium",
+                    "whitespace-nowrap px-2.5 py-2 font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium",
                     index >= 2 && index !== 4 && index !== 5 ? "text-right" : "",
                   )}
                 >
@@ -890,12 +1239,23 @@ export function SpecificationSurface({
                 <td className="whitespace-nowrap px-2.5 py-1.5 font-mono text-[0.75rem] text-text-secondary">{row.ref}</td>
                 <NumCell value={row.w1} onChange={(value) => editRow(row.serial, { w1: value })} label={`Width 1 for ${row.ref}`} />
                 <NumCell value={row.h1} onChange={(value) => editRow(row.serial, { h1: value })} label={`Height 1 for ${row.ref}`} />
-                <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint/80 tabular-nums">
-                  {row.w2 > 0 ? row.w2 : "—"}
-                </td>
-                <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint/80 tabular-nums">
-                  {row.h2 > 0 ? row.h2 : "—"}
-                </td>
+                {/*
+                  W2 / H2 are the inner pane. On a single-glazed specification
+                  there is no inner pane to type into, so the cells print the dash
+                  the grid prints — and on a DGU, LAM or DGU+LAM they are live,
+                  because the build has a second pane and the floor has to cut it.
+                */}
+                {hasInnerPane ? (
+                  <>
+                    <NumCell value={row.w2} onChange={(value) => editRow(row.serial, { w2: value, h2: row.h2 })} label={`Inner width for ${row.ref}`} />
+                    <NumCell value={row.h2} onChange={(value) => editRow(row.serial, { h2: value, w2: row.w2 })} label={`Inner height for ${row.ref}`} />
+                  </>
+                ) : (
+                  <>
+                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint tabular-nums">—</td>
+                    <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-faint tabular-nums">—</td>
+                  </>
+                )}
                 <NumCell
                   value={row.qty}
                   onChange={(value) => editRow(row.serial, { qty: value })}
@@ -923,17 +1283,35 @@ export function SpecificationSurface({
                     type="number"
                     step="0.01"
                     min="0"
-                    value={row.rate}
+                    /*
+                      The cell shows the rate the row is actually charged at, and
+                      shows it immediately: a size typed past 4 m² swaps this
+                      figure for the surcharge rate in the same frame, because it
+                      is read from `effective` rather than from the stored
+                      `rate`. Typing here is a manual override, and the chip
+                      beside it says so — the application keeps a typed rate
+                      until the dimensions move again.
+                    */
+                    value={row.effective}
                     onChange={(event) => editRate(row.serial, Number(event.target.value))}
                     aria-label={`Rate for ${row.ref}`}
                     className={cn(
                       "w-20 rounded-md border bg-ink-950/70 px-1.5 py-0.5 text-right font-mono text-[0.75rem] tabular-nums outline-none",
-                      row.surcharged
-                        ? "border-money-positive/50 text-money-positive focus:border-money-positive/70"
-                        : "border-line-strong/50 text-text-secondary focus:border-brand-400/60",
+                      row.overridden
+                        ? "border-brand-400/60 text-brand-100 focus:border-brand-400/80"
+                        : row.surcharged
+                          ? "border-money-positive/50 text-money-positive focus:border-money-positive/70"
+                          : "border-line-strong/50 text-text-secondary focus:border-brand-400/60",
                     )}
                   />
-                  {row.surcharged ? (
+                  {row.overridden ? (
+                    <span
+                      className="ml-1.5 rounded-full border border-brand-400/50 bg-brand-400/12 px-1.5 py-px font-mono text-[0.625rem] uppercase tracking-[0.08em] text-brand-100"
+                      title={`Typed over by hand — SuppressRateAutoAdjust. The specification's own rules would charge ${cash(row.specRate)} on this panel.`}
+                    >
+                      manual
+                    </span>
+                  ) : row.surcharged ? (
                     <span
                       className="ml-1.5 rounded-full border border-money-positive/45 bg-money-positive/12 px-1.5 py-px font-mono text-[0.625rem] uppercase tracking-[0.08em] text-money-positive"
                       title={`Panel reaches ${SURCHARGE_THRESHOLD_SQM} m², so the row prices at SurchargeRate — base ${cash(block.baseRate)} + ${block.surchargePercent}%.`}
@@ -981,14 +1359,14 @@ export function SpecificationSurface({
                     type="button"
                     onClick={generateRows}
                     title="Generate that many rows. `Dg.Generate`."
-                    className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.1em] font-medium text-text-muted transition-colors hover:border-brand-400/40 hover:text-text-primary"
+                    className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.08em] font-medium text-text-muted transition-colors hover:border-brand-400/40 hover:text-text-primary"
                   >
                     Generate
                   </button>
                   <button
                     type="button"
                     onClick={addRow}
-                    className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.1em] font-medium text-text-muted transition-colors hover:border-brand-400/40 hover:text-text-primary"
+                    className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.08em] font-medium text-text-muted transition-colors hover:border-brand-400/40 hover:text-text-primary"
                   >
                     + Add row
                   </button>
@@ -1004,7 +1382,7 @@ export function SpecificationSurface({
               <td className="px-2.5 py-2 text-right font-mono text-[0.75rem] font-semibold text-text-primary tabular-nums">
                 {totals.sqm.toFixed(2)}
               </td>
-              <td className="px-2.5 py-2 text-right font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint">Total</td>
+              <td className="px-2.5 py-2 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint">Total</td>
               <td className="px-2.5 py-2 text-right font-mono text-[0.8125rem] font-semibold text-text-primary tabular-nums">
                 {aed(totals.value)}
               </td>
@@ -1023,7 +1401,7 @@ export function SpecificationSurface({
       {phase ? (
         <div className="rounded-xl border border-brand-400/40 bg-brand-400/8 px-3 py-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] font-medium text-brand-200">
+            <p className="font-mono text-3xs uppercase tracking-[0.08em] font-medium text-brand-200">
               Optimization running…
             </p>
             <p className="font-mono text-[0.75rem] font-semibold tabular-nums text-brand-100">
@@ -1091,7 +1469,7 @@ export function SpecificationSurface({
       {run && showResult ? (
         <div className="rounded-xl border border-line/60 bg-ink-900/50 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+            <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
               Optimization result · summary
             </p>
             <p className="font-mono text-[0.6875rem] text-text-faint">
@@ -1140,7 +1518,7 @@ export function SpecificationSurface({
       */}
       <div className="rounded-xl border border-line/60 bg-ink-900/50 p-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+          <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
             Grand total summary
           </p>
           <p className="text-[0.6875rem] text-text-faint font-medium">
@@ -1154,16 +1532,16 @@ export function SpecificationSurface({
           </caption>
           <thead>
             <tr className="border-b border-line/60">
-              <th scope="col" className="px-2 py-1.5 font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint font-medium">
+              <th scope="col" className="px-2 py-1.5 font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
                 Spec group
               </th>
-              <th scope="col" className="px-2 py-1.5 text-right font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint font-medium">
+              <th scope="col" className="px-2 py-1.5 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
                 Qty
               </th>
-              <th scope="col" className="px-2 py-1.5 text-right font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint font-medium">
+              <th scope="col" className="px-2 py-1.5 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
                 Total sqm
               </th>
-              <th scope="col" className="px-2 py-1.5 text-right font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint font-medium">
+              <th scope="col" className="px-2 py-1.5 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
                 Value
               </th>
             </tr>
@@ -1260,7 +1638,7 @@ function NumCell({
 function RuleNote({ label, body }: { label: string; body: string }) {
   return (
     <div className="rounded-xl border border-line/50 bg-ink-900/40 px-3 py-2">
-      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">{label}</p>
+      <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{label}</p>
       <p className="mt-1 text-[0.75rem] leading-relaxed text-text-muted font-medium">{body}</p>
     </div>
   );
@@ -1269,7 +1647,7 @@ function RuleNote({ label, body }: { label: string; body: string }) {
 function ReadOutMini({ label, value, note }: { label: string; value: string; note: string }) {
   return (
     <div className="rounded-lg border border-line/50 bg-ink-950/50 px-2.5 py-2">
-      <p className="font-mono text-[0.625rem] uppercase tracking-[0.1em] text-text-faint font-medium">{label}</p>
+      <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{label}</p>
       <p className="mt-0.5 text-[0.875rem] font-semibold tabular-nums text-text-primary">{value}</p>
       <p className="text-[0.625rem] leading-snug text-text-muted font-medium">{note}</p>
     </div>
@@ -1321,4 +1699,34 @@ function cash(value: number) {
 
 function editedCount(edited: Record<string, boolean>) {
   return Object.values(edited).filter(Boolean).length;
+}
+
+/** One labelled dropdown in the Step 4 panel. */
+function BuildSelect({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: readonly string[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="mt-1 w-full rounded-lg border border-line-strong/60 bg-ink-950/70 px-2 py-1.5 text-[0.8125rem] text-text-primary outline-none focus:border-brand-400/60"
+      >
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 }

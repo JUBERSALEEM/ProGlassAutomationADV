@@ -209,7 +209,7 @@ export function ProfitLossSurface({
             )
           }
           title="Re-run the analysis over Step 5's rows. `ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5`."
-          className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2.5 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.1em] font-medium text-text-muted transition-colors duration-200 hover:border-brand-400/40 hover:text-text-primary"
+          className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2.5 py-1 font-mono text-3xs uppercase tracking-[0.08em] font-medium text-text-muted transition-colors duration-200 hover:border-brand-400/40 hover:text-text-primary"
         >
           Recalculate
         </button>
@@ -222,7 +222,7 @@ export function ProfitLossSurface({
               aria-selected={tab === entry}
               onClick={() => setTab(entry)}
               className={cn(
-                "rounded-full px-2.5 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.1em] font-medium transition-colors duration-200",
+                "rounded-full px-2.5 py-1 font-mono text-3xs uppercase tracking-[0.08em] font-medium transition-colors duration-200",
                 tab === entry
                   ? "bg-brand-400/18 text-brand-100 ring-1 ring-inset ring-brand-400/40"
                   : "text-text-muted hover:bg-ink-800/70 hover:text-text-primary",
@@ -249,13 +249,13 @@ export function ProfitLossSurface({
             {blocks.length} specification{blocks.length === 1 ? "" : "s"} · base paid by the customer, VAT on top at the invoice
           </p>
 
-          <p className="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+          <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
             Main decision — target, expected margin, result
           </p>
 
           <div className="mt-2 grid gap-2 lg:grid-cols-3">
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Required target price</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Required target price</p>
               <p className="mt-1 text-[1.0625rem] font-semibold tabular-nums text-text-primary">
                 AED {cash(totals.requiredPerSqm)} <span className="text-[0.75rem] font-medium text-text-muted">/ m²</span>
               </p>
@@ -266,7 +266,7 @@ export function ProfitLossSurface({
             </div>
 
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Expected profit margin</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Expected profit margin</p>
               <div className="mt-1 flex items-baseline gap-2">
                 <input
                   type="number"
@@ -292,7 +292,7 @@ export function ProfitLossSurface({
                 totals.aboveTarget ? "border-money-positive/45 bg-money-positive/8" : "border-amber-400/45 bg-amber-400/8",
               )}
             >
-              <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Price balance — base / target</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Price balance — base / target</p>
               <p
                 className={cn(
                   "mt-1 text-[1.0625rem] font-semibold",
@@ -311,7 +311,7 @@ export function ProfitLossSurface({
             </div>
           </div>
 
-          <p className="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+          <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
             2 · Money — revenue, glass cost and margin
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -340,15 +340,15 @@ export function ProfitLossSurface({
             status chip flips on sign, and the U-insert line says whether the
             treatment is inside the given price — the app's own toggle.
           */}
-          <p className="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+          <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
             5 · Result — base and target balance
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">Status</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Status</p>
               <p
                 className={cn(
-                  "mt-1 inline-flex rounded-full border px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.1em] font-semibold",
+                  "mt-1 inline-flex rounded-full border px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.08em] font-semibold",
                   totals.aboveTarget
                     ? "border-money-positive/45 bg-money-positive/12 text-money-positive"
                     : "border-amber-400/45 bg-amber-400/12 text-amber-300",
@@ -396,7 +396,7 @@ export function ProfitLossSurface({
       {/* ── 2 · SERVICES ──────────────────────────────────────────────── */}
       {tab === "2 · SERVICES" ? (
         <div className="min-h-0 flex-1 overflow-auto">
-          <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+          <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
             Service profitability analysis
           </p>
           <table className="mt-2 w-full min-w-[36rem] border-collapse text-left">
@@ -408,7 +408,7 @@ export function ProfitLossSurface({
                     key={heading}
                     scope="col"
                     className={cn(
-                      "whitespace-nowrap px-2.5 py-2 font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint font-medium",
+                      "whitespace-nowrap px-2.5 py-2 font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium",
                       index >= 2 ? "text-right" : "",
                     )}
                   >
@@ -463,7 +463,7 @@ export function ProfitLossSurface({
         <div className="min-h-0 flex-1 overflow-y-auto pr-0.5">
           {sheets ? (
             <>
-              <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">1 · Sheet usage</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">1 · Sheet usage</p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <MoneyRow label="Buy sheets" value={`${sheets.result.plates}`} note={`${pnl.sheet.label} · ${pnl.sheet.w} × ${pnl.sheet.h} mm`} />
                 <MoneyRow label="Bought area" value={`${sheets.boughtSqm.toFixed(2)} m²`} note={`${sheets.stockSqm.toFixed(2)} m² per sheet`} />
@@ -480,7 +480,7 @@ export function ProfitLossSurface({
                 />
               </div>
 
-              <p className="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
                 2 · Sheet price reconciliation
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -495,7 +495,7 @@ export function ProfitLossSurface({
                 />
               </div>
 
-              <p className="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
                 3 · Step 6 wastage cross-check
               </p>
               <p className="mt-1.5 text-[0.75rem] leading-relaxed text-text-muted font-medium">
@@ -508,7 +508,7 @@ export function ProfitLossSurface({
                 a square metre of glass.
               </p>
 
-              <p className="mt-3 font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
                 4 · Overall report — all sheets
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-3">
@@ -530,7 +530,7 @@ export function ProfitLossSurface({
       {/* ── 4 · SPECS ─────────────────────────────────────────────────── */}
       {tab === "4 · SPECS" ? (
         <div className="min-h-0 flex-1 overflow-auto">
-          <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-brand-300 font-medium">
+          <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
             Main spec check — one row per Step 5 spec
           </p>
           <table className="mt-2 w-full min-w-[40rem] border-collapse text-left">
@@ -553,7 +553,7 @@ export function ProfitLossSurface({
                     key={heading}
                     scope="col"
                     className={cn(
-                      "whitespace-nowrap px-2.5 py-2 font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint font-medium",
+                      "whitespace-nowrap px-2.5 py-2 font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium",
                       index >= 1 ? "text-right" : "",
                     )}
                   >
@@ -672,7 +672,7 @@ function MoneyRow({
 }) {
   return (
     <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">{label}</p>
+      <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{label}</p>
       <p
         className={cn(
           "mt-1 text-[0.9375rem] font-semibold tabular-nums",
@@ -709,7 +709,7 @@ function BalanceCard({
 }) {
   return (
     <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.12em] text-text-faint font-medium">{title}</p>
+      <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{title}</p>
       <p className="mt-1 text-[0.875rem] font-semibold text-text-primary">{percent}</p>
       <dl className="mt-1.5 space-y-1">
         <div className="flex items-baseline justify-between gap-2">

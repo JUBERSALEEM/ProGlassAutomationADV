@@ -114,7 +114,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div>
-            <p className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+            <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
               {logSurfaceStrings.errors}
             </p>
             <p className={cn("text-[0.9375rem] font-semibold tabular-nums", errors > 0 ? "text-danger" : "text-text-primary")}>
@@ -123,7 +123,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
             </p>
           </div>
           <div>
-            <p className="font-mono text-[0.625rem] uppercase tracking-[0.12em] text-text-faint font-medium">
+            <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
               {logSurfaceStrings.warnings}
             </p>
             <p className="text-[0.9375rem] font-semibold tabular-nums text-amber-300">{warnings}</p>
@@ -132,7 +132,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
             type="button"
             onClick={() => setFolderOpened(true)}
             title={logSurfaceStrings.openFolderNote}
-            className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2.5 py-1 font-mono text-[0.6875rem] uppercase tracking-[0.1em] font-medium text-text-muted transition-colors hover:border-brand-400/40 hover:text-text-primary"
+            className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2.5 py-1 font-mono text-3xs uppercase tracking-[0.08em] font-medium text-text-muted transition-colors hover:border-brand-400/40 hover:text-text-primary"
           >
             {logSurfaceStrings.openFolder}
           </button>
@@ -233,7 +233,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
                     key={column.key}
                     scope="col"
                     title={column.note}
-                    className="whitespace-nowrap px-2.5 py-2 font-mono text-[0.6875rem] uppercase tracking-[0.1em] text-text-faint font-medium"
+                    className="whitespace-nowrap px-2.5 py-2 font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium"
                   >
                     {column.label}
                   </th>
@@ -324,11 +324,11 @@ function FilterPill({
       title={title}
       aria-pressed={active}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[0.6875rem] uppercase tracking-[0.08em] font-medium transition-colors duration-200",
+        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.06em] font-medium transition-colors duration-200",
         active
           ? "border-brand-400/60 bg-brand-400/16 text-brand-100"
           : muted
-            ? "border-line/40 bg-ink-900/40 text-text-faint/70 hover:border-brand-400/30 hover:text-text-muted"
+            ? "border-line/40 bg-ink-900/40 text-text-faint hover:border-brand-400/30 hover:text-text-muted"
             : "border-line-strong/60 bg-ink-800/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
       )}
     >
