@@ -137,8 +137,15 @@ export function ProductHero({ t }: { t: Translator }) {
               />
             </AppFrame>
 
-            {/* Floating detail card — real fields from the proforma Step 9. */}
-            <div className="float-card absolute -bottom-6 -left-3 w-56 rounded-panel p-4 shadow-raised sm:-left-8 sm:w-64">
+            {/* Floating detail card — real fields from the proforma Step 9.
+                Floats over the corner of the window from `sm` up. Below that it
+                stacks underneath instead: a 224 px panel pinned over a preview
+                that is itself only ~290 px wide on a 320 px phone covers the
+                product shot it is supposed to be annotating, and the fields
+                inside it end up sitting on a busy background. Same card, same
+                fields — it just stops overlapping where there is no room to
+                overlap. */}
+            <div className="float-card relative mt-4 w-full rounded-panel p-4 shadow-raised sm:absolute sm:-bottom-6 sm:-left-8 sm:mt-0 sm:w-64">
               <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint font-medium">{t("Proforma · Step 9")}</p>
               <p className="mt-2 text-sm font-semibold text-text-primary">Profit &amp; loss snapshot</p>
               <dl className="mt-3 space-y-1.5 text-xs">

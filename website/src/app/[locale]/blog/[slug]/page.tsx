@@ -123,7 +123,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                   {t("{minutes} min read", { minutes: post.readingMinutes })}
                 </span>
               </div>
-              <h1 className="mt-5 text-[1.9rem] leading-[1.12] sm:text-[2.4rem]">{t(post.title)}</h1>
+              <h1 className="display-1 mt-5">{t(post.title)}</h1>
               <p className="lede mt-5">{t(post.summary)}</p>
               <p className="mt-6 text-xs text-text-faint font-medium">
 {t("Written by")}{" "}

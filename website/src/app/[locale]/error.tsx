@@ -36,7 +36,7 @@ export default function RouteError({
       <Container>
         <div className="card-accent max-w-3xl p-8 sm:p-10">
           <p className="eyebrow">{t("Something broke on this page")}</p>
-          <h1 id="error-heading" className="mt-3 text-3xl leading-tight sm:text-4xl">
+          <h1 id="error-heading" className="display-1 mt-3">
           {t("This page could not finish loading.")}
         </h1>
           <p className="measure mt-4 text-sm leading-relaxed text-text-secondary">

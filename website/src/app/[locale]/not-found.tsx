@@ -25,7 +25,7 @@ export default function NotFound() {
       <Container>
         <div className="max-w-3xl">
           <p className="font-mono text-2xs uppercase tracking-[0.22em] text-brand-300">{t("Error 404")}</p>
-          <h1 className="mt-5 text-3xl leading-tight sm:text-4xl">{t("That page is not here.")}</h1>
+          <h1 className="display-1 mt-5">{t("That page is not here.")}</h1>
           <p className="lede mt-5">
             {t("The link may be out of date, or the page may never have existed. Everything on this site is reachable from the navigation — here are the pages people usually want.")}
           </p>

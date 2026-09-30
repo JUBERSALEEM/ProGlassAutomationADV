@@ -309,7 +309,15 @@ export default async function HowItWorksPage({ params }: PageProps) {
                 rail: "Overview",
               },
             ].map((moment, index) => (
-              <Reveal key={`${t(moment.title)}-${index}`} delay={index * 70}>
+              /* One card per moment, the same shape as the module cards on
+                 /features: the title and its preview belong to each other, and
+                 four loose frames down the page read as four unrelated
+                 screenshots rather than four steps of one day. */
+              <Reveal
+                key={`${t(moment.title)}-${index}`}
+                delay={index * 70}
+                className="surface-raised card-pad"
+              >
                 <div className="flex h-full flex-col gap-5">
                   <div className="flex items-start gap-4">
                     <IndexChip>{String(index + 1).padStart(2, "0")}</IndexChip>
