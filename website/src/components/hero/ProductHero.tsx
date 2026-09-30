@@ -138,7 +138,7 @@ export function ProductHero({ t }: { t: Translator }) {
             </AppFrame>
 
             {/* Floating detail card — real fields from the proforma Step 9. */}
-            <div className="menu-card absolute -bottom-6 -left-3 w-56 rounded-panel p-4 shadow-raised sm:-left-8 sm:w-64">
+            <div className="float-card absolute -bottom-6 -left-3 w-56 rounded-panel p-4 shadow-raised sm:-left-8 sm:w-64">
               <p className="font-mono text-2xs uppercase tracking-[0.16em] text-text-faint font-medium">{t("Proforma · Step 9")}</p>
               <p className="mt-2 text-sm font-semibold text-text-primary">Profit &amp; loss snapshot</p>
               <dl className="mt-3 space-y-1.5 text-xs">
@@ -156,7 +156,7 @@ export function ProductHero({ t }: { t: Translator }) {
             </div>
 
             {/* Floating chain chip. */}
-            <div className="menu-card absolute -right-2 -top-5 hidden rounded-full px-3.5 py-2 shadow-raised sm:block">
+            <div className="float-card absolute -right-2 -top-5 hidden rounded-full px-3.5 py-2 shadow-raised sm:block">
               <span className="font-mono text-[0.75rem] uppercase tracking-[0.14em] text-brand-200">
                 {chainVerbs.slice(0, 5).join(" → ")}
               </span>

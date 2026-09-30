@@ -132,7 +132,7 @@ export default async function ContactPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next step")}>
         <Container>
           <Reveal>
-            <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("While you wait for a reply.")}</h2>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("The interface tour shows the screens a demonstration runs through, and the optimization page explains what the cutting engine does with a real cutting list.")}</p>

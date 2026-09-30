@@ -39,7 +39,17 @@ export function SectionHeading({
       ) : null}
       <Tag
         id={id}
-        className={cn("text-3xl leading-[1.1] sm:text-4xl lg:text-[2.75rem]", gradient && "text-gradient")}
+        className={cn(
+          /*
+           * One hierarchy for every section on the site. The size steps down
+           * with the viewport rather than being fixed at the top: a 30 px
+           * heading on a 375 px phone is a third of the screen, and the point
+           * of the type scale is that the heading is read *and* the lede under
+           * it is still visible without scrolling.
+           */
+          "display-2",
+          gradient && "text-gradient",
+        )}
       >
         {title}
       </Tag>

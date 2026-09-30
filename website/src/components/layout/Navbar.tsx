@@ -56,8 +56,7 @@ const entries: NavEntry[] = [
  * transparent edge that only resolves on hover. The entry you are on, or have
  * open, keeps its edge and its wash, so the panel always says where you are.
  */
-const NAV_BAR =
-  "hidden items-center gap-0.5 rounded-panel border-2 border-line-strong/50 bg-ink-900/55 p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] lg:flex";
+const NAV_BAR = "nav-pill hidden items-center gap-0.5 rounded-panel p-1 lg:flex";
 const NAV_CARD =
   "relative flex items-center gap-1.5 rounded-card border-2 px-2.5 py-1.5 text-sm font-semibold transition-colors duration-200";
 const NAV_CARD_OFF =
@@ -147,12 +146,18 @@ export function Navbar() {
         "no-print fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-industrial",
         scrolled
           /*
-           * No backdrop blur on the header. A blurred, 65%-opaque bar puts the
-           * navigation — the most-read text on the site — on a composited layer,
-           * and composited text loses subpixel antialiasing. The bar is opaque
-           * instead: crisper to read, and cheaper to paint on every scroll.
+           * The bar is opaque in the three opaque families — a blurred,
+           * 65%-opaque bar puts the navigation, the most-read text on the site,
+           * on a composited layer, and composited text loses subpixel
+           * antialiasing, which is a real cost for no visible gain when the
+           * surface behind it is a solid colour anyway.
+           *
+           * Crystal is the exception, and it is decided in CSS (`.nav-glass`)
+           * rather than here: the family whose whole language is a floating
+           * sheet of glass cannot have a solid slab of ink across the top of
+           * it. The bar itself still ships the same two states.
            */
-          ? "border-b border-line-strong/50 bg-ink-950/95 shadow-[0_18px_40px_-32px_rgb(0_0_0/0.9)]"
+          ? "nav-glass"
           : "border-b border-transparent bg-transparent",
       )}
     >
@@ -307,7 +312,7 @@ export function Navbar() {
         hidden={!mobileOpen}
         className={cn(
           "lg:hidden",
-          mobileOpen && "animate-fade-in border-t border-line-strong/60 bg-ink-950",
+          mobileOpen && "nav-sheet animate-fade-in",
         )}
       >
         <div className="shell max-h-[calc(100vh-var(--nav-height))] overflow-y-auto py-5">

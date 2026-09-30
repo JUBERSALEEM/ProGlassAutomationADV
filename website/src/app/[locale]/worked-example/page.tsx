@@ -1019,7 +1019,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Next steps")}>
         <Container>
           <Reveal>
-            <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <p className="eyebrow">{t("See it on your own numbers")}</p>
                 <h2 className="mt-3 text-2xl leading-tight sm:text-3xl">

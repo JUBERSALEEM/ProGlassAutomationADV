@@ -68,7 +68,7 @@ export function PageHero({
               </p>
             </Reveal>
             <Reveal delay={60}>
-              <h1 className="text-[2rem] leading-[1.08] sm:text-[2.5rem] lg:text-[2.85rem]">{title}</h1>
+              <h1 className="display-1">{title}</h1>
             </Reveal>
             <Reveal delay={120}>
               <p className="lede mt-5 max-w-2xl">{lead}</p>
@@ -84,7 +84,11 @@ export function PageHero({
             <Reveal delay={140}>
               <dl className="grid grid-cols-2 gap-4">
                 {meta.map((item) => (
-                  <div key={t(item.label)} className="rounded-card border border-line/60 bg-ink-900/50 p-4">
+                  /* The page's own facts, in the site's surface system: on
+                     Crystal these are small panes of glass beside the title,
+                     and in the other families they are the plain cards they
+                     have always been. */
+                  <div key={t(item.label)} className="surface p-4">
                     <dt className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">{t(item.label)}</dt>
                     <dd className="mt-1.5 text-sm font-medium text-text-secondary">{t(item.value)}</dd>
                   </div>

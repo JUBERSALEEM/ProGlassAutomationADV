@@ -5,6 +5,7 @@ import { PageHero } from "@/components/layout/PageHero";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { GlassCard, GlassMetric, GlassMetricRow } from "@/components/ui/Glass";
 import { ScreenshotGallery } from "@/components/gallery/ScreenshotGallery";
 import { screenshotCategories, screenshots } from "@/data/screenshots";
 import { RouteSchema } from "@/components/seo/RouteSchema";
@@ -74,25 +75,25 @@ export default async function ScreenshotsPage({ params }: PageProps) {
       <Section aria-label={t("Screenshot status")}>
         <Container>
           <Reveal>
-            <div className="surface-raised grid gap-6 p-6 sm:grid-cols-3 sm:p-7">
-              <div>
-                <p className="font-mono text-2xl font-semibold text-text-primary">{published}</p>
-                <p className="mt-2 text-sm font-medium text-text-secondary">{t("Published screen captures")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">
-          {t("Photographs of the running application. There are none yet.")}
-        </p>
-              </div>
-              <div>
-                <p className="font-mono text-2xl font-semibold text-text-primary">{repoAssets}</p>
-                <p className="mt-2 text-sm font-medium text-text-secondary">{t("Illustrations from the application")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{t("Real assets that ship inside the product — the SGU, DGU, lamination and DGU + lamination renders.")}</p>
-              </div>
-              <div>
-                <p className="font-mono text-2xl font-semibold text-text-primary">{pending}</p>
-                <p className="mt-2 text-sm font-medium text-text-secondary">{t("Interactive previews")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{t("Real window chrome, real module labels and real fields, with sample data you can sort, filter and step through. Clearly labelled as a preview, never presented as a screen capture.")}</p>
-              </div>
-            </div>
+            <GlassCard tier="primary">
+              <GlassMetricRow className="gap-y-6">
+                <GlassMetric
+                  value={published}
+                  label={t("Published screen captures")}
+                  hint={t("Photographs of the running application. There are none yet.")}
+                />
+                <GlassMetric
+                  value={repoAssets}
+                  label={t("Illustrations from the application")}
+                  hint={t("Real assets that ship inside the product — the SGU, DGU, lamination and DGU + lamination renders.")}
+                />
+                <GlassMetric
+                  value={pending}
+                  label={t("Interactive previews")}
+                  hint={t("Real window chrome, real module labels and real fields, with sample data you can sort, filter and step through. Clearly labelled as a preview, never presented as a screen capture.")}
+                />
+              </GlassMetricRow>
+            </GlassCard>
           </Reveal>
 
           <Reveal delay={80}>
@@ -139,7 +140,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
       <Section aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("The best screenshot is your own data.")}</h2>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration walks through your screens with your glass types, your sheet sizes and your margins.")}</p>

@@ -34,7 +34,10 @@ export function SheetPlanStrip() {
       <SheetGallery plates={plates} thicknessMm={6} className="mt-4" />
 
       {/* ── What the run adds up to, and what it is not ───────────────── */}
-      <div className="surface mt-4 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+      {/* A rule rather than a box: this is the caption of the plan above it,
+          and a third nested card inside the primary card was exactly the
+          box-in-box repetition the redesign removes. */}
+      <div className="mt-6 flex flex-col gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm leading-relaxed text-text-secondary">
             {t.template`${planTotals.pieces} pieces need ${planTotals.plates} plates at this size — ${planTotals.usedSqm} m² of the ${planTotals.stockSqm} m² the job draws from stock, the rest returning to the racks as offcut.`}

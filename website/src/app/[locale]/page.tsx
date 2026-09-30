@@ -8,6 +8,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { StatBadge, StatCounter } from "@/components/ui/Stat";
 import { Accordion } from "@/components/ui/Accordion";
+import { GlassCard, GlassDivider, GlassMetric, GlassMetricRow } from "@/components/ui/Glass";
 import { ProductHero } from "@/components/hero/ProductHero";
 import { WorkflowRail } from "@/components/product/WorkflowRail";
 import { AppearancePreview } from "@/components/layout/AppearancePreview";
@@ -413,44 +414,55 @@ export default async function HomePage({ params }: PageProps) {
         </Container>
       </Section>
 
-      {/* ═══ 07 · Optimization ═══════════════════════════════════════ */}
+      {/* ═══ 07 · Optimization ═══════════════════════════════════════
+          The primary card of the page.
+
+          Everything that makes the engine worth a visitor's attention is in
+          one surface: what it is, what it guarantees, the four numbers that
+          describe its search, and a real cutting plan it produced — drawn
+          from the same packer the module previews use, proved cuttable at
+          build time. The four numbers used to be four separate cards below
+          the section, which is the shape this redesign exists to remove: a
+          headline, then four boxes repeating its subject, then a diagram.
+
+          The compact strip rather than the full demonstration: one box per
+          plate, side by side, so a multi-plate job reads at a glance instead
+          of pushing the rest of the page below the fold. The animated
+          demonstration still runs on /optimization.
+      */}
       <Section aria-labelledby="optimization-heading">
         <Container>
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <SectionHeading
-              id="optimization-heading"
-              eyebrow={t("Optimization")}
-              title={t("Turn stock plates and a cutting list into a plan the table can actually cut.")}
-              lead={t("A guillotine packer that honours your safety edges and blade kerf, records the cut sequence as it places pieces, then proves the plan before it can be exported.")}
-            />
-            <ButtonLink href="/optimization" variant="secondary" size="lg" trailing={<ArrowRight />} className="shrink-0">
-          {t("Open the engine")}
-        </ButtonLink>
-          </div>
+          <Reveal>
+            <GlassCard
+              tier="primary"
+              head={{
+                id: "optimization-heading",
+                titleAs: "h2",
+                eyebrow: t("Optimization"),
+                title: t("Turn stock plates and a cutting list into a plan the table can actually cut."),
+                lead: t("A guillotine packer that honours your safety edges and blade kerf, records the cut sequence as it places pieces, then proves the plan before it can be exported."),
+                actions: (
+                  <ButtonLink href="/optimization" size="lg" trailing={<ArrowRight />}>
+                    {t("Open the engine")}
+                  </ButtonLink>
+                ),
+              }}
+            >
+              <GlassMetricRow>
+                {[
+                  { label: t("Search families"), value: t("5 + Auto"), hint: "From a quick area-shelf pass to the widest MaxRects search." },
+                  { label: t("Plate patterns"), value: "6", hint: "Tie-breaks that never buy a preference by adding a sheet." },
+                  { label: t("Cutting complexity"), value: "6 levels", hint: "Free guillotine through to Z/W trims, refused on laminated stock." },
+                  { label: t("Verification oracles"), value: "2", hint: "Geometry and piece conservation, both required before export." },
+                ].map((item) => (
+                  <GlassMetric key={t(item.label)} value={t(item.value)} label={t(item.label)} hint={t(item.hint)} />
+                ))}
+              </GlassMetricRow>
 
-          {/*
-            The compact strip rather than the full demonstration: one box per
-            plate, side by side, so a multi-plate job reads at a glance instead
-            of pushing the rest of the page below the fold. The animated
-            demonstration still runs on /optimization.
-          */}
-          <div className="mt-10">
-            <SheetPlanStrip />
-          </div>
+              <GlassDivider />
 
-          <Reveal delay={140} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { label: t("Search families"), value: t("5 + Auto"), hint: "From a quick area-shelf pass to the widest MaxRects search." },
-              { label: t("Plate patterns"), value: "6", hint: "Tie-breaks that never buy a preference by adding a sheet." },
-              { label: t("Cutting complexity"), value: "6 levels", hint: "Free guillotine through to Z/W trims, refused on laminated stock." },
-              { label: t("Verification oracles"), value: "2", hint: "Geometry and piece conservation, both required before export." },
-            ].map((item) => (
-              <div key={t(item.label)} className="surface-raised p-5">
-                <p className="font-mono text-xl font-semibold text-brand-300">{t(item.value)}</p>
-                <p className="mt-2 text-sm font-medium text-text-secondary">{t(item.label)}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{t(item.hint)}</p>
-              </div>
-            ))}
+              <SheetPlanStrip />
+            </GlassCard>
           </Reveal>
         </Container>
       </Section>

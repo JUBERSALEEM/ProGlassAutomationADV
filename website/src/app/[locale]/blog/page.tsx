@@ -156,7 +156,7 @@ export default async function BlogPage({ params }: PageProps) {
       <Section aria-label={t("Explore the product")}>
         <Container>
           <Reveal>
-            <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("Reading about it is not the same as seeing it.")}</h2>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">

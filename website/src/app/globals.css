@@ -132,6 +132,11 @@
        between a surface with light on it and a surface behind fog. */
     --wall-sheen: rgb(255 255 255 / 0.022);
     --wall-vignette: rgb(4 2 14 / 0.55);
+    /* Two extra light sources the glass families turn on: a lamp above the
+       page and a floor glow under it. Transparent in the opaque families, so
+       their wallpaper is unchanged. */
+    --wall-lamp: rgb(255 255 255 / 0);
+    --wall-floor: rgb(0 0 0 / 0);
 
     /* Card tinting: the violet wash that keeps cards off plain grey. */
     --card-tint: rgb(139 92 246 / 0.1);
@@ -164,12 +169,47 @@
 
     /* ── Surface character ─────────────────────────────────────────────
        One set of dials shared by every card class, so a family can change
-       how solid a card feels without touching a component. */
-    --surface-alpha: 0.97;      /* card fill opacity            */
-    --surface-alpha-2: 0.93;    /* card fill mid-stop           */
+       how solid a card feels without touching a component.
+
+       The site has three surface tiers, and each tier has its own fill and
+       its own blur, because a surface that carries a working interface is a
+       different thing from one that carries a sentence:
+
+         tier 1  `.surface`, `.stat-tile`   a card of content
+         tier 2  `.surface-raised`, `.plate`  an elevated panel over tier 1
+         tier 3  `.card-live`, `.menu-card`   a reading/driving surface:
+                                              live previews, menus, tables —
+                                              the tier that must stay legible
+                                              over anything behind it */
+    --surface-alpha: 0.97;      /* tier 1 · card fill opacity   */
+    --surface-alpha-2: 0.95;    /* tier 2 · elevated fill       */
+    --surface-alpha-3: 0.99;    /* tier 3 · reading fill        */
     --surface-blur: 3px;        /* backdrop blur behind a card  */
     --surface-sat: 130%;        /* backdrop saturation          */
     --surface-specular: 0;      /* diagonal light streak        */
+
+    /* ── Glass depth ───────────────────────────────────────────────────
+       The spatial-UI vocabulary: what light does at the edge and across the
+       face of a translucent surface. Every value below is transparent by
+       default, so a family that is not built out of glass paints exactly
+       what it painted before — and Crystal re-glasses the whole site by
+       raising them. Nothing here is a component's private property: the
+       card classes read these tokens, so one family block recolours and
+       re-lights every card on every page. */
+    --glass-hi: rgb(255 255 255 / 0);      /* top specular, catching the light */
+    --glass-lo: rgb(0 0 0 / 0);            /* bottom refraction, into the shade */
+    --glass-sheen: rgb(255 255 255 / 0);   /* diagonal sweep across the face */
+    --glass-edge-light: rgb(255 255 255 / 0.05); /* inner 1px at the top */
+    --glass-edge-dark: rgb(0 0 0 / 0);     /* inner 1px at the bottom */
+    --glass-ring: rgb(255 255 255 / 0);    /* outer luminous hairline */
+    --glass-line: rgb(var(--line-strong) / 0.55); /* hairlines inside a card */
+    --glass-scrim: rgb(0 0 0 / 0);         /* legibility wash under text */
+
+    /* The primary card — the one card per section that carries the section's
+       subject. Its own two dials: how much accent sits in its fill, and how
+       far the light behind it spills. */
+    --glass-primary-tint: 0.1;
+    --glass-primary-glow: rgb(0 0 0 / 0);
     /* ── Card geometry — the app's own tokens ──────────────────────────
        Values are read from the desktop application, not invented:
 
@@ -192,8 +232,10 @@
     --card-edge-hover: rgb(var(--brand-400) / 0.75);
     /* Padding grows with the edge weight so a thicker stroke never crowds
        the content — ThemeManager.ApplyCardEdgePaddingResources. */
-    --card-pad: calc(var(--card-pad-scale, 1) * (1.5rem + max(0px, var(--card-edge-width) - 2px)));
-    --card-pad-sm: calc(var(--card-pad-scale, 1) * (1rem + max(0px, var(--card-edge-width) - 2px)));
+    --card-pad-base: 1.5rem;
+    --card-pad-sm-base: 1rem;
+    --card-pad: calc(var(--card-pad-scale, 1) * (var(--card-pad-base) + max(0px, var(--card-edge-width) - 2px)));
+    --card-pad-sm: calc(var(--card-pad-scale, 1) * (var(--card-pad-sm-base) + max(0px, var(--card-edge-width) - 2px)));
     --tint-alpha: 0.11;         /* violet wash strength         */
     --tint-alpha-2: 0.05;       /* second wash, opposite corner */
     --card-tint-2: rgb(34 211 238 / 0.05);
@@ -225,6 +267,8 @@
     --wall-wash-2: rgb(14 116 144 / 0.07);
     --wall-sheen: rgb(255 255 255 / 0.6);
     --wall-vignette: rgb(76 29 149 / 0.1);
+    --wall-lamp: rgb(255 255 255 / 0);
+    --wall-floor: rgb(0 0 0 / 0);
 
     /* Surfaces: warm paper with a violet cast, not flat grey. */
     --ink-950: 246 245 252;  /* page      #F6F5FC */
@@ -305,9 +349,23 @@
 
     --surface-alpha: 0.99;
     --surface-alpha-2: 0.97;
+    --surface-alpha-3: 0.995;
     --surface-blur: 4px;
     --surface-sat: 130%;
     --surface-specular: 0;
+
+    /* Glass depth, on paper: the specular is light, not white haze, and the
+       scrim is the paper showing through rather than a shadow. */
+    --glass-hi: rgb(255 255 255 / 0);
+    --glass-lo: rgb(0 0 0 / 0);
+    --glass-sheen: rgb(255 255 255 / 0);
+    --glass-edge-light: rgb(255 255 255 / 0.9);
+    --glass-edge-dark: rgb(0 0 0 / 0);
+    --glass-ring: rgb(255 255 255 / 0);
+    --glass-line: rgb(var(--line-strong) / 0.6);
+    --glass-scrim: rgb(255 255 255 / 0);
+    --glass-primary-tint: 0.07;
+    --glass-primary-glow: rgb(0 0 0 / 0);
     --card-edge: rgb(226 222 243 / 0.95);
     --tint-alpha: 0.08;
     --tint-alpha-2: 0.04;
@@ -404,17 +462,73 @@
     --pool-2: rgb(129 140 248 / 0.16);
     --pool-3: rgb(45 212 191 / 0.14);
 
-    /* Translucency: the card fill drops away and the blur does the work. */
-    --surface-alpha: 0.34;
-    --surface-alpha-2: 0.22;
-    --surface-blur: 34px;
-    --surface-sat: 190%;
+    /*
+     * Translucency, tiered.
+     *
+     * Crystal's fill drops away and the blur does the work — but not on every
+     * tier equally, and not to the point where a paragraph sits on whatever
+     * happens to be behind it. Three tiers, each one a step more solid than
+     * the last, because each carries something more demanding:
+     *
+     *   tier 1  0.42  a card of prose. Enough body to hold text, enough
+     *                 transparency that the ambient light reads through it.
+     *   tier 2  0.52  a panel raised over tier 1 — it has to separate from
+     *                 the card under it, so it cannot be as see-through.
+     *   tier 3  0.86  the live application previews and menus. These are
+     *                 working interfaces drawn inside the page; they are the
+     *                 one place where legibility outranks the effect, and
+     *                 they stay nearly opaque.
+     *
+     * The blur is deliberately moderate. A 34 px blur was doing no more visible
+     * work than 18 px while costing a much wider sample kernel per frame, and
+     * on a phone — where every card is a composited layer — that is felt as
+     * scroll weight rather than seen as depth.
+     */
+    --surface-alpha: 0.42;
+    --surface-alpha-2: 0.52;
+    --surface-alpha-3: 0.86;
+    --surface-blur: 18px;
+    --surface-sat: 175%;
     --surface-specular: 0.2;
-    --card-edge: rgb(255 255 255 / 0.24);
+    --card-edge: rgb(255 255 255 / 0.26);
     --tint-alpha: 0.16;
     --tint-alpha-2: 0.08;
 
+    /*
+     * ── The light ──────────────────────────────────────────────────────
+     *
+     * Four layers, in paint order, and this is the whole of Crystal's depth:
+     *
+     *   --glass-hi      a bright wash falling from the top edge — the face
+     *                   catching the light source above the page
+     *   --glass-sheen   one diagonal sweep across the corner, the reflection
+     *                   that never quite resolves
+     *   --glass-lo      a cool shade gathering at the bottom, where glass
+     *                   thickens and the light stops
+     *   --glass-scrim   a legibility wash: a gentle darkening under the text
+     *                   so a paragraph stays readable whatever is behind it
+     *
+     * None of them is a border and none of them is a glow — they are what a
+     * sheet of glass does with the room it is standing in.
+     */
+    /* These four are measured, not chosen by eye: the specular and the scrim
+       are set so that the faintest text tier (text-4, #C6C0E2) still clears
+       4.5:1 at the lightest point of the lightest card, over the brightest
+       point of the wallpaper. At 0.14/0.09 it measured 4.12:1 — legible in a
+       screenshot, not legible on a phone in daylight. */
+    --glass-hi: rgb(255 255 255 / 0.1);
+    --glass-lo: rgb(4 22 32 / 0.24);
+    --glass-sheen: rgb(255 255 255 / 0.06);
+    --glass-edge-light: rgb(255 255 255 / 0.42);
+    --glass-edge-dark: rgb(6 30 42 / 0.34);
+    --glass-ring: rgb(255 255 255 / 0.1);
+    --glass-line: rgb(255 255 255 / 0.22);
+    --glass-scrim: rgb(6 26 38 / 0.26);
 
+    /* The primary card: a little more accent in the fill, and light spilling
+       out from beneath it onto the page. */
+    --glass-primary-tint: 0.16;
+    --glass-primary-glow: rgb(34 211 238 / 0.22);
 
     --card-tint: rgb(34 211 238 / 0.16);
     /* Crystal is a saturated family by design, so its base sits higher. */
@@ -428,19 +542,75 @@
     --viz-part-2: rgb(255 255 255 / 0.75);
     --viz-scrap: rgb(129 140 248 / 0.6);
     --viz-plate: rgb(255 255 255 / 0.1);
+
+    /*
+     * The room the glass is standing in.
+     *
+     * Crystal's surfaces are translucent, which means the page behind them is
+     * no longer a backdrop — it is the light source. Two of them: a soft lamp
+     * high on the page and a cool floor glow rising from the bottom, which is
+     * what stops a stack of glass cards from reading as a flat wall of boxes.
+     * Both are radial and both are very low opacity; neither moves.
+     */
+    --wall-lamp: rgb(148 226 255 / 0.16);
+    --wall-floor: rgb(34 211 238 / 0.13);
   }
 
-  /* Light glass: frosted white rather than frosted dark. */
+  /*
+   * Light glass: frosted white rather than frosted dark.
+   *
+   * On paper the same tiering applies with one difference — the legibility
+   * wash runs light instead of dark, because on a pale surface it is the
+   * *dark* that competes with the text. The specular is stronger here: a sheet
+   * of glass on a white desk reads almost entirely by its edges.
+   */
   [data-theme="daylight"][data-appearance="crystal"] {
-    --surface-alpha: 0.62;
-    --surface-alpha-2: 0.5;
-    --surface-blur: 30px;
-    --surface-sat: 180%;
-    --card-edge: rgb(255 255 255 / 0.85);
+    --surface-alpha: 0.6;
+    --surface-alpha-2: 0.7;
+    --surface-alpha-3: 0.94;
+    --surface-blur: 22px;
+    --surface-sat: 165%;
+    --card-edge: rgb(255 255 255 / 0.9);
+    --glass-hi: rgb(255 255 255 / 0.55);
+    --glass-lo: rgb(8 74 96 / 0.1);
+    --glass-sheen: rgb(255 255 255 / 0.4);
+    --glass-edge-light: rgb(255 255 255 / 0.95);
+    --glass-edge-dark: rgb(12 74 110 / 0.12);
+    --glass-ring: rgb(255 255 255 / 0.6);
+    --glass-line: rgb(12 74 110 / 0.16);
+    --glass-scrim: rgb(255 255 255 / 0.42);
+    --glass-primary-glow: rgb(8 145 178 / 0.16);
     --viz-grid: rgb(8 145 178 / 0.22);
     --viz-part: rgb(8 145 178 / 0.85);
     --viz-part-2: rgb(129 140 248 / 0.8);
     --viz-plate: rgb(255 255 255 / 0.75);
+  }
+
+  /*
+   * The fallback.
+   *
+   * `backdrop-filter` is what makes a translucent fill legible: without it the
+   * surface is just a window onto whatever is behind it, and running text over
+   * a busy background stops being readable. A browser that cannot blur gets an
+   * opaque glass instead — the depth layers still draw, so it still reads as
+   * Crystal, it simply stops being see-through. This is a legibility floor,
+   * not a cosmetic nicety: it is the difference between "supported" and
+   * "unreadable" on an older engine.
+   */
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+    [data-appearance="crystal"] {
+      --surface-alpha: 0.94;
+      --surface-alpha-2: 0.96;
+      --surface-alpha-3: 0.99;
+      --glass-scrim: rgb(6 26 38 / 0.5);
+    }
+
+    [data-theme="daylight"][data-appearance="crystal"] {
+      --surface-alpha: 0.95;
+      --surface-alpha-2: 0.97;
+      --surface-alpha-3: 0.99;
+      --glass-scrim: rgb(255 255 255 / 0.6);
+    }
   }
 
   /* Daylight needs its own re-weighting of the ramps so contrast holds. */
@@ -593,6 +763,14 @@
     z-index: -2;
     pointer-events: none;
     background-image:
+      /*
+       * The lamp and the floor: the two light sources that only the glass
+       * families switch on (see `--wall-lamp` / `--wall-floor`). They sit at
+       * the top of the stack because they are the light in front of which the
+       * washes below are the colour of the room.
+       */
+      radial-gradient(1120px 520px at 50% -18%, var(--wall-lamp), transparent 60%),
+      radial-gradient(1400px 620px at 50% 112%, var(--wall-floor), transparent 64%),
       /* 1–4 · ambient pools */
       radial-gradient(1180px 660px at 10% -10%, var(--wall-wash-1), transparent 62%),
       radial-gradient(940px 560px at 94% 2%, var(--wall-wash-2), transparent 58%),
@@ -657,6 +835,20 @@
     text-wrap: pretty;
   }
 
+  /*
+   * Card padding on a phone.
+   *
+   * 24 px of padding on each side of a 360 px screen is 13% of the width spent
+   * on margin, and a card of prose ends up three words to a line. The padding
+   * steps down to 18 px below 640 px and the desktop values are untouched.
+   */
+  @media (max-width: 40rem) {
+    :root {
+      --card-pad-base: 1.15rem;
+      --card-pad-sm-base: 0.85rem;
+    }
+  }
+
   /* One visible focus treatment everywhere. */
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
     @apply outline-none ring-2 ring-brand-400 ring-offset-2;
@@ -716,8 +908,109 @@
     @apply max-w-lede;
   }
 
+  /*
+   * The vertical rhythm between major bands.
+   *
+   * Tighter on a phone than it used to be: 4rem of empty space between two
+   * sections is a third of a small screen, and the site is read on a phone
+   * more than anywhere else. From `sm` up the old spacing applies unchanged,
+   * because a wide page has room to breathe and needs it.
+   */
   .section {
-    @apply py-16 sm:py-20 lg:py-24 2xl:py-28;
+    @apply py-14 sm:py-20 lg:py-24 2xl:py-28;
+  }
+
+  /*
+   * ── Navigation chrome ──────────────────────────────────────────────────
+   *
+   * The bar is opaque by default, and that is a deliberate performance and
+   * legibility decision rather than an oversight: the navigation is the
+   * most-read text on the site, and a composited bar rasterises its text
+   * without subpixel antialiasing.
+   *
+   * Crystal is the one family where the bar earns the trade — the design
+   * language is a floating sheet of glass, and a solid slab of ink across the
+   * top of it is the single thing that would give the effect away. It blurs
+   * the page as it passes under it, keeps a lit top edge, and stays at 55%
+   * so the labels sit on real fill rather than on whatever scrolled up.
+   */
+  .nav-glass {
+    border-bottom: 1px solid rgb(var(--line-strong) / 0.5);
+    background-color: rgb(var(--ink-950) / 0.95);
+    box-shadow: 0 18px 40px -32px rgb(0 0 0 / 0.9);
+  }
+
+  [data-appearance="crystal"] .nav-glass {
+    border-bottom: 1px solid var(--glass-ring);
+    background-color: rgb(var(--ink-950) / 0.55);
+    box-shadow: 0 18px 40px -32px rgb(0 0 0 / 0.9), inset 0 1px 0 0 var(--glass-edge-light);
+    backdrop-filter: blur(20px) saturate(175%);
+    -webkit-backdrop-filter: blur(20px) saturate(175%);
+  }
+
+  [data-theme="daylight"][data-appearance="crystal"] .nav-glass {
+    background-color: rgb(var(--ink-950) / 0.62);
+    border-bottom-color: rgb(255 255 255 / 0.7);
+  }
+
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+    [data-appearance="crystal"] .nav-glass,
+    [data-theme="daylight"][data-appearance="crystal"] .nav-glass {
+      background-color: rgb(var(--ink-950) / 0.96);
+    }
+  }
+
+  /*
+   * The desktop navigation pill — the bar's own card, holding the cards.
+   *
+   * In Crystal it becomes the small sheet of glass the navigation floats on:
+   * a lit top edge, a translucent fill over the page behind it, and the same
+   * blur as a card, so the bar and the content below it are made of the same
+   * material.
+   */
+  .nav-pill {
+    border: 2px solid rgb(var(--line-strong) / 0.5);
+    background-color: rgb(var(--ink-900) / 0.55);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  }
+
+  [data-appearance="crystal"] .nav-pill {
+    border-color: var(--glass-ring);
+    background-color: rgb(var(--ink-900) / 0.42);
+    box-shadow: inset 0 1px 0 0 var(--glass-edge-light),
+      inset 0 -1px 0 0 var(--glass-edge-dark);
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+  }
+
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+    [data-appearance="crystal"] .nav-pill {
+      background-color: rgb(var(--ink-900) / 0.92);
+    }
+  }
+
+  /* The mobile sheet — the same sheet of glass, at full height. */
+  .nav-sheet {
+    border-top: 1px solid rgb(var(--line-strong) / 0.6);
+    background-color: rgb(var(--ink-950));
+  }
+
+  [data-appearance="crystal"] .nav-sheet {
+    border-top: 1px solid var(--glass-ring);
+    background-color: rgb(var(--ink-950) / 0.72);
+    backdrop-filter: blur(24px) saturate(175%);
+    -webkit-backdrop-filter: blur(24px) saturate(175%);
+  }
+
+  [data-theme="daylight"][data-appearance="crystal"] .nav-sheet {
+    background-color: rgb(var(--ink-950) / 0.8);
+  }
+
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+    [data-appearance="crystal"] .nav-sheet,
+    [data-theme="daylight"][data-appearance="crystal"] .nav-sheet {
+      background-color: rgb(var(--ink-950));
+    }
   }
 
   .hairline {
@@ -769,16 +1062,32 @@
    * The card is the application's card, built from the tokens the desktop app
    * uses (see the geometry block above for where each value comes from):
    *
-   *   1. a flat tinted fill        — one colour, no inner glow, no sheen
+   *   1. a tinted fill, lit from above    — the family's colour plus whatever
+   *                                         light the family decides a surface
+   *                                         should catch (see `--glass-*`)
    *   2. a real border on a round corner
    *                                — uniform weight, round arc, no mitre
    *   3. padding that follows the edge weight
    *                                — so a bold edge never crowds the content
    *
-   * There is no radial tint, no top highlight and no inner shadow, and the
-   * corner-bracket decoration this used to draw is gone: the product draws a
-   * rounded border, not a bracket. Everything still reads the family dials, so
-   * Crystal glasses the whole site by changing values rather than structure.
+   * The fill is one stack of layers, painted in this order and shared by every
+   * card class, so a family re-lights the entire site by changing four tokens
+   * rather than by touching a component:
+   *
+   *   hi      the light falling from above          (0 by default)
+   *   sheen   one diagonal reflection across the face (0 by default)
+   *   lo      the shade gathering at the bottom      (0 by default)
+   *   scrim   the legibility wash under the text     (0 by default)
+   *   tint    the family's accent wash — the card's colour
+   *
+   * In Studio, Monet and Industrial every one of those five except the tint
+   * resolves to a transparent layer, so the stack collapses to exactly the flat
+   * tinted fill those families have always painted. In Crystal they resolve to
+   * real light, and the same markup becomes glass. That is the whole mechanism:
+   * one card system, four families, no branching in any component.
+   *
+   * The corner-bracket decoration this used to draw stays gone: the product
+   * draws a rounded border, not a bracket.
    */
 
   .surface,
@@ -787,43 +1096,80 @@
   .plate,
   .card-live,
   .card-accent,
-  .card-glass {
+  .card-glass,
+  .glass-primary {
     position: relative;
     border: 1px solid transparent;
     background-clip: padding-box;
   }
 
+  /* ── Tier 1 · a card of content ────────────────────────────────────── */
   .surface,
-  .stat-tile,
-  .plate,
-  .card-live {
+  .stat-tile {
     background-color: rgb(var(--ink-900) / var(--surface-alpha));
-    /* One flat wash of the accent — the card's colour, not a pattern on it. */
-    background-image: linear-gradient(
-      rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha))),
-      rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha)))
-    );
+    background-image:
+      linear-gradient(180deg, var(--glass-hi) 0%, transparent 34%),
+      linear-gradient(135deg, var(--glass-sheen) 0%, transparent 46%),
+      linear-gradient(0deg, var(--glass-lo) 0%, transparent 30%),
+      linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%),
+      linear-gradient(
+        rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha))),
+        rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha)))
+      );
   }
 
   .surface {
     border-radius: theme("borderRadius.card");
-    box-shadow: var(--shadow-panel);
+    box-shadow: var(--shadow-panel), inset 0 1px 0 0 var(--glass-edge-light),
+      inset 0 -1px 0 0 var(--glass-edge-dark);
   }
 
-  .surface-raised,
-  .plate {
+  /*
+   * Tier 2 · a panel raised over tier 1.
+   *
+   * A step more solid than the card beneath it and a step longer in the corner:
+   * elevation has to be visible in the fill and the radius, because a shadow
+   * alone disappears the moment two surfaces sit on a busy background.
+   */
+  .surface-raised {
     border-radius: theme("borderRadius.panel");
-    background-color: rgb(var(--ink-850) / var(--surface-alpha));
-    background-image: linear-gradient(
-      rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha))),
-      rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha)))
-    );
-    box-shadow: var(--shadow-raised);
+    background-color: rgb(var(--ink-850) / var(--surface-alpha-2));
+    background-image:
+      linear-gradient(180deg, var(--glass-hi) 0%, transparent 34%),
+      linear-gradient(135deg, var(--glass-sheen) 0%, transparent 46%),
+      linear-gradient(0deg, var(--glass-lo) 0%, transparent 30%),
+      linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%),
+      linear-gradient(
+        rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha-2))),
+        rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha-2)))
+      );
+    box-shadow: var(--shadow-raised), inset 0 1px 0 0 var(--glass-edge-light),
+      inset 0 -1px 0 0 var(--glass-edge-dark);
   }
 
   .stat-tile {
     border-radius: theme("borderRadius.card");
-    box-shadow: var(--shadow-panel);
+    box-shadow: var(--shadow-panel), inset 0 1px 0 0 var(--glass-edge-light),
+      inset 0 -1px 0 0 var(--glass-edge-dark);
+  }
+
+  /*
+   * Tier 3 · a working surface.
+   *
+   * The live previews of the application, the specification grid and the menus
+   * are reading and driving surfaces: whatever the family does with
+   * translucency, this tier stays close to opaque, because a table of figures
+   * with the page showing through it is a table nobody can use. It keeps the
+   * light (so it still belongs to the family) and gives up the transparency.
+   */
+  .card-live {
+    background-color: rgb(var(--ink-900) / var(--surface-alpha-3));
+    background-image:
+      linear-gradient(180deg, var(--glass-hi) 0%, transparent 30%),
+      linear-gradient(
+        rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha-3))),
+        rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha-3)))
+      );
   }
 
   /*
@@ -837,17 +1183,36 @@
    * standing performance cost *and* slightly soft text, in exchange for an
    * effect that was invisible.
    *
-   * Crystal is different: its fill really is 34% opaque, so the blur is doing
-   * visible work and the trade is worth paying. Every other family now gets an
-   * opaque, crisply rasterised surface.
+   * Crystal is the other case: its fills really are translucent, so the blur
+   * is doing visible work and the trade is worth paying. Note that tier 3 is
+   * excluded on purpose — an 86%-opaque surface has almost nothing left to
+   * blur, and skipping it keeps every live preview of the application sharp and
+   * uncomposited.
    */
   [data-appearance="crystal"] .surface,
   [data-appearance="crystal"] .surface-raised,
   [data-appearance="crystal"] .stat-tile,
   [data-appearance="crystal"] .plate,
-  [data-appearance="crystal"] .card-live {
+  [data-appearance="crystal"] .card-accent,
+  [data-appearance="crystal"] .glass-primary {
     backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
     -webkit-backdrop-filter: blur(var(--surface-blur)) saturate(var(--surface-sat));
+  }
+
+  /* Crystal's outer luminous hairline: the rim of light where the sheet's
+     edge catches the room. One ring, no glow. */
+  [data-appearance="crystal"] .surface,
+  [data-appearance="crystal"] .surface-raised,
+  [data-appearance="crystal"] .stat-tile,
+  [data-appearance="crystal"] .plate,
+  [data-appearance="crystal"] .glass-primary {
+    box-shadow: var(--shadow-panel), 0 0 0 1px var(--glass-ring),
+      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
+  }
+
+  [data-appearance="crystal"] .surface-raised {
+    box-shadow: var(--shadow-raised), 0 0 0 1px var(--glass-ring),
+      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
   }
 
   /* ── 2 · the card edge ──────────────────────────────────────────────────
@@ -870,19 +1235,158 @@
   .plate,
   .card-live,
   .card-accent,
-  .card-glass {
+  .card-glass,
+  .glass-primary {
     border: var(--card-edge-width) solid var(--card-edge);
   }
 
   .surface,
   .stat-tile,
   .plate,
-  .card-live {
+  .card-live,
+  .glass-primary {
     border-radius: var(--card-radius);
   }
 
   .surface-raised {
     border-radius: var(--card-radius-large);
+  }
+
+  /* ── The primary card ───────────────────────────────────────────────────
+   * One card per section carries the section's subject: the thing a reader who
+   * has thirty seconds should come away with. Everything it needs to make its
+   * case is inside it — the heading, one short line, the figures that prove it
+   * and the way in — and the related cards below it are deliberately quieter.
+   *
+   * It is a tier-2 glass surface with three differences, and only three:
+   *
+   *   1. a larger radius, so it reads as the parent of the cards under it
+   *   2. a stronger accent in the fill, plus light spilling out from beneath
+   *      it onto the page — the one place the site lets a card light its
+   *      surroundings rather than merely sit on them
+   *   3. a hairline at the top of its own header band, so the card's title has
+   *      a ledge to stand on
+   *
+   * It is not a different component with its own look — it is the same system,
+   * one tier up, which is why it works in all four families.
+   */
+  .glass-primary {
+    border-radius: var(--card-radius-large);
+    background-color: rgb(var(--ink-850) / var(--surface-alpha-2));
+    background-image:
+      linear-gradient(180deg, var(--glass-hi) 0%, transparent 38%),
+      linear-gradient(135deg, var(--glass-sheen) 0%, transparent 48%),
+      linear-gradient(0deg, var(--glass-lo) 0%, transparent 30%),
+      linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%),
+      linear-gradient(
+        135deg,
+        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * var(--surface-alpha-2))) 0%,
+        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * var(--surface-alpha-2) * 0.5)) 55%,
+        rgb(var(--brand-500) / calc(var(--glass-primary-tint) * var(--surface-alpha-2))) 100%
+      );
+    box-shadow: var(--shadow-raised), 0 34px 90px -48px var(--glass-primary-glow),
+      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
+  }
+
+  /* The primary card's own header rule — a ledge, not a divider. */
+  .glass-primary-head {
+    border-bottom: 1px solid var(--glass-line);
+  }
+
+  /* ── The metric ─────────────────────────────────────────────────────────
+   * A figure that carries a primary card: the number, what it counts, and one
+   * line of what it means. Inside a glass card a metric must not look like a
+   * second card, so it does not get a fill — it gets a floor: a hairline top
+   * rule that separates it from the prose above without adding a box.
+   */
+  .glass-metric {
+    position: relative;
+    padding-top: 0.9rem;
+  }
+
+  .glass-metric::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      rgb(var(--brand-400) / 0.5),
+      var(--glass-line) 55%,
+      transparent
+    );
+  }
+
+  /* The figure itself: tabular, so a row of them lines up. */
+  .metric-value {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: clamp(1.5rem, 4.2vw, 2rem);
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: rgb(var(--text-1));
+  }
+
+  .glass-divider {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--glass-line) 18%,
+      rgb(var(--brand-400) / 0.45) 50%,
+      var(--glass-line) 82%,
+      transparent
+    );
+  }
+
+  /*
+   * ── Shared type levels ─────────────────────────────────────────────────
+   * Seven steps, named so a page does not have to re-invent its hierarchy in
+   * utility classes: eyebrow → display → lede → section → card title → body →
+   * metadata. Sizes step down with the viewport rather than being fixed, so a
+   * 375 px phone never has a heading that eats the screen.
+   */
+  .display-1 {
+    font-size: clamp(1.75rem, 5.2vw, 3.15rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+    color: rgb(var(--text-1));
+    text-wrap: balance;
+  }
+
+  .display-2 {
+    font-size: clamp(1.5rem, 3.4vw, 2.35rem);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    font-weight: 600;
+    color: rgb(var(--text-1));
+    text-wrap: balance;
+  }
+
+  .display-3 {
+    font-size: clamp(1.2rem, 2.2vw, 1.55rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 600;
+    color: rgb(var(--text-1));
+  }
+
+  .card-title {
+    font-size: 1rem;
+    line-height: 1.3;
+    font-weight: 600;
+    color: rgb(var(--text-1));
+  }
+
+  .meta-line {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    font-weight: 500;
+    color: rgb(var(--text-4));
   }
 
   /* The card's own padding follows the edge weight. */
@@ -935,6 +1439,39 @@
   .card-accent > * {
     position: relative;
     z-index: 1;
+  }
+
+  /*
+   * Floating card — the small panels that overlap the hero artwork (the
+   * proforma snapshot, the chain chip).
+   *
+   * They sit over a picture, so they are opaque by default for the same reason
+   * a menu is. In Crystal they become glass like everything else, because a
+   * solid white-on-dark chip floating over a translucent composition is the
+   * one element that would look pasted on.
+   */
+  .float-card {
+    position: relative;
+    background-color: rgb(var(--ink-900));
+    border: var(--card-edge-width) solid var(--card-edge);
+    border-radius: var(--card-radius);
+  }
+
+  [data-appearance="crystal"] .float-card {
+    background-color: rgb(var(--ink-900) / var(--surface-alpha-2));
+    background-image:
+      linear-gradient(180deg, var(--glass-hi) 0%, transparent 40%),
+      linear-gradient(135deg, var(--glass-sheen) 0%, transparent 50%),
+      linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%);
+    backdrop-filter: blur(16px) saturate(170%);
+    -webkit-backdrop-filter: blur(16px) saturate(170%);
+    box-shadow: inset 0 1px 0 0 var(--glass-edge-light), 0 0 0 1px var(--glass-ring);
+  }
+
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+    [data-appearance="crystal"] .float-card {
+      background-color: rgb(var(--ink-900) / 0.95);
+    }
   }
 
   /* Glass card: the iridescent variant, for glass build-up content. */
@@ -994,18 +1531,39 @@
     @apply inline-flex items-center gap-1.5 rounded-full border border-line-strong/80 bg-ink-800 px-2.5 py-1 font-mono text-2xs font-semibold uppercase tracking-[0.12em] text-text-secondary;
   }
 
-  /* Rivet detail: a hairline top highlight used on product frames. */
+  /*
+   * Product frame — the panel a module preview, a screenshot or a live surface
+   * is mounted in.
+   *
+   * It sits at tier 2 like every other elevated panel, and keeps the angled
+   * 168° reading of the fill that made it a *plate* rather than a card: the
+   * light falls across it from the top-left rather than straight down. In
+   * Crystal it is real glass — the same four light layers as every other
+   * surface, over whichever of the application's screens it is holding.
+   */
   .plate {
     position: relative;
     overflow: hidden;
     border-radius: theme("borderRadius.panel");
-    border: 1px solid rgb(var(--line-strong) / 0.7);
-    background-image: linear-gradient(
-      168deg,
-      rgb(var(--ink-850) / 0.98) 0%,
-      rgb(var(--ink-900) / 0.99) 100%
-    );
-    box-shadow: var(--shadow-raised);
+    background-color: rgb(var(--ink-850) / var(--surface-alpha-2));
+    background-image:
+      linear-gradient(168deg, var(--glass-hi) 0%, transparent 42%),
+      linear-gradient(135deg, var(--glass-sheen) 0%, transparent 50%),
+      linear-gradient(0deg, var(--glass-lo) 0%, transparent 28%),
+      linear-gradient(180deg, var(--glass-scrim) 0%, var(--glass-scrim) 100%),
+      linear-gradient(
+        rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha-2))),
+        rgb(var(--brand-500) / calc(var(--tint-mix) * var(--surface-alpha-2)))
+      );
+    box-shadow: var(--shadow-raised), inset 0 1px 0 0 var(--glass-edge-light),
+      inset 0 -1px 0 0 var(--glass-edge-dark);
+  }
+
+  /* Crystal's rim of light, restated after the plate rule above so it is the
+     plate's own shadow that gets the ring and not the other way round. */
+  [data-appearance="crystal"] .plate {
+    box-shadow: var(--shadow-raised), 0 0 0 1px var(--glass-ring),
+      inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
   }
 
   /*
@@ -1259,6 +1817,25 @@
     --text-4: 60 60 72;
     --line: 210 210 218;
     --surface-alpha: 0;
+    --surface-alpha-2: 0;
+    --surface-alpha-3: 0;
+    /*
+     * The glass light layers are switched off for print as well, and not only
+     * the fills. A specular wash and a legibility scrim are drawn from their
+     * own tokens — leaving them on would print every Crystal card as a grey
+     * box with a shaded top, on paper, in black and white.
+     */
+    --glass-hi: rgb(255 255 255 / 0);
+    --glass-lo: rgb(0 0 0 / 0);
+    --glass-sheen: rgb(255 255 255 / 0);
+    --glass-edge-light: rgb(255 255 255 / 0);
+    --glass-edge-dark: rgb(0 0 0 / 0);
+    --glass-ring: rgb(0 0 0 / 0);
+    --glass-line: rgb(210 210 218 / 0.9);
+    --glass-scrim: rgb(255 255 255 / 0);
+    --glass-primary-glow: rgb(0 0 0 / 0);
+    --wall-lamp: rgb(255 255 255 / 0);
+    --wall-floor: rgb(0 0 0 / 0);
     color-scheme: light;
   }
 
@@ -1285,11 +1862,24 @@
 
   .surface,
   .surface-raised,
+  .stat-tile,
+  .card-live,
+  .glass-primary,
   .card {
     background: #fff !important;
     border: 1px solid #d2d2da !important;
     box-shadow: none !important;
     break-inside: avoid;
+  }
+
+  /* A metric's hairline floor survives on paper — it is structure, not light. */
+  .glass-metric::before,
+  .glass-divider {
+    background: #d2d2da !important;
+  }
+
+  .glass-primary-head {
+    border-bottom-color: #d2d2da !important;
   }
 
   /* Reveal is a screen animation; nothing may print half-faded. */

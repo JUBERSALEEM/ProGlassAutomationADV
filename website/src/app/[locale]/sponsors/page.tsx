@@ -286,7 +286,7 @@ export default async function SponsorsPage({ params }: PageProps) {
       <Section aria-label={t("Support the project")}>
         <Container>
           <Reveal>
-            <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("Back the build, or join it.")}</h2>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("Funding, a developer with spare capacity, a cutting table that can be tested against, or a translation that deserves a native speaker — all four move this product forward.")}</p>

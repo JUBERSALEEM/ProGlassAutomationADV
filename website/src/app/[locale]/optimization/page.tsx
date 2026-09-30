@@ -447,7 +447,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       <Section tone="raised" aria-label={t("Request a demo")}>
         <Container>
           <Reveal>
-            <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
+            <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("Send us a cutting list.")}</h2>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration is most useful when it runs on your glass, your sheet sizes and your margins — not on a sample project. Bring a job you recognise.")}</p>

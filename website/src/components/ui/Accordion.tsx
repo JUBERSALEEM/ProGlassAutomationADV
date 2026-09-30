@@ -24,7 +24,13 @@ export function Accordion({
   const baseId = useId();
 
   return (
-    <div className={cn("divide-y divide-line/60 overflow-hidden rounded-panel border border-line/70 bg-ink-900/45", className)}>
+    /*
+     * An accordion is a card, so it is drawn as one — the same tier-2 surface
+     * as every other elevated panel on the site. In Crystal it is a sheet of
+     * glass with the questions stacked on it; in the other families it is the
+     * flat card it has always been.
+     */
+    <div className={cn("surface-raised divide-y divide-line/60 overflow-hidden", className)}>
       {items.map((item, index) => {
         const expanded = open === index;
         const panelId = `${baseId}-panel-${index}`;
