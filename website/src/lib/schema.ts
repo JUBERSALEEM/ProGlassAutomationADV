@@ -1,4 +1,22 @@
 import { nav, site } from "@/lib/site";
+import type { Locale } from "@/i18n/locales";
+import { DEFAULT_LOCALE } from "@/i18n/locales";
+import { hrefIn } from "@/i18n/core";
+
+/** A translator, as this file needs it: sentence in, sentence out. */
+type Translate = (key: string) => string;
+
+/**
+ * A page's address in one language.
+ *
+ * Structured data has to point at the page the visitor is actually reading:
+ * the English graph belongs at `https://site/features` and the Japanese one at
+ * `https://site/ja-JP/features`. `hrefIn` is the only function on the site that
+ * knows that rule, so every URL in this file goes through it.
+ */
+function urlFor(locale: Locale, path: string): string {
+  return `${site.url}${hrefIn(locale, path)}`;
+}
 
 /**
  * Structured data, in one connected graph.
@@ -34,7 +52,8 @@ export const schemaIds = {
  * application's own About screen, the version is the one the build ships, and
  * the feature list is drawn from the module data rather than written fresh.
  */
-export const globalGraph = {
+export function globalGraph(locale: Locale = DEFAULT_LOCALE, languageName = "English") {
+  return {
   "@context": "https://schema.org",
   "@graph": [
     {
@@ -45,6 +64,7 @@ export const globalGraph = {
       email: site.developerEmail,
       description:
         "ProGlass Automation builds desktop software for glass fabrication businesses: estimation, calculation, cutting optimization, stock, production, delivery, invoicing and reporting.",
+      knowsLanguage: [languageName],
       founder: { "@id": DEVELOPER_ID },
     },
     {
@@ -53,7 +73,7 @@ export const globalGraph = {
       url: site.url,
       name: site.name,
       description: "Desktop ERP for glass fabrication: estimation, cutting optimization, production, delivery and invoicing.",
-      inLanguage: "en",
+      inLanguage: locale,
       publisher: { "@id": ORG_ID },
     },
     {
@@ -68,7 +88,7 @@ export const globalGraph = {
         "Double-glazed unit estimation",
         "Desktop ERP systems",
       ],
-      url: `${site.url}/developer`,
+      url: urlFor(locale, "/developer"),
     },
     {
       "@type": "SoftwareApplication",
@@ -96,10 +116,11 @@ export const globalGraph = {
       ],
     },
   ],
-};
+  };
+}
 
 /** The label a page is known by in the navigation — used for breadcrumbs. */
-function labelFor(path: string): string {
+function labelFor(path: string, t: Translate = (key) => key): string {
   const groups = [
     ...nav.product,
     ...nav.primary,
@@ -109,8 +130,8 @@ function labelFor(path: string): string {
     ...nav.footer.legal,
   ];
   const match = groups.find((entry) => entry.href === path);
-  if (match) return match.label;
-  if (path === "/blog") return "Blog";
+  if (match) return t(match.label);
+  if (path === "/blog") return t("Blog");
   return path
     .split("/")
     .filter(Boolean)
@@ -119,18 +140,18 @@ function labelFor(path: string): string {
 }
 
 /** A breadcrumb trail, built from the path itself so it cannot drift. */
-export function breadcrumbNode(path: string) {
+export function breadcrumbNode(path: string, locale: Locale = DEFAULT_LOCALE, t: Translate = (key) => key) {
   const segments = path.split("/").filter(Boolean);
-  const items = [{ name: "Home", item: `${site.url}/` }];
+  const items = [{ name: t("Home"), item: urlFor(locale, "/") }];
 
   segments.forEach((segment, index) => {
     const href = `/${segments.slice(0, index + 1).join("/")}`;
-    items.push({ name: labelFor(href), item: `${site.url}${href}` });
+    items.push({ name: labelFor(href, t), item: urlFor(locale, href) });
   });
 
   return {
     "@type": "BreadcrumbList",
-    "@id": `${site.url}${path}#breadcrumb`,
+    "@id": `${urlFor(locale, path)}#breadcrumb`,
     itemListElement: items.map((entry, index) => ({
       "@type": "ListItem",
       position: index + 1,
@@ -149,6 +170,8 @@ export function routeGraph({
   path,
   title,
   description,
+  locale = DEFAULT_LOCALE,
+  t = (key: string) => key,
   type = "WebPage",
   faq,
   article,
@@ -157,12 +180,14 @@ export function routeGraph({
   path: string;
   title: string;
   description: string;
+  locale?: Locale;
+  t?: Translate;
   type?: "WebPage" | "CollectionPage" | "AboutPage" | "ContactPage";
   faq?: { question: string; answer: string }[];
   article?: { slug: string; title: string; summary: string; date: string; category: string };
   items?: { name: string; url: string }[];
 }) {
-  const url = path === "/" ? site.url : `${site.url}${path}`;
+  const url = urlFor(locale, path);
 
   const nodes: Record<string, unknown>[] = [
     {
@@ -174,14 +199,14 @@ export function routeGraph({
       isPartOf: { "@id": SITE_ID },
       about: { "@id": SOFTWARE_ID },
       publisher: { "@id": ORG_ID },
-      inLanguage: "en",
+      inLanguage: locale,
       breadcrumb: { "@id": `${site.url}${path}#breadcrumb` },
     },
-    breadcrumbNode(path),
+    breadcrumbNode(path, locale, t),
   ];
 
   if (items && items.length > 0) {
-    nodes.push(itemListNode(path, items));
+    nodes.push(itemListNode(path, items, locale));
   }
 
   if (faq && faq.length > 0) {
@@ -198,7 +223,7 @@ export function routeGraph({
   }
 
   if (article) {
-    const postUrl = `${site.url}/blog/${article.slug}`;
+    const postUrl = urlFor(locale, `/blog/${article.slug}`);
     nodes.push({
       "@type": "Article",
       "@id": `${postUrl}#article`,
@@ -209,7 +234,7 @@ export function routeGraph({
       dateModified: article.date,
       author: { "@id": DEVELOPER_ID },
       publisher: { "@id": ORG_ID },
-      isPartOf: { "@id": `${site.url}/blog#webpage` },
+      isPartOf: { "@id": `${urlFor(locale, "/blog")}#webpage` },
       mainEntityOfPage: { "@id": `${postUrl}#webpage` },
     });
   }
@@ -223,17 +248,21 @@ export function routeGraph({
  * describe themselves on their own pages, and restating them here would mean
  * two nodes claiming the same thing.
  */
-export function itemListNode(path: string, items: { name: string; url: string }[]) {
+export function itemListNode(
+  path: string,
+  items: { name: string; url: string }[],
+  locale: Locale = DEFAULT_LOCALE,
+) {
   return {
     "@type": "ItemList",
-    "@id": `${site.url}${path}#items`,
-    isPartOf: { "@id": `${site.url}${path}#webpage` },
+    "@id": `${urlFor(locale, path)}#items`,
+    isPartOf: { "@id": `${urlFor(locale, path)}#webpage` },
     numberOfItems: items.length,
     itemListElement: items.map((entry, index) => ({
       "@type": "ListItem",
       position: index + 1,
       name: entry.name,
-      url: entry.url,
+      url: entry.url.startsWith("/") ? urlFor(locale, entry.url) : entry.url,
     })),
   };
 }

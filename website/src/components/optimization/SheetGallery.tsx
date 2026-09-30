@@ -2,8 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
+import { LocaleLink as Link } from "@/components/ui/LocaleLink";
 import { SheetCard } from "@/components/optimization/SheetCard";
 import type { PlateView } from "@/lib/guillotinePack";
+import { useT } from "@/i18n/provider";
 
 /**
  * Every plate of a run, small, several to a row.
@@ -44,6 +46,7 @@ export function SheetGallery({
   columns?: string;
   className?: string;
 }) {
+  const t = useT();
   const [page, setPage] = useState(0);
   const pageCount = Math.max(1, Math.ceil(plates.length / pageSize));
   const safePage = Math.min(page, pageCount - 1);
@@ -56,7 +59,7 @@ export function SheetGallery({
   if (plates.length === 0) {
     return (
       <p className="surface p-5 text-sm leading-relaxed text-text-muted">
-        No plates to show — nothing was placed.
+        {t("No plates to show — nothing was placed.")}
       </p>
     );
   }
@@ -82,17 +85,21 @@ export function SheetGallery({
       */}
       {!paginate && plates.length > shown.length ? (
         <p className="mt-3 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint">
-          {shown.length} of {plates.length} sheets · the rest page through on{" "}
-          <a href="/optimization" className="link-underline">
-            the engine page
-          </a>
+          {t("{shown} of {total} sheets · the rest page through on", { shown: shown.length, total: plates.length })}{" "}
+          <Link href="/optimization" className="link-underline">
+            {t("the engine page")}
+          </Link>
         </p>
       ) : null}
 
       {paginate && pageCount > 1 ? (
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-muted">
-            Sheets {safePage * pageSize + 1}–{safePage * pageSize + shown.length} of {plates.length}
+            {t("Sheets {from}–{to} of {total}", {
+              from: safePage * pageSize + 1,
+              to: safePage * pageSize + shown.length,
+              total: plates.length,
+            })}
           </p>
           <div className="flex items-center gap-2">
             <button
@@ -101,7 +108,7 @@ export function SheetGallery({
               disabled={safePage === 0}
               className="rounded-full border-2 border-line-strong/80 px-3 py-1 text-xs font-semibold text-text-secondary transition-colors hover:border-brand-400/60 hover:text-text-primary disabled:opacity-40 disabled:hover:border-line-strong/80 disabled:hover:text-text-secondary"
             >
-              Previous
+              {t("Previous")}
             </button>
             <span className="font-mono text-xs tabular-nums text-text-faint">
               {safePage + 1} / {pageCount}
@@ -112,7 +119,7 @@ export function SheetGallery({
               disabled={safePage >= pageCount - 1}
               className="rounded-full border-2 border-line-strong/80 px-3 py-1 text-xs font-semibold text-text-secondary transition-colors hover:border-brand-400/60 hover:text-text-primary disabled:opacity-40 disabled:hover:border-line-strong/80 disabled:hover:text-text-secondary"
             >
-              Next
+              {t("Next")}
             </button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { routeGraph } from "@/lib/schema";
+import type { Locale } from "@/i18n/locales";
 
 /**
  * One route's structured-data graph.
@@ -16,6 +17,7 @@ export function RouteSchema({
   path,
   title,
   description,
+  locale,
   type,
   faq,
   article,
@@ -24,12 +26,14 @@ export function RouteSchema({
   path: string;
   title: string;
   description: string;
+  /** The language this page is written in; the graph's URLs follow it. */
+  locale: Locale;
   type?: "WebPage" | "CollectionPage" | "AboutPage" | "ContactPage";
   faq?: { question: string; answer: string }[];
   article?: { slug: string; title: string; summary: string; date: string; category: string };
   items?: { name: string; url: string }[];
 }) {
-  const graph = routeGraph({ path, title, description, type, faq, article, items });
+  const graph = routeGraph({ path, title, description, locale, type, faq, article, items });
 
   return (
     <script
