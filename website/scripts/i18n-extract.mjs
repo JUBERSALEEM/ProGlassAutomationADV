@@ -145,6 +145,23 @@ for await (const file of walk("src")) {
 /* ── data files ─────────────────────────────────────────────────────── */
 
 /*
+ * A handful of strings are keys by decision rather than by shape: the values of
+ * the Step-4 option arrays — a glass colour, a treatment, a polish. They are
+ * single words, which the general rules skip on purpose (one lowercase word is
+ * a field name, not a sentence), and they are rendered through `t()` by the
+ * build-type selects, so the dictionary has to be able to hold them.
+ *
+ * They are listed here, explicitly, so that adding a colour to the application
+ * is a one-line change in two places rather than a silent English option in the
+ * middle of a translated dropdown.
+ */
+const OPTION_VALUES = [
+  "Clear", "Bronze", "Grey", "Low-E", "Frosted",
+  "FT", "Annealed", "Heat Soaked", "Polished",
+  "Normal Mill Aluminium", "Black Aluminium", "Warm Edge (Super Spacer)", "Black Warm Edge", "Stainless Steel", "TGI Spacer",
+];
+
+/*
  * A quoted span in a data file is only a value when something puts it there:
  * it follows `:`, `[`, `,` or `(`, and it ends before `,`, `}`, `]`, `)` or the
  * end of the line. Without both halves of that test, the closing quote of one
@@ -181,7 +198,7 @@ for await (const file of walk("src")) {
  * anything else that carries styling.
  */
 const PROSE_PROPERTIES =
-  "label|title|description|detail|summary|evidence|note|body|heading|hint|caption|question|answer|name|category|status|step|job|text|tagline|blurb|benefit|outcome|purpose|reason|alt|placeholder|eyebrow|kicker|quote|author|role|deliverable|feature|gap|prompt|why|term|meaning|spec|subtitle|value";
+  "label|title|description|detail|summary|evidence|note|body|heading|hint|caption|question|answer|name|category|status|step|job|text|tagline|blurb|benefit|outcome|purpose|reason|alt|placeholder|eyebrow|kicker|quote|author|role|deliverable|feature|gap|prompt|why|term|meaning|spec|subtitle|value|colour|treatment|polish|panelExtra|panes|long";
 const INLINE_PROPERTY = new RegExp(`\\b(?:${PROSE_PROPERTIES})\\s*:\\s*(?:"((?:[^"\\\\]|\\\\.)*)"|'((?:[^'\\\\]|\\\\.)*)')`, "gm");
 
 /* A style rule is a list of lowercase tokens and punctuation, not a sentence. */
@@ -228,6 +245,11 @@ for await (const file of walk("src")) {
 }
 
 /* ── write ──────────────────────────────────────────────────────────── */
+
+for (const value of OPTION_VALUES) {
+  keys.add(value);
+  if (!origin.has(value)) origin.set(value, "data");
+}
 
 const sorted = [...keys].sort((a, b) => a.localeCompare(b, "en"));
 

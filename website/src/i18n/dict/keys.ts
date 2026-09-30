@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 2539 keys.
+ * 2549 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -184,6 +184,7 @@ export const KEYS: string[] = [
   "An inquiry carries the customer, the project, a scope of supply and the attachments that came with the request. It is the record that survives the phone call, so the quotation that follows can be checked against what was asked.",
   "An invoice can enrich the company master but a missed field can never erase it.",
   "An operator ticked a job, the specification panel filled in, the pane checklist filled in — and the cutting-size list stayed empty. A first pass was made and a syntax fault corrected. The symptom survived it. So the next pass began by refusing to trust that first fix: it is described in the document as unverified and not defended, and nothing downstream was allowed to assume it had been right.",
+  "Annealed",
   "Annealed panes bypass the stage rather than queueing",
   "Answer what the job made",
   "Any chip in the chain opens that stage's own module",
@@ -277,6 +278,7 @@ export const KEYS: string[] = [
   "BILLED RATE",
   "Billed, overdue and collected, from the issued invoices themselves.",
   "Billed, overdue and settled",
+  "Black Aluminium",
   "Black Aluminum",
   "Black Warm Edge",
   "Blocked reasons recorded against the job",
@@ -296,6 +298,7 @@ export const KEYS: string[] = [
   "Breadcrumb",
   "Brightness",
   "Bringing the pane occurrences of one unit back together before sealing.",
+  "Bronze",
   "Browse features",
   "Build types",
   "Build-up lines for SGU, DGU, LAM and DGU + LAM",
@@ -348,6 +351,7 @@ export const KEYS: string[] = [
   "Checked against the job order",
   "China, Taiwan, Hong Kong",
   "Choosing a family sets the palette to that family's own accent. A colour plate below overrides it again — the last one you touch wins.",
+  "Clear",
   "Clear 10 mm",
   "Clear 12 mm",
   "Clear 6 / 8 / 10 / 12 · Tinted 6 / 8 · Low-E 6 · Frosted 5",
@@ -739,6 +743,8 @@ export const KEYS: string[] = [
   "From a quick area-shelf pass to the widest MaxRects search.",
   "From the first inquiry to the final statement, without re-keying the job.",
   "From the plan to the paperwork, and to the machine.",
+  "Frosted",
+  "FT",
   "FT and treatments",
   "FT, Heat Strengthened and Heat Soaked panes route here",
   "Full audit trail — every recorded event (compliance view)",
@@ -815,6 +821,7 @@ export const KEYS: string[] = [
   "Grand total",
   "Grand total summary",
   "Grand total summary — one row per specification and the grand row, alongside every spec footer",
+  "Grey",
   "Grid commands: find and replace, paste from Excel or a BOQ, generate rows, per-row delete",
   "Grid virtualized and paginated, 100 rows at a time, with scroll feed and footer progress",
   "Group {v1}, {v2}: every quotation line with its size, area, rate and value.",
@@ -1046,6 +1053,7 @@ export const KEYS: string[] = [
   "Logs and activity views",
   "Longer pieces on how the software is built.",
   "Look at the screens",
+  "Low-E",
   "Low-E — Energy Efficient Zones",
   "Low-E 6 mm clear",
   "Machine-readable exports",
@@ -1160,6 +1168,7 @@ export const KEYS: string[] = [
   "None of them may buy its preference by opening another plate.",
   "None of these is a claim about character. Each one is visible in the documents this page just cited, which is the only reason it is on the page at all.",
   "None yet",
+  "Normal Mill Aluminium",
   "Normal Mill Aluminum",
   "Normal Mill Aluminum · Black Aluminum · Stainless Steel · TGI Spacer · Warm Edge (Super Spacer) · Black Warm Edge",
   "Not a mock-up and not a market rate: this is the demonstration job the application seeds into an empty database, read back line by line. The customer, the project, the 22 quotation lines, the sheet stock behind them, the partial delivery and the invoice that followed are the records the software itself creates.",
@@ -1406,6 +1415,7 @@ export const KEYS: string[] = [
   "Please wait — cutting sheets… You can keep editing, but do not close this invoice until the bar reaches 100%.",
   "Polish",
   "Polish — a stage page with the shared production chrome.",
+  "Polished",
   "Polished edges are dimensioned work: the quantity is the edge length the pricing step used, not a piece count. The station records what was actually polished, and the balance stays honest about what is left.",
   "Polished Matched LAM",
   "Polyisobutylene (PIB) butyl",
