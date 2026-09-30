@@ -18,11 +18,8 @@
     "i18n:keys": "node scripts/i18n-extract.mjs",
     "i18n:audit": "node --experimental-strip-types scripts/i18n-audit.mjs",
     "i18n:gaps": "node --experimental-strip-types scripts/i18n-audit.mjs --gaps",
-    "i18n:rendered": "node scripts/i18n-rendered-gaps.mjs",
-    "i18n:wire": "node scripts/i18n-wire.mjs && node scripts/i18n-wire-components.mjs && node scripts/i18n-wire-blocks.mjs && node scripts/i18n-wire-data.mjs && node scripts/i18n-fix-t-scope.mjs",
-    "i18n:app": "node scripts/build-app-strings.mjs",
-    "i18n:import-app": "node scripts/i18n-import-app.mjs",
-    "i18n:blocks": "node scripts/i18n-wire-blocks.mjs"
+    "i18n:memory": "node scripts/i18n-memory-fill.mjs --all",
+    "i18n:fill": "node scripts/i18n-machine-fill.mjs --all"
   },
   "dependencies": {
     "next": "16.3.6",

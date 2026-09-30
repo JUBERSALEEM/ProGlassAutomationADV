@@ -311,10 +311,27 @@ function refusals(locale) {
   }
 }
 
+/* A language naming itself, and the country it is offered for, are the same
+   string in every language. "Bahasa Indonesia" in the menu is not an English
+   sentence waiting to be translated — it is the Indonesian reader's way of
+   finding their own language, and it has to look the same whatever language
+   the page is in. Same for العربية, 日本語, हिन्दी and the rest. */
+const NEVER = new Set([
+  "English", "العربية", "বাংলা", "Deutsch", "Español", "Français", "हिन्दी",
+  "Bahasa Indonesia", "日本語", "한국어", "Português", "Русский", "Türkçe",
+  "اردو", "中文",
+  "Arabic", "Bengali", "German", "Spanish", "French", "Hindi", "Indonesian",
+  "Japanese", "Korean", "Portuguese", "Russian", "Turkish", "Urdu", "Chinese",
+  "United Arab Emirates", "Bangladesh", "Germany, Austria, Switzerland",
+  "Spain, Latin America", "France, Belgium", "India", "Indonesia", "Japan",
+  "Korea", "Brazil, Portugal", "Russia", "Türkiye", "Pakistan", "China",
+  "International",
+]);
+
 function candidatesFor(locale, source) {
   const have = existing(locale);
   const refused = refusals(locale);
-  const missing = keys.filter((key) => !have.has(key) && !refused.has(key));
+  const missing = keys.filter((key) => !have.has(key) && !refused.has(key) && !NEVER.has(key));
   if (source === "dict") return missing;
   /* Text the rendered page actually shows comes first — that is the English a
      visitor can still see — then the rest of the key set in its own order. */
@@ -324,11 +341,23 @@ function candidatesFor(locale, source) {
   } catch {
     dump = [];
   }
+  /* How often a sentence is on screen decides the order of the queue: the
+     header, the footer and the calls to action are read on every page, a
+     paragraph deep in a legal page is read once. Frequency is a better
+     priority than the order the pages happened to be rendered in. */
   const seen = new Map();
-  for (const row of dump) if (row.text && !seen.has(row.text)) seen.set(row.text, seen.size);
+  const hits = new Map();
+  for (const row of dump) {
+    if (!row.text) continue;
+    if (!seen.has(row.text)) seen.set(row.text, seen.size);
+    hits.set(row.text, Math.max(hits.get(row.text) ?? 0, row.count ?? 1));
+  }
   const fallback = seen.size + keys.length;
   const rank = new Map(keys.map((key, index) => [key, seen.has(key) ? seen.get(key) : fallback + index]));
-  return missing.slice().sort((a, b) => rank.get(a) - rank.get(b));
+  const weight = (key) => hits.get(key) ?? 1;
+  return missing
+    .slice()
+    .sort((a, b) => weight(b) - weight(a) || rank.get(a) - rank.get(b));
 }
 
 /*
@@ -357,6 +386,26 @@ function planBatch(locale, wave, size, source) {
   console.error(`${prepared.length} of ${candidates.length} sentences still missing · ${`${ENDPOINT}&${params.toString()}`.length} chars · ${locale}-${tag}.src.json`);
 }
 
+/*
+ * The masking is only as good as the engine's respect for it. Hindi turned
+ * every [[G0]] into [[जी0]] — the G transliterated into Devanagari — which is
+ * the same placeholder written in another script, not a lost one. A mask is
+ * restored by position and digit rather than by spelling: [[...0...]] is
+ * [[G0]] again, in whatever alphabet it came back.
+ */
+function remask(text, placeholders) {
+  if (!placeholders.length) return text;
+  return text.replace(/\[\[([^\]]{1,12})\]\]/g, (whole, inner) => {
+    const digits = inner.replace(/\D/g, "");
+    if (!digits) return whole;
+    const match = placeholders.find((token) => {
+      const want = token.replace(/\D/g, "");
+      return want.length > 0 && want === digits && !token.includes(inner);
+    });
+    return match ? match : whole;
+  });
+}
+
 function ingestBatch(locale, wave) {
   const tag = flag("--tag", flag("--chunk") ? `c${flag("--chunk")}` : `w${wave}`);
   const prepared = JSON.parse(readFileSync(`${OUT}/${locale}-${tag}.src.json`, "utf8"));
@@ -383,7 +432,7 @@ function ingestBatch(locale, wave) {
   for (let index = 0; index < prepared.length; index += 1) {
     const row = prepared[index];
     if (typeof list[index] !== "string") { skipped += 1; refused.push(row.key); continue; }
-    const text = tidy(restore(list[index], row.table));
+    const text = tidy(remask(restore(list[index], row.table), row.placeholders));
     const complete = row.placeholders.every((token) => text.includes(token));
     if (text.length === 0 || !complete || !looksRight(text, locale) || /\[\[/.test(text)) { skipped += 1; refused.push(row.key); continue; }
     rows.push([row.key, text]);
