@@ -40,6 +40,7 @@ export default async function PricingPage({ params }: PageProps) {
       description={t("ProGlass Automation editions — Trial, Basic, Business, Factory and Enterprise: which modules each tier unlocks, and how offline licensing works.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("Pricing")}
         title={t("Editions, not subscriptions.")}
         lead={t("ProGlass Automation is licensed per business with a signed licence file activated offline. The editions below are the ones the application itself defines, and the feature gating is the same map the navigation rail uses — so what this page says and what the application does cannot drift apart.")}

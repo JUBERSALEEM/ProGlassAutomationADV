@@ -152,6 +152,7 @@ const faq = [
       description={t("ProGlass Automation is written by Juber Saleem, a glass estimator rather than a trained engineer. One person, no team, no investors — and how that shaped the product.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("The developer")}
         banner="people"
         title={

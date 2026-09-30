@@ -66,7 +66,8 @@ export default async function HomePage({ params }: PageProps) {
       // The questions this page actually renders, so the markup and the page agree.
       faq={faq.filter((item) => item.group === "Product").map(({ question, answer }) => ({ question, answer }))}
     />
-      <ProductHero />
+      <ProductHero
+      t={t} />
 
       {/* ═══ 01b · The facts strip ═══════════════════════════════════ */}
       <div className="border-y border-line-strong/50 bg-ink-900">
@@ -162,7 +163,8 @@ export default async function HomePage({ params }: PageProps) {
                 documentation and the transition code that enforces them.
               </p>
             </div>
-            <WorkflowRail />
+            <WorkflowRail
+      t={t} />
           </div>
         </Container>
       </Section>
@@ -310,7 +312,8 @@ export default async function HomePage({ params }: PageProps) {
                 id: shot.id,
                 label: shot.title.replace(/ calculator$/, ""),
                 caption: shot.tags.join(" · "),
-                content: <ScreenshotFrame shot={shot} />,
+                content: <ScreenshotFrame
+      t={t} shot={shot} />,
               }))}
             />
           </Reveal>
@@ -476,7 +479,8 @@ export default async function HomePage({ params }: PageProps) {
             lead={`Four of the ${modules.length} navigation targets are shown here in depth. Each exists in the rail with the label shown — nothing on this page is a planned feature presented as a shipped one.`}
           />
           <div className="mt-14">
-            <ModuleShowcase modules={heroModules} />
+            <ModuleShowcase
+      t={t} modules={heroModules} />
           </div>
           <Reveal className="mt-14">
             <ButtonLink href="/features" size="lg" trailing={<ArrowRight />}>
@@ -620,7 +624,8 @@ export default async function HomePage({ params }: PageProps) {
               .filter((s) => ["optimization-2d", "sheet-store-overview", "overview-dashboard"].includes(s.id))
               .map((shot, index) => (
                 <Reveal key={shot.id} as="li" delay={index * 70}>
-                  <ScreenshotFrame shot={shot} />
+                  <ScreenshotFrame
+      t={t} shot={shot} />
                 </Reveal>
               ))}
           </ul>

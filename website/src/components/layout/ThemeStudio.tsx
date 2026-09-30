@@ -18,6 +18,7 @@ import {
 } from "@/lib/useStudio";
 import { luminance } from "@/lib/color";
 import { Slider, edgeReadout } from "@/components/ui/Slider";
+import { useT } from "@/i18n/provider";
 
 /**
  * The theme studio.
@@ -43,6 +44,7 @@ function tintReadout(value: number): string {
 }
 
 export function ThemeStudio() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [customHex, setCustomHex] = useState("#7C3AED");
   const panel = useRef<HTMLDivElement | null>(null);
@@ -109,14 +111,14 @@ export function ThemeStudio() {
           ref={panel}
           id="theme-studio"
           role="dialog"
-          aria-label="Theme and colour"
+          aria-label={t("Theme and colour")}
           className="no-print menu-card animate-scale-in fixed inset-x-3 bottom-20 z-50 max-h-[78vh] overflow-y-auto rounded-panel p-4 shadow-raised sm:inset-x-auto sm:right-5 sm:w-[24rem] sm:p-5"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="eyebrow">Theme &amp; colour</p>
               <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-secondary">
-                Change how this site looks while you use it. Every choice is saved, and every one maps to a real
+                {t("Change how this site looks while you use it. Every choice is saved, and every one maps to a real")}
                 setting in the application.
               </p>
             </div>
@@ -125,7 +127,7 @@ export function ThemeStudio() {
               onClick={() => setOpen(false)}
               className="rounded-full border border-line-strong/80 px-2.5 py-1 text-[0.75rem] font-semibold text-text-secondary transition-colors hover:text-text-primary"
             >
-              Close
+              {t("Close")}
             </button>
           </div>
 
@@ -211,12 +213,12 @@ export function ThemeStudio() {
           <fieldset className="mt-4">
             <legend className="mono-label">Colour plates</legend>
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
-              The sixteen accents the application ships. Tap one and the whole site takes it.
+              {t("The sixteen accents the application ships. Tap one and the whole site takes it.")}
             </p>
 
             <div className="mt-2 grid grid-cols-4 gap-2">
               <PlateButton
-                label="Family"
+                label={t("Family")}
                 colour={activeFamily.swatch}
                 active={studio.accent === null}
                 onClick={() => setAccent("Family", null)}
@@ -238,7 +240,7 @@ export function ThemeStudio() {
             <div className="mt-3 flex items-center gap-2">
               <input
                 type="color"
-                aria-label="Pick a custom accent colour"
+                aria-label={t("Pick a custom accent colour")}
                 value={customHex}
                 onChange={(event) => {
                   setCustomHex(event.target.value);
@@ -248,7 +250,7 @@ export function ThemeStudio() {
               />
               <label className="flex flex-1 items-center gap-2 rounded-card border-2 border-line-strong/70 bg-ink-900 px-2.5 py-1.5">
                 <span className="font-mono text-[0.75rem] font-bold uppercase tracking-[0.12em] text-text-muted">
-                  Hex
+                  {t("Hex")}
                 </span>
                 <input
                   value={customHex}
@@ -270,21 +272,21 @@ export function ThemeStudio() {
           <fieldset className="mt-4">
             <legend className="mono-label">Typeface</legend>
             <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">
-              Fourteen families in two groups — the four this site serves, and ten the browser resolves from your own
-              computer. The bundled four carry a real italic and a full weight range, so bold, bold italic and
+              {t("Fourteen families in two groups — the four this site serves, and ten the browser resolves from your own")}
+              {t("computer. The bundled four carry a real italic and a full weight range, so bold, bold italic and")}
               underlining below are drawn rather than slanted and thickened.
             </p>
 
             <FaceGrid
-              caption="Bundled with this site"
-              note="Served from here, so these four are the same face on every machine."
+              caption={t("Bundled with this site")}
+              note={t("Served from here, so these four are the same face on every machine.")}
               keys={bundledTypefaceKeys}
               current={studio.typeface}
               columns="grid-cols-2 sm:grid-cols-4"
             />
             <FaceGrid
-              caption="Installed on your machine"
-              note="Named, not downloaded — the browser takes them from your own system, the way FontService takes a font from the computer it runs on."
+              caption={t("Installed on your machine")}
+              note={t("Named, not downloaded — the browser takes them from your own system, the way FontService takes a font from the computer it runs on.")}
               keys={installedTypefaceKeys}
               current={studio.typeface}
               columns="grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
@@ -349,15 +351,15 @@ export function ThemeStudio() {
                 <p className="mono-label">Font style &amp; decoration</p>
                 <div className="mt-1.5 flex gap-1.5">
                   <ToggleChip
-                    label="Italic"
+                    label={t("Italic")}
                     active={studio.italic}
-                    title="AppConfig.FontStyleName = Italic"
+                    title={t("AppConfig.FontStyleName = Italic")}
                     onClick={() => setStudio({ italic: !studio.italic })}
                   />
                   <ToggleChip
-                    label="Underline"
+                    label={t("Underline")}
                     active={studio.underline}
-                    title="AppConfig.FontUnderline = true"
+                    title={t("AppConfig.FontUnderline = true")}
                     onClick={() => setStudio({ underline: !studio.underline })}
                   />
                 </div>
@@ -365,7 +367,7 @@ export function ThemeStudio() {
             </div>
 
             <Slider
-              label="Interface scale"
+              label={t("Interface scale")}
               value={studio.uiScale}
               min={0.9}
               max={1.15}
@@ -407,7 +409,7 @@ export function ThemeStudio() {
           <fieldset className="mt-4 space-y-3">
             <legend className="mono-label">Surface</legend>
             <Slider
-              label="Card tint"
+              label={t("Card tint")}
               value={studio.tint}
               min={0}
               max={3}
@@ -455,12 +457,12 @@ export function ThemeStudio() {
             <div className="rounded-card border-2 border-line-strong/60 bg-ink-950/40 p-3">
               <p className="text-[0.75rem] font-bold uppercase tracking-[0.14em] text-text-secondary">Card edge</p>
               <p className="mt-1 text-[0.6875rem] leading-relaxed text-text-muted">
-                The border line on every card, the corner it turns on, and the padding that follows it.
+                {t("The border line on every card, the corner it turns on, and the padding that follows it.")}
               </p>
 
               <div className="mt-3 space-y-3.5">
                 <Slider
-                  label="Border line"
+                  label={t("Border line")}
                   value={studio.edge}
                   min={1}
                   max={4}
@@ -470,7 +472,7 @@ export function ThemeStudio() {
                   hint="1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with."
                 />
                 <Slider
-                  label="Corner radius"
+                  label={t("Corner radius")}
                   value={studio.radius}
                   min={0.3}
                   max={1.8}
@@ -505,7 +507,7 @@ export function ThemeStudio() {
               </div>
             </div>
             <Slider
-              label="Brightness"
+              label={t("Brightness")}
               value={studio.brightness}
               min={-0.09}
               max={0.09}
@@ -514,7 +516,7 @@ export function ThemeStudio() {
               onChange={(value) => setStudio({ brightness: value })}
             />
             <Slider
-              label="Vividness"
+              label={t("Vividness")}
               value={studio.vividness}
               min={-0.16}
               max={0.16}
@@ -528,16 +530,16 @@ export function ThemeStudio() {
           <fieldset className="mt-4">
             <legend className="mono-label">Money colours</legend>
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
-              Used wherever a number is money rather than a label — margins, VAT, wastage, utilization.
+              {t("Used wherever a number is money rather than a label — margins, VAT, wastage, utilization.")}
             </p>
             <div className="mt-2 grid grid-cols-2 gap-2">
               <ColourPlate
-                label="Positive"
+                label={t("Positive")}
                 value={studio.moneyPositive}
                 onChange={(value) => setStudio({ moneyPositive: value })}
               />
               <ColourPlate
-                label="Negative"
+                label={t("Negative")}
                 value={studio.moneyNegative}
                 onChange={(value) => setStudio({ moneyNegative: value })}
               />
@@ -550,7 +552,7 @@ export function ThemeStudio() {
               onClick={resetStudio}
               className="rounded-full border-2 border-line-strong/80 px-3 py-1.5 text-[0.75rem] font-bold text-text-secondary transition-colors hover:border-brand-400/60 hover:text-text-primary"
             >
-              Reset everything
+              {t("Reset everything")}
             </button>
             <p className="text-right font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-text-muted">
               Saved · {activeMode.label} · {activeFamily.label}

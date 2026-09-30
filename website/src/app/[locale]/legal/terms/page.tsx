@@ -30,6 +30,7 @@ export default async function TermsPage({ params }: PageProps) {
       description={t("Terms covering this website and the use of the ProGlass Automation desktop application, including what the website does and does not claim about the product.")}
     />
     <LegalPage
+      t={t}
         eyebrow={t("Terms")}
         title={t("Terms of use")}
         lead={t("Short, and written to be read. These terms cover this website and set the expectations that apply to the desktop application.")}

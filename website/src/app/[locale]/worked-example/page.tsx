@@ -90,6 +90,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
       />
 
       <PageHero
+      t={t}
         eyebrow={t("Worked example")}
         title={t("One job, all the way through.")}
         lead={t("Not a mock-up and not a market rate: this is the demonstration job the application seeds into an empty database, read back line by line. The customer, the project, the 22 quotation lines, the sheet stock behind them, the partial delivery and the invoice that followed are the records the software itself creates.")}

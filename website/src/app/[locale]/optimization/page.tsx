@@ -58,6 +58,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       description={t("How ProGlass nests glass parts on stock plates: safety edges, kerf, the guillotine cut sequence, verification and export to Bottero, Intermac, Lisec and DXF.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("Optimization")}
         title={
           <>
@@ -314,7 +315,8 @@ export default async function OptimizationPage({ params }: PageProps) {
                 id: shot.id,
                 label: shot.title.replace(/^Optimization — /, ""),
                 caption: shot.evidence,
-                content: <ScreenshotFrame shot={shot} />,
+                content: <ScreenshotFrame
+      t={t} shot={shot} />,
               }))}
             />
           </Reveal>
@@ -386,6 +388,7 @@ export default async function OptimizationPage({ params }: PageProps) {
 
             <Reveal delay={80}>
               <AppFrame
+      t={t}
                 title={t("Optimization — Report")}
                 railActive="Optimization"
                 note={

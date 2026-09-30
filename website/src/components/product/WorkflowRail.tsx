@@ -2,6 +2,7 @@ import Link from "next/link";
 import { businessChain } from "@/data/workflows";
 import { cn } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
+import type { Translator } from "@/i18n/core";
 
 /**
  * The business chain as a vertical rail.
@@ -11,7 +12,14 @@ import { Reveal } from "@/components/ui/Reveal";
  * ones the code actually enforces (atomic BOQ import, a single pricing
  * engine, double-count-safe delivery balance, and so on).
  */
-export function WorkflowRail({ compact = false }: { compact?: boolean }) {
+export function WorkflowRail({
+  t,
+  compact = false
+}: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
+  compact?: boolean
+}) {
   return (
     <ol className="relative space-y-3">
       {/* The connecting spine. */}
@@ -42,13 +50,13 @@ export function WorkflowRail({ compact = false }: { compact?: boolean }) {
                   <dl className="mt-3.5 space-y-2 border-t border-line/50 pt-3.5">
                     <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
                       <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
-                        Carries forward
+                        {t("Carries forward")}
                       </dt>
                       <dd className="text-sm text-text-secondary">{stage.handoff}</dd>
                     </div>
                     <div className="flex flex-col gap-0.5 sm:flex-row sm:gap-3">
                       <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
-                        Guarantee
+                        {t("Guarantee")}
                       </dt>
                       <dd className="text-sm leading-relaxed text-text-muted">{stage.guarantee}</dd>
                     </div>
@@ -71,7 +79,7 @@ export function WorkflowRail({ compact = false }: { compact?: boolean }) {
                     className="link-underline mt-3 text-xs"
                     aria-label={`Read more about ${stage.name}`}
                   >
-                    Read more
+                    {t("Read more")}
                   </Link>
                 </>
               ) : (
@@ -89,7 +97,13 @@ export function WorkflowRail({ compact = false }: { compact?: boolean }) {
  * The same chain as a horizontal rail — used in the hero band and on
  * "How it works" as a sticky progress indicator.
  */
-export function ChainStrip({ activeId, className }: { activeId?: string; className?: string }) {
+export function ChainStrip({
+  activeId, className
+}: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
+  activeId?: string; className?: string
+}) {
   return (
     <ol className={cn("no-scrollbar flex gap-2 overflow-x-auto pb-1", className)}>
       {businessChain.map((stage, index) => {

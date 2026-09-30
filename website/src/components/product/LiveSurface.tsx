@@ -20,6 +20,7 @@ import { StageQueueSurface } from "@/components/product/StageQueueSurface";
 import { stageChain, type StageChainId } from "@/data/stageQueue";
 import { SheetGallery } from "@/components/optimization/SheetGallery";
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
+import { useT } from "@/i18n/provider";
 
 /**
  * The live module preview.
@@ -142,7 +143,14 @@ function StatusPill({ value }: { value: string }) {
  * Table engine — search, sort, select, totals
  * ════════════════════════════════════════════════════════════════════════ */
 
-function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: boolean }) {
+function TableEngine({
+  view,
+  compact,
+}: {
+  view: DemoView | undefined;
+  compact?: boolean;
+}) {
+  const t = useT();
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [ascending, setAscending] = useState(true);
@@ -179,7 +187,7 @@ function TableEngine({ view, compact }: { view: DemoView | undefined; compact?: 
     <div className="flex h-full flex-col">
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <SearchBox value={query} onChange={setQuery} label="Filter rows" />
+        <SearchBox value={query} onChange={setQuery} label={t("Filter rows")} />
       </div>
 
       <div className="min-h-0 flex-1 overflow-x-auto">
@@ -338,6 +346,7 @@ function usePackedSample(parts: { piece: string; w: number; h: number }[], sheet
 }
 
 function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
+  const t = useT();
   const [sheetIndex, setSheetIndex] = useState(1);
   const [run, setRun] = useState(0);
   const [piecesPerPart, setPiecesPerPart] = useState(1);
@@ -455,12 +464,12 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
       {!compact ? (
         <dl className="grid grid-cols-3 gap-2 sm:grid-cols-6">
           {[
-            { label: "Sheets used", value: String(result.plates) },
-            { label: "Utilization", value: `${utilization.toFixed(1)}%`, good: true },
-            { label: "Wastage", value: `${wastage.toFixed(2)} m²`, bad: true },
-            { label: "Stock area", value: `${stockArea.toFixed(2)} m²` },
-            { label: "Part area", value: `${partArea.toFixed(2)} m²` },
-            { label: "Scrap", value: `${scrap.toFixed(2)} m²`, bad: true },
+            { label: t("Sheets used"), value: String(result.plates) },
+            { label: t("Utilization"), value: `${utilization.toFixed(1)}%`, good: true },
+            { label: t("Wastage"), value: `${wastage.toFixed(2)} m²`, bad: true },
+            { label: t("Stock area"), value: `${stockArea.toFixed(2)} m²` },
+            { label: t("Part area"), value: `${partArea.toFixed(2)} m²` },
+            { label: t("Scrap"), value: `${scrap.toFixed(2)} m²`, bad: true },
           ].map((item) => (
             <div key={item.label} className="stat-tile px-2.5 py-2">
               <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{item.label}</dt>
@@ -505,6 +514,7 @@ function rowKey(row: DemoRow, index: number): string {
 }
 
 function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
+  const t = useT();
   const [stage, setStage] = useState(1);
   const rows = demo.views[0]?.rows ?? [];
   const [progress, setProgress] = useState<Record<string, number>>(() =>
@@ -534,7 +544,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </p>
       </div>
 
-      <div role="list" aria-label="Production stages" className="flex flex-wrap gap-1.5">
+      <div role="list" aria-label={t("Production stages")} className="flex flex-wrap gap-1.5">
         {stageNames.map((label, index) => {
           const isActive = index + 1 === stage;
           const passed = index + 1 < stage;
@@ -559,7 +569,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         })}
       </div>
 
-      <div role="list" aria-label="Jobs in this stage" className="min-h-0 flex-1 space-y-2 overflow-y-auto">
+      <div role="list" aria-label={t("Jobs in this stage")} className="min-h-0 flex-1 space-y-2 overflow-y-auto">
         {rows.map((row, index) => {
           const id = rowKey(row, index);
           const done = progress[id] ?? 0;
@@ -634,6 +644,7 @@ function WizardEngine({
   onViewIndex: (index: number) => void;
   compact?: boolean;
 }) {
+  const t = useT();
   const steps = demo.steps ?? [];
   const [step, setStep] = useState(demo.defaultStep ?? 1);
 
@@ -678,7 +689,7 @@ function WizardEngine({
       {demo.views.some((entry) => entry.step) ? (
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="font-mono text-[0.625rem] uppercase tracking-[0.14em] text-text-faint font-medium">
-            Live screens
+            {t("Live screens")}
           </span>
           {demo.views
             .filter((entry) => entry.step)
@@ -714,7 +725,7 @@ function WizardEngine({
         accident. In a card the rail is left out of the DOM entirely.
       */}
       {!compact ? (
-      <div role="list" aria-label="Steps" className="flex flex-wrap gap-1.5">
+      <div role="list" aria-label={t("Steps")} className="flex flex-wrap gap-1.5">
         {steps.map((label, index) => {
           const isActive = index + 1 === step;
           return (
@@ -768,6 +779,7 @@ function WizardEngine({
  * on it. So each gets its own line, and the rail still moves.
  */
 function StepCard({ step, label, note }: { step: number; label: string; note?: string }) {
+  const t = useT();
   return (
     <div className="flex h-full flex-col justify-center rounded-xl border border-line/50 bg-ink-900/40 px-4 py-6">
       <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-300 font-medium">
@@ -775,7 +787,7 @@ function StepCard({ step, label, note }: { step: number; label: string; note?: s
       </p>
       <p className="mt-2 max-w-[60ch] text-[0.8125rem] leading-relaxed text-text-secondary font-medium">{note}</p>
       <p className="mt-3 text-[0.6875rem] text-text-faint font-medium">
-        Press 05 or 09 in the rail for the specification grid and the profit-and-loss analysis — those two screens are the live ones.
+        {t("Press 05 or 09 in the rail for the specification grid and the profit-and-loss analysis — those two screens are the live ones.")}
       </p>
     </div>
   );
@@ -836,6 +848,7 @@ function DashboardEngine({
   onViewIndex: (index: number) => void;
   compact?: boolean;
 }) {
+  const t = useT();
   const [range, setRange] = useState<(typeof ranges)[number]>("This week");
   const summary = view?.summary ?? [];
   const rows = view?.rows ?? [];
@@ -853,7 +866,7 @@ function DashboardEngine({
     <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <div className="flex gap-1" role="group" aria-label="Period">
+        <div className="flex gap-1" role="group" aria-label={t("Period")}>
           {ranges.map((entry) => (
             <button
               key={entry}
@@ -882,7 +895,7 @@ function DashboardEngine({
       {demo.views.length > 1 ? (
         <div
           role="tablist"
-          aria-label="Dashboard tabs"
+          aria-label={t("Dashboard tabs")}
           className="flex flex-wrap gap-1.5 rounded-xl border border-line/60 bg-ink-950/40 p-2"
         >
           {demo.views.map((entry, index) => (
@@ -1038,11 +1051,12 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
  * setting does inside the product.
  */
 function AppearanceDeck() {
+  const t = useT();
   const families = [
-    { id: "studio", label: "Studio" },
-    { id: "monet", label: "Monet" },
-    { id: "industrial", label: "Industrial" },
-    { id: "crystal", label: "Crystal" },
+    { id: "studio", label: t("Studio") },
+    { id: "monet", label: t("Monet") },
+    { id: "industrial", label: t("Industrial") },
+    { id: "crystal", label: t("Crystal") },
   ] as const;
 
   return (
@@ -1086,11 +1100,12 @@ function FamilyButton({ id, label }: { id: string; label: string }) {
  * ════════════════════════════════════════════════════════════════════════ */
 
 function EmptyPlate() {
+  const t = useT();
   return (
     <div className="flex h-full min-h-[10rem] flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line-strong/60 bg-ink-950/40 p-5 text-center">
       <p className="text-[0.75rem] font-semibold text-text-secondary">This screen has no preview yet.</p>
       <p className="max-w-sm text-[0.75rem] leading-relaxed text-text-faint font-medium">
-        The module exists in the application. Its preview is added once the layout is confirmed.
+        {t("The module exists in the application. Its preview is added once the layout is confirmed.")}
       </p>
     </div>
   );

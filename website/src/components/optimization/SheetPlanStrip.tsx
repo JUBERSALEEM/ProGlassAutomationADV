@@ -3,6 +3,7 @@
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { SheetGallery } from "@/components/optimization/SheetGallery";
 import { cutList, planMargins, planSheet, planTotals, plates } from "@/components/optimization/sheetPlan";
+import { useT } from "@/i18n/provider";
 
 /**
  * The homepage's view of a nesting run.
@@ -20,6 +21,7 @@ import { cutList, planMargins, planSheet, planTotals, plates } from "@/component
  * on /optimization, where there is room to watch it.
  */
 export function SheetPlanStrip() {
+  const t = useT();
   return (
     <div>
       {/* ── The header line: what is being cut, and off what ──────────── */}
@@ -45,7 +47,7 @@ export function SheetPlanStrip() {
             racks as offcut.
           </p>
           <p className="mt-2 text-xs font-medium leading-relaxed text-text-faint">
-            Plates arranged by a two-way guillotine split — each leftover rectangle divided by one straight cut, so
+            {t("Plates arranged by a two-way guillotine split — each leftover rectangle divided by one straight cut, so")}
             every boundary is a cut the table can make. It illustrates how a job spreads across stock; it is not a result
             from the engine, which searches five families and six plate patterns, and the site quotes no yield figure for
             it because the repository contains none.
@@ -53,7 +55,7 @@ export function SheetPlanStrip() {
         </div>
         <div className="flex shrink-0 flex-wrap gap-3">
           <ButtonLink href="/optimization" variant="secondary" size="md" trailing={<ArrowRight />}>
-            See the engine
+            {t("See the engine")}
           </ButtonLink>
         </div>
       </div>

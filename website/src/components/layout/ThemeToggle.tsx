@@ -10,6 +10,7 @@ import {
 } from "@/data/themes";
 import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
 import { setFamily } from "@/lib/useStudio";
+import { useT } from "@/i18n/provider";
 
 /**
  * Appearance control.
@@ -28,6 +29,7 @@ import { setFamily } from "@/lib/useStudio";
  * applied before first paint by the boot script, so there is no flash.
  */
 export function ThemeToggle({ className }: { className?: string }) {
+  const t = useT();
   const mode = useThemeMode();
   const family = useAppearance();
   const [open, setOpen] = useState(false);
@@ -109,7 +111,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       {open ? (
         <div
           role="dialog"
-          aria-label="Appearance"
+          aria-label={t("Appearance")}
           className="menu-card animate-scale-in absolute right-0 top-full z-50 mt-3 w-[17.5rem] origin-top-right rounded-panel p-3 shadow-raised"
         >
           <p className="mono-label px-1">Mode</p>
@@ -176,7 +178,7 @@ export function ThemeToggle({ className }: { className?: string }) {
           </div>
 
           <p className="mt-3 border-t border-line/60 px-1 pt-3 text-[0.75rem] font-medium leading-relaxed text-text-muted">
-            The application ships the same idea in Settings → Appearance. For the full set — sixteen colour plates,
+            {t("The application ships the same idea in Settings → Appearance. For the full set — sixteen colour plates,")}
             corner radius, money colours — open the{" "}
             <button
               type="button"

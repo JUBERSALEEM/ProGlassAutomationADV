@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { LogoMark } from "@/components/brand/Logo";
+import type { Translator } from "@/i18n/core";
 
 /**
  * The ProGlass application frame.
@@ -112,6 +113,8 @@ function RailRow({ label, active, muted }: { label: string; active?: boolean; mu
 }
 
 export function AppFrame({
+  /** The page's translator — this component renders on the server. */
+  t,
   /** Module title shown in the top bar — must match the real module name. */
   title,
   railActive,
@@ -121,6 +124,8 @@ export function AppFrame({
   compact,
   tall,
 }: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
   title: string;
   railActive?: string;
   children: ReactNode;
@@ -151,7 +156,7 @@ export function AppFrame({
         <div className="flex items-center gap-2.5">
           <LogoMark size={20} />
           <span className="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-text-faint">
-            ProGlass Automation
+            {t("ProGlass Automation")}
           </span>
         </div>
         <div className="flex items-center gap-1.5" aria-hidden="true">

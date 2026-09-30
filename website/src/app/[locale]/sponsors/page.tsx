@@ -48,6 +48,7 @@ export default async function SponsorsPage({ params }: PageProps) {
       description={t("ProGlass Automation is built by one developer. What sponsorship funds, which work is open to collaborators, and how to get involved without buying influence.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("Support the build")}
         title={t("One developer, one desktop product, and room for help.")}
         lead={t("ProGlass Automation is a complete commercial chain with a cutting-optimization engine behind it, written and maintained by a single person. It is not short of ideas. It is short of hours, hardware to test against, and reviewed translations.")}

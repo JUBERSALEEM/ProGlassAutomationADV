@@ -50,6 +50,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
       description={t("The ProGlass workflow stage by stage: inquiry, the 9-step proforma wizard, job order, production stages, multi-movement delivery, VAT invoices and statements.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("How it works")}
         title={t("One job, eight stages, and nothing typed twice.")}
         lead={t("This is the whole application in sequence. Each stage below names the statuses it stores, what it carries into the next stage, and the guarantee that keeps the handoff honest — because a chain is only as good as the weakest conversion.")}
@@ -75,7 +76,8 @@ export default async function HowItWorksPage({ params }: PageProps) {
           </>
         }
       >
-        <ChainStrip />
+        <ChainStrip
+      t={t} />
       </PageHero>
 
       {/* ── The full chain ───────────────────────────────────────── */}
@@ -120,7 +122,8 @@ export default async function HowItWorksPage({ params }: PageProps) {
             </div>
 
             <div>
-              <WorkflowRail />
+              <WorkflowRail
+      t={t} />
             </div>
           </div>
         </Container>
@@ -325,6 +328,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                   </div>
 
                   <AppFrame
+      t={t}
                     title={moment.frame}
                     railActive={moment.rail}
                     compact

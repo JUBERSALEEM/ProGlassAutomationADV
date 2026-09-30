@@ -45,6 +45,7 @@ export default async function BlogPage({ params }: PageProps) {
       items={posts.map((post) => ({ name: post.title, url: `${site.url}/blog/${post.slug}` }))}
     />
       <PageHero
+      t={t}
         eyebrow={t("Blog")}
         title={t("Notes on glass software and the work behind it.")}
         lead={t("Short pieces about the decisions inside a glass-business application: what to store, what to recompute, and which constraints are real. Written to be useful whether or not you use ProGlass.")}

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useT } from "@/i18n/provider";
 /**
  * The small parts every live preview is built from.
  *
@@ -12,10 +13,11 @@ import type { ReactNode } from "react";
 
 /** The honesty tag. Every preview carries it, without exception. */
 export function SampleTag() {
+  const t = useT();
   return (
     <span className="inline-flex items-center gap-1.5 rounded-full border border-line-strong/60 bg-ink-800/70 px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">
       <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-brand-400" />
-      Sample data · live
+      {t("Sample data · live")}
     </span>
   );
 }

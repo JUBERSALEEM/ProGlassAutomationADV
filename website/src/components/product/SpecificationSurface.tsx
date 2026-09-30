@@ -22,6 +22,7 @@ import {
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 import { optimizerLimits } from "@/data/liveDemos";
 import { cn } from "@/lib/cn";
+import { useT } from "@/i18n/provider";
 
 /**
  * Step 5 — the specification, working.
@@ -145,6 +146,7 @@ export function SpecificationSurface({
   onBlocks: Dispatch<SetStateAction<SpecBlockInput[]>>;
   compact?: boolean;
 }) {
+  const t = useT();
   const setBlocks = onBlocks;
   const [active, setActive] = useState(0);
   const [run, setRun] = useState<Run | null>(null);
@@ -837,7 +839,7 @@ export function SpecificationSurface({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             {blocks.length > 1 ? (
-              <span className="flex items-center gap-1" role="group" aria-label="Specification blocks">
+              <span className="flex items-center gap-1" role="group" aria-label={t("Specification blocks")}>
                 {blocks.map((entry, index) => (
                   <button
                     key={entry.number}
@@ -871,7 +873,7 @@ export function SpecificationSurface({
           </div>
           <div className="flex items-center gap-1.5">
             <Pill title="Specification blocks on this document. `Dg.Specs`.">
-              Specs
+              {t("Specs")}
               <span className="rounded-full bg-brand-400/20 px-1.5 font-mono text-[0.6875rem] text-brand-100">
                 {blocks.length}
               </span>
@@ -895,7 +897,7 @@ export function SpecificationSurface({
         <div className="mt-3 rounded-xl border border-line/60 bg-ink-950/40 p-2.5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-              Step 4 · glass type and panes
+              {t("Step 4 · glass type and panes")}
             </p>
             <p className="text-[0.6875rem] font-medium text-text-faint">
               {glassBuilds.find((entry) => entry.code === block.glassType)?.panes ?? ""} ·{" "}
@@ -903,7 +905,7 @@ export function SpecificationSurface({
             </p>
           </div>
 
-          <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label="Glass type">
+          <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={t("Glass type")}>
             {glassBuilds.map((entry) => (
               <button
                 key={entry.code}
@@ -957,24 +959,24 @@ export function SpecificationSurface({
 
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <BuildSelect
-              label="Outer thickness"
+              label={t("Outer thickness")}
               value={build.thickness ?? "6mm"}
               options={buildOptions.thickness}
               onChange={(value) => editBuild({ thickness: value })}
             />
-            <BuildSelect label="Outer colour" value={build.colour ?? "Clear"} options={buildOptions.colour} onChange={(value) => editBuild({ colour: value })} />
+            <BuildSelect label={t("Outer colour")} value={build.colour ?? "Clear"} options={buildOptions.colour} onChange={(value) => editBuild({ colour: value })} />
             <BuildSelect
-              label="Outer treatment"
+              label={t("Outer treatment")}
               value={build.treatment ?? "FT"}
               options={buildOptions.treatment}
               onChange={(value) => editBuild({ treatment: value })}
             />
 
             {block.glassType === "SGU" ? (
-              <BuildSelect label="Polish" value={build.polish ?? "None (Standard)"} options={buildOptions.polish} onChange={(value) => editBuild({ polish: value })} />
+              <BuildSelect label={t("Polish")} value={build.polish ?? "None (Standard)"} options={buildOptions.polish} onChange={(value) => editBuild({ polish: value })} />
             ) : (
               <BuildSelect
-                label="Inner thickness"
+                label={t("Inner thickness")}
                 value={build.innerThickness ?? "6mm"}
                 options={buildOptions.thickness}
                 onChange={(value) => editBuild({ innerThickness: value })}
@@ -984,31 +986,31 @@ export function SpecificationSurface({
             {block.glassType === "DGU" || block.glassType === "DGU+LAM" ? (
               <>
                 <BuildSelect
-                  label="Inner colour"
+                  label={t("Inner colour")}
                   value={build.innerColour ?? "Clear"}
                   options={buildOptions.colour}
                   onChange={(value) => editBuild({ innerColour: value })}
                 />
                 <BuildSelect
-                  label="Inner treatment"
+                  label={t("Inner treatment")}
                   value={build.innerTreatment ?? "FT"}
                   options={buildOptions.treatment}
                   onChange={(value) => editBuild({ innerTreatment: value })}
                 />
                 <BuildSelect
-                  label="Spacer width"
+                  label={t("Spacer width")}
                   value={build.spacerWidth ?? "12mm ASP"}
                   options={buildOptions.spacerWidth}
                   onChange={(value) => editBuild({ spacerWidth: value })}
                 />
                 <BuildSelect
-                  label="Spacer material"
+                  label={t("Spacer material")}
                   value={build.spacerMaterial ?? "Normal Mill Aluminum"}
                   options={buildOptions.spacerMaterial}
                   onChange={(value) => editBuild({ spacerMaterial: value })}
                 />
                 <BuildSelect
-                  label="Spacer extra"
+                  label={t("Spacer extra")}
                   value={build.spacerExtra ?? "None"}
                   options={buildOptions.spacerExtra}
                   onChange={(value) => editBuild({ spacerExtra: value })}
@@ -1025,7 +1027,7 @@ export function SpecificationSurface({
                   onChange={(value) => editBuild(block.glassType === "LAM" ? { pvb: value } : { interlayer: value })}
                 />
                 <BuildSelect
-                  label="Lamination polish"
+                  label={t("Lamination polish")}
                   value={build.polish ?? "None (Standard)"}
                   options={buildOptions.polish}
                   onChange={(value) => editBuild({ polish: value })}
@@ -1034,7 +1036,7 @@ export function SpecificationSurface({
             ) : null}
 
             <BuildSelect
-              label="Panel extra"
+              label={t("Panel extra")}
               value={build.panelExtra ?? "None"}
               options={buildOptions.panelExtra}
               onChange={(value) => editBuild({ panelExtra: value })}
@@ -1045,7 +1047,7 @@ export function SpecificationSurface({
             The outer sheet rate comes from the sheet store — {cash(step4RatePerSqm(block.glassType as GlassBuildCode, build.thickness ?? "6mm", build.colour ?? "Clear", block.glassType === "DGU" || block.glassType === "DGU+LAM"))} / m² on
             this build. Changing any field above re-derives the specification&apos;s base rate and re-prices every row, the way
             <span className="mx-1 font-mono">ApplyStep4PricingSnapshot</span>
-            does on the Continue button.
+            {t("does on the Continue button.")}
           </p>
         </div>
 
@@ -1090,7 +1092,7 @@ export function SpecificationSurface({
       <div className="flex flex-wrap items-center gap-1.5">
         <SampleTag />
         <Pill onClick={importBoq} title="Re-read the inquiry's BOQ rows. `Dg.Import`.">
-          Import BOQ
+          {t("Import BOQ")}
         </Pill>
         <Pill active={exportOpen} onClick={() => setExportOpen((open) => !open)} title="Export the specification. `Dg.Export`.">
           Export ▾
@@ -1099,16 +1101,16 @@ export function SpecificationSurface({
           + Add row
         </Pill>
         <Pill onClick={pasteFromClipboard} title="Paste rows from Excel or a BOQ: REF / W1 / H1 / W2 / H2 / QTY. `Dg.PasteHint`.">
-          Paste
+          {t("Paste")}
         </Pill>
         <Pill active={replaceOpen} onClick={() => setReplaceOpen((open) => !open)} title="Find and Replace across the grid. `Dg.FindReplace`.">
           Find &amp; replace
         </Pill>
         <Pill onClick={() => optimise("QUICK")} title="One fast pass. Step 6 reads the sheet quantity from it. `Dg.RunQuick`.">
-          Quick
+          {t("Quick")}
         </Pill>
         <Pill onClick={() => optimise("OPTIMIZE")} title="Search the plans: fewest unplaced pieces, then fewest sheets, then highest utilisation. `Dg.RunOptimize`.">
-          Optimize
+          {t("Optimize")}
         </Pill>
         <Pill
           active={showResult}
@@ -1121,10 +1123,10 @@ export function SpecificationSurface({
           }}
           title="Open the optimization result on its SUMMARY view. `Dg.ViewResult`."
         >
-          View result
+          {t("View result")}
         </Pill>
         {run ? (
-          <Pill tone="floor" title="The run the result belongs to.">
+          <Pill tone="floor" title={t("The run the result belongs to.")}>
             {run.kind} · {run.sheets} sheets · {run.utilization.toFixed(2)}%
           </Pill>
         ) : null}
@@ -1150,7 +1152,7 @@ export function SpecificationSurface({
             />
           </label>
           <Pill onClick={replaceAll} active={false}>
-            Replace all
+            {t("Replace all")}
           </Pill>
           <p className="text-[0.6875rem] leading-snug text-text-muted font-medium">
             {find.trim()
@@ -1167,7 +1169,7 @@ export function SpecificationSurface({
           ) : null}
           <label className="block">
             <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-              Paste REF · W1 · H1 · W2 · H2 · QTY — one row per line, fields separated by tabs, commas or two spaces
+              {t("Paste REF · W1 · H1 · W2 · H2 · QTY — one row per line, fields separated by tabs, commas or two spaces")}
             </span>
             <textarea
               value={pasteText}
@@ -1351,8 +1353,8 @@ export function SpecificationSurface({
                     max="50"
                     value={generateCount}
                     onChange={(event) => setGenerateCount(Number(event.target.value))}
-                    aria-label="Number of rows to generate"
-                    title="Number of rows to generate — Dg.GenerateRows. The application allows 10,000; this preview stops at 50."
+                    aria-label={t("Number of rows to generate")}
+                    title={t("Number of rows to generate — Dg.GenerateRows. The application allows 10,000; this preview stops at 50.")}
                     className="w-14 rounded-md border border-line-strong/50 bg-ink-950/70 px-1.5 py-0.5 text-right font-mono text-[0.75rem] tabular-nums text-text-primary outline-none focus:border-brand-400/60"
                   />
                   <button
@@ -1361,7 +1363,7 @@ export function SpecificationSurface({
                     title="Generate that many rows. `Dg.Generate`."
                     className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.08em] font-medium text-text-muted transition-colors hover:border-brand-400/40 hover:text-text-primary"
                   >
-                    Generate
+                    {t("Generate")}
                   </button>
                   <button
                     type="button"
@@ -1402,7 +1404,7 @@ export function SpecificationSurface({
         <div className="rounded-xl border border-brand-400/40 bg-brand-400/8 px-3 py-2.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="font-mono text-3xs uppercase tracking-[0.08em] font-medium text-brand-200">
-              Optimization running…
+              {t("Optimization running…")}
             </p>
             <p className="font-mono text-[0.75rem] font-semibold tabular-nums text-brand-100">
               {Math.min(100, Math.round((phase.step / 4) * 100))}%
@@ -1411,7 +1413,7 @@ export function SpecificationSurface({
           <div
             className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-ink-950/70"
             role="progressbar"
-            aria-label="Optimization progress"
+            aria-label={t("Optimization progress")}
             aria-valuenow={Math.min(100, Math.round((phase.step / 4) * 100))}
             aria-valuemin={0}
             aria-valuemax={100}
@@ -1423,7 +1425,7 @@ export function SpecificationSurface({
           </div>
           <p className="mt-1.5 text-[0.75rem] font-medium text-text-secondary">{phase.label}…</p>
           <p className="text-[0.6875rem] leading-snug text-text-muted font-medium">
-            Please wait — cutting sheets… You can keep editing, but do not close this invoice until the bar reaches 100%.
+            {t("Please wait — cutting sheets… You can keep editing, but do not close this invoice until the bar reaches 100%.")}
           </p>
         </div>
       ) : null}
@@ -1470,19 +1472,19 @@ export function SpecificationSurface({
         <div className="rounded-xl border border-line/60 bg-ink-900/50 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-              Optimization result · summary
+              {t("Optimization result · summary")}
             </p>
             <p className="font-mono text-[0.6875rem] text-text-faint">
               {spec.sheet.label} · {spec.sheet.w} × {spec.sheet.h} mm · kerf {optimizerLimits.kerf} mm
             </p>
           </div>
           <div className="mt-2 grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
-            <ReadOutMini label="Sheets" value={String(run.sheets)} note={`${run.placed} pieces placed`} />
-            <ReadOutMini label="Utilisation" value={`${run.utilization.toFixed(2)}%`} note={`${run.partArea.toFixed(2)} of ${run.stockArea.toFixed(2)} m²`} />
-            <ReadOutMini label="Unplaced" value={String(run.unplaced)} note={run.unplaced > 0 ? "No plate could hold these" : "Every piece found a plate"} />
-            <ReadOutMini label="Largest piece" value={run.largest} note="the piece the plan has to fit" />
+            <ReadOutMini label={t("Sheets")} value={String(run.sheets)} note={`${run.placed} pieces placed`} />
+            <ReadOutMini label={t("Utilisation")} value={`${run.utilization.toFixed(2)}%`} note={`${run.partArea.toFixed(2)} of ${run.stockArea.toFixed(2)} m²`} />
+            <ReadOutMini label={t("Unplaced")} value={String(run.unplaced)} note={run.unplaced > 0 ? "No plate could hold these" : "Every piece found a plate"} />
+            <ReadOutMini label={t("Largest piece")} value={run.largest} note="the piece the plan has to fit" />
             <ReadOutMini
-              label="Glass cost / m²"
+              label={t("Glass cost / m²")}
               value={cash(totals.sqm > 0 ? totals.cost / totals.sqm : 0)}
               note={`on ${totals.sqm.toFixed(2)} m² billable`}
             />
@@ -1519,30 +1521,30 @@ export function SpecificationSurface({
       <div className="rounded-xl border border-line/60 bg-ink-900/50 p-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-            Grand total summary
+            {t("Grand total summary")}
           </p>
           <p className="text-[0.6875rem] text-text-faint font-medium">
-            Read-only · every specification · no charges, discount or VAT
+            {t("Read-only · every specification · no charges, discount or VAT")}
           </p>
         </div>
         <table className="mt-2 w-full border-collapse text-left">
           <caption className="sr-only">
-            One row per specification with its quantity, total square metres and value, then the grand total across the
+            {t("One row per specification with its quantity, total square metres and value, then the grand total across the")}
             specification the grid is showing.
           </caption>
           <thead>
             <tr className="border-b border-line/60">
               <th scope="col" className="px-2 py-1.5 font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-                Spec group
+                {t("Spec group")}
               </th>
               <th scope="col" className="px-2 py-1.5 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-                Qty
+                {t("Qty")}
               </th>
               <th scope="col" className="px-2 py-1.5 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-                Total sqm
+                {t("Total sqm")}
               </th>
               <th scope="col" className="px-2 py-1.5 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-                Value
+                {t("Value")}
               </th>
             </tr>
           </thead>

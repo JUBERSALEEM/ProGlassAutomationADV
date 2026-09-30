@@ -9,6 +9,7 @@ import { site } from "@/lib/site";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { Logo } from "@/components/brand/Logo";
+import { useT } from "@/i18n/provider";
 
 type NavChild = { label: string; href: string; description?: string };
 type NavEntry = { label: string; href?: string; children?: NavChild[] };
@@ -81,6 +82,7 @@ function NavGlyph({ path }: { path?: string }) {
 }
 
 export function Navbar() {
+  const t = useT();
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -157,7 +159,7 @@ export function Navbar() {
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-400 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
       >
-        Skip to content
+        {t("Skip to content")}
       </a>
 
       <div className="shell flex h-[var(--nav-height)] items-center justify-between gap-4">
@@ -166,7 +168,7 @@ export function Navbar() {
         </Link>
 
         {/* ── Desktop navigation ─────────────────────────────────── */}
-        <nav aria-label="Primary" className={NAV_BAR}>
+        <nav aria-label={t("Primary")} className={NAV_BAR}>
           {entries.map((entry) => {
             const active = isActive(entry);
             if (!entry.children) {
@@ -269,10 +271,10 @@ export function Navbar() {
         <div className="hidden items-center gap-2 lg:flex">
           <ThemeToggle />
           <ButtonLink href="/screenshots" variant="ghost" size="sm">
-            See the app
+            {t("See the app")}
           </ButtonLink>
           <ButtonLink href="/contact" size="sm" trailing={<ArrowRight />}>
-            Request a Demo
+            {t("Request a Demo")}
           </ButtonLink>
         </div>
 
@@ -304,7 +306,7 @@ export function Navbar() {
         )}
       >
         <div className="shell max-h-[calc(100vh-var(--nav-height))] overflow-y-auto py-5">
-          <nav aria-label="Mobile" className="space-y-6">
+          <nav aria-label={t("Mobile")} className="space-y-6">
             {entries.map((entry) => (
               <div key={entry.label}>
                 {entry.href ? (
@@ -353,10 +355,10 @@ export function Navbar() {
 
           <div className="mt-7 flex flex-col gap-2.5">
             <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
-              Request a Demo
+              {t("Request a Demo")}
             </ButtonLink>
             <ButtonLink href="/optimization" variant="secondary" size="lg">
-              See the optimization engine
+              {t("See the optimization engine")}
             </ButtonLink>
           </div>
 

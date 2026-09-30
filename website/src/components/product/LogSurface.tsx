@@ -13,6 +13,7 @@ import {
   type LogLevelId,
 } from "@/data/activityLog";
 import { cn } from "@/lib/cn";
+import { useT } from "@/i18n/provider";
 
 /**
  * Logs & Activity — the Diagnostics module, working.
@@ -42,6 +43,7 @@ import { cn } from "@/lib/cn";
  * Contracting LLC.
  */
 export function LogSurface({ compact = false }: { compact?: boolean }) {
+  const t = useT();
   const [tab, setTab] = useState<"log" | "activity">("log");
   const [level, setLevel] = useState<LogLevelId | "all">("all");
   const [section, setSection] = useState<string>("all");
@@ -72,7 +74,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
     <div className="flex h-full min-h-0 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <SampleTag />
-        <div className="flex gap-1" role="tablist" aria-label="Logs and activity views">
+        <div className="flex gap-1" role="tablist" aria-label={t("Logs and activity views")}>
           {([
             ["log", "Application log"],
             ["activity", "Audit trail"],
@@ -152,7 +154,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
         {tab === "log" ? (
           <>
             <FilterPill active={level === "all"} onClick={() => setLevel("all")}>
-              All levels
+              {t("All levels")}
             </FilterPill>
             {logLevels.map((entry) => (
               <FilterPill
@@ -169,7 +171,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
         ) : (
           <>
             <FilterPill active={section === "all"} onClick={() => setSection("all")}>
-              All sections
+              {t("All sections")}
             </FilterPill>
             {/*
               The full canonical list, not only the sections that happen to
@@ -218,7 +220,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
         ) : (
           <table className="w-full min-w-[44rem] border-collapse text-left">
             <caption className="sr-only">
-              The application log, newest first: time, level, module or function, and the entry itself.
+              {t("The application log, newest first: time, level, module or function, and the entry itself.")}
             </caption>
             {/*
               The headings are the view's own, from the language file:
@@ -266,7 +268,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
                       {row.correlation ? (
                         <span
                           className="ml-1.5 rounded-full border border-line-strong/50 px-1.5 py-px font-mono text-[0.625rem] text-text-faint"
-                          title="LogContext.CorrelationId — traces one business operation across the pipeline"
+                          title={t("LogContext.CorrelationId — traces one business operation across the pipeline")}
                         >
                           {row.correlation}
                         </span>
@@ -274,7 +276,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
                       {row.document ? (
                         <span
                           className="ml-1.5 rounded-full border border-line-strong/50 px-1.5 py-px font-mono text-[0.625rem] text-text-faint"
-                          title="LogContext.DocumentId — the record this entry acted on"
+                          title={t("LogContext.DocumentId — the record this entry acted on")}
                         >
                           {row.document}
                         </span>

@@ -30,6 +30,7 @@ import type { PlateView } from "@/lib/guillotinePack";
 
 /** A plate of stock and the pieces on it. `compact` drops to number and yield. */
 export function SheetCard({
+  /** The page's translator — this component renders on the server. */
   plate,
   thicknessMm,
   compact = false,

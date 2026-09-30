@@ -40,6 +40,7 @@ export default async function ResourcesPage({ params }: PageProps) {
       description={t("Guides for glass businesses: the vocabulary of an order, why a cutting plan must be cuttable, and how stock accuracy works when movements are recorded.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("Resources")}
         title={t("Reference material for glass workflows.")}
         lead={t("Written for the person who has to make the quotation add up: how the vocabulary works, why a cutting plan has to be cuttable, what a job order should inherit, and how stock stays auditable. No product pitch in the body text — these are explanations first.")}

@@ -5,6 +5,7 @@ import { LiveSurface } from "@/components/product/LiveSurface";
 import { Reveal } from "@/components/ui/Reveal";
 import { chainVerbs } from "@/data/workflows";
 import { site } from "@/lib/site";
+import type { Translator } from "@/i18n/core";
 
 /**
  * Homepage hero.
@@ -14,7 +15,7 @@ import { site } from "@/lib/site";
  * person who actually runs a glass shop. The first line therefore says what it
  * is for, and the second line names the chain the application implements.
  */
-export function ProductHero() {
+export function ProductHero({ t }: { t: Translator }) {
   return (
     <section className="relative overflow-hidden pb-12 pt-14 sm:pb-16 sm:pt-20 lg:pb-24 lg:pt-24">
       {/* ── Banner backdrop ──────────────────────────────────────────────
@@ -60,32 +61,32 @@ export function ProductHero() {
             <Reveal>
               <p className="eyebrow mb-5 flex flex-wrap items-center gap-x-3 gap-y-2">
                 <span aria-hidden="true" className="h-px w-8 bg-brand-400/60" />
-                ProGlass Automation
+                {t("ProGlass Automation")}
                 <span className="font-mono text-text-faint">v{site.version}</span>
               </p>
             </Reveal>
 
             <Reveal delay={70}>
               <h1 className="text-[2.1rem] font-semibold leading-[1.06] tracking-tight text-text-primary sm:text-[2.75rem] lg:text-[3.25rem]">
-                Glass business management,
+                {t("Glass business management,")}
                 <span className="text-gradient block">built around your workflow.</span>
               </h1>
             </Reveal>
 
             <Reveal delay={140}>
               <p className="lede mt-6 max-w-xl">
-                A Windows desktop application for glass fabrication: price the job, cut the stock, track what left the
-                yard, and invoice it — without re-keying the same glass twice.
+                {t("A Windows desktop application for glass fabrication: price the job, cut the stock, track what left the")}
+                {t("yard, and invoice it — without re-keying the same glass twice.")}
               </p>
             </Reveal>
 
             <Reveal delay={200}>
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
-                  Request a Demo
+                  {t("Request a Demo")}
                 </ButtonLink>
                 <ButtonLink href="/features" variant="secondary" size="lg">
-                  Explore ProGlass
+                  {t("Explore ProGlass")}
                 </ButtonLink>
               </div>
             </Reveal>
@@ -114,13 +115,14 @@ export function ProductHero() {
             </div>
 
             <AppFrame
-              title="Dashboard — Overview"
+      t={t}
+              title={t("Dashboard — Overview")}
               railActive="Dashboard"
               className="lg:translate-x-2"
               note={
                 <>
                   <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
-                    Interface map
+                    {t("Interface map")}
                   </span>{" "}
                   — the rail groups, module labels and top-bar elements are the application&apos;s own
                   (Views/Personal/GlassShell.xaml). The panel inside is a working preview you can click; it is not a

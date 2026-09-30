@@ -6,6 +6,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { IndexChip } from "@/components/ui/Badge";
 import { LiveSurface } from "@/components/product/LiveSurface";
+import type { Translator } from "@/i18n/core";
 
 /**
  * Alternating module presentation.
@@ -14,9 +15,13 @@ import { LiveSurface } from "@/components/product/LiveSurface";
  * long feature page from reading as one column of identical cards.
  */
 export function ModuleShowcase({
+  /** The page's translator — this component renders on the server. */
+  t,
   modules,
   reversed = false,
 }: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
   modules: ProductModule[];
   reversed?: boolean;
 }) {
@@ -50,7 +55,7 @@ export function ModuleShowcase({
 
                 <div className="mt-6 flex flex-wrap items-center gap-4">
                   <ButtonLink href={module.href} variant="secondary" size="sm" trailing={<ArrowRight />}>
-                    View module
+                    {t("View module")}
                   </ButtonLink>
                   <span className="mono-label">{module.evidence}</span>
                 </div>

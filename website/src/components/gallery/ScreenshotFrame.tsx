@@ -4,6 +4,7 @@ import { LiveSurface } from "@/components/product/LiveSurface";
 import type { Screenshot } from "@/data/screenshots";
 import { moduleByKey, modules } from "@/data/modules";
 import { cn } from "@/lib/cn";
+import type { Translator } from "@/i18n/core";
 
 /**
  * Renders one screenshot entry.
@@ -21,11 +22,15 @@ import { cn } from "@/lib/cn";
  *              caption says plainly that it is not a screen capture.
  */
 export function ScreenshotFrame({
+  /** The page's translator — this component renders on the server. */
+  t,
   shot,
   className,
   priority,
   modal,
 }: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
   shot: Screenshot;
   className?: string;
   priority?: boolean;
@@ -97,6 +102,7 @@ export function ScreenshotFrame({
 
   return (
     <AppFrame
+      t={t}
       title={shot.title}
       railActive={railLabelFor(shot.moduleKey)}
       className={className}
@@ -105,7 +111,7 @@ export function ScreenshotFrame({
       note={
         <>
           <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
-            Interactive preview
+            {t("Interactive preview")}
           </span>{" "}
           — this is a working reconstruction of the {shot.title} screen, not a screen capture. {shot.caption}
         </>

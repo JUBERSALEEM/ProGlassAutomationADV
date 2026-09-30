@@ -32,6 +32,7 @@ export default async function LicensePage({ params }: PageProps) {
       description={t("How a ProGlass licence works: the licence file, offline activation, editions, expiry, grace mode and renewal, with no signing material exposed.")}
     />
     <LegalPage
+      t={t}
         eyebrow={t("License")}
         title={t("How licensing works")}
         lead={t("ProGlass Automation is licensed with a signed licence file that is activated offline. There is no licence server that has to be reachable, and no account to create. This page describes what a customer needs to know.")}

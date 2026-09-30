@@ -6,6 +6,7 @@ import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
 import { isFamilyAccentKey, setAccent, setFamily, setStudio, studioAccents, useStudio } from "@/lib/useStudio";
 import { Slider, edgeReadout } from "@/components/ui/Slider";
 import { luminance } from "@/lib/color";
+import { useT } from "@/i18n/provider";
 
 /**
  * The appearance controls, in the open on the home page.
@@ -30,6 +31,7 @@ const EDGE_PRESETS = [
 ] as const;
 
 export function AppearancePreview() {
+  const t = useT();
   const mode = useThemeMode();
   const family = useAppearance();
   const studio = useStudio();
@@ -105,7 +107,7 @@ export function AppearancePreview() {
       </p>
       <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
         <Plate
-          label="Family"
+          label={t("Family")}
           colour={activeFamily.swatch}
           active={studio.accent === null}
           onClick={() => setAccent("GlassBlue", null)}
@@ -168,7 +170,7 @@ export function AppearancePreview() {
       <div className="mt-3 grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-start">
         <div className="space-y-3.5">
           <Slider
-            label="Card edge"
+            label={t("Card edge")}
             value={studio.edge}
             min={1}
             max={4}
@@ -178,7 +180,7 @@ export function AppearancePreview() {
             hint="1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with."
           />
           <Slider
-            label="Corner radius"
+            label={t("Corner radius")}
             value={studio.radius}
             min={0.3}
             max={1.8}
@@ -220,7 +222,7 @@ export function AppearancePreview() {
           onClick={() => window.dispatchEvent(new Event("proglass-open-studio"))}
           className="rounded-full border-2 border-brand-400/60 bg-brand-500/15 px-3 py-1.5 text-xs font-bold text-text-primary transition-colors hover:border-brand-300"
         >
-          Open the full studio
+          {t("Open the full studio")}
         </button>
       </div>
 

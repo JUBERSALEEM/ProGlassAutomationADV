@@ -37,6 +37,7 @@ export default async function ContactPage({ params }: PageProps) {
       description={t("Request a demonstration of ProGlass Automation: tell us your glass types, team size and whether cutting optimization matters, and you will get a reply.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("Contact")}
         title={t("Request a demo.")}
         lead={t("A demonstration is a walkthrough of the application on a job you recognise — a multi-section quotation, its cutting list, and the delivery behind it. Tell us a little about your business and we will arrange a time.")}

@@ -3,10 +3,13 @@ import Link from "next/link";
 import { Container, Section } from "@/components/ui/Container";
 import { PageHero } from "@/components/layout/PageHero";
 import type { BannerArt } from "@/components/layout/PageBanner";
+import type { Translator } from "@/i18n/core";
 
 export type LegalSection = { heading: string; paragraphs: string[]; list?: string[] };
 
 export function LegalPage({
+  /** The page's translator — this component renders on the server. */
+  t,
   eyebrow,
   title,
   lead,
@@ -15,6 +18,8 @@ export function LegalPage({
   footer,
   banner,
 }: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
   eyebrow: string;
   title: string;
   lead: string;
@@ -26,17 +31,18 @@ export function LegalPage({
   return (
     <>
       <PageHero
+      t={t}
         eyebrow={eyebrow}
         title={title}
         banner={banner}
         lead={lead}
         breadcrumb={[
-          { label: "Home", href: "/" },
+          { label: t("Home"), href: "/" },
           { label: eyebrow, href: `#` },
         ]}
         meta={[
-          { label: "Last updated", value: updated },
-          { label: "Applies to", value: "This website and the desktop application" },
+          { label: t("Last updated"), value: updated },
+          { label: t("Applies to"), value: t("This website and the desktop application") },
         ]}
       />
 
@@ -96,24 +102,24 @@ export function LegalPage({
             ) : (
             <div className="card-accent mt-12 p-7">
               <h2 className="text-lg font-semibold text-text-primary sm:text-xl">
-                Read something more concrete next.
+                {t("Read something more concrete next.")}
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-                The licence page covers what a licence key unlocks and what the free tier includes. If you would rather
-                ask a person, the contact form reaches the developer directly.
+                {t("The licence page covers what a licence key unlocks and what the free tier includes. If you would rather")}
+                {t("ask a person, the contact form reaches the developer directly.")}
               </p>
               <div className="mt-6 flex flex-wrap gap-3 text-sm">
                 <Link
                   href="/legal/license"
                   className="rounded-full border border-brand-400/40 bg-brand-500/12 px-4 py-2 font-medium text-brand-100 transition-colors hover:border-brand-300/60 hover:text-brand-50"
                 >
-                  How licensing works
+                  {t("How licensing works")}
                 </Link>
                 <Link
                   href="/contact"
                   className="rounded-full border border-line-strong/70 px-4 py-2 font-medium text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary"
                 >
-                  Contact the developer
+                  {t("Contact the developer")}
                 </Link>
               </div>
             </div>

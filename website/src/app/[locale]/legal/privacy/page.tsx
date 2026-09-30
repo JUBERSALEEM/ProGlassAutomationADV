@@ -30,6 +30,7 @@ export default async function PrivacyPage({ params }: PageProps) {
       description={t("How this website and the ProGlass desktop app handle data: no analytics, no advertising cookies, and what the demo request form does with what you type.")}
     />
     <LegalPage
+      t={t}
         eyebrow={t("Privacy")}
         title={t("Privacy")}
         lead={t("Two different things are covered here, and they behave very differently. This website is a set of static pages. The application is desktop software that keeps your business data on your own machine.")}

@@ -205,6 +205,9 @@ export default async function LocaleLayout({
   if (!isLocale(tag)) notFound();
   const locale: Locale = tag;
   const overlay = overlayWithApp(locale);
+  /* The footer renders on the server and takes its translator as a prop, so
+     the layout builds one for the chrome around the page body. */
+  const t = translatorForLocale(locale);
 
   return (
     <html
@@ -245,7 +248,7 @@ export default async function LocaleLayout({
           <main id="main" className="pt-[var(--nav-height)]">
             {children}
           </main>
-          <Footer />
+          <Footer t={t} />
           <ThemeStudio />
         </I18nProvider>
       </body>

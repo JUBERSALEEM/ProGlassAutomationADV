@@ -8,6 +8,7 @@ import { billablePanelSqm, physicalPanelSqm, SURCHARGE_THRESHOLD_SQM } from "@/d
 import { optimizerLimits, sheetSizes } from "@/data/liveDemos";
 import { packGuillotine } from "@/lib/guillotinePack";
 import { cn } from "@/lib/cn";
+import { useT } from "@/i18n/provider";
 
 /**
  * Step 9 — Profit & Loss.
@@ -75,6 +76,7 @@ export function ProfitLossSurface({
   blocks: SpecBlockInput[];
   compact?: boolean;
 }) {
+  const t = useT();
   const [tab, setTab] = useState<(typeof tabs)[number]>("1 · OVERVIEW");
   const [target, setTarget] = useState(pnl.expectedProfitMarginPercent);
   /**
@@ -211,9 +213,9 @@ export function ProfitLossSurface({
           title="Re-run the analysis over Step 5's rows. `ProformaInvoice.NoCostedLinesYetPressRecalculateOnceStep5`."
           className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2.5 py-1 font-mono text-3xs uppercase tracking-[0.08em] font-medium text-text-muted transition-colors duration-200 hover:border-brand-400/40 hover:text-text-primary"
         >
-          Recalculate
+          {t("Recalculate")}
         </button>
-        <div className="flex flex-wrap gap-1" role="tablist" aria-label="Profit and loss views">
+        <div className="flex flex-wrap gap-1" role="tablist" aria-label={t("Profit and loss views")}>
           {tabs.map((entry) => (
             <button
               key={entry}
@@ -250,7 +252,7 @@ export function ProfitLossSurface({
           </p>
 
           <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-            Main decision — target, expected margin, result
+            {t("Main decision — target, expected margin, result")}
           </p>
 
           <div className="mt-2 grid gap-2 lg:grid-cols-3">
@@ -274,7 +276,7 @@ export function ProfitLossSurface({
                   step="1"
                   value={target}
                   onChange={(event) => setTarget(Math.max(0, Number(event.target.value)))}
-                  aria-label="Expected profit margin percent"
+                  aria-label={t("Expected profit margin percent")}
                   className="w-16 rounded-md border border-line-strong/50 bg-ink-950/70 px-1.5 py-0.5 text-right font-mono text-[0.875rem] tabular-nums text-text-primary outline-none focus:border-brand-400/60"
                 />
                 <span className="text-[0.875rem] font-semibold text-text-primary">%</span>
@@ -315,18 +317,18 @@ export function ProfitLossSurface({
             2 · Money — revenue, glass cost and margin
           </p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            <MoneyRow label="Net revenue (ex-VAT)" value={`AED ${cash(totals.revenue)}`} note={`${cash(totals.givenPerSqm)} / m² across ${totals.area.toFixed(2)} m²`} />
-            <MoneyRow label="Glass cost only" value={`AED ${cash(totals.cost)}`} note={`purchase column of the Sheet Store · ${pnl.costBasis}`} />
+            <MoneyRow label={t("Net revenue (ex-VAT)")} value={`AED ${cash(totals.revenue)}`} note={`${cash(totals.givenPerSqm)} / m² across ${totals.area.toFixed(2)} m²`} />
+            <MoneyRow label={t("Glass cost only")} value={`AED ${cash(totals.cost)}`} note={`purchase column of the Sheet Store · ${pnl.costBasis}`} />
             <MoneyRow
-              label="Glass margin (reference)"
+              label={t("Glass margin (reference)")}
               value={`AED ${cash(totals.glassMargin)}`}
               note={`${fmtPct(totals.glassMarginPercent)} of net revenue`}
               tone={totals.glassMargin >= 0 ? "good" : "watch"}
             />
-            <MoneyRow label="Margin against base price" value={fmtPct(totals.marginVsBase)} note={`base AED ${cash(totals.baseValue)}`} />
-            <MoneyRow label="Margin against target" value={fmtPct(totals.marginVsTarget)} note={`target AED ${cash(totals.required)}`} tone={totals.marginVsTarget >= 0 ? "good" : "watch"} />
+            <MoneyRow label={t("Margin against base price")} value={fmtPct(totals.marginVsBase)} note={`base AED ${cash(totals.baseValue)}`} />
+            <MoneyRow label={t("Margin against target")} value={fmtPct(totals.marginVsTarget)} note={`target AED ${cash(totals.required)}`} tone={totals.marginVsTarget >= 0 ? "good" : "watch"} />
             <MoneyRow
-              label="Surcharged rows"
+              label={t("Surcharged rows")}
               value={String(measured.reduce((sum, spec) => sum + spec.surcharged, 0))}
               note={`at ${SURCHARGE_THRESHOLD_SQM} m² and above · +${blocks[0]?.surchargePercent ?? 0}% on those rows`}
             />
@@ -363,14 +365,14 @@ export function ProfitLossSurface({
               </p>
             </div>
             <BalanceCard
-              title="Base"
+              title={t("Base")}
               percent={`${fmtPct(totals.marginVsBase)} margin against base price`}
               perSqm={`AED ${cash(totals.givenPerSqm - totals.basePricePerSqm)}`}
               value={`AED ${cash(totals.revenue - totals.baseValue)}`}
               positive={totals.revenue - totals.baseValue >= 0}
             />
             <BalanceCard
-              title="Target"
+              title={t("Target")}
               percent={`${fmtPct(totals.marginVsTarget)} margin against target`}
               perSqm={`AED ${cash(totals.givenPerSqm - totals.requiredPerSqm)}`}
               value={`AED ${cash(totals.difference)}`}
@@ -379,10 +381,10 @@ export function ProfitLossSurface({
           </div>
 
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <MoneyRow label="Given price (Step 5 base price)" value={`AED ${cash(totals.basePricePerSqm)} / m²`} note="base rate paid by the customer, area-weighted" />
-            <MoneyRow label="Cost-based profit margin" value={fmtPct(totals.glassMarginPercent)} note="net revenue less the glass cost only" tone={totals.glassMarginPercent >= 0 ? "good" : "watch"} />
-            <MoneyRow label="Given judged for the margin" value={`AED ${cash(totals.givenPerSqm)} / m²`} note={`against a required AED ${cash(totals.requiredPerSqm)} / m²`} />
-            <MoneyRow label="U-insert inside given" value="Toggle off" note="the treatment is not counted inside the given price on this specification" />
+            <MoneyRow label={t("Given price (Step 5 base price)")} value={`AED ${cash(totals.basePricePerSqm)} / m²`} note={t("base rate paid by the customer, area-weighted")} />
+            <MoneyRow label={t("Cost-based profit margin")} value={fmtPct(totals.glassMarginPercent)} note="net revenue less the glass cost only" tone={totals.glassMarginPercent >= 0 ? "good" : "watch"} />
+            <MoneyRow label={t("Given judged for the margin")} value={`AED ${cash(totals.givenPerSqm)} / m²`} note={`against a required AED ${cash(totals.requiredPerSqm)} / m²`} />
+            <MoneyRow label={t("U-insert inside given")} value="Toggle off" note="the treatment is not counted inside the given price on this specification" />
           </div>
 
           <p className="mt-3 text-[0.6875rem] leading-relaxed text-text-faint font-medium">
@@ -397,7 +399,7 @@ export function ProfitLossSurface({
       {tab === "2 · SERVICES" ? (
         <div className="min-h-0 flex-1 overflow-auto">
           <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-            Service profitability analysis
+            {t("Service profitability analysis")}
           </p>
           <table className="mt-2 w-full min-w-[36rem] border-collapse text-left">
             <caption className="sr-only">Charge rows raised by the pricing estimator, with the area they apply to.</caption>
@@ -452,7 +454,7 @@ export function ProfitLossSurface({
                 : "Every charge on this job carries a cost."}
             </p>
             <p className="font-mono text-[0.75rem] font-semibold text-text-secondary">
-              Overall service margin — not costed yet
+              {t("Overall service margin — not costed yet")}
             </p>
           </div>
         </div>
@@ -465,15 +467,15 @@ export function ProfitLossSurface({
             <>
               <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">1 · Sheet usage</p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                <MoneyRow label="Buy sheets" value={`${sheets.result.plates}`} note={`${pnl.sheet.label} · ${pnl.sheet.w} × ${pnl.sheet.h} mm`} />
-                <MoneyRow label="Bought area" value={`${sheets.boughtSqm.toFixed(2)} m²`} note={`${sheets.stockSqm.toFixed(2)} m² per sheet`} />
+                <MoneyRow label={t("Buy sheets")} value={`${sheets.result.plates}`} note={`${pnl.sheet.label} · ${pnl.sheet.w} × ${pnl.sheet.h} mm`} />
+                <MoneyRow label={t("Bought area")} value={`${sheets.boughtSqm.toFixed(2)} m²`} note={`${sheets.stockSqm.toFixed(2)} m² per sheet`} />
                 <MoneyRow
-                  label="Part area"
+                  label={t("Part area")}
                   value={`${sheets.result.partAreaSqm.toFixed(2)} m²`}
                   note={`${sheets.result.placedPieces} of ${sheets.result.totalPieces} pieces placed`}
                 />
                 <MoneyRow
-                  label="Utilisation"
+                  label={t("Utilisation")}
                   value={`${sheets.result.utilizationPct.toFixed(2)}%`}
                   note={`offcut ${sheets.wasteSqm.toFixed(2)} m²`}
                   tone={sheets.result.utilizationPct >= 80 ? "good" : "watch"}
@@ -484,11 +486,11 @@ export function ProfitLossSurface({
                 2 · Sheet price reconciliation
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                <MoneyRow label="Buy sheet price" value={`AED ${cash(sheets.buyPrice)} / m²`} note="dearest glass on the job, from the Sheet Store purchase column" />
-                <MoneyRow label="Sheet cost" value={`AED ${cash(sheets.sheetCost)}`} note={`${sheets.result.plates} × ${sheets.stockSqm.toFixed(2)} m²`} />
-                <MoneyRow label="Wastage value" value={`AED ${cash(sheets.wasteValue)}`} note={`${sheets.wasteSqm.toFixed(2)} m² not sold`} tone="watch" />
+                <MoneyRow label={t("Buy sheet price")} value={`AED ${cash(sheets.buyPrice)} / m²`} note={t("dearest glass on the job, from the Sheet Store purchase column")} />
+                <MoneyRow label={t("Sheet cost")} value={`AED ${cash(sheets.sheetCost)}`} note={`${sheets.result.plates} × ${sheets.stockSqm.toFixed(2)} m²`} />
+                <MoneyRow label={t("Wastage value")} value={`AED ${cash(sheets.wasteValue)}`} note={`${sheets.wasteSqm.toFixed(2)} m² not sold`} tone="watch" />
                 <MoneyRow
-                  label="Glass recovered in the price"
+                  label={t("Glass recovered in the price")}
                   value={`AED ${cash(totals.cost)}`}
                   note={`the Step 5 billable area costed at purchase — ${(totals.cost / sheets.sheetCost * 100).toFixed(1)}% of the sheet spend`}
                   tone={totals.cost >= sheets.sheetCost ? "good" : "watch"}
@@ -504,7 +506,7 @@ export function ProfitLossSurface({
                 {totals.cost >= sheets.sheetCost
                   ? `, which covers the sheet spend with AED ${cash(totals.cost - sheets.sheetCost)} left against offcuts and handling.`
                   : `, so AED ${cash(sheets.sheetCost - totals.cost)} of the sheet spend is absorbed by the margin rather than billed.`}{" "}
-                The gap is net wastage absorbed after billing recovery — it is why the 0.5 m² floor exists: a 0.4 m² pane still buys half
+                {t("The gap is net wastage absorbed after billing recovery — it is why the 0.5 m² floor exists: a 0.4 m² pane still buys half")}
                 a square metre of glass.
               </p>
 
@@ -512,9 +514,9 @@ export function ProfitLossSurface({
                 4 · Overall report — all sheets
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                <MoneyRow label="Placed" value={String(sheets.result.placedPieces)} note="every piece found a plate" />
-                <MoneyRow label="Unplaced" value={String(sheets.result.unplaced.length)} note="no plate could hold these" tone={sheets.result.unplaced.length === 0 ? "good" : "watch"} />
-                <MoneyRow label="Stock area" value={`${sheets.result.stockAreaSqm.toFixed(2)} m²`} note={`kerf ${optimizerLimits.kerf} mm · margins ${optimizerLimits.marginLeft}/${optimizerLimits.marginRight}/${optimizerLimits.marginTop}/${optimizerLimits.marginBottom} mm`} />
+                <MoneyRow label={t("Placed")} value={String(sheets.result.placedPieces)} note="every piece found a plate" />
+                <MoneyRow label={t("Unplaced")} value={String(sheets.result.unplaced.length)} note="no plate could hold these" tone={sheets.result.unplaced.length === 0 ? "good" : "watch"} />
+                <MoneyRow label={t("Stock area")} value={`${sheets.result.stockAreaSqm.toFixed(2)} m²`} note={`kerf ${optimizerLimits.kerf} mm · margins ${optimizerLimits.marginLeft}/${optimizerLimits.marginRight}/${optimizerLimits.marginTop}/${optimizerLimits.marginBottom} mm`} />
               </div>
               <p className="mt-2 text-[0.6875rem] leading-snug text-text-faint font-medium">
                 Sheets planned against {pnl.sheet.label}. The other sizes the optimizer offers are{" "}
@@ -531,7 +533,7 @@ export function ProfitLossSurface({
       {tab === "4 · SPECS" ? (
         <div className="min-h-0 flex-1 overflow-auto">
           <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-            Main spec check — one row per Step 5 spec
+            {t("Main spec check — one row per Step 5 spec")}
           </p>
           <table className="mt-2 w-full min-w-[40rem] border-collapse text-left">
             <caption className="sr-only">Each Step 5 specification: its area, what it is given at, what the target requires and the difference.</caption>

@@ -39,6 +39,7 @@ export default async function AboutPage({ params }: PageProps) {
       description={t("ProGlass Automation is desktop software for glass fabrication businesses: what it is, the problem it solves, how it is built and what it does not do.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("About")}
         title={t("A glass business is not a general business.")}
         lead={t("Generic ERP software assumes widgets: identical units, a bill of materials, a production order. Glass is not that. It is sold by area, priced on a build-up, cut from sheets, delivered in part-loads and invoiced against whatever actually left the yard. ProGlass Automation exists because that mismatch is where the money quietly goes missing.")}

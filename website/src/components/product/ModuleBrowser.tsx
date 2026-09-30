@@ -5,6 +5,7 @@ import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/Badge";
 import { Reveal } from "@/components/ui/Reveal";
 import { moduleCounts, modules, type ModuleGroup, type ProductModule } from "@/data/modules";
+import { useT } from "@/i18n/provider";
 
 /**
  * The module browser.
@@ -15,6 +16,7 @@ import { moduleCounts, modules, type ModuleGroup, type ProductModule } from "@/d
  * because that is how an operator actually finds a screen.
  */
 export function ModuleBrowser() {
+  const t = useT();
   const [group, setGroup] = useState<ModuleGroup | "all">("all");
   const [query, setQuery] = useState("");
 
@@ -53,9 +55,9 @@ export function ModuleBrowser() {
     <div>
       {/* ── Controls ─────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter modules by navigation group">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t("Filter modules by navigation group")}>
           <FilterChip active={group === "all"} onClick={() => setGroup("all")} count={modules.length}>
-            All modules
+            {t("All modules")}
           </FilterChip>
           {counts.map((entry) => (
             <FilterChip
@@ -88,7 +90,7 @@ export function ModuleBrowser() {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search modules, e.g. tempering, VAT, traceability"
+            placeholder={t("Search modules, e.g. tempering, VAT, traceability")}
             className="h-10 w-full rounded-xl border border-line-strong/70 bg-ink-900/70 pl-9 pr-3 text-sm text-text-primary transition-colors duration-200 placeholder:text-text-faint focus:border-brand-400/70"
           />
         </label>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Reveal } from "@/components/ui/Reveal";
 import { ScreenshotFrame } from "@/components/gallery/ScreenshotFrame";
+import { useT } from "@/i18n/provider";
 import {
   screenshotCategories,
   screenshots,
@@ -18,6 +19,7 @@ import {
  * a screenshot can never appear on one page and be missing on another.
  */
 export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory?: ScreenshotCategory | "all" }) {
+  const t = useT();
   const [category, setCategory] = useState<ScreenshotCategory | "all">(initialCategory);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   /** The card that opened the lightbox, so focus can be handed back on close. */
@@ -73,7 +75,7 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
 
   return (
     <>
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter screenshots by module">
+      <div className="flex flex-wrap gap-2" role="group" aria-label={t("Filter screenshots by module")}>
         {screenshotCategories.map(({ key, label }) => {
           const count = counts.get(key) ?? 0;
           const disabled = count === 0;
@@ -127,7 +129,8 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
                 layout and paint until it approaches the viewport. */}
             <div className="defer-render group flex h-full flex-col">
               <div className="transition-transform duration-300 ease-industrial group-hover:-translate-y-1">
-                <ScreenshotFrame shot={shot} />
+                <ScreenshotFrame
+      t={t} shot={shot} />
               </div>
               <button
                 type="button"
@@ -138,7 +141,7 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-card border border-line-strong/80 bg-ink-800 px-3 py-2 text-xs font-semibold text-text-primary transition-colors duration-200 hover:border-brand-400/60 hover:bg-ink-700"
               >
                 <span className="sr-only">{shot.title} — </span>
-                Open a larger view
+                {t("Open a larger view")}
                 <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M6 3h7v7M13 3 7.5 8.5M11 9.5V13H3V5h3.5" />
                 </svg>
@@ -210,6 +213,7 @@ function Lightbox({
   position: number;
   total: number;
 }) {
+  const t = useT();
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   /** Touch / drag start point, so a horizontal swipe moves to the next screen. */
@@ -348,7 +352,7 @@ function Lightbox({
           gets the full measure of the screen and every detail is legible.
         */}
         <div className="animate-scale-in mx-auto w-full max-w-[110rem]">
-          <ScreenshotFrame shot={shot} modal />
+          <ScreenshotFrame t={t} shot={shot} modal />
         </div>
 
         {/*
@@ -404,7 +408,7 @@ function Lightbox({
       </div>
 
       <p className="border-t border-line/60 px-4 py-3 text-center font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium sm:px-6">
-        Arrow keys to move · Escape to close
+        {t("Arrow keys to move · Escape to close")}
       </p>
     </div>
   );

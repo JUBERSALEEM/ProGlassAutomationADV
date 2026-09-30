@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { Badge } from "@/components/ui/Badge";
 import { platePatterns, searchFamilies } from "@/data/optimization";
+import { useT } from "@/i18n/provider";
 
 /**
  * The two dials the operator actually turns: which search stage the engine
@@ -14,6 +15,7 @@ import { platePatterns, searchFamilies } from "@/data/optimization";
  * two lists can be explored side by side instead of read as static text.
  */
 export function StrategyPicker() {
+  const t = useT();
   const [familyIndex, setFamilyIndex] = useState(0);
   const [patternIndex, setPatternIndex] = useState(0);
   const familyTabs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -38,7 +40,7 @@ export function StrategyPicker() {
 
         <div
           role="tablist"
-          aria-label="Search stage"
+          aria-label={t("Search stage")}
           aria-orientation="horizontal"
           className="mt-5 flex flex-wrap gap-2"
           onKeyDown={(event) => {
@@ -101,8 +103,8 @@ export function StrategyPicker() {
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium">
-          Stage 5 at effort 5 evaluates every ordering against every generator — minutes on a large job rather than
-          seconds. The application says so on the control itself and suggests a quick run first.
+          {t("Stage 5 at effort 5 evaluates every ordering against every generator — minutes on a large job rather than")}
+          {t("seconds. The application says so on the control itself and suggests a quick run first.")}
         </p>
       </div>
 
@@ -113,7 +115,7 @@ export function StrategyPicker() {
           <Badge>Six tie-breaks</Badge>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Plate pattern">
+        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label={t("Plate pattern")}>
           {platePatterns.map((item, index) => {
             const selected = index === patternIndex;
             return (
@@ -142,8 +144,8 @@ export function StrategyPicker() {
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium">
-          Every pattern is a tie-break between plans that already use the same number of sheets and leave nothing out.
-          None of them may buy its preference by opening another plate.
+          {t("Every pattern is a tie-break between plans that already use the same number of sheets and leave nothing out.")}
+          {t("None of them may buy its preference by opening another plate.")}
         </p>
       </div>
     </div>

@@ -3,12 +3,15 @@ import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
 import { Reveal } from "@/components/ui/Reveal";
 import { PageBanner, type BannerArt } from "@/components/layout/PageBanner";
+import type { Translator } from "@/i18n/core";
 
 /**
  * Shared page opener. Every interior page uses it so the site has one
  * entrance rhythm, while colour, illustration and content stay page-specific.
  */
 export function PageHero({
+  /** The page's translator — this component renders on the server. */
+  t,
   eyebrow,
   title,
   lead,
@@ -18,6 +21,8 @@ export function PageHero({
   banner,
   children,
 }: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
   eyebrow: string;
   title: ReactNode;
   lead: ReactNode;
@@ -40,7 +45,7 @@ export function PageHero({
 
       <Container className="relative">
         {breadcrumb ? (
-          <nav aria-label="Breadcrumb" className="mb-6">
+          <nav aria-label={t("Breadcrumb")} className="mb-6">
             <ol className="flex flex-wrap items-center gap-2 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
               {breadcrumb.map((crumb, index) => (
                 <li key={crumb.href} className="flex items-center gap-2">

@@ -54,6 +54,7 @@ export default async function FeaturesPage({ params }: PageProps) {
       description={t("Inside ProGlass Automation: proforma estimation, SGU/DGU/lamination pricing, job orders, cutting optimization, sheet store, production, delivery and reports.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("Features")}
         title={t("Every module, named the way the application names it.")}
         lead={t("ProGlass Automation is built as one document chain carried by twenty-five view areas. This page walks the modules that make up the working day: what each one does, which screens it opens, and where in the product it sits.")}
@@ -119,7 +120,8 @@ export default async function FeaturesPage({ params }: PageProps) {
             lead={t("If you only read part of this page, these are the ones that decide whether the software fits: estimation, optimization, stock, dispatch, margin and reporting.")}
           />
           <div className="mt-14">
-            <ModuleShowcase modules={showcase} />
+            <ModuleShowcase
+      t={t} modules={showcase} />
           </div>
         </Container>
       </Section>
@@ -149,6 +151,7 @@ export default async function FeaturesPage({ params }: PageProps) {
 
           <Reveal className="mt-10">
             <AppFrame
+      t={t}
               title={t("Proforma Invoice — Step 5 · Specification")}
               railActive="Proforma Invoice"
               tall
@@ -226,6 +229,7 @@ export default async function FeaturesPage({ params }: PageProps) {
 
           <Reveal className="mt-10">
             <AppFrame
+      t={t}
               title={t("Logs & Activity — Diagnostics")}
               railActive="Logs & Activity"
               tall
@@ -295,6 +299,7 @@ export default async function FeaturesPage({ params }: PageProps) {
 
           <Reveal className="mt-10">
             <AppFrame
+      t={t}
               title={t("Production — stage queue")}
               railActive="Production"
               tall

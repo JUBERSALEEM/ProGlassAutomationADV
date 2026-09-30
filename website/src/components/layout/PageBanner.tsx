@@ -127,6 +127,7 @@ const gap = 4;
 const cols = 7;
 
 export function PageBanner({
+  /** The page's translator — this component renders on the server. */
   art,
   className,
   /** Text is laid over the left of the banner, so the art sits right. */

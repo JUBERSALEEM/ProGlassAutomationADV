@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ArrowRight } from "@/components/ui/Button";
 import { nav } from "@/lib/site";
 import { modules } from "@/data/modules";
+import { useT } from "@/i18n/provider";
 
 /**
  * A 404 that helps.
@@ -95,6 +96,7 @@ function closest(pathname: string): Target[] {
 }
 
 export function NotFoundSuggestions() {
+  const t = useT();
   const pathname = usePathname() ?? "";
   const suggestions = closest(pathname);
 
@@ -137,7 +139,7 @@ export function NotFoundSuggestions() {
           request it cannot see.
         */
         <p className="mt-3 text-sm leading-relaxed text-text-muted">
-          The address you followed does not lead anywhere on this site. These are the routes people usually want.
+          {t("The address you followed does not lead anywhere on this site. These are the routes people usually want.")}
         </p>
       )}
     </div>

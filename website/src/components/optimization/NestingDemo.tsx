@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { usePrefersReducedMotion, useReveal } from "@/lib/useReveal";
 import { Button } from "@/components/ui/Button";
+import { useT } from "@/i18n/provider";
 import {
   exampleCuts,
   exampleMargins,
@@ -29,6 +30,7 @@ import {
 const STEPS = ["Sheet", "Safety edges", "Kerf", "Placement", "Cut sequence", "Result"] as const;
 
 export function NestingDemo() {
+  const t = useT();
   const reduced = usePrefersReducedMotion();
   const [rawStep, setRawStep] = useState(0);
   const [running, setRunning] = useState(false);
@@ -254,7 +256,7 @@ export function NestingDemo() {
           </svg>
 
           <p className="mt-3 text-xs leading-relaxed text-text-faint font-medium">
-            Illustration of the guillotine model, drawn to scale from the worked example below. It is not a recording of
+            {t("Illustration of the guillotine model, drawn to scale from the worked example below. It is not a recording of")}
             a live run.
           </p>
         </div>
@@ -307,7 +309,7 @@ export function NestingDemo() {
                   setRawStep(STEPS.length - 1);
                 }}
               >
-                Skip to result
+                {t("Skip to result")}
               </Button>
             </div>
           </div>
@@ -320,16 +322,16 @@ export function NestingDemo() {
           >
             <p className="mono-label">Result · this example only</p>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
-              <Metric label="Sheets" value={String(exampleMetrics.sheets)} />
-              <Metric label="Pieces" value={String(exampleMetrics.pieces)} />
-              <Metric label="Utilization" value={`${exampleMetrics.utilizationPct}%`} tone="accent" />
-              <Metric label="Offcut" value={`${exampleMetrics.offcutSqm} m²`} />
-              <Metric label="Used area" value={`${exampleMetrics.usedSqm} m²`} />
-              <Metric label="Stock area" value={`${exampleMetrics.stockSqm} m²`} />
+              <Metric label={t("Sheets")} value={String(exampleMetrics.sheets)} />
+              <Metric label={t("Pieces")} value={String(exampleMetrics.pieces)} />
+              <Metric label={t("Utilization")} value={`${exampleMetrics.utilizationPct}%`} tone="accent" />
+              <Metric label={t("Offcut")} value={`${exampleMetrics.offcutSqm} m²`} />
+              <Metric label={t("Used area")} value={`${exampleMetrics.usedSqm} m²`} />
+              <Metric label={t("Stock area")} value={`${exampleMetrics.stockSqm} m²`} />
             </dl>
             <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium">
-              These six numbers come from the plate and piece sizes drawn above. They are not a benchmark, and the
-              engine makes no savings claim — it reports what it produced for the cutting list you gave it.
+              {t("These six numbers come from the plate and piece sizes drawn above. They are not a benchmark, and the")}
+              {t("engine makes no savings claim — it reports what it produced for the cutting list you gave it.")}
             </p>
           </div>
         </div>

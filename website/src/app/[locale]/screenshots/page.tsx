@@ -43,6 +43,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
       description={t("The ProGlass Automation interface: dashboards, the proforma wizard, glass calculators, the optimization workspace, sheet store, delivery and reports.")}
     />
       <PageHero
+      t={t}
         eyebrow={t("Screenshots")}
         title={t("The interface, screen by screen.")}
         lead={t("A working application is judged by its list screens and its data grids, so those come first. Every card states exactly what it is showing, and nothing on this page presents a mock-up as a capture of the product.")}

@@ -10,6 +10,7 @@ import {
   type StageChainId,
 } from "@/data/stageQueue";
 import { cn } from "@/lib/cn";
+import { useT } from "@/i18n/provider";
 
 /**
  * The production floor's shared chrome, and one stage page underneath it.
@@ -37,6 +38,7 @@ import { cn } from "@/lib/cn";
  * pricing at all — pieces in, done and balance.
  */
 export function StageQueueSurface({ stage, compact = false }: { stage: StageChainId; compact?: boolean }) {
+  const t = useT();
   const [current, setCurrent] = useState<StageChainId>(stage);
   const [query, setQuery] = useState("");
   const [released, setReleased] = useState<string | null>(null);
@@ -73,13 +75,13 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
       <div className="rounded-xl border border-line/60 bg-ink-900/50 p-2.5">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-            Pipeline chain — all eight stages
+            {t("Pipeline chain — all eight stages")}
           </p>
           <p className="text-[0.6875rem] font-medium text-text-muted">
             {metric} counts · step {chainIndex + 1} of 8
           </p>
         </div>
-        <div className="mt-2 flex flex-wrap gap-1.5" role="tablist" aria-label="Production stages">
+        <div className="mt-2 flex flex-wrap gap-1.5" role="tablist" aria-label={t("Production stages")}>
           {counts.map((entry, index) => (
             <button
               key={entry.id}
@@ -179,7 +181,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search ref, spec, job…"
+            placeholder={t("Search ref, spec, job…")}
             className="w-32 bg-transparent text-[0.75rem] text-text-primary outline-none placeholder:text-text-faint focus:w-44 sm:w-40"
           />
         </label>
@@ -187,7 +189,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
           {current}
         </span>
         <span className="rounded-full border border-line-strong/60 bg-ink-800/60 px-2 py-0.5 font-mono text-[0.6875rem] font-medium text-text-muted">
-          All statuses
+          {t("All statuses")}
         </span>
         {waiting.length > 0 ? (
           <span className="rounded-full border border-amber-400/40 bg-amber-400/8 px-2 py-0.5 font-mono text-[0.6875rem] font-medium text-amber-300" title={floorMessages.waitingUpstream}>
@@ -294,7 +296,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
         </table>
         {visible.length === 0 ? (
           <p className="px-3 py-6 text-center text-[0.75rem] font-medium text-text-faint">
-            No work items match that filter at this stage.
+            {t("No work items match that filter at this stage.")}
           </p>
         ) : null}
       </div>
@@ -306,14 +308,14 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
       {!compact ? (
         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line/60 bg-ink-900/40 px-2.5 py-2">
           <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-            Done-piece editor — try it
+            {t("Done-piece editor — try it")}
           </span>
           <input
             type="number"
             min={0}
             value={gap}
             onChange={(event) => setGap(Math.max(0, Number(event.target.value) || 0))}
-            aria-label="Pieces done"
+            aria-label={t("Pieces done")}
             className="w-20 rounded-lg border border-line-strong/60 bg-ink-900/70 px-2 py-1 font-mono text-[0.75rem] text-text-primary tabular-nums outline-none focus:border-brand-400/70"
           />
           {(() => {

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { useT } from "@/i18n/provider";
 
 /**
  * Horizontal slider used across the site.
@@ -22,6 +23,7 @@ export function ProductSlider({
   className?: string;
   aspect?: "video" | "wide" | "auto";
 }) {
+  const t = useT();
   const [index, setIndex] = useState(0);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const drag = useRef<{ startX: number; startScroll: number; active: boolean }>({
@@ -112,9 +114,9 @@ export function ProductSlider({
 
       <div className="mt-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <SliderButton label="Previous slide" onClick={() => goTo(index - 1)} disabled={index === 0} direction="prev" />
+          <SliderButton label={t("Previous slide")} onClick={() => goTo(index - 1)} disabled={index === 0} direction="prev" />
           <SliderButton
-            label="Next slide"
+            label={t("Next slide")}
             onClick={() => goTo(index + 1)}
             disabled={index === count - 1}
             direction="next"

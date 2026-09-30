@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/Button";
 import { site } from "@/lib/site";
+import { useT } from "@/i18n/provider";
 
 type FieldName = "name" | "company" | "email" | "phone" | "country" | "businessType" | "message";
 /** Not a real field: the honeypot the server uses to recognise a bot. */
@@ -45,6 +46,7 @@ type Status = "idle" | "submitting" | "success" | "error";
  * impossible to miss.
  */
 export function DemoRequestForm() {
+  const t = useT();
   const [values, setValues] = useState<Values>(initialValues);
   // `Values` is inferred from `initialValues`, so the trap field is part of it.
   const [errors, setErrors] = useState<Partial<Record<FormFields, string>>>({});
@@ -121,7 +123,7 @@ export function DemoRequestForm() {
         </span>
         <h3 className="mt-5 text-lg font-semibold text-text-primary">Request received</h3>
         <p className="mt-2 text-sm leading-relaxed text-text-muted">
-          Thank you. Your request has been recorded and will be answered by email. If you would rather not wait, write
+          {t("Thank you. Your request has been recorded and will be answered by email. If you would rather not wait, write")}
           to{" "}
           <a className="link-underline" href="mailto:proglassautomation@gmail.com">
             proglassautomation@gmail.com
@@ -129,7 +131,7 @@ export function DemoRequestForm() {
           directly.
         </p>
         <Button variant="secondary" size="sm" className="mt-6" onClick={() => setStatus("idle")}>
-          Send another request
+          {t("Send another request")}
         </Button>
       </div>
     );
@@ -158,10 +160,10 @@ export function DemoRequestForm() {
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label="Name" name="name" value={values.name} onChange={set("name")} error={errors.name} required autoComplete="name" />
-        <Field label="Company" name="company" value={values.company} onChange={set("company")} error={errors.company} required autoComplete="organization" />
+        <Field label={t("Name")} name="name" value={values.name} onChange={set("name")} error={errors.name} required autoComplete="name" />
+        <Field label={t("Company")} name="company" value={values.company} onChange={set("company")} error={errors.company} required autoComplete="organization" />
         <Field
-          label="Email"
+          label={t("Email")}
           name="email"
           type="email"
           value={values.email}
@@ -171,7 +173,7 @@ export function DemoRequestForm() {
           autoComplete="email"
         />
         <Field
-          label="Phone / WhatsApp"
+          label={t("Phone / WhatsApp")}
           name="phone"
           type="tel"
           value={values.phone}
@@ -180,7 +182,7 @@ export function DemoRequestForm() {
           hint="Optional"
           autoComplete="tel"
         />
-        <Field label="Country" name="country" value={values.country} onChange={set("country")} error={errors.country} required autoComplete="country-name" />
+        <Field label={t("Country")} name="country" value={values.country} onChange={set("country")} error={errors.country} required autoComplete="country-name" />
 
         <div data-field="businessType">
           <label htmlFor="businessType" className="block text-sm font-medium text-text-secondary">
@@ -229,7 +231,7 @@ export function DemoRequestForm() {
             "mt-2 w-full rounded-xl border bg-ink-950/60 px-3.5 py-3 text-sm text-text-primary transition-colors duration-200",
             errors.message ? "border-state-danger/70" : "border-line-strong/70 focus:border-brand-400/70",
           )}
-          placeholder="e.g. We process roughly 40 jobs a week and want to see how the proforma wizard handles a multi-section DGU project."
+          placeholder={t("e.g. We process roughly 40 jobs a week and want to see how the proforma wizard handles a multi-section DGU project.")}
         />
         {errors.message ? (
           <p id="message-error" className="mt-1.5 text-xs text-state-danger">
@@ -237,7 +239,7 @@ export function DemoRequestForm() {
           </p>
         ) : (
           <p id="message-hint" className="mt-1.5 text-xs text-text-faint font-medium">
-            Mention your glass types, how many people would use it, and whether cutting optimization matters to you.
+            {t("Mention your glass types, how many people would use it, and whether cutting optimization matters to you.")}
           </p>
         )}
       </div>
@@ -261,7 +263,7 @@ export function DemoRequestForm() {
           {status === "submitting" ? "Sending…" : "Send request"}
         </Button>
         <p className="text-xs leading-relaxed text-text-faint font-medium">
-          We reply by email. No account is created, and nothing you type here is stored on this website.
+          {t("We reply by email. No account is created, and nothing you type here is stored on this website.")}
         </p>
       </div>
     </form>
