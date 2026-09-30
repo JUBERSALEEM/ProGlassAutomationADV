@@ -135,6 +135,10 @@ export function LanguageMenu({ compact = false }: { compact?: boolean }) {
   const choose = (next: Locale) => {
     remember(next);
     setOpen(false);
+    /* Choosing the language already being read: remember it and close, but do
+       not reload — a menu that reloads the page you are already on reads as a
+       broken menu. */
+    if (next === locale) return;
     goTo(addressFor(next, pathname, window.location.search));
   };
 
@@ -246,6 +250,7 @@ export function LanguageMenuBlock() {
 
   const choose = (next: Locale) => {
     remember(next);
+    if (next === locale) return;
     goTo(addressFor(next, pathname, window.location.search));
   };
 
