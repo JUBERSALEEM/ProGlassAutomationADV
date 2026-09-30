@@ -98,8 +98,12 @@ for (const raw of readFileSync(batch, "utf8").split("\n")) {
     console.error(`  no tab: ${raw.slice(0, 60)}`);
     continue;
   }
-  const first = raw.slice(0, tab).trim();
-  const key = byIndex ? KEYS[Number(first)] : first;
+  /* The key keeps its own spacing: a handful of keys are a separator plus a
+     word (" — clamped", " · SGU"), and trimming one turns it into a key that
+     does not exist. The trim is only a fallback for a hand-made batch. */
+  const first = raw.slice(0, tab);
+  const trimmed = first.trim();
+  const key = byIndex ? KEYS[Number(trimmed)] : known.has(first) || !known.has(trimmed) ? first : trimmed;
   const value = raw.slice(tab + 1).trim();
   if (byIndex && key === undefined) {
     console.error(`  no key at index ${first}`);
