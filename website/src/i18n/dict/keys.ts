@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 2903 keys.
+ * 2902 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -1290,7 +1290,6 @@ export const KEYS: string[] = [
   "Modular domain isolation",
   "Module",
   "MODULE / FUNCTION",
-  "Module dashboard",
   "Module detail",
   "Module grid",
   "Mohammed Ali (Site Storekeeper)",
