@@ -9,10 +9,20 @@ import { LiveSurface } from "@/components/product/LiveSurface";
 import type { Translator } from "@/i18n/core";
 
 /**
- * Alternating module presentation.
+ * The module cards.
  *
- * Image left / text right, then text left / image right — the rhythm keeps a
- * long feature page from reading as one column of identical cards.
+ * Each module is one card, and the card is the unit of the page: heading and
+ * what-it-is at the top, the detail and its capabilities on the left, and a
+ * working preview of the module on the right. Before this, the showcase was
+ * two loose columns — text in one, a preview in the other, nothing holding
+ * them together — repeated six times down a page, which is the shape that
+ * made a feature list read as uninterrupted vertical information.
+ *
+ * The card speaks the site's surface language, so in Crystal each module is a
+ * sheet of glass with its own live preview inside it, and in the other
+ * families it is the product's flat card. The alternation is kept on the wide
+ * layout: card after card with the preview on the same side reads as a
+ * template, and the preview is what a reader is here to look at.
  */
 export function ModuleShowcase({
   /** The page's translator — this component renders on the server. */
@@ -26,58 +36,61 @@ export function ModuleShowcase({
   reversed?: boolean;
 }) {
   return (
-    <div className="space-y-16 sm:space-y-20 lg:space-y-24">
+    <div className="space-y-8 sm:space-y-10">
       {modules.map((module, index) => {
         const flip = reversed ? index % 2 === 0 : index % 2 === 1;
         return (
-          <Reveal key={module.id} as="article" className="scroll-mt-28" >
-            <div id={`showcase-${module.id}`} className="grid scroll-mt-28 items-center gap-8 lg:grid-cols-2 lg:gap-14">
-              <div className={cn(flip && "lg:order-2")}>
-                <div className="flex items-center gap-3">
-                  <IndexChip>{module.number}</IndexChip>
-                  <div>
-                    <p className="eyebrow">{module.railGroup}</p>
-                    <h3 className="text-xl font-semibold text-text-primary sm:text-2xl">{t(module.name)}</h3>
-                  </div>
-                </div>
-
-                <p className="mt-5 text-base leading-relaxed text-text-secondary">{t(module.summary)}</p>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(module.detail)}</p>
-
-                <ul className="mt-6 space-y-2.5">
-                  {module.capabilities.map((item) => (
-                    <li key={item} className="flex gap-2.5 text-sm leading-relaxed text-text-muted">
-                      <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
-                      {t(item)}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-6 flex flex-wrap items-center gap-4">
-                  <ButtonLink href={module.href} variant="secondary" size="sm" trailing={<ArrowRight />}>
-                    {t("View module")}
-                  </ButtonLink>
-                  <span className="mono-label">{t(module.evidence)}</span>
+          <Reveal key={module.id} as="article" className="scroll-mt-28">
+            <div id={`showcase-${module.id}`} className="surface-raised scroll-mt-28 card-pad">
+              {/* The card's own heading: number, rail group, name. */}
+              <div className="glass-primary-head flex flex-wrap items-center gap-3 pb-5">
+                <IndexChip>{module.number}</IndexChip>
+                <div className="min-w-0">
+                  <p className="eyebrow">{module.railGroup}</p>
+                  <h3 className="display-3 mt-1">{t(module.name)}</h3>
                 </div>
               </div>
 
-              <div className={cn(flip && "lg:order-1")}>
-                {module.illustration ? (
-                  <figure className="plate overflow-hidden">
-                    <div className="relative aspect-[3/2] w-full">
-                      <Image
-                        src={module.illustration.src}
-                        alt={t(module.illustration.alt)}
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 560px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint font-medium">{t("{v1} — shipped inside the application, declared in ProGlassAutomation.csproj.", { v1: t(module.illustration.alt) })}</figcaption>
-                  </figure>
-                ) : (
-                  <ModulePanel t={t} module={module} />
-                )}
+              <div className="grid items-start gap-8 pt-6 lg:grid-cols-2 lg:gap-12">
+                <div className={cn(flip && "lg:order-2")}>
+                  <p className="text-base leading-relaxed text-text-secondary">{t(module.summary)}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(module.detail)}</p>
+
+                  <ul className="mt-6 space-y-2.5">
+                    {module.capabilities.map((item) => (
+                      <li key={item} className="flex gap-2.5 text-sm leading-relaxed text-text-muted">
+                        <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
+                        {t(item)}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-6 flex flex-wrap items-center gap-4">
+                    <ButtonLink href={module.href} variant="secondary" size="sm" trailing={<ArrowRight />}>
+                      {t("View module")}
+                    </ButtonLink>
+                    <span className="mono-label">{t(module.evidence)}</span>
+                  </div>
+                </div>
+
+                <div className={cn("min-w-0", flip && "lg:order-1")}>
+                  {module.illustration ? (
+                    <figure className="plate overflow-hidden">
+                      <div className="relative aspect-[3/2] w-full">
+                        <Image
+                          src={module.illustration.src}
+                          alt={t(module.illustration.alt)}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 560px"
+                          className="object-cover"
+                        />
+                      </div>
+                      <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint font-medium">{t("{v1} — shipped inside the application, declared in ProGlassAutomation.csproj.", { v1: t(module.illustration.alt) })}</figcaption>
+                    </figure>
+                  ) : (
+                    <ModulePanel t={t} module={module} />
+                  )}
+                </div>
               </div>
             </div>
           </Reveal>

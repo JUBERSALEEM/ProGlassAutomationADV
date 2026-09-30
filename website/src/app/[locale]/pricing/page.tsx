@@ -301,7 +301,7 @@ export default async function PricingPage({ params }: PageProps) {
           <Reveal>
             <div className="glass-primary flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
-                <h2 className="text-2xl leading-tight sm:text-3xl">{t("Tell us what you need, and get a number.")}</h2>
+                <h2 className="display-2">{t("Tell us what you need, and get a number.")}</h2>
                 <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("How many people, which modules, and whether the cutting table is part of it. Every request is answered by a person.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">

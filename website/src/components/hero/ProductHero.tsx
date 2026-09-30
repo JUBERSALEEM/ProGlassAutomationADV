@@ -67,7 +67,7 @@ export function ProductHero({ t }: { t: Translator }) {
             </Reveal>
 
             <Reveal delay={70}>
-              <h1 className="text-[2.1rem] font-semibold leading-[1.06] tracking-tight text-text-primary sm:text-[2.75rem] lg:text-[3.25rem]">
+              <h1 className="display-1">
                 {t("Glass business management,")}
                 <span className="text-gradient block">{t("built around your workflow.")}</span>
               </h1>

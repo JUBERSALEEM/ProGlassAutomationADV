@@ -153,7 +153,7 @@ export function AppFrame({
   return (
     <figure className={cn("plate shadow-raised", className)}>
       {/* ── Window chrome ─────────────────────────────────────────── */}
-      <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-ink-900/85 px-3 py-2 sm:px-4">
+      <div className="app-chrome flex items-center justify-between gap-3 border-b border-line/70 bg-ink-900/85 px-3 py-2 sm:px-4">
         <div className="flex items-center gap-2.5">
           <LogoMark size={20} />
           <span className="font-mono text-[0.75rem] font-semibold uppercase tracking-[0.18em] text-text-faint">
@@ -172,7 +172,7 @@ export function AppFrame({
         {!compact ? (
           <nav
             aria-hidden="true"
-            className="hidden w-44 shrink-0 flex-col gap-2 border-r border-line/60 bg-ink-950/70 p-2.5 sm:flex"
+            className="app-rail hidden w-44 shrink-0 flex-col gap-2 border-r border-line/60 bg-ink-950/70 p-2.5 sm:flex"
           >
             {realRail.map((group) => (
               <div key={t(group.label)} className="space-y-0.5">
@@ -191,7 +191,7 @@ export function AppFrame({
 
         {/* ── Workspace ───────────────────────────────────────────── */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-3 border-b border-line/60 bg-ink-900/45 px-3 py-2">
+          <div className="app-chrome flex items-center justify-between gap-3 border-b border-line/60 bg-ink-900/45 px-3 py-2">
             <p className="truncate text-xs font-semibold text-text-primary sm:text-sm">{title}</p>
             <div className="flex items-center gap-2" aria-hidden="true">
               <span className="hidden font-mono text-[0.6875rem] tracking-[0.14em] text-text-faint font-medium sm:inline">10:30</span>

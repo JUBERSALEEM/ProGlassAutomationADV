@@ -72,7 +72,7 @@ export default async function HomePage({ params }: PageProps) {
       t={t} />
 
       {/* ═══ 01b · The facts strip ═══════════════════════════════════ */}
-      <div className="border-y border-line-strong/50 bg-ink-900">
+      <div className="band-solid">
         <Container>
           <ul className="grid divide-line/50 sm:grid-cols-2 sm:divide-x lg:grid-cols-4">
             {[
@@ -526,7 +526,7 @@ export default async function HomePage({ params }: PageProps) {
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
                 <div>
                   <p className="eyebrow">{t("Open to help")}</p>
-                  <h2 id="sponsors-heading" className="mt-3 text-3xl leading-tight sm:text-4xl">{t("One developer, and room for a few more hands.")}</h2>
+                  <h2 id="sponsors-heading" className="display-2 mt-3">{t("One developer, and room for a few more hands.")}</h2>
                   <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">{t("ProGlass Automation is written and maintained by one person. Sponsorship funds work — a cutting table to test export formats against, reviewed translations, test engineering — and never buys a roadmap position. The page below states the gaps as they actually are.")}</p>
                   <div className="mt-6 flex flex-wrap gap-3">
                     <ButtonLink href="/sponsors" size="lg" trailing={<ArrowRight />}>
@@ -700,7 +700,7 @@ export default async function HomePage({ params }: PageProps) {
               <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-center">
                 <div>
                   <p className="eyebrow mb-4">{t("Next step")}</p>
-                  <h2 id="cta-heading" className="text-2xl leading-tight sm:text-3xl lg:text-4xl">
+                  <h2 id="cta-heading" className="display-2">
           {t("See it against your own cutting list.")}
         </h2>
                   <p className="lede mt-4 max-w-xl">

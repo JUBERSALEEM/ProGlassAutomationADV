@@ -71,7 +71,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   return (
     <div ref={wrapper} className={cn("relative", className)}>
-      <div className="flex h-8 items-center overflow-hidden rounded-xl border border-line-strong/70 bg-ink-800/70">
+      <div className="flex h-10 items-center overflow-hidden rounded-xl border border-line-strong/70 bg-ink-800/70 sm:h-9">
         <button
           type="button"
           onClick={cycleMode}

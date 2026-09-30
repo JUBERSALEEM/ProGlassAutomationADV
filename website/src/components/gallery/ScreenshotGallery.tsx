@@ -285,7 +285,7 @@ function Lightbox({
             type="button"
             onClick={() => onStep(-1)}
             disabled={position === 0}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary disabled:opacity-35"
+            className="grid h-11 w-11 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary disabled:opacity-35"
           >
             <span className="sr-only">{t("Previous screenshot")}</span>
             <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -296,7 +296,7 @@ function Lightbox({
             type="button"
             onClick={() => onStep(1)}
             disabled={position === total - 1}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary disabled:opacity-35"
+            className="grid h-11 w-11 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary disabled:opacity-35"
           >
             <span className="sr-only">{t("Next screenshot")}</span>
             <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -307,7 +307,7 @@ function Lightbox({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-state-danger/50 hover:text-state-danger"
+            className="grid h-11 w-11 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-state-danger/50 hover:text-state-danger"
           >
             <span className="sr-only">{t("Close")}</span>
             <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">

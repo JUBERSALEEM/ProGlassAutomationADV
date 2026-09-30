@@ -516,7 +516,7 @@ const faq = [
         <Container>
           <div className="card-accent grid gap-8 p-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] lg:items-center lg:p-10">
             <div>
-              <h2 id="dev-cta-heading" className="text-2xl leading-tight sm:text-3xl">
+              <h2 id="dev-cta-heading" className="display-2">
           {t("You talk to the person who writes it.")}
         </h2>
               <p className="measure mt-4 text-sm leading-relaxed text-text-secondary">{t("There is no support tier between a customer and the author. Describe the job you do and where it goes wrong, and the answer comes back from the person who can change the software — usually with a question about how your shop actually works.")}</p>

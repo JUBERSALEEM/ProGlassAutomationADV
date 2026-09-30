@@ -209,7 +209,10 @@
        subject. Its own two dials: how much accent sits in its fill, and how
        far the light behind it spills. */
     --glass-primary-tint: 0.1;
-    --glass-primary-glow: rgb(0 0 0 / 0);
+    /* The primary card lights its surroundings in every family, not only in
+       Crystal — that spill is what makes it read as the section's subject
+       rather than as one more panel. */
+    --glass-primary-glow: rgb(139 92 246 / 0.28);
     /* ── Card geometry — the app's own tokens ──────────────────────────
        Values are read from the desktop application, not invented:
 
@@ -365,7 +368,7 @@
     --glass-line: rgb(var(--line-strong) / 0.6);
     --glass-scrim: rgb(255 255 255 / 0);
     --glass-primary-tint: 0.07;
-    --glass-primary-glow: rgb(0 0 0 / 0);
+    --glass-primary-glow: rgb(124 58 237 / 0.22);
     --card-edge: rgb(226 222 243 / 0.95);
     --tint-alpha: 0.08;
     --tint-alpha-2: 0.04;
@@ -633,9 +636,20 @@
   }
 
   [data-theme="daylight"][data-appearance="crystal"] {
+    /*
+     * The filled button is the one place the two directions conflict: white on
+     * #0891B2 measures 3.68:1, under the 4.5:1 floor for a 14 px label, and
+     * dark ink on the same fill only reaches 5.35:1. Deepening the fill to
+     * #0E7490 gives white 5.36:1 and keeps the family's own hue, so the accent
+     * tone (text) and the button (fill) are the same value here.
+     *
+     * The wash stays light: `--brand-500` is only ever used at low alpha as a
+     * tint, so it can keep the brighter cyan that makes the glass read as glass
+     * without meeting any text on it.
+     */
     --brand-300: 14 116 144;
-    --brand-400: 8 145 178;
-    --brand-500: 14 116 144;
+    --brand-400: 14 116 144;
+    --brand-500: 8 145 178;
     --brand-600: 21 94 117;
     --brand-700: 22 78 99;
     --card-tint: rgb(34 211 238 / 0.1);
@@ -1564,6 +1578,48 @@
   [data-appearance="crystal"] .plate {
     box-shadow: var(--shadow-raised), 0 0 0 1px var(--glass-ring),
       inset 0 1px 0 0 var(--glass-edge-light), inset 0 -1px 0 0 var(--glass-edge-dark);
+  }
+
+  /*
+   * The application window's own chrome.
+   *
+   * Inside a product frame the preview is a working interface — title bars, a
+   * navigation rail and a grid of figures — so its surfaces are the one place
+   * inside a Crystal card that stays nearly solid. The frame around it is
+   * glass; the application inside it is not, because a screenshot of an ERP
+   * with the page showing through it is not a screenshot of anything.
+   */
+  [data-appearance="crystal"] .app-chrome {
+    background-color: rgb(var(--ink-900) / 0.9);
+  }
+
+  [data-appearance="crystal"] .app-rail {
+    background-color: rgb(var(--ink-950) / 0.85);
+  }
+
+  /*
+   * A full-width band of a single colour — the facts strip under the hero.
+   * In Crystal it becomes a wide pane of glass spanning the page rather than
+   * a solid slab dropped between two translucent sections.
+   */
+  .band-solid {
+    background-color: rgb(var(--ink-900));
+    border-top: 1px solid rgb(var(--line-strong) / 0.5);
+    border-bottom: 1px solid rgb(var(--line-strong) / 0.5);
+  }
+
+  [data-appearance="crystal"] .band-solid {
+    background-color: rgb(var(--ink-900) / 0.5);
+    border-top-color: var(--glass-ring);
+    border-bottom-color: var(--glass-ring);
+    backdrop-filter: blur(18px) saturate(170%);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+  }
+
+  @supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+    [data-appearance="crystal"] .band-solid {
+      background-color: rgb(var(--ink-900) / 0.94);
+    }
   }
 
   /*
