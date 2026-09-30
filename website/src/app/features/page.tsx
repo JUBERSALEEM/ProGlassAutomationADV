@@ -12,6 +12,8 @@ import { Accordion } from "@/components/ui/Accordion";
 import { ModuleBrowser } from "@/components/product/ModuleBrowser";
 import { modules } from "@/data/modules";
 import { featureGroups } from "@/data/features";
+import { logFacts } from "@/data/activityLog";
+import { stageRoutes, stageRouting } from "@/data/stageQueue";
 import { pricingRules } from "@/data/pricingRules";
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
@@ -187,6 +189,176 @@ export default function FeaturesPage() {
             <div className="flex flex-wrap gap-3">
               <ButtonLink href="/worked-example#pricing-rules" variant="secondary" size="md" trailing={<ArrowRight />}>
                 Both rules on a real job
+              </ButtonLink>
+              <ButtonLink href="/contact" variant="ghost" size="md">
+                Request a Demo
+              </ButtonLink>
+            </div>
+          </Reveal>
+        </Container>
+      </Section>
+
+      {/*
+        ── Logs & Activity, at full size ───────────────────────────
+        The rail calls this module "Logs & Activity" and navigates with
+        CommandParameter="Diagnostics". It is two services underneath — the
+        application log (`AppLogService`) and the business audit trail
+        (`AuditService`) — and the surface here is the real one: the log
+        terminal with five severity levels and the last 500 entries, the error
+        and warning counters, and the audit trail filtered by the canonical
+        section names.
+
+        It is given full size for the same reason the pricing engine is: a log
+        is read line by line, and the correlation ID that ties one business
+        operation together only means anything when the lines are legible.
+      */}
+      <Section aria-labelledby="logs-activity-heading" id="showcase-logs-activity">
+        <Container>
+          <SectionHeading
+            id="logs-activity-heading"
+            eyebrow="System — Logs & Activity"
+            title="What it did, and who changed what."
+            lead="Two services, deliberately not one. The application log records what happened — startup, licence, seeding, production, errors — and the audit trail records the business events, with the before and after of every field. The correlation ID on a traceable entry follows one operation from the inquiry to the statement, across modules and across days."
+          />
+
+          <Reveal className="mt-10">
+            <AppFrame
+              title="Logs & Activity — Diagnostics"
+              railActive="Logs & Activity"
+              tall
+              note="Interactive preview — filter by severity, switch to the audit trail and filter by section, on sample rows built from this repository's seeded workflow."
+            >
+              <LiveSurface
+                moduleKey="Diagnostics"
+                name="Logs & Activity"
+                capabilities={[
+                  "Rolling log, five severity levels",
+                  "Error and warning counters",
+                  "Open log folder on disk",
+                  "Audit trail by canonical section",
+                  "Correlation ID per operation",
+                ]}
+              />
+            </AppFrame>
+          </Reveal>
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-3">
+            {logFacts.map((fact, index) => (
+              <Reveal key={fact.id} delay={index * 60}>
+                <div className="plate h-full p-6">
+                  <p className="eyebrow">{fact.label}</p>
+                  <h3 className="mt-3 text-lg font-semibold text-text-primary">{fact.headline}</h3>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{fact.body}</p>
+                  <p className="mt-4 font-mono text-2xs text-text-faint">{fact.evidence}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          <Reveal className="mt-6">
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href="/features#system-center" variant="secondary" size="md" trailing={<ArrowRight />}>
+                System Center
+              </ButtonLink>
+              <ButtonLink href="/contact" variant="ghost" size="md">
+                Request a Demo
+              </ButtonLink>
+            </div>
+          </Reveal>
+        </Container>
+      </Section>
+
+      {/*
+        ── The production floor, at full size ──────────────────────
+        Eight separate stage pages, four bars of shared chrome, and one rule
+        holding them together: only the pieces a stage completes arrive in the
+        next stage, and a floor write is clamped to what arrived. The preview
+        opens on Cutting — where every piece enters, on the full Step-5
+        envelope — and any chip in the chain bar opens that stage instead.
+
+        The waiting-upstream strip and the done-piece editor are both real
+        behaviour rather than decoration: a stage with nothing arrived says so,
+        and typing a done quantity larger than the arrived quantity clamps, the
+        way `SetDoneQtyAsync` does.
+      */}
+      <Section tone="sunken" aria-labelledby="production-floor-heading" id="showcase-production-floor">
+        <Container>
+          <SectionHeading
+            id="production-floor-heading"
+            eyebrow="Production — the floor"
+            title="Eight stages, one chain, and a clamp that holds it together."
+            lead="Production runs exclusively from job orders, and a job order only exists for a confirmed proforma — a draft never reaches the floor. From there the job is distributed across the eight stages: every piece enters at Cutting, and only the pieces a station completes arrive at the next one. A station cannot record work it never received."
+          />
+
+          <Reveal className="mt-10">
+            <AppFrame
+              title="Production — stage queue"
+              railActive="Production"
+              tall
+              note="Interactive preview — pick a stage from the chain bar, release a job order (and watch a draft be refused), and try to record more pieces than arrived."
+            >
+              <LiveSurface
+                moduleKey="Cutting"
+                name="Cutting"
+                capabilities={["Stage queue", "Shared production chrome", "Piece flow"]}
+              />
+            </AppFrame>
+          </Reveal>
+
+          <div className="mt-6 grid gap-5 lg:grid-cols-2">
+            <Reveal>
+              <div className="plate h-full p-6">
+                <p className="eyebrow">Routing by build family</p>
+                <ul className="mt-4 space-y-3">
+                  {stageRoutes.map((route) => (
+                    <li key={route.family}>
+                      <p className="flex flex-wrap items-baseline gap-2">
+                        <span className="font-mono text-sm font-semibold text-brand-200">{route.family}</span>
+                        <span className="font-mono text-2xs text-text-faint">{route.carries}</span>
+                      </p>
+                      <p className="mt-1 text-sm font-medium leading-relaxed text-text-muted">{route.route}</p>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 font-mono text-2xs text-text-faint">
+                  Views/Production/README.md — scope lock: four Step-4 families, no triple glazing
+                </p>
+              </div>
+            </Reveal>
+
+            <Reveal delay={60}>
+              <div className="plate h-full p-6">
+                <p className="eyebrow">Step 6 charges that raise floor work</p>
+                <table className="mt-4 w-full border-collapse text-left">
+                  <caption className="sr-only">Production charges and the stage each one arrives at.</caption>
+                  <thead>
+                    <tr className="border-b border-line/60">
+                      <th scope="col" className="pb-1.5 font-mono text-2xs uppercase tracking-[0.1em] text-text-faint font-medium">Charge</th>
+                      <th scope="col" className="pb-1.5 font-mono text-2xs uppercase tracking-[0.1em] text-text-faint font-medium">Arrives at</th>
+                      <th scope="col" className="pb-1.5 text-right font-mono text-2xs uppercase tracking-[0.1em] text-text-faint font-medium">Counted in</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {stageRouting.map((entry) => (
+                      <tr key={entry.charge} className="border-b border-line/30 last:border-0">
+                        <td className="py-1 font-mono text-xs text-text-secondary">{entry.charge}</td>
+                        <td className="py-1 text-xs font-medium text-text-muted">{entry.stage}</td>
+                        <td className="py-1 text-right text-xs font-medium text-text-faint">{entry.quantity}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="mt-4 font-mono text-2xs text-text-faint">
+                  Services/Production/ProductionDistributionEngine.cs — the plan is pure and deterministic
+                </p>
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal className="mt-6">
+            <div className="flex flex-wrap gap-3">
+              <ButtonLink href="/how-it-works" variant="secondary" size="md" trailing={<ArrowRight />}>
+                Where the floor sits in the chain
               </ButtonLink>
               <ButtonLink href="/contact" variant="ghost" size="md">
                 Request a Demo

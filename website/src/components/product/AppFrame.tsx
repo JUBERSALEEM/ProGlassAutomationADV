@@ -19,28 +19,45 @@ export type RailItem = { label: string; active?: boolean };
 export type RailGroup = { label: string; items: RailItem[]; open?: boolean };
 
 /**
- * The real sidebar grouping, in the real order
- * (Views/Personal/GlassShell.xaml: MAIN · INVENTORY · SALES · PRODUCTION · DISPATCH ·
- *  FINANCE & ACCOUNTING · REPORTS · MASTER DATA · SYSTEM).
+ * The navigation rail, as `MainWindow.xaml` — and the Personal shell,
+ * `Views/Personal/GlassShell.xaml`, which mirrors it — actually builds it.
+ *
+ * Three flat items, then seven expandable groups. The group labels are *module
+ * names*, not section headings: "Sales & Orders", "Production", "Dispatch",
+ * "Finance & Accounting", "Reports", "Master Data", "System". The children are
+ * the real ones:
+ *
+ *   Sales & Orders        Inquiry · Proforma Invoice · Job Order · Tax Invoice
+ *   Production            Optimization · Cutting · Holes & Cutouts · Polish ·
+ *                         Edge Deletion · Mitring · Tempering · Pairing ·
+ *                         Doubling / Lamination
+ *   Dispatch              Delivery Note
+ *   Finance & Accounting  Statement Generator · Job Profitability · VAT Submission
+ *   Reports               Overview · Proforma Invoice · Job Order · Delivery ·
+ *                         Tax Invoice · Statement
+ *   Master Data           Company Center · User Center
+ *   System                System Center · Logs & Activity
+ *
+ * Process Work Center, Production Control Center, the Order Report and the
+ * Settings and About surfaces are reached from inside these modules rather than
+ * from the rail, so the site documents them as modules but does not draw them
+ * as rail entries.
  */
 export const realRail: RailGroup[] = [
-  { label: "MAIN", open: true, items: [{ label: "Dashboard" }] },
   {
-    label: "INVENTORY",
+    label: "Main",
     open: true,
-    items: [{ label: "Sheet Store" }, { label: "Specifications" }],
+    items: [{ label: "Dashboard" }, { label: "Sheet Store" }, { label: "Specifications" }],
   },
   {
-    label: "SALES",
+    label: "Sales & Orders",
     open: true,
     items: [{ label: "Inquiry" }, { label: "Proforma Invoice" }, { label: "Job Order" }, { label: "Tax Invoice" }],
   },
   {
-    label: "PRODUCTION",
+    label: "Production",
     items: [
       { label: "Optimization" },
-      { label: "Process Work Center" },
-      { label: "Production Control Center" },
       { label: "Cutting" },
       { label: "Holes & Cutouts" },
       { label: "Polish" },
@@ -51,41 +68,24 @@ export const realRail: RailGroup[] = [
       { label: "Doubling / Lamination" },
     ],
   },
-  { label: "DISPATCH", items: [{ label: "Delivery Note" }] },
+  { label: "Dispatch", items: [{ label: "Delivery Note" }] },
   {
-    label: "FINANCE",
-    items: [
-      { label: "Statement Generator" },
-      { label: "Order Report" },
-      { label: "Job Profitability" },
-      { label: "VAT Submission" },
-    ],
+    label: "Finance & Accounting",
+    items: [{ label: "Statement Generator" }, { label: "Job Profitability" }, { label: "VAT Submission" }],
   },
   {
-    label: "REPORTS",
+    label: "Reports",
     items: [
-      { label: "Executive Summary" },
-      { label: "Customers" },
-      { label: "Salesmen" },
-      { label: "Companies" },
-      { label: "Projects" },
+      { label: "Overview" },
       { label: "Proforma Invoice" },
       { label: "Job Order" },
       { label: "Delivery" },
       { label: "Tax Invoice" },
-      { label: "Glass Specs" },
-      { label: "Profitability" },
       { label: "Statement" },
     ],
   },
-  {
-    label: "MASTER DATA",
-    items: [{ label: "Company Center" }, { label: "User Center" }],
-  },
-  {
-    label: "SYSTEM",
-    items: [{ label: "System Center" }, { label: "Diagnostics" }, { label: "Settings" }],
-  },
+  { label: "Master Data", items: [{ label: "Company Center" }, { label: "User Center" }] },
+  { label: "System", items: [{ label: "System Center" }, { label: "Logs & Activity" }] },
 ];
 
 function RailRow({ label, active, muted }: { label: string; active?: boolean; muted?: boolean }) {

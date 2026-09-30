@@ -108,19 +108,28 @@ export const licenceGates = [
   },
 ] as const;
 
+/**
+ * What is reachable without a licence key.
+ *
+ * The names are the rail's own, because that is where a reader will go looking
+ * for them: the reports hub is "Overview" in the Reports group, and the module
+ * the rail calls "Logs & Activity" is listed that way rather than by its
+ * internal name. Twenty of these are sidebar entries; Settings and About are
+ * reached from the shell's own menu, which is why the count is twenty-two.
+ */
 export const openModules = [
   "About",
   "Company Center",
   "Dashboard",
   "Delivery Note",
   "Delivery Report",
-  "Diagnostics",
   "Inquiry",
   "Job Order",
   "Job Order Report",
+  "Logs & Activity",
+  "Overview (reports hub)",
   "Proforma Invoice",
-  "Proforma Report",
-  "Sales Report",
+  "Proforma Invoice Report",
   "Settings",
   "Sheet Store",
   "Specifications",

@@ -122,7 +122,16 @@ export function ScreenshotFrame({
   );
 }
 
-/** Maps a module key to its navigation-rail label. */
+/**
+ * Maps a module key to the navigation-rail label it sits under.
+ *
+ * Only the labels that are really in the rail — the three flat items and the
+ * seven expandable groups' children. A module reached from inside another one
+ * (Process Work Center and Production Control Center from Production, the Order
+ * Report from Reports, Settings and About from the shell's own menu) has no
+ * rail entry to highlight, so it falls through to its own name and nothing
+ * lights up rather than lighting up the wrong thing.
+ */
 function railLabelFor(moduleKey: string): string {
   const map: Record<string, string> = {
     Dashboard: "Dashboard",
@@ -148,14 +157,13 @@ function railLabelFor(moduleKey: string): string {
     StatementGenerator: "Statement Generator",
     JobProfitability: "Job Profitability",
     VatSubmission: "VAT Submission",
-    SalesReport: "Executive Summary",
+    /* The reports hub is the Overview item in the Reports group. */
+    SalesReport: "Overview",
     CompanyCenter: "Company Center",
     UserCenter: "User Center",
     SystemCenter: "System Center",
-    Diagnostics: "Diagnostics",
+    Diagnostics: "Logs & Activity",
     Settings: "Settings",
-    About: "Dashboard",
-    Licensing: "Settings",
   };
   return map[moduleKey] ?? moduleKey;
 }

@@ -15,6 +15,9 @@ import { cn } from "@/lib/cn";
 import { SampleTag, SearchBox } from "@/components/product/previewAtoms";
 import { SpecificationSurface, type SpecBlockInput } from "@/components/product/SpecificationSurface";
 import { ProfitLossSurface } from "@/components/product/ProfitLossSurface";
+import { LogSurface } from "@/components/product/LogSurface";
+import { StageQueueSurface } from "@/components/product/StageQueueSurface";
+import { stageChain, type StageChainId } from "@/data/stageQueue";
 import { SheetGallery } from "@/components/optimization/SheetGallery";
 import { packGuillotine, plateViews } from "@/lib/guillotinePack";
 
@@ -80,8 +83,12 @@ export function LiveSurface({
 
         {/* ── Engine ───────────────────────────────────────────────────── */}
         <div className="min-h-0 flex-1 pt-3">
-          {demo.kind === "optimizer" ? (
+          {demo.kind === "log" ? (
+            <LogSurface compact={compact} />
+          ) : demo.kind === "optimizer" ? (
             <OptimizerEngine demo={demo} compact={compact} />
+          ) : demo.kind === "stage" ? (
+            <StageQueueSurface stage={stageFromKey(moduleKey)} compact={compact} />
           ) : demo.kind === "queue" ? (
             <QueueEngine demo={demo} compact={compact} />
           ) : demo.kind === "wizard" ? (
@@ -98,6 +105,16 @@ export function LiveSurface({
   );
 }
 
+
+/**
+ * The eight stage modules are separate pages in the application, so the surface
+ * needs to know which one it is drawing. The chain's own ids are the module
+ * keys, which is why this is a lookup rather than a mapping table.
+ */
+function stageFromKey(moduleKey: string): StageChainId {
+  const match = stageChain.find((stage) => stage.id === moduleKey);
+  return match ? match.id : "Cutting";
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
  * Shared chrome

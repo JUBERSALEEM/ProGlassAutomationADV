@@ -494,7 +494,7 @@ export const screenshots: Screenshot[] = [
     id: "stage-cutting",
     title: "Production stage — Cutting",
     caption:
-      "Stage one of eight: the two-tier job list and the full-page job detail the stages share.",
+      "Stage one of eight: the two-tier job list and the full-page job detail the stages share. Full Step-5 envelope: ST · JOB · PI · CUSTOMER · SALESMAN · SPEC · SR · REF · BUILD · W1 · H1 · W2 · H2 · QTY, with SQM1 / TOT SQM1 / LM1 and SQM2 / TOT SQM2 / LM2 running columns, then IN · DONE · BALANCE.",
     moduleKey: "Cutting",
     category: "production",
     src: null,
@@ -815,9 +815,9 @@ export const screenshots: Screenshot[] = [
   },
   {
     id: "diagnostics",
-    title: "Diagnostics",
+    title: "Logs & Activity",
     caption:
-      "The health surface, including crash reports, reachable from the shell.",
+      "The application log and the audit trail: five severity levels, the last 500 entries kept in memory, error and warning counters, and the correlation ID that follows one operation across modules.",
     moduleKey: "Diagnostics",
     category: "settings",
     src: null,

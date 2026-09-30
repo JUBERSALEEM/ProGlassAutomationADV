@@ -32,6 +32,8 @@ export type DemoKind =
   | "calculator"
   | "optimizer"
   | "queue"
+  | "stage"
+  | "log"
   | "form";
 
 export type DemoColumn = {
@@ -378,22 +380,70 @@ const userRows: DemoRow[] = [
 
 const bespoke: Record<string, Demo> = {
   Dashboard: {
+    /*
+     * The dashboard is not four counters. It is a set of pulses — one per
+     * surface — over a tab per module (`Views/Dashboard/` holds a folder each
+     * for DeliveryNote, JobOrder, ProformaInvoice, SheetStore, Statement and
+     * TaxInvoice beside the Overview), and every panel is titled and subtitled
+     * in the language file:
+     *
+     *   Quote pulse        count of quotes · pipeline volume and confirmation
+     *                      · status distribution · top customers
+     *   Production pulse   IN PRODUCTION · workload, priority mix, recent job
+     *                      activity
+     *   Dispatch pulse     delivery note count · dispatch flow, delivery
+     *                      balance, recent movements
+     *   Stock pulse        available SQM by glass category · category mix ·
+     *                      dummy / split / master
+     *   Collections pulse  customer balances, outstanding value and collection
+     *                      risk · ageing brackets · collected vs outstanding
+     *                      vs overdue
+     *   Statement pulse    statements, and "Generate a statement to see
+     *                      customer balances here" when there are none
+     *
+     * The figures are this repository's seeded workflow — one inquiry, one
+     * proforma of 22 items in 3 groups, one job, one partial delivery of 15
+     * items and one invoice — so nothing here is a fabricated trade volume.
+     */
     kind: "dashboard",
-    blurb: "Today's position: what was quoted, what is on the floor and what is owed.",
+    blurb: "One pulse per surface, over a tab per module — quotes, factory, dispatch, stock, collections.",
     views: [
       {
-        label: "Overview",
+        label: "Quote & production",
         columns: [],
         rows: [],
         summary: [
-          { label: "Open inquiries", value: "7" },
-          { label: "Proforma raised", value: "12" },
-          { label: "Jobs in production", value: "9" },
-          { label: "Ready to dispatch", value: "3" },
+          { label: "Quote pulse", value: "1 quote · INQ-2026-001 confirmed" },
+          { label: "Pipeline", value: "PI-2026-001 approved · 22 items · 3 spec groups" },
+          { label: "Production pulse — in production", value: "JOB-2026-001 · priority High" },
+          { label: "Pending pieces", value: "45 cut · 12 complete on Spec 1" },
+        ],
+      },
+      {
+        label: "Dispatch & stock",
+        columns: [],
+        rows: [],
+        summary: [
+          { label: "Dispatch pulse — delivery notes", value: "DN-2026-001-01 · Dispatching" },
+          { label: "Delivery balance", value: "15 of 22 items leaving · 7 on balance" },
+          { label: "Stock pulse — available SQM", value: "By glass category, live from the sheet store" },
+          { label: "Category mix", value: "Clear 6 / 8 / 10 / 12 · Tinted 6 / 8 · Low-E 6 · Frosted 5" },
+        ],
+      },
+      {
+        label: "Collections",
+        columns: [],
+        rows: [],
+        summary: [
+          { label: "Collections pulse", value: "INV-2026-001 issued · due in 30 days" },
+          { label: "Customer balance", value: "Al Noor Glazing Contracting LLC" },
+          { label: "Ageing brackets", value: "Overdue amounts grouped by age" },
+          { label: "Statement pulse", value: "Generate a statement to see customer balances here." },
         ],
       },
     ],
-    footnote: "Figures change with the range you select, the way the dashboard recomputes on load.",
+    footnote:
+      "Each panel is titled and subtitled in the language file, and the tab strip changes the module the dashboard is reading — Delivery Note, Job Order, Proforma Invoice, Sheet Store, Statement and Tax Invoice each have their own dashboard folder beside the overview.",
   },
 
   Inquiry: {
@@ -638,37 +688,14 @@ const bespoke: Record<string, Demo> = {
     views: [{ label: "Board", columns: jobColumns(), rows: sampleJobs }],
   },
 
-  Cutting: { kind: "queue", blurb: "Cutting: the plan goes in, cut pieces come out.", views: [{ label: "Cutting", columns: cutColumns(), rows: cutList }] },
-  HolesCutouts: {
-    kind: "queue",
-    blurb: "Holes, fan holes, cut-outs and countersunk holes are charged per piece.",
-    views: [
-      {
-        label: "Pieces",
-        columns: [
-          { key: "piece", label: "Piece" },
-          { key: "job", label: "Job" },
-          { key: "w", label: "W", align: "right", kind: "num", hideBelow: "sm" },
-          { key: "h", label: "H", align: "right", kind: "num", hideBelow: "sm" },
-          { key: "holes", label: "Holes", align: "right", kind: "num" },
-          { key: "charge", label: "Charged as", hideBelow: "md" },
-          { key: "done", label: "Done", align: "right", kind: "num" },
-        ],
-        rows: [
-          { piece: "P-01", job: "JO-24101", w: "1180", h: "2340", holes: "2", charge: "HOLES", done: "4" },
-          { piece: "P-03", job: "JO-24101", w: "860", h: "1980", holes: "4", charge: "FAN_HOLES", done: "6" },
-          { piece: "P-06", job: "JO-24103", w: "640", h: "1180", holes: "1", charge: "COUNTERSUNK_HOLES", done: "10" },
-          { piece: "P-04", job: "JO-24102", w: "1220", h: "1520", holes: "1", charge: "CUTOUT", done: "8" },
-        ],
-      },
-    ],
-  },
-  Polish: { kind: "queue", blurb: "Edge polish by piece, per job.", views: [{ label: "Polish", columns: cutColumns(), rows: cutList }] },
-  EdgeDeletion: { kind: "queue", blurb: "Edge deletion takes the coating back where the seal will sit.", views: [{ label: "Deletion", columns: cutColumns(), rows: cutList }] },
-  Mitring: { kind: "queue", blurb: "Mitred edges, by angle and by piece.", views: [{ label: "Mitring", columns: cutColumns(), rows: cutList }] },
-  Tempering: { kind: "queue", blurb: "The furnace queue. Toughened glass cannot be cut after this point.", views: [{ label: "Tempering", columns: cutColumns(), rows: cutList }] },
-  Pairing: { kind: "queue", blurb: "Outer and inner lites matched before they are sealed together.", views: [{ label: "Pairing", columns: cutColumns(), rows: cutList }] },
-  DoublingLamination: { kind: "queue", blurb: "Doubling and lamination, with the overlap position recorded.", views: [{ label: "Doubling", columns: cutColumns(), rows: cutList }] },
+  Cutting: { kind: "stage", blurb: "Cutting — a stage page with the shared production chrome.", views: [] },
+  HolesCutouts: { kind: "stage", blurb: "Holes, fan holes, cut-outs and countersunk holes — a stage page with the shared production chrome.", views: [] },
+  Polish: { kind: "stage", blurb: "Polish — a stage page with the shared production chrome.", views: [] },
+  EdgeDeletion: { kind: "stage", blurb: "EdgeDeletion — a stage page with the shared production chrome.", views: [] },
+  Mitring: { kind: "stage", blurb: "Mitring — a stage page with the shared production chrome.", views: [] },
+  Tempering: { kind: "stage", blurb: "Tempering — a stage page with the shared production chrome.", views: [] },
+  Pairing: { kind: "stage", blurb: "Pairing — a stage page with the shared production chrome.", views: [] },
+  DoublingLamination: { kind: "stage", blurb: "DoublingLamination — a stage page with the shared production chrome.", views: [] },
 
   DeliveryNote: {
     kind: "table",
@@ -833,41 +860,75 @@ const bespoke: Record<string, Demo> = {
   },
 
   Settings: {
+    /*
+     * Settings is a rail of twelve sections, not two: About, Agent, AI,
+     * Appearance, Data, Demo, Features, License, Sharing, Themes, Updates and
+     * Voice — one XAML each under `Views/Settings/Sections/`.
+     *
+     * DATABASE HEALTH and BACKUP & RESTORE live in the Data section, which is
+     * worth saying out loud because a health surface is easy to go looking for
+     * in System Center, where it is not.
+     */
     kind: "form",
-    blurb: "Application settings — including the appearance controls, live in this preview.",
+    blurb: "Twelve sections of application settings — appearance, data, agent, sharing, licence, updates.",
     views: [
       {
-        label: "Appearance",
-        columns: [],
-        rows: [],
-        summary: [
-          { label: "Visual family", value: "Normal (Industrial) · Monet · Crystal Fluid · iOS 26" },
-          { label: "Accents", value: "17 presets plus a custom colour" },
-          { label: "Mode", value: "Light, Dark or follow the system" },
-          { label: "Wallpaper", value: "Scene per family" },
+        label: "Sections",
+        columns: [
+          { key: "section", label: "Section" },
+          { key: "covers", label: "What it covers", hideBelow: "md" },
+        ],
+        rows: [
+          { section: "Appearance", covers: "Theme family, accents, mode, wallpaper, motion, per-module backgrounds" },
+          { section: "Themes", covers: "Visual theme family and Crystal Fluid material tuning" },
+          { section: "Data", covers: "DATABASE HEALTH · BACKUP & RESTORE · Backup Sets · rebuild" },
+          { section: "Demo", covers: "Seed the demo dataset on an empty database, reset the demo folder" },
+          { section: "Features", covers: "Feature switches for modules you do not use" },
+          { section: "Sharing", covers: "Sharing Center — what leaves the application and how" },
+          { section: "License", covers: "LICENSE STATUS and the Security section" },
+          { section: "Updates", covers: "RUNNING VERSION against the latest published release, UPDATE HISTORY" },
+          { section: "AI", covers: "About the AI Assistant — models, API key, privacy" },
+          { section: "Voice", covers: "Offline speech models for dictation and voice notes" },
+          { section: "Agent", covers: "Agent settings and the agent's own database" },
+          { section: "About", covers: "Built for UAE glass fabricators — version and credits" },
         ],
       },
       {
-        label: "General",
+        label: "Database health",
         columns: [
-          { key: "setting", label: "Setting" },
-          { key: "value", label: "Value" },
+          { key: "item", label: "Item" },
+          { key: "detail", label: "Detail", hideBelow: "md" },
         ],
         rows: [
-          { setting: "Language", value: "One of 15 locales" },
-          { setting: "Currency and rounding", value: "Per company record" },
-          { setting: "Document numbering", value: "Prefix, series, next number" },
-          { setting: "Backup", value: "Folder and interval" },
-          { setting: "Print", value: "Page size and margins" },
+          { item: "Probe databases", detail: "Probe every database and refresh the row-count table" },
+          { item: "Row counts", detail: "One row per database file, so drift is visible at a glance" },
+          { item: "Auto-migration", detail: "Handles most drift on the next app start" },
+          { item: "Rebuild all databases", detail: "The emergency option for a file too broken to open" },
+          { item: "Backup set", detail: "Every database plus settings into one timestamped folder" },
+          { item: "Automatic sets", detail: "Created when the app closes" },
+          { item: "Restore", detail: "Always takes a safety snapshot first" },
         ],
       },
     ],
-    footnote: "The four family buttons below are the real control: pressing one re-themes this website as well as describing the application.",
+    footnote:
+      "Sixteen databases sit behind the application, one EF Core context each, with additive-only migrations. The backup set copies all of them plus settings into one timestamped folder; restore never overwrites without taking a safety snapshot first. The four family buttons below are the real control — pressing one re-themes this website as well as describing the application.",
   },
 
   About: {
+    /*
+     * About carries the licence state, and the editions are the five in
+     * `LicenseEdition` (`Services/Licensing/LicensePayload.cs`) — Trial, Basic,
+     * Business, Factory, Enterprise. There is no "Standard" or "Professional";
+     * the contract carries a licence *type* and the edition is derived from it
+     * plus the granted feature set.
+     *
+     * The numbers are the code's own: the auto trial is 30 days, the verifier
+     * warns when fewer than 14 days remain, an expired licence runs read-only
+     * for the grace days written into the signed offline policy, and the
+     * auto-issued 7-day trial refuses to start once it has expired.
+     */
     kind: "form",
-    blurb: "Licence state, the free tier, and the modules a licence unlocks.",
+    blurb: "Licence state, the editions, and what each one unlocks.",
     views: [
       {
         label: "Licence",
@@ -876,24 +937,25 @@ const bespoke: Record<string, Demo> = {
           { key: "value", label: "Value" },
         ],
         rows: [
-          { field: "Edition", value: "Set by the licence key" },
-          { field: "Term", value: "Trial 30 days · 7 day grace after expiry" },
-          { field: "Devices", value: "Recorded in activations.json" },
-          { field: "Free modules", value: "22 available without a key" },
+          { field: "Edition", value: "Derived from the licence type and the granted features" },
+          { field: "Trial", value: "30 days, single activation, all features" },
+          { field: "Expiry warning", value: "Surfaced at 14 days remaining" },
+          { field: "After expiry", value: "Read-only, for the grace days in the signed offline policy" },
+          { field: "Devices", value: "Counted against the activation limit, checked by machine fingerprint" },
         ],
       },
       {
         label: "Editions",
         columns: [
           { key: "edition", label: "Edition" },
-          { key: "modules", label: "Modules", align: "right", kind: "num" },
-          { key: "state", label: "Notes" },
+          { key: "state", label: "Scope" },
         ],
         rows: [
-          { edition: "Trial", modules: "22", state: "30 days, everything free-tier" },
-          { edition: "Standard", modules: "—", state: "Core workflow" },
-          { edition: "Professional", modules: "—", state: "Adds production and reports" },
-          { edition: "Enterprise", modules: "—", state: "Everything, including licensing surfaces" },
+          { edition: "Trial", state: "30 days, single activation, all features" },
+          { edition: "Basic", state: "Single user, inquiry and proforma only" },
+          { edition: "Business", state: "Up to 5 users, full ERP without production optimisation" },
+          { edition: "Factory", state: "Unlimited users, includes the cutting-optimisation engine" },
+          { edition: "Enterprise", state: "Unlimited, multi-site, custom integrations" },
         ],
         summary: [{ label: "Price list", value: "Not published — ask the developer" }],
       },
@@ -901,50 +963,149 @@ const bespoke: Record<string, Demo> = {
   },
 
   SystemCenter: {
+    /*
+     * System Center is not a storage browser. Its own strings say what it is:
+     * "User management & audit trail — signed in as", an ACTIVITY LOG with the
+     * note "Audit trail of every recorded action", an ACTIVE NOW pane whose
+     * empty state reads "Colleagues running ProGlass on the same LAN appear
+     * here automatically", and five scope buttons over the same trail.
+     *
+     * The scopes are not arbitrary groupings — they map onto the canonical
+     * section constants in `Services/Audit/AuditSections.cs`, which is why the
+     * membership is listed here rather than paraphrased.
+     *
+     * The database-health surface sits in Settings, not here, so it is shown
+     * there.
+     */
     kind: "dashboard",
-    blurb: "Which databases are present, and what they hold.",
+    blurb: "User management and the audit trail — every recorded action, filtered by scope.",
     views: [
       {
-        label: "Databases",
+        label: "Activity log",
         columns: [
-          { key: "db", label: "Database" },
-          { key: "scope", label: "Holds" },
-          { key: "size", label: "Size", align: "right", kind: "num" },
-          { key: "state", label: "State", kind: "status" },
+          { key: "time", label: "Time" },
+          { key: "scope", label: "Scope", kind: "status" },
+          { key: "section", label: "Section" },
+          { key: "action", label: "Action", hideBelow: "md" },
+          { key: "details", label: "Details", hideBelow: "md" },
+          { key: "user", label: "User" },
         ],
         rows: [
-          { db: "company.db", scope: "Company, users, permissions", size: "1.4 MB", state: "OK" },
-          { db: "proforma.db", scope: "Inquiries and proforma invoices", size: "12.8 MB", state: "OK" },
-          { db: "joborders.db", scope: "Job orders and cut lists", size: "8.2 MB", state: "OK" },
-          { db: "stock.db", scope: "Sheet store and movements", size: "6.1 MB", state: "OK" },
-          { db: "invoices.db", scope: "Tax invoices and receipts", size: "4.7 MB", state: "OK" },
-          { db: "orderreports.db", scope: "Saved order reports", size: "2.3 MB", state: "OK" },
+          {
+            time: "08:04",
+            scope: "System",
+            section: "Settings",
+            action: "Sample data loaded",
+            details: "1 complete workflow seeded: Inquiry → PI (22 items) → JO → DN → TI",
+            user: "Demo User",
+          },
+          {
+            time: "09:02",
+            scope: "Transactions",
+            section: "Proforma Invoice",
+            action: "Inquiry status changed",
+            details: "INQ-2026-001 Draft → Confirmed — reason \"LPO LPO-AN-2026-088 received\"",
+            user: "Ahmed Rahman",
+          },
+          {
+            time: "09:18",
+            scope: "Transactions",
+            section: "Proforma Invoice",
+            action: "Proforma approved",
+            details: "PI-2026-001 — 22 glass items, 3 specification groups",
+            user: "Ahmed Rahman",
+          },
+          {
+            time: "09:20",
+            scope: "Transactions",
+            section: "Job Order",
+            action: "Job order created",
+            details: "JOB-2026-001 from PI-2026-001 — priority High",
+            user: "Demo User",
+          },
+          {
+            time: "11:44",
+            scope: "Inventory",
+            section: "Specifications",
+            action: "Counts reconciled",
+            details: "3 usage rows healed, 0 orphan rows purged",
+            user: "Demo User",
+          },
+          {
+            time: "14:12",
+            scope: "Transactions",
+            section: "Delivery Note",
+            action: "Status changed",
+            details: "DN-2026-001-01 Draft → Dispatching — driver Salim Khan",
+            user: "Ahmed Rahman",
+          },
+          {
+            time: "15:02",
+            scope: "Transactions",
+            section: "Tax Invoice",
+            action: "Tax invoice issued",
+            details: "INV-2026-001 — VAT 5% from subtotal, due in 30 days",
+            user: "Demo User",
+          },
+          {
+            time: "16:48",
+            scope: "System",
+            section: "Reports",
+            action: "Generation failed",
+            details: "Order report — no job order matched the date range",
+            user: "Demo User",
+          },
+        ],
+      },
+      {
+        label: "Scopes",
+        columns: [
+          { key: "scope", label: "Scope" },
+          { key: "sections", label: "Sections behind it", hideBelow: "md" },
+        ],
+        rows: [
+          { scope: "All activity", sections: "Full audit trail — every recorded event (compliance view)" },
+          { scope: "Transactions", sections: "Proforma · Job Order · Delivery · Tax Invoice · Credit Note · Statement · Inquiry" },
+          { scope: "Inventory", sections: "Sheet Store · Specifications · Master Data" },
+          { scope: "System", sections: "Application · Dashboard · Reports · AI Assistant" },
+          { scope: "Users & security", sections: "Users · Settings · Sharing · Updates" },
+        ],
+      },
+      {
+        label: "Active now",
+        columns: [
+          { key: "user", label: "User" },
+          { key: "role", label: "Role" },
+          { key: "since", label: "Signed in", align: "right" },
+        ],
+        rows: [
+          { user: "Demo User", role: "Administrator", since: "08:02" },
+          { user: "Ahmed Rahman", role: "Salesman", since: "09:01" },
         ],
       },
     ],
-    footnote: "16 databases, one EF Core context each, additive-only migrations.",
+    footnote:
+      "Colleagues running ProGlass on the same LAN appear in ACTIVE NOW automatically. IMPORTANT ONLY hides low-signal events — viewed, opened, session — for reading; the tooltip is explicit that recording is never affected. Sections are the constants in AuditSections.cs and the five scopes are the groupings System Center filters them by.",
   },
 
   Diagnostics: {
-    kind: "dashboard",
-    blurb: "What the application checks about itself.",
-    views: [
-      {
-        label: "Checks",
-        columns: [
-          { key: "check", label: "Check" },
-          { key: "result", label: "Result", kind: "status" },
-          { key: "detail", label: "Detail", hideBelow: "md" },
-        ],
-        rows: [
-          { check: "Database files", result: "Pass", detail: "All present and writable" },
-          { check: "Locale resources", result: "Pass", detail: "15 locales loaded" },
-          { check: "Print pipeline", result: "Pass", detail: "PDF writer available" },
-          { check: "Licence state", result: "Pass", detail: "Within term" },
-          { check: "Error log", result: "Warn", detail: "1 handled exception this week" },
-        ],
-      },
-    ],
+    /*
+     * `Nav.LogsActivity` — "Logs & Activity" in the rail, navigating with
+     * `CommandParameter="Diagnostics"`. The surface is the application's own
+     * terminal: TIME · LEVEL · MODULE / FUNCTION · entry, the last 500 kept in
+     * memory, counters for errors and warnings, and a button that opens the log
+     * folder. The rows are pattern rows built from the seeded workflow — see
+     * `activityLog.ts`, where the identifiers come from `SampleDataService` and
+     * the section names from `AuditSections.cs`.
+     *
+     * The five invented rows this replaced ("Database files · Pass", "15
+     * locales loaded") were not in the application at all.
+     */
+    kind: "log",
+    blurb: "The application log and the audit trail — what it did, and who changed what.",
+    views: [],
+    footnote:
+      "Two services, not one. AppLogService writes diagnostics — startup, licence, seeding, production, errors — with a CorrelationId (CORR-XXXXXX) and a DocumentId so one business operation can be traced from the inquiry to the statement across files. AuditService writes business events, with the section names held as constants in AuditSections.cs so a typo cannot split one section into two, and before/after change sets that the Activity view draws as a diff.",
   },
 };
 

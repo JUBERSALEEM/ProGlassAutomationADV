@@ -303,20 +303,71 @@ export const modules: ProductModule[] = [
     tags: ["Floor", "Traceability"],
   },
   {
-    id: "stage-cutting",
+    id: "production-pipeline",
     number: "11",
+    name: "Production Floor — the shared chrome",
+    railLabel: "Production",
+    moduleKey: "ProductionControlCenter",
+    railGroup: "Production",
+    summary: "The four bars every stage page shares: pipeline chain, release, KPI strip and filter.",
+    detail:
+      "The eight stages are separate pages, not one screen with a dropdown — but they share their chrome, and the chrome is where the floor is actually understood. A pipeline chain bar draws all eight stages in floor order with factory-wide piece counts (open · done/total); the current stage is highlighted and any chip opens that stage's module, so a job can be followed stage by stage without going back to a menu. A release bar picks the confirmed job order and reports what the release did. A KPI strip counts arrived, pending, in progress, completed, load and ready-for-dispatch, and its labels change with the stage's own metric — LM for Polish and Mitring, pieces or units elsewhere. A filter bar carries search, job and status beside a waiting-upstream strip that keeps the backlog visible rather than hiding it.",
+    capabilities: [
+      "Pipeline chain bar: eight stages in floor order, open · done/total per stage",
+      "Any chip in the chain opens that stage's own module",
+      "Release bar: confirmed job order picker, release action, release message",
+      "KPI strip: arrived · pending · in progress · completed · load · ready for dispatch",
+      "Stage-aware KPI labels — LM, pieces or units depending on the stage",
+      "Filter bar with search, job and status",
+      "Waiting-upstream strip: units with no pieces arrived yet stay visible",
+      "Grid virtualized and paginated, 100 rows at a time, with scroll feed and footer progress",
+    ],
+    evidence:
+      "Views/Production/Controls/ProductionPipelineBar.xaml · ProductionReleaseBar.xaml · ProductionKpiStrip.xaml · ProductionFilterBar.xaml · Views/Production/ProductionStagePageBase.cs",
+    screenshotId: "production-control-center",
+    href: "/features#production-pipeline",
+    tags: ["Floor", "Chrome"],
+  },
+  {
+    id: "production-to-delivery",
+    number: "12",
+    name: "Production → Delivery Notes",
+    railLabel: "Delivery Note",
+    moduleKey: "DeliveryNote",
+    railGroup: "Dispatch",
+    summary: "Finished pieces flow into delivery notes, and dispatched pieces are never delivered twice.",
+    detail:
+      "The gateway between the floor and dispatch. A delivery-note row may only carry pieces production has actually finished, minus anything already confirmed as delivered — and each next delivery note is built from the remaining balance only. Single-glazed pieces dispatch straight off the pane chain, with no pairing or doubling step in between; a multi-pane unit dispatches whatever finished doubling. The result is that the balance on the delivery note and the balance on the floor are the same number seen from two places.",
+    capabilities: [
+      "A delivery row may only deliver production-finished pieces",
+      "Confirmed deliveries are subtracted, so nothing ships twice",
+      "Each next delivery note is created from the remaining balance",
+      "SGU pieces dispatch off the pane chain — no pairing or doubling",
+      "Multi-pane units dispatch what finished doubling",
+      "Unit detail panel: READY / DELIVERED / TO DELIVER with Create Delivery Note",
+    ],
+    evidence: "Services/Production/ProductionDeliveryGateway.cs, Views/DeliveryNote/",
+    screenshotId: "delivery-note",
+    href: "/features#production-to-delivery",
+    tags: ["Dispatch", "Balance"],
+  },
+  {
+    id: "stage-cutting",
+    number: "13",
     name: "Cutting",
     railLabel: "Cutting",
     moduleKey: "Cutting",
     railGroup: "Production",
-    summary: "Stage one: the pieces come off the optimized plan and are marked done as they are cut.",
+    summary: "Stage one: every piece on the floor enters here, on the full specification envelope.",
     detail:
-      "Cutting is fed by the production distribution engine from the job's specification rows, so the quantities on screen are the job's own. Marking done moves the completed quantity — and only the completed quantity — to the next stage in the chain.",
+      "Every piece enters the floor here, so Cutting carries the full Step-5 envelope rather than a trimmed queue: stage, job, proforma, customer, salesman, specification, serial, glass reference, build type, both pane sizes and the quantity. Three running columns follow each row — square metres and linear metres for the outer pane, the same for the inner — beside the pieces that have arrived, the pieces done and what is left. Marking done moves the completed quantity, and only the completed quantity, to the next stage in the chain; nothing downstream can be written ahead of what arrived.",
     capabilities: [
-      "Job list: # · job no · customer · total · done · balance with a status chip",
-      "Piece flow clamped to what arrived upstream",
-      "Per-row Qty Done entry with save",
-      "Recent entries log: who marked done, and when",
+      "Columns: ST · JOB · PI · CUSTOMER · SALESMAN · SPEC · SR · REF · BUILD · W1 · H1 · W2 · H2 · QTY",
+      "Running columns: SQM1 / TOT SQM1 / LM1 and SQM2 / TOT SQM2 / LM2",
+      "Flow columns: IN · DONE · BALANCE, with the balance clamped to what arrived upstream",
+      "Every piece on the floor enters at this stage, whatever the build",
+      "Per-row Qty Done editor: Save (clamped to IN), All, Reset",
+      "Single-glazed rows carry W1 / H1 only; multi-pane rows carry both pane sizes",
     ],
     evidence: "Views/Production/CuttingView.xaml, ViewModels/Production/CuttingViewModel.cs",
     screenshotId: "stage-cutting",
@@ -325,7 +376,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-holes-cutouts",
-    number: "12",
+    number: "14",
     name: "Holes & Cutouts",
     railLabel: "Holes & Cutouts",
     moduleKey: "HolesCutouts",
@@ -334,6 +385,7 @@ export const modules: ProductModule[] = [
     detail:
       "The distribution engine reads the charge lines that create hole work (FAN_HOLES, HOLES, CUTOUT, COUNTERSUNK_HOLES) so the station sees exactly the openings the quotation sold, against the right specification rows.",
     capabilities: [
+      "Piece-flow columns: QTY · IN · DONE · BALANCE, counted in pieces",
       "Work generated from the quotation's own hole charge lines",
       "Per-row balance across all units of the job",
       "Detail grid with the job's outer and inner cut lists",
@@ -346,7 +398,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-polish",
-    number: "13",
+    number: "15",
     name: "Polish",
     railLabel: "Polish",
     moduleKey: "Polish",
@@ -355,6 +407,7 @@ export const modules: ProductModule[] = [
     detail:
       "Polished edges are dimensioned work: the quantity is the edge length the pricing step used, not a piece count. The station records what was actually polished, and the balance stays honest about what is left.",
     capabilities: [
+      "Columns are LM-based: QTY · LM1 · LM2 · IN · DONE · BALANCE — no pricing and no SQM noise",
       "Linear-metre work lines per specification row",
       "Arrived / done / balance per row and per job",
       "Completion writes only the delivered quantity onward",
@@ -367,7 +420,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-edge-deletion",
-    number: "14",
+    number: "16",
     name: "Edge Deletion",
     railLabel: "Edge Deletion",
     moduleKey: "EdgeDeletion",
@@ -376,6 +429,7 @@ export const modules: ProductModule[] = [
     detail:
       "Edge deletion is called out in the build-up and priced there, so the station is working to the specification rather than to a verbal instruction. The stage behaves like the rest of the chain: arrived, done, balance.",
     capabilities: [
+      "Piece-flow columns: QTY · IN · DONE · BALANCE",
       "Lines derived from the quotation's build-up",
       "Job totals and per-row balances",
       "Full-page job detail with the cut-list grids",
@@ -388,7 +442,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-mitring",
-    number: "15",
+    number: "17",
     name: "Mitring",
     railLabel: "Mitring",
     moduleKey: "Mitring",
@@ -397,6 +451,7 @@ export const modules: ProductModule[] = [
     detail:
       "Mitring work is generated from the quotation's mitring lines and carried against the correct specification rows, so a mitred pane reaches the right station with the right length and the right quantity.",
     capabilities: [
+      "Columns are LM-based: QTY · LM1 · LM2 · IN · DONE · BALANCE",
       "Mitring work from the quotation's own charge lines",
       "Linear-metre quantities with balance tracking",
       "Detail grid across all units of the job",
@@ -409,7 +464,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-tempering",
-    number: "16",
+    number: "18",
     name: "Tempering",
     railLabel: "Tempering",
     moduleKey: "Tempering",
@@ -418,6 +473,7 @@ export const modules: ProductModule[] = [
     detail:
       "Float, heat-strengthened and heat-soaked panes route through tempering; annealed panes are dispatch-ready straight from cutting. The stage queues only what the build-up's treatments actually require.",
     capabilities: [
+      "Piece-flow columns: QTY · IN · DONE · BALANCE, and only the panes routing says are heat-treated",
       "Routing by pane treatment: FT / Heat Strengthened / Heat Soaked",
       "Annealed panes bypass the stage rather than queueing",
       "Full quantity accounting per specification row",
@@ -430,7 +486,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-pairing",
-    number: "17",
+    number: "19",
     name: "Pairing",
     railLabel: "Pairing",
     moduleKey: "Pairing",
@@ -439,6 +495,7 @@ export const modules: ProductModule[] = [
     detail:
       "Double-glazed, laminated and double-glazed-plus-laminated rows split into pane occurrences — outer W1/H1, inner or laminate pair W2/H2 — and pairing is where those occurrences are brought back together as one unit.",
     capabilities: [
+      "Piece-flow columns: QTY · IN · DONE · BALANCE, counted in pairs",
       "Pane occurrences per unit: outer and inner / laminate",
       "W1·H1 and W2·H2 carried from Step 5",
       "Units paired before sealing",
@@ -451,7 +508,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "stage-doubling-lamination",
-    number: "18",
+    number: "20",
     name: "Doubling / Lamination",
     railLabel: "Doubling / Lamination",
     moduleKey: "DoublingLamination",
@@ -460,6 +517,7 @@ export const modules: ProductModule[] = [
     detail:
       "Assembly is where the job finishes its chain and a unit becomes ready for dispatch. The work item carries the quotation's own assembly notes — argon gas fill, silicon bed seal, U-insert sealing, stepped overlap edges, shutter bonding — so the station is not guessing at the specification.",
     capabilities: [
+      "Piece-flow columns: QTY · IN · DONE · BALANCE, counted in units",
       "Assembly item decorated with the quotation's charge notes",
       "ARGON GAS FILL · SILICON BED SEAL · U-INSERT SEALING",
       "STEPPED OVERLAP EDGES · SHUTTER BONDING",
@@ -475,7 +533,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ DISPATCH ══════════════════════════════════ */
   {
     id: "delivery-note",
-    number: "19",
+    number: "21",
     name: "Delivery Note",
     railLabel: "Delivery Note",
     moduleKey: "DeliveryNote",
@@ -496,7 +554,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-generator",
-    number: "20",
+    number: "22",
     name: "Report Generator",
     railLabel: "Order Report",
     moduleKey: "OrderReport",
@@ -519,7 +577,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ FINANCE ═══════════════════════════════════ */
   {
     id: "statement-generator",
-    number: "21",
+    number: "23",
     name: "Statement Generator",
     railLabel: "Statement Generator",
     moduleKey: "StatementGenerator",
@@ -540,7 +598,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "job-profitability",
-    number: "22",
+    number: "24",
     name: "Job Profitability",
     railLabel: "Job Profitability",
     moduleKey: "JobProfitability",
@@ -561,7 +619,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "vat-submission",
-    number: "23",
+    number: "25",
     name: "VAT Submission",
     railLabel: "VAT Submission",
     moduleKey: "VatSubmission",
@@ -584,16 +642,16 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ REPORTS ═══════════════════════════════════ */
   {
     id: "reports-hub",
-    number: "24",
+    number: "26",
     name: "Reports Hub",
-    railLabel: "Sales Report",
+    railLabel: "Overview",
     moduleKey: "SalesReport",
     railGroup: "Reports",
-    summary: "One rail, fourteen report surfaces and a KPI overview over one central data layer.",
+    summary: "One rail, fourteen report surfaces and a KPI dashboard over one central data layer.",
     detail:
-      "Rather than fourteen separate modules in the sidebar, the reports live behind one hub with its own collapsible rail: an overview, four relationship reports, five document reports and four financial surfaces. Every one of them reads the same stored records.",
+      "Rather than fourteen separate modules in the sidebar, the reports live behind one hub with its own collapsible rail: the KPI dashboard, five relationship reports (Executive · order-to-cash funnel, Customers · directory & receivables, Salesmen · performance & revenue, Companies · book & receivables, Projects · register & progress), five document reports (Proforma · quotes & conversion, Job Order · production & status, Delivery · dispatched / pending, Tax Invoice · billed & overdue, Glass Specs · row-level traceability) and three financial surfaces (Profitability · P&L & margins, Statement · customer statements, VAT Submission · 5% FTA rate). Every one of them reads the same stored records.",
     capabilities: [
-      "Rail with Overview plus Relationships, Documents and Financial groups",
+      "Rail with Overview plus the Relationships, Documents and Financial groups",
       "Collapsible navigation rail so a report can use the full width",
       "Sorting, search and column controls shared by every report",
       "Async generation with progress and cancellation",
@@ -601,11 +659,11 @@ export const modules: ProductModule[] = [
     evidence: "ViewModels/Reports/SalesReportViewModel.cs (NavItems), Views/Reports/SalesReportView.xaml",
     screenshotId: "reports-hub",
     href: "/features#showcase-reports-hub",
-    tags: ["Hub", "14 surfaces"],
+    tags: ["Hub", "14 surfaces", "3 groups"],
   },
   {
     id: "report-executive",
-    number: "25",
+    number: "27",
     name: "Executive Summary",
     railLabel: "Reports · Executive",
     moduleKey: "SalesReport#Executive",
@@ -625,7 +683,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-customer",
-    number: "26",
+    number: "28",
     name: "Customer Directory & Receivables",
     railLabel: "Reports · Customers",
     moduleKey: "SalesReport#Customer",
@@ -645,7 +703,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-salesman",
-    number: "27",
+    number: "29",
     name: "Salesman Performance",
     railLabel: "Reports · Salesmen",
     moduleKey: "SalesReport#Salesman",
@@ -665,7 +723,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-company",
-    number: "28",
+    number: "30",
     name: "Company Book & Receivables",
     railLabel: "Reports · Companies",
     moduleKey: "SalesReport#Company",
@@ -685,7 +743,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-project",
-    number: "29",
+    number: "31",
     name: "Project Register & Progress",
     railLabel: "Reports · Projects",
     moduleKey: "SalesReport#Project",
@@ -705,7 +763,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-pi",
-    number: "30",
+    number: "32",
     name: "Proforma Invoice Report",
     railLabel: "Reports · Proforma Invoice",
     moduleKey: "SalesReport#Pi",
@@ -725,7 +783,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-jo",
-    number: "31",
+    number: "33",
     name: "Job Order Report",
     railLabel: "Reports · Job Order",
     moduleKey: "SalesReport#Jo",
@@ -745,7 +803,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-delivery",
-    number: "32",
+    number: "34",
     name: "Delivery Note Report",
     railLabel: "Reports · Delivery",
     moduleKey: "SalesReport#Delivery",
@@ -765,7 +823,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-tax-invoice",
-    number: "33",
+    number: "35",
     name: "Tax Invoice Report",
     railLabel: "Reports · Tax Invoice",
     moduleKey: "SalesReport#TaxInvoice",
@@ -785,7 +843,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-glass-spec",
-    number: "34",
+    number: "36",
     name: "Glass Specifications & Traceability",
     railLabel: "Reports · Glass Specs",
     moduleKey: "SalesReport#GlassSpec",
@@ -807,7 +865,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-profitability",
-    number: "35",
+    number: "37",
     name: "Profitability & P&L",
     railLabel: "Reports · Profitability",
     moduleKey: "SalesReport#Profit",
@@ -828,7 +886,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-statement",
-    number: "36",
+    number: "38",
     name: "Statement Report",
     railLabel: "Reports · Statement",
     moduleKey: "SalesReport#Statement",
@@ -848,7 +906,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "report-vat",
-    number: "37",
+    number: "39",
     name: "VAT Submission Report",
     railLabel: "Reports · VAT Submission",
     moduleKey: "SalesReport#VatSubmission",
@@ -870,7 +928,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ MASTER DATA ═══════════════════════════════ */
   {
     id: "company-center",
-    number: "38",
+    number: "40",
     name: "Company Center",
     railLabel: "Company Center",
     moduleKey: "CompanyCenter",
@@ -891,7 +949,7 @@ export const modules: ProductModule[] = [
   },
   {
     id: "user-center",
-    number: "39",
+    number: "41",
     name: "User Center",
     railLabel: "User Center",
     moduleKey: "UserCenter",
@@ -914,7 +972,7 @@ export const modules: ProductModule[] = [
   /* ══════════════════════════ SYSTEM ════════════════════════════════════ */
   {
     id: "system-center",
-    number: "40",
+    number: "42",
     name: "System Center",
     railLabel: "System Center",
     moduleKey: "SystemCenter",
@@ -934,29 +992,34 @@ export const modules: ProductModule[] = [
     tags: ["Audit", "Admin"],
   },
   {
-    id: "diagnostics",
-    number: "41",
-    name: "Diagnostics",
-    railLabel: "Diagnostics",
+    id: "logs-activity",
+    number: "43",
+    name: "Logs & Activity",
+    railLabel: "Logs & Activity",
     moduleKey: "Diagnostics",
     railGroup: "System",
-    summary: "The health surface, including crash reports.",
+    summary: "The application log and the audit trail, side by side.",
     detail:
-      "Diagnostics exposes what the application knows about itself: logged conditions, crash reports and the state checks that would otherwise only be visible in a log file nobody opens until something is wrong.",
+      "Two services, deliberately not one. The application log is a rolling terminal — TIME · LEVEL · MODULE / FUNCTION · entry, the last 500 kept in memory, counters for errors (critical included) and warnings, and a button that opens the folder of dated log files. It carries a correlation ID (CORR-XXXXXX) and a document ID, so one business operation can be followed from the inquiry all the way to the statement even though the work happened in different modules and on different days. The audit trail is the other half: business events rather than diagnostics, written as who changed which record, with the before and after of every field, and grouped into the canonical sections held as constants so a typo can never split one section into two.",
     capabilities: [
-      "Crash report capture and review",
-      "Application health and state checks",
-      "Log surfaces for support conversations",
-      "Reachable from the shell and from the About tabs",
+      "Rolling log of 500 entries with five severity levels and their own colours",
+      "Error and warning counters, with critical counted in errors",
+      "Open log folder on disk — the dated files behind the in-memory view",
+      "Correlation ID and document ID on every traceable operation",
+      "Audit trail filtered by the canonical section names, not free text",
+      "Before/after change sets on edits, so a diff is possible not a guess",
+      "Crash report capture and review from the same surface",
+      "No keystroke or mouse recording — recorded actions only",
     ],
-    evidence: "Views/Diagnostics/, ViewModels/Diagnostics/, Views/CrashReports/",
+    evidence:
+      "Views/Diagnostics/DiagnosticsView.xaml, ViewModels/Diagnostics/, Services/Logging/AppLogService.cs, Services/Audit/AuditSections.cs",
     screenshotId: "diagnostics",
-    href: "/features#diagnostics",
-    tags: ["Health", "Support"],
+    href: "/features#showcase-logs-activity",
+    tags: ["Audit", "Activity", "Support"],
   },
   {
     id: "settings",
-    number: "42",
+    number: "44",
     name: "Settings",
     railLabel: "Settings",
     moduleKey: "Settings",

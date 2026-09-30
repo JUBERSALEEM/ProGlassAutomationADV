@@ -25,6 +25,13 @@ import { setAppearance } from "@/lib/useTheme";
 
 export const STUDIO_STORAGE_KEY = "proglass-studio";
 export const STUDIO_VARS_KEY = "proglass-studio-vars";
+/**
+ * The typography attributes, kept beside the variables so a reload restores
+ * them. They cannot live in the variables blob: `data-ui-weight` and its two
+ * neighbours are selected on by the stylesheet rather than read as values, so
+ * they have to come back as attributes and not as custom properties.
+ */
+export const STUDIO_ATTRS_KEY = "proglass-studio-attrs";
 
 /**
  * The `accentKey` used while a palette family is running on its own accent.
@@ -430,6 +437,41 @@ export function applyStudioVars(studio: Studio) {
   const edge = Number.isFinite(studio.edge) ? Math.min(4, Math.max(1, studio.edge)) : defaultStudio.edge;
   vars["--card-edge-width"] = `${edge}px`;
   vars["--font-sans"] = typefaces[studio.typeface]?.stack ?? typefaces.inter.stack;
+
+  /*
+   * ── Typography, applied the way the application applies it ──────────
+   *
+   * `AppConfig` holds five settings that between them re-set every piece of
+   * text in the interface, and `FontService` writes exactly these when they
+   * change:
+   *
+   *   FontWeightName    Normal | Bold        → --ui-weight  400 | 700
+   *   FontStyleName     Normal | Italic      → data-ui-italic=on
+   *   FontUnderline     false | true         → data-ui-underline=on
+   *   UiScale           1.0, clamped 0.9–1.15 → --ui-scale
+   *   DisplayDensity    Compact | Comfortable → --card-pad-scale
+   *
+   * Three of the five are a *cascade* rather than a measurement — the weight,
+   * the italic and the underline all have to reach text the stylesheet did not
+   * author — so they are written as data attributes on <html> and the rules in
+   * `globals.css` select on them. `--ui-weight` is written well, because the
+   * weight is also read directly as a variable by the base layer.
+   *
+   * Without this the controls moved and nothing repainted: the state was
+   * changing on every click and none of it had ever reached the document.
+   */
+  const weight = studio.weight === "bold" ? 700 : 400;
+  vars["--ui-weight"] = String(weight);
+  vars["--ui-scale"] = String(Math.min(1.15, Math.max(0.9, studio.uiScale)));
+  vars["--card-pad-scale"] = studio.density === "compact" ? "0.88" : "1";
+
+  const attributes: Record<string, string> = {
+    "data-ui-weight": studio.weight === "bold" ? "bold" : "regular",
+    "data-ui-italic": studio.italic ? "on" : "off",
+    "data-ui-underline": studio.underline ? "on" : "off",
+    "data-ui-density": studio.density,
+    "data-ui-typeface": studio.typeface,
+  };
   vars["--money-positive"] = triplet(hexToTriplet(studio.moneyPositive));
   vars["--money-negative"] = triplet(hexToTriplet(studio.moneyNegative));
   if (studio.moneyNeutral) {
@@ -444,10 +486,14 @@ export function applyStudioVars(studio: Studio) {
   for (const [key, value] of Object.entries(vars)) {
     root.style.setProperty(key, value);
   }
+  for (const [key, value] of Object.entries(attributes)) {
+    root.setAttribute(key, value);
+  }
   previousKeys = Object.keys(vars);
 
   try {
     window.localStorage.setItem(STUDIO_VARS_KEY, JSON.stringify(vars));
+    window.localStorage.setItem(STUDIO_ATTRS_KEY, JSON.stringify(attributes));
   } catch {
     /* Private mode: the choice still applies for this session. */
   }
@@ -519,6 +565,7 @@ export function resetStudio() {
   try {
     window.localStorage.removeItem(STUDIO_STORAGE_KEY);
     window.localStorage.setItem(STUDIO_VARS_KEY, JSON.stringify({}));
+    window.localStorage.setItem(STUDIO_ATTRS_KEY, JSON.stringify({}));
   } catch {
     /* Storage may be unavailable. */
   }
