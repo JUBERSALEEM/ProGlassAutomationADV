@@ -84,6 +84,30 @@ const NOT_TRANSLATABLE = [
   /^\{[A-Za-z0-9_, ]+\}$/,                                    // bare {placeholder}
 ];
 
+/*
+ * Names are not language.
+ *
+ * A customer, a project, a person, a supplier, a font family or a file path is
+ * the same string in every language — it is a proper noun or an identifier
+ * that happens to be printed, and translating it would be wrong in the way
+ * that matters most: it would stop matching the record it came from. The list
+ * below is curated, because no rule can tell "Al Noor Glazing Contracting LLC"
+ * from "Delivery Note", and the audit should count only the second one.
+ */
+const NAMES = new Set([
+  "Ahmed Rahman", "Air Liquide", "Al Gurg Glass", "Al Noor Glazing Contracting LLC",
+  "Al Noor Glazing Contracting LLC · AZT-POD-2026", "Al Zahia Tower — Podium Glazing",
+  "Al Zahia, Sharjah, UAE", "Cedar Interiors", "Demo User", "Dow Chemical",
+  "Fenzi Gulf", "Grace Davison", "Guardian Glass", "Harbour View Tower",
+  "Juber Saleem", "Metro Facades", "National Glass", "Northgate Contracting",
+  "Salim Khan", "Sharjah, UAE", "Technoform Gulf", "Bottero", "Intermac", "Lisec",
+  "Arial / Helvetica", "Courier New", "Segoe UI Variable", "Times New Roman",
+  "Trebuchet MS", "ProGlass AI", "ProGlass Setup", "Windows", "SQLite",
+]);
+
+/** A path into the repository, or a list of them: an address, not a sentence. */
+const REPO_PATH = /(?:^|\s|\()(?:Views|ViewModels|Services|Themes|Utilities|Licensing|Resources|docs|Models)\/|[\w-]+\.(?:cs|xaml|tsx?|json|md|png)\b/;
+
 const keys = new Set();
 /* Which source contributed a key — used by the work plan below, not by the
    dictionary. Literal keys are the chrome and the page copy; data keys are the
@@ -93,6 +117,8 @@ const origin = new Map();
 function translatable(value) {
   const text = value.trim();
   if (!text) return false;
+  if (NAMES.has(text)) return false;
+  if (REPO_PATH.test(text)) return false;
   return !NOT_TRANSLATABLE.some((pattern) => pattern.test(text));
 }
 

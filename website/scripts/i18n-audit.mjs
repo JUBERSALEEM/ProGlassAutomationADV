@@ -61,11 +61,17 @@ function appIndex(locale) {
   return JSON.parse(readFileSync(file, "utf8"));
 }
 
+/* A dictionary may hold an entry for a sentence that is no longer rendered —
+   that is what happens when a page is rewritten. Only the entries whose key is
+   still in the list count as coverage, so the report cannot be flattered by
+   dead wood. */
+const KEY_SET = new Set(KEYS);
+
 const gaps = {};
 const rows = [];
 
 for (const locale of LOCALE_CODES) {
-  const own = ownEntries(locale);
+  const own = new Map([...ownEntries(locale)].filter(([key]) => KEY_SET.has(key)));
   const app = appIndex(locale);
   let inherited = 0;
   const missing = [];
