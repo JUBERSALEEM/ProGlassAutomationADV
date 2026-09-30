@@ -35,6 +35,7 @@ const COMPLETE = new Set(["ar-AE", "en-US"]);
 const KEYS = [...readFileSync("src/i18n/dict/keys.ts", "utf8").matchAll(/^ {2}(".*"),$/gm)].map(
   (match) => JSON.parse(match[1]),
 );
+const keys = new Set(KEYS);
 
 const LOCALES = [
   "ar-AE", "bn-BD", "de-DE", "es-ES", "fr-FR", "hi-IN", "id-ID",
@@ -50,28 +51,34 @@ function dictionary(locale) {
   return entries;
 }
 
-async function renderedEnglish(locale) {
+/**
+ * What the built page still shows in English, counted the way the gap report
+ * counts it: a text node that **is a key** and has **no entry** in this
+ * language. Names, serials, figures, seeded log lines and the endonyms in the
+ * language menu are not keys, so they cannot make a locale fail — which is
+ * what makes this usable as a gate rather than as a report.
+ */
+async function renderedGaps(locale, entries) {
   const pages = [
     "", "features", "how-it-works", "optimization", "screenshots", "pricing",
     "worked-example", "about", "developer", "resources", "sponsors", "contact",
     "blog", "legal/privacy", "legal/terms", "legal/license",
   ];
-  let total = 0;
+  const seen = new Set();
   for (const page of pages) {
     const response = await fetch(`${BASE}/${locale}${page ? `/${page}` : ""}`);
     if (!response.ok) return null;
     const html = await response.text();
-    /* The same test the gap report uses: a text node between tags that reads
-       as an English sentence rather than a figure, a code or a name. */
-    for (const match of html.matchAll(/>([^<>{}]{12,220})</g)) {
-      const text = match[1].replace(/&[a-z]+;|&#\d+;/g, " ").trim();
-      if (!/[A-Za-z]/.test(text)) continue;
-      if (!/\s/.test(text)) continue;
-      if (text.split(/\s+/).length < 3) continue;
-      total += 1;
+    for (const match of html.matchAll(/>([^<>{}]{2,400})</g)) {
+      const text = match[1]
+        .replace(/&[a-z]+;|&#\d+;/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (!/[A-Za-z]/.test(text) || !/\s/.test(text)) continue;
+      if (keys.has(text) && !entries.has(text)) seen.add(text);
     }
   }
-  return total;
+  return seen.size;
 }
 
 let failures = 0;
@@ -83,13 +90,13 @@ for (const locale of LOCALES) {
   const percent = ((covered / KEYS.length) * 100).toFixed(1);
   let verdict = COMPLETE.has(locale) ? "complete" : "in progress";
   if (rendered) {
-    const english = await renderedEnglish(locale);
-    if (english === null) {
+    const gaps = await renderedGaps(locale, entries);
+    if (gaps === null) {
       verdict = "server not reachable";
       failures += 1;
     } else {
-      verdict = `${verdict} · ${english} English nodes`;
-      if (COMPLETE.has(locale) && english > 0) failures += 1;
+      verdict = `${verdict} · ${gaps} untranslated on screen`;
+      if (COMPLETE.has(locale) && gaps > 0) failures += 1;
     }
   } else if (COMPLETE.has(locale) && covered !== KEYS.length) {
     failures += 1;
