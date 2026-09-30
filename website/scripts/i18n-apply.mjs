@@ -43,6 +43,28 @@ const replace = flags.includes("--replace");
 const byIndex = flags.includes("--index");
 const file = `src/i18n/dict/${locale}.ts`;
 
+/*
+ * Index mode reads `keys.ts`, so `keys.ts` has to be the file the batch was
+ * written against. Re-running the extractor inserts and removes keys and every
+ * number after the change moves with it — a batch written an hour earlier then
+ * lands on its neighbours, and a dictionary fills up with sentences sitting
+ * next to the wrong translation. The plan file is written by the same run that
+ * writes `keys.ts`, so comparing their timestamps catches it before a byte is
+ * written.
+ */
+if (byIndex) {
+  const { statSync } = await import("node:fs");
+  const keys = statSync("src/i18n/dict/keys.ts").mtimeMs;
+  const plan = statSync("/tmp/proglass-i18n-plan.json").mtimeMs;
+  if (plan < keys) {
+    console.error(
+      "the key list has been regenerated since the work plan was written —\n" +
+        "run `node scripts/i18n-extract.mjs`, then rebuild the batch from the new numbering.",
+    );
+    process.exit(1);
+  }
+}
+
 /* ── read what is there ─────────────────────────────────────────────── */
 
 const source = readFileSync(file, "utf8");

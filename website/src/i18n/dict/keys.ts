@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 2398 keys.
+ * 2399 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -781,7 +781,6 @@ export const KEYS: string[] = [
   "Heat Strengthened",
   "Here is one job, with its real figures.",
   "Hex",
-  "hidden items-center gap-0.5 rounded-panel border-2 border-line-strong/50 bg-ink-900/55 p-1 shadow-[inset_0_1px_0_rgb(255_255_255/0.04)] lg:flex",
   "High · Normal · Low by station",
   "His day job",
   "History views: value change with monetary impact in AED",
@@ -2215,6 +2214,7 @@ export const KEYS: string[] = [
   "Up to five users",
   "Updates from a release channel",
   "Usage grouped by job or invoice reference, with potential profit and profit margin.",
+  "use client",
   "Use the contact form",
   "Used area",
   "Used area (SQM)",
@@ -2285,6 +2285,7 @@ export const KEYS: string[] = [
   "What a run reports",
   "What do I need to run it?",
   "What does it cost?",
+  "what does it look like on a real job",
   "What does the optimization engine export?",
   "What happens on a very large cutting list?",
   "What happens when a licence expires?",

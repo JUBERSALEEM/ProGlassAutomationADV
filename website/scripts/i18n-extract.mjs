@@ -188,7 +188,12 @@ const INLINE_PROPERTY = new RegExp(`\\b(?:${PROSE_PROPERTIES})\\s*:\\s*(?:"((?:[
 function isStyling(value) {
   const tokens = value.split(/\s+/);
   if (tokens.length < 2) return false;
-  return tokens.every((token) => /^[a-z0-9:.[\]()/%#-]+$/.test(token) && !/[A-Z]/.test(token));
+  if (!tokens.every((token) => /^[a-z0-9:.[\]()/%#_-]+$/.test(token) && !/[A-Z]/.test(token))) return false;
+  /* A style rule is a list of class names, and a class name almost always
+     carries a dash, a colon or a bracket. `hidden items-center gap-0.5 …` is
+     styling; `Business at a glance` is not. */
+  const classy = tokens.filter((token) => /[-:[\]]/.test(token)).length;
+  return classy >= tokens.length / 2;
 }
 
 /* The first function in a file: everything above it is a table the component
