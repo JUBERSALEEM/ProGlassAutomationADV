@@ -879,9 +879,7 @@ export function SpecificationSurface({
                 {blocks.length}
               </span>
             </Pill>
-            <Pill onClick={addSpec} title="Add a specification block. `Dg.AddSpec`.">
-              + Add spec
-            </Pill>
+            <Pill onClick={addSpec} title="Add a specification block. `Dg.AddSpec`.">{t("+ Add spec")}</Pill>
           </div>
         </div>
 
@@ -954,7 +952,7 @@ export function SpecificationSurface({
 
           {/* The generated name, exactly as the panel composes it. */}
           <p className="mt-2 flex flex-wrap items-baseline gap-2 rounded-lg border border-line/50 bg-ink-900/50 px-2.5 py-1.5">
-            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Spec</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Spec")}</span>
             <NoTranslate as="span" className="font-mono text-[0.8125rem] font-semibold text-brand-100">
               {generatedName}
             </NoTranslate>
@@ -1056,7 +1054,7 @@ export function SpecificationSurface({
 
         <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block">
-            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Base rate</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Base rate")}</span>
             <input
               type="number"
               step="1"
@@ -1067,7 +1065,7 @@ export function SpecificationSurface({
             />
           </label>
           <label className="block">
-            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Surcharge %</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Surcharge %")}</span>
             <input
               type="number"
               step="1"
@@ -1097,9 +1095,7 @@ export function SpecificationSurface({
         <Pill onClick={importBoq} title="Re-read the inquiry's BOQ rows. `Dg.Import`.">
           {t("Import BOQ")}
         </Pill>
-        <Pill active={exportOpen} onClick={() => setExportOpen((open) => !open)} title="Export the specification. `Dg.Export`.">
-          Export ▾
-        </Pill>
+        <Pill active={exportOpen} onClick={() => setExportOpen((open) => !open)} title="Export the specification. `Dg.Export`.">{t("Export ▾")}</Pill>
         <Pill onClick={addRow} title="Add a blank line to this specification. `Dg.AddRowShort`.">
           + Add row
         </Pill>
@@ -1138,7 +1134,7 @@ export function SpecificationSurface({
       {replaceOpen ? (
         <div className="flex flex-wrap items-end gap-2 rounded-xl border border-line/60 bg-ink-900/50 p-2.5">
           <label className="block">
-            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Find</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Find")}</span>
             <input
               value={find}
               onChange={(event) => setFind(event.target.value)}
@@ -1147,7 +1143,7 @@ export function SpecificationSurface({
             />
           </label>
           <label className="block">
-            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Replace with</span>
+            <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Replace with")}</span>
             <input
               value={replaceWith}
               onChange={(event) => setReplaceWith(event.target.value)}
@@ -1183,8 +1179,8 @@ export function SpecificationSurface({
             />
           </label>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
-            <Pill onClick={() => applyPaste(pasteText)}>Apply paste</Pill>
-            <Pill onClick={() => { setPasteOpen(false); setClipboardNote(null); }}>Close</Pill>
+            <Pill onClick={() => applyPaste(pasteText)}>{t("Apply paste")}</Pill>
+            <Pill onClick={() => { setPasteOpen(false); setClipboardNote(null); }}>{t("Close")}</Pill>
           </div>
         </div>
       ) : null}
@@ -1386,7 +1382,7 @@ export function SpecificationSurface({
               <td className="px-2.5 py-2 text-right font-mono text-[0.75rem] font-semibold text-text-primary tabular-nums">
                 {totals.sqm.toFixed(2)}
               </td>
-              <td className="px-2.5 py-2 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint">Total</td>
+              <td className="px-2.5 py-2 text-right font-mono text-3xs uppercase tracking-[0.08em] text-text-faint">{t("Total")}</td>
               <td className="px-2.5 py-2 text-right font-mono text-[0.8125rem] font-semibold text-text-primary tabular-nums">
                 {aed(totals.value)}
               </td>
@@ -1582,7 +1578,7 @@ export function SpecificationSurface({
               quoted from, plus any block `+ ADD SPEC` has added.
             */}
             <tr className="border-t border-money-positive/40">
-              <td className="px-2 py-2 text-[0.8125rem] font-semibold text-money-positive">Grand total</td>
+              <td className="px-2 py-2 text-[0.8125rem] font-semibold text-money-positive">{t("Grand total")}</td>
               <td className="px-2 py-2 text-right font-mono text-[0.8125rem] font-semibold text-money-positive tabular-nums">
                 {grand.qty}
               </td>

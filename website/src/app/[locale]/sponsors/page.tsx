@@ -161,7 +161,7 @@ export default async function SponsorsPage({ params }: PageProps) {
 
                   {need.evidence ? (
                     <p className="mono-label mt-auto pt-5">
-                      <span className="sr-only">In the source tree: </span>
+                      <span className="sr-only">{t("In the source tree:")}</span>
                       {t(need.evidence)}
                     </p>
                   ) : null}

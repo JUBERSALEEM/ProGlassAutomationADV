@@ -73,7 +73,7 @@ export function ModuleBrowser() {
         </div>
 
         <label className="relative block lg:w-72">
-          <span className="sr-only">Search modules</span>
+          <span className="sr-only">{t("Search modules")}</span>
           <svg
             aria-hidden="true"
             viewBox="0 0 16 16"
@@ -164,7 +164,7 @@ function ModuleCard({ module }: { module: ProductModule }) {
 
       <div className="mt-auto pt-5">
         <p className="mono-label border-t border-line/60 pt-3">
-          <span className="sr-only">Navigation label: </span>
+          <span className="sr-only">{t("Navigation label:")}</span>
           {module.railLabel}
         </p>
       </div>

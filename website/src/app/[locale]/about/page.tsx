@@ -189,8 +189,7 @@ export default async function AboutPage({ params }: PageProps) {
 
               <div className="surface mt-4 p-6">
                 <p className="eyebrow mb-3">{t("The discipline that matters most")}</p>
-                <p className="text-sm leading-relaxed text-text-muted">
-                  Shipped code contains no <span className="font-mono text-text-secondary">TODO</span>, no{" "}
+                <p className="text-sm leading-relaxed text-text-muted">{t("Shipped code contains no")}<span className="font-mono text-text-secondary">TODO</span>, no{" "}
                   <span className="font-mono text-text-secondary">FIXME</span>, no{" "}
                   <span className="font-mono text-text-secondary">{t("NotImplementedException")}</span> and no empty{" "}
                   <span className="font-mono text-text-secondary">catch</span> block. That is not maintained by
@@ -290,8 +289,7 @@ export default async function AboutPage({ params }: PageProps) {
                 <p className="eyebrow">{t("Next")}</p>
                 <h3 className="mt-3 text-lg font-semibold text-text-primary">{t("The person building it")}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("ProGlass Automation is developed by {v1}. The developer page covers the build, the technology and the thinking behind it.", { v1: site.developerName })}</p>
-                <span className="link-underline mt-4 text-sm">
-                  Read the developer page <ArrowRight />
+                <span className="link-underline mt-4 text-sm">{t("Read the developer page")}<ArrowRight />
                 </span>
               </Link>
 

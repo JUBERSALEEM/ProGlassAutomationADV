@@ -121,7 +121,7 @@ export function DemoRequestForm() {
             <path d="M4 10.5 8 14.5 16 6" />
           </svg>
         </span>
-        <h3 className="mt-5 text-lg font-semibold text-text-primary">Request received</h3>
+        <h3 className="mt-5 text-lg font-semibold text-text-primary">{t("Request received")}</h3>
         <p className="mt-2 text-sm leading-relaxed text-text-muted">
           {t("Thank you. Your request has been recorded and will be answered by email. If you would rather not wait, write")}
           to{" "}
@@ -185,8 +185,7 @@ export function DemoRequestForm() {
         <Field label={t("Country")} name="country" value={values.country} onChange={set("country")} error={errors.country} required autoComplete="country-name" />
 
         <div data-field="businessType">
-          <label htmlFor="businessType" className="block text-sm font-medium text-text-secondary">
-            Business type <span className="text-state-danger">*</span>
+          <label htmlFor="businessType" className="block text-sm font-medium text-text-secondary">{t("Business type")}<span className="text-state-danger">*</span>
           </label>
           <select
             id="businessType"
@@ -216,8 +215,7 @@ export function DemoRequestForm() {
       </div>
 
       <div className="mt-5" data-field="message">
-        <label htmlFor="message" className="block text-sm font-medium text-text-secondary">
-          What would you like to see? <span className="text-state-danger">*</span>
+        <label htmlFor="message" className="block text-sm font-medium text-text-secondary">{t("What would you like to see?")}<span className="text-state-danger">*</span>
         </label>
         <textarea
           id="message"
@@ -246,7 +244,7 @@ export function DemoRequestForm() {
 
       {status === "error" ? (
         <div role="alert" className="mt-5 rounded-xl border border-state-danger/40 bg-state-danger/10 p-4">
-          <p className="text-sm font-medium text-state-danger">The request was not sent</p>
+          <p className="text-sm font-medium text-state-danger">{t("The request was not sent")}</p>
           <p className="mt-1 text-xs leading-relaxed text-text-secondary">{serverMessage}</p>
           <p className="mt-2 text-xs leading-relaxed text-text-secondary">
             You can also write directly to{" "}

@@ -639,15 +639,13 @@ export default async function HomePage({ params }: PageProps) {
                 <Link href="/about" className="surface group p-5 transition-colors duration-300 hover:border-brand-400/40">
                   <p className="eyebrow">{t("About the product")}</p>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("Why it exists, who it is for, and what problem it solves in a glass fabrication business.")}</p>
-                  <span className="link-underline mt-3 text-xs">
-                    Read about ProGlass <ArrowRight />
+                  <span className="link-underline mt-3 text-xs">{t("Read about ProGlass")}<ArrowRight />
                   </span>
                 </Link>
                 <Link href="/developer" className="surface group p-5 transition-colors duration-300 hover:border-brand-400/40">
                   <p className="eyebrow">{t("The developer")}</p>
                   <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("Who builds it, the technology it is built with, and how the work is organised.")}</p>
-                  <span className="link-underline mt-3 text-xs">
-                    Meet the developer <ArrowRight />
+                  <span className="link-underline mt-3 text-xs">{t("Meet the developer")}<ArrowRight />
                   </span>
                 </Link>
               </div>
@@ -670,9 +668,7 @@ export default async function HomePage({ params }: PageProps) {
             <Reveal delay={80}>
               <Accordion items={faq.filter((item) => item.group === "Product").map(({ question, answer }) => ({ question, answer }))} defaultOpen={0} />
               <div className="mt-4">
-                <ButtonLink href="/pricing" variant="ghost" size="sm" trailing={<ArrowRight />}>
-                  Licensing, editions and deployment questions
-                </ButtonLink>
+                <ButtonLink href="/pricing" variant="ghost" size="sm" trailing={<ArrowRight />}>{t("Licensing, editions and deployment questions")}</ButtonLink>
               </div>
             </Reveal>
           </div>

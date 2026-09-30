@@ -156,9 +156,7 @@ const faq = [
         eyebrow={t("The developer")}
         banner="people"
         title={
-          <>
-            One glass estimator,
-            <span className="text-gradient block">{t("working alone, writing his own tools.")}</span>
+          <>{t("One glass estimator,")}<span className="text-gradient block">{t("working alone, writing his own tools.")}</span>
           </>
         }
         lead={t("ProGlass Automation has no company behind it. It was written by Juber Saleem, who estimates glass for a living and started building the software he needed because the paper version of the job kept costing him time. He is still estimating. How the application got to version 2.0.11 is written down, dated, and open to reading — and that record is a better description of its author than any biography.")}
@@ -239,8 +237,8 @@ const faq = [
             <div className="mt-6 flex flex-wrap gap-2">
               <Badge tone="neutral">{t("Sole author")}</Badge>
               <Badge tone="neutral">{t("Self-taught")}</Badge>
-              <Badge tone="neutral">Estimator, not engineer</Badge>
-              <Badge tone="neutral">No team, no investors</Badge>
+              <Badge tone="neutral">{t("Estimator, not engineer")}</Badge>
+              <Badge tone="neutral">{t("No team, no investors")}</Badge>
             </div>
           </div>
 

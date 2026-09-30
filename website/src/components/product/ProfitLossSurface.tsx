@@ -257,7 +257,7 @@ export function ProfitLossSurface({
 
           <div className="mt-2 grid gap-2 lg:grid-cols-3">
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Required target price</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Required target price")}</p>
               <p className="mt-1 text-[1.0625rem] font-semibold tabular-nums text-text-primary">
                 AED {cash(totals.requiredPerSqm)} <span className="text-[0.75rem] font-medium text-text-muted">/ m²</span>
               </p>
@@ -266,7 +266,7 @@ export function ProfitLossSurface({
             </div>
 
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Expected profit margin</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Expected profit margin")}</p>
               <div className="mt-1 flex items-baseline gap-2">
                 <input
                   type="number"
@@ -341,7 +341,7 @@ export function ProfitLossSurface({
           <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("5 · Result — base and target balance")}</p>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Status</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Status")}</p>
               <p
                 className={cn(
                   "mt-1 inline-flex rounded-full border px-2 py-0.5 font-mono text-3xs uppercase tracking-[0.08em] font-semibold",
@@ -455,7 +455,7 @@ export function ProfitLossSurface({
         <div className="min-h-0 flex-1 overflow-y-auto pr-0.5">
           {sheets ? (
             <>
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">1 · Sheet usage</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("1 · Sheet usage")}</p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <MoneyRow label={t("Buy sheets")} value={`${sheets.result.plates}`} note={`${pnl.sheet.label} · ${pnl.sheet.w} × ${pnl.sheet.h} mm`} />
                 <MoneyRow label={t("Bought area")} value={`${sheets.boughtSqm.toFixed(2)} m²`} note={`${sheets.stockSqm.toFixed(2)} m² per sheet`} />

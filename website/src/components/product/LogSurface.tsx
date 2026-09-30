@@ -142,8 +142,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
       </div>
 
       {folderOpened ? (
-        <p aria-live="polite" className="rounded-lg border border-brand-400/35 bg-brand-400/8 px-2.5 py-1.5 text-[0.75rem] leading-snug text-brand-100 font-medium">
-          The desktop application opens <span className="font-mono">%LOCALAPPDATA%\ProGlassAutomation\diagnostics</span> in
+        <p aria-live="polite" className="rounded-lg border border-brand-400/35 bg-brand-400/8 px-2.5 py-1.5 text-[0.75rem] leading-snug text-brand-100 font-medium">{t("The desktop application opens")}<span className="font-mono">%LOCALAPPDATA%\ProGlassAutomation\diagnostics</span> in
           Explorer — the folder holding the dated log files. A browser cannot open a folder on your machine, so this is what
           the button does there.
         </p>
@@ -200,7 +199,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
           </>
         )}
         <label className="ml-auto flex items-center gap-1.5 rounded-lg border border-line-strong/60 bg-ink-900/70 px-2 py-1">
-          <span className="sr-only">Filter entries</span>
+          <span className="sr-only">{t("Filter entries")}</span>
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}

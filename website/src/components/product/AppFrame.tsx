@@ -200,7 +200,7 @@ export function AppFrame({
                 <span className="grid h-4 w-4 place-items-center rounded-full bg-brand-400/20 text-[0.625rem] font-bold text-brand-200">
                   AB
                 </span>
-                <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Admin</span>
+                <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Admin")}</span>
               </span>
             </div>
           </div>

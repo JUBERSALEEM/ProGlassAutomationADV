@@ -41,14 +41,14 @@ export function AppearancePreview() {
   return (
     <div className="surface-raised p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="eyebrow">Try it on this page</p>
+        <p className="eyebrow">{t("Try it on this page")}</p>
         <p className="font-mono text-2xs font-semibold uppercase tracking-[0.14em] text-text-muted">
           {isFamilyAccentKey(studio.accentKey) ? activeFamily.label : studio.accentKey}
         </p>
       </div>
 
       {/* ── Mode ─────────────────────────────────────────────────────── */}
-      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">Mode</p>
+      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">{t("Mode")}</p>
       <div className="mt-2 grid grid-cols-3 gap-2">
         {themeModes.map((entry) => {
           const active = entry.id === mode;
@@ -72,7 +72,7 @@ export function AppearancePreview() {
       </div>
 
       {/* ── Family ───────────────────────────────────────────────────── */}
-      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">Palette family</p>
+      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">{t("Palette family")}</p>
       <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {appearanceFamilies.map((entry) => {
           const active = entry.id === family;
@@ -102,8 +102,7 @@ export function AppearancePreview() {
       </div>
 
       {/* ── Colour plates ────────────────────────────────────────────── */}
-      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">
-        Colour plates <span className="font-medium normal-case tracking-normal text-text-muted">— tap one</span>
+      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">{t("Colour plates")}<span className="font-medium normal-case tracking-normal text-text-muted">— tap one</span>
       </p>
       <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-6">
         <Plate
@@ -124,8 +123,7 @@ export function AppearancePreview() {
       </div>
 
       {/* ── Card edge and corner ─────────────────────────────────────── */}
-      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">
-        Card edge <span className="font-medium normal-case tracking-normal text-text-muted">{t("— the border line and the corner")}</span>
+      <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">{t("Card edge")}<span className="font-medium normal-case tracking-normal text-text-muted">{t("— the border line and the corner")}</span>
       </p>
       {/*
         The product sets these together in SETTINGS: CardEdgeThickness for the

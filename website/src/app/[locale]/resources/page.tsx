@@ -173,8 +173,7 @@ export default async function ResourcesPage({ params }: PageProps) {
                     {t(post.title)}
                   </h3>
                   <p className="mt-2 flex-1 text-sm leading-relaxed text-text-muted">{t(post.summary)}</p>
-                  <span className="link-underline mt-4 text-xs">
-                    Read the note <ArrowRight />
+                  <span className="link-underline mt-4 text-xs">{t("Read the note")}<ArrowRight />
                   </span>
                 </Link>
               </Reveal>

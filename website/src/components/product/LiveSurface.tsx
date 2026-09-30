@@ -409,7 +409,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
 
       <div className="flex flex-wrap items-end gap-4">
         <label className="flex flex-col gap-1">
-          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">Sheet</span>
+          <span className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-text-faint font-medium">{t("Sheet")}</span>
           <select
             value={sheetIndex}
             onChange={(event) => setSheetIndex(Number(event.target.value))}
@@ -995,8 +995,7 @@ function DashboardEngine({
       ) : null}
 
       {!compact ? (
-        <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">
-          Showing the <span className="text-text-muted">{range.toLowerCase()}</span> period. The figures are the seeded
+        <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">{t("Showing the")}<span className="text-text-muted">{range.toLowerCase()}</span> period. The figures are the seeded
           workflow&apos;s own documents, so a wider period does not multiply them — the range control changes which period the
           dashboard is reading, not how much has been traded.
         </p>
@@ -1077,7 +1076,7 @@ function AppearanceDeck() {
 
   return (
     <div className="card-accent p-3">
-      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-200">Live · changes this site</p>
+      <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-200">{t("Live · changes this site")}</p>
       <p className="mt-1.5 text-[0.75rem] leading-relaxed text-text-secondary">{t("These are the application's four families. Pressing one re-themes this page, which is exactly what it does to the application.")}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {families.map((entry) => (

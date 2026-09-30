@@ -31,8 +31,18 @@ import path from "node:path";
 const DATA_FILES = /^src\/(?:data\/[^/]+|lib\/(?:useStudio|site|schema))\.ts$/;
 
 /* Things that look like a sentence and are not one. */
+/*
+ * A leading digit used to disqualify a string outright, which is how an
+ * application made of numbers lost its sentences: "9-step wizard with company
+ * and client cards", "0.5 m² minimum billable area per panel", "8 tabs: Jobs,
+ * Stocks, Sizes, Cut List", "15 mm on all four edges", "30-day, single
+ * activation". None of those were keys, so none of them could be translated
+ * — in any language, ever. The numeric test now lives in `isContent`, where
+ * it can weigh digits against letters instead of looking at the first
+ * character.
+ */
 const NOT_PROSE =
-  /^(?:https?:|\/|#|data:|\d|\.|--|@)|\.(?:tsx?|json|css|svg|png|webp|woff2?)$|^[a-z0-9-]+$|^[A-Z0-9_]+$|[{}<>]|=>|&&|\|\||\bpx\b|\bvar\(|\$\{|api\/|\/api/i;
+  /^(?:https?:|\/|#|data:|\.|--|@)|\.(?:tsx?|json|css|svg|png|webp|woff2?)$|^[a-z0-9-]+$|^[A-Z0-9_]+$|[{}<>]|=>|&&|\|\||\bpx\b|\bvar\(|\$\{|api\/|\/api/i;
 
 /**
  * Code that leaked into a quoted span, not a sentence.
@@ -71,6 +81,13 @@ function isContent(value) {
   if (CSS_VALUE.test(text)) return false;
   if (looksLikeCode(text)) return false;
   if (NOT_PROSE.test(text)) return false;
+  /* A figure is not a sentence. Reject when digits match or outnumber the
+     letters — "1,600 × 1,100 mm · 2.5 kg/m²/mm · 34,762.19" is data, while
+     "0.5 m² minimum billable area per panel" is a sentence that begins with
+     one. */
+  const letters = (text.match(/[A-Za-z]/g) ?? []).length;
+  const digits = (text.match(/\d/g) ?? []).length;
+  if (digits >= letters) return false;
   /* A sentence either contains a space or starts with a capital and is not a
      lone identifier — "Pricing" is a heading, "progressPercent" is a field. */
   if (!/\s/.test(text) && !/^[A-Z][a-z]+$/.test(text)) return false;

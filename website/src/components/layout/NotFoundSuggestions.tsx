@@ -102,14 +102,11 @@ export function NotFoundSuggestions() {
 
   return (
     <div className="mt-10">
-      <p className="eyebrow">Where you were going</p>
+      <p className="eyebrow">{t("Where you were going")}</p>
 
       {suggestions.length > 0 ? (
         <>
-          <p className="mt-3 text-sm leading-relaxed text-text-muted">
-            You asked for <span className="font-mono text-text-secondary">{pathname}</span>. The closest pages on this
-            site are:
-          </p>
+          <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("You asked for")}<span className="font-mono text-text-secondary">{pathname}</span>{t(". The closest pages on this site are:")}</p>
           <ul className="mt-4 grid gap-3 sm:grid-cols-3">
             {suggestions.map((entry) => (
               <li key={entry.href}>
@@ -128,10 +125,7 @@ export function NotFoundSuggestions() {
           </ul>
         </>
       ) : pathname ? (
-        <p className="mt-3 text-sm leading-relaxed text-text-muted">
-          Nothing on this site matches <span className="font-mono text-text-secondary">{pathname}</span>. These are the
-          routes people usually want.
-        </p>
+        <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Nothing on this site matches")}<span className="font-mono text-text-secondary">{pathname}</span>{t(". These are the routes people usually want.")}</p>
       ) : (
         /*
           Before hydration the path is not known yet — this page is prerendered

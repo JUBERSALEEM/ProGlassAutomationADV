@@ -34,8 +34,8 @@ export function StrategyPicker() {
       {/* ── Search stage ─────────────────────────────────────────── */}
       <div className="surface-raised flex flex-col p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-base font-semibold text-text-primary">Search stage</h3>
-          <Badge tone="accent">Optimize effort 1–5</Badge>
+          <h3 className="text-base font-semibold text-text-primary">{t("Search stage")}</h3>
+          <Badge tone="accent">{t("Optimize effort 1–5")}</Badge>
         </div>
 
         <div
@@ -111,8 +111,8 @@ export function StrategyPicker() {
       {/* ── Plate pattern ────────────────────────────────────────── */}
       <div className="surface-raised flex flex-col p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h3 className="text-base font-semibold text-text-primary">Plate pattern</h3>
-          <Badge>Six tie-breaks</Badge>
+          <h3 className="text-base font-semibold text-text-primary">{t("Plate pattern")}</h3>
+          <Badge>{t("Six tie-breaks")}</Badge>
         </div>
 
         <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label={t("Plate pattern")}>

@@ -265,7 +265,7 @@ export function NestingDemo() {
         <div className="flex flex-col gap-4">
           <div className="surface-raised p-5">
             <div className="flex items-center justify-between gap-3">
-              <p className="mono-label">Sequence</p>
+              <p className="mono-label">{t("Sequence")}</p>
               <span className="font-mono text-2xs text-brand-300">
                 {String(step + 1).padStart(2, "0")} / {String(STEPS.length).padStart(2, "0")}
               </span>

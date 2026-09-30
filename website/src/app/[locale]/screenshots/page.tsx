@@ -103,9 +103,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
               working preview of that module — and says on the card that it is a preview. The navigation groups, module
               labels, tab names, field names and charge rows come from the application itself:{" "}
               <span className="font-mono">Views/Personal/GlassShell.xaml</span>,{" "}
-              <span className="font-mono">Themes/Languages/en-US.xaml</span> and the module views. Where a module has
-              something to compute — the optimizer, the production queues — the preview computes it live.
-            </p>
+              <span className="font-mono">Themes/Languages/en-US.xaml</span>{t("and the module views. Where a module has something to compute — the optimizer, the production queues — the preview computes it live.")}</p>
           </Reveal>
         </Container>
       </Section>

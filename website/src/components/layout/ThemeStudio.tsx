@@ -128,7 +128,7 @@ export function ThemeStudio() {
 
           {/* ── Mode plates ───────────────────────────────────────────── */}
           <fieldset className="mt-5">
-            <legend className="mono-label">Mode</legend>
+            <legend className="mono-label">{t("Mode")}</legend>
             <div className="mt-2 grid grid-cols-3 gap-2">
               {themeModes.map((entry) => {
                 const active = entry.id === mode;
@@ -167,7 +167,7 @@ export function ThemeStudio() {
 
           {/* ── Palette family ────────────────────────────────────────── */}
           <fieldset className="mt-4">
-            <legend className="mono-label">Palette family</legend>
+            <legend className="mono-label">{t("Palette family")}</legend>
             <div className="mt-2 grid grid-cols-2 gap-2">
               {appearanceFamilies.map((entry) => {
                 const active = entry.id === family;
@@ -203,7 +203,7 @@ export function ThemeStudio() {
 
           {/* ── Colour plates ─────────────────────────────────────────── */}
           <fieldset className="mt-4">
-            <legend className="mono-label">Colour plates</legend>
+            <legend className="mono-label">{t("Colour plates")}</legend>
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
               {t("The sixteen accents the application ships. Tap one and the whole site takes it.")}
             </p>
@@ -262,7 +262,7 @@ export function ThemeStudio() {
 
           {/* ── Typeface ──────────────────────────────────────────────── */}
           <fieldset className="mt-4">
-            <legend className="mono-label">Typeface</legend>
+            <legend className="mono-label">{t("Typeface")}</legend>
             <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">{t("{v1} {v2}underlining below are drawn rather than slanted and thickened.", { v1: t("Fourteen families in two groups — the four this site serves, and ten the browser resolves from your own"), v2: t("computer. The bundled four carry a real italic and a full weight range, so bold, bold italic and") })}</p>
 
             <FaceGrid
@@ -290,7 +290,7 @@ export function ThemeStudio() {
                 {typefaces[studio.typeface].sample}
               </p>
               <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-                <strong className="font-bold">Cut length</strong> is <strong className="font-bold">bold</strong> ·{" "}
+                <strong className="font-bold">{t("Cut length")}</strong> is <strong className="font-bold">bold</strong> ·{" "}
                 <em className="font-bold italic">offcut area</em> is <strong className="font-bold italic">bold italic</strong> ·{" "}
                 <span className="underline decoration-brand-400 decoration-2 underline-offset-2">net area</span> is{" "}
                 <span className="font-bold underline decoration-brand-400 decoration-2 underline-offset-2">
@@ -312,7 +312,7 @@ export function ThemeStudio() {
             */}
             <div className="mt-3 grid gap-2 sm:grid-cols-2">
               <div className="rounded-card border-2 border-line-strong/70 px-3 py-2.5">
-                <p className="mono-label">Font weight</p>
+                <p className="mono-label">{t("Font weight")}</p>
                 <div className="mt-1.5 flex gap-1.5">
                   {studioTypography.weights.map((option) => (
                     <button
@@ -365,7 +365,7 @@ export function ThemeStudio() {
             />
 
             <div className="rounded-card border-2 border-line-strong/70 px-3 py-2.5">
-              <p className="mono-label">Display density</p>
+              <p className="mono-label">{t("Display density")}</p>
               <div className="mt-1.5 flex gap-1.5">
                 {studioTypography.densities.map((option) => (
                   <button
@@ -386,15 +386,13 @@ export function ThemeStudio() {
                 ))}
               </div>
               <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">
-                The application&apos;s own spacing setting — <em className="not-italic font-semibold">{t("Compact fits more on a laptop; Comfortable gives larger touch targets")}</em>. This site ships comfortable, so nothing moves until you
-                choose compact.
-              </p>
+                The application&apos;s own spacing setting — <em className="not-italic font-semibold">{t("Compact fits more on a laptop; Comfortable gives larger touch targets")}</em>{t(". This site ships comfortable, so nothing moves until you choose compact.")}</p>
             </div>
           </fieldset>
 
           {/* ── Surface ───────────────────────────────────────────────── */}
           <fieldset className="mt-4 space-y-3">
-            <legend className="mono-label">Surface</legend>
+            <legend className="mono-label">{t("Surface")}</legend>
             <Slider
               label={t("Card tint")}
               value={studio.tint}
@@ -442,7 +440,7 @@ export function ThemeStudio() {
               `max(0, edge − 2)` the way `ApplyCardEdgePaddingResources` does.
             */}
             <div className="rounded-card border-2 border-line-strong/60 bg-ink-950/40 p-3">
-              <p className="text-[0.75rem] font-bold uppercase tracking-[0.14em] text-text-secondary">Card edge</p>
+              <p className="text-[0.75rem] font-bold uppercase tracking-[0.14em] text-text-secondary">{t("Card edge")}</p>
               <p className="mt-1 text-[0.6875rem] leading-relaxed text-text-muted">
                 {t("The border line on every card, the corner it turns on, and the padding that follows it.")}
               </p>
@@ -515,7 +513,7 @@ export function ThemeStudio() {
 
           {/* ── Money ─────────────────────────────────────────────────── */}
           <fieldset className="mt-4">
-            <legend className="mono-label">Money colours</legend>
+            <legend className="mono-label">{t("Money colours")}</legend>
             <p className="mt-1.5 text-[0.75rem] font-medium leading-relaxed text-text-muted">
               {t("Used wherever a number is money rather than a label — margins, VAT, wastage, utilization.")}
             </p>

@@ -127,8 +127,7 @@ function ModulePanel({
       </div>
 
       <div className="mt-3.5 flex flex-wrap items-center justify-between gap-3">
-        <Link href={module.href} className="link-underline text-xs">
-          Read the full module <ArrowRight />
+        <Link href={module.href} className="link-underline text-xs">{t("Read the full module")}<ArrowRight />
         </Link>
         <span className="mono-label">{t(module.evidence)}</span>
       </div>

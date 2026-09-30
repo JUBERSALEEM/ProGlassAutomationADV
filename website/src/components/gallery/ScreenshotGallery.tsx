@@ -290,7 +290,7 @@ function Lightbox({
             disabled={position === 0}
             className="grid h-9 w-9 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary disabled:opacity-35"
           >
-            <span className="sr-only">Previous screenshot</span>
+            <span className="sr-only">{t("Previous screenshot")}</span>
             <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
               <path d="M10 3 5 8l5 5" />
             </svg>
@@ -301,7 +301,7 @@ function Lightbox({
             disabled={position === total - 1}
             className="grid h-9 w-9 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-brand-400/50 hover:text-text-primary disabled:opacity-35"
           >
-            <span className="sr-only">Next screenshot</span>
+            <span className="sr-only">{t("Next screenshot")}</span>
             <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
               <path d="M6 3l5 5-5 5" />
             </svg>
@@ -312,7 +312,7 @@ function Lightbox({
             onClick={onClose}
             className="grid h-9 w-9 place-items-center rounded-xl border border-line-strong/70 text-text-secondary transition-colors hover:border-state-danger/50 hover:text-state-danger"
           >
-            <span className="sr-only">Close</span>
+            <span className="sr-only">{t("Close")}</span>
             <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
               <path d="M4 4l8 8M12 4l-8 8" />
             </svg>
@@ -365,12 +365,12 @@ function Lightbox({
         <div className="mx-auto mt-8 grid w-full max-w-[110rem] gap-8 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
           <div className="space-y-5">
             <div>
-              <p className="eyebrow">What this screen does</p>
+              <p className="eyebrow">{t("What this screen does")}</p>
               <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t(shot.caption)}</p>
             </div>
 
             <div>
-              <p className="eyebrow">In the module</p>
+              <p className="eyebrow">{t("In the module")}</p>
               {/* Two columns of bullets: with the preview full width there is
                   no reason to stack five short lines into one tall list. */}
               <ul className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -386,15 +386,15 @@ function Lightbox({
 
           <dl className="surface h-fit space-y-3 p-5 text-xs">
             <div className="flex gap-3">
-              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Module</dt>
+              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">{t("Module")}</dt>
               <dd className="font-mono text-text-secondary">{shot.moduleKey}</dd>
             </div>
             <div className="flex gap-3">
-              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Source</dt>
+              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">{t("Source")}</dt>
               <dd className="text-text-secondary">{t(shot.evidence)}</dd>
             </div>
             <div className="flex gap-3">
-              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Status</dt>
+              <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">{t("Status")}</dt>
               <dd className="text-text-secondary">
                 {shot.source === "capture"
                   ? "Screen capture of the application"

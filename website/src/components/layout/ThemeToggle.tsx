@@ -114,7 +114,7 @@ export function ThemeToggle({ className }: { className?: string }) {
           aria-label={t("Appearance")}
           className="menu-card animate-scale-in absolute right-0 top-full z-50 mt-3 w-[17.5rem] origin-top-right rounded-panel p-3 shadow-raised"
         >
-          <p className="mono-label px-1">Mode</p>
+          <p className="mono-label px-1">{t("Mode")}</p>
           <div className="mt-2 grid grid-cols-3 gap-1.5">
             {themeModes.map((entry) => {
               const active = entry.id === mode;
@@ -139,7 +139,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             })}
           </div>
 
-          <p className="mono-label mt-4 px-1">Palette</p>
+          <p className="mono-label mt-4 px-1">{t("Palette")}</p>
           <div className="mt-2 space-y-1">
             {appearanceFamilies.map((entry) => {
               const active = entry.id === family;

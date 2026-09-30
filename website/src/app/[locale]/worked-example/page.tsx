@@ -144,10 +144,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-text-secondary">
                   The rates below are the sample dataset&apos;s own numbers, chosen so the demonstration adds up. They
-                  are <strong className="font-semibold text-text-primary">not a price list</strong>, not a market rate
-                  and not a quotation from anyone. ProGlass Automation publishes no price list for glass, and this page
-                  does not change that: it shows how the software carries a job, not what glass costs.
-                </p>
+                  are <strong className="font-semibold text-text-primary">not a price list</strong>{t(", not a market rate and not a quotation from anyone. ProGlass Automation publishes no price list for glass, and this page does not change that: it shows how the software carries a job, not what glass costs.")}</p>
               </div>
             </div>
 
@@ -242,10 +239,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             stores on every cutting line, and the number the grid sorts by.{" "}
             <span className="font-mono text-text-faint">{t("TOTAL SQM")}</span> is SQM × QTY. A{" "}
             <span className="font-mono text-text-faint">—</span> in W2 or H2 means the line has no second pane: the
-            application stores <span className="font-mono text-text-faint">0</span> in those cells for single glazing,
-            while a double-glazed line carries both pairs — and in this seeded job the two panes are cut to the same
-            size.
-          </p>
+            application stores <span className="font-mono text-text-faint">0</span>{t("in those cells for single glazing, while a double-glazed line carries both pairs — and in this seeded job the two panes are cut to the same size.")}</p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             {groupTotals.map((group) => (
@@ -524,7 +518,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 </div>
 
                 <div className="surface p-6">
-                  <p className="eyebrow">Built up, not guessed at</p>
+                  <p className="eyebrow">{t("Built up, not guessed at")}</p>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Every rate above matches the sell price of the sheet that glass comes from — 6 mm clear tempered at 150, 8 mm at 185, 10 mm at 210, 12 mm at 245, tinted at 175 and 195, and the Double-glazed unit at 260. That consistency is the point of the sample dataset: the stock in the store, the rate on the quotation and the value on the invoice are the same underlying job data.")}</p>
                 </div>
               </div>

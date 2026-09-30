@@ -122,7 +122,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
 
       {/* ── RELEASE BAR ────────────────────────────────────────────────── */}
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-line/60 bg-ink-900/40 px-2.5 py-2">
-        <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Release</span>
+        <span className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Release")}</span>
         {releaseCandidates.map((candidate) => (
           <button
             key={candidate.job}
