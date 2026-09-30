@@ -29,6 +29,14 @@ import { LOCALE_COOKIE } from "@/i18n/core";
  * sees that address in the bar, can copy it, and can send it to a colleague who
  * gets the same page. A rewrite would leave everyone on `/` while showing
  * German, and no link would be shareable.
+ *
+ * **English is the exception, and it has to be handled here.** English
+ * addresses are unprefixed, so there is no `/en-US` for a visitor to be sent
+ * to and nothing for `/` to resolve against: the pages live under
+ * `app/[locale]/`, and a request for `/` finds no page at all. The rewrite
+ * below hands the request to the English route while the address bar keeps the
+ * bare one — which is what makes `https://site/` work as well as
+ * `https://site/en-US`.
  */
 export function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -56,7 +64,14 @@ export function proxy(request: NextRequest) {
     localeForAcceptLanguage(accept) ??
     DEFAULT_LOCALE;
 
-  if (locale === DEFAULT_LOCALE) return NextResponse.next();
+  if (locale === DEFAULT_LOCALE) {
+    /* `/` and `/features` are the English addresses; the page itself is built
+       by the `[locale]` route. */
+    const url = request.nextUrl.clone();
+    url.pathname = pathname === "/" ? `/${DEFAULT_LOCALE}` : `/${DEFAULT_LOCALE}${pathname}`;
+    url.search = search;
+    return NextResponse.rewrite(url);
+  }
 
   const url = request.nextUrl.clone();
   url.pathname = pathname === "/" ? `/${locale}` : `/${locale}${pathname}`;

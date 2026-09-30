@@ -80,7 +80,10 @@ const KEYS = new Set(
   [...readFileSync("src/i18n/dict/keys.ts", "utf8").matchAll(/^ {2}(".*"),$/gm)].map((match) => JSON.parse(match[1])),
 );
 
+/* An inline element is a word separator when it closes: `</span><span>` would
+   otherwise glue two headings together into "DashboardSheet Store". */
 const INLINE = /<\/?(?:b|strong|em|i|span|code|a|abbr|sup|sub|small|mark|u|time|cite)\b[^>]*>/g;
+const INLINE_CLOSE = /<\/(?:b|strong|em|i|span|code|a|abbr|sup|sub|small|mark|u|time|cite)>/g;
 
 function visibleText(html) {
   const body = html.split("</head>").at(-1) ?? html;
@@ -92,6 +95,7 @@ function visibleText(html) {
        one sentence on screen. Collapsing inline tags before the text nodes are
        read keeps the report about what a reader sees rather than about how the
        markup happens to be nested. */
+    .replace(INLINE_CLOSE, " ")
     .replace(INLINE, "");
   const nodes = [...stripped.matchAll(/>([^<>]{12,})</g)].map((match) => match[1]);
   return nodes
@@ -151,6 +155,17 @@ for (const path of PAGES) {
       notAKey.set(text, (notAKey.get(text) ?? 0) + 1);
     }
   }
+}
+
+/* `--dump` writes the two lists to a file, ordered by how many pages show the
+   text — which is also the order they are worth translating in: a sentence the
+   navigation prints on every page is worth more than one paragraph on one. */
+const dump = flag("--dump", null);
+if (dump) {
+  const { writeFileSync } = await import("node:fs");
+  const sorted = (map) => [...map.entries()].sort((a, b) => b[1] - a[1]).map(([text, count]) => ({ text, count }));
+  writeFileSync(dump, `${JSON.stringify({ locale, notAKey: sorted(notAKey), untranslated: sorted(untranslated) }, null, 1)}\n`);
+  console.log(`written to ${dump}`);
 }
 
 const list = (title, map) => {
