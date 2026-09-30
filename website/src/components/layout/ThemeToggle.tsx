@@ -8,7 +8,7 @@ import {
   type AppearanceFamilyEntry,
   type ThemeModeEntry,
 } from "@/data/themes";
-import { setThemeMode, useAppearance, useThemeMode } from "@/lib/useTheme";
+import { setThemeMode, useAppearance, useThemeGuard, useThemeMode } from "@/lib/useTheme";
 import { setFamily } from "@/lib/useStudio";
 import { useT } from "@/i18n/provider";
 
@@ -30,6 +30,9 @@ import { useT } from "@/i18n/provider";
  */
 export function ThemeToggle({ className }: { className?: string }) {
   const t = useT();
+  /* The control lives in the header of every page, so this is where the
+     visitor's choice is re-applied after any navigation. See useThemeGuard. */
+  useThemeGuard();
   const mode = useThemeMode();
   const family = useAppearance();
   const [open, setOpen] = useState(false);

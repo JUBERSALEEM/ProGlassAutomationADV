@@ -53,10 +53,20 @@ function remember(locale: Locale) {
   document.cookie = `${LOCALE_COOKIE}=${locale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
 }
 
-/** The address of the current page in another language. */
+/**
+ * The address of the current page in another language.
+ *
+ * English is spelled out (`/en-US/pricing`) rather than left bare (`/pricing`),
+ * and that is not a style choice. A bare address carries no language, so the
+ * proxy has to resolve it: the cookie first, then the country, then
+ * `Accept-Language`. When the cookie cannot be written — a browser that blocks
+ * third-party cookies, a preview running in an iframe — the next load resolves
+ * by `Accept-Language` instead, and a visitor who just asked for English is sent
+ * straight back to German. A path that names the language cannot be argued
+ * with: `/en-US/…` renders English however the browser is configured.
+ */
 function addressFor(locale: Locale, pathname: string, search: string): string {
   const bare = pathWithoutLocale(pathname);
-  if (locale === "en-US") return `${bare}${search}`;
   return `${bare === "/" ? `/${locale}` : `/${locale}${bare}`}${search}`;
 }
 
