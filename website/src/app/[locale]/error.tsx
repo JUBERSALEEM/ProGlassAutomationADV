@@ -72,7 +72,7 @@ export default function RouteError({
           </div>
 
           <p className="mt-6 text-xs font-medium leading-relaxed text-text-muted">
-{t("If it keeps happening, the reference above is what the developer needs — send it to")}o{" "}
+{t("If it keeps happening, the reference above is what the developer needs — send it to")}{" "}
             <Link href="/contact" className="link-underline">
               the contact page
             </Link>{" "}

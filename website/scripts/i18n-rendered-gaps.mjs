@@ -74,11 +74,32 @@ const SCRIPTS = {
  * `the`, `and`, `with`, `your`, `from`… in it is not English, however little of
  * it a reader of the language would recognise.
  */
+/*
+ * The lookbehind keeps a tell word out of a dotted name: `AppRoles.All` is an
+ * identifier from the application's own code, and a German sentence that quotes
+ * it — "8 zuweisbare Rollen (AppRoles.All) plus die Operator-Rolle" — is not
+ * English because it happens to contain the word `All`.
+ */
 const ENGLISH_TELLS =
-  /\b(?:the|and|with|for|your|from|this|that|these|those|every|each|you|they|their|there|when|which|what|where|how|into|without|than|then|is|are|were|has|have|had|not|all|any|both|same|other|only|also|about|above|below|between|against|before|after|over|under|again|because|while|during|until)\b/i;
+  /(?<![\w.$])(?:the|and|with|for|your|from|this|that|these|those|every|each|you|they|their|there|when|which|what|where|how|into|without|than|then|is|are|were|has|have|had|not|all|any|both|same|other|only|also|about|above|below|between|against|before|after|over|under|again|because|while|during|until)\b/i;
+const ENGLISH_TELLS_G = new RegExp(ENGLISH_TELLS.source, "gi");
 const LATIN = new Set(["en-US", "de-DE", "es-ES", "fr-FR", "id-ID", "pt-BR", "tr-TR"]);
+/*
+ * One tell word is enough, with one exception.
+ *
+ * The test needs to be sharp enough to catch `Number patterns as the seeder
+ * builds them:` on a German page, which shares only `the` with the list. And it
+ * needs to be dull enough that a German sentence is not reported as English:
+ * German `also` means "therefore", and Spanish uses `no`. So `also` is dropped
+ * from the test — a real English sentence carrying it carries something else
+ * too ("this is also true", "and also") — and every other word counts.
+ */
+const WEAK_TELLS = new Set(["also"]);
 function looksEnglish(text) {
-  if (LATIN.has(locale)) return ENGLISH_TELLS.test(text);
+  if (LATIN.has(locale)) {
+    const found = [...text.matchAll(ENGLISH_TELLS_G)].map((match) => match[0].toLowerCase());
+    return found.some((word) => !WEAK_TELLS.has(word));
+  }
   const script = SCRIPTS[locale];
   return script ? !script.test(text) : true;
 }
@@ -96,6 +117,39 @@ const KEYS = new Set(
   [...readFileSync("src/i18n/dict/keys.ts", "utf8").matchAll(/^ {2}(".*"),$/gm)].map((match) => JSON.parse(match[1])),
 );
 
+/*
+ * Regions the site marks `translate="no"` hold records, not copy: the seeded
+ * application log is the product's own output, and the product writes English.
+ * A browser translator skips them for the same reason, so counting them as
+ * English on the page would report a gap nobody can close.
+ *
+ * The strip is deliberately shallow — it removes the marked element and
+ * everything up to its first closing tag. That is enough for the containers this
+ * site marks and it cannot silently swallow the rest of a page if a future
+ * element nests inside another.
+ */
+const VOID_ELEMENTS = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
+
+function stripRecords(html) {
+  let out = html;
+  const pattern = /<([a-zA-Z][\w-]*)\b[^>]*\btranslate="no"[^>]*>/g;
+  let match;
+  while ((match = pattern.exec(out))) {
+    const tag = match[1].toLowerCase();
+    if (VOID_ELEMENTS.has(tag)) {
+      out = out.slice(0, match.index) + out.slice(match.index + match[0].length);
+      pattern.lastIndex = match.index;
+      continue;
+    }
+    const close = out.indexOf(`</${tag}>`, match.index + match[0].length);
+    if (close === -1) break;
+    const end = close + tag.length + 3;
+    out = out.slice(0, match.index) + out.slice(end);
+    pattern.lastIndex = match.index;
+  }
+  return out;
+}
+
 /* An inline element is a word separator when it closes: `</span><span>` would
    otherwise glue two headings together into "DashboardSheet Store". */
 const INLINE = /<\/?(?:b|strong|em|i|span|code|a|abbr|sup|sub|small|mark|u|time|cite)\b[^>]*>/g;
@@ -103,7 +157,7 @@ const INLINE_CLOSE = /<\/(?:b|strong|em|i|span|code|a|abbr|sup|sub|small|mark|u|
 
 function visibleText(html) {
   const body = html.split("</head>").at(-1) ?? html;
-  const stripped = body
+  const stripped = stripRecords(body)
     /*
      * Next serialises client-component props into flight-data scripts, and an
      * escaped close tag (`<\/script>`) inside that JSON stops a naive
@@ -125,7 +179,15 @@ function visibleText(html) {
   return nodes
     .map((text) =>
       text
+        /*
+         * Decode what React escapes, and only blank what is left. `&gt;` used to
+         * be blanked with the unknown entities, so a code span reading
+         * `Sqm1 >= 4` arrived here as `Sqm1  4` — not a key, and reported as a
+         * wiring gap on a page that had already been wired.
+         */
         .replace(/&#x27;|&#39;/g, "'")
+        .replace(/&lt;/g, "<")
+        .replace(/&gt;/g, ">")
         .replace(/&amp;/g, "&")
         .replace(/&quot;/g, '"')
         .replace(/&nbsp;/g, " ")
@@ -186,7 +248,10 @@ function phraseSet() {
 const PHRASES = phraseSet();
 
 function segmentsIntoKeys(text) {
-  let rest = text;
+  /* A numbered heading arrives as `03` glued to its label, because the number
+     lives in its own `<span>` and the strip above removes the tags. The ordinal
+     is not language; the label is a key. */
+  let rest = text.replace(/^\s*\d{1,3}[.)·\s]+/, "");
   let found = 0;
   while (rest.length) {
     rest = rest.replace(SEPARATOR, "");
@@ -200,7 +265,9 @@ function segmentsIntoKeys(text) {
     rest = rest.slice(best.length);
     found += 1;
   }
-  return found >= 2;
+  /* One phrase is enough when it is the whole node: "The trial" under an ordinal
+     is a heading the dictionary already holds. */
+  return found >= 1;
 }
 
 /* A text node that is part of a key, or has a key inside it, is a fragment the
@@ -226,6 +293,37 @@ const LITERAL_RUNS = (() => {
   }
   return runs;
 })();
+
+/*
+ * A key with a value in it — `{v0} in the blog`, `Showing the {v0} period…` —
+ * can never be compared literally: the page shows the value, the key shows the
+ * placeholder. Each one is turned into a pattern so a rendered node can be
+ * matched against the sentence it came from, however long the value is.
+ *
+ * This replaces a comparison against the literal runs around each placeholder,
+ * which needed a run of twelve characters or more and therefore reported
+ * `{v0} in the blog` as a gap on every page that rendered it.
+ */
+const PLACEHOLDER_KEYS = [...KEYS]
+  .filter((key) => key.includes("{"))
+  .map((key) => ({
+    key,
+    /* `{v0}` becomes `.+?`; the text between placeholders is quoted, so a full
+       stop in the sentence is a full stop and not "any character". */
+    pattern: new RegExp(
+      `^${key
+        .split(/\{[a-zA-Z0-9_]+\}/)
+        .map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"))
+        .join(".+?")}$`,
+      "s",
+    ),
+  }));
+
+function matchesAPlaceholderKey(text) {
+  const trimmed = text.trim();
+  if (!trimmed.includes(" ")) return false;
+  return PLACEHOLDER_KEYS.some((entry) => entry.pattern.test(trimmed));
+}
 
 function relatedToAKey(text) {
   for (const key of KEYS) {
@@ -269,7 +367,7 @@ for (const path of PAGES) {
       untranslated.set(text, (untranslated.get(text) ?? 0) + 1);
     } else if (segmentsIntoKeys(text)) {
       joined.set(text, (joined.get(text) ?? 0) + 1);
-    } else if (!relatedToAKey(text)) {
+    } else if (!matchesAPlaceholderKey(text) && !relatedToAKey(text)) {
       notAKey.set(text, (notAKey.get(text) ?? 0) + 1);
     }
   }

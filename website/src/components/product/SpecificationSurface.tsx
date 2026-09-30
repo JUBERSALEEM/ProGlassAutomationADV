@@ -154,7 +154,7 @@ export function SpecificationSurface({
   const [showResult, setShowResult] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [status, setStatus] = useState(
-    `Read from the saved specification — ${spec.blocks[0]?.rows.length ?? 0} rows at the rates they were quoted at.`,
+    t.template`Read from the saved specification — ${spec.blocks[0]?.rows.length ?? 0} rows at the rates they were quoted at.`,
   );
 
   /**
@@ -169,7 +169,7 @@ export function SpecificationSurface({
     if (!entry) return;
     setActive(index);
     setStatus(
-      `Specification ${entry.number} · ${t(entry.name)} — ${entry.rows.length} rows on a base rate of ${entry.baseRate.toFixed(2)} with a ${entry.surchargePercent}% surcharge for panels that reach ${SURCHARGE_THRESHOLD_SQM} m².`,
+      t.template`Specification ${entry.number} · ${t(entry.name)} — ${entry.rows.length} rows on a base rate of ${entry.baseRate.toFixed(2)} with a ${entry.surchargePercent}% surcharge for panels that reach ${SURCHARGE_THRESHOLD_SQM} m².`,
     );
   }
   /** Serial of each row a person has touched, so the rate switch is explained. */
@@ -376,7 +376,7 @@ export function SpecificationSurface({
       current.map((entry, index) => (index === active ? { ...entry, rows: [...entry.rows, ...added] } : entry)),
     );
     setStatus(
-      `Generated ${count} row${count === 1 ? "" : "s"} — serials ${first} to ${first + count - 1}, each 600 × 400 mm at the specification's base rate. The application's box takes up to 10,000 rows; this preview stops at 50 so the grid stays readable.`,
+      t.template`Generated ${count} row${count === 1 ? "" : "s"} — serials ${first} to ${first + count - 1}, each 600 × 400 mm at the specification's base rate. The application's box takes up to 10,000 rows; this preview stops at 50 so the grid stays readable.`,
     );
   }
 
@@ -395,7 +395,7 @@ export function SpecificationSurface({
             },
       ),
     );
-    setStatus(`Row deleted — ${gone?.ref ?? `serial ${serial}`} is off the specification. The grid renumbered the rows behind it.`);
+    setStatus(t.template`Row deleted — ${gone?.ref ?? `serial ${serial}`} is off the specification. The grid renumbered the rows behind it.`);
   }
 
   /** `Dg.FindReplace` — replace text across the GLASS REF column. */
@@ -422,8 +422,8 @@ export function SpecificationSurface({
     );
     setStatus(
       changed > 0
-        ? `Find and replace: ${changed} glass reference${changed === 1 ? "" : "s"} changed from “${needle}” to “${replaceWith}”. The reference is what the sheet a line is cut from is read off, so a wrong one prices to the wrong stock row.`
-        : `No glass reference on specification ${block.number} contains “${needle}”.`,
+        ? t.template`Find and replace: ${changed} glass reference${changed === 1 ? "" : "s"} changed from “${needle}” to “${replaceWith}”. The reference is what the sheet a line is cut from is read off, so a wrong one prices to the wrong stock row.`
+        : t.template`No glass reference on specification ${block.number} contains “${needle}”.`,
     );
   }
 
@@ -483,7 +483,7 @@ export function SpecificationSurface({
     setPasteOpen(false);
     setPasteText("");
     setStatus(
-      `Pasted ${added.length} row${added.length === 1 ? "" : "s"} onto specification ${block.number}${skipped > 0 ? `, and skipped ${skipped} that had no reference, width or height` : ""}. Every pasted row starts at the specification's base rate of ${block.baseRate.toFixed(2)} and takes the surcharge if its panel reaches ${SURCHARGE_THRESHOLD_SQM} m².`,
+      t.template`Pasted ${added.length} row${added.length === 1 ? "" : "s"} onto specification ${block.number}${skipped > 0 ? `, and skipped ${skipped} that had no reference, width or height` : ""}. Every pasted row starts at the specification's base rate of ${block.baseRate.toFixed(2)} and takes the surcharge if its panel reaches ${SURCHARGE_THRESHOLD_SQM} m².`,
     );
   }
 
@@ -565,8 +565,8 @@ export function SpecificationSurface({
       setShowResult(kind === "OPTIMIZE");
       setStatus(
         kind === "QUICK"
-          ? `QUICK pass done — ${result.plates} sheets of ${spec.sheet.label}, ${result.utilizationPct.toFixed(2)}% used. Step 6 takes the sheet quantity and utilisation from this run until you press OPTIMIZE.`
-          : `OPTIMIZE search done — ${result.plates} sheets, ${result.utilizationPct.toFixed(2)}% used, ${result.unplaced.length} piece(s) no plate could hold. Open VIEW RESULT for the plate drawings.`,
+          ? t.template`QUICK pass done — ${result.plates} sheets of ${spec.sheet.label}, ${result.utilizationPct.toFixed(2)}% used. Step 6 takes the sheet quantity and utilisation from this run until you press OPTIMIZE.`
+          : t.template`OPTIMIZE search done — ${result.plates} sheets, ${result.utilizationPct.toFixed(2)}% used, ${result.unplaced.length} piece(s) no plate could hold. Open VIEW RESULT for the plate drawings.`,
       );
     }, 220 * stages.length + 120);
   }
@@ -604,7 +604,7 @@ export function SpecificationSurface({
     const next = { ...(rows.find((row) => row.serial === serial) ?? rows[0]!), ...patch };
     const billable = billablePanelSqm(next.w1, next.h1);
     setStatus(
-      `${next.ref} is now ${next.w1} × ${next.h1} mm — ${physicalPanelSqm(next.w1, next.h1).toFixed(3)} m² of glass, billed at ${billable.toFixed(3)} m²${
+      t.template`${next.ref} is now ${next.w1} × ${next.h1} mm — ${physicalPanelSqm(next.w1, next.h1).toFixed(3)} m² of glass, billed at ${billable.toFixed(3)} m²${
         isFloored(next.w1, next.h1) ? ` (the ${MIN_PANEL_SQM} m² floor)` : ""
       }, priced at ${rowRate(block.baseRate, block.surchargePercent, billable).toFixed(2)}${
         surchargeApplies(billable)
@@ -669,8 +669,8 @@ export function SpecificationSurface({
       }),
     );
     setStatus(
-      `Glass type set to ${code}. Base rate re-derived to ${cash(rate)} /m² from the ${build.thickness} ${build.colour} outer sheet${
-        sealed ? `, the inner pane and the ${build.spacerWidth}` : code === "LAM" ? ", the PVB interlayer and the inner pane" : ""
+      t.template`Glass type set to ${code}. Base rate re-derived to ${cash(rate)} /m² from the ${build.thickness ?? ""} ${build.colour ?? ""} outer sheet${
+        sealed ? `, the inner pane and the ${build.spacerWidth ?? ""}` : code === "LAM" ? ", the PVB interlayer and the inner pane" : ""
       }. ${
         carriesInner ? "W2 / H2 are live on every row" : "W2 / H2 cleared — a single pane has no second pane to cut"
       }, all ${block.rows.length} rows re-priced at the new base, and the generated specification name is now “${glassBuilds.find((entry) => entry.code === code)?.name(build) ?? ""}”.`,
@@ -698,7 +698,7 @@ export function SpecificationSurface({
       ),
     );
     setStatus(
-      `Panel updated — ${Object.keys(patch)[0]} set to ${Object.values(patch)[0]}. The base rate is now ${cash(rate)} /m² and every row has re-priced. The generated specification name follows the panel, so the document and the panel say the same thing.`,
+      t.template`Panel updated — ${Object.keys(patch)[0] ?? ""} set to ${Object.values(patch)[0] ?? ""}. The base rate is now ${cash(rate)} /m² and every row has re-priced. The generated specification name follows the panel, so the document and the panel say the same thing.`,
     );
   }
 
@@ -716,7 +716,7 @@ export function SpecificationSurface({
     const row = rows.find((entry) => entry.serial === serial);
     const specRate = row ? rowRate(block.baseRate, block.surchargePercent, billablePanelSqm(row.w1, row.h1)) : 0;
     setStatus(
-      `${row?.ref ?? "Row"} typed over to ${cash(value)} — ${
+      t.template`${row?.ref ?? "Row"} typed over to ${cash(value)} — ${
         Math.abs(value - specRate) < 0.005 ? "the same as" : value > specRate ? "above" : "below"
       } the ${cash(specRate)} the specification's own rules would charge. The application leaves a typed rate alone until the size changes again, and moving BASE or SURCHARGE % clears it back to the rules.`,
     );
@@ -751,7 +751,7 @@ export function SpecificationSurface({
     );
     const onSurcharge = block.rows.filter((row) => surchargeApplies(billablePanelSqm(row.w1, row.h1))).length;
     setStatus(
-      `Specification ${block.number} re-priced — base ${cash(next.baseRate)}, surcharge ${next.surchargePercent}%. One rate for the whole specification; the ${
+      t.template`Specification ${block.number} re-priced — base ${cash(next.baseRate)}, surcharge ${next.surchargePercent}%. One rate for the whole specification; the ${
         onSurcharge === 1 ? "1 row" : `${onSurcharge} rows`
       } at or above ${SURCHARGE_THRESHOLD_SQM} m² now price at ${cash(next.baseRate * (1 + next.surchargePercent / 100))}. Every row, the totals and the profit-and-loss figure above moved with it.`,
     );
@@ -763,7 +763,7 @@ export function SpecificationSurface({
     setEdited({});
     setRun(null);
     setShowResult(false);
-    setStatus(`Inquiry BOQ re-read: ${spec.blocks[0]?.rows.length ?? 0} rows on specification 1, with the rates the document was saved with. Your edits are discarded.`);
+    setStatus(t.template`Inquiry BOQ re-read: ${spec.blocks[0]?.rows.length ?? 0} rows on specification 1, with the rates the document was saved with. Your edits are discarded.`);
   }
 
   /**
@@ -793,7 +793,7 @@ export function SpecificationSurface({
       current.map((entry, index) => (index === active ? { ...entry, rows: [...entry.rows, row] } : entry)),
     );
     setStatus(
-      `Row ${next} added at 600 × 400 mm — 0.24 m² of glass, billed at the ${MIN_PANEL_SQM} m² floor, at the specification's base rate of ${block.baseRate.toFixed(2)}. Type a size into it: the SQM column floors, and the rate switches to ${moneyRate(block.baseRate * (1 + block.surchargePercent / 100)).toFixed(2)} once the panel reaches ${SURCHARGE_THRESHOLD_SQM} m².`,
+      t.template`Row ${next} added at 600 × 400 mm — 0.24 m² of glass, billed at the ${MIN_PANEL_SQM} m² floor, at the specification's base rate of ${block.baseRate.toFixed(2)}. Type a size into it: the SQM column floors, and the rate switches to ${moneyRate(block.baseRate * (1 + block.surchargePercent / 100)).toFixed(2)} once the panel reaches ${SURCHARGE_THRESHOLD_SQM} m².`,
     );
   }
 
@@ -808,7 +808,7 @@ export function SpecificationSurface({
     setBlocks((current) => [...current, extra]);
     setActive(1);
     setStatus(
-      `Specification ${extra.number} added — ${t(extra.name)}, SURCHARGE % pre-filled at the shop's standard ${STANDARD_SURCHARGE_PERCENT}%. Its oversize lite prices at base + ${STANDARD_SURCHARGE_PERCENT}% the moment it is added.`,
+      t.template`Specification ${extra.number} added — ${t(extra.name)}, SURCHARGE % pre-filled at the shop's standard ${STANDARD_SURCHARGE_PERCENT}%. Its oversize lite prices at base + ${STANDARD_SURCHARGE_PERCENT}% the moment it is added.`,
     );
   }
 
@@ -925,7 +925,7 @@ export function SpecificationSurface({
             {unsupportedBuilds.map((name) => (
               <span
                 key={name}
-                title={`${name} is not one of the four build families the application supports. An out-of-family name degrades with a warning rather than being priced silently.`}
+                title={t.template`${name} is not one of the four build families the application supports. An out-of-family name degrades with a warning rather than being priced silently.`}
                 className="cursor-not-allowed rounded-lg border border-line/40 bg-ink-900/30 px-2.5 py-1 text-[0.75rem] font-medium text-text-faint line-through"
               >
                 {name.split(" (")[0]}
@@ -1155,7 +1155,7 @@ export function SpecificationSurface({
           </Pill>
           <p className="text-[0.6875rem] leading-snug text-text-muted font-medium">
             {find.trim()
-              ? `${block.rows.filter((row) => row.ref.includes(find.trim())).length} of ${block.rows.length} rows match “${find.trim()}” in GLASS REF.`
+              ? t.template`${block.rows.filter((row) => row.ref.includes(find.trim())).length} of ${block.rows.length} rows match “${find.trim()}” in GLASS REF.`
               : "Type a reference to see how many rows match, then replace them all."}
           </p>
         </div>
@@ -1194,7 +1194,7 @@ export function SpecificationSurface({
                 setStatus(
                   option === "Share cut list"
                     ? "Cut list shared to the production queue — the eight stages read the same rows."
-                    : `Specification exported as ${option}. The desktop application writes the file to the project folder.`,
+                    : t.template`Specification exported as ${option}. The desktop application writes the file to the project folder.`,
                 )
               }
             >
@@ -1247,8 +1247,8 @@ export function SpecificationSurface({
                 */}
                 {hasInnerPane ? (
                   <>
-                    <NumCell value={row.w2} onChange={(value) => editRow(row.serial, { w2: value, h2: row.h2 })} label={`Inner width for ${row.ref}`} />
-                    <NumCell value={row.h2} onChange={(value) => editRow(row.serial, { h2: value, w2: row.w2 })} label={`Inner height for ${row.ref}`} />
+                    <NumCell value={row.w2} onChange={(value) => editRow(row.serial, { w2: value, h2: row.h2 })} label={t.template`Inner width for ${row.ref}`} />
+                    <NumCell value={row.h2} onChange={(value) => editRow(row.serial, { h2: value, w2: row.w2 })} label={t.template`Inner height for ${row.ref}`} />
                   </>
                 ) : (
                   <>
@@ -1259,7 +1259,7 @@ export function SpecificationSurface({
                 <NumCell
                   value={row.qty}
                   onChange={(value) => editRow(row.serial, { qty: value })}
-                  label={`Quantity for ${row.ref}`}
+                  label={t.template`Quantity for ${row.ref}`}
                   step={1}
                 />
                 <td className="whitespace-nowrap px-2.5 py-1.5 text-right tabular-nums">
@@ -1269,7 +1269,7 @@ export function SpecificationSurface({
                   {row.floored ? (
                     <span
                       className="ml-1.5 rounded-full border border-brand-400/45 bg-brand-400/12 px-1.5 py-px font-mono text-[0.625rem] uppercase tracking-[0.08em] text-brand-100"
-                      title={`${row.physical.toFixed(3)} m² of glass, billed at the ${MIN_PANEL_SQM} m² floor. The rate does not change.`}
+                      title={t.template`${row.physical.toFixed(3)} m² of glass, billed at the ${MIN_PANEL_SQM} m² floor. The rate does not change.`}
                     >
                       floor
                     </span>
@@ -1307,14 +1307,14 @@ export function SpecificationSurface({
                   {row.overridden ? (
                     <span
                       className="ml-1.5 rounded-full border border-brand-400/50 bg-brand-400/12 px-1.5 py-px font-mono text-[0.625rem] uppercase tracking-[0.08em] text-brand-100"
-                      title={`Typed over by hand — SuppressRateAutoAdjust. The specification's own rules would charge ${cash(row.specRate)} on this panel.`}
+                      title={t.template`Typed over by hand — SuppressRateAutoAdjust. The specification's own rules would charge ${cash(row.specRate)} on this panel.`}
                     >
                       manual
                     </span>
                   ) : row.surcharged ? (
                     <span
                       className="ml-1.5 rounded-full border border-money-positive/45 bg-money-positive/12 px-1.5 py-px font-mono text-[0.625rem] uppercase tracking-[0.08em] text-money-positive"
-                      title={`Panel reaches ${SURCHARGE_THRESHOLD_SQM} m², so the row prices at SurchargeRate — base ${cash(block.baseRate)} + ${block.surchargePercent}%.`}
+                      title={t.template`Panel reaches ${SURCHARGE_THRESHOLD_SQM} m², so the row prices at SurchargeRate — base ${cash(block.baseRate)} + ${block.surchargePercent}%.`}
                     >
                       +{block.surchargePercent}%
                     </span>
@@ -1327,8 +1327,8 @@ export function SpecificationSurface({
                   <button
                     type="button"
                     onClick={() => deleteRow(row.serial)}
-                    title={`Delete row — Dg.DeleteRow (Ctrl+Delete). ${row.ref}`}
-                    aria-label={`Delete row ${row.serial}, ${row.ref}`}
+                    title={t.template`Delete row — Dg.DeleteRow (Ctrl+Delete). ${row.ref}`}
+                    aria-label={t.template`Delete row ${row.serial}, ${row.ref}`}
                     className="rounded-md border border-transparent px-1.5 py-0.5 font-mono text-[0.75rem] text-text-faint transition-colors hover:border-danger/45 hover:text-danger"
                   >
                     ✕
@@ -1437,25 +1437,25 @@ export function SpecificationSurface({
       {!compact ? (
         <div className="grid gap-2 sm:grid-cols-2">
           <RuleNote
-            label={`Minimum area · ${MIN_PANEL_SQM} m²`}
+            label={t.template`Minimum area · ${MIN_PANEL_SQM} m²`}
             body={
               flooredRows.length > 0
-                ? `${flooredRows.length} row(s) on this specification are below the floor and bill ${MIN_PANEL_SQM} m² each: ${flooredRows
+                ? t.template`${flooredRows.length} row(s) on this specification are below the floor and bill ${MIN_PANEL_SQM} m² each: ${flooredRows
                     .map((row) => row.ref)
                     .join(", ")}. Their rate is untouched — the floor is on the area, not on the price.`
-                : `No row here is under the floor: the smallest panel on this specification is ${Math.min(
+                : t.template`No row here is under the floor: the smallest panel on this specification is ${Math.min(
                     ...priced.map((row) => row.physical),
                   ).toFixed(2)} m². Type a width or height down and the SQM column stops at ${MIN_PANEL_SQM} while the rate holds.`
             }
           />
           <RuleNote
-            label={`Large-panel rate · +${block.surchargePercent}% at ${SURCHARGE_THRESHOLD_SQM} m²`}
+            label={t.template`Large-panel rate · +${block.surchargePercent}% at ${SURCHARGE_THRESHOLD_SQM} m²`}
             body={
               surchargedRows.length > 0
-                ? `${surchargedRows.length} row(s) at or past ${SURCHARGE_THRESHOLD_SQM} m² price at ${cash(
+                ? t.template`${surchargedRows.length} row(s) at or past ${SURCHARGE_THRESHOLD_SQM} m² price at ${cash(
                     block.baseRate * (1 + block.surchargePercent / 100),
                   )} / m² instead of ${cash(block.baseRate)}: ${surchargedRows.map((row) => row.ref).join(", ")}.`
-                : `Nothing on this specification reaches ${SURCHARGE_THRESHOLD_SQM} m² yet, so every row is on the base rate of ${cash(
+                : t.template`Nothing on this specification reaches ${SURCHARGE_THRESHOLD_SQM} m² yet, so every row is on the base rate of ${cash(
                     block.baseRate,
                   )}. Type a width up past the switch and that one row re-prices to ${cash(
                     block.baseRate * (1 + block.surchargePercent / 100),
@@ -1477,7 +1477,7 @@ export function SpecificationSurface({
             </p>
           </div>
           <div className="mt-2 grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
-            <ReadOutMini label={t("Sheets")} value={String(run.sheets)} note={`${run.placed} pieces placed`} />
+            <ReadOutMini label={t("Sheets")} value={String(run.sheets)} note={t.template`${run.placed} pieces placed`} />
             <ReadOutMini label={t("Utilisation")} value={`${run.utilization.toFixed(2)}%`} note={`${run.partArea.toFixed(2)} of ${run.stockArea.toFixed(2)} m²`} />
             <ReadOutMini label={t("Unplaced")} value={String(run.unplaced)} note={run.unplaced > 0 ? "No plate could hold these" : "Every piece found a plate"} />
             <ReadOutMini label={t("Largest piece")} value={run.largest} note={t("the piece the plan has to fit")} />
@@ -1663,12 +1663,13 @@ function ReadOutMini({ label, value, note }: { label: string; value: string; not
  * the plate, so the drawing is the run rather than a picture of one.
  */
 function PlateDrawing({ plate }: { plate: ReturnType<typeof plateViews>[number] }) {
+  const t = useT();
   const viewBox = `0 0 ${plate.widthMm} ${plate.heightMm}`;
   return (
     <svg
       viewBox={viewBox}
       role="img"
-      aria-label={`Plate ${plate.plate} with ${plate.pieceCount} pieces placed`}
+      aria-label={t.template`Plate ${plate.plate} with ${plate.pieceCount} pieces placed`}
       className="h-auto w-full rounded border border-line/50 bg-ink-950"
     >
       <rect x="0" y="0" width={plate.widthMm} height={plate.heightMm} fill="rgba(34,211,238,0.04)" />

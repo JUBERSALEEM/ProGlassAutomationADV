@@ -42,7 +42,17 @@ const DATA_FILES = /^src\/(?:data\/[^/]+|lib\/(?:useStudio|site|schema))\.ts$/;
  * character.
  */
 const NOT_PROSE =
-  /^(?:https?:|\/|#|data:|\.|--|@)|\.(?:tsx?|json|css|svg|png|webp|woff2?)$|^[a-z0-9-]+$|^[A-Z0-9_]+$|[{}<>]|=>|&&|\|\||\bpx\b|\bvar\(|\$\{|api\/|\/api/i;
+  /^(?:https?:|\/|#|data:|\.{1,2}\/|--|@)|\.(?:tsx?|json|css|svg|png|webp|woff2?)$|[{}]|<[A-Za-z/!]|=>|&&|\|\||\bpx\b|\bvar\(|\$\{|api\/|\/api/i;
+
+/*
+ * Two shapes that are values rather than language, tested case-sensitively.
+ *
+ * `^[a-z0-9-]+$` under the `i` flag above also matched `Received`, `Draft`,
+ * `Admin` and `Assigned` — the status labels the workflow rail renders — and
+ * every single-word heading on the site was dropped from the dictionary by it.
+ * A lower-case token is a class name; a capitalised word is a heading.
+ */
+const NOT_PROSE_SHAPE = /^[a-z0-9-]+$|^[A-Z0-9_]+$/;
 
 /**
  * Code that leaked into a quoted span, not a sentence.
@@ -63,7 +73,14 @@ function looksLikeCode(text) {
   if (/\n/.test(text)) return true;
   /* `import` and `export` are ordinary nouns in this domain — "BOQ import",
      "CNC export" — so only the statement forms are rejected. */
-  if (/=>|&&|\|\||\bconst\b|\bfunction\b/.test(text)) return true;
+  /*
+   * `const` and `function` used to disqualify a span on sight, which is how a
+   * table caption lost its key: "The application log, newest first: time, level,
+   * module or function, and the entry itself." contains the word *function*, so
+   * it was read as code and could never be translated. The test is the
+   * declaration now, not the word — a sentence may use both.
+   */
+  if (/=>|&&|\|\||\bconst\s+[A-Za-z_$][\w$]*\s*[=;:]|\bfunction\b\s*[\w(]/.test(text)) return true;
   if (/\b(?:import|export)\s+(?:function|const|default|\{|\*)/.test(text)) return true;
   /* A real DOM or storage call, not the word "document." at the end of one. */
   if (/\b(?:document|window|localStorage|sessionStorage)\.(?:getElementById|querySelector|addEventListener|createElement|location|documentElement|write|open)\b/.test(text)) return true;
@@ -86,7 +103,7 @@ function isContent(value) {
   if (text.length < 2 || text.length > 900) return false;
   if (CSS_VALUE.test(text)) return false;
   if (looksLikeCode(text)) return false;
-  if (NOT_PROSE.test(text)) return false;
+  if (NOT_PROSE.test(text) || NOT_PROSE_SHAPE.test(text)) return false;
   /* A figure is not a sentence. Reject when digits match or outnumber the
      letters — "1,600 × 1,100 mm · 2.5 kg/m²/mm · 34,762.19" is data, while
      "0.5 m² minimum billable area per panel" is a sentence that begins with
@@ -121,7 +138,12 @@ async function* walk(dir) {
  * report lie in the other direction.
  */
 const NOT_TRANSLATABLE = [
-  /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+\.?/,          // AppConfig.FontStyleName
+  /* An identifier on its own, not a sentence that starts with one:
+     "Dg.ColumnsHint — # · GLASS REF …" is the line the application prints above
+     the grid and it is prose, while "AppConfig.FontStyleName" is a setting. The
+     rule asks for end-of-string or an assignment, so the dotted name has to be
+     the whole value to be excluded. */
+  /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$])+\.?\s*(?:[=:]|$)/,
   /^[\w.]+\s*=\s*/,                                          // FontUnderline = true
   /* Format lists are handled by `isFormatList` below, not here. The rule used
      to be "starts with a format token and contains a full stop", which threw
@@ -129,7 +151,11 @@ const NOT_TRANSLATABLE = [
      "SGU, DGU, lamination and DGU + lamination." is a heading on this site,
      and it was untranslatable in all fifteen languages because of it. */
   /[,.]\s*(?:serif|sans-serif|monospace|system-ui)\b/,       // font stacks
-  /^\(|^═══|^\.[A-Z]|\.(?:tsx?|json|cs|xaml)\b/,            // CSS, banners, filenames
+  /* A dotted name is a file when it is the whole value (`.gitignore`), not
+     when a sentence begins with one: the old `^.[A-Z]` test disqualified
+     ".NET 8 desktop runtime, installed with the application." — a published
+     line of the pricing page that no dictionary could reach. */
+  /^\(|^═══|^\.[A-Za-z]+$|\.(?:tsx?|json|cs|xaml)\b/,          // CSS, banners, filenames
   /^(?:AED|USD|EUR|GBP)\s?[\d.,]+$/,                          // money as a symbol
   /^\{[A-Za-z0-9_, ]+\}$/,                                    // bare {placeholder}
   /^M[\d.]+[\s\d]/,                                           // SVG path data
@@ -178,7 +204,9 @@ function isFormatList(text) {
   const tokens = text.match(FORMAT_TOKENS);
   if (!tokens || tokens.length < 2) return false;
   const rest = text.replace(FORMAT_TOKENS, " ").replace(/[\s/·,.;:()+&—–-]+/g, "");
-  return rest.length < 12;
+  /* Eight characters, not twelve: "SGU and DGU panels" leaves "andpanels" —
+     ten characters of prose that are not a list of anything. */
+  return rest.length < 8;
 }
 
 function translatable(value) {
@@ -195,6 +223,66 @@ function translatable(value) {
 
 const CALL = /\bt\(\s*(?:"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`)/g;
 
+/*
+ * Sentences that carry a value inside them: `` t.template`… ${value} …` `` in a
+ * component, `` text`… ${value} …` `` in a data file.
+ *
+ * These are the same sentences as `t("…")`, with the values written as `${…}`
+ * instead of `{name}`. The key is built positionally — `{v0}`, `{v1}`, in the
+ * order the values appear — because that is exactly what the two helpers do at
+ * run time (see `src/i18n/core.ts`). Numbering them by the expression instead
+ * would produce a key the renderer never asks for.
+ */
+const TAGGED = /\bt\.template`|\btext`/g;
+
+/** The literal's text with each `${…}` replaced by `{vN}`, in order. */
+function taggedKey(source, start) {
+  let depth = 0;
+  let text = "";
+  let values = 0;
+  for (let cursor = start; cursor < source.length; cursor += 1) {
+    const character = source[cursor];
+    if (character === "\\") {
+      text += source[cursor + 1] ?? "";
+      cursor += 1;
+      continue;
+    }
+    if (depth === 0 && character === "`") return text;
+    if (depth === 0 && character === "$" && source[cursor + 1] === "{") {
+      depth = 1;
+      text += `{v${values}}`;
+      values += 1;
+      cursor += 1;
+      continue;
+    }
+    if (depth > 0) {
+      if (character === "{") depth += 1;
+      else if (character === "}") depth -= 1;
+      else if (character === "`") {
+        /* A nested template inside the substitution — skip it wholesale. */
+        cursor += 1;
+        while (cursor < source.length && source[cursor] !== "`") {
+          if (source[cursor] === "\\") cursor += 1;
+          cursor += 1;
+        }
+      }
+      continue;
+    }
+    text += character;
+  }
+  return text;
+}
+
+/**
+ * The key is tested for shape with its placeholders stood in for by a word:
+ * `isContent` rejects a brace on sight (it is how a CSS rule, an object literal
+ * or a JSX fragment is kept out), and a sentence that carries `{v0}` is none of
+ * those.
+ */
+function taggedShape(key) {
+  return key.replace(/\{v\d+\}/g, "value");
+}
+
 for await (const file of walk("src")) {
   if (file.startsWith("src/data/")) continue;
   const source = readFileSync(file, "utf8");
@@ -204,6 +292,14 @@ for await (const file of walk("src")) {
        translates the sentence with its placeholder, not the value. */
     const key = raw.replace(/\\`/g, "`").replace(/\\"/g, '"').replace(/\$\{([^}]*)\}/g, (_, name) => `{${name.trim()}}`);
     if (key.trim() && !looksLikeCode(key) && translatable(key)) {
+      keys.add(key);
+      if (!origin.has(key)) origin.set(key, "literal");
+    }
+  }
+
+  for (const match of source.matchAll(TAGGED)) {
+    const key = taggedKey(source, match.index + match[0].length);
+    if (key.trim() && !looksLikeCode(key) && translatable(key) && isContent(taggedShape(key))) {
       keys.add(key);
       if (!origin.has(key)) origin.set(key, "literal");
     }
@@ -242,12 +338,114 @@ const LITERAL = /(?<=[:\[,(][ \t]*(?:\n[ \t]*)?)(?:"((?:[^"\\\n]|\\.)*)"|'((?:[^
 for await (const file of walk("src")) {
   if (!DATA_FILES.test(file)) continue;
   const source = readFileSync(file, "utf8");
+  /* A data file writes a sentence with values in it as `text`…``; the same
+     positional key as a tagged template in a component, so the same scanner
+     and the same test. */
+  for (const match of source.matchAll(TAGGED)) {
+    const key = taggedKey(source, match.index + match[0].length);
+    if (key.trim() && !looksLikeCode(key) && translatable(key) && isContent(taggedShape(key))) {
+      keys.add(key);
+      if (!origin.has(key)) origin.set(key, "data");
+    }
+  }
   for (const match of source.matchAll(LITERAL)) {
     const value = (match[1] ?? match[2] ?? "").replace(/\\"/g, '"').replace(/\\'/g, "'");
     if (isContent(value) && translatable(value)) {
       keys.add(value);
       if (!origin.has(value)) origin.set(value, "data");
     }
+  }
+}
+
+/* ── markdown content (the blog) ──────────────────────────────────────
+ *
+ * The posts in `posts/*.md` are read at build time and rendered through
+ * `PostBody`, which looks every block up with `t()`. Until this pass existed the
+ * extractor only read TypeScript, so the frontmatter and the whole body of
+ * every note stayed English in all fifteen languages — a translated blog page
+ * with an English article inside it.
+ *
+ * The parsing is not redone here. `src/lib/markdown.ts` is imported and asked
+ * for its tokens, so the keys come from the same tree the renderer walks: a run
+ * the extractor misses is a run the reader sees in English, and a run it
+ * invents is a line in the dictionary that no page ever reads.
+ */
+const { tokenize } = await import("../src/lib/markdown.ts");
+
+/** Frontmatter fields that are prose. `date`, `category` and `draft` are not. */
+const MD_PROSE_FIELDS = /^(?:title|summary):\s*(.*)$/;
+
+/** A post's Markdown, as the keys it will look up. */
+function markdownKeys(text) {
+  const found = [];
+  const walkInline = (tokens) => {
+    for (const token of tokens ?? []) {
+      switch (token.type) {
+        case "text":
+          /* A text token that carries nested inline tokens is a wrapper —
+             `[label](/x)` is a link whose label is more tokens. Only leaves are
+             rendered as text, so only leaves are keys. */
+          if (token.tokens?.length) walkInline(token.tokens);
+          else if (translatable(token.text) && isContent(token.text)) found.push(token.text);
+          break;
+        case "strong":
+        case "em":
+        case "del":
+        case "link":
+          walkInline(token.tokens);
+          break;
+        /* `codespan`, `escape` and `br` render verbatim — they are identifiers
+           or punctuation, and a dictionary has no business rewriting them. */
+        default:
+          break;
+      }
+    }
+  };
+  const walk = (tokens) => {
+    for (const token of tokens) {
+      switch (token.type) {
+        case "heading":
+        case "paragraph":
+          walkInline(token.tokens);
+          break;
+        case "list":
+          for (const item of token.items) walk(item.tokens);
+          break;
+        case "blockquote":
+          walk(token.tokens);
+          break;
+        case "table":
+          for (const cell of token.header) walkInline(cell.tokens);
+          for (const row of token.rows) for (const cell of row) walkInline(cell.tokens);
+          break;
+        /* `code`, `hr` and `space` carry no prose. */
+        default:
+          break;
+      }
+    }
+  };
+  walk(text);
+  return found;
+}
+
+for (const entry of await readdir("posts")) {
+  if (!entry.endsWith(".md") || entry === "README.md" || entry.startsWith("_")) continue;
+  const raw = readFileSync(path.join("posts", entry), "utf8");
+  const front = raw.match(/^---\n([\s\S]*?)\n---/);
+  if (front) {
+    for (const line of front[1].split("\n")) {
+      const match = line.match(MD_PROSE_FIELDS);
+      if (!match) continue;
+      const value = match[1].trim().replace(/^["']|["']$/g, "");
+      if (isContent(value) && translatable(value)) {
+        keys.add(value);
+        if (!origin.has(value)) origin.set(value, "content");
+      }
+    }
+  }
+  for (const value of markdownKeys(tokenize(raw.slice(front ? front[0].length : 0)))) {
+    keys.add(value);
+    if (!origin.has(value)) origin.set(value, "content");
   }
 }
 
@@ -401,7 +599,7 @@ export type DictKey = (typeof KEYS)[number];
   const plan = sorted.map((key, index) => ({ index, key, source: origin.get(key) ?? "literal" }));
   writeFileSync("/tmp/proglass-i18n-plan.json", `${JSON.stringify(plan, null, 1)}\n`);
   console.log(`keys: ${sorted.length} written to src/i18n/dict/keys.ts`);
-  const counts = ["literal", "data", "table"].map(
+  const counts = ["literal", "data", "table", "content"].map(
     (kind) => `${plan.filter((row) => row.source === kind).length} ${kind}`,
   );
   console.log(`work plan: /tmp/proglass-i18n-plan.json (${counts.join(", ")})`);

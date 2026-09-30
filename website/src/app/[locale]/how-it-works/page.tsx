@@ -175,12 +175,11 @@ export default async function HowItWorksPage({ params }: PageProps) {
 
           <div className="surface mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
-{t("For the numbers rather than the description, the")}e{" "}
+{t("For the numbers rather than the description, the")}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
                 worked example
               </Link>{" "}
-              follows one seeded job through all five documents — 22 quotation lines, a partial delivery and the invoice
-              raised from it.
+              {t("follows one seeded job through all five documents — 22 quotation lines, a partial delivery and the invoice raised from it.")}
             </p>
             <ButtonLink href="/worked-example" variant="secondary" size="sm" trailing={<ArrowRight />}>
           {t("See the figures")}

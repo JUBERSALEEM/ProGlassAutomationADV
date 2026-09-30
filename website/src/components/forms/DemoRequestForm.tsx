@@ -247,7 +247,7 @@ export function DemoRequestForm() {
           <p className="text-sm font-medium text-state-danger">{t("The request was not sent")}</p>
           <p className="mt-1 text-xs leading-relaxed text-text-secondary">{serverMessage}</p>
           <p className="mt-2 text-xs leading-relaxed text-text-secondary">
-{t("You can also write directly to")}o{" "}
+{t("You can also write directly to")}{" "}
             <a className="link-underline" href={`mailto:${site.developerEmail}`}>
               {site.developerEmail}
             </a>

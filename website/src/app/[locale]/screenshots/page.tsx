@@ -122,11 +122,11 @@ export default async function ScreenshotsPage({ params }: PageProps) {
 
           <div className="surface mt-8 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
-{t("The previews above use sample data. To see what the same screens hold when one job runs all the way through them, the")}e{" "}
+{t("The previews above use sample data. To see what the same screens hold when one job runs all the way through them, the")}{" "}
               <Link href="/worked-example" className="link-underline text-brand-200">
                 worked example
               </Link>{" "}
-              shows the real seeded workflow — its documents, its 22 lines and its totals.
+              {t("shows the real seeded workflow — its documents, its 22 lines and its totals.")}
             </p>
             <ButtonLink href="/worked-example" variant="secondary" size="sm" trailing={<ArrowRight />}>
           {t("Worked example")}

@@ -95,7 +95,7 @@ export function NestingDemo() {
             viewBox={`${-pad} ${-pad} ${exampleSheet.width + pad * 2} ${exampleSheet.height + pad * 2}`}
             className="w-full rounded-[0.6rem] border border-line/70 bg-ink-950"
             role="img"
-            aria-label={`Illustration: ${examplePieces.length} glass pieces nested on one ${exampleSheet.width} by ${exampleSheet.height} millimetre plate. Utilization ${exampleMetrics.utilizationPct} percent.`}
+            aria-label={t.template`Illustration: ${examplePieces.length} glass pieces nested on one ${exampleSheet.width} by ${exampleSheet.height} millimetre plate. Utilization ${exampleMetrics.utilizationPct} percent.`}
           >
             <defs>
               <linearGradient id="glass-a" x1="0" y1="0" x2="1" y2="1">

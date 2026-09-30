@@ -162,12 +162,12 @@ export default async function AboutPage({ params }: PageProps) {
               <dl className="mt-8 space-y-3">
                 {[
                   ["Platform", site.framework],
-                  ["Pattern", `${site.pattern} — views and view-models split one folder per business area`],
+                  ["Pattern", t.template`${site.pattern} — views and view-models split one folder per business area`],
                   ["Language", site.language],
-                  ["Data", `${site.database} · ${site.databaseCount} databases, one per bounded context, additive-only migrations`],
-                  ["Authorisation", `${site.roleCount} assignable roles · ${site.permissionCount} live permission constants, enforced at the service boundary`],
-                  ["Localisation", `${site.locales} languages, shipped as resource dictionaries`],
-                  ["Measured", `Counts below taken from the application tree on ${site.statsMeasuredOn}`],
+                  ["Data", t.template`${site.database} · ${site.databaseCount} databases, one per bounded context, additive-only migrations`],
+                  ["Authorisation", t.template`${site.roleCount} assignable roles · ${site.permissionCount} live permission constants, enforced at the service boundary`],
+                  ["Localisation", t.template`${site.locales} languages, shipped as resource dictionaries`],
+                  ["Measured", t.template`Counts below taken from the application tree on ${site.statsMeasuredOn}`],
                 ].map(([term, detail]) => (
                   <div key={term} className="flex flex-col gap-1 rounded-card border border-line/60 bg-ink-900/50 p-4 sm:flex-row sm:gap-4">
                     <dt className="w-32 shrink-0 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
@@ -189,12 +189,14 @@ export default async function AboutPage({ params }: PageProps) {
 
               <div className="surface mt-4 p-6">
                 <p className="eyebrow mb-3">{t("The discipline that matters most")}</p>
-                <p className="text-sm leading-relaxed text-text-muted">{t("Shipped code contains no")}<span className="font-mono text-text-secondary">TODO</span>, no{" "}
-                  <span className="font-mono text-text-secondary">FIXME</span>, no{" "}
-                  <span className="font-mono text-text-secondary">{t("NotImplementedException")}</span> and no empty{" "}
-                  <span className="font-mono text-text-secondary">catch</span> block. That is not maintained by
-                  willpower — an automated test scans the tree and fails the build if one appears. Numbers you cannot
-                  check are marketing; this one you can.
+                <p className="text-sm leading-relaxed text-text-muted">
+                  {t("Shipped code contains no")}{" "}
+                  <span className="font-mono text-text-secondary">TODO</span>{t(", no")}{" "}
+                  <span className="font-mono text-text-secondary">FIXME</span>{t(", no")}{" "}
+                  <span className="font-mono text-text-secondary">{t("NotImplementedException")}</span>{" "}
+                  {t("and no empty")}{" "}
+                  <span className="font-mono text-text-secondary">catch</span>{" "}
+                  {t("block. That is not maintained by willpower — an automated test scans the tree and fails the build if one appears. Numbers you cannot check are marketing; this one you can.")}
                 </p>
               </div>
             </Reveal>

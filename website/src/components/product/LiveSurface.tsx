@@ -957,7 +957,9 @@ function DashboardEngine({
       {rows.length > 0 ? (
         <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-line/60 bg-ink-950/40">
           <table className="w-full border-collapse text-left">
-            <caption className="sr-only">{view?.label ?? "Dashboard"} — the module&apos;s own panels and figures.</caption>
+            <caption className="sr-only">
+              {t.template`${view?.label ?? "Dashboard"} — the module's own panels and figures.`}
+            </caption>
             <tbody>
               {rows.map((row, index) => {
                 const cells = Object.entries(row);
@@ -995,9 +997,8 @@ function DashboardEngine({
       ) : null}
 
       {!compact ? (
-        <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">{t("Showing the")}<span className="text-text-muted">{range.toLowerCase()}</span> period. The figures are the seeded
-          workflow&apos;s own documents, so a wider period does not multiply them — the range control changes which period the
-          dashboard is reading, not how much has been traded.
+        <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">
+          {t.template`Showing the ${range.toLowerCase()} period. The figures are the seeded workflow's own documents, so a wider period does not multiply them — the range control changes which period the dashboard is reading, not how much has been traded.`}
         </p>
       ) : null}
     </div>

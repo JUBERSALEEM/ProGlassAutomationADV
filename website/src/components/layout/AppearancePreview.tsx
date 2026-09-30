@@ -205,15 +205,14 @@ export function AppearancePreview() {
             </div>
           ))}
           <p className="col-span-3 text-[0.6875rem] leading-snug text-text-muted">
-            Live cards, not a picture: every `.surface` on the page takes this edge and this corner as you move the
-            dials.
+            {t("Live cards, not a picture: every `.surface` on the page takes this edge and this corner as you move the dials.")}
           </p>
         </div>
       </div>
 
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-line/60 pt-4">
         <p className="text-xs font-medium leading-relaxed text-text-muted">
-          {studioAccents.length + 1} plates, drawn from the application&apos;s own preset table.
+          {t.template`${studioAccents.length + 1} plates, drawn from the application's own preset table.`}
         </p>
         <button
           type="button"
@@ -243,12 +242,13 @@ function Plate({
   active: boolean;
   onClick: () => void;
 }) {
+  const t = useT();
   const onDark = luminance(colour) < 0.4;
   return (
     <button
       type="button"
       aria-pressed={active}
-      aria-label={`${label} colour plate`}
+      aria-label={t.template`${label} colour plate`}
       title={label}
       onClick={onClick}
       className={cn(

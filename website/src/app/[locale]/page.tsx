@@ -188,7 +188,7 @@ export default async function HomePage({ params }: PageProps) {
             />
             <StatCounter value={site.databaseCount} label={t("SQLite databases")} hint={t("One DbContext per bounded context, with additive-only migrations.")} />
             <StatCounter value={site.locales} label="Languages" hint={t("Locales are resource dictionaries — adding one needs no code change.")} />
-            <StatCounter value={site.testCount} label={t("Test methods")} hint={`[Fact] and [Theory] methods across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`} />
+            <StatCounter value={site.testCount} label={t("Test methods")} hint={t.template`[Fact] and [Theory] methods across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`} />
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -266,7 +266,7 @@ export default async function HomePage({ params }: PageProps) {
                 <StatBadge
                   value={String(quotationTotals.pieces)}
                   label={t("Pieces of glass")}
-                  hint={`${quotationTotals.squareMetres.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m² of glass.`}
+                  hint={t.template`${quotationTotals.squareMetres.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m² of glass.`}
                 />
                 <StatBadge
                   value={`AED ${quotationTotals.subtotal.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
@@ -462,7 +462,7 @@ export default async function HomePage({ params }: PageProps) {
             id="modules-heading"
             eyebrow={t("Core modules")}
             title={t("The parts of the job this application holds.")}
-            lead={`Four of the ${modules.length} navigation targets are shown here in depth. Each exists in the rail with the label shown — nothing on this page is a planned feature presented as a shipped one.`}
+            lead={t.template`Four of the ${modules.length} navigation targets are shown here in depth. Each exists in the rail with the label shown — nothing on this page is a planned feature presented as a shipped one.`}
           />
           <div className="mt-14">
             <ModuleShowcase

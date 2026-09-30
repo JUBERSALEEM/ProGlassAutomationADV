@@ -72,8 +72,8 @@ export function ThemeToggle({ className }: { className?: string }) {
         <button
           type="button"
           onClick={cycleMode}
-          aria-label={`Appearance: ${t(activeMode.label)} mode. Click to switch to ${t(nextMode.label)}.`}
-          title={`${t(activeMode.label)} mode — click for ${t(nextMode.label)}`}
+          aria-label={t.template`Appearance: ${t(activeMode.label)} mode. Click to switch to ${t(nextMode.label)}.`}
+          title={t.template`${t(activeMode.label)} mode — click for ${t(nextMode.label)}`}
           className="flex h-full items-center gap-2 pl-2 pr-1.5 text-text-muted transition-colors duration-200 hover:bg-ink-700/60 hover:text-text-primary"
         >
           <span
@@ -89,7 +89,7 @@ export function ThemeToggle({ className }: { className?: string }) {
           onClick={() => setOpen((value) => !value)}
           aria-expanded={open}
           aria-haspopup="dialog"
-          aria-label={`Appearance settings — ${t(activeMode.label)} mode, ${t(activeFamily.label)} palette`}
+          aria-label={t.template`Appearance settings — ${t(activeMode.label)} mode, ${t(activeFamily.label)} palette`}
           title={`Appearance — ${t(activeMode.label)} · ${t(activeFamily.label)}`}
           className="flex h-full items-center border-l border-line/70 px-1.5 text-text-faint transition-colors duration-200 hover:bg-ink-700/60 hover:text-text-primary"
         >

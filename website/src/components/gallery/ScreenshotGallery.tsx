@@ -106,10 +106,7 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
       </div>
 
       <p className="mt-5 text-xs leading-relaxed text-text-faint font-medium">
-        {visible.length} {visible.length === 1 ? "screen" : "screens"}. Cards carrying a photograph are real assets
-        either captured from the application or shipped inside it. Every other card draws the application&apos;s window
-        chrome around a working, interactive preview of that module with sample data — labelled as a preview, never
-        dressed up as a capture.
+        {t.template`${visible.length} ${visible.length === 1 ? "screen" : "screens"}. Cards carrying a photograph are real assets either captured from the application or shipped inside it. Every other card draws the application's window chrome around a working, interactive preview of that module with sample data — labelled as a preview, never dressed up as a capture.`}
       </p>
 
       <ul className="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -263,7 +260,7 @@ function Lightbox({
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label={`${t(shot.title)} — larger view`}
+      aria-label={t.template`${t(shot.title)} — larger view`}
       onKeyDown={onKeyDown}
       className="animate-fade-in fixed inset-0 z-[60] flex flex-col"
     >

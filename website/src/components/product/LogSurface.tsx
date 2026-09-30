@@ -188,7 +188,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
                   key={name}
                   active={section === name}
                   onClick={() => setSection(name)}
-                  title={count > 0 ? `${count} entries in this sample` : "No entries in this sample"}
+                  title={count > 0 ? t.template`${count} entries in this sample` : "No entries in this sample"}
                   muted={count === 0}
                 >
                   {name}
@@ -209,6 +209,16 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
         </label>
       </div>
 
+      {/*
+        `translate="no"` on the table marks its rows as records rather than copy.
+        Every entry is a line the application itself wrote — a session id, a
+        document number, a correlation id — and the product's log output is
+        English in every installation, so a translated one would be a mock-up of
+        something that does not exist. The caption, the column headings and the
+        controls around it are the site's own copy and are translated as usual;
+        the marker also tells a browser translator to leave the rows alone rather
+        than half-translate a log.
+      */}
       {/* ── the terminal ─────────────────────────────────────────────── */}
       <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-line/60 bg-ink-950/60">
         {ordered.length === 0 ? (
@@ -217,7 +227,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
             <p className="text-[0.75rem] text-text-faint font-medium">{logSurfaceStrings.emptyHint}</p>
           </div>
         ) : (
-          <table className="w-full min-w-[44rem] border-collapse text-left">
+          <table translate="no" className="w-full min-w-[44rem] border-collapse text-left">
             <caption className="sr-only">
               {t("The application log, newest first: time, level, module or function, and the entry itself.")}
             </caption>
@@ -291,11 +301,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
 
       {!compact ? (
         <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">
-          The log and the audit trail are two services, not one: `AppLogService` writes diagnostics — what the application did —
-          and `AuditService` writes business events — who changed which record, with the before and after of every field. The
-          seeded workflow is {seededDocuments.inquiry} → {seededDocuments.proforma} → {t(seededDocuments.job)} →{" "}
-          {seededDocuments.delivery} → {seededDocuments.invoice} for {seededDocuments.customer}, and those are the identifiers in
-          the rows above.
+          {t.template`The log and the audit trail are two services, not one: \`AppLogService\` writes diagnostics — what the application did — and \`AuditService\` writes business events — who changed which record, with the before and after of every field. The seeded workflow is ${seededDocuments.inquiry} → ${seededDocuments.proforma} → ${t(seededDocuments.job)} → ${seededDocuments.delivery} → ${seededDocuments.invoice} for ${seededDocuments.customer}, and those are the identifiers in the rows above.`}
         </p>
       ) : null}
     </div>

@@ -44,7 +44,11 @@ function safeHref(href: string | null | undefined): string | null {
  * item that is a single paragraph renders as the item's own text, and anything
  * else — a nested list, a code fence — is passed through the block renderer.
  */
-function inline(tokens: (InlineToken | Token)[] | undefined, keyPrefix: string): ReactNode[] {
+function inline(
+  tokens: (InlineToken | Token)[] | undefined,
+  keyPrefix: string,
+  t: Translator,
+): ReactNode[] {
   if (!tokens) return [];
 
   return tokens.map((token, index) => {
@@ -54,23 +58,32 @@ function inline(tokens: (InlineToken | Token)[] | undefined, keyPrefix: string):
       case "text": {
         const text = token as { text: string; tokens?: InlineToken[] };
         // A text token may itself carry nested inline tokens (a link inside bold).
-        if (text.tokens?.length) return <Fragment key={key}>{inline(text.tokens, key)}</Fragment>;
-        // Leaf text is returned as a string: no wrapper element is needed, and
-        // a post body should not add markup the author did not write.
-        return text.text;
+        if (text.tokens?.length) return <Fragment key={key}>{inline(text.tokens, key, t)}</Fragment>;
+        /*
+         * Leaf text goes through the dictionary. The extractor walks the same
+         * token tree with the same tokenizer, so every run rendered here has a
+         * key — a paragraph split by a code span or a bold phrase arrives as two
+         * runs, and both are keys rather than one sentence no dictionary can
+         * reach.
+         *
+         * A run with nothing to translate (`" "`, `"."`, a number) comes back
+         * unchanged: the dictionary has no entry for it and `t` returns what it
+         * was given.
+         */
+        return t(text.text);
       }
       case "escape":
         return (token as { text: string }).text;
       case "strong":
         return (
           <strong key={key} className="font-semibold text-text-primary">
-            {inline((token as { tokens: InlineToken[] }).tokens, key)}
+            {inline((token as { tokens: InlineToken[] }).tokens, key, t)}
           </strong>
         );
       case "em":
-        return <em key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key)}</em>;
+        return <em key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key, t)}</em>;
       case "del":
-        return <del key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key)}</del>;
+        return <del key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key, t)}</del>;
       case "codespan":
         return (
           <code key={key} className="rounded bg-ink-850 px-1.5 py-0.5 font-mono text-[0.85em] text-brand-100">
@@ -82,7 +95,7 @@ function inline(tokens: (InlineToken | Token)[] | undefined, keyPrefix: string):
       case "link": {
         const link = token as { href: string; tokens: InlineToken[] };
         const href = safeHref(link.href);
-        const label = inline(link.tokens, key);
+        const label = inline(link.tokens, key, t);
         if (!href) return <span key={key}>{label}</span>;
 
         const external = /^https?:\/\//i.test(href);
@@ -108,11 +121,13 @@ function inline(tokens: (InlineToken | Token)[] | undefined, keyPrefix: string):
       default: {
         // A block token in an inline position: unwrap its inline children.
         if ("tokens" in token && Array.isArray((token as { tokens?: unknown }).tokens)) {
-          return <Fragment key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key)}</Fragment>;
+          return (
+            <Fragment key={key}>{inline((token as { tokens: InlineToken[] }).tokens, key, t)}</Fragment>
+          );
         }
         // Anything else unhandled still shows its text rather than vanishing.
         const fallback = "text" in token ? String((token as { text?: string }).text ?? "") : "";
-        return fallback ? fallback : null;
+        return fallback ? t(fallback) : null;
       }
     }
   });
@@ -156,6 +171,7 @@ function ListBlock({
             {inline(
               item.tokens.filter((inner): inner is Extract<Token, { type: "paragraph" }> => inner.type === "paragraph"),
               `${keyPrefix}-${index}`,
+              t,
             )}
           </span>
           {item.tokens
@@ -174,7 +190,15 @@ function ListBlock({
   );
 }
 
-function TableBlock({ token, keyPrefix }: { token: { header: TableCell[]; rows: TableCell[][] }; keyPrefix: string }) {
+function TableBlock({
+  t,
+  token,
+  keyPrefix,
+}: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
+  token: { header: TableCell[]; rows: TableCell[][] }; keyPrefix: string
+}) {
   return (
     <div className="mb-6 overflow-x-auto">
       <table className="w-full min-w-[34rem] border-collapse text-sm">
@@ -186,7 +210,7 @@ function TableBlock({ token, keyPrefix }: { token: { header: TableCell[]; rows: 
                 scope="col"
                 className="px-3 py-2.5 font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium"
               >
-                {inline(cell.tokens, `${keyPrefix}-h-${index}`)}
+                {inline(cell.tokens, `${keyPrefix}-h-${index}`, t)}
               </th>
             ))}
           </tr>
@@ -196,7 +220,7 @@ function TableBlock({ token, keyPrefix }: { token: { header: TableCell[]; rows: 
             <tr key={`${keyPrefix}-r-${rowIndex}`} className="border-b border-line/40 last:border-0">
               {row.map((cell, cellIndex) => (
                 <td key={`${keyPrefix}-r-${rowIndex}-${cellIndex}`} className="px-3 py-2.5 text-text-secondary">
-                  {inline(cell.tokens, `${keyPrefix}-r-${rowIndex}-${cellIndex}`)}
+                  {inline(cell.tokens, `${keyPrefix}-r-${rowIndex}-${cellIndex}`, t)}
                 </td>
               ))}
             </tr>
@@ -232,7 +256,7 @@ export function PostBlock({
             level === 4 && "text-base",
           )}
         >
-          {inline(heading.tokens, keyPrefix)}
+          {inline(heading.tokens, keyPrefix, t)}
         </Tag>
       );
     }
@@ -241,7 +265,7 @@ export function PostBlock({
       const paragraph = token as { tokens: InlineToken[] };
       return (
         <p className="mb-4 text-base leading-relaxed text-text-secondary">
-          {inline(paragraph.tokens, keyPrefix)}
+          {inline(paragraph.tokens, keyPrefix, t)}
         </p>
       );
     }
@@ -250,7 +274,13 @@ export function PostBlock({
       return <ListBlock t={t} token={token as { ordered: boolean; items: ListItem[] }} keyPrefix={keyPrefix} />;
 
     case "table":
-      return <TableBlock token={token as { header: TableCell[]; rows: TableCell[][] }} keyPrefix={keyPrefix} />;
+      return (
+        <TableBlock
+          t={t}
+          token={token as { header: TableCell[]; rows: TableCell[][] }}
+          keyPrefix={keyPrefix}
+        />
+      );
 
     case "blockquote": {
       const quote = token as { tokens: Token[] };

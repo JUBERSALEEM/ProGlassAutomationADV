@@ -563,11 +563,12 @@ function PlateButton({
   onClick: () => void;
   onDark: boolean;
 }) {
+  const t = useT();
   return (
     <button
       type="button"
       aria-pressed={active}
-      aria-label={`${label} colour plate`}
+      aria-label={t.template`${label} colour plate`}
       title={label}
       onClick={onClick}
       className={cn(
@@ -590,6 +591,7 @@ function ColourPlate({
   value: string;
   onChange: (value: string) => void;
 }) {
+  const t = useT();
   return (
     <div className="rounded-card border-2 border-line-strong/70 p-2">
       <p className="text-[0.75rem] font-bold text-text-primary">{label}</p>
@@ -597,7 +599,7 @@ function ColourPlate({
         <input
           type="color"
           value={value}
-          aria-label={`${label} amount colour`}
+          aria-label={t.template`${label} amount colour`}
           onChange={(event) => onChange(event.target.value)}
           className="h-7 w-9 shrink-0"
         />

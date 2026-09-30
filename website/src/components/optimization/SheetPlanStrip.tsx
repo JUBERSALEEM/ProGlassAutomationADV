@@ -37,10 +37,7 @@ export function SheetPlanStrip() {
       <div className="surface mt-4 flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
           <p className="text-sm leading-relaxed text-text-secondary">
-            {planTotals.pieces} pieces need{" "}
-            <strong className="font-semibold text-text-primary">{planTotals.plates} plates</strong> {t("at this size —")}—{" "}
-            {planTotals.usedSqm} m² of the {planTotals.stockSqm} m² the job draws from stock, the rest returning to the
-            racks as offcut.
+            {t.template`${planTotals.pieces} pieces need ${planTotals.plates} plates at this size — ${planTotals.usedSqm} m² of the ${planTotals.stockSqm} m² the job draws from stock, the rest returning to the racks as offcut.`}
           </p>
           <p className="mt-2 text-xs font-medium leading-relaxed text-text-faint">{t("{v1}every boundary is a cut the table can make. It illustrates how a job spreads across stock; it is not a result from the engine, which searches five families and six plate patterns, and the site quotes no yield figure for it because the repository contains none.", { v1: t("Plates arranged by a two-way guillotine split — each leftover rectangle divided by one straight cut, so") })}</p>
         </div>

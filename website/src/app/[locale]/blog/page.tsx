@@ -55,7 +55,7 @@ export default async function BlogPage({ params }: PageProps) {
           { label: t("Blog"), href: "/blog" },
         ]}
         meta={[
-          { label: t("Notes"), value: `${posts.length} published` },
+          { label: t("Notes"), value: t("{count} published", { count: posts.length }) },
           { label: t("Categories"), value: t("Industry · Engineering · Product") },
           { label: t("Written by"), value: t("The developer") },
           { label: t("Also"), value: t("Guides under Resources") },
@@ -88,7 +88,7 @@ export default async function BlogPage({ params }: PageProps) {
                     {new Date(lead.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                   </time>
                   <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
-                    {lead.readingMinutes} min read
+                    {t("{minutes} min read", { minutes: lead.readingMinutes })}
                   </span>
                 </div>
                 <h2 className="mt-5 text-2xl leading-tight transition-colors group-hover:text-brand-200 sm:text-3xl">
@@ -136,7 +136,7 @@ export default async function BlogPage({ params }: PageProps) {
                       {t("Read the note")} <ArrowRight />
                     </span>
                     <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
-                      {post.readingMinutes} min
+                      {t("{minutes} min", { minutes: post.readingMinutes })}
                     </span>
                   </div>
                 </Link>

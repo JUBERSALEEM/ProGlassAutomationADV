@@ -79,7 +79,7 @@ export default async function TermsPage({ params }: PageProps) {
           },
           {
             heading: "Contact",
-            paragraphs: [`Questions about these terms can be sent to ${site.developerEmail}.`],
+            paragraphs: [t.template`Questions about these terms can be sent to ${site.developerEmail}.`],
           },
         ]}
       />

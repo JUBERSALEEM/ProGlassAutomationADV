@@ -56,7 +56,7 @@ export const businessChain: ChainStage[] = [
     index: "03",
     name: "Job Order",
     moduleKey: "JobOrder",
-    statuses: ["InProduction", "Completed", "Delivered", "Approved"],
+    statuses: ["In Production", "Completed", "Delivered", "Approved"],
     summary: "The confirmed quotation becomes factory work, carrying priority and production status.",
     handoff: "Pending pieces → the delivery note",
     guarantee:

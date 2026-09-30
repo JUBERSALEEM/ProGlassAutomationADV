@@ -120,17 +120,17 @@ export default async function BlogPostPage({ params }: PageProps) {
                   {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                 </time>
                 <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
-                  {post.readingMinutes} min read
+                  {t("{minutes} min read", { minutes: post.readingMinutes })}
                 </span>
               </div>
               <h1 className="mt-5 text-[1.9rem] leading-[1.12] sm:text-[2.4rem]">{t(post.title)}</h1>
               <p className="lede mt-5">{t(post.summary)}</p>
               <p className="mt-6 text-xs text-text-faint font-medium">
-{t("Written by")}y{" "}
+{t("Written by")}{" "}
                 <Link href="/developer" className="link-underline">
                   {site.developerName}
                 </Link>
-                , developer of {t(site.name)}.
+                {t(", developer of {site}.", { site: t(site.name) })}
               </p>
             </div>
           </Container>
@@ -184,7 +184,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                     <div className="flex items-center gap-3">
                       <Badge>{t(other.category)}</Badge>
                       <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
-                        {other.readingMinutes} min
+                        {t("{minutes} min", { minutes: other.readingMinutes })}
                       </span>
                     </div>
                     <h3 className="mt-4 text-base font-semibold text-text-primary transition-colors group-hover:text-brand-200">

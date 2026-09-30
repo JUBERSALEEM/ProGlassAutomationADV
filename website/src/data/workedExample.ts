@@ -22,6 +22,8 @@
  *      time, that turns silent drift into a failed build.
  */
 
+import { text } from "@/i18n/core";
+
 import {
   billablePanelSqm,
   isFloored,
@@ -392,7 +394,7 @@ export const ruleLights = [
     heightMm: 1800,
     qty: 3,
     rate: 245,
-    note: `4.32 m² of glass, past the ${SURCHARGE_THRESHOLD_SQM} m² switch on the panel itself.`,
+    note: text`4.32 m² of glass, past the ${SURCHARGE_THRESHOLD_SQM} m² switch on the panel itself.`,
   },
 ] as const;
 

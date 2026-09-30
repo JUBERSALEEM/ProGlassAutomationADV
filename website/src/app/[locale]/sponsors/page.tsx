@@ -103,7 +103,7 @@ export default async function SponsorsPage({ params }: PageProps) {
                 <StatCounter
                   value={site.testCount}
                   label={t("Test methods")}
-                  hint={`Across ${site.testFiles} files; invariants, not getters.`}
+                  hint={t.template`Across ${site.testFiles} files; invariants, not getters.`}
                 />
                 <StatBadge
                   value="One"
@@ -226,7 +226,7 @@ export default async function SponsorsPage({ params }: PageProps) {
                 <div className="plate p-6 sm:p-7">
                   <p className="eyebrow">{t("Where to write")}</p>
                   <h3 className="mt-3 text-lg font-semibold text-text-primary">{t("One address, read by the person who writes the code.")}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("There is no sales team and no support queue between you and the developer. Mention &ldquo;sponsorship&rdquo; or the specific gap you are interested in, and the reply will come from {v1}.", { v1: site.developerName })}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("There is no sales team and no support queue between you and the developer. Mention “sponsorship” or the specific gap you are interested in, and the reply will come from {v1}.", { v1: site.developerName })}</p>
                   <Link
                     href={`mailto:${site.developerEmail}?subject=ProGlass%20Automation%20—%20sponsorship`}
                     className="mt-5 inline-flex items-center gap-3 rounded-card border border-line-strong/70 bg-ink-950/60 px-4 py-3 font-mono text-sm text-text-primary transition-colors duration-200 hover:border-brand-400/50"

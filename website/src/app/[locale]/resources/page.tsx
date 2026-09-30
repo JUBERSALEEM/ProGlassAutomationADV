@@ -51,7 +51,7 @@ export default async function ResourcesPage({ params }: PageProps) {
         ]}
         meta={[
           { label: t("Guides"), value: `${guides.length}` },
-          { label: t("Notes"), value: `${posts.length} in the blog` },
+          { label: t("Notes"), value: t.template`${posts.length} in the blog` },
           { label: t("Categories"), value: `${resourceCategories.length}` },
           { label: t("Written from"), value: t("The product's own vocabulary") },
         ]}
@@ -107,7 +107,7 @@ export default async function ResourcesPage({ params }: PageProps) {
                     <div className="flex flex-wrap items-center gap-3">
                       <Badge tone="accent">{t(guide.category)}</Badge>
                       <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
-                        {guide.readingMinutes} min read
+                        {t("{minutes} min read", { minutes: guide.readingMinutes })}
                       </span>
                     </div>
                     <h3 className="mt-4 text-xl font-semibold text-text-primary sm:text-2xl">{t(guide.title)}</h3>
@@ -166,7 +166,7 @@ export default async function ResourcesPage({ params }: PageProps) {
                   <div className="flex items-center gap-3">
                     <Badge>{t(post.category)}</Badge>
                     <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
-                      {post.readingMinutes} min
+                      {t("{minutes} min", { minutes: post.readingMinutes })}
                     </span>
                   </div>
                   <h3 className="mt-4 text-base font-semibold text-text-primary transition-colors group-hover:text-brand-200">

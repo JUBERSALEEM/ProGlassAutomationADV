@@ -280,12 +280,11 @@ export default async function PricingPage({ params }: PageProps) {
               <div>
                 <p className="eyebrow">{t("Before you ask for a number")}</p>
                 <p className="mt-3 max-w-3xl text-sm leading-relaxed text-text-secondary">
-{t("Editions are priced by what a business needs, so there is nothing to publish as a list. What can be shown is a job: the")}e{" "}
+{t("Editions are priced by what a business needs, so there is nothing to publish as a list. What can be shown is a job: the")}{" "}
                   <Link href="/worked-example" className="link-underline text-brand-200">
                     worked example
                   </Link>{" "}
-                  runs one seeded job end to end — 22 quotation lines, a partial delivery and the tax invoice raised from
-                  it — so you can see what an edition actually carries before deciding which one fits.
+                  {t("runs one seeded job end to end — 22 quotation lines, a partial delivery and the tax invoice raised from it — so you can see what an edition actually carries before deciding which one fits.")}
                 </p>
               </div>
               <ButtonLink href="/worked-example" variant="secondary" size="sm" trailing={<ArrowRight />}>

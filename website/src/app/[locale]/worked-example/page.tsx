@@ -208,7 +208,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           </ol>
 
           <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">
-            Number patterns as the seeder builds them: {seededDocuments.map((document) => document.pattern).join(" · ")}.
+            {t.template`Number patterns as the seeder builds them: ${seededDocuments.map((document) => document.pattern).join(" · ")}.`}
           </p>
         </Container>
       </Section>
@@ -235,11 +235,14 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             rather than being left to guess.
           */}
           <p className="mt-5 text-xs leading-relaxed text-text-muted">
-            <span className="font-mono text-text-faint">#</span> is the line&rsquo;s Sr No — the serial the application
-            stores on every cutting line, and the number the grid sorts by.{" "}
-            <span className="font-mono text-text-faint">{t("TOTAL SQM")}</span> is SQM × QTY. A{" "}
-            <span className="font-mono text-text-faint">—</span> in W2 or H2 means the line has no second pane: the
-            application stores <span className="font-mono text-text-faint">0</span>{t("in those cells for single glazing, while a double-glazed line carries both pairs — and in this seeded job the two panes are cut to the same size.")}</p>
+            <span className="font-mono text-text-faint">#</span>{" "}
+            {t("is the line’s Sr No — the serial the application stores on every cutting line, and the number the grid sorts by.")}{" "}
+            <span className="font-mono text-text-faint">{t("TOTAL SQM")}</span>{" "}
+            {t("is SQM × QTY. A")}{" "}
+            <span className="font-mono text-text-faint">—</span>{" "}
+            {t("in W2 or H2 means the line has no second pane: the application stores")}{" "}
+            <span className="font-mono text-text-faint">0</span>
+            {t("in those cells for single glazing, while a double-glazed line carries both pairs — and in this seeded job the two panes are cut to the same size.")}</p>
 
           <div className="mt-6 flex flex-wrap gap-2">
             {groupTotals.map((group) => (
@@ -386,7 +389,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                               {billablePieceArea(line) > pieceArea(line) ? (
                                 <span
                                   className="ml-1.5 rounded-full border border-brand-400/45 bg-brand-400/12 px-1.5 py-px font-mono text-2xs text-brand-100"
-                                  title={`${plain(pieceArea(line))} m² of glass, billed at the ${MIN_PANEL_SQM} m² floor`}
+                                  title={t.template`${plain(pieceArea(line))} m² of glass, billed at the ${MIN_PANEL_SQM} m² floor`}
                                 >
                                   floor
                                 </span>
@@ -486,28 +489,27 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                     <li className="flex gap-3">
                       <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
                       <span>
-                        The most expensive line is not the largest quantity. {groupTotals[2]!.name.split(" — ")[0]} runs{" "}
-                        {groupTotals[2]!.lines} lines for {groupTotals[2]!.pieces} pieces, but at AED{" "}
-                        {aed(seedSpecGroups[2]!.baseRate)}/m² it is worth AED {aed(groupTotals[2]!.subtotal)} — more than
-                        the tinted group, which has more lines and more pieces.
+                        {t(
+                          "The most expensive line is not the largest quantity. {group} runs {lines} lines for {pieces} pieces, but at AED {rate}/m² it is worth AED {value} — more than the tinted group, which has more lines and more pieces.",
+                          {
+                            group: groupTotals[2]!.name.split(" — ")[0] ?? groupTotals[2]!.name,
+                            lines: groupTotals[2]!.lines,
+                            pieces: groupTotals[2]!.pieces,
+                            rate: aed(seedSpecGroups[2]!.baseRate),
+                            value: aed(groupTotals[2]!.subtotal),
+                          },
+                        )}
                       </span>
                     </li>
                     <li className="flex gap-3">
                       <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
                       <span>
-{t("A double-glazed line weighs twice its glass plus the cavity. The heaviest piece in the job is")}s{" "}
                         {(() => {
                           const heaviest = seedSpecGroups
                             .flatMap((group) => group.lines)
                             .reduce((best, line) => (pieceWeight(line) > pieceWeight(best) ? line : best));
-                          return (
-                            <>
-                              {heaviest.ref} at {plain(pieceWeight(heaviest), 1)} kg —{" "}
-                              {plain(pieceArea(heaviest))} m² of 24 mm nominal build-up
-                            </>
-                          );
+                          return t.template`A double-glazed line weighs twice its glass plus the cavity. The heaviest piece in the job is ${heaviest.ref} at ${plain(pieceWeight(heaviest), 1)} kg — ${plain(pieceArea(heaviest))} m² of 24 mm nominal build-up. Batch 1 alone is ${plain(batchOneWeightKg, 1)} kg on the truck.`;
                         })()}
-                        . Batch 1 alone is {plain(batchOneWeightKg, 1)} kg on the truck.
                       </span>
                     </li>
                     <li className="flex gap-3">
@@ -632,11 +634,15 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                     </div>
                   </dl>
                   <p className="mt-5 text-xs leading-relaxed text-text-faint font-medium">
-                    {seededDocuments[4]!.example} is raised from the dispatched quantity only. The balance of{" "}
-                    {balancePieces} pieces stays on the job order and is not billed on this invoice, and the{" "}
-                    {deliveredTotals.lines} lines it does bill are carried at their own{" "}
-                    {new Set(seedSpecGroups[0]!.lines.map((line) => line.rate)).size} rates straight off the proforma —
-                    none of them recalculated for the delivery.
+                    {t(
+                      "{document} is raised from the dispatched quantity only. The balance of {balance} pieces stays on the job order and is not billed on this invoice, and the {lines} lines it does bill are carried at their own {rates} rates straight off the proforma — none of them recalculated for the delivery.",
+                      {
+                        document: seededDocuments[4]!.example,
+                        balance: balancePieces,
+                        lines: deliveredTotals.lines,
+                        rates: new Set(seedSpecGroups[0]!.lines.map((line) => line.rate)).size,
+                      },
+                    )}
                   </p>
                 </div>
 
@@ -770,10 +776,17 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   <p className="eyebrow">{t("One item is already low")}</p>
                   {reorderAlerts.map((item) => (
                     <p key={item.partNumber} className="mt-3 text-sm leading-relaxed text-text-muted">
-                      <span className="font-mono text-text-secondary">{item.partNumber}</span> — {t(item.name)},{" "}
-                      {t(item.specification)}: {item.stock - item.used} {item.uom.toLowerCase()}
-                      {item.stock - item.used === 1 ? "" : "s"} available against a reorder level of{" "}
-                      {item.reorderLevel}. The store reports it without anyone having to go and count.
+                      {t(
+                        "{part} — {name}, {specification}: {available} {uom} available against a reorder level of {reorder}. The store reports it without anyone having to go and count.",
+                        {
+                          part: item.partNumber,
+                          name: t(item.name),
+                          specification: t(item.specification),
+                          available: item.stock - item.used,
+                          uom: item.uom.toLowerCase(),
+                          reorder: item.reorderLevel,
+                        },
+                      )}
                     </p>
                   ))}
                   <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("The other nine are above their reorder level, so only this one raises a flag — which is what a store report is for.")}</p>
@@ -874,8 +887,8 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                         </td>
                         <td className="px-4 py-3 text-xs text-text-muted">
                           {priced.floored
-                            ? `Minimum area · ${MIN_PANEL_SQM} m² · rate unchanged`
-                            : `Large-panel rate · +${STANDARD_SURCHARGE_PERCENT}% at ${SURCHARGE_THRESHOLD_SQM} m²`}
+                            ? t.template`Minimum area · ${MIN_PANEL_SQM} m² · rate unchanged`
+                            : t.template`Large-panel rate · +${STANDARD_SURCHARGE_PERCENT}% at ${SURCHARGE_THRESHOLD_SQM} m²`}
                         </td>
                         <td className="px-4 py-3 text-right font-mono text-xs text-text-muted tabular-nums">{aed(priced.baseRate)}</td>
                         <td
@@ -966,19 +979,19 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             {[
               {
                 title: t("The same data, six times"),
-                body: `One job appears as ${seededDocuments[0]!.example}, ${seededDocuments[1]!.example}, ${seededDocuments[2]!.example}, ${seededDocuments[3]!.example} and ${seededDocuments[4]!.example} — and the customer, project and specification are not retyped at any of them.`,
+                body: t.template`One job appears as ${seededDocuments[0]!.example}, ${seededDocuments[1]!.example}, ${seededDocuments[2]!.example}, ${seededDocuments[3]!.example} and ${seededDocuments[4]!.example} — and the customer, project and specification are not retyped at any of them.`,
               },
               {
                 title: t("Pricing carries its basis"),
-                body: `Each of the ${quotationTotals.lines} lines keeps its reference, size, rate and the group it was priced in. Change a rate and the line value, the group subtotal and the total all follow from it.`,
+                body: t.template`Each of the ${quotationTotals.lines} lines keeps its reference, size, rate and the group it was priced in. Change a rate and the line value, the group subtotal and the total all follow from it.`,
               },
               {
                 title: t("Partial is a first-class state"),
-                body: `Forty-five pieces dispatched against ${quotationTotals.pieces} ordered is recorded as a balance of ${balancePieces} on the job, not as a discrepancy someone has to notice later.`,
+                body: t.template`Forty-five pieces dispatched against ${quotationTotals.pieces} ordered is recorded as a balance of ${balancePieces} on the job, not as a discrepancy someone has to notice later.`,
               },
               {
                 title: t("Money rounds in one place"),
-                body: `Every value here went through the same two-decimal, half-away-from-zero rule, and VAT through the one calculator — with the totals verified against the seeder at build time.`,
+                body: t("Every value here went through the same two-decimal, half-away-from-zero rule, and VAT through the one calculator — with the totals verified against the seeder at build time."),
               },
               {
                 title: t("Stock and job are connected"),

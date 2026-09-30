@@ -73,7 +73,7 @@ export default async function PrivacyPage({ params }: PageProps) {
           {
             heading: "Contact",
             paragraphs: [
-              `Questions about this page, or a request to delete a demo request you sent, can be sent to ${site.developerEmail}.`,
+              t.template`Questions about this page, or a request to delete a demo request you sent, can be sent to ${site.developerEmail}.`,
             ],
           },
         ]}

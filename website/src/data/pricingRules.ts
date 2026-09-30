@@ -50,6 +50,8 @@
  * and the banner cannot drift apart.
  */
 
+import { text } from "@/i18n/core";
+
 /** `SqmCalculator.MinimumSqmPerPanel` — billable floor, in square metres. */
 export const MIN_PANEL_SQM = 0.5;
 
@@ -129,9 +131,9 @@ export const pricingRules = [
   {
     id: "large-panel-rate",
     label: "Large-panel rate",
-    value: `+${STANDARD_SURCHARGE_PERCENT}% at ${SURCHARGE_THRESHOLD_SQM} m² and above`,
-    headline: `A panel that reaches ${SURCHARGE_THRESHOLD_SQM} m² prices at base + ${STANDARD_SURCHARGE_PERCENT}%`,
-    body: `Step 5 re-prices a row the moment its billable area reaches ${SURCHARGE_THRESHOLD_SQM} m²: \`Sqm1 >= ${SURCHARGE_THRESHOLD_SQM} ? SurchargeRate : BaseRate\`. Oversize lites are the ones that break, that need two people and a crane, and that cut badly from a standard sheet, so the specification carries a SURCHARGE % beside its base rate and ${
+    value: text`+${STANDARD_SURCHARGE_PERCENT}% at ${SURCHARGE_THRESHOLD_SQM} m² and above`,
+    headline: text`A panel that reaches ${SURCHARGE_THRESHOLD_SQM} m² prices at base + ${STANDARD_SURCHARGE_PERCENT}%`,
+    body: text`Step 5 re-prices a row the moment its billable area reaches ${SURCHARGE_THRESHOLD_SQM} m²: \`Sqm1 >= ${SURCHARGE_THRESHOLD_SQM} ? SurchargeRate : BaseRate\`. Oversize lites are the ones that break, that need two people and a crane, and that cut badly from a standard sheet, so the specification carries a SURCHARGE % beside its base rate and ${
       STANDARD_SURCHARGE_PERCENT
     }% is the shop's standard for it. Only the rows that reach the size change — the rest of the specification stays at base — and if somebody types a rate over by hand the application leaves it alone.`,
     evidence: "SpecGroup.Part2.cs / Part3.cs · row.Sqm1 >= 4m ? SurchargeRate : BaseRate · Dg.SurchargePct",

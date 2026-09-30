@@ -44,6 +44,41 @@ export type AppStrings = Record<string, string | undefined>;
 export type Vars = Record<string, string | number>;
 
 /**
+ * A sentence written in a data file, with the values already known.
+ *
+ * The site's copy lives in two places. Components call `t()` and can use the
+ * tagged form for a sentence with a value inside it; data files — a pricing
+ * rule, a worked example, a module's own description — have no translator in
+ * scope, so they used to splice their values with a template literal and hand
+ * the *finished* English sentence to `t()`. That cannot be translated: the key
+ * changes with the numbers, so a dictionary would need one entry per value.
+ *
+ * `text` is the data-file half of the same idea. It builds the key and keeps
+ * the values:
+ *
+ *     value: text`+${SURCHARGE}% at ${THRESHOLD} m² and above`
+ *
+ * `t()` accepts the result directly, so the call site does not change:
+ *
+ *     {t(rule.value)}
+ *
+ * The dictionary holds `+{v0}% at {v1} m² and above`, and the numbers are put
+ * back in the language's own word order.
+ */
+export type DataText = { key: string; vars: Vars };
+
+export function text(strings: TemplateStringsArray, ...values: (string | number)[]): DataText {
+  let key = strings[0] ?? "";
+  const vars: Vars = {};
+  for (let index = 0; index < values.length; index += 1) {
+    const name = `v${index}`;
+    vars[name] = values[index] ?? "";
+    key += `{${name}}` + (strings[index + 1] ?? "");
+  }
+  return { key, vars };
+}
+
+/**
  * Substitute `{name}` placeholders.
  *
  * Written by hand rather than with a `replace` per variable so that a brace in
@@ -72,7 +107,28 @@ export function fill(template: string, vars?: Vars): string {
 }
 
 export type Translator = {
-  (key: string, vars?: Vars): string;
+  (key: string | DataText, vars?: Vars): string;
+  /**
+   * Translate a sentence that carries values inside it.
+   *
+   * A value spliced into a sentence — `` `No row here is under the ${floor} m²
+   * floor.` `` — renders as two or three separate text nodes, which means no
+   * dictionary can hold the sentence: the translator only ever sees the
+   * fragments around the value, and a language that orders its clauses
+   * differently cannot reorder fragments it never sees together.
+   *
+   * Used as a tag, this keeps the sentence whole. The tagged template builds
+   * the same key `t()` would — values replaced by `{v0}`, `{v1}`, in order —
+   * looks that up, and puts the values back into the translated sentence:
+   *
+   *     t.template`Showing the ${range} period.`
+   *
+   * The key is positional rather than named because the expression is already
+   * evaluated when this runs: `{count}` and `{item.stock}` are values, not
+   * names, and a name guessed from the source would be a key the extractor
+   * could not reproduce.
+   */
+  template: (strings: TemplateStringsArray, ...values: (string | number)[]) => string;
   /** The language this translator speaks. */
   locale: Locale;
   /** True when the sentence has a translation in this language. */
@@ -87,15 +143,31 @@ export type Translator = {
  * both are optional, and neither is required to be complete.
  */
 export function makeTranslator(locale: Locale, overlay: Overlay = {}, app: AppStrings = {}): Translator {
-  const translate = (key: string, vars?: Vars): string => {
+  const translate = (input: string | DataText, vars?: Vars): string => {
+    const key = typeof input === "string" ? input : input.key;
+    const values = typeof input === "string" ? vars : { ...input.vars, ...vars };
     const hit = overlay[key] ?? app[key];
     const text = typeof hit === "string" && hit.length > 0 ? hit : key;
-    return vars ? fill(text, vars) : text;
+    return values ? fill(text, values) : text;
+  };
+
+  /* The tagged-template form — see the note on `Translator.template`. */
+  const template = (strings: TemplateStringsArray, ...values: (string | number)[]): string => {
+    let key = strings[0] ?? "";
+    const vars: Vars = {};
+    for (let index = 0; index < values.length; index += 1) {
+      const name = `v${index}`;
+      vars[name] = values[index] ?? "";
+      key += `{${name}}` + (strings[index + 1] ?? "");
+    }
+    return translate(key, vars);
   };
   return Object.assign(translate, {
+    template,
     locale,
-    has: (key: string) => {
-      const hit = overlay[key] ?? app[key];
+    has: (key: string | DataText) => {
+      const name = typeof key === "string" ? key : key.key;
+      const hit = overlay[name] ?? app[name];
       return typeof hit === "string" && hit.length > 0;
     },
   });

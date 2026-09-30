@@ -204,7 +204,7 @@ export function ProductHero({ t }: { t: Translator }) {
                 line, so anything placed over the picture covers something that
                 was drawn deliberately. */}
             <figcaption className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-line/60 px-5 py-3 sm:px-8">
-              <span className="mono-label">{t("README_ASSETS/hero.png · drawn from the application&rsquo;s own data")}</span>
+              <span className="mono-label">{t("README_ASSETS/hero.png · drawn from the application’s own data")}</span>
               <span className="text-xs text-text-faint font-medium">
                 {t("Overview dashboard · {version} · sample data, labelled as such", { version: site.version })}
               </span>

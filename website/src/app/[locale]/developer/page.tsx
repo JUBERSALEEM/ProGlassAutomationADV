@@ -138,7 +138,7 @@ const faq = [
   {
     question: t("Who do I speak to if something is wrong?"),
     answer:
-      `The person who wrote it. A question about why the optimiser chose a particular plan, or a request to change how a charge row behaves, reaches the same inbox: ${site.developerEmail}.`,
+      t.template`The person who wrote it. A question about why the optimiser chose a particular plan, or a request to change how a charge row behaves, reaches the same inbox: ${site.developerEmail}.`,
   },
 ];
   const locale = t.locale;
@@ -208,7 +208,7 @@ const faq = [
           {t("Glass estimator · author of ProGlass Automation")}
         </p>
                 <p className="mt-2.5 font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
-                  Working from {site.developerLocation} · version {site.version}
+                  {t.template`Working from ${site.developerLocation} · version ${site.version}`}
                 </p>
               </div>
             </div>
@@ -423,13 +423,13 @@ const faq = [
             <StatCounter
               value={site.testCount}
               label={t("Test methods")}
-              hint={`Across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`}
+              hint={t.template`Across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`}
             />
             <StatBadge value={site.pattern} label="Architecture" hint={t("Views never contain business logic.")} />
             <StatBadge
               value={`${site.productionFiles.toLocaleString("en-GB")} files`}
               label={t("Production source")}
-              hint={`${site.productionLines.toLocaleString("en-GB")} lines outside obj/ and bin/, counted against the application tree.`}
+              hint={t.template`${site.productionLines.toLocaleString("en-GB")} lines outside obj/ and bin/, counted against the application tree.`}
             />
           </div>
         </Container>
