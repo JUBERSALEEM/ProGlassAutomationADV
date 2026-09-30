@@ -151,10 +151,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
           {refusal}
         </p>
       ) : released ? (
-        <p aria-live="polite" className="rounded-lg border border-brand-400/35 bg-brand-400/8 px-2.5 py-1.5 text-[0.75rem] font-medium leading-snug text-brand-100">
-          Released {released} to the floor. Work items were distributed across the eight stages from the proforma&apos;s own
-          Step 5 sizes and Step 6 charges. Releasing again is idempotent — it will not duplicate work already on the floor.
-        </p>
+        <p aria-live="polite" className="rounded-lg border border-brand-400/35 bg-brand-400/8 px-2.5 py-1.5 text-[0.75rem] font-medium leading-snug text-brand-100">{t("Released {v1} to the floor. Work items were distributed across the eight stages from the proforma's own Step 5 sizes and Step 6 charges. Releasing again is idempotent — it will not duplicate work already on the floor.", { v1: released })}</p>
       ) : null}
 
       {/* ── KPI STRIP ──────────────────────────────────────────────────── */}
@@ -196,18 +193,13 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
             {t("waiting upstream · {length}", { length: waiting.length })}
           </span>
         ) : null}
-        <span className="ml-auto font-mono text-[0.6875rem] tabular-nums text-text-faint font-medium">
-          {visible.length} of {rows.length} rows · grid shows 100 at a time
-        </span>
+        <span className="ml-auto font-mono text-[0.6875rem] tabular-nums text-text-faint font-medium">{t("{v1} of {v2} rows · grid shows 100 at a time", { v1: visible.length, v2: rows.length })}</span>
       </div>
 
       {/* ── THE GRID ───────────────────────────────────────────────────── */}
       <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-line/60 bg-ink-950/50">
         <table className="w-full min-w-[46rem] border-collapse text-left">
-          <caption className="sr-only">
-            {current} stage queue — {rows.length} work items for the seeded job, with the pieces that arrived, the pieces
-            recorded done and the balance.
-          </caption>
+          <caption className="sr-only">{t("{v1} stage queue — {v2} work items for the seeded job, with the pieces that arrived, the pieces recorded done and the balance.", { v1: current, v2: rows.length })}</caption>
           <thead className="sticky top-0 z-10 bg-ink-900/95 backdrop-blur">
             <tr className="border-b border-line/60">
               {columns.map((column) => (

@@ -153,10 +153,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             </div>
 
             <div className="mx-auto mt-12 max-w-prose border-t border-line/60 pt-8">
-              <p className="text-sm leading-relaxed text-text-muted">
-                If this raised a question about how the software handles something specific, ask it directly — you are
-                writing to the person who builds it.
-              </p>
+              <p className="text-sm leading-relaxed text-text-muted">{t("If this raised a question about how the software handles something specific, ask it directly — you are writing to the person who builds it.")}</p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <ButtonLink href="/contact" size="md" trailing={<ArrowRight />}>
           {t("Ask a question")}

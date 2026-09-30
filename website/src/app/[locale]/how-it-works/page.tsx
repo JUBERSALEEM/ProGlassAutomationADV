@@ -114,8 +114,8 @@ export default async function HowItWorksPage({ params }: PageProps) {
               <div className="surface mt-4 p-5">
                 <p className="eyebrow mb-3">{t("What the chain guarantees")}</p>
                 <ul className="space-y-2.5 text-xs leading-relaxed text-text-muted">
-                  <li>Documents are stored as snapshots, so editing a customer later does not rewrite an old invoice.</li>
-                  <li>Money is computed once, at proforma Step 9, and read back everywhere else.</li>
+                  <li>{t("Documents are stored as snapshots, so editing a customer later does not rewrite an old invoice.")}</li>
+                  <li>{t("Money is computed once, at proforma Step 9, and read back everywhere else.")}</li>
                   <li>{t("A status the build does not recognise passes through untouched rather than becoming something plausible.")}</li>
                 </ul>
               </div>
@@ -171,10 +171,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             ))}
           </div>
 
-          <p className="mt-6 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">
-            The left-hand descriptions are general practice, not a claim about any particular business, and no figures are
-            quoted for it. The right-hand column is limited to behaviour that exists in the application.
-          </p>
+          <p className="mt-6 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">{t("The left-hand descriptions are general practice, not a claim about any particular business, and no figures are quoted for it. The right-hand column is limited to behaviour that exists in the application.")}</p>
 
           <div className="surface mt-6 flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
@@ -216,10 +213,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                 ))}
               </ul>
 
-              <p className="mt-5 text-xs leading-relaxed text-text-faint font-medium">
-                The one write is adjusting a sheet-stock quantity, which requires the SheetStore.Edit permission and a
-                confirmation, and is recorded in the activity log. Over-issue is refused.
-              </p>
+              <p className="mt-5 text-xs leading-relaxed text-text-faint font-medium">{t("The one write is adjusting a sheet-stock quantity, which requires the SheetStore.Edit permission and a confirmation, and is recorded in the activity log. Over-issue is refused.")}</p>
             </div>
 
             <Reveal delay={80}>
@@ -354,10 +348,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
             <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("Walk the chain on your own job.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
-                  We will take one real quotation from inquiry through to statement, including the cutting plan and the
-                  margin it produced.
-                </p>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("We will take one real quotation from inquiry through to statement, including the cutting plan and the margin it produced.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>

@@ -1208,10 +1208,7 @@ export function SpecificationSurface({
       {/* ── the grid ───────────────────────────────────────────────────── */}
       <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-line/60 bg-ink-950/40">
         <table className="w-full min-w-[52rem] border-collapse text-left">
-          <caption className="sr-only">
-            Specification {block.number}, {t(block.name)}: one row per glass line, priced at the specification&apos;s rate, or at the
-            {t("surcharge rate once a panel reaches {SURCHARGE_THRESHOLD_SQM} square metres.", { SURCHARGE_THRESHOLD_SQM: SURCHARGE_THRESHOLD_SQM })}
-          </caption>
+          <caption className="sr-only">{t("Specification {v1}, {v2}: one row per glass line, priced at the specification's rate, or at the {v3}", { v1: block.number, v2: t(block.name), v3: t("surcharge rate once a panel reaches {SURCHARGE_THRESHOLD_SQM} square metres.", { SURCHARGE_THRESHOLD_SQM: SURCHARGE_THRESHOLD_SQM }) })}</caption>
           <thead className="sticky top-0 z-10 bg-ink-900/95 backdrop-blur">
             <tr className="border-b border-line/60">
               {["#", "Glass ref", "W1", "H1", "W2", "H2", "Qty", "Sqm", "Total sqm", "Rate", "Value", ""].map((heading, index) => (

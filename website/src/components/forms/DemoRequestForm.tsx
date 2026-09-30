@@ -147,7 +147,7 @@ export function DemoRequestForm() {
         cost a real visitor anything.
       */}
       <div aria-hidden="true" className="pointer-events-none absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="website">Website (leave this empty)</label>
+        <label htmlFor="website">{t("Website (leave this empty)")}</label>
         <input
           id="website"
           name="website"

@@ -63,7 +63,7 @@ export default async function OptimizationPage({ params }: PageProps) {
         title={
           <>
           {t("Turn stock plates into")}
-        <span className="block text-brand-300">a cutting plan the table can prove.</span>
+        <span className="block text-brand-300">{t("a cutting plan the table can prove.")}</span>
           </>
         }
         lead={t("A guillotine nesting engine built for glass: your safety edges, your blade gap, your stock racks and your cutting list. Every plan is checked by two independent oracles before it can be exported or become production work.")}
@@ -187,11 +187,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             </table>
           </div>
 
-          <p className="mt-5 max-w-3xl text-xs leading-relaxed text-text-faint font-medium">
-            The thick bucket is deliberately asymmetric: thick glass takes no trim on the top edge. The minimum breakout
-            is the narrowest offcut worth keeping — anything thinner is reported as trim waste rather than counted as
-            reusable stock.
-          </p>
+          <p className="mt-5 max-w-3xl text-xs leading-relaxed text-text-faint font-medium">{t("The thick bucket is deliberately asymmetric: thick glass takes no trim on the top edge. The minimum breakout is the narrowest offcut worth keeping — anything thinner is reported as trim waste rather than counted as reusable stock.")}</p>
         </Container>
       </Section>
 
@@ -236,11 +232,7 @@ export default async function OptimizationPage({ params }: PageProps) {
               <Badge tone="warning" className="shrink-0">
           {t("Laminate rule")}
         </Badge>
-              <p className="text-sm leading-relaxed text-text-muted">
-                Z and W trims are never cut into laminated stock. The plies are not hand-broken at the table, so a trim
-                cut would leave an unseparated edge. Refusing is the safe direction: a refused trim costs a little
-                yield, a trim cut into laminate costs the sheet.
-              </p>
+              <p className="text-sm leading-relaxed text-text-muted">{t("Z and W trims are never cut into laminated stock. The plies are not hand-broken at the table, so a trim cut would leave an unseparated edge. Refusing is the safe direction: a refused trim costs a little yield, a trim cut into laminate costs the sheet.")}</p>
             </div>
           </Reveal>
         </Container>
@@ -458,10 +450,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("Send us a cutting list.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
-                  A demonstration is most useful when it runs on your glass, your sheet sizes and your margins — not on a
-                  sample project. Bring a job you recognise.
-                </p>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration is most useful when it runs on your glass, your sheet sizes and your margins — not on a sample project. Bring a job you recognise.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>

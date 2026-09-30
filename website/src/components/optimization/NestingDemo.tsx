@@ -320,7 +320,7 @@ export function NestingDemo() {
               showResult ? "opacity-100" : "opacity-55",
             )}
           >
-            <p className="mono-label">Result · this example only</p>
+            <p className="mono-label">{t("Result · this example only")}</p>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
               <Metric label={t("Sheets")} value={String(exampleMetrics.sheets)} />
               <Metric label={t("Pieces")} value={String(exampleMetrics.pieces)} />

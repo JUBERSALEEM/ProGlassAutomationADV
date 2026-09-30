@@ -126,10 +126,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 <div className="surface p-5">
                   <p className="mono-label">{t("Source of every figure on this page")}</p>
                   <p className="mt-2 font-mono text-sm text-brand-200">{SEED_SOURCE}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                    Read the seeded records out of that file and you will find the customer, the project reference,
-                    each glass reference, each size, each rate, the sheet stock and the consumables reproduced below.
-                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Read the seeded records out of that file and you will find the customer, the project reference, each glass reference, each size, each rate, the sheet stock and the consumables reproduced below.")}</p>
                 </div>
 
                 <div className="surface p-5">
@@ -137,10 +134,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   <p className="mt-2 font-mono text-sm text-brand-200">
                     {ROUNDING_SOURCE} · {VAT_SOURCE}
                   </p>
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                    Two decimal places, half away from zero, and 5% VAT. The arithmetic on this page is performed the
-                    same way rather than copied from the file, and a build-time check fails if the two ever disagree.
-                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Two decimal places, half away from zero, and 5% VAT. The arithmetic on this page is performed the same way rather than copied from the file, and a build-time check fails if the two ever disagree.")}</p>
                 </div>
               </div>
 
@@ -172,17 +166,8 @@ export default async function WorkedExamplePage({ params }: PageProps) {
 
                 <div className="surface p-5">
                   <p className="mono-label">{t("The job in one paragraph")}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                    {t(seedParties.customer.name)} asked for clear tempered, tinted and Low-E glass for the podium facade
-                    of {t(seedParties.project.name)} in {seedParties.project.site}. The enquiry arrived with an indicative
-                    value of AED {aed(seedParties.inquiryValue)}; by the time it was priced it had become{" "}
-                    {quotationTotals.lines} lines and {quotationTotals.pieces} pieces. Batch 1 of 2 has left the
-                    factory, and the invoice has been raised on what actually went out.
-                  </p>
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                    Contract {seedParties.project.contract} · LPO {seedParties.project.lpo} · site reference{" "}
-                    {seedParties.project.reference}.
-                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("{v1} asked for clear tempered, tinted and Low-E glass for the podium facade of {v2} in {v3}. The enquiry arrived with an indicative value of AED {v4}; by the time it was priced it had become {v5} lines and {v6} pieces. Batch 1 of 2 has left the factory, and the invoice has been raised on what actually went out.", { v1: t(seedParties.customer.name), v2: t(seedParties.project.name), v3: seedParties.project.site, v4: aed(seedParties.inquiryValue), v5: quotationTotals.lines, v6: quotationTotals.pieces })}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Contract {v1}· LPO {v2}· site reference {v3}.", { v1: seedParties.project.contract, v2: seedParties.project.lpo, v3: seedParties.project.reference })}</p>
                 </div>
               </div>
             </Reveal>
@@ -329,9 +314,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
 
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[62rem] border-collapse text-sm">
-                      <caption className="sr-only">
-                        Group {group.number}, {t(group.name)}: every quotation line with its size, area, rate and value.
-                      </caption>
+                      <caption className="sr-only">{t("Group {v1}, {v2}: every quotation line with its size, area, rate and value.", { v1: group.number, v2: t(group.name) })}</caption>
                       <thead>
                         <tr className="border-b border-line/60 text-left">
                           {/*
@@ -499,10 +482,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                     </dd>
                   </div>
                 </dl>
-                <p className="mt-5 text-xs leading-relaxed text-text-faint font-medium">
-                  Line values are rounded individually, then summed — which is how the application prices a proforma,
-                  and why this total is not simply area × rate.
-                </p>
+                <p className="mt-5 text-xs leading-relaxed text-text-faint font-medium">{t("Line values are rounded individually, then summed — which is how the application prices a proforma, and why this total is not simply area × rate.")}</p>
               </div>
 
               <div className="space-y-4">
@@ -538,23 +518,14 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                     </li>
                     <li className="flex gap-3">
                       <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
-                      <span>
-                        The enquiry was captured at AED {aed(seedParties.inquiryValue)}. The quotation came out at AED{" "}
-                        {aed(quotationTotals.grandTotal)} VAT inclusive, or AED {aed(quotationTotals.subtotal)} before
-                        it — the difference between an indicative number taken by the sales desk and a priced one.
-                      </span>
+                      <span>{t("The enquiry was captured at AED {v1}. The quotation came out at AED {v2} VAT inclusive, or AED {v3} before it — the difference between an indicative number taken by the sales desk and a priced one.", { v1: aed(seedParties.inquiryValue), v2: aed(quotationTotals.grandTotal), v3: aed(quotationTotals.subtotal) })}</span>
                     </li>
                   </ul>
                 </div>
 
                 <div className="surface p-6">
                   <p className="eyebrow">Built up, not guessed at</p>
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                    Every rate above matches the sell price of the sheet that glass comes from — 6 mm clear tempered at
-                    150, 8 mm at 185, 10 mm at 210, 12 mm at 245, tinted at 175 and 195, and the Double-glazed unit at 260.
-                    That consistency is the point of the sample dataset: the stock in the store, the rate on the
-                    quotation and the value on the invoice are the same underlying job data.
-                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Every rate above matches the sell price of the sheet that glass comes from — 6 mm clear tempered at 150, 8 mm at 185, 10 mm at 210, 12 mm at 245, tinted at 175 and 195, and the Double-glazed unit at 260. That consistency is the point of the sample dataset: the stock in the store, the rate on the quotation and the value on the invoice are the same underlying job data.")}</p>
                 </div>
               </div>
             </div>
@@ -677,12 +648,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
 
                 <div className="surface p-6">
                   <p className="eyebrow">{t("Why the balance matters")}</p>
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                    A part delivery is where paper systems lose track. Because the delivery note records{" "}
-                    {deliveredTotals.pieces} delivered against {quotationTotals.pieces} ordered, the outstanding{" "}
-                    {balancePieces} pieces stay visible on the job rather than being re-typed from memory — and the
-                    invoice for Batch 2 will be raised from Batch 2&apos;s own dispatch, not from the original order.
-                  </p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("A part delivery is where paper systems lose track. Because the delivery note records {v1} delivered against {v2} ordered, the outstanding {v3} pieces stay visible on the job rather than being re-typed from memory — and the invoice for Batch 2 will be raised from Batch 2's own dispatch, not from the original order.", { v1: deliveredTotals.pieces, v2: quotationTotals.pieces, v3: balancePieces })}</p>
                   <p className="mt-4">
                     <Link href="/features#delivery-note" className="link-underline text-sm text-brand-200">
           {t("How the delivery note and balance work")}
@@ -756,10 +722,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
               <div className="surface overflow-hidden">
                 <div className="border-b border-line/60 bg-ink-900/60 px-5 py-4">
                   <h3 className="text-base font-semibold text-text-primary">{t("Consumables")}</h3>
-                  <p className="mt-1 text-xs text-text-faint font-medium">
-                    Spacer bar, desiccant, primary and secondary seal, gas and hardware — what an insulated unit needs
-                    beyond the glass.
-                  </p>
+                  <p className="mt-1 text-xs text-text-faint font-medium">{t("Spacer bar, desiccant, primary and secondary seal, gas and hardware — what an insulated unit needs beyond the glass.")}</p>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[54rem] border-collapse text-sm">
@@ -819,19 +782,12 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                       {item.reorderLevel}. The store reports it without anyone having to go and count.
                     </p>
                   ))}
-                  <p className="mt-4 text-sm leading-relaxed text-text-muted">
-                    The other nine are above their reorder level, so only this one raises a flag — which is what a store
-                    report is for.
-                  </p>
+                  <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("The other nine are above their reorder level, so only this one raises a flag — which is what a store report is for.")}</p>
                 </div>
 
                 <div className="surface p-6">
-                  <p className="eyebrow">Buy and sell, side by side</p>
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                    Every sheet and consumable carries a purchase price and a sell price. The quotation&apos;s rates come
-                    from the sell side and the margin a job made is read from the job&apos;s own recorded costs — which
-                    is why job profitability is a report on real charges rather than a spreadsheet reconstruction.
-                  </p>
+                  <p className="eyebrow">{t("Buy and sell, side by side")}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Every sheet and consumable carries a purchase price and a sell price. The quotation's rates come from the sell side and the margin a job made is read from the job's own recorded costs — which is why job profitability is a report on real charges rather than a spreadsheet reconstruction.")}</p>
                   <p className="mt-4">
                     <Link href="/features#job-profitability" className="link-underline text-sm text-brand-200">
           {t("How job profitability is worked out")}
@@ -880,10 +836,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
           <Reveal className="mt-6">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[54rem] border-collapse text-sm">
-                <caption className="sr-only">
-                  Two panels at the edges of the two rules: a 400 × 300 mm vent light billed at the 0.5 m² floor, and a
-                  2400 × 1800 mm atrium lite priced at base plus 20% because it reaches 4 m².
-                </caption>
+                <caption className="sr-only">{t("Two panels at the edges of the two rules: a 400 × 300 mm vent light billed at the 0.5 m² floor, and a 2400 × 1800 mm atrium lite priced at base plus 20% because it reaches 4 m².")}</caption>
                 <thead>
                   <tr className="border-b border-line/60 text-left">
                     <th scope="col" className={THL}>{t("Panel")}</th>
@@ -959,18 +912,12 @@ export default async function WorkedExamplePage({ params }: PageProps) {
               <div className="plate p-6 sm:p-7">
                 <p className="eyebrow">{t("The cost behind the rate")}</p>
                 <h3 className="mt-2 text-xl font-semibold text-text-primary">{t("Step 9 costs these same panels at the purchase price.")}</h3>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">
-                  Step 9 is the application&apos;s only profit-and-loss step, and it asks one question: is the given price above
-                  target? Revenue is what the specification bills; the glass cost is the same billable square metres at the
-                  Sheet Store purchase price; the target is the base price plus the expected margin. Every row below is a
-                  seeded stock line, and the sell column is the rate the quotation above charges — which is why the two
-                  figures reconcile rather than merely agreeing.
-                </p>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t("Step 9 is the application's only profit-and-loss step, and it asks one question: is the given price above target? Revenue is what the specification bills; the glass cost is the same billable square metres at the Sheet Store purchase price; the target is the base price plus the expected margin. Every row below is a seeded stock line, and the sell column is the rate the quotation above charges — which is why the two figures reconcile rather than merely agreeing.")}</p>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[30rem] border-collapse text-sm">
-                  <caption className="sr-only">Seeded sheet stock: purchase price, selling price, and the glass references priced from each.</caption>
+                  <caption className="sr-only">{t("Seeded sheet stock: purchase price, selling price, and the glass references priced from each.")}</caption>
                   <thead>
                     <tr className="border-b border-line/60 text-left">
                       <th scope="col" className={THL}>{t("Glass")}</th>
@@ -1057,11 +1004,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             ))}
           </div>
 
-          <p className="mt-8 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">
-            Nothing on this page is a performance claim. No time saved, no cost reduction, no percentage improvement is
-            quoted — the application does not measure those, and neither does this site. The figures are the sample
-            dataset&apos;s own numbers, reproduced exactly as the software stores them.
-          </p>
+          <p className="mt-8 max-w-4xl text-xs leading-relaxed text-text-faint font-medium">{t("Nothing on this page is a performance claim. No time saved, no cost reduction, no percentage improvement is quoted — the application does not measure those, and neither does this site. The figures are the sample dataset's own numbers, reproduced exactly as the software stores them.")}</p>
         </Container>
       </Section>
 
@@ -1075,11 +1018,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 <h2 className="mt-3 text-2xl leading-tight sm:text-3xl">
           {t("The seeded job is a demonstration. Yours would be your own.")}
         </h2>
-                <p className="lede mt-3 max-w-2xl">
-                  Ask for a demo and the same walkthrough is run against your specification groups, your thicknesses and
-                  your supplier pricing. There is no price list to publish and nothing to sign up for — just an email
-                  back.
-                </p>
+                <p className="lede mt-3 max-w-2xl">{t("Ask for a demo and the same walkthrough is run against your specification groups, your thicknesses and your supplier pricing. There is no price list to publish and nothing to sign up for — just an email back.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>

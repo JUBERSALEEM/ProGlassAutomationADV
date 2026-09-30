@@ -289,10 +289,7 @@ export default async function AboutPage({ params }: PageProps) {
               <Link href="/developer" className="surface-raised group block p-6 transition-colors duration-300 hover:border-brand-400/40">
                 <p className="eyebrow">{t("Next")}</p>
                 <h3 className="mt-3 text-lg font-semibold text-text-primary">{t("The person building it")}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-muted">
-                  ProGlass Automation is developed by {site.developerName}. The developer page covers the build, the
-                  technology and the thinking behind it.
-                </p>
+                <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("ProGlass Automation is developed by {v1}. The developer page covers the build, the technology and the thinking behind it.", { v1: site.developerName })}</p>
                 <span className="link-underline mt-4 text-sm">
                   Read the developer page <ArrowRight />
                 </span>
@@ -300,11 +297,7 @@ export default async function AboutPage({ params }: PageProps) {
 
               <div className="surface p-6">
                 <p className="eyebrow mb-3">{t("A note on honesty")}</p>
-                <p className="text-sm leading-relaxed text-text-muted">
-                  This website contains no customer count, no award, no certification and no percentage improvement claim,
-                  because the repository contains none of those things. Where a screen capture does not yet exist, the page
-                  says so instead of showing an illustration labelled as a screenshot.
-                </p>
+                <p className="text-sm leading-relaxed text-text-muted">{t("This website contains no customer count, no award, no certification and no percentage improvement claim, because the repository contains none of those things. Where a screen capture does not yet exist, the page says so instead of showing an illustration labelled as a screenshot.")}</p>
               </div>
             </Reveal>
           </div>
@@ -317,10 +310,8 @@ export default async function AboutPage({ params }: PageProps) {
           <Reveal>
             <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
-                <h2 className="text-2xl leading-tight sm:text-3xl">If that describes your business, see it working.</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
-                  A demonstration runs on a job you recognise, from the quotation through to the cutting plan.
-                </p>
+                <h2 className="text-2xl leading-tight sm:text-3xl">{t("If that describes your business, see it working.")}</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration runs on a job you recognise, from the quotation through to the cutting plan.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>

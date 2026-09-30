@@ -261,10 +261,8 @@ export function ProfitLossSurface({
               <p className="mt-1 text-[1.0625rem] font-semibold tabular-nums text-text-primary">
                 AED {cash(totals.requiredPerSqm)} <span className="text-[0.75rem] font-medium text-text-muted">/ m²</span>
               </p>
-              <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">
-                Base price (no uplift) AED {cash(totals.basePricePerSqm)} / m² → AED {cash(totals.required)} across the job.
-              </p>
-              <p className="mt-1 text-[0.6875rem] leading-snug text-text-faint font-medium">Basis · area-weighted across specifications</p>
+              <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">{t("Base price (no uplift) AED {v1} / m² → AED {v2} across the job.", { v1: cash(totals.basePricePerSqm), v2: cash(totals.required) })}</p>
+              <p className="mt-1 text-[0.6875rem] leading-snug text-text-faint font-medium">{t("Basis · area-weighted across specifications")}</p>
             </div>
 
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
@@ -282,7 +280,7 @@ export function ProfitLossSurface({
                 <span className="text-[0.875rem] font-semibold text-text-primary">%</span>
                 <span className="font-mono text-[0.75rem] text-text-muted">×{(1 + target / 100).toFixed(2)}</span>
               </div>
-              <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">Uplift applied to the cost basis.</p>
+              <p className="mt-1 text-[0.6875rem] leading-snug text-text-muted font-medium">{t("Uplift applied to the cost basis.")}</p>
               <p className="mt-1 text-[0.6875rem] leading-snug text-text-faint font-medium">
                 Source · Step 9 pricing defaults{target === 15 ? " (the application's fresh-install value)" : " (changed in this preview)"}
               </p>
@@ -294,7 +292,7 @@ export function ProfitLossSurface({
                 totals.aboveTarget ? "border-money-positive/45 bg-money-positive/8" : "border-amber-400/45 bg-amber-400/8",
               )}
             >
-              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Price balance — base / target</p>
+              <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t("Price balance — base / target")}</p>
               <p
                 className={cn(
                   "mt-1 text-[1.0625rem] font-semibold",
@@ -313,9 +311,7 @@ export function ProfitLossSurface({
             </div>
           </div>
 
-          <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-            2 · Money — revenue, glass cost and margin
-          </p>
+          <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("2 · Money — revenue, glass cost and margin")}</p>
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             <MoneyRow label={t("Net revenue (ex-VAT)")} value={`AED ${cash(totals.revenue)}`} note={`${cash(totals.givenPerSqm)} / m² across ${totals.area.toFixed(2)} m²`} />
             <MoneyRow label={t("Glass cost only")} value={`AED ${cash(totals.cost)}`} note={`purchase column of the Sheet Store · ${pnl.costBasis}`} />
@@ -342,9 +338,7 @@ export function ProfitLossSurface({
             status chip flips on sign, and the U-insert line says whether the
             treatment is inside the given price — the app's own toggle.
           */}
-          <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-            5 · Result — base and target balance
-          </p>
+          <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("5 · Result — base and target balance")}</p>
           <div className="mt-2 grid gap-2 sm:grid-cols-3">
             <div className="rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
               <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">Status</p>
@@ -387,11 +381,7 @@ export function ProfitLossSurface({
             <MoneyRow label={t("U-insert inside given")} value="Toggle off" note="the treatment is not counted inside the given price on this specification" />
           </div>
 
-          <p className="mt-3 text-[0.6875rem] leading-relaxed text-text-faint font-medium">
-            Cost is the Sheet Store purchase price of each glass, over the same billable square metres Step 5 charged — the sub-0.5 m²
-            floor included, because the offcut is bought and thrown away. Change anything on Step 5 and every figure here moves with it;
-            the specification is the only input.
-          </p>
+          <p className="mt-3 text-[0.6875rem] leading-relaxed text-text-faint font-medium">{t("Cost is the Sheet Store purchase price of each glass, over the same billable square metres Step 5 charged — the sub-0.5 m² floor included, because the offcut is bought and thrown away. Change anything on Step 5 and every figure here moves with it; the specification is the only input.")}</p>
         </div>
       ) : null}
 
@@ -402,7 +392,7 @@ export function ProfitLossSurface({
             {t("Service profitability analysis")}
           </p>
           <table className="mt-2 w-full min-w-[36rem] border-collapse text-left">
-            <caption className="sr-only">Charge rows raised by the pricing estimator, with the area they apply to.</caption>
+            <caption className="sr-only">{t("Charge rows raised by the pricing estimator, with the area they apply to.")}</caption>
             <thead>
               <tr className="border-b border-line/60">
                 {["Service", "Spec", "Charge", "Area", "Cost", "Profit", "Margin %", "Total"].map((heading, index) => (
@@ -482,9 +472,7 @@ export function ProfitLossSurface({
                 />
               </div>
 
-              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-                2 · Sheet price reconciliation
-              </p>
+              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("2 · Sheet price reconciliation")}</p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <MoneyRow label={t("Buy sheet price")} value={`AED ${cash(sheets.buyPrice)} / m²`} note={t("dearest glass on the job, from the Sheet Store purchase column")} />
                 <MoneyRow label={t("Sheet cost")} value={`AED ${cash(sheets.sheetCost)}`} note={`${sheets.result.plates} × ${sheets.stockSqm.toFixed(2)} m²`} />
@@ -497,9 +485,7 @@ export function ProfitLossSurface({
                 />
               </div>
 
-              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-                3 · Step 6 wastage cross-check
-              </p>
+              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("3 · Step 6 wastage cross-check")}</p>
               <p className="mt-1.5 text-[0.75rem] leading-relaxed text-text-muted font-medium">
                 Wastage the sheets bought beyond the pieces cut is {(sheets.wasteSqm / sheets.boughtSqm * 100).toFixed(1)}% of the bought
                 area ({sheets.wasteSqm.toFixed(2)} m²). The glass cost carried into the price is AED {cash(totals.cost)}
@@ -510,9 +496,7 @@ export function ProfitLossSurface({
                 a square metre of glass.
               </p>
 
-              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">
-                4 · Overall report — all sheets
-              </p>
+              <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("4 · Overall report — all sheets")}</p>
               <div className="mt-2 grid gap-2 sm:grid-cols-3">
                 <MoneyRow label={t("Placed")} value={String(sheets.result.placedPieces)} note="every piece found a plate" />
                 <MoneyRow label={t("Unplaced")} value={String(sheets.result.unplaced.length)} note="no plate could hold these" tone={sheets.result.unplaced.length === 0 ? "good" : "watch"} />
@@ -524,7 +508,7 @@ export function ProfitLossSurface({
               </p>
             </>
           ) : (
-            <p className="text-[0.75rem] text-text-muted font-medium">No glass on this specification yet, so there is nothing to cost.</p>
+            <p className="text-[0.75rem] text-text-muted font-medium">{t("No glass on this specification yet, so there is nothing to cost.")}</p>
           )}
         </div>
       ) : null}
@@ -536,7 +520,7 @@ export function ProfitLossSurface({
             {t("Main spec check — one row per Step 5 spec")}
           </p>
           <table className="mt-2 w-full min-w-[40rem] border-collapse text-left">
-            <caption className="sr-only">Each Step 5 specification: its area, what it is given at, what the target requires and the difference.</caption>
+            <caption className="sr-only">{t("Each Step 5 specification: its area, what it is given at, what the target requires and the difference.")}</caption>
             <thead>
               <tr className="border-b border-line/60">
                 {[
@@ -642,18 +626,12 @@ export function ProfitLossSurface({
               </tr>
             </tfoot>
           </table>
-          <p className="mt-2 text-[0.6875rem] leading-snug text-text-faint font-medium">
-            {t("Each Step 5 specification stays separate — its own base rate, its own surcharge, its own rows at {SURCHARGE_THRESHOLD_SQM} m² and", { SURCHARGE_THRESHOLD_SQM: SURCHARGE_THRESHOLD_SQM })}
-            above. The required value is that specification&apos;s area at its base rate plus {target}%.
-          </p>
+          <p className="mt-2 text-[0.6875rem] leading-snug text-text-faint font-medium">{t("{v1}above. The required value is that specification's area at its base rate plus {v2}%.", { v1: t("Each Step 5 specification stays separate — its own base rate, its own surcharge, its own rows at {SURCHARGE_THRESHOLD_SQM} m² and", { SURCHARGE_THRESHOLD_SQM: SURCHARGE_THRESHOLD_SQM }), v2: target })}</p>
         </div>
       ) : null}
 
       {!compact ? (
-        <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">
-          Sample data · the charges are the estimator&apos;s own rows and the arithmetic is the application&apos;s, but this is a
-          reconstruction of the screen, not a capture of it.
-        </p>
+        <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">{t("Sample data · the charges are the estimator's own rows and the arithmetic is the application's, but this is a reconstruction of the screen, not a capture of it.")}</p>
       ) : null}
     </div>
   );

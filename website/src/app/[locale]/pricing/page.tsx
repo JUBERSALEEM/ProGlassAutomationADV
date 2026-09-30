@@ -73,19 +73,9 @@ export default async function PricingPage({ params }: PageProps) {
           <Reveal>
             <div className="surface-raised grid gap-6 p-6 sm:grid-cols-3 sm:p-8">
               <div className="sm:col-span-2">
-                <h2 className="text-xl font-semibold text-text-primary sm:text-2xl">
-                  There is no price on this page, and that is deliberate.
-                </h2>
-                <p className="mt-4 text-sm leading-relaxed text-text-muted">
-                  ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or
-                  a factory running eight production stages. What you need ranges from the proforma wizard alone to the
-                  full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either
-                  overcharging the first or underdelivering the last.
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                  Tell us how many people will use it, which modules matter, and whether cutting optimization is part of
-                  your day. You get a written quote for that scope.
-                </p>
+                <h2 className="text-xl font-semibold text-text-primary sm:text-2xl">{t("There is no price on this page, and that is deliberate.")}</h2>
+                <p className="mt-4 text-sm leading-relaxed text-text-muted">{t("ProGlass is sold to glass businesses with different shapes: a single estimator, a five-person office, or a factory running eight production stages. What you need ranges from the proforma wizard alone to the full chain plus the cutting-optimization engine. Quoting one number for all of those would mean either overcharging the first or underdelivering the last.")}</p>
+                <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("Tell us how many people will use it, which modules matter, and whether cutting optimization is part of your day. You get a written quote for that scope.")}</p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <ButtonLink href="/contact" size="md" trailing={<ArrowRight />}>
           {t("Request pricing")}
@@ -211,10 +201,7 @@ export default async function PricingPage({ params }: PageProps) {
                 <h3 className="text-base font-semibold text-text-primary">{t("Open in every edition")}</h3>
                 <Badge tone="success">{t("No gate")}</Badge>
               </div>
-              <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                These modules are explicitly listed as ungated, so a missing entry can never be mistaken for a deliberate
-                free one. A test fails the build if a new module ships without somebody deciding either way.
-              </p>
+              <p className="mt-3 text-sm leading-relaxed text-text-muted">{t("These modules are explicitly listed as ungated, so a missing entry can never be mistaken for a deliberate free one. A test fails the build if a new module ships without somebody deciding either way.")}</p>
               <ul className="mt-5 flex flex-wrap gap-2">
                 {openModules.map((module) => (
                   <li
@@ -233,11 +220,7 @@ export default async function PricingPage({ params }: PageProps) {
               <Badge tone="accent" className="shrink-0">
           {t("Trial")}
         </Badge>
-              <p className="text-sm leading-relaxed text-text-muted">
-                During an active 30-day evaluation trial, every feature set is available — including the production stages
-                and the optimization engine. When the trial ends, the normal edition restrictions apply and the
-                application moves to read-only rather than locking you away from your records.
-              </p>
+              <p className="text-sm leading-relaxed text-text-muted">{t("During an active 30-day evaluation trial, every feature set is available — including the production stages and the optimization engine. When the trial ends, the normal edition restrictions apply and the application moves to read-only rather than locking you away from your records.")}</p>
             </div>
           </Reveal>
         </Container>
@@ -320,11 +303,8 @@ export default async function PricingPage({ params }: PageProps) {
           <Reveal>
             <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
-                <h2 className="text-2xl leading-tight sm:text-3xl">Tell us what you need, and get a number.</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
-                  How many people, which modules, and whether the cutting table is part of it. Every request is answered by
-                  a person.
-                </p>
+                <h2 className="text-2xl leading-tight sm:text-3xl">{t("Tell us what you need, and get a number.")}</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("How many people, which modules, and whether the cutting table is part of it. Every request is answered by a person.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>

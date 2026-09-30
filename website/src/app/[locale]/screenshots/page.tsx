@@ -85,17 +85,12 @@ export default async function ScreenshotsPage({ params }: PageProps) {
               <div>
                 <p className="font-mono text-2xl font-semibold text-text-primary">{repoAssets}</p>
                 <p className="mt-2 text-sm font-medium text-text-secondary">{t("Illustrations from the application")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">
-                  Real assets that ship inside the product — the SGU, DGU, lamination and DGU + lamination renders.
-                </p>
+                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{t("Real assets that ship inside the product — the SGU, DGU, lamination and DGU + lamination renders.")}</p>
               </div>
               <div>
                 <p className="font-mono text-2xl font-semibold text-text-primary">{pending}</p>
                 <p className="mt-2 text-sm font-medium text-text-secondary">{t("Interactive previews")}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">
-                  Real window chrome, real module labels and real fields, with sample data you can sort, filter and
-                  step through. Clearly labelled as a preview, never presented as a screen capture.
-                </p>
+                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{t("Real window chrome, real module labels and real fields, with sample data you can sort, filter and step through. Clearly labelled as a preview, never presented as a screen capture.")}</p>
               </div>
             </div>
           </Reveal>
@@ -150,9 +145,7 @@ export default async function ScreenshotsPage({ params }: PageProps) {
             <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("The best screenshot is your own data.")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
-                  A demonstration walks through your screens with your glass types, your sheet sizes and your margins.
-                </p>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration walks through your screens with your glass types, your sheet sizes and your margins.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>

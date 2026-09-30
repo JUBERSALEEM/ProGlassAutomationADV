@@ -125,7 +125,7 @@ export function AppearancePreview() {
 
       {/* ── Card edge and corner ─────────────────────────────────────── */}
       <p className="mt-5 text-xs font-bold uppercase tracking-[0.14em] text-text-secondary">
-        Card edge <span className="font-medium normal-case tracking-normal text-text-muted">— the border line and the corner</span>
+        Card edge <span className="font-medium normal-case tracking-normal text-text-muted">{t("— the border line and the corner")}</span>
       </p>
       {/*
         The product sets these together in SETTINGS: CardEdgeThickness for the

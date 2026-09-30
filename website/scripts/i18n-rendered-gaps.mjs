@@ -67,6 +67,22 @@ const SCRIPTS = {
   "ru-RU": /[\u0400-\u04FF]/,
 };
 
+/*
+ * German, Spanish, French, Indonesian, Portuguese and Turkish are written in
+ * the same alphabet as English, so "no Arabic character in it" proves nothing.
+ * For those, English is recognised by its own words — a sentence with none of
+ * `the`, `and`, `with`, `your`, `from`… in it is not English, however little of
+ * it a reader of the language would recognise.
+ */
+const ENGLISH_TELLS =
+  /\b(?:the|and|with|for|your|from|this|that|these|those|every|each|you|they|their|there|when|which|what|where|how|into|without|than|then|is|are|was|were|has|have|had|not|all|any|both|same|other|only|also|about|above|below|between|against|before|after|over|under|again|because|while|during|until)\b/i;
+const LATIN = new Set(["en-US", "de-DE", "es-ES", "fr-FR", "id-ID", "pt-BR", "tr-TR"]);
+function looksEnglish(text) {
+  if (LATIN.has(locale)) return ENGLISH_TELLS.test(text);
+  const script = SCRIPTS[locale];
+  return script ? !script.test(text) : true;
+}
+
 /* Names, brands, paths, formats: the same string in every language. */
 const NOT_LANGUAGE = [
   /^[\w./\\-]+\.(?:cs|xaml|tsx?|json|md|png|db|log|opt|iso|dat|dll|exe)$/i,
@@ -127,6 +143,40 @@ let checked = 0;
  * not a gap at all.
  */
 const SEPARATOR = /^[\s·—–→>.,:;()\[\]/\\|+%&#\u00a0-]+/;
+/*
+ * Every string this language is allowed to be reading, beyond the English keys:
+ * the site's own dictionary values and the application's vocabulary. A node
+ * that is not a key but can be taken apart into whole keys, whole dictionary
+ * values and whole application values has no English in it that a dictionary
+ * could reach — the markup has simply printed three known words next to each
+ * other, and reporting it as a gap would be an alarm that never clears.
+ */
+function phraseSet() {
+  const phrases = new Set(KEYS);
+  const add = (value) => {
+    const text = `${value}`.trim();
+    if (text.length >= 3) phrases.add(text);
+  };
+  try {
+    const dict = readFileSync(`src/i18n/dict/${locale}.ts`, "utf8");
+    for (const match of dict.matchAll(/^\s*"(?:[^"\\]|\\.)*":\s*"((?:[^"\\]|\\.)*)",?$/gm)) {
+      add(JSON.parse(`"${match[1]}"`));
+    }
+  } catch {
+    /* no dictionary for this language yet — the English keys are the vocabulary */
+  }
+  for (const file of [`src/i18n/app-strings/${locale}.json`, "src/i18n/app-strings/en-US.json"]) {
+    try {
+      for (const value of Object.values(JSON.parse(readFileSync(file, "utf8")))) add(value);
+    } catch {
+      /* not generated yet */
+    }
+  }
+  return [...phrases].filter((phrase) => phrase.length >= 3).sort((a, b) => b.length - a.length);
+}
+
+const PHRASES = phraseSet();
+
 function segmentsIntoKeys(text) {
   let rest = text;
   let found = 0;
@@ -134,11 +184,11 @@ function segmentsIntoKeys(text) {
     rest = rest.replace(SEPARATOR, "");
     if (!rest.length) break;
     let best = null;
-    for (const key of KEYS) {
-      if (key.length < 12) continue;
-      if (rest.startsWith(key) && (best === null || key.length > best.length)) best = key;
+    for (const phrase of PHRASES) {
+      if (rest.startsWith(phrase) && (best === null || phrase.length > best.length)) best = phrase;
     }
     if (best === null) return rest.trim().length < 12 && found >= 2;
+
     rest = rest.slice(best.length);
     found += 1;
   }
@@ -149,10 +199,33 @@ function segmentsIntoKeys(text) {
    markup produced — `— this is a working reconstruction of the` on its own is
    not a sentence anybody has to translate. Only text that is neither a key nor
    touched by one is a real gap in the wiring. */
+/*
+ * Fragments, not sentences: a paragraph with a value spliced into it renders as
+ * several text nodes, and one of them may be `: one row per glass line, priced
+ * at the specification's rate, or at the` — a piece of a key, split where the
+ * placeholder was filled. Every key is therefore compared by its literal runs
+ * as well as whole: if a fragment sits inside the wording around a placeholder,
+ * the sentence it belongs to is already a key and no dictionary is missing.
+ */
+const LITERAL_RUNS = (() => {
+  const runs = [];
+  for (const key of KEYS) {
+    if (!key.includes("{")) continue;
+    for (const run of key.split(/\{[a-zA-Z0-9_]+\}/)) {
+      const text = run.trim();
+      if (text.length >= 12) runs.push(text);
+    }
+  }
+  return runs;
+})();
+
 function relatedToAKey(text) {
   for (const key of KEYS) {
     if (key.length < 12) continue;
     if (key.includes(text) || text.includes(key)) return true;
+  }
+  for (const run of LITERAL_RUNS) {
+    if (run.includes(text) || text.includes(run)) return true;
   }
   return false;
 }
@@ -174,6 +247,13 @@ for (const path of PAGES) {
 
   for (const text of visibleText(html)) {
     if (!/[A-Za-z]{2,}\s+[A-Za-z]{2,}/.test(text)) continue;
+    /*
+     * A sentence the site knows, printed unchanged: that is English whatever
+     * words it happens to use, and the tell-word test must not hide it. The
+     * test is only for deciding whether a node that is *not* a key is English
+     * or merely shares the alphabet with it.
+     */
+    if (!KEYS.has(text) && !looksEnglish(text)) continue;
     if (own && own.test(text)) continue;
     if (NOT_LANGUAGE.some((pattern) => pattern.test(text))) continue;
     checked += 1;

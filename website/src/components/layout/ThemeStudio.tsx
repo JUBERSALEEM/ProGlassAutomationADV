@@ -101,9 +101,7 @@ export function ThemeStudio() {
           <span className="h-4 w-4 -ml-2 rounded-full ring-2 ring-white/25" style={{ background: studio.accent ?? "#8B5CF6" }} />
         </span>
         <span>Theme &amp; colour</span>
-        <span className="sr-only">
-          — open the theme studio. Current: {t(activeMode.label)} mode, {t(activeFamily.label)} palette.
-        </span>
+        <span className="sr-only">{t("— open the theme studio. Current: {v1} mode, {v2} palette.", { v1: t(activeMode.label), v2: t(activeFamily.label) })}</span>
       </button>
 
       {open ? (
@@ -117,10 +115,7 @@ export function ThemeStudio() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="eyebrow">Theme &amp; colour</p>
-              <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-secondary">
-                {t("Change how this site looks while you use it. Every choice is saved, and every one maps to a real")}
-                setting in the application.
-              </p>
+              <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-secondary">{t("{v1}setting in the application.", { v1: t("Change how this site looks while you use it. Every choice is saved, and every one maps to a real") })}</p>
             </div>
             <button
               type="button"
@@ -203,10 +198,7 @@ export function ThemeStudio() {
               })}
             </div>
             <p className="mt-2 text-[0.75rem] font-medium leading-relaxed text-text-muted">{activeFamily.origin}</p>
-            <p className="mt-1.5 text-xs leading-relaxed text-text-faint">
-              Choosing a family sets the palette to that family&apos;s own accent. A colour plate below overrides it
-              again — the last one you touch wins.
-            </p>
+            <p className="mt-1.5 text-xs leading-relaxed text-text-faint">{t("Choosing a family sets the palette to that family's own accent. A colour plate below overrides it again — the last one you touch wins.")}</p>
           </fieldset>
 
           {/* ── Colour plates ─────────────────────────────────────────── */}
@@ -271,11 +263,7 @@ export function ThemeStudio() {
           {/* ── Typeface ──────────────────────────────────────────────── */}
           <fieldset className="mt-4">
             <legend className="mono-label">Typeface</legend>
-            <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">
-              {t("Fourteen families in two groups — the four this site serves, and ten the browser resolves from your own")}
-              {t("computer. The bundled four carry a real italic and a full weight range, so bold, bold italic and")}
-              underlining below are drawn rather than slanted and thickened.
-            </p>
+            <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">{t("{v1} {v2}underlining below are drawn rather than slanted and thickened.", { v1: t("Fourteen families in two groups — the four this site serves, and ten the browser resolves from your own"), v2: t("computer. The bundled four carry a real italic and a full weight range, so bold, bold italic and") })}</p>
 
             <FaceGrid
               caption={t("Bundled with this site")}
@@ -398,8 +386,7 @@ export function ThemeStudio() {
                 ))}
               </div>
               <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">
-                The application&apos;s own spacing setting — <em className="not-italic font-semibold">Compact fits more on a
-                laptop; Comfortable gives larger touch targets</em>. This site ships comfortable, so nothing moves until you
+                The application&apos;s own spacing setting — <em className="not-italic font-semibold">{t("Compact fits more on a laptop; Comfortable gives larger touch targets")}</em>. This site ships comfortable, so nothing moves until you
                 choose compact.
               </p>
             </div>

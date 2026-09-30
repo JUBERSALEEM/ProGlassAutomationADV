@@ -73,9 +73,7 @@ export function ModuleShowcase({
                         className="object-cover"
                       />
                     </div>
-                    <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint font-medium">
-                      {t(module.illustration.alt)} — shipped inside the application, declared in ProGlassAutomation.csproj.
-                    </figcaption>
+                    <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint font-medium">{t("{v1} — shipped inside the application, declared in ProGlassAutomation.csproj.", { v1: t(module.illustration.alt) })}</figcaption>
                   </figure>
                 ) : (
                   <ModulePanel t={t} module={module} />

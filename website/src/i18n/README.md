@@ -53,11 +53,13 @@ t("Desktop software · v{version} · No account required", { version: site.versi
 | command | what it does |
 | --- | --- |
 | `npm run i18n:app` | rebuild `app-strings/` from the application's XAML files |
+| `npm run i18n:import-app` | fill every language from the application's own translations |
 | `npm run i18n:keys` | scan the source, write `dict/keys.ts`, write the work plan |
 | `npm run i18n:audit` | coverage per language, and where each language's entries came from |
 | `npm run i18n:gaps` | the same, plus `/tmp/proglass-i18n-gaps.json` for batching |
 | `npm run i18n:rendered` | fetch every page and report English that is still on it |
-| `npm run i18n:wire` | run the four codemods that put text through the translator |
+| `npm run i18n:wire` | run the codemods that put text through the translator |
+| `npm run i18n:blocks` | wire the mixed sentences the line-based passes cannot see |
 
 `i18n:rendered` is the one that tells the truth about the *page* rather than
 about the dictionary: it separates text the site does not know about (a wiring

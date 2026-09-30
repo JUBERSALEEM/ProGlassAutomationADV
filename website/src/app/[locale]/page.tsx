@@ -158,10 +158,7 @@ export default async function HomePage({ params }: PageProps) {
           <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] lg:gap-14">
             <div className="lg:sticky lg:top-28 lg:self-start">
               <ChainDiagram />
-              <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">
-                Status vocabularies and handoff guarantees are taken from the application&apos;s own workflow
-                documentation and the transition code that enforces them.
-              </p>
+              <p className="mt-6 text-xs leading-relaxed text-text-faint font-medium">{t("Status vocabularies and handoff guarantees are taken from the application's own workflow documentation and the transition code that enforces them.")}</p>
             </div>
             <WorkflowRail
       t={t} />
@@ -179,9 +176,7 @@ export default async function HomePage({ params }: PageProps) {
               title={t("What is actually in the application.")}
               lead={t("Each card names where in the source tree the behaviour is defined, so a claim can be checked rather than believed. These are counts of what the repository contains — modules, locales, databases and tests. They are not performance claims, and the application makes none.")}
             />
-            <p className="max-w-sm text-xs leading-relaxed text-text-faint font-medium">
-              Counted against the application tree on {site.statsMeasuredOn}: {site.framework}, {site.pattern}, {site.database}. obj/, bin/ and .git/ are excluded.
-            </p>
+            <p className="max-w-sm text-xs leading-relaxed text-text-faint font-medium">{t("Counted against the application tree on {v1}: {v2}, {v3}, {v4}. obj/, bin/ and .git/ are excluded.", { v1: site.statsMeasuredOn, v2: site.framework, v3: site.pattern, v4: site.database })}</p>
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -246,11 +241,7 @@ export default async function HomePage({ params }: PageProps) {
                 ))}
               </ol>
 
-              <p className="mt-6 text-sm leading-relaxed text-text-muted">
-                {t(seedParties.customer.name)} · {t(seedParties.project.name)} · contract {seedParties.project.contract}. The
-                quotation is priced in three specification groups and the delivery is deliberately partial, so the
-                balance workflow is visible rather than described.
-              </p>
+              <p className="mt-6 text-sm leading-relaxed text-text-muted">{t("{v1}· {v2}· contract {v3}. The quotation is priced in three specification groups and the delivery is deliberately partial, so the balance workflow is visible rather than described.", { v1: t(seedParties.customer.name), v2: t(seedParties.project.name), v3: seedParties.project.contract })}</p>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <ButtonLink href="/worked-example" size="lg" trailing={<ArrowRight />}>
@@ -261,10 +252,7 @@ export default async function HomePage({ params }: PageProps) {
         </ButtonLink>
               </div>
 
-              <p className="mt-5 max-w-xl text-xs leading-relaxed text-text-faint font-medium">
-                The rates in the seeded job are the sample dataset&apos;s own numbers. ProGlass Automation publishes no
-                price list for glass, and nothing on this site is a market rate.
-              </p>
+              <p className="mt-5 max-w-xl text-xs leading-relaxed text-text-faint font-medium">{t("The rates in the seeded job are the sample dataset's own numbers. ProGlass Automation publishes no price list for glass, and nothing on this site is a market rate.")}</p>
             </div>
 
             <Reveal delay={60}>
@@ -417,10 +405,7 @@ export default async function HomePage({ params }: PageProps) {
                   ))}
                 </dl>
 
-                <p className="mt-5 border-t border-line/60 pt-4 text-xs leading-relaxed text-text-faint font-medium">
-                  An ERP that quietly recalculates yesterday&apos;s quote with today&apos;s glass prices is not an ERP.
-                  When sheet-store prices move, the affected row is flagged rather than silently rescored.
-                </p>
+                <p className="mt-5 border-t border-line/60 pt-4 text-xs leading-relaxed text-text-faint font-medium">{t("An ERP that quietly recalculates yesterday's quote with today's glass prices is not an ERP. When sheet-store prices move, the affected row is flagged rather than silently rescored.")}</p>
               </div>
             </Reveal>
           </div>
@@ -510,10 +495,7 @@ export default async function HomePage({ params }: PageProps) {
           {t("Who built it")}
         </ButtonLink>
               </Reveal>
-              <p className="mt-6 text-xs font-medium leading-relaxed text-text-muted">
-                Accent values are transcribed from the application&apos;s own preset table, so the swatch you press is the
-                colour the product uses.
-              </p>
+              <p className="mt-6 text-xs font-medium leading-relaxed text-text-muted">{t("Accent values are transcribed from the application's own preset table, so the swatch you press is the colour the product uses.")}</p>
             </div>
 
             <Reveal delay={80}>
@@ -531,14 +513,8 @@ export default async function HomePage({ params }: PageProps) {
               <div className="grid gap-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] lg:items-center lg:gap-12">
                 <div>
                   <p className="eyebrow">{t("Open to help")}</p>
-                  <h2 id="sponsors-heading" className="mt-3 text-3xl leading-tight sm:text-4xl">
-                    One developer, and room for a few more hands.
-                  </h2>
-                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">
-                    ProGlass Automation is written and maintained by one person. Sponsorship funds work — a cutting
-                    table to test export formats against, reviewed translations, test engineering — and never buys a
-                    roadmap position. The page below states the gaps as they actually are.
-                  </p>
+                  <h2 id="sponsors-heading" className="mt-3 text-3xl leading-tight sm:text-4xl">{t("One developer, and room for a few more hands.")}</h2>
+                  <p className="mt-4 max-w-2xl text-sm leading-relaxed text-text-secondary">{t("ProGlass Automation is written and maintained by one person. Sponsorship funds work — a cutting table to test export formats against, reviewed translations, test engineering — and never buys a roadmap position. The page below states the gaps as they actually are.")}</p>
                   <div className="mt-6 flex flex-wrap gap-3">
                     <ButtonLink href="/sponsors" size="lg" trailing={<ArrowRight />}>
           {t("Sponsor the build")}
@@ -595,7 +571,7 @@ export default async function HomePage({ params }: PageProps) {
                     ))}
                   </ul>
                   <p className="mono-label mt-5 pt-4">
-                    <span className="sr-only">Evidence in the source tree: </span>
+                    <span className="sr-only">{t("Evidence in the source tree:")}{" "}</span>
                     {t(group.evidence)}
                   </p>
                 </Reveal>
@@ -655,26 +631,20 @@ export default async function HomePage({ params }: PageProps) {
                   />
                   <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-transparent" />
                 </div>
-                <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint font-medium">
-                  Application asset · Resources/Glass3D/dgulam-3d.png
-                </figcaption>
+                <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint font-medium">{t("Application asset · Resources/Glass3D/dgulam-3d.png")}</figcaption>
               </figure>
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Link href="/about" className="surface group p-5 transition-colors duration-300 hover:border-brand-400/40">
                   <p className="eyebrow">{t("About the product")}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-text-muted">
-                    Why it exists, who it is for, and what problem it solves in a glass fabrication business.
-                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("Why it exists, who it is for, and what problem it solves in a glass fabrication business.")}</p>
                   <span className="link-underline mt-3 text-xs">
                     Read about ProGlass <ArrowRight />
                   </span>
                 </Link>
                 <Link href="/developer" className="surface group p-5 transition-colors duration-300 hover:border-brand-400/40">
                   <p className="eyebrow">{t("The developer")}</p>
-                  <p className="mt-2 text-sm leading-relaxed text-text-muted">
-                    Who builds it, the technology it is built with, and how the work is organised.
-                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("Who builds it, the technology it is built with, and how the work is organised.")}</p>
                   <span className="link-underline mt-3 text-xs">
                     Meet the developer <ArrowRight />
                   </span>

@@ -26,12 +26,8 @@ export function SheetPlanStrip() {
     <div>
       {/* ── The header line: what is being cut, and off what ──────────── */}
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-        <p className="mono-label">
-          Sample job · {cutList.length} references · {planTotals.pieces} pieces
-        </p>
-        <p className="mono-label">
-          {t(planSheet.label)} mm plate · trim {planMargins.left} mm · kerf {planMargins.kerf} mm
-        </p>
+        <p className="mono-label">{t("Sample job · {v1} references · {v2} pieces", { v1: cutList.length, v2: planTotals.pieces })}</p>
+        <p className="mono-label">{t("{v1} mm plate · trim {v2} mm · kerf {v3} mm", { v1: t(planSheet.label), v2: planMargins.left, v3: planMargins.kerf })}</p>
       </div>
 
       {/* ── Every plate, as thumbnails ────────────────────────────────── */}
@@ -46,12 +42,7 @@ export function SheetPlanStrip() {
             {planTotals.usedSqm} m² of the {planTotals.stockSqm} m² the job draws from stock, the rest returning to the
             racks as offcut.
           </p>
-          <p className="mt-2 text-xs font-medium leading-relaxed text-text-faint">
-            {t("Plates arranged by a two-way guillotine split — each leftover rectangle divided by one straight cut, so")}
-            every boundary is a cut the table can make. It illustrates how a job spreads across stock; it is not a result
-            from the engine, which searches five families and six plate patterns, and the site quotes no yield figure for
-            it because the repository contains none.
-          </p>
+          <p className="mt-2 text-xs font-medium leading-relaxed text-text-faint">{t("{v1}every boundary is a cut the table can make. It illustrates how a job spreads across stock; it is not a result from the engine, which searches five families and six plate patterns, and the site quotes no yield figure for it because the repository contains none.", { v1: t("Plates arranged by a two-way guillotine split — each leftover rectangle divided by one straight cut, so") })}</p>
         </div>
         <div className="flex shrink-0 flex-wrap gap-3">
           <ButtonLink href="/optimization" variant="secondary" size="md" trailing={<ArrowRight />}>

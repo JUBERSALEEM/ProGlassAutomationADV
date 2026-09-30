@@ -489,10 +489,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
         </dl>
       ) : null}
 
-      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">
-        {t(demo.blurb)} Arranged here with a shelf packer over the sample cut list, so the figures are genuinely
-        calculated — change the sheet or the quantity and read them again.
-      </p>
+      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{t("{v1} Arranged here with a shelf packer over the sample cut list, so the figures are genuinely calculated — change the sheet or the quantity and read them again.", { v1: t(demo.blurb) })}</p>
     </div>
   );
 }
@@ -621,10 +618,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
       </div>
 
       {!compact ? (
-        <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">
-          {t(demo.blurb)} A job becomes dispatch-ready when the full quantity has finished the chain — press Advance to
-          walk one through.
-        </p>
+        <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{t("{v1} A job becomes dispatch-ready when the full quantity has finished the chain — press Advance to walk one through.", { v1: t(demo.blurb) })}</p>
       ) : null}
     </div>
   );
@@ -965,7 +959,7 @@ function DashboardEngine({
         </div>
       ) : (
         <div className="flex flex-1 items-end gap-1.5 rounded-card border border-line/60 bg-ink-950/40 p-3">
-          <p className="sr-only">Piece counts for the dashboard&apos;s selected period.</p>
+          <p className="sr-only">{t("Piece counts for the dashboard's selected period.")}</p>
           {bars.map((value, index) => (
             <span
               key={index}
@@ -1064,10 +1058,7 @@ function AppearanceDeck() {
   return (
     <div className="card-accent p-3">
       <p className="font-mono text-[0.6875rem] uppercase tracking-[0.14em] text-brand-200">Live · changes this site</p>
-      <p className="mt-1.5 text-[0.75rem] leading-relaxed text-text-secondary">
-        These are the application&apos;s four families. Pressing one re-themes this page, which is exactly what it does
-        to the application.
-      </p>
+      <p className="mt-1.5 text-[0.75rem] leading-relaxed text-text-secondary">{t("These are the application's four families. Pressing one re-themes this page, which is exactly what it does to the application.")}</p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {families.map((entry) => (
           <FamilyButton key={entry.id} id={entry.id} label={t(entry.label)} />
@@ -1105,7 +1096,7 @@ function EmptyPlate() {
   const t = useT();
   return (
     <div className="flex h-full min-h-[10rem] flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line-strong/60 bg-ink-950/40 p-5 text-center">
-      <p className="text-[0.75rem] font-semibold text-text-secondary">This screen has no preview yet.</p>
+      <p className="text-[0.75rem] font-semibold text-text-secondary">{t("This screen has no preview yet.")}</p>
       <p className="max-w-sm text-[0.75rem] leading-relaxed text-text-faint font-medium">
         {t("The module exists in the application. Its preview is added once the layout is confirmed.")}
       </p>

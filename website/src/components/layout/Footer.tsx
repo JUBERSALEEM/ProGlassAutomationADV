@@ -71,10 +71,7 @@ export function Footer({ t }: { t: Translator }) {
 
         <div className="mt-12 flex flex-col gap-4 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-text-faint font-medium">{site.copyrightLine}</p>
-          <p className="text-xs text-text-faint font-medium">
-            {t("ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing")}
-            to sign in to on this website.
-          </p>
+          <p className="text-xs text-text-faint font-medium">{t("{v1}to sign in to on this website.", { v1: t("ProGlass Automation is desktop software. There is no cloud account, no subscription dashboard and nothing") })}</p>
         </div>
       </div>
     </footer>

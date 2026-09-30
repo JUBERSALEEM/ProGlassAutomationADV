@@ -87,21 +87,9 @@ export default async function SponsorsPage({ params }: PageProps) {
                 lead={t("Generic ERP software is written once and sold broadly. Software that knows what an SGU air space is, why a trim cut into laminated stock ruins the sheet, and how the eighth production stage differs from the first — that gets written by someone who has watched it happen.")}
               />
               <div className="mt-8 space-y-4 text-sm leading-relaxed text-text-muted">
-                <p>
-                  That is the situation here. The application is real and in use on the commercial side: inquiry through
-                  statement, with the optimization engine and the eight production stages behind it. What it does not
-                  have is a second pair of hands, a test table to send cut files to, or a translation reviewed by
-                  somebody who works in the language.
-                </p>
-                <p>
-                  This page states those gaps plainly. It is a request, not a record of support — there are no sponsors
-                  to thank yet, and inventing a tier list with badges and logos would be exactly the kind of thing this
-                  website refuses to do everywhere else.
-                </p>
-                <p className="text-text-secondary">
-                  If you are a glass fabricator, a WPF developer, a translator or simply someone who thinks a
-                  one-person industrial product is worth backing, there is a slot below that fits what you already have.
-                </p>
+                <p>{t("That is the situation here. The application is real and in use on the commercial side: inquiry through statement, with the optimization engine and the eight production stages behind it. What it does not have is a second pair of hands, a test table to send cut files to, or a translation reviewed by somebody who works in the language.")}</p>
+                <p>{t("This page states those gaps plainly. It is a request, not a record of support — there are no sponsors to thank yet, and inventing a tier list with badges and logos would be exactly the kind of thing this website refuses to do everywhere else.")}</p>
+                <p className="text-text-secondary">{t("If you are a glass fabricator, a WPF developer, a translator or simply someone who thinks a one-person industrial product is worth backing, there is a slot below that fits what you already have.")}</p>
               </div>
             </div>
 
@@ -131,10 +119,7 @@ export default async function SponsorsPage({ params }: PageProps) {
 
               <div className="card-accent mt-4 p-6">
                 <p className="eyebrow">{t("The rule this page keeps")}</p>
-                <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-                  Sponsorship funds work. It does not buy a roadmap position, a feature nobody needs, or a claim on the
-                  website that the software cannot demonstrate.
-                </p>
+                <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t("Sponsorship funds work. It does not buy a roadmap position, a feature nobody needs, or a claim on the website that the software cannot demonstrate.")}</p>
               </div>
             </Reveal>
           </div>
@@ -240,14 +225,8 @@ export default async function SponsorsPage({ params }: PageProps) {
               <div className="flow">
                 <div className="plate p-6 sm:p-7">
                   <p className="eyebrow">{t("Where to write")}</p>
-                  <h3 className="mt-3 text-lg font-semibold text-text-primary">
-                    One address, read by the person who writes the code.
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-muted">
-                    There is no sales team and no support queue between you and the developer. Mention
-                    &ldquo;sponsorship&rdquo; or the specific gap you are interested in, and the reply will come from{" "}
-                    {site.developerName}.
-                  </p>
+                  <h3 className="mt-3 text-lg font-semibold text-text-primary">{t("One address, read by the person who writes the code.")}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-text-muted">{t("There is no sales team and no support queue between you and the developer. Mention &ldquo;sponsorship&rdquo; or the specific gap you are interested in, and the reply will come from {v1}.", { v1: site.developerName })}</p>
                   <Link
                     href={`mailto:${site.developerEmail}?subject=ProGlass%20Automation%20—%20sponsorship`}
                     className="mt-5 inline-flex items-center gap-3 rounded-card border border-line-strong/70 bg-ink-950/60 px-4 py-3 font-mono text-sm text-text-primary transition-colors duration-200 hover:border-brand-400/50"
@@ -309,11 +288,8 @@ export default async function SponsorsPage({ params }: PageProps) {
           <Reveal>
             <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
-                <h2 className="text-2xl leading-tight sm:text-3xl">Back the build, or join it.</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
-                  Funding, a developer with spare capacity, a cutting table that can be tested against, or a translation
-                  that deserves a native speaker — all four move this product forward.
-                </p>
+                <h2 className="text-2xl leading-tight sm:text-3xl">{t("Back the build, or join it.")}</h2>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("Funding, a developer with spare capacity, a cutting table that can be tested against, or a translation that deserves a native speaker — all four move this product forward.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href={`mailto:${site.developerEmail}?subject=ProGlass%20Automation%20—%20sponsorship`} size="lg" trailing={<ArrowRight />}>

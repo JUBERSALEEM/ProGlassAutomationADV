@@ -328,9 +328,7 @@ export default async function FeaturesPage({ params }: PageProps) {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-4 font-mono text-2xs text-text-faint">
-                  Views/Production/README.md — scope lock: four Step-4 families, no triple glazing
-                </p>
+                <p className="mt-4 font-mono text-2xs text-text-faint">{t("Views/Production/README.md — scope lock: four Step-4 families, no triple glazing")}</p>
               </div>
             </Reveal>
 
@@ -356,9 +354,7 @@ export default async function FeaturesPage({ params }: PageProps) {
                     ))}
                   </tbody>
                 </table>
-                <p className="mt-4 font-mono text-2xs text-text-faint">
-                  Services/Production/ProductionDistributionEngine.cs — the plan is pure and deterministic
-                </p>
+                <p className="mt-4 font-mono text-2xs text-text-faint">{t("Services/Production/ProductionDistributionEngine.cs — the plan is pure and deterministic")}</p>
               </div>
             </Reveal>
           </div>
@@ -449,9 +445,7 @@ export default async function FeaturesPage({ params }: PageProps) {
             <div className="plate flex flex-col gap-6 p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
               <div>
                 <h2 className="text-2xl leading-tight sm:text-3xl">{t("Want the same walkthrough on your own data?")}</h2>
-                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">
-                  A demonstration uses a real job: a multi-section quotation, its cutting list and the delivery behind it.
-                </p>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-text-muted">{t("A demonstration uses a real job: a multi-section quotation, its cutting list and the delivery behind it.")}</p>
               </div>
               <div className="flex shrink-0 flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>

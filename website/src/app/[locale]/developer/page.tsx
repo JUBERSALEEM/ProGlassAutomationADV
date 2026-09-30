@@ -158,7 +158,7 @@ const faq = [
         title={
           <>
             One glass estimator,
-            <span className="text-gradient block">working alone, writing his own tools.</span>
+            <span className="text-gradient block">{t("working alone, writing his own tools.")}</span>
           </>
         }
         lead={t("ProGlass Automation has no company behind it. It was written by Juber Saleem, who estimates glass for a living and started building the software he needed because the paper version of the job kept costing him time. He is still estimating. How the application got to version 2.0.11 is written down, dated, and open to reading — and that record is a better description of its author than any biography.")}
@@ -215,12 +215,7 @@ const faq = [
               </div>
             </div>
 
-            <p className="mt-5 text-sm leading-relaxed text-text-secondary">
-              He prices glass for a living, and the software began as a way to stop retyping the same measurements.
-              There was no plan to sell it and no company formed to build it: the first version was one estimator
-              removing the parts of his own day he kept getting wrong. What made it a product is the discovery that the
-              same day is happening in glass shops everywhere.
-            </p>
+            <p className="mt-5 text-sm leading-relaxed text-text-secondary">{t("He prices glass for a living, and the software began as a way to stop retyping the same measurements. There was no plan to sell it and no company formed to build it: the first version was one estimator removing the parts of his own day he kept getting wrong. What made it a product is the discovery that the same day is happening in glass shops everywhere.")}</p>
 
             {/*
               Three things he still does himself. Each one is stated elsewhere on
@@ -358,11 +353,7 @@ const faq = [
                 title={t("The job was repetitive, and the repetition was the problem.")}
                 lead={t("Estimating glass means holding a lot of small numbers in your head at once: a size, a thickness, a build-up, a rate, a wastage allowance, a delivery charge. None of them are difficult on their own. All of them together, every day, on paper, is where mistakes come from.")}
               />
-              <p className="flow measure mt-6 text-sm leading-relaxed text-text-muted">
-                The software began as a way to stop retyping. It was not planned as a product, and there was no
-                intention to sell it. It was one estimator removing the parts of his own day he kept getting wrong —
-                and then discovering that the same day is happening in glass shops everywhere.
-              </p>
+              <p className="flow measure mt-6 text-sm leading-relaxed text-text-muted">{t("The software began as a way to stop retyping. It was not planned as a product, and there was no intention to sell it. It was one estimator removing the parts of his own day he kept getting wrong — and then discovering that the same day is happening in glass shops everywhere.")}</p>
             </div>
 
             <ol className="flow">
@@ -530,11 +521,7 @@ const faq = [
               <h2 id="dev-cta-heading" className="text-2xl leading-tight sm:text-3xl">
           {t("You talk to the person who writes it.")}
         </h2>
-              <p className="measure mt-4 text-sm leading-relaxed text-text-secondary">
-                There is no support tier between a customer and the author. Describe the job you do and where it goes
-                wrong, and the answer comes back from the person who can change the software — usually with a question
-                about how your shop actually works.
-              </p>
+              <p className="measure mt-4 text-sm leading-relaxed text-text-secondary">{t("There is no support tier between a customer and the author. Describe the job you do and where it goes wrong, and the answer comes back from the person who can change the software — usually with a question about how your shop actually works.")}</p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>
           {t("Request a Demo")}
