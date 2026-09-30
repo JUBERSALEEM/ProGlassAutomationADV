@@ -83,7 +83,7 @@ export default async function BlogPage({ params }: PageProps) {
                 className="plate group block p-6 transition-colors duration-300 hover:border-brand-400/40 sm:p-8"
               >
                 <div className="flex flex-wrap items-center gap-3">
-                  <Badge tone="accent">{lead.category}</Badge>
+                  <Badge tone="accent">{t(lead.category)}</Badge>
                   <time dateTime={lead.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                     {new Date(lead.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                   </time>
@@ -92,9 +92,9 @@ export default async function BlogPage({ params }: PageProps) {
                   </span>
                 </div>
                 <h2 className="mt-5 text-2xl leading-tight transition-colors group-hover:text-brand-200 sm:text-3xl">
-                  {lead.title}
+                  {t(lead.title)}
                 </h2>
-                <p className="lede mt-4 max-w-3xl">{lead.summary}</p>
+                <p className="lede mt-4 max-w-3xl">{t(lead.summary)}</p>
                 <span className="link-underline mt-6 text-sm">
                   Read the note <ArrowRight />
                 </span>
@@ -122,15 +122,15 @@ export default async function BlogPage({ params }: PageProps) {
                   className="surface group flex h-full flex-col p-6 transition-colors duration-300 hover:border-brand-400/40"
                 >
                   <div className="flex flex-wrap items-center gap-3">
-                    <Badge>{post.category}</Badge>
+                    <Badge>{t(post.category)}</Badge>
                     <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                     </time>
                   </div>
                   <h3 className="mt-4 text-lg font-semibold text-text-primary transition-colors group-hover:text-brand-200">
-                    {post.title}
+                    {t(post.title)}
                   </h3>
-                  <p className="mt-3 flex-1 text-sm leading-relaxed text-text-muted">{post.summary}</p>
+                  <p className="mt-3 flex-1 text-sm leading-relaxed text-text-muted">{t(post.summary)}</p>
                   <div className="mt-5 flex items-center justify-between border-t border-line/60 pt-4">
                     <span className="link-underline text-xs">
                       Read the note <ArrowRight />

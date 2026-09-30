@@ -864,7 +864,7 @@ export function SpecificationSurface({
               </span>
             )}
             <div>
-              <p className="text-[0.8125rem] font-semibold text-text-primary">{block.name}</p>
+              <p className="text-[0.8125rem] font-semibold text-text-primary">{t(block.name)}</p>
               <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
                 Specification {block.number}
                 {block.primary ? " · from the inquiry BOQ" : " · added in this preview"}
@@ -920,7 +920,7 @@ export function SpecificationSurface({
                     : "border-line-strong/60 bg-ink-900/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
                 )}
               >
-                {entry.label}
+                {t(entry.label)}
               </button>
             ))}
             {unsupportedBuilds.map((name) => (
@@ -1209,7 +1209,7 @@ export function SpecificationSurface({
       <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-line/60 bg-ink-950/40">
         <table className="w-full min-w-[52rem] border-collapse text-left">
           <caption className="sr-only">
-            Specification {block.number}, {block.name}: one row per glass line, priced at the specification&apos;s rate, or at the
+            Specification {block.number}, {t(block.name)}: one row per glass line, priced at the specification&apos;s rate, or at the
             surcharge rate once a panel reaches {SURCHARGE_THRESHOLD_SQM} square metres.
           </caption>
           <thead className="sticky top-0 z-10 bg-ink-900/95 backdrop-blur">
@@ -1423,7 +1423,7 @@ export function SpecificationSurface({
               style={{ width: `${Math.min(100, (phase.step / 4) * 100)}%` }}
             />
           </div>
-          <p className="mt-1.5 text-[0.75rem] font-medium text-text-secondary">{phase.label}…</p>
+          <p className="mt-1.5 text-[0.75rem] font-medium text-text-secondary">{t(phase.label)}…</p>
           <p className="text-[0.6875rem] leading-snug text-text-muted font-medium">
             {t("Please wait — cutting sheets… You can keep editing, but do not close this invoice until the bar reaches 100%.")}
           </p>
@@ -1475,7 +1475,7 @@ export function SpecificationSurface({
               {t("Optimization result · summary")}
             </p>
             <p className="font-mono text-[0.6875rem] text-text-faint">
-              {spec.sheet.label} · {spec.sheet.w} × {spec.sheet.h} mm · kerf {optimizerLimits.kerf} mm
+              {t(spec.sheet.label)} · {spec.sheet.w} × {spec.sheet.h} mm · kerf {optimizerLimits.kerf} mm
             </p>
           </div>
           <div className="mt-2 grid gap-2 sm:grid-cols-3 lg:grid-cols-5">
@@ -1558,7 +1558,7 @@ export function SpecificationSurface({
                 >
                   <td className="px-2 py-1.5">
                     <span className="font-mono text-[0.75rem] text-text-secondary">{entry.number}</span>
-                    <span className="ml-2 text-[0.75rem] text-text-muted">{entry.name}</span>
+                    <span className="ml-2 text-[0.75rem] text-text-muted">{t(entry.name)}</span>
                     <span className="ml-2 font-mono text-[0.6875rem] text-text-faint">{entry.glassType}</span>
                   </td>
                   <td className="px-2 py-1.5 text-right font-mono text-[0.75rem] text-text-secondary tabular-nums">{own.qty}</td>

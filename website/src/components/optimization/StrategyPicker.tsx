@@ -98,8 +98,8 @@ export function StrategyPicker() {
           aria-labelledby={`stage-tab-${familyIndex}`}
           className="mt-5 rounded-card border border-line/60 bg-ink-950/50 p-4"
         >
-          <p className="text-sm font-semibold text-text-primary">{family.name}</p>
-          <p className="mt-2 text-sm leading-relaxed text-text-muted">{family.detail}</p>
+          <p className="text-sm font-semibold text-text-primary">{t(family.name)}</p>
+          <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(family.detail)}</p>
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium">
@@ -131,16 +131,16 @@ export function StrategyPicker() {
                     : "border-line-strong/70 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
                 )}
               >
-                {item.name}
+                {t(item.name)}
               </button>
             );
           })}
         </div>
 
         <div aria-live="polite" className="mt-5 rounded-card border border-line/60 bg-ink-950/50 p-4">
-          <p className="text-sm font-semibold text-text-primary">{pattern.name}</p>
-          <p className="mt-1 font-mono text-2xs uppercase tracking-[0.12em] text-brand-300">{pattern.tagline}</p>
-          <p className="mt-2 text-sm leading-relaxed text-text-muted">{pattern.detail}</p>
+          <p className="text-sm font-semibold text-text-primary">{t(pattern.name)}</p>
+          <p className="mt-1 font-mono text-2xs uppercase tracking-[0.12em] text-brand-300">{t(pattern.tagline)}</p>
+          <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(pattern.detail)}</p>
         </div>
 
         <p className="mt-4 text-xs leading-relaxed text-text-faint font-medium">

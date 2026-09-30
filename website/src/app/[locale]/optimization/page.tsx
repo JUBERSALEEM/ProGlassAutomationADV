@@ -116,8 +116,8 @@ export default async function OptimizationPage({ params }: PageProps) {
                   },
                 ].map((item) => (
                   <div key={item.title} className="surface p-5">
-                    <p className="text-sm font-semibold text-text-primary">{item.title}</p>
-                    <p className="mt-1.5 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                    <p className="text-sm font-semibold text-text-primary">{t(item.title)}</p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                   </div>
                 ))}
               </div>
@@ -225,8 +225,8 @@ export default async function OptimizationPage({ params }: PageProps) {
             {cutComplexities.map((item, index) => (
               <Reveal key={`${item.name}-${index}`} delay={index * 50} className="surface flex flex-col p-5">
                 <IndexChip className="h-7 w-7 text-[0.75rem]">{String(index + 1).padStart(2, "0")}</IndexChip>
-                <p className="mt-4 text-sm font-semibold text-text-primary">{item.name}</p>
-                <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.detail}</p>
+                <p className="mt-4 text-sm font-semibold text-text-primary">{t(item.name)}</p>
+                <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.detail)}</p>
               </Reveal>
             ))}
           </div>
@@ -259,8 +259,8 @@ export default async function OptimizationPage({ params }: PageProps) {
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             {verificationOracles.map((oracle, index) => (
               <Reveal key={`${oracle.name}-${index}`} delay={index * 70} className="surface-raised p-6">
-                <p className="eyebrow">{oracle.evidence}</p>
-                <h3 className="mt-3 text-base font-semibold text-text-primary">{oracle.name} check</h3>
+                <p className="eyebrow">{t(oracle.evidence)}</p>
+                <h3 className="mt-3 text-base font-semibold text-text-primary">{t(oracle.name)} check</h3>
                 <p className="mt-2 text-sm leading-relaxed text-text-muted">{oracle.checks}</p>
               </Reveal>
             ))}
@@ -274,7 +274,7 @@ export default async function OptimizationPage({ params }: PageProps) {
                   {optimizationResultFields.map((field) => (
                     <div key={field.key} className="flex flex-col gap-1 py-3 sm:flex-row sm:gap-4">
                       <dt className="w-44 shrink-0 text-sm font-medium text-text-secondary">{field.key}</dt>
-                      <dd className="text-sm leading-relaxed text-text-muted">{field.detail}</dd>
+                      <dd className="text-sm leading-relaxed text-text-muted">{t(field.detail)}</dd>
                     </div>
                   ))}
                 </dl>
@@ -325,12 +325,12 @@ export default async function OptimizationPage({ params }: PageProps) {
             {optimizerTabs.map((tab, index) => (
               <Reveal key={tab.id} id={tab.id} delay={index * 45} className="surface p-5">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="font-mono text-sm font-semibold text-brand-300">{tab.label}</p>
+                  <p className="font-mono text-sm font-semibold text-brand-300">{t(tab.label)}</p>
                   <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">
                     {String(index + 1).padStart(2, "0")}
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{tab.summary}</p>
+                <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(tab.summary)}</p>
                 <ul className="mt-4 space-y-2 border-t border-line/60 pt-4">
                   {tab.bullets.map((bullet) => (
                     <li key={bullet} className="flex gap-2.5 text-xs leading-relaxed text-text-faint font-medium">
@@ -365,8 +365,8 @@ export default async function OptimizationPage({ params }: PageProps) {
                   { title: t("4 · Stock plates allocation"), detail: t("Which rack rows were consumed, and what is left.") },
                 ].map((item) => (
                   <div key={item.title} className="surface p-5">
-                    <p className="text-sm font-semibold text-text-primary">{item.title}</p>
-                    <p className="mt-1.5 text-xs leading-relaxed text-text-muted">{item.detail}</p>
+                    <p className="text-sm font-semibold text-text-primary">{t(item.title)}</p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-text-muted">{t(item.detail)}</p>
                   </div>
                 ))}
               </div>
@@ -497,8 +497,8 @@ function EnginePipeline() {
               {String(index + 1).padStart(2, "0")}
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-text-primary">{stage.step}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-text-muted">{stage.detail}</p>
+              <p className="text-sm font-medium text-text-primary">{t(stage.step)}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-text-muted">{t(stage.detail)}</p>
             </div>
           </li>
         ))}

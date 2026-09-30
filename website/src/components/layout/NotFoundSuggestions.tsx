@@ -118,8 +118,8 @@ export function NotFoundSuggestions() {
                   className="card card-interactive flex items-center justify-between gap-3 px-4 py-3 text-sm text-text-primary"
                 >
                   <span className="min-w-0">
-                    <span className="block truncate font-medium">{entry.label}</span>
-                    <span className="mono-label mt-1 block">{entry.note}</span>
+                    <span className="block truncate font-medium">{t(entry.label)}</span>
+                    <span className="mono-label mt-1 block">{t(entry.note)}</span>
                   </span>
                   <ArrowRight />
                 </Link>

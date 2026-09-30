@@ -100,8 +100,8 @@ export default async function AboutPage({ params }: PageProps) {
                   <div key={`${item.title}-${index}`} className="flex gap-4">
                     <IndexChip>{String(index + 1).padStart(2, "0")}</IndexChip>
                     <div className="surface flex-1 p-5">
-                      <p className="text-sm font-semibold text-text-primary">{item.title}</p>
-                      <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                      <p className="text-sm font-semibold text-text-primary">{t(item.title)}</p>
+                      <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                     </div>
                   </div>
                 ))}
@@ -139,8 +139,8 @@ export default async function AboutPage({ params }: PageProps) {
             ].map((pillar, index) => (
               <Reveal key={`${pillar.title}-${index}`} delay={index * 70} className="surface-raised p-6">
                 <p className="eyebrow mb-3">{String(index + 1).padStart(2, "0")}</p>
-                <h3 className="text-lg font-semibold text-text-primary">{pillar.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{pillar.body}</p>
+                <h3 className="text-lg font-semibold text-text-primary">{t(pillar.title)}</h3>
+                <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(pillar.body)}</p>
               </Reveal>
             ))}
           </div>
@@ -241,8 +241,8 @@ export default async function AboutPage({ params }: PageProps) {
               },
             ].map((item, index) => (
               <Reveal key={`${item.title}-${index}`} delay={index * 50} className="surface p-5">
-                <h3 className="text-sm font-semibold text-text-primary">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                <h3 className="text-sm font-semibold text-text-primary">{t(item.title)}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
               </Reveal>
             ))}
           </div>
@@ -277,8 +277,8 @@ export default async function AboutPage({ params }: PageProps) {
                   <li key={item.title} className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-4">
                     <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-400" />
                     <div>
-                      <p className="text-sm font-semibold text-text-secondary">{item.title}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                      <p className="text-sm font-semibold text-text-secondary">{t(item.title)}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                     </div>
                   </li>
                 ))}

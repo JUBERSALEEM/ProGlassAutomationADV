@@ -30,7 +30,7 @@ export function SheetPlanStrip() {
           Sample job · {cutList.length} references · {planTotals.pieces} pieces
         </p>
         <p className="mono-label">
-          {planSheet.label} mm plate · trim {planMargins.left} mm · kerf {planMargins.kerf} mm
+          {t(planSheet.label)} mm plate · trim {planMargins.left} mm · kerf {planMargins.kerf} mm
         </p>
       </div>
 

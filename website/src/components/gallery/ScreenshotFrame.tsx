@@ -64,7 +64,7 @@ export function ScreenshotFrame({
                window allows and still whole. */
             <Image
               src={shot.src}
-              alt={shot.assetNote ?? shot.title}
+              alt={t(shot.assetNote ?? shot.title)}
               width={shot.width}
               height={shot.height}
               sizes="(max-width: 1024px) 100vw, 1760px"
@@ -73,7 +73,7 @@ export function ScreenshotFrame({
           ) : (
           <Image
             src={shot.src}
-            alt={shot.assetNote ?? shot.title}
+            alt={t(shot.assetNote ?? shot.title)}
             fill
             // The gallery grid is `sm:grid-cols-2 xl:grid-cols-3`, so the
             // half-width guess has to hold until 1280px, not until 1024px.
@@ -84,14 +84,14 @@ export function ScreenshotFrame({
           )}
         </div>
         <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3">
-          <p className="text-sm font-medium text-text-primary">{shot.title}</p>
+          <p className="text-sm font-medium text-text-primary">{t(shot.title)}</p>
           <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">
-            {shot.assetNote ??
-              shot.caption}
+            {t(shot.assetNote ??
+              shot.caption)}
           </p>
           <p className="mono-label mt-2">
             {shot.source === "capture" ? "Screen capture" : "Illustration shipped inside the application"} ·{" "}
-            {shot.evidence}
+            {t(shot.evidence)}
           </p>
         </figcaption>
       </figure>
@@ -103,7 +103,7 @@ export function ScreenshotFrame({
   return (
     <AppFrame
       t={t}
-      title={shot.title}
+      title={t(shot.title)}
       railActive={railLabelFor(shot.moduleKey)}
       className={className}
       /* Opened large, the preview is given a taller body than it needs inline. */
@@ -113,7 +113,7 @@ export function ScreenshotFrame({
           <span className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
             {t("Interactive preview")}
           </span>{" "}
-          — this is a working reconstruction of the {shot.title} screen, not a screen capture. {shot.caption}
+          — this is a working reconstruction of the {t(shot.title)} screen, not a screen capture. {t(shot.caption)}
         </>
       }
     >

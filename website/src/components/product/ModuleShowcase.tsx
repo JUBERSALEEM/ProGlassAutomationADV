@@ -37,12 +37,12 @@ export function ModuleShowcase({
                   <IndexChip>{module.number}</IndexChip>
                   <div>
                     <p className="eyebrow">{module.railGroup}</p>
-                    <h3 className="text-xl font-semibold text-text-primary sm:text-2xl">{module.name}</h3>
+                    <h3 className="text-xl font-semibold text-text-primary sm:text-2xl">{t(module.name)}</h3>
                   </div>
                 </div>
 
-                <p className="mt-5 text-base leading-relaxed text-text-secondary">{module.summary}</p>
-                <p className="mt-3 text-sm leading-relaxed text-text-muted">{module.detail}</p>
+                <p className="mt-5 text-base leading-relaxed text-text-secondary">{t(module.summary)}</p>
+                <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(module.detail)}</p>
 
                 <ul className="mt-6 space-y-2.5">
                   {module.capabilities.map((item) => (
@@ -57,7 +57,7 @@ export function ModuleShowcase({
                   <ButtonLink href={module.href} variant="secondary" size="sm" trailing={<ArrowRight />}>
                     {t("View module")}
                   </ButtonLink>
-                  <span className="mono-label">{module.evidence}</span>
+                  <span className="mono-label">{t(module.evidence)}</span>
                 </div>
               </div>
 
@@ -67,18 +67,18 @@ export function ModuleShowcase({
                     <div className="relative aspect-[3/2] w-full">
                       <Image
                         src={module.illustration.src}
-                        alt={module.illustration.alt}
+                        alt={t(module.illustration.alt)}
                         fill
                         sizes="(max-width: 1024px) 100vw, 560px"
                         className="object-cover"
                       />
                     </div>
                     <figcaption className="border-t border-line/60 bg-ink-950/60 px-4 py-3 text-xs leading-relaxed text-text-faint font-medium">
-                      {module.illustration.alt} — shipped inside the application, declared in ProGlassAutomation.csproj.
+                      {t(module.illustration.alt)} — shipped inside the application, declared in ProGlassAutomation.csproj.
                     </figcaption>
                   </figure>
                 ) : (
-                  <ModulePanel module={module} />
+                  <ModulePanel t={t} module={module} />
                 )}
               </div>
             </div>
@@ -97,7 +97,14 @@ export function ModuleShowcase({
  * can sort, filter and step through. Where the module has real content to
  * compute — the optimizer, the production queues — it computes it.
  */
-function ModulePanel({ module }: { module: ProductModule }) {
+function ModulePanel({
+  t,
+  module,
+}: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
+  module: ProductModule
+}) {
   return (
     <div className="plate p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -125,7 +132,7 @@ function ModulePanel({ module }: { module: ProductModule }) {
         <Link href={module.href} className="link-underline text-xs">
           Read the full module <ArrowRight />
         </Link>
-        <span className="mono-label">{module.evidence}</span>
+        <span className="mono-label">{t(module.evidence)}</span>
       </div>
     </div>
   );

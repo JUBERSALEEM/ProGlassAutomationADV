@@ -136,7 +136,7 @@ export default async function PricingPage({ params }: PageProps) {
                 ) : null}
 
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-lg font-semibold text-text-primary">{edition.name}</h3>
+                  <h3 className="text-lg font-semibold text-text-primary">{t(edition.name)}</h3>
                   <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                     Tier {edition.order}
                   </span>
@@ -165,7 +165,7 @@ export default async function PricingPage({ params }: PageProps) {
                   className="mt-6"
                   trailing={<ArrowRight />}
                 >
-                  Ask about {edition.name}
+                  Ask about {t(edition.name)}
                 </ButtonLink>
               </Reveal>
             ))}
@@ -261,8 +261,8 @@ export default async function PricingPage({ params }: PageProps) {
               { title: t("Network"), detail: t("Not required to run. Needed only for updates and any cloud AI provider you choose to configure.") },
             ].map((item, index) => (
               <Reveal key={`${item.title}-${index}`} delay={index * 50} className="surface p-5">
-                <p className="text-sm font-semibold text-text-primary">{item.title}</p>
-                <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.detail}</p>
+                <p className="text-sm font-semibold text-text-primary">{t(item.title)}</p>
+                <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.detail)}</p>
               </Reveal>
             ))}
           </div>

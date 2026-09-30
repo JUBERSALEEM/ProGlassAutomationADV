@@ -102,7 +102,7 @@ export function ThemeStudio() {
         </span>
         <span>Theme &amp; colour</span>
         <span className="sr-only">
-          — open the theme studio. Current: {activeMode.label} mode, {activeFamily.label} palette.
+          — open the theme studio. Current: {t(activeMode.label)} mode, {t(activeFamily.label)} palette.
         </span>
       </button>
 
@@ -143,7 +143,7 @@ export function ThemeStudio() {
                     type="button"
                     aria-pressed={active}
                     onClick={() => setThemeMode(entry.id)}
-                    title={entry.hint}
+                    title={t(entry.hint)}
                     className={cn(
                       "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.75rem] font-bold transition-colors",
                       active
@@ -161,9 +161,9 @@ export function ThemeStudio() {
                         entry.id === "system" && "border-line-strong bg-gradient-to-r from-white to-[#120D2E] text-black",
                       )}
                     >
-                      {entry.label}
+                      {t(entry.label)}
                     </span>
-                    {entry.label}
+                    {t(entry.label)}
                   </button>
                 );
               })}
@@ -197,7 +197,7 @@ export function ThemeStudio() {
                       className="h-4 w-4 shrink-0 rounded-full ring-2 ring-white/20"
                       style={{ background: entry.swatch }}
                     />
-                    {entry.label}
+                    {t(entry.label)}
                   </button>
                 );
               })}
@@ -227,7 +227,7 @@ export function ThemeStudio() {
               {studioAccents.map((entry) => (
                 <PlateButton
                   key={entry.key}
-                  label={entry.name}
+                  label={t(entry.name)}
                   colour={entry.hex ?? "#0369A1"}
                   active={studio.accentKey === entry.key && studio.accent !== null}
                   onClick={() => setAccent(entry.key, entry.hex)}
@@ -331,7 +331,7 @@ export function ThemeStudio() {
                       key={option.id}
                       type="button"
                       aria-pressed={studio.weight === option.id}
-                      title={option.note}
+                      title={t(option.note)}
                       onClick={() => setStudio({ weight: option.id })}
                       style={{ fontWeight: option.id === "bold" ? 700 : 400 }}
                       className={cn(
@@ -341,7 +341,7 @@ export function ThemeStudio() {
                           : "border-line-strong/70 text-text-muted hover:border-brand-400/60 hover:text-text-primary",
                       )}
                     >
-                      {option.label}
+                      {t(option.label)}
                     </button>
                   ))}
                 </div>
@@ -384,7 +384,7 @@ export function ThemeStudio() {
                     key={option.id}
                     type="button"
                     aria-pressed={studio.density === option.id}
-                    title={option.note}
+                    title={t(option.note)}
                     onClick={() => setStudio({ density: option.id })}
                     className={cn(
                       "flex-1 rounded-lg border px-2 py-1.5 text-xs transition-colors",
@@ -393,7 +393,7 @@ export function ThemeStudio() {
                         : "border-line-strong/70 text-text-muted hover:border-brand-400/60 hover:text-text-primary",
                     )}
                   >
-                    {option.label}
+                    {t(option.label)}
                   </button>
                 ))}
               </div>
@@ -555,7 +555,7 @@ export function ThemeStudio() {
               {t("Reset everything")}
             </button>
             <p className="text-right font-mono text-[0.6875rem] font-semibold uppercase tracking-[0.12em] text-text-muted">
-              Saved · {activeMode.label} · {activeFamily.label}
+              Saved · {t(activeMode.label)} · {t(activeFamily.label)}
             </p>
           </div>
         </div>
@@ -679,6 +679,7 @@ function FaceGrid({
   current: string;
   columns: string;
 }) {
+  const t = useT();
   return (
     <div className="mt-3">
       <p className="mono-label">{caption}</p>
@@ -704,7 +705,7 @@ function FaceGrid({
                 className={cn("block text-xs font-bold leading-tight", active ? "text-text-primary" : "text-text-secondary")}
                 style={{ fontFamily: face.stack }}
               >
-                {face.name}
+                {t(face.name)}
               </span>
               <span className="mt-0.5 block text-xs font-semibold leading-tight text-text-muted" style={{ fontFamily: face.stack }}>
                 Aa Bb 0123

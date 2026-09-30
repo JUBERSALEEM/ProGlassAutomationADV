@@ -173,8 +173,8 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 <div className="surface p-5">
                   <p className="mono-label">{t("The job in one paragraph")}</p>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">
-                    {seedParties.customer.name} asked for clear tempered, tinted and Low-E glass for the podium facade
-                    of {seedParties.project.name} in {seedParties.project.site}. The enquiry arrived with an indicative
+                    {t(seedParties.customer.name)} asked for clear tempered, tinted and Low-E glass for the podium facade
+                    of {t(seedParties.project.name)} in {seedParties.project.site}. The enquiry arrived with an indicative
                     value of AED {aed(seedParties.inquiryValue)}; by the time it was priced it had become{" "}
                     {quotationTotals.lines} lines and {quotationTotals.pieces} pieces. Batch 1 of 2 has left the
                     factory, and the invoice has been raised on what actually went out.
@@ -208,18 +208,18 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                     <span className="font-mono text-2xs uppercase tracking-[0.18em] text-brand-300">
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    <Badge tone={document.key === "tax-invoice" ? "accent" : "neutral"}>{document.status}</Badge>
+                    <Badge tone={document.key === "tax-invoice" ? "accent" : "neutral"}>{t(document.status)}</Badge>
                   </div>
 
-                  <h3 className="mt-3 text-base font-semibold text-text-primary">{document.title}</h3>
+                  <h3 className="mt-3 text-base font-semibold text-text-primary">{t(document.title)}</h3>
                   <p className="mt-1 font-mono text-xs text-text-faint">{document.example}</p>
 
-                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{document.summary}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(document.summary)}</p>
 
                   <p className="mt-auto border-t border-line/60 pt-4 text-xs leading-relaxed text-text-faint font-medium">
                     {document.handoff}
                   </p>
-                  <p className="mt-3 font-mono text-[0.75rem] leading-relaxed text-text-faint">{document.evidence}</p>
+                  <p className="mt-3 font-mono text-[0.75rem] leading-relaxed text-text-faint">{t(document.evidence)}</p>
                 </article>
               </Reveal>
             ))}
@@ -268,7 +268,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                 key={group.number}
                 className="rounded-full border border-line-strong/70 px-3.5 py-1.5 text-xs font-medium text-text-muted"
               >
-                Group {group.number}: {group.name}
+                Group {group.number}: {t(group.name)}
                 <span className="ml-1.5 font-mono text-[0.75rem] text-text-faint">
                   {group.lines} lines · {group.pieces} pcs
                 </span>
@@ -291,7 +291,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                         `Dg.Specification`.
                       */}
                       <p className="mono-label">Specification {group.number}</p>
-                      <h3 className="mt-1.5 text-base font-semibold text-text-primary">{group.name}</h3>
+                      <h3 className="mt-1.5 text-base font-semibold text-text-primary">{t(group.name)}</h3>
                       {/*
                         The block's own fields, under the application's names:
                         Dg.GlassType, Dg.Specification and Dg.Base sit above the
@@ -330,7 +330,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[62rem] border-collapse text-sm">
                       <caption className="sr-only">
-                        Group {group.number}, {group.name}: every quotation line with its size, area, rate and value.
+                        Group {group.number}, {t(group.name)}: every quotation line with its size, area, rate and value.
                       </caption>
                       <thead>
                         <tr className="border-b border-line/60 text-left">
@@ -607,7 +607,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                           <tr key={group.number} className="border-b border-line/40 last:border-0">
                             <td className="px-4 py-3 text-text-secondary">
                               <span className="font-mono text-xs text-text-faint">{group.number}</span>{" "}
-                              {group.name}
+                              {t(group.name)}
                             </td>
                             <td className="px-4 py-3 text-right text-text-secondary tabular-nums">{group.pieces}</td>
                             <td className="px-4 py-3 text-right text-text-primary tabular-nums">{delivered}</td>
@@ -729,7 +729,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   <tbody>
                     {seedSheets.map((sheet) => (
                       <tr key={`${sheet.category}-${sheet.thicknessMm}-${sheet.colour}`} className="border-b border-line/40 last:border-0">
-                        <td className="px-4 py-2.5 text-text-secondary">{sheet.category}</td>
+                        <td className="px-4 py-2.5 text-text-secondary">{t(sheet.category)}</td>
                         <td className="px-4 py-2.5 font-mono text-xs text-text-muted">{sheet.thicknessMm} mm</td>
                         <td className="px-4 py-2.5 text-text-muted">{sheet.colour}</td>
                         <td className="px-4 py-2.5 font-mono text-xs text-text-faint">
@@ -783,7 +783,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                         const low = available < item.reorderLevel;
                         return (
                           <tr key={item.partNumber} className="border-b border-line/40 last:border-0">
-                            <td className="px-4 py-2.5 text-text-secondary">{item.name}</td>
+                            <td className="px-4 py-2.5 text-text-secondary">{t(item.name)}</td>
                             <td className="px-4 py-2.5 font-mono text-xs text-text-faint">{item.partNumber}</td>
                             <td className="px-4 py-2.5 text-text-muted">{item.specification}</td>
                             <td className="px-4 py-2.5 text-text-muted">{item.supplier}</td>
@@ -813,7 +813,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                   <p className="eyebrow">{t("One item is already low")}</p>
                   {reorderAlerts.map((item) => (
                     <p key={item.partNumber} className="mt-3 text-sm leading-relaxed text-text-muted">
-                      <span className="font-mono text-text-secondary">{item.partNumber}</span> — {item.name},{" "}
+                      <span className="font-mono text-text-secondary">{item.partNumber}</span> — {t(item.name)},{" "}
                       {item.specification}: {item.stock - item.used} {item.uom.toLowerCase()}
                       {item.stock - item.used === 1 ? "" : "s"} available against a reorder level of{" "}
                       {item.reorderLevel}. The store reports it without anyone having to go and count.
@@ -860,12 +860,12 @@ export default async function WorkedExamplePage({ params }: PageProps) {
               <Reveal key={rule.id}>
                 <div className="plate h-full p-6 sm:p-7">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="eyebrow">{rule.label}</p>
+                    <p className="eyebrow">{t(rule.label)}</p>
                     <p className="font-mono text-sm font-semibold text-brand-200">{rule.value}</p>
                   </div>
                   <h3 className="mt-3 text-xl font-semibold text-text-primary">{rule.headline}</h3>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{rule.body}</p>
-                  <p className="mt-4 font-mono text-2xs text-text-faint">{rule.evidence}</p>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t(rule.body)}</p>
+                  <p className="mt-4 font-mono text-2xs text-text-faint">{t(rule.evidence)}</p>
                 </div>
               </Reveal>
             ))}
@@ -904,8 +904,8 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                     return (
                       <tr key={light.id} className="border-b border-line/40 last:border-0">
                         <td className="px-4 py-3">
-                          <span className="font-medium text-text-secondary">{priced.name}</span>
-                          <span className="mt-0.5 block text-xs text-text-muted">{priced.note}</span>
+                          <span className="font-medium text-text-secondary">{t(priced.name)}</span>
+                          <span className="mt-0.5 block text-xs text-text-muted">{t(priced.note)}</span>
                         </td>
                         <td className="px-4 py-3 font-mono text-xs text-text-secondary">{priced.ref}</td>
                         <td className="px-4 py-3 text-right font-mono text-xs text-text-secondary tabular-nums">
@@ -987,7 +987,7 @@ export default async function WorkedExamplePage({ params }: PageProps) {
                       return (
                         <tr key={sheet.key} className="border-b border-line/40 last:border-0">
                           <td className="px-4 py-2.5">
-                            <span className="font-medium text-text-secondary">{sheet.label}</span>
+                            <span className="font-medium text-text-secondary">{t(sheet.label)}</span>
                             <span className="mt-0.5 block font-mono text-xs text-text-faint">
                               {sheet.sheetMm} · {sheet.supplier}
                             </span>
@@ -1050,8 +1050,8 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             ].map((item, index) => (
               <Reveal key={item.title} delay={Math.min(index, 5) * 45}>
                 <article className="surface h-full p-5">
-                  <h3 className="text-sm font-semibold text-text-primary">{item.title}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                  <h3 className="text-sm font-semibold text-text-primary">{t(item.title)}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                 </article>
               </Reveal>
             ))}

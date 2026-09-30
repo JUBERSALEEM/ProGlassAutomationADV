@@ -59,7 +59,7 @@ export function LegalPage({
                     <span className="mr-2 font-mono text-2xs tabular-nums text-text-faint font-medium">
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    {section.heading}
+                    {t(section.heading)}
                   </a>
                 </li>
               ))}
@@ -72,7 +72,7 @@ export function LegalPage({
                     <span className="font-mono text-sm text-brand-300">
                       {String(index + 1).padStart(2, "0")}
                     </span>
-                    {section.heading}
+                    {t(section.heading)}
                   </h2>
                   <div className="flow mt-4">
                     {section.paragraphs.map((paragraph) => (

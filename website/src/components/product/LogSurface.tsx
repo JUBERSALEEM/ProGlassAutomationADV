@@ -109,7 +109,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
       */}
       <div className="flex flex-wrap items-end justify-between gap-3 rounded-xl border border-line/60 bg-ink-900/50 px-3 py-2.5">
         <div>
-          <p className="text-[0.8125rem] font-semibold text-text-primary">{logSurfaceStrings.title}</p>
+          <p className="text-[0.8125rem] font-semibold text-text-primary">{t(logSurfaceStrings.title)}</p>
           <p className="mt-0.5 text-[0.6875rem] text-text-faint font-medium">
             {source.length} {logSurfaceStrings.entries.toLowerCase()} · {logSurfaceStrings.retention}
           </p>
@@ -164,7 +164,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
                 title={`${entry.meaning} ${entry.brush}`}
                 dot={entry.colour}
               >
-                {entry.label}
+                {t(entry.label)}
               </FilterPill>
             ))}
           </>
@@ -234,10 +234,10 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
                   <th
                     key={column.key}
                     scope="col"
-                    title={column.note}
+                    title={t(column.note)}
                     className="whitespace-nowrap px-2.5 py-2 font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium"
                   >
-                    {column.label}
+                    {t(column.label)}
                   </th>
                 ))}
               </tr>
@@ -294,7 +294,7 @@ export function LogSurface({ compact = false }: { compact?: boolean }) {
         <p className="text-[0.6875rem] leading-relaxed text-text-faint font-medium">
           The log and the audit trail are two services, not one: `AppLogService` writes diagnostics — what the application did —
           and `AuditService` writes business events — who changed which record, with the before and after of every field. The
-          seeded workflow is {seededDocuments.inquiry} → {seededDocuments.proforma} → {seededDocuments.job} →{" "}
+          seeded workflow is {seededDocuments.inquiry} → {seededDocuments.proforma} → {t(seededDocuments.job)} →{" "}
           {seededDocuments.delivery} → {seededDocuments.invoice} for {seededDocuments.customer}, and those are the identifiers in
           the rows above.
         </p>

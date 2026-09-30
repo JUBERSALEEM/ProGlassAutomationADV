@@ -180,12 +180,12 @@ export default async function FeaturesPage({ params }: PageProps) {
               <Reveal key={rule.id} delay={index * 60}>
                 <div className="plate h-full p-6">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <p className="eyebrow">{rule.label}</p>
+                    <p className="eyebrow">{t(rule.label)}</p>
                     <p className="font-mono text-sm font-semibold text-brand-200">{rule.value}</p>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold text-text-primary">{rule.headline}</h3>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{rule.body}</p>
-                  <p className="mt-4 font-mono text-2xs text-text-faint">{rule.evidence}</p>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t(rule.body)}</p>
+                  <p className="mt-4 font-mono text-2xs text-text-faint">{t(rule.evidence)}</p>
                 </div>
               </Reveal>
             ))}
@@ -253,10 +253,10 @@ export default async function FeaturesPage({ params }: PageProps) {
             {logFacts.map((fact, index) => (
               <Reveal key={fact.id} delay={index * 60}>
                 <div className="plate h-full p-6">
-                  <p className="eyebrow">{fact.label}</p>
+                  <p className="eyebrow">{t(fact.label)}</p>
                   <h3 className="mt-3 text-lg font-semibold text-text-primary">{fact.headline}</h3>
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{fact.body}</p>
-                  <p className="mt-4 font-mono text-2xs text-text-faint">{fact.evidence}</p>
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-text-muted">{t(fact.body)}</p>
+                  <p className="mt-4 font-mono text-2xs text-text-faint">{t(fact.evidence)}</p>
                 </div>
               </Reveal>
             ))}
@@ -389,20 +389,20 @@ export default async function FeaturesPage({ params }: PageProps) {
           <div className="mt-10 grid gap-6 lg:grid-cols-2">
             {featureGroups.map((group, index) => (
               <Reveal key={group.id} id={group.id} delay={index * 60} className="surface-raised p-6 sm:p-7">
-                <h3 className="text-lg font-semibold text-text-primary">{group.title}</h3>
+                <h3 className="text-lg font-semibold text-text-primary">{t(group.title)}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-text-muted">{group.lead}</p>
                 <ul className="mt-5 space-y-3.5 border-t border-line/60 pt-5">
                   {group.items.map((item) => (
                     <li key={item.title} className="flex gap-3">
                       <span aria-hidden="true" className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400/80" />
                       <div>
-                        <p className="text-sm font-medium text-text-secondary">{item.title}</p>
-                        <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{item.detail}</p>
+                        <p className="text-sm font-medium text-text-secondary">{t(item.title)}</p>
+                        <p className="mt-0.5 text-sm leading-relaxed text-text-muted">{t(item.detail)}</p>
                       </div>
                     </li>
                   ))}
                 </ul>
-                <p className="mono-label mt-5 border-t border-line/60 pt-4">{group.evidence}</p>
+                <p className="mono-label mt-5 border-t border-line/60 pt-4">{t(group.evidence)}</p>
               </Reveal>
             ))}
           </div>

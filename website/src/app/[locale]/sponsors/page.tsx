@@ -166,8 +166,8 @@ export default async function SponsorsPage({ params }: PageProps) {
                     <Badge tone={SHAPE_TONE[need.shape]}>{need.shape}</Badge>
                   </div>
 
-                  <h3 className="mt-4 text-base font-semibold text-text-primary">{need.title}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{need.status}</p>
+                  <h3 className="mt-4 text-base font-semibold text-text-primary">{t(need.title)}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(need.status)}</p>
 
                   <div className="mt-4 rounded-card border border-line/60 bg-ink-950/40 p-4">
                     <p className="mono-label">{t("What would change")}</p>
@@ -177,7 +177,7 @@ export default async function SponsorsPage({ params }: PageProps) {
                   {need.evidence ? (
                     <p className="mono-label mt-auto pt-5">
                       <span className="sr-only">In the source tree: </span>
-                      {need.evidence}
+                      {t(need.evidence)}
                     </p>
                   ) : null}
                 </article>
@@ -226,10 +226,10 @@ export default async function SponsorsPage({ params }: PageProps) {
                     key={item.step}
                     className="flex gap-4 rounded-card border border-line/60 bg-ink-900/50 p-4"
                   >
-                    <span className="font-mono text-2xs text-brand-300">{item.step}</span>
+                    <span className="font-mono text-2xs text-brand-300">{t(item.step)}</span>
                     <div>
-                      <p className="text-sm font-semibold text-text-secondary">{item.title}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                      <p className="text-sm font-semibold text-text-secondary">{t(item.title)}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                     </div>
                   </li>
                 ))}

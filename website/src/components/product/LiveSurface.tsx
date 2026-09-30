@@ -47,6 +47,7 @@ export function LiveSurface({
   className?: string;
   compact?: boolean;
 }) {
+  const t = useT();
   const demo = useMemo(() => demoFor(moduleKey, name, capabilities), [moduleKey, name, capabilities]);
   const [viewIndex, setViewIndex] = useState(0);
 
@@ -75,7 +76,7 @@ export function LiveSurface({
                       : "text-text-muted hover:bg-ink-800/70 hover:text-text-primary",
                   )}
                 >
-                  {entry.label}
+                  {t(entry.label)}
                 </button>
               );
             })}
@@ -219,7 +220,7 @@ function TableEngine({
                       sortKey === column.key && "text-brand-300",
                     )}
                   >
-                    {column.label}
+                    {t(column.label)}
                     <span aria-hidden="true" className="text-[0.625rem]">
                       {sortKey === column.key ? (ascending ? "▲" : "▼") : "⇅"}
                     </span>
@@ -283,7 +284,7 @@ function TableEngine({
               {view.summary.map((item) => (
                 <div key={item.label} className="flex items-baseline gap-1.5">
                   <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">
-                    {item.label}
+                    {t(item.label)}
                   </dt>
                   <dd
                     className={cn(
@@ -400,7 +401,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
           >
             {sheetSizes.map((entry, index) => (
               <option key={`${entry.label}-${index}`} value={index}>
-                {entry.label}
+                {t(entry.label)}
               </option>
             ))}
           </select>
@@ -472,7 +473,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
             { label: t("Scrap"), value: `${scrap.toFixed(2)} m²`, bad: true },
           ].map((item) => (
             <div key={item.label} className="stat-tile px-2.5 py-2">
-              <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{item.label}</dt>
+              <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(item.label)}</dt>
               <dd
                 className={cn(
                   "mt-0.5 font-mono text-sm font-semibold tabular-nums",
@@ -489,7 +490,7 @@ function OptimizerEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
       ) : null}
 
       <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">
-        {demo.blurb} Arranged here with a shelf packer over the sample cut list, so the figures are genuinely
+        {t(demo.blurb)} Arranged here with a shelf packer over the sample cut list, so the figures are genuinely
         calculated — change the sheet or the quantity and read them again.
       </p>
     </div>
@@ -621,7 +622,7 @@ function QueueEngine({ demo, compact }: { demo: Demo; compact?: boolean }) {
 
       {!compact ? (
         <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">
-          {demo.blurb} A job becomes dispatch-ready when the full quantity has finished the chain — press Advance to
+          {t(demo.blurb)} A job becomes dispatch-ready when the full quantity has finished the chain — press Advance to
           walk one through.
         </p>
       ) : null}
@@ -708,7 +709,7 @@ function WizardEngine({
                       : "border-line-strong/60 bg-ink-800/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
                   )}
                 >
-                  {entry.label}
+                  {t(entry.label)}
                 </button>
               );
             })}
@@ -765,7 +766,7 @@ function WizardEngine({
         )}
       </div>
 
-      {!compact ? <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p> : null}
+      {!compact ? <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{t(demo.footnote ?? demo.blurb)}</p> : null}
     </div>
   );
 }
@@ -913,7 +914,7 @@ function DashboardEngine({
                   : "border-line-strong/50 bg-ink-900/60 text-text-muted hover:border-brand-400/40 hover:text-text-primary",
               )}
             >
-              {entry.label}
+              {t(entry.label)}
             </button>
           ))}
         </div>
@@ -927,7 +928,7 @@ function DashboardEngine({
       */}
       {view ? (
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 rounded-xl border border-line/60 bg-ink-900/40 px-3 py-2">
-          <p className="text-[0.8125rem] font-semibold text-text-primary">{view.label}</p>
+          <p className="text-[0.8125rem] font-semibold text-text-primary">{t(view.label)}</p>
           <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-muted font-medium">
             {TAB_SUBTITLES[view.label] ?? "Module dashboard"}
           </p>
@@ -937,7 +938,7 @@ function DashboardEngine({
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {summary.map((item, index) => (
           <div key={`${item.label}-${index}`} className="stat-tile p-2.5">
-            <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{item.label}</dt>
+            <dt className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(item.label)}</dt>
             <dd className="mt-1 text-[0.8125rem] font-semibold leading-snug text-text-primary">{item.value}</dd>
           </div>
         ))}
@@ -999,6 +1000,7 @@ function DashboardEngine({
  * ════════════════════════════════════════════════════════════════════════ */
 
 function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; view: DemoView | undefined }) {
+  const t = useT();
   return (
     <div className="flex h-full flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -1012,7 +1014,7 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
             key={item.label}
             className="flex flex-wrap items-baseline justify-between gap-2 border-b border-line/40 pb-1.5 last:border-0"
           >
-            <dt className="text-[0.75rem] font-medium text-text-secondary">{item.label}</dt>
+            <dt className="text-[0.75rem] font-medium text-text-secondary">{t(item.label)}</dt>
             <dd className="font-mono text-[0.75rem] text-text-muted">{item.value}</dd>
           </div>
         ))}
@@ -1040,7 +1042,7 @@ function FormEngine({ moduleKey, demo, view }: { moduleKey: string; demo: Demo; 
 
       {moduleKey === "Settings" ? <AppearanceDeck /> : null}
 
-      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{demo.footnote ?? demo.blurb}</p>
+      <p className="text-[0.75rem] leading-relaxed text-text-faint font-medium">{t(demo.footnote ?? demo.blurb)}</p>
     </div>
   );
 }
@@ -1068,7 +1070,7 @@ function AppearanceDeck() {
       </p>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {families.map((entry) => (
-          <FamilyButton key={entry.id} id={entry.id} label={entry.label} />
+          <FamilyButton key={entry.id} id={entry.id} label={t(entry.label)} />
         ))}
       </div>
     </div>

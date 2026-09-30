@@ -65,7 +65,7 @@ export function ModuleBrowser() {
               active={group === entry.group}
               onClick={() => setGroup(entry.group)}
               count={entry.count}
-              title={entry.note}
+              title={t(entry.note)}
             >
               {entry.group}
             </FilterChip>
@@ -145,6 +145,7 @@ export function ModuleBrowser() {
 }
 
 function ModuleCard({ module }: { module: ProductModule }) {
+  const t = useT();
   return (
     <article className="surface card-interactive flex h-full flex-col p-5">
       <div className="flex items-start justify-between gap-3">
@@ -152,8 +153,8 @@ function ModuleCard({ module }: { module: ProductModule }) {
         <Badge tone="neutral">{module.railGroup}</Badge>
       </div>
 
-      <h4 className="mt-3 text-base font-semibold text-text-primary">{module.name}</h4>
-      <p className="mt-2 text-sm leading-relaxed text-text-muted">{module.summary}</p>
+      <h4 className="mt-3 text-base font-semibold text-text-primary">{t(module.name)}</h4>
+      <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(module.summary)}</p>
 
       <ul className="mt-4 space-y-1.5">
         {module.capabilities.slice(0, 3).map((item) => (

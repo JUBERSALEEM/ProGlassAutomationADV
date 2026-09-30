@@ -8,6 +8,7 @@ import { navIcons } from "@/data/navIcons";
 import { site } from "@/lib/site";
 import { ArrowRight, ButtonLink } from "@/components/ui/Button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { LanguageMenu, LanguageMenuBlock } from "@/components/layout/LanguageMenu";
 import { Logo } from "@/components/brand/Logo";
 import { useT } from "@/i18n/provider";
 
@@ -180,7 +181,7 @@ export function Navbar() {
                   className={cn(NAV_CARD, active ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   <NavGlyph path={navIcons[entry.label]} />
-                  {entry.label}
+                  {t(entry.label)}
                 </Link>
               );
             }
@@ -204,7 +205,7 @@ export function Navbar() {
                   className={cn(NAV_CARD, active || open ? NAV_CARD_ON : NAV_CARD_OFF)}
                 >
                   <NavGlyph path={navIcons[entry.label]} />
-                  {entry.label}
+                  {t(entry.label)}
                   <svg
                     aria-hidden="true"
                     viewBox="0 0 12 12"
@@ -231,7 +232,7 @@ export function Navbar() {
                    */
                   <div className="absolute left-1/2 top-full w-[22rem] -translate-x-1/2 pt-3">
                     <div className="menu-card animate-scale-in rounded-panel p-2 shadow-raised">
-                      <p className="mono-label px-2.5 pb-2 pt-1">{entry.label}</p>
+                      <p className="mono-label px-2.5 pb-2 pt-1">{t(entry.label)}</p>
                       <ul className="space-y-1.5">
                         {entry.children.map((child, index) => (
                           <li key={child.href}>
@@ -247,12 +248,12 @@ export function Navbar() {
                               </span>
                               <span className="min-w-0 flex-1">
                                 <span className="flex items-center gap-1.5 text-sm font-semibold text-text-primary">
-                                  {child.label}
+                                  {t(child.label)}
                                   <ArrowRight className="opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
                                 </span>
                                 {child.description ? (
                                   <span className="mt-0.5 block text-xs font-medium leading-relaxed text-text-muted">
-                                    {child.description}
+                                    {t(child.description)}
                                   </span>
                                 ) : null}
                               </span>
@@ -269,6 +270,9 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
+          {/* The language menu sits with the theme control: both are settings
+              about how the site presents itself, not navigation through it. */}
+          <LanguageMenu />
           <ThemeToggle />
           <ButtonLink href="/screenshots" variant="ghost" size="sm">
             {t("See the app")}
@@ -280,6 +284,7 @@ export function Navbar() {
 
         {/* ── Mobile trigger ─────────────────────────────────────── */}
         <div className="flex items-center gap-2 lg:hidden">
+          <LanguageMenu compact />
           <ThemeToggle />
           <button
             type="button"
@@ -314,12 +319,12 @@ export function Navbar() {
                     href={entry.href}
                     className="flex items-center justify-between border-b border-line/50 pb-2 text-base font-semibold text-text-primary"
                   >
-                    {entry.label}
+                    {t(entry.label)}
                     <ArrowRight />
                   </Link>
                 ) : (
                   <>
-                    <p className="eyebrow mb-2">{entry.label}</p>
+                    <p className="eyebrow mb-2">{t(entry.label)}</p>
                     {/* The same card treatment as the desktop menu: a sheet
                         of cards, numbered, each with its own edge. */}
                     <ul className="space-y-1.5">
@@ -336,10 +341,10 @@ export function Navbar() {
                               {String(index + 1).padStart(2, "0")}
                             </span>
                             <span className="min-w-0 flex-1">
-                              <span className="text-sm font-semibold text-text-primary">{child.label}</span>
+                              <span className="text-sm font-semibold text-text-primary">{t(child.label)}</span>
                               {child.description ? (
                                 <span className="mt-0.5 block text-xs font-medium leading-snug text-text-muted">
-                                  {child.description}
+                                  {t(child.description)}
                                 </span>
                               ) : null}
                             </span>
@@ -352,6 +357,12 @@ export function Navbar() {
               </div>
             ))}
           </nav>
+
+          {/* The full list, spelled out on its own row — a dropdown inside a
+              sheet is a second thing to open. */}
+          <div className="mt-6">
+            <LanguageMenuBlock />
+          </div>
 
           <div className="mt-7 flex flex-col gap-2.5">
             <ButtonLink href="/contact" size="lg" trailing={<ArrowRight />}>

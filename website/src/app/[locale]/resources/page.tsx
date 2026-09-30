@@ -105,13 +105,13 @@ export default async function ResourcesPage({ params }: PageProps) {
                 <header className="flex flex-wrap items-start justify-between gap-4">
                   <div className="max-w-3xl">
                     <div className="flex flex-wrap items-center gap-3">
-                      <Badge tone="accent">{guide.category}</Badge>
+                      <Badge tone="accent">{t(guide.category)}</Badge>
                       <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                         {guide.readingMinutes} min read
                       </span>
                     </div>
-                    <h3 className="mt-4 text-xl font-semibold text-text-primary sm:text-2xl">{guide.title}</h3>
-                    <p className="mt-3 text-sm leading-relaxed text-text-muted">{guide.summary}</p>
+                    <h3 className="mt-4 text-xl font-semibold text-text-primary sm:text-2xl">{t(guide.title)}</h3>
+                    <p className="mt-3 text-sm leading-relaxed text-text-muted">{t(guide.summary)}</p>
                   </div>
                 </header>
 
@@ -119,9 +119,9 @@ export default async function ResourcesPage({ params }: PageProps) {
                   {guide.sections.map((section) => (
                     <div key={section.heading}>
                       <h4 className="font-mono text-2xs uppercase tracking-[0.16em] text-brand-300">
-                        {section.heading}
+                        {t(section.heading)}
                       </h4>
-                      <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{section.body}</p>
+                      <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(section.body)}</p>
                       {section.list ? (
                         <ul className="mt-3 space-y-2">
                           {section.list.map((item) => (
@@ -164,15 +164,15 @@ export default async function ResourcesPage({ params }: PageProps) {
                   className="surface group flex h-full flex-col p-6 transition-colors duration-300 hover:border-brand-400/40"
                 >
                   <div className="flex items-center gap-3">
-                    <Badge>{post.category}</Badge>
+                    <Badge>{t(post.category)}</Badge>
                     <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                       {post.readingMinutes} min
                     </span>
                   </div>
                   <h3 className="mt-4 text-base font-semibold text-text-primary transition-colors group-hover:text-brand-200">
-                    {post.title}
+                    {t(post.title)}
                   </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-text-muted">{post.summary}</p>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-text-muted">{t(post.summary)}</p>
                   <span className="link-underline mt-4 text-xs">
                     Read the note <ArrowRight />
                   </span>

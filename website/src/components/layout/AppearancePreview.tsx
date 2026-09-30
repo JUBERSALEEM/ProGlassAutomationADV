@@ -65,7 +65,7 @@ export function AppearancePreview() {
                   : "border-line-strong/70 text-text-secondary hover:border-brand-400/60 hover:text-text-primary",
               )}
             >
-              {entry.label}
+              {t(entry.label)}
             </button>
           );
         })}
@@ -95,7 +95,7 @@ export function AppearancePreview() {
                 className="h-4 w-4 rounded-full ring-2 ring-white/20"
                 style={{ background: entry.swatch }}
               />
-              {entry.label}
+              {t(entry.label)}
             </button>
           );
         })}
@@ -115,7 +115,7 @@ export function AppearancePreview() {
         {studioAccents.map((entry) => (
           <Plate
             key={entry.key}
-            label={entry.name}
+            label={t(entry.name)}
             colour={entry.hex ?? "#0369A1"}
             active={studio.accentKey === entry.key && studio.accent !== null}
             onClick={() => setAccent(entry.key, entry.hex)}
@@ -148,7 +148,7 @@ export function AppearancePreview() {
               type="button"
               aria-pressed={active}
               onClick={() => setStudio({ edge: preset.edge })}
-              title={preset.note}
+              title={t(preset.note)}
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-card border-2 px-2 py-2.5 text-[0.75rem] font-bold transition-colors",
                 active
@@ -161,7 +161,7 @@ export function AppearancePreview() {
                 className="h-4 w-8 rounded-[0.35rem] bg-ink-900"
                 style={{ border: `${preset.edge}px solid var(--card-edge)` }}
               />
-              {preset.label}
+              {t(preset.label)}
             </button>
           );
         })}

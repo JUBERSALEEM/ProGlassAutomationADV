@@ -103,7 +103,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                       >
                         <span className="font-mono text-2xs tabular-nums text-text-faint font-medium">{stage.index}</span>
                         <span className="text-sm text-text-secondary transition-colors group-hover:text-brand-200">
-                          {stage.name}
+                          {t(stage.name)}
                         </span>
                       </a>
                     </li>
@@ -146,7 +146,7 @@ export default async function HowItWorksPage({ params }: PageProps) {
                   <div className="grid gap-px bg-line/50 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1fr)_minmax(0,1fr)]">
                     <div className="bg-ink-900/60 px-5 py-5 sm:px-6">
                       <p className="mono-label">{String(index + 1).padStart(2, "0")}</p>
-                      <h3 className="mt-2 text-base font-semibold text-text-primary">{row.step}</h3>
+                      <h3 className="mt-2 text-base font-semibold text-text-primary">{t(row.step)}</h3>
                       <Link
                         href={row.href}
                         className="link-underline mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-brand-200"
@@ -322,8 +322,8 @@ export default async function HowItWorksPage({ params }: PageProps) {
                     <IndexChip>{String(index + 1).padStart(2, "0")}</IndexChip>
                     <div>
                       <p className="mono-label">{moment.time}</p>
-                      <h3 className="mt-1 text-lg font-semibold text-text-primary">{moment.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-text-muted">{moment.body}</p>
+                      <h3 className="mt-1 text-lg font-semibold text-text-primary">{t(moment.title)}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(moment.body)}</p>
                     </div>
                   </div>
 

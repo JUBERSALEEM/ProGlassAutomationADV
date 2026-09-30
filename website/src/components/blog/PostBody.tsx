@@ -7,6 +7,7 @@ import type {
   Token,
 } from "@/lib/markdown";
 import { cn } from "@/lib/cn";
+import type { Translator } from "@/i18n/core";
 
 /**
  * Renders a post's Markdown as React elements.
@@ -117,7 +118,15 @@ function inline(tokens: (InlineToken | Token)[] | undefined, keyPrefix: string):
   });
 }
 
-function ListBlock({ token, keyPrefix }: { token: { ordered: boolean; items: ListItem[] }; keyPrefix: string }) {
+function ListBlock({
+  t,
+  token,
+  keyPrefix,
+}: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
+  token: { ordered: boolean; items: ListItem[] }; keyPrefix: string
+}) {
   const Tag = token.ordered ? "ol" : "ul";
   return (
     <Tag
@@ -153,6 +162,7 @@ function ListBlock({ token, keyPrefix }: { token: { ordered: boolean; items: Lis
             .filter((inner) => inner.type !== "paragraph")
             .map((inner, innerIndex) => (
               <PostBlock
+      t={t}
                 key={`${keyPrefix}-${index}-${innerIndex}`}
                 token={inner}
                 keyPrefix={`${keyPrefix}-${index}-${innerIndex}`}
@@ -198,7 +208,15 @@ function TableBlock({ token, keyPrefix }: { token: { header: TableCell[]; rows: 
 }
 
 /** One top-level block. Exported so the page can reveal each block in turn. */
-export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: string }) {
+export function PostBlock({
+  t,
+  token,
+  keyPrefix,
+}: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
+  token: Token; keyPrefix: string
+}) {
   switch (token.type) {
     case "heading": {
       const heading = token as { depth: number; tokens: InlineToken[] };
@@ -229,7 +247,7 @@ export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: strin
     }
 
     case "list":
-      return <ListBlock token={token as { ordered: boolean; items: ListItem[] }} keyPrefix={keyPrefix} />;
+      return <ListBlock t={t} token={token as { ordered: boolean; items: ListItem[] }} keyPrefix={keyPrefix} />;
 
     case "table":
       return <TableBlock token={token as { header: TableCell[]; rows: TableCell[][] }} keyPrefix={keyPrefix} />;
@@ -240,7 +258,8 @@ export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: strin
         <blockquote className="surface mb-6 border-l-2 border-brand-400/60 px-5 py-4">
           <div className="text-base leading-relaxed text-text-secondary">
             {quote.tokens.map((inner, index) => (
-              <PostBlock key={`${keyPrefix}-${index}`} token={inner} keyPrefix={`${keyPrefix}-${index}`} />
+              <PostBlock
+      t={t} key={`${keyPrefix}-${index}`} token={inner} keyPrefix={`${keyPrefix}-${index}`} />
             ))}
           </div>
         </blockquote>
@@ -252,7 +271,7 @@ export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: strin
       return (
         <figure className="mb-6">
           <pre className="surface overflow-x-auto p-4">
-            <code className="font-mono text-xs leading-relaxed text-text-secondary">{code.text}</code>
+            <code className="font-mono text-xs leading-relaxed text-text-secondary">{t(code.text)}</code>
           </pre>
           {code.lang ? (
             <figcaption className="mono-label mt-2">{code.lang}</figcaption>
@@ -273,11 +292,19 @@ export function PostBlock({ token, keyPrefix }: { token: Token; keyPrefix: strin
 }
 
 /** The whole body, for callers that do not need per-block wrapping. */
-export function PostBody({ tokens }: { tokens: Token[] }) {
+export function PostBody({
+  t,
+  tokens,
+}: {
+  /** The page's translator — this component renders on the server. */
+  t: Translator;
+  tokens: Token[]
+}) {
   return (
     <>
       {tokens.map((token, index) => (
-        <PostBlock key={`block-${index}`} token={token} keyPrefix={`block-${index}`} />
+        <PostBlock
+      t={t} key={`block-${index}`} token={token} keyPrefix={`block-${index}`} />
       ))}
     </>
   );

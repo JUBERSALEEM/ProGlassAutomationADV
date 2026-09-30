@@ -140,7 +140,7 @@ export function ScreenshotGallery({ initialCategory = "all" }: { initialCategory
                 }}
                 className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-card border border-line-strong/80 bg-ink-800 px-3 py-2 text-xs font-semibold text-text-primary transition-colors duration-200 hover:border-brand-400/60 hover:bg-ink-700"
               >
-                <span className="sr-only">{shot.title} — </span>
+                <span className="sr-only">{t(shot.title)} — </span>
                 {t("Open a larger view")}
                 <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M6 3h7v7M13 3 7.5 8.5M11 9.5V13H3V5h3.5" />
@@ -278,7 +278,7 @@ function Lightbox({
       <span aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-ink-950/95 backdrop-blur-md" />
       <div className="flex items-center justify-between gap-4 border-b border-line/60 px-4 py-3 sm:px-6">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-text-primary">{shot.title}</p>
+          <p className="truncate text-sm font-semibold text-text-primary">{t(shot.title)}</p>
           <p className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
             {String(position + 1).padStart(2, "0")} / {String(total).padStart(2, "0")} · {shot.moduleKey}
           </p>
@@ -366,7 +366,7 @@ function Lightbox({
           <div className="space-y-5">
             <div>
               <p className="eyebrow">What this screen does</p>
-              <p className="mt-3 text-sm leading-relaxed text-text-secondary">{shot.caption}</p>
+              <p className="mt-3 text-sm leading-relaxed text-text-secondary">{t(shot.caption)}</p>
             </div>
 
             <div>
@@ -391,7 +391,7 @@ function Lightbox({
             </div>
             <div className="flex gap-3">
               <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Source</dt>
-              <dd className="text-text-secondary">{shot.evidence}</dd>
+              <dd className="text-text-secondary">{t(shot.evidence)}</dd>
             </div>
             <div className="flex gap-3">
               <dt className="w-20 shrink-0 font-mono uppercase tracking-[0.12em] text-text-faint">Status</dt>

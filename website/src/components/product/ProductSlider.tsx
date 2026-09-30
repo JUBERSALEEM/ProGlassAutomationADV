@@ -105,8 +105,8 @@ export function ProductSlider({
           >
             <div className={cn("overflow-hidden rounded-panel", aspectClass)}>{slide.content}</div>
             <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <p className="text-sm font-medium text-text-primary">{slide.label}</p>
-              {slide.caption ? <p className="text-xs text-text-faint font-medium">{slide.caption}</p> : null}
+              <p className="text-sm font-medium text-text-primary">{t(slide.label)}</p>
+              {slide.caption ? <p className="text-xs text-text-faint font-medium">{t(slide.caption)}</p> : null}
             </div>
           </div>
         ))}
@@ -130,7 +130,7 @@ export function ProductSlider({
                 type="button"
                 role="tab"
                 aria-selected={slideIndex === index}
-                aria-label={slide.label}
+                aria-label={t(slide.label)}
                 onClick={() => goTo(slideIndex)}
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-300",

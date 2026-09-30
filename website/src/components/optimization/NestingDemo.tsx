@@ -202,7 +202,7 @@ export function NestingDemo() {
                   className="fill-text-primary"
                   style={{ fontSize: 62, fontWeight: 600 }}
                 >
-                  {piece.label}
+                  {t(piece.label)}
                 </text>
                 <text
                   x={piece.x + piece.width / 2}

@@ -234,9 +234,9 @@ const faq = [
                 { label: t("On support"), value: t("The only tier"), note: t("Questions arrive at his inbox.") },
               ].map((item) => (
                 <div key={item.label} className="stat-tile p-3.5">
-                  <dt className="mono-label">{item.label}</dt>
+                  <dt className="mono-label">{t(item.label)}</dt>
                   <dd className="mt-1.5 text-base font-semibold text-text-primary">{item.value}</dd>
-                  <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{item.note}</dd>
+                  <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{t(item.note)}</dd>
                 </div>
               ))}
             </dl>
@@ -261,9 +261,9 @@ const faq = [
               { label: t("Formal training"), value: t("None in software"), hint: "An estimator's background instead." },
             ].map((item) => (
               <div key={item.label} className="stat-tile p-3.5">
-                <dt className="mono-label">{item.label}</dt>
+                <dt className="mono-label">{t(item.label)}</dt>
                 <dd className="mt-1.5 text-base font-semibold text-text-primary">{item.value}</dd>
-                <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{item.hint}</dd>
+                <dd className="mt-1 text-[0.75rem] leading-relaxed text-text-muted">{t(item.hint)}</dd>
               </div>
             ))}
           </dl>
@@ -313,8 +313,8 @@ const faq = [
                           {entry.date}
                         </span>
                       </div>
-                      <h3 className="mt-2 text-lg font-semibold leading-snug text-text-primary">{entry.title}</h3>
-                      <p className="mt-2.5 text-sm leading-relaxed text-text-secondary">{entry.body}</p>
+                      <h3 className="mt-2 text-lg font-semibold leading-snug text-text-primary">{t(entry.title)}</h3>
+                      <p className="mt-2.5 text-sm leading-relaxed text-text-secondary">{t(entry.body)}</p>
                       <p className="mt-3.5 border-t border-line/60 pt-3 font-mono text-[0.6875rem] leading-relaxed text-text-faint">
                         {entry.source}
                       </p>
@@ -337,8 +337,8 @@ const faq = [
                 <Reveal key={item.title} delay={index * 50}>
                   <article className="surface h-full p-5">
                     <IndexChip>{item.index}</IndexChip>
-                    <h3 className="mt-3 text-base font-semibold text-text-primary">{item.title}</h3>
-                    <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                    <h3 className="mt-3 text-base font-semibold text-text-primary">{t(item.title)}</h3>
+                    <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                   </article>
                 </Reveal>
               ))}
@@ -371,8 +371,8 @@ const faq = [
                   <li className="card-live flex gap-4 p-5">
                     <IndexChip>{item.index}</IndexChip>
                     <div className="min-w-0">
-                      <h3 className="text-base font-semibold text-text-primary">{item.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                      <h3 className="text-base font-semibold text-text-primary">{t(item.title)}</h3>
+                      <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                     </div>
                   </li>
                 </Reveal>
@@ -397,8 +397,8 @@ const faq = [
               <Reveal key={`${item.title}-${index}`} delay={index * 50}>
                 <article className="card-live card-interactive flex h-full flex-col p-5">
                   <span className="font-mono text-2xs text-brand-300">{item.index}</span>
-                  <h3 className="mt-2 text-base font-semibold text-text-primary">{item.title}</h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                  <h3 className="mt-2 text-base font-semibold text-text-primary">{t(item.title)}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                 </article>
               </Reveal>
             ))}
@@ -422,9 +422,9 @@ const faq = [
                 <article className="surface h-full p-6">
                   <div className="flex items-center gap-3">
                     <IndexChip>{item.index}</IndexChip>
-                    <h3 className="text-base font-semibold text-text-primary">{item.title}</h3>
+                    <h3 className="text-base font-semibold text-text-primary">{t(item.title)}</h3>
                   </div>
-                  <p className="mt-4 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                  <p className="mt-4 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
                 </article>
               </Reveal>
             ))}
@@ -499,8 +499,8 @@ const faq = [
             <ul className="grid gap-3 sm:grid-cols-2">
               {gaps.map((gap) => (
                 <li key={gap.title} className="card-accent p-4">
-                  <h3 className="text-sm font-semibold text-text-primary">{gap.title}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-text-secondary">{gap.body}</p>
+                  <h3 className="text-sm font-semibold text-text-primary">{t(gap.title)}</h3>
+                  <p className="mt-2 text-xs leading-relaxed text-text-secondary">{t(gap.body)}</p>
                 </li>
               ))}
             </ul>

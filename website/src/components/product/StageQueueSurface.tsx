@@ -106,7 +106,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
                   {index + 1}
                 </span>
                 <span className={cn("whitespace-nowrap text-[0.75rem] font-medium", entry.id === current ? "text-brand-100" : "text-text-muted")}>
-                  {entry.label}
+                  {t(entry.label)}
                 </span>
               </span>
               <span className="mt-0.5 flex items-center gap-1.5 font-mono text-[0.625rem] tabular-nums">
@@ -127,7 +127,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
           <button
             key={candidate.job}
             type="button"
-            title={candidate.note}
+            title={t(candidate.note)}
             onClick={() => {
               setReleased(candidate.releasable ? candidate.job : null);
               setRefusal(candidate.releasable ? null : candidate.status === "Void" ? floorMessages.refusedVoid : floorMessages.refusedDraft);
@@ -141,7 +141,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
                   : "border-line/40 bg-ink-900/50 text-text-faint hover:border-danger/40 hover:text-danger",
             )}
           >
-            {candidate.job} · {candidate.status}
+            {t(candidate.job)} · {t(candidate.status)}
           </button>
         ))}
       </div>
@@ -168,7 +168,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
           { label: kpiLabels.readyForDispatch, value: readyCount, tone: readyCount > 0 ? "text-emerald-300" : "text-text-faint" },
         ].map((tile) => (
           <div key={tile.label} className="rounded-lg border border-line/50 bg-ink-900/50 px-2 py-1.5">
-            <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{tile.label}</p>
+            <p className="font-mono text-3xs uppercase tracking-[0.08em] text-text-faint font-medium">{t(tile.label)}</p>
             <p className={cn("text-[0.9375rem] font-semibold tabular-nums", tile.tone || "text-text-primary")}>{tile.value}</p>
           </div>
         ))}
@@ -234,7 +234,7 @@ export function StageQueueSurface({ stage, compact = false }: { stage: StageChai
                   className={cn("border-b border-line/30 last:border-0", waitingRow ? "opacity-55" : "hover:bg-ink-800/40")}
                 >
                   <td className="px-2 py-1 font-mono text-[0.6875rem] text-text-faint">{row.st}</td>
-                  <td className="whitespace-nowrap px-2 py-1 font-mono text-[0.6875rem] text-text-muted">{row.job}</td>
+                  <td className="whitespace-nowrap px-2 py-1 font-mono text-[0.6875rem] text-text-muted">{t(row.job)}</td>
                   {current === "Cutting" || current === "Polish" || current === "Mitring" ? (
                     <>
                       {current === "Cutting" ? (

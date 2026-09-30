@@ -87,7 +87,7 @@ export default async function HomePage({ params }: PageProps) {
                 )}
               >
                 <span className="text-base font-bold text-text-primary">{fact.value}</span>
-                <span className="text-xs font-medium leading-relaxed text-text-muted">{fact.label}</span>
+                <span className="text-xs font-medium leading-relaxed text-text-muted">{t(fact.label)}</span>
               </li>
             ))}
           </ul>
@@ -136,8 +136,8 @@ export default async function HomePage({ params }: PageProps) {
               ].map((card, index) => (
                 <div key={`${card.title}-${index}`} className="surface p-5">
                   <p className="eyebrow mb-2">{String(index + 1).padStart(2, "0")}</p>
-                  <h3 className="text-base font-semibold text-text-primary">{card.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-text-muted">{card.body}</p>
+                  <h3 className="text-base font-semibold text-text-primary">{t(card.title)}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(card.body)}</p>
                 </div>
               ))}
             </Reveal>
@@ -203,8 +203,8 @@ export default async function HomePage({ params }: PageProps) {
             ].map((fact) => (
               <div key={fact.label} className="stat-tile p-5">
                 <p className="font-mono text-3xl font-bold text-text-primary">{fact.value}</p>
-                <p className="mt-2 text-sm font-bold text-text-primary">{fact.label}</p>
-                <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">{fact.hint}</p>
+                <p className="mt-2 text-sm font-bold text-text-primary">{t(fact.label)}</p>
+                <p className="mt-1.5 text-xs font-medium leading-relaxed text-text-muted">{t(fact.hint)}</p>
               </div>
             ))}
           </div>
@@ -240,14 +240,14 @@ export default async function HomePage({ params }: PageProps) {
                     ) : null}
                     <span className="rounded-full border border-line-strong/70 px-3 py-1.5 font-mono text-[0.75rem] text-text-secondary">
                       {document.example}
-                      <span className="ml-1.5 text-text-faint">{document.status}</span>
+                      <span className="ml-1.5 text-text-faint">{t(document.status)}</span>
                     </span>
                   </li>
                 ))}
               </ol>
 
               <p className="mt-6 text-sm leading-relaxed text-text-muted">
-                {seedParties.customer.name} · {seedParties.project.name} · contract {seedParties.project.contract}. The
+                {t(seedParties.customer.name)} · {t(seedParties.project.name)} · contract {seedParties.project.contract}. The
                 quotation is priced in three specification groups and the delivery is deliberately partial, so the
                 balance workflow is visible rather than described.
               </p>
@@ -327,7 +327,7 @@ export default async function HomePage({ params }: PageProps) {
             ].map((item) => (
               <div key={item.key} className="surface p-5">
                 <p className="font-mono text-sm font-semibold text-brand-300">{item.key}</p>
-                <p className="mt-2 text-sm leading-relaxed text-text-muted">{item.body}</p>
+                <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(item.body)}</p>
               </div>
             ))}
           </Reveal>
@@ -461,8 +461,8 @@ export default async function HomePage({ params }: PageProps) {
             ].map((item) => (
               <div key={item.label} className="surface-raised p-5">
                 <p className="font-mono text-xl font-semibold text-brand-300">{item.value}</p>
-                <p className="mt-2 text-sm font-medium text-text-secondary">{item.label}</p>
-                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{item.hint}</p>
+                <p className="mt-2 text-sm font-medium text-text-secondary">{t(item.label)}</p>
+                <p className="mt-1 text-xs leading-relaxed text-text-faint font-medium">{t(item.hint)}</p>
               </div>
             ))}
           </Reveal>
@@ -558,7 +558,7 @@ export default async function HomePage({ params }: PageProps) {
                       key={item.label}
                       className="flex items-baseline justify-between gap-4 rounded-card border border-line/60 bg-ink-950/40 px-4 py-3"
                     >
-                      <span className="text-xs uppercase tracking-[0.14em] text-text-faint font-medium">{item.label}</span>
+                      <span className="text-xs uppercase tracking-[0.14em] text-text-faint font-medium">{t(item.label)}</span>
                       <span className="text-sm font-medium text-text-secondary">{item.value}</span>
                     </li>
                   ))}
@@ -584,19 +584,19 @@ export default async function HomePage({ params }: PageProps) {
               .filter((group) => ["platform", "money", "documents"].includes(group.id))
               .map((group, index) => (
                 <Reveal key={group.id} delay={index * 70} className="surface-raised flex flex-col p-6">
-                  <h3 className="text-lg font-semibold text-text-primary">{group.title}</h3>
+                  <h3 className="text-lg font-semibold text-text-primary">{t(group.title)}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-text-muted">{group.lead}</p>
                   <ul className="mt-5 space-y-3 border-t border-line/60 pt-5">
                     {group.items.slice(0, 4).map((item) => (
                       <li key={item.title}>
-                        <p className="text-sm font-medium text-text-secondary">{item.title}</p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-text-faint font-medium">{item.detail}</p>
+                        <p className="text-sm font-medium text-text-secondary">{t(item.title)}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed text-text-faint font-medium">{t(item.detail)}</p>
                       </li>
                     ))}
                   </ul>
                   <p className="mono-label mt-5 pt-4">
                     <span className="sr-only">Evidence in the source tree: </span>
-                    {group.evidence}
+                    {t(group.evidence)}
                   </p>
                 </Reveal>
               ))}
@@ -648,7 +648,7 @@ export default async function HomePage({ params }: PageProps) {
                 <div className="relative aspect-[16/7] w-full">
                   <Image
                     src={glass3d.dguLam.src}
-                    alt={glass3d.dguLam.alt}
+                    alt={t(glass3d.dguLam.alt)}
                     fill
                     sizes="(max-width: 1024px) 100vw, 640px"
                     className="object-cover"

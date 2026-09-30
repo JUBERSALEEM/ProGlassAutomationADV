@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useT } from "@/i18n/provider";
 import { cn } from "@/lib/cn";
 
 /**
@@ -18,6 +19,7 @@ export function Accordion({
   defaultOpen?: number;
   className?: string;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(defaultOpen);
   const baseId = useId();
 
@@ -38,7 +40,7 @@ export function Accordion({
                 onClick={() => setOpen(expanded ? -1 : index)}
                 className="flex w-full items-start justify-between gap-4 px-5 py-4 text-left transition-colors duration-200 hover:bg-ink-850/50 sm:px-6 sm:py-5"
               >
-                <span className="text-sm font-medium text-text-primary sm:text-base">{item.question}</span>
+                <span className="text-sm font-medium text-text-primary sm:text-base">{t(item.question)}</span>
                 <span
                   aria-hidden="true"
                   className={cn(
@@ -63,7 +65,7 @@ export function Accordion({
               )}
             >
               <div className="overflow-hidden">
-                <p className="px-5 pb-5 text-sm leading-relaxed text-text-muted sm:px-6 sm:pb-6">{item.answer}</p>
+                <p className="px-5 pb-5 text-sm leading-relaxed text-text-muted sm:px-6 sm:pb-6">{t(item.answer)}</p>
               </div>
             </div>
           </div>

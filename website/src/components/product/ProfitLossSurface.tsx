@@ -245,7 +245,7 @@ export function ProfitLossSurface({
       {/* ── 1 · OVERVIEW ──────────────────────────────────────────────── */}
       {tab === "1 · OVERVIEW" ? (
         <div className="min-h-0 flex-1 overflow-y-auto pr-0.5">
-          <p className="text-[0.8125rem] font-semibold text-text-primary">{pnl.question}</p>
+          <p className="text-[0.8125rem] font-semibold text-text-primary">{t(pnl.question)}</p>
           <p className="mt-0.5 text-[0.75rem] text-text-muted font-medium">
             {totals.area.toFixed(2)} m² billable · {blocks.reduce((sum, block) => sum + block.rows.length, 0)} rows ·{" "}
             {blocks.length} specification{blocks.length === 1 ? "" : "s"} · base paid by the customer, VAT on top at the invoice
@@ -425,7 +425,7 @@ export function ProfitLossSurface({
                 const total = perSqm ? money(totals.area * service.rate) : null;
                 return (
                   <tr key={service.key} className={cn("border-b border-line/40 last:border-0 hover:bg-ink-800/40", service.dguOnly && !hasDgu ? "opacity-55" : "")}>
-                    <td className="px-2.5 py-1.5 text-[0.75rem] text-text-secondary">{service.label}</td>
+                    <td className="px-2.5 py-1.5 text-[0.75rem] text-text-secondary">{t(service.label)}</td>
                     <td className="px-2.5 py-1.5 font-mono text-[0.6875rem] text-text-faint">
                       {service.basis}
                       {service.dguOnly && !hasDgu ? " · SGU" : ""}
@@ -519,7 +519,7 @@ export function ProfitLossSurface({
                 <MoneyRow label={t("Stock area")} value={`${sheets.result.stockAreaSqm.toFixed(2)} m²`} note={`kerf ${optimizerLimits.kerf} mm · margins ${optimizerLimits.marginLeft}/${optimizerLimits.marginRight}/${optimizerLimits.marginTop}/${optimizerLimits.marginBottom} mm`} />
               </div>
               <p className="mt-2 text-[0.6875rem] leading-snug text-text-faint font-medium">
-                Sheets planned against {pnl.sheet.label}. The other sizes the optimizer offers are{" "}
+                Sheets planned against {t(pnl.sheet.label)}. The other sizes the optimizer offers are{" "}
                 {sheetSizes.filter((size) => size.label !== pnl.sheet.label).map((size) => size.label).join(", ")}.
               </p>
             </>
@@ -573,7 +573,7 @@ export function ProfitLossSurface({
                       <span className="font-mono text-[0.75rem] text-text-secondary">
                         {spec.number} · {spec.glassType}
                       </span>
-                      <span className="ml-2 text-[0.75rem] text-text-muted">{spec.name}</span>
+                      <span className="ml-2 text-[0.75rem] text-text-muted">{t(spec.name)}</span>
                     </td>
                     <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-muted tabular-nums">{spec.area.toFixed(2)} m²</td>
                     <td className="px-2.5 py-1.5 text-right font-mono text-[0.75rem] text-text-secondary tabular-nums">{cash(spec.revenue)}</td>

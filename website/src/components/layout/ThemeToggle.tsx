@@ -124,7 +124,7 @@ export function ThemeToggle({ className }: { className?: string }) {
                   type="button"
                   aria-pressed={active}
                   onClick={() => setThemeMode(entry.id)}
-                  title={entry.hint}
+                  title={t(entry.hint)}
                   className={cn(
                     "flex flex-col items-center gap-1.5 rounded-card border px-2 py-2.5 text-[0.75rem] font-medium transition-colors duration-200",
                     active
@@ -133,7 +133,7 @@ export function ThemeToggle({ className }: { className?: string }) {
                   )}
                 >
                   <ModeIcon name={entry.icon} />
-                  {entry.label}
+                  {t(entry.label)}
                 </button>
               );
             })}
@@ -168,7 +168,7 @@ export function ThemeToggle({ className }: { className?: string }) {
                         active ? "text-text-primary" : "text-text-secondary",
                       )}
                     >
-                      {entry.label}
+                      {t(entry.label)}
                     </span>
                     <span className="mt-0.5 block text-[0.75rem] leading-snug text-text-faint">{entry.origin}</span>
                   </span>

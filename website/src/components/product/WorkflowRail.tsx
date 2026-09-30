@@ -39,11 +39,11 @@ export function WorkflowRail({
 
             <div className="min-w-0 flex-1 rounded-card border border-line/60 bg-ink-900/55 p-4 transition-colors duration-300 group-hover:border-line-strong sm:p-5">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                <h3 className="text-base font-semibold text-text-primary">{stage.name}</h3>
+                <h3 className="text-base font-semibold text-text-primary">{t(stage.name)}</h3>
                 <span className="mono-label">{stage.moduleKey}</span>
               </div>
 
-              <p className="mt-2 text-sm leading-relaxed text-text-muted">{stage.summary}</p>
+              <p className="mt-2 text-sm leading-relaxed text-text-muted">{t(stage.summary)}</p>
 
               {!compact ? (
                 <>
@@ -73,7 +73,7 @@ export function WorkflowRail({
                     ))}
                   </div>
 
-                  <p className="mono-label mt-3">{stage.evidence}</p>
+                  <p className="mono-label mt-3">{t(stage.evidence)}</p>
                   <Link
                     href={stage.href}
                     className="link-underline mt-3 text-xs"
@@ -98,11 +98,14 @@ export function WorkflowRail({
  * "How it works" as a sticky progress indicator.
  */
 export function ChainStrip({
-  activeId, className
+  t,
+  activeId,
+  className,
 }: {
   /** The page's translator — this component renders on the server. */
   t: Translator;
-  activeId?: string; className?: string
+  activeId?: string;
+  className?: string;
 }) {
   return (
     <ol className={cn("no-scrollbar flex gap-2 overflow-x-auto pb-1", className)}>
@@ -119,7 +122,7 @@ export function ChainStrip({
               )}
             >
               <span className={cn("tabular-nums", active && "text-brand-300")}>{stage.index}</span>
-              {stage.name}
+              {t(stage.name)}
             </span>
             {index < businessChain.length - 1 ? (
               <span aria-hidden="true" className="h-px w-4 bg-line-strong" />

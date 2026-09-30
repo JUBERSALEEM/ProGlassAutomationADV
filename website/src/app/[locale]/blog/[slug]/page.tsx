@@ -115,7 +115,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
             <div className="max-w-3xl">
               <div className="flex flex-wrap items-center gap-3">
-                <Badge tone="accent">{post.category}</Badge>
+                <Badge tone="accent">{t(post.category)}</Badge>
                 <time dateTime={post.date} className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                   {new Date(post.date).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
                 </time>
@@ -123,14 +123,14 @@ export default async function BlogPostPage({ params }: PageProps) {
                   {post.readingMinutes} min read
                 </span>
               </div>
-              <h1 className="mt-5 text-[1.9rem] leading-[1.12] sm:text-[2.4rem]">{post.title}</h1>
-              <p className="lede mt-5">{post.summary}</p>
+              <h1 className="mt-5 text-[1.9rem] leading-[1.12] sm:text-[2.4rem]">{t(post.title)}</h1>
+              <p className="lede mt-5">{t(post.summary)}</p>
               <p className="mt-6 text-xs text-text-faint font-medium">
                 Written by{" "}
                 <Link href="/developer" className="link-underline">
                   {site.developerName}
                 </Link>
-                , developer of {site.name}.
+                , developer of {t(site.name)}.
               </p>
             </div>
           </Container>
@@ -146,7 +146,8 @@ export default async function BlogPostPage({ params }: PageProps) {
               */}
               {tokens.map((token, index) => (
                 <Reveal key={index} delay={Math.min(index, 6) * 40} className="mb-9">
-                  <PostBlock token={token} keyPrefix={`block-${index}`} />
+                  <PostBlock
+      t={t} token={token} keyPrefix={`block-${index}`} />
                 </Reveal>
               ))}
             </div>
@@ -184,15 +185,15 @@ export default async function BlogPostPage({ params }: PageProps) {
                     className="surface group flex h-full flex-col p-6 transition-colors duration-300 hover:border-brand-400/40"
                   >
                     <div className="flex items-center gap-3">
-                      <Badge>{other.category}</Badge>
+                      <Badge>{t(other.category)}</Badge>
                       <span className="font-mono text-2xs uppercase tracking-[0.14em] text-text-faint font-medium">
                         {other.readingMinutes} min
                       </span>
                     </div>
                     <h3 className="mt-4 text-base font-semibold text-text-primary transition-colors group-hover:text-brand-200">
-                      {other.title}
+                      {t(other.title)}
                     </h3>
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-text-muted">{other.summary}</p>
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-text-muted">{t(other.summary)}</p>
                     <span className="link-underline mt-4 text-xs">
                       Read the note <ArrowRight />
                     </span>
