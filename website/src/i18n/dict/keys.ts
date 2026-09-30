@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 1830 keys.
+ * 1823 keys.
  */
 export const KEYS: string[] = [
   "{count} languages",
@@ -740,13 +740,6 @@ export const KEYS: string[] = [
   "Look at the screens",
   "Low-E — Energy Efficient Zones",
   "Low-E 6 mm clear",
-  "M2.5 7.5 8 3l5.5 4.5V13a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5z",
-  "M3 3.5h4v4H3zM9 3.5h4v4H9zM3 9.5h4v4H3zM9 9.5h4v4H9z",
-  "M3.5 12.5 12.5 3.5M6 3.5h6.5V10M4 10l4 4",
-  "M3.5 3.5h6a2 2 0 0 1 2 2v7h-8zM11.5 5.5h3v7h-3zM5 6.5h5M5 9h5",
-  "M6 4 2.5 8 6 12M10 4l3.5 4L10 12",
-  "M8 13S3 10 3 6.6A2.6 2.6 0 0 1 8 5.2 2.6 2.6 0 0 1 13 6.6C13 10 8 13 8 13z",
-  "M8 2.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11zM8 7.5v4M8 5.2v.6",
   "Machine-readable exports",
   "Main decision — target, expected margin, result",
   "Main spec check — one row per Step 5 spec",

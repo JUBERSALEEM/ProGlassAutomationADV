@@ -82,6 +82,7 @@ const NOT_TRANSLATABLE = [
   /^\(|^═══|^\.[A-Z]|\.(?:tsx?|json|cs|xaml)\b/,            // CSS, banners, filenames
   /^(?:AED|USD|EUR|GBP)\s?[\d.,]+$/,                          // money as a symbol
   /^\{[A-Za-z0-9_, ]+\}$/,                                    // bare {placeholder}
+  /^M[\d.]+[\s\d]/,                                           // SVG path data
 ];
 
 /*
