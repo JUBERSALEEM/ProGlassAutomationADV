@@ -13,6 +13,7 @@
     "lint": "eslint src scripts",
     "typecheck": "tsc --noEmit",
     "doctor": "node scripts/check-deps.mjs --report",
+    "supabase:check": "node --experimental-strip-types scripts/supabase-check.mjs",
     "fix": "node scripts/fix.mjs",
     "assets:optimize": "node scripts/optimize-assets.mjs",
     "i18n:keys": "node scripts/i18n-extract.mjs",
