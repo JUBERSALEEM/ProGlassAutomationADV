@@ -25,7 +25,7 @@ import {
 import { RouteSchema } from "@/components/seo/RouteSchema";
 import { pageMetadata } from "@/lib/metadata";
 import { translatorFor } from "@/i18n/server";
-import { useT } from "@/i18n/provider";
+import type { Translator } from "@/i18n/core";
 
 type PageProps = { params: Promise<{ locale: string }> };
 
@@ -124,7 +124,7 @@ export default async function OptimizationPage({ params }: PageProps) {
             </SectionHeading>
 
             <Reveal delay={80}>
-              <EnginePipeline />
+              <EnginePipeline t={t} />
             </Reveal>
           </div>
         </Container>
@@ -468,8 +468,7 @@ export default async function OptimizationPage({ params }: PageProps) {
   );
 }
 
-function EnginePipeline() {
-  const t = useT();
+function EnginePipeline({ t }: { t: Translator }) {
   return (
     <div className="plate sticky top-28 p-6">
       <p className="mono-label">{t("How a run is produced")}</p>

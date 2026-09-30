@@ -900,8 +900,8 @@ export function SpecificationSurface({
               {t("Step 4 · glass type and panes")}
             </p>
             <p className="text-[0.6875rem] font-medium text-text-faint">
-              {glassBuilds.find((entry) => entry.code === block.glassType)?.panes ?? ""} ·{" "}
-              {glassBuilds.find((entry) => entry.code === block.glassType)?.long ?? ""}
+              {t(glassBuilds.find((entry) => entry.code === block.glassType)?.panes ?? "")} ·{" "}
+              {t(glassBuilds.find((entry) => entry.code === block.glassType)?.long ?? "")}
             </p>
           </div>
 
@@ -912,7 +912,7 @@ export function SpecificationSurface({
                 type="button"
                 aria-pressed={block.glassType === entry.code}
                 onClick={() => selectBuild(entry.code)}
-                title={`${entry.long} — ${entry.panes}`}
+                title={t("{build} — {panes}", { build: t(entry.long), panes: t(entry.panes) })}
                 className={cn(
                   "rounded-lg border px-2.5 py-1 text-[0.75rem] font-semibold transition-colors duration-200",
                   block.glassType === entry.code

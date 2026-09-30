@@ -5,7 +5,7 @@
  * by hand. Regenerate with `npm run i18n:keys`, and check coverage with
  * `npm run i18n:audit`.
  *
- * 2538 keys.
+ * 2539 keys.
  */
 export const KEYS: string[] = [
   " — clamped",
@@ -18,6 +18,7 @@ export const KEYS: string[] = [
   "— open the theme studio. Current: {v1} mode, {v2} palette.",
   "— the border line and the corner",
   "— this is a working reconstruction of the {title} screen, not a screen capture. {caption}",
+  "{build} — {panes}",
   "{count} languages",
   "{count} languages, chosen from the menu above and remembered on this device.",
   "{shown} of {total} sheets · the rest page through on",

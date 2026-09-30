@@ -104,6 +104,14 @@ const INLINE_CLOSE = /<\/(?:b|strong|em|i|span|code|a|abbr|sup|sub|small|mark|u|
 function visibleText(html) {
   const body = html.split("</head>").at(-1) ?? html;
   const stripped = body
+    /*
+     * Next serialises client-component props into flight-data scripts, and an
+     * escaped close tag (`<\/script>`) inside that JSON stops a naive
+     * non-greedy match. Both forms are removed here, because a dictionary
+     * payload is not text on the page — counting it made the audit report
+     * sentences as untranslated that a reader had already stopped seeing.
+     */
+    .replace(/<\\\/script>/g, "</script>")
     .replace(/<script[\s\S]*?<\/script>/g, " ")
     .replace(/<style[\s\S]*?<\/style>/g, " ")
     .replace(/<svg[\s\S]*?<\/svg>/g, " ")
