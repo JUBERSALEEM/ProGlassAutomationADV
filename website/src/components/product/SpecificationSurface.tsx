@@ -962,25 +962,22 @@ export function SpecificationSurface({
               label={t("Outer thickness")}
               value={build.thickness ?? "6mm"}
               options={buildOptions.thickness}
-              onChange={(value) => editBuild({ thickness: value })}
-            />
-            <BuildSelect label={t("Outer colour")} value={build.colour ?? "Clear"} options={buildOptions.colour} onChange={(value) => editBuild({ colour: value })} />
+              onChange={(value) => editBuild({ thickness: value })} t={t} />
+            <BuildSelect label={t("Outer colour")} value={build.colour ?? "Clear"} options={buildOptions.colour} onChange={(value) => editBuild({ colour: value })} t={t} />
             <BuildSelect
               label={t("Outer treatment")}
               value={build.treatment ?? "FT"}
               options={buildOptions.treatment}
-              onChange={(value) => editBuild({ treatment: value })}
-            />
+              onChange={(value) => editBuild({ treatment: value })} t={t} />
 
             {block.glassType === "SGU" ? (
-              <BuildSelect label={t("Polish")} value={build.polish ?? "None (Standard)"} options={buildOptions.polish} onChange={(value) => editBuild({ polish: value })} />
+              <BuildSelect label={t("Polish")} value={build.polish ?? "None (Standard)"} options={buildOptions.polish} onChange={(value) => editBuild({ polish: value })} t={t} />
             ) : (
               <BuildSelect
                 label={t("Inner thickness")}
                 value={build.innerThickness ?? "6mm"}
                 options={buildOptions.thickness}
-                onChange={(value) => editBuild({ innerThickness: value })}
-              />
+                onChange={(value) => editBuild({ innerThickness: value })} t={t} />
             )}
 
             {block.glassType === "DGU" || block.glassType === "DGU+LAM" ? (
@@ -989,32 +986,27 @@ export function SpecificationSurface({
                   label={t("Inner colour")}
                   value={build.innerColour ?? "Clear"}
                   options={buildOptions.colour}
-                  onChange={(value) => editBuild({ innerColour: value })}
-                />
+                  onChange={(value) => editBuild({ innerColour: value })} t={t} />
                 <BuildSelect
                   label={t("Inner treatment")}
                   value={build.innerTreatment ?? "FT"}
                   options={buildOptions.treatment}
-                  onChange={(value) => editBuild({ innerTreatment: value })}
-                />
+                  onChange={(value) => editBuild({ innerTreatment: value })} t={t} />
                 <BuildSelect
                   label={t("Spacer width")}
                   value={build.spacerWidth ?? "12mm ASP"}
                   options={buildOptions.spacerWidth}
-                  onChange={(value) => editBuild({ spacerWidth: value })}
-                />
+                  onChange={(value) => editBuild({ spacerWidth: value })} t={t} />
                 <BuildSelect
                   label={t("Spacer material")}
                   value={build.spacerMaterial ?? "Normal Mill Aluminum"}
                   options={buildOptions.spacerMaterial}
-                  onChange={(value) => editBuild({ spacerMaterial: value })}
-                />
+                  onChange={(value) => editBuild({ spacerMaterial: value })} t={t} />
                 <BuildSelect
                   label={t("Spacer extra")}
                   value={build.spacerExtra ?? "None"}
                   options={buildOptions.spacerExtra}
-                  onChange={(value) => editBuild({ spacerExtra: value })}
-                />
+                  onChange={(value) => editBuild({ spacerExtra: value })} t={t} />
               </>
             ) : null}
 
@@ -1024,14 +1016,12 @@ export function SpecificationSurface({
                   label={block.glassType === "LAM" ? "PVB interlayer" : "Lam interlayer"}
                   value={block.glassType === "LAM" ? build.pvb ?? "1.52mm Clear PVB" : build.interlayer ?? "1.52mm Clear PVB"}
                   options={["0.38mm Clear PVB", "0.76mm Clear PVB", "1.52mm Clear PVB", "1.52mm Grey PVB", "1.52mm White PVB"]}
-                  onChange={(value) => editBuild(block.glassType === "LAM" ? { pvb: value } : { interlayer: value })}
-                />
+                  onChange={(value) => editBuild(block.glassType === "LAM" ? { pvb: value } : { interlayer: value })} t={t} />
                 <BuildSelect
                   label={t("Lamination polish")}
                   value={build.polish ?? "None (Standard)"}
                   options={buildOptions.polish}
-                  onChange={(value) => editBuild({ polish: value })}
-                />
+                  onChange={(value) => editBuild({ polish: value })} t={t} />
               </>
             ) : null}
 
@@ -1039,8 +1029,7 @@ export function SpecificationSurface({
               label={t("Panel extra")}
               value={build.panelExtra ?? "None"}
               options={buildOptions.panelExtra}
-              onChange={(value) => editBuild({ panelExtra: value })}
-            />
+              onChange={(value) => editBuild({ panelExtra: value })} t={t} />
           </div>
 
           <p className="mt-2 text-[0.6875rem] leading-snug text-text-muted font-medium">
@@ -1706,11 +1695,15 @@ function BuildSelect({
   value,
   options,
   onChange,
+  t,
 }: {
   label: string;
   value: string;
   options: readonly string[];
   onChange: (value: string) => void;
+  /** The chosen value keeps its English form — the select's value must match
+   *  the data, so only the visible text goes through the translator. */
+  t: (key: string) => string;
 }) {
   return (
     <label className="block">
@@ -1722,7 +1715,7 @@ function BuildSelect({
       >
         {options.map((option) => (
           <option key={option} value={option}>
-            {option}
+            {t(option)}
           </option>
         ))}
       </select>
