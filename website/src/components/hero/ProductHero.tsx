@@ -190,7 +190,7 @@ export function ProductHero({ t }: { t: Translator }) {
             <div className="relative aspect-[3/1] w-full">
               <Image
                 src="/images/brand/proglass-hero-banner-3840.png"
-                alt="ProGlass Automation brand banner: the application's Overview dashboard showing open inquiries, proformas raised, jobs in production and pieces ready to dispatch, beside the product mark, the proforma's profit and loss snapshot and the line 'Glass business management, built around your workflow.'"
+                alt={t("ProGlass Automation brand banner: the application's Overview dashboard showing open inquiries, proformas raised, jobs in production and pieces ready to dispatch, beside the product mark, the proforma's profit and loss snapshot and the line 'Glass business management, built around your workflow.'")}
                 fill
                 sizes="(max-width: 1920px) 100vw, 1920px"
                 quality={92}

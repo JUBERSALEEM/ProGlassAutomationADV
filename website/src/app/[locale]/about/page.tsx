@@ -181,10 +181,10 @@ export default async function AboutPage({ params }: PageProps) {
 
             <Reveal delay={80}>
               <div className="grid gap-4 sm:grid-cols-2">
-                <StatCounter value={site.moduleCount} label="View areas" hint="Each with its own views and view-models." />
-                <StatCounter value={site.databaseCount} label="Databases" hint="Bounded contexts kept separate on purpose." />
-                <StatCounter value={site.testCount} label="Test methods" hint={`[Fact] and [Theory] methods; most target workflow invariants rather than getters.`} />
-                <StatCounter value={site.locales} label="Languages" hint="Adding one needs no C# change." />
+                <StatCounter value={site.moduleCount} label="View areas" hint={t("Each with its own views and view-models.")} />
+                <StatCounter value={site.databaseCount} label="Databases" hint={t("Bounded contexts kept separate on purpose.")} />
+                <StatCounter value={site.testCount} label={t("Test methods")} hint={t("[Fact] and [Theory] methods; most target workflow invariants rather than getters.")} />
+                <StatCounter value={site.locales} label="Languages" hint={t("Adding one needs no C# change.")} />
               </div>
 
               <div className="surface mt-4 p-6">

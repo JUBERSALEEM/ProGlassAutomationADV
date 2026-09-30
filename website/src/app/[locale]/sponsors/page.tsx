@@ -97,23 +97,23 @@ export default async function SponsorsPage({ params }: PageProps) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <StatCounter
                   value={site.moduleCount}
-                  label="Navigation targets"
-                  hint="One product, from dashboard to diagnostics."
+                  label={t("Navigation targets")}
+                  hint={t("One product, from dashboard to diagnostics.")}
                 />
                 <StatCounter
                   value={site.testCount}
-                  label="Test methods"
+                  label={t("Test methods")}
                   hint={`Across ${site.testFiles} files; invariants, not getters.`}
                 />
                 <StatBadge
                   value="One"
                   label="Maintainer"
-                  hint="No team, no agency, no outsourced roadmap."
+                  hint={t("No team, no agency, no outsourced roadmap.")}
                 />
                 <StatBadge
                   value="None yet"
-                  label="Sponsors so far"
-                  hint="Stated because the site does not pad numbers."
+                  label={t("Sponsors so far")}
+                  hint={t("Stated because the site does not pad numbers.")}
                 />
               </div>
 

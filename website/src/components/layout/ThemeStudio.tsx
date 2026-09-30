@@ -456,7 +456,7 @@ export function ThemeStudio() {
                   step={0.25}
                   display={edgeReadout(studio.edge)}
                   onChange={(value) => setStudio({ edge: value })}
-                  hint="1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with."
+                  hint={t("1.5 px is the hairline the app uses for inputs and gridlines; 2 px is the card edge it ships with.")}
                 />
                 <Slider
                   label={t("Corner radius")}
@@ -466,7 +466,7 @@ export function ThemeStudio() {
                   step={0.05}
                   display={`${studio.radius.toFixed(2)}×`}
                   onChange={(value) => setStudio({ radius: value })}
-                  hint="Scales the 12 px card radius, exactly as the radius setting scales it in the application."
+                  hint={t("Scales the 12 px card radius, exactly as the radius setting scales it in the application.")}
                 />
               </div>
 

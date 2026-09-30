@@ -424,13 +424,13 @@ const faq = [
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <StatCounter
               value={site.testCount}
-              label="Test methods"
+              label={t("Test methods")}
               hint={`Across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`}
             />
-            <StatBadge value={site.pattern} label="Architecture" hint="Views never contain business logic." />
+            <StatBadge value={site.pattern} label="Architecture" hint={t("Views never contain business logic.")} />
             <StatBadge
               value={`${site.productionFiles.toLocaleString("en-GB")} files`}
-              label="Production source"
+              label={t("Production source")}
               hint={`${site.productionLines.toLocaleString("en-GB")} lines outside obj/ and bin/, counted against the application tree.`}
             />
           </div>

@@ -177,7 +177,7 @@ export function AppearancePreview() {
             step={0.25}
             display={edgeReadout(studio.edge)}
             onChange={(value) => setStudio({ edge: value })}
-            hint="1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with."
+            hint={t("1.5 px is the hairline the app uses for inputs; 2 px is the defined card edge it ships with.")}
           />
           <Slider
             label={t("Corner radius")}
@@ -187,7 +187,7 @@ export function AppearancePreview() {
             step={0.05}
             display={`${studio.radius.toFixed(2)}×`}
             onChange={(value) => setStudio({ radius: value })}
-            hint="Scales the 12 px card radius, the way the radius slider scales it in the app."
+            hint={t("Scales the 12 px card radius, the way the radius slider scales it in the app.")}
           />
         </div>
 

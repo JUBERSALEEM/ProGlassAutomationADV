@@ -1479,7 +1479,7 @@ export function SpecificationSurface({
             <ReadOutMini label={t("Sheets")} value={String(run.sheets)} note={`${run.placed} pieces placed`} />
             <ReadOutMini label={t("Utilisation")} value={`${run.utilization.toFixed(2)}%`} note={`${run.partArea.toFixed(2)} of ${run.stockArea.toFixed(2)} m²`} />
             <ReadOutMini label={t("Unplaced")} value={String(run.unplaced)} note={run.unplaced > 0 ? "No plate could hold these" : "Every piece found a plate"} />
-            <ReadOutMini label={t("Largest piece")} value={run.largest} note="the piece the plan has to fit" />
+            <ReadOutMini label={t("Largest piece")} value={run.largest} note={t("the piece the plan has to fit")} />
             <ReadOutMini
               label={t("Glass cost / m²")}
               value={cash(totals.sqm > 0 ? totals.cost / totals.sqm : 0)}

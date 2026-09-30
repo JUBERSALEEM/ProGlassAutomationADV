@@ -154,14 +154,14 @@ export default async function WorkedExamplePage({ params }: PageProps) {
             <Reveal delay={80}>
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <StatBadge value={String(quotationTotals.lines)} label="Quotation lines" hint="Across three specification groups" />
-                  <StatBadge value={String(quotationTotals.pieces)} label="Pieces of glass" hint="SGU and DGU panels" />
+                  <StatBadge value={String(quotationTotals.lines)} label={t("Quotation lines")} hint={t("Across three specification groups")} />
+                  <StatBadge value={String(quotationTotals.pieces)} label={t("Pieces of glass")} hint={t("SGU and DGU panels")} />
                   <StatBadge
                     value={`${plain(quotationTotals.squareMetres)} m²`}
-                    label="Total glazed area"
-                    hint="Sum of every line, not an estimate"
+                    label={t("Total glazed area")}
+                    hint={t("Sum of every line, not an estimate")}
                   />
-                  <StatBadge value={`AED ${aed(quotationTotals.grandTotal)}`} label="Quotation, VAT inclusive" hint="Sample rates — not a market price" />
+                  <StatBadge value={`AED ${aed(quotationTotals.grandTotal)}`} label={t("Quotation, VAT inclusive")} hint={t("Sample rates — not a market price")} />
                 </div>
 
                 <div className="surface p-5">

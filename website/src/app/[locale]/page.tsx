@@ -182,12 +182,12 @@ export default async function HomePage({ params }: PageProps) {
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCounter
               value={modules.length}
-              label="Navigation targets"
-              hint="Every address the sidebar rail can open, across nine groups."
+              label={t("Navigation targets")}
+              hint={t("Every address the sidebar rail can open, across nine groups.")}
             />
-            <StatCounter value={site.databaseCount} label="SQLite databases" hint="One DbContext per bounded context, with additive-only migrations." />
-            <StatCounter value={site.locales} label="Languages" hint="Locales are resource dictionaries — adding one needs no code change." />
-            <StatCounter value={site.testCount} label="Test methods" hint={`[Fact] and [Theory] methods across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`} />
+            <StatCounter value={site.databaseCount} label={t("SQLite databases")} hint={t("One DbContext per bounded context, with additive-only migrations.")} />
+            <StatCounter value={site.locales} label="Languages" hint={t("Locales are resource dictionaries — adding one needs no code change.")} />
+            <StatCounter value={site.testCount} label={t("Test methods")} hint={`[Fact] and [Theory] methods across ${site.testFiles} test files, plus ${site.testInlineCases.toLocaleString("en-GB")} [InlineData] cases.`} />
           </div>
 
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
@@ -259,23 +259,23 @@ export default async function HomePage({ params }: PageProps) {
               <div className="grid gap-4 sm:grid-cols-2">
                 <StatBadge
                   value={String(quotationTotals.lines)}
-                  label="Quotation lines"
-                  hint="Three specification groups, SGU and DGU."
+                  label={t("Quotation lines")}
+                  hint={t("Three specification groups, SGU and DGU.")}
                 />
                 <StatBadge
                   value={String(quotationTotals.pieces)}
-                  label="Pieces of glass"
+                  label={t("Pieces of glass")}
                   hint={`${quotationTotals.squareMetres.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m² of glass.`}
                 />
                 <StatBadge
                   value={`AED ${quotationTotals.subtotal.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                  label="Quoted before VAT"
-                  hint="Line values rounded individually, then summed."
+                  label={t("Quoted before VAT")}
+                  hint={t("Line values rounded individually, then summed.")}
                 />
                 <StatBadge
                   value={`AED ${quotationTotals.grandTotal.toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                  label="VAT inclusive"
-                  hint="5% through the application's one VAT calculator."
+                  label={t("VAT inclusive")}
+                  hint={t("5% through the application's one VAT calculator.")}
                 />
               </div>
             </Reveal>

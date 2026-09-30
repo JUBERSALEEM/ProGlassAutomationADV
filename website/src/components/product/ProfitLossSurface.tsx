@@ -376,9 +376,9 @@ export function ProfitLossSurface({
 
           <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <MoneyRow label={t("Given price (Step 5 base price)")} value={`AED ${cash(totals.basePricePerSqm)} / m²`} note={t("base rate paid by the customer, area-weighted")} />
-            <MoneyRow label={t("Cost-based profit margin")} value={fmtPct(totals.glassMarginPercent)} note="net revenue less the glass cost only" tone={totals.glassMarginPercent >= 0 ? "good" : "watch"} />
+            <MoneyRow label={t("Cost-based profit margin")} value={fmtPct(totals.glassMarginPercent)} note={t("net revenue less the glass cost only")} tone={totals.glassMarginPercent >= 0 ? "good" : "watch"} />
             <MoneyRow label={t("Given judged for the margin")} value={`AED ${cash(totals.givenPerSqm)} / m²`} note={`against a required AED ${cash(totals.requiredPerSqm)} / m²`} />
-            <MoneyRow label={t("U-insert inside given")} value="Toggle off" note="the treatment is not counted inside the given price on this specification" />
+            <MoneyRow label={t("U-insert inside given")} value="Toggle off" note={t("the treatment is not counted inside the given price on this specification")} />
           </div>
 
           <p className="mt-3 text-[0.6875rem] leading-relaxed text-text-faint font-medium">{t("Cost is the Sheet Store purchase price of each glass, over the same billable square metres Step 5 charged — the sub-0.5 m² floor included, because the offcut is bought and thrown away. Change anything on Step 5 and every figure here moves with it; the specification is the only input.")}</p>
@@ -498,8 +498,8 @@ export function ProfitLossSurface({
 
               <p className="mt-3 font-mono text-3xs uppercase tracking-[0.08em] text-brand-300 font-medium">{t("4 · Overall report — all sheets")}</p>
               <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                <MoneyRow label={t("Placed")} value={String(sheets.result.placedPieces)} note="every piece found a plate" />
-                <MoneyRow label={t("Unplaced")} value={String(sheets.result.unplaced.length)} note="no plate could hold these" tone={sheets.result.unplaced.length === 0 ? "good" : "watch"} />
+                <MoneyRow label={t("Placed")} value={String(sheets.result.placedPieces)} note={t("every piece found a plate")} />
+                <MoneyRow label={t("Unplaced")} value={String(sheets.result.unplaced.length)} note={t("no plate could hold these")} tone={sheets.result.unplaced.length === 0 ? "good" : "watch"} />
                 <MoneyRow label={t("Stock area")} value={`${sheets.result.stockAreaSqm.toFixed(2)} m²`} note={`kerf ${optimizerLimits.kerf} mm · margins ${optimizerLimits.marginLeft}/${optimizerLimits.marginRight}/${optimizerLimits.marginTop}/${optimizerLimits.marginBottom} mm`} />
               </div>
               <p className="mt-2 text-[0.6875rem] leading-snug text-text-faint font-medium">
